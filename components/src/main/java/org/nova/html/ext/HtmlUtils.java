@@ -581,6 +581,33 @@ public class HtmlUtils
         sb.append(")");
         return sb.toString();
     }
+
+    public static String json_call(String function,Object...parameters) throws Throwable
+    {
+        StringBuilder sb=new StringBuilder(function+"(");
+        boolean commaNeeded=false;
+        for (Object parameter:parameters)
+        {
+            if (commaNeeded==false)
+            {
+                commaNeeded=true;
+            }
+            else
+            {
+                sb.append(',');
+            }
+            if (parameter==null)
+            {
+                sb.append("null");
+            }
+            else 
+            {
+                sb.append(ObjectMapper.writeObjectToString(parameter));
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
     public static String toHtmlText(String text)
     {
         StringBuilder sb=new StringBuilder();

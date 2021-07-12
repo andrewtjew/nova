@@ -91,9 +91,12 @@ public class ResourceController
         }
     }
     
-    public void doNotCache(String file)
+    public void doNotCache(String...files)
     {
-        this.doNotCacheFiles.add(file);
+        for (String file:files)
+        {
+            this.doNotCacheFiles.add(file);
+        }
     }
     
     public String getHash(String file)

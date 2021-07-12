@@ -25,6 +25,7 @@ public abstract class Element
 {
     abstract public void compose(Composer composer) throws Throwable;
 
+    private QuotationMark mark=QuotationMark.DOUBLE;
     @Override
     public String toString()
     {
@@ -45,8 +46,17 @@ public abstract class Element
    }
     public String getHtml()
     {
-        return getHtml(QuotationMark.DOUBLE);
-   }
+        return getHtml(mark);
+    }
+    public void setQuotationMark(QuotationMark mark)
+    {
+        this.mark=mark;
+    }
+    public QuotationMark getQuotationMark()
+    {
+        return this.mark;
+    }
+    
     public String getHtml(QuotationMark quotationMark)
     {
         return getHtml(new StringComposer(quotationMark));
