@@ -595,7 +595,14 @@ public class ObjectMapper
                     }
                     if (map.containsKey(field.getName()) == false)
                     {
-                        field.setAccessible(true);
+                        try
+                        {
+                            field.setAccessible(true);
+                        }
+                        catch (Throwable t)
+                        {
+                            continue;
+                        }
                         Writer writer=getWriter(field.getType());
                         map.put(field.getName(), new FieldWriter(field,writer));
                     }

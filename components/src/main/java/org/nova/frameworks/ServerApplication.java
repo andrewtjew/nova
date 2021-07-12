@@ -253,7 +253,15 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	{
 		if (transport!=null)
 		{
-		    transport.start();
+		    try
+		    {
+		        transport.start();
+		    }
+		    catch (Throwable t)
+		    {
+		        String ports="Ports: "+Utils.combine(transport.getPorts(), ", ");
+		        throw new Exception(ports, t);
+		    }
 		}
 	}
 	

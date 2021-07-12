@@ -295,7 +295,8 @@ public class HtmlUtils
     
     public static String js_submit(FormElement<?> form)
     {
-        return "document.getElementById('"+form.id()+"').submit();";
+//        return "document.getElementById('"+form.id()+"').submit();";
+        return js_call("document.getElementById", form.id())+".submit()";
     }
     
     public static String js_callWithDelay(long delay,String function,Object...parameters)
