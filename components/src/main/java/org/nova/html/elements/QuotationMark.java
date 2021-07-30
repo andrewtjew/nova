@@ -21,13 +21,10 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
-public enum QuotationMark 
+public enum QuotationMark
 {
-    SINGLE("'"), 
-    DOUBLE("\""), 
-    APOS("&apos;"), 
-    QOUT("&quot;") 
-    ;
+    DOUBLE("\""), SINGLE("\'"), APOS("&#39;"), QOUT("&#34;"), ESC_DOUBLE("\\\""), ESC_SINGLE("\\\'"),;
+
     private String value;
 
     QuotationMark(String value)
@@ -35,7 +32,29 @@ public enum QuotationMark
         this.value = value;
     }
 
+    static public char asChar(QuotationMark mark)
+    {
+        switch (mark)
+        {
+            case SINGLE:
+            case APOS:
+            case ESC_SINGLE:
+                return '\'';
+
+            case QOUT:
+            case DOUBLE:
+            case ESC_DOUBLE:
+                return '"';
+
+            default:
+                return (char)0;
+
+        }
+
+    }
+
     public String toString()
     {
         return this.value;
-    }}
+    }
+}

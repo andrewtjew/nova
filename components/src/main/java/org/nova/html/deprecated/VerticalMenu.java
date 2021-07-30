@@ -1,3 +1,4 @@
+package org.nova.html.deprecated;
 /*******************************************************************************
  * Copyright (C) 2017-2019 Kat Fung Tjew
  * 

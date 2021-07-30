@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.concurrent;
 
+//TODO: stats are not threadsafe. Timer code should be executed in its own thread using thread pool
+
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.nova.logging.Logger;
 import org.nova.tracing.TraceManager;
+import org.nova.utils.Utils;
 
 public class TimerScheduler
 {

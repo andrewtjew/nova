@@ -22,6 +22,7 @@
 package org.nova.html.elements;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.nova.html.ext.Text;
 
@@ -48,6 +49,7 @@ public class InnerElement<ELEMENT extends InnerElement<ELEMENT>> extends Element
         this.inners=new ArrayList<>();
         return addInner(element);
     }
+    @SuppressWarnings("unchecked")
     public ELEMENT addInners(Element...elements)
     {
         for (Element element:elements)
@@ -56,6 +58,7 @@ public class InnerElement<ELEMENT extends InnerElement<ELEMENT>> extends Element
         }
         return (ELEMENT)this;
     }
+    @SuppressWarnings("unchecked")
     public ELEMENT addInner(Object object)
     {
         if (object!=null)
@@ -73,7 +76,10 @@ public class InnerElement<ELEMENT extends InnerElement<ELEMENT>> extends Element
         addInner(element);
         return element;
     }
-
+    public List<Element> getInners()
+    {
+        return this.inners;
+    }
     @Override
     public void compose(Composer builder) throws Throwable
     {

@@ -33,6 +33,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +54,7 @@ import org.nova.concurrent.TimerTask;
 import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
 import org.nova.flow.Tapper;
+import org.nova.frameworks.ServerApplicationPages.WideTable;
 import org.nova.html.tags.a;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
@@ -98,6 +100,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HttpServer;
+import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
@@ -109,7 +112,6 @@ import org.nova.http.server.RequestHandlerNotFoundLogEntry;
 import org.nova.http.server.RequestLogEntry;
 import org.nova.http.server.Response;
 import org.nova.http.server.HtmlContentWriter;
-import org.nova.html.DataTables.OperatorDataTable;
 import org.nova.html.attributes.Color;
 import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
@@ -119,6 +121,7 @@ import org.nova.html.deprecated.ConfirmButton;
 import org.nova.html.deprecated.DisableElementToggler;
 import org.nova.html.deprecated.NameInputValueList;
 import org.nova.html.deprecated.NameValueList;
+import org.nova.html.deprecated.OperatorDataTable;
 import org.nova.html.deprecated.Table;
 import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
@@ -126,6 +129,7 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.ext.BasicPage;
 import org.nova.html.ext.Content;
@@ -154,18 +158,23 @@ import org.nova.html.operator.Panel4;
 import org.nova.html.operator.SelectOptions;
 import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
+import org.nova.html.remote.Inputs;
+import org.nova.html.remote.RemoteResponse;
+import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.DefaultValue;
+import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
+import org.nova.http.server.annotations.StateParam;
 import org.nova.http.server.annotations.Test;
 import org.nova.logging.Item;
 import org.nova.logging.HighPerformanceLogger;
@@ -195,7 +204,12 @@ import org.nova.metrics.ThreadExecutionProfiler;
 import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
 import org.nova.operations.OperatorVariable;
+import org.nova.operations.Status;
+import org.nova.operations.ValidationResult;
+import org.nova.operations.VariableInstance;
+import org.nova.operator.OperatorPages;
 import org.nova.security.Vault;
+import org.nova.services.SessionFilter;
 import org.nova.test.Testing;
 import org.nova.testing.TestTraceClient;
 import org.nova.tracing.CategorySample;
@@ -213,7 +227,7 @@ import com.google.common.base.Strings;
 @ContentDecoders(GzipContentDecoder.class)
 @ContentEncoders(GzipContentEncoder.class)
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
-@ContentWriters({HtmlContentWriter.class, HtmlElementWriter.class})
+@ContentWriters({HtmlContentWriter.class, HtmlElementWriter.class,RemoteResponseWriter.class})
 public class ServerApplicationPages
 {
     static public class OperatorTable extends OperatorDataTable
@@ -332,6 +346,9 @@ public class ServerApplicationPages
         menuBar.add("/operator/httpServer/lastNotFounds/operator","Servers","Operator","Last Not Founds (404s)");
         menuBar.add("/operator/httpServer/methods/operator","Servers","Operator","Methods");
         menuBar.add("/operator/httpServer/classDefinitions/operator","Servers","Operator","Class Definitions");
+
+//        menuBar.add("/operator/variables/view","Variables","View");
+//        menuBar.add("/operator/variables/modify","Variables","Modify");
 
         serverApplication.getOperatorVariableManager().register(serverApplication.getTraceManager());
         serverApplication.getOperatorVariableManager().register(this);
@@ -801,7 +818,7 @@ public class ServerApplicationPages
         OperatorPage page=this.serverApplication.buildOperatorPage("Timers");
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         table.setHeader("Category"
-                ,new th_title("#", "Number")
+                ,new th_title("ID", "Timer ID Number")
                 ,"Created","Status","Due","Countdown","Duration"
                 ,new th_title("Mode","Timer scheduling mode")
                 ,new th_title("Delay","Days hours:minutes:seconds.milliseconds")
@@ -817,7 +834,9 @@ public class ServerApplicationPages
         TimerTask[] timerTasks = this.serverApplication.getTimerScheduler().getTimerTaskSnapshot();
         for (TimerTask timerTask : timerTasks)
         {
-            table.addRow(timerTask.getCategory()
+            StackTraceElement element=timerTask.getSource();
+            String source=element.getClassName()+"("+element.getLineNumber()+")";
+            table.addRow(new TitleText(source,timerTask.getCategory())
                     ,timerTask.getNumber()
                     ,DateTimeUtils.toSystemDateTimeString(timerTask.getCreated())
                     ,timerTask.getExecutableStatus()
@@ -1805,7 +1824,7 @@ public class ServerApplicationPages
         return page;
     }
 
-    private TitleText formatNsToMs(long ns,long instantMs)
+    static private TitleText formatNsToMs(long ns,long instantMs)
     {
         return new TitleText(Utils.millisToNiceDurationString(ns/1000000)+" on "+DateTimeUtils.toSystemDateTimeString(instantMs),format_3(ns/1.0e6));        
     }
@@ -1813,7 +1832,7 @@ public class ServerApplicationPages
     {
         return new TitleText(Utils.millisToNiceDurationString(durationNs/1000000),String.format("%.3f",durationNs/1.0e6));
     }
-    private TitleText formatNsToMs(double durationNs)
+    static private TitleText formatNsToMs(double durationNs)
     {
         return new TitleText(Utils.millisToNiceDurationString((long)(durationNs/1.0e6)),String.format("%.3f",durationNs/1.0e6));
     }
@@ -2307,7 +2326,7 @@ public class ServerApplicationPages
         return new div().addInner(formatNsToMs(ns)).addInner(" ms on "+DateTimeUtils.toSystemDateTimeString(instantMs));
     }
     
-    private div divFormatNsToMs(double ns)
+    static private div divFormatNsToMs(double ns)
     {
         return new div().addInner(formatNsToMs(ns)).addInner(" ms");
     }
@@ -2339,13 +2358,19 @@ public class ServerApplicationPages
         }
     }
     
-    private Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace)
+    static public Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace)
     {
         Accordion accordion=new Accordion(head, false, heading);
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(stackTrace.length+1).addInner(Utils.toString(stackTrace)));
         return accordion;
     }
-    private Element formatThrowable(Head head,String heading,Throwable throwable) throws Exception
+    static public Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace,int start)
+    {
+        Accordion accordion=new Accordion(head, false, heading);
+        accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(stackTrace.length+1-start).addInner(Utils.toString(stackTrace,start)));
+        return accordion;
+    }
+    static public Element formatThrowable(Head head,String heading,Throwable throwable) throws Exception
     {
         Accordion accordion=new Accordion(head, true, heading);
         String text=Utils.getStrackTraceAsString(throwable);
@@ -2353,9 +2378,9 @@ public class ServerApplicationPages
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(occurs+1).addInner(text));
         return accordion;
     }
-    private void writeTrace(Head head,InnerElement<?> content,String title,Trace trace) throws Exception
+    static public void writeTrace(Head head,InnerElement<?> content,String title,Trace trace) throws Exception
     {
-        Panel3 panel=content.returnAddInner(new Panel3(head,title));
+        Panel4 panel=content.returnAddInner(new Panel4(head,title));
         NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
         list.add("Number",trace.getNumber());
         list.add("Category",trace.getCategory());
@@ -2679,7 +2704,7 @@ public class ServerApplicationPages
     @Path("/operator/httpServer/performance/{server}")
     public Element performance(@PathParam("server")String server) throws Throwable
     {
-        OperatorPage page=buildServerOperatorPage("Last Performance",server);
+        OperatorPage page=buildServerOperatorPage("Last Performance",server,null);
         HttpServer httpServer=getHttpServer(server);
         RateMeter requestRateMeter = httpServer.getRequestRateMeter();
         RateSample sample=requestRateMeter.sample();
@@ -2747,7 +2772,7 @@ public class ServerApplicationPages
     @Path("/operator/httpServer/allPerformance/{server}")
     public Element allPerformance(@PathParam("server")String server) throws Throwable
     {
-        OperatorPage page=buildServerOperatorPage("All Performance",server);
+        OperatorPage page=buildServerOperatorPage("All Performance",server,null);
         HttpServer httpServer=getHttpServer(server);
         RateMeter requestRateMeter = httpServer.getRequestRateMeter();
         RateSample sample=requestRateMeter.sample();
@@ -3044,7 +3069,7 @@ public class ServerApplicationPages
         }
         content.addInner(new p());
         String[] array=Utils.split(headers, '\r');
-        Accordion accordion=content.returnAddInner(new Accordion(head,null,false, heading+", length: "+(array.length-1)));
+        Accordion accordion=content.returnAddInner(new Accordion(head,null,false, heading+", count: "+(array.length-1)));
         NameValueList list=accordion.content().returnAddInner(new NameValueList());
         for (String item:array)
         {
@@ -3133,7 +3158,8 @@ public class ServerApplicationPages
     public Element lastRequests(@PathParam("server") String server) throws Throwable
     {
         HttpServer httpServer=this.getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Last Requests", server);
+        OperatorPage page=buildServerOperatorPage("Last Requests", server,"lastRequests");
+        
         RequestLogEntry[] entries = httpServer.getLastRequestLogEntries();
         page.content().addInner(writeRequestLogEntries(page.head(), entries));
         return page;
@@ -3146,7 +3172,7 @@ public class ServerApplicationPages
     {
         
         HttpServer httpServer=this.getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Last Exception Requests", server);
+        OperatorPage page=buildServerOperatorPage("Last Exception Requests", server,"lastExceptionRequests");
         RequestLogEntry[] entries = httpServer.getLastExceptionRequestLogEntries();
         page.content().addInner(writeRequestLogEntries(page.head(), entries));
         return page;
@@ -3158,7 +3184,7 @@ public class ServerApplicationPages
     public Element lastNotFoundRequests(@PathParam("server") String server) throws Throwable
     {
         HttpServer httpServer=this.getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Last Not Founds (404s)",server);
+        OperatorPage page=buildServerOperatorPage("Last Not Founds (404s)",server,"lastNotFounds");
         
         RequestHandlerNotFoundLogEntry[] entries = httpServer.getRequestHandlerNotFoundLogEntries();
         for (RequestHandlerNotFoundLogEntry entry : entries)
@@ -3178,7 +3204,7 @@ public class ServerApplicationPages
     {
         HttpServer httpServer=getHttpServer(server);
         RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
-        OperatorPage page=buildServerOperatorPage("Server Status",server);
+        OperatorPage page=buildServerOperatorPage("Server Status",server,null);
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method","Path","200","300","400","500","");
@@ -3435,12 +3461,29 @@ public class ServerApplicationPages
         }
         throw new Exception();
     }
-    
-    private OperatorPage buildServerOperatorPage(String title,String server) throws Throwable
+
+    private HttpTransport getHttpTransport(String server) throws Exception
     {
-        HttpServer httpServer=getHttpServer(server);
+        if ("public".equals(server))
+        {
+            return this.serverApplication.getPublicTransport();
+        }
+        else if ("private".equals(server))
+        {
+            return this.serverApplication.getPrivateTransport();
+        }
+        else if ("operator".equals(server))
+        {
+            return this.serverApplication.getOperatorTransport();
+        }
+        throw new Exception();
+    }
+    
+    private OperatorPage buildServerOperatorPage(String title,String server,String clear) throws Throwable
+    {
+        HttpTransport httpTransport=getHttpTransport(server);
         OperatorPage page=this.serverApplication.buildOperatorPage(title);
-        int[] ports=httpServer.getPorts();
+        int[] ports=httpTransport.getPorts();
         if (ports.length==1)
         {
             page.content().addInner("Server: "+server+", port: "+ports[0]);
@@ -3449,19 +3492,52 @@ public class ServerApplicationPages
         {
             page.content().addInner("Server: "+server+", ports: "+Utils.combine(TypeUtils.intArrayToList(ports),","));
         }
+        if (clear!=null)
+        {
+            String action="/operator/httpServer/clearLastRequests/"+server+"/"+clear;
+            ConfirmButton confirm=new ConfirmButton(action, "Clear").style("float:right;");
+            page.content().addInner(confirm);
+            page.content().addInner(new br());
+            page.content().addInner(new hr());
+        }
+        
         page.content().addInner(new hr());
         return page;
     }
+
+    @GET
+    @Path("/operator/httpServer/clearLastRequests/{server}/{clear}")
+    public Element clearLastRequests(@PathParam("server") String server,@PathParam("clear") String clear) throws Throwable
+    {
+        HttpServer httpServer=this.getHttpServer(server);
+        switch (clear)
+        {
+            case "lastRequests":
+                httpServer.clearLastRequestLogEntries();
+                break;
+                
+            case "lastExceptionRequests":
+                httpServer.clearLastExceptionRequestLogEntries();
+                break;
+                
+            case "lastNotFounds":
+                httpServer.clearRequestHandlerNotFoundLogEntries();
+                break;
+
+        }
+        return new Redirect("/operator/httpServer/"+clear+"/"+server);
+    }
+    
     
     @GET
     @Path("/operator/httpServer/methods/{server}")
     public Element methods(@PathParam("server") String server) throws Throwable
     {
-        HttpServer httpServer=getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Methods",server);
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        HttpTransport httpTransport=getHttpTransport(server);
+        OperatorPage page=buildServerOperatorPage("Methods",server,null);
+        RequestHandler[] requestHandlers = httpTransport.getHttpServer().getRequestHandlers();
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
-        table.setHeader("Method","Path","Description","Filters","");
+        table.setHeader("Method","Path","Description","");
         for (RequestHandler requestHandler : requestHandlers)
         {
             TableRow row=new TableRow().add(requestHandler.getHttpMethod());
@@ -3478,24 +3554,6 @@ public class ServerApplicationPages
                 row.add("");
             }
 
-            Filter[] filters = requestHandler.getFilters();
-            if (filters != null)
-            {
-                StringBuilder sb = new StringBuilder();
-                for (Filter filter : filters)
-                {
-                    if (sb.length() > 0)
-                    {
-                        sb.append(',');
-                    }
-                    sb.append(filter.getClass().getSimpleName());
-                }
-                row.add(sb);
-            }
-            else
-            {
-                row.add("");
-            }
             row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/method/"+server).addQuery("key", requestHandler.getKey()).toString()));
             table.addRow(row);
         }
@@ -3663,11 +3721,12 @@ public class ServerApplicationPages
             if (fields.size()>0)
             {
                 WideTable table=panel.content().returnAddInner(new WideTable(head));
-                table.setHeader("Type","Name","Description");
+                table.setHeader("Name","Type","Description");
                 for (Field field : fields)
                 {
                     TableRow row=new TableRow();
                     table.addRow(row);
+                    row.add(field.getName());
                     Class<?> fieldType = field.getType();
     
                     if (fieldType.isArray())
@@ -3679,7 +3738,6 @@ public class ServerApplicationPages
                     {
                         row.add(Utils.escapeHtml(fieldType.getName()));
                     }
-                    row.add(field.getName());
                     description = field.getAnnotation(Description.class);
                     if (description != null)
                     {
@@ -3718,7 +3776,7 @@ public class ServerApplicationPages
     @Path("/operator/httpServer/info")
     public Element info(@QueryParam("key") String key,@QueryParam("server") String server) throws Throwable
     {
-        OperatorPage page=buildServerOperatorPage("Method: "+key, server);
+        OperatorPage page=buildServerOperatorPage("Method: "+key, server,null);
         HttpServer httpServer=getHttpServer(server);
         RequestHandler requestHandler = httpServer.getRequestHandler(key);
 
@@ -3988,7 +4046,7 @@ public class ServerApplicationPages
     @Path("/operator/httpServer/classDefinitions/{server}")
     public Element classDefinitions(Context context,@PathParam("server") String server) throws Throwable
     {
-        OperatorPage page=buildServerOperatorPage("Interoperability", server);
+        OperatorPage page=buildServerOperatorPage("Interoperability", server,null);
         
         form_get form=page.content().returnAddInner(new form_get().action("/operator/httpServer/classDefinitions/download/"+server));
         fieldset fieldset=form.returnAddInner(new fieldset());
@@ -4056,7 +4114,7 @@ public class ServerApplicationPages
     @Path("/operator/httpServer/method/{server}")
     public Element method(Context context,@PathParam("server") String server,@QueryParam("key") String key) throws Throwable
     {
-        OperatorPage page=buildServerOperatorPage("Method: "+key,server);
+        OperatorPage page=buildServerOperatorPage("Method: "+key,server,null);
         HttpServer httpServer=getHttpServer(server);
         RequestHandler requestHandler = httpServer.getRequestHandler(key);
         Method method = requestHandler.getMethod();
@@ -4349,7 +4407,7 @@ public class ServerApplicationPages
         }
     }
     
-    private HttpClientEndPoint getExecuteClient(HttpServer httpServer,Context context) throws Throwable
+    private HttpClientEndPoint getExecuteClient(HttpTransport httpTransport,Context context) throws Throwable
     {
         String endPoint = context.getHttpServletRequest().getHeader("Referer");
         int index=endPoint.lastIndexOf(':');
@@ -4361,12 +4419,12 @@ public class ServerApplicationPages
         boolean http=configuration.getBooleanValue("HttpServer.public.http",false);
         if (http==false)
         {
-            int[] ports=httpServer.getPorts();
+            int[] ports=httpTransport.getPorts();
             endPoint=endPoint+":"+ports[0];
             boolean https=configuration.getBooleanValue("HttpServer.public.https",false);
             if (https)
             {
-                if (this.serverApplication.getPublicServer().getPorts()[0]==ports[0])
+                if (this.serverApplication.getPublicTransport().getPorts()[0]==ports[0])
                 {
                     Vault vault=this.serverApplication.getVault();
                     String serverCertificatePassword=vault.get("KeyStore.serverCertificate.password");
@@ -4380,7 +4438,7 @@ public class ServerApplicationPages
             }
             throw new Exception();
         }
-        int[] ports=httpServer.getPorts();
+        int[] ports=httpTransport.getPorts();
         endPoint=endPoint+":"+ports[ports.length-1];
         return new HttpClientEndPoint(HttpClientFactory.createClient(),endPoint);
     }
@@ -4393,7 +4451,7 @@ public class ServerApplicationPages
     {
         try
         {
-            HttpServer httpServer=getHttpServer(server);
+            HttpTransport httpTransport=getHttpTransport(server);
             HttpServletRequest request = context.getHttpServletRequest();
             ArrayList<Header> headers = new ArrayList<>();
             ArrayList<Cookie> cookies = new ArrayList<>();
@@ -4471,12 +4529,13 @@ public class ServerApplicationPages
                 }
             }
 
-            HttpClientEndPoint httpClientEndPoint=getExecuteClient(httpServer,context);
+            HttpClientEndPoint httpClientEndPoint=getExecuteClient(httpTransport,context);
             JSONClient client = new JSONClient(this.serverApplication.getTraceManager(), this.serverApplication.getLogger(), httpClientEndPoint.endPoint,httpClientEndPoint.httpClient);
             int statusCode;
             TextResponse response=null;
             double duration = 0;
             String accept = request.getParameter("accept");
+            accept="text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2";
             if (Strings.isNullOrEmpty(accept)==false)
             {
                 headers.add(new Header("Accept", accept));
@@ -4604,7 +4663,7 @@ public class ServerApplicationPages
     @ContentWriters(HtmlElementWriter.class)
     public Element run(Trace parent, Context context, @PathParam("server") String server,@QueryParam("key") String key) throws Throwable
     {
-        HttpServer httpServer=getHttpServer(server);
+        HttpTransport httpTransport=getHttpTransport(server);
         HttpServletRequest request = context.getHttpServletRequest();
         String[] methodSchema = Utils.split(key, ' ');
         String method = methodSchema[0];
@@ -4641,7 +4700,7 @@ public class ServerApplicationPages
             }
         }
         
-        HttpClientEndPoint httpClientEndPoint=getExecuteClient(httpServer,context);
+        HttpClientEndPoint httpClientEndPoint=getExecuteClient(httpTransport,context);
         String content=httpClientEndPoint.endPoint+pathAndQuery.toString();
         BasicPage page=new BasicPage();
         page.head().addInner(new meta().http_equiv(http_equiv.refresh).content("0;URL='"+content+"'"));
@@ -4840,4 +4899,176 @@ public class ServerApplicationPages
     {
         throw new Exception("test");
     }
+
+    @GET
+    @Path("/operator/variables/view")
+    public Element list() throws Throwable
+    {
+        OperatorPage page=this.serverApplication.buildOperatorPage("View Operator Variables"); 
+
+        List<String> list=Arrays.asList(serverApplication.getOperatorVariableManager().getCategories());
+        Collections.sort(list);
+
+        for (String category:list)
+        {
+            List<VariableInstance> instances=Arrays.asList(this.serverApplication.getOperatorVariableManager().getInstances(category));
+//          Collections.sort(variables);
+
+            Panel3 panel=page.content().returnAddInner(new Panel3(page.head(),category));
+            page.content().addInner(new p());
+            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+            
+            table.setHeader("Name","Type","Validator","Default","Value","Modified","Description");
+
+            for (VariableInstance instance:instances)
+            {
+                Field field=instance.getField();
+                OperatorVariable variable=instance.getOperatorVariable();
+                TableRow row=new TableRow();
+                row.add(instance.getName());
+                row.add(field.getType().getSimpleName());
+                row.add(variable.validator().getSimpleName());
+                row.add(instance.getDefaultValue());
+                row.add(instance.getValue());
+                row.add(instance.getModified()==0?"":DateTimeUtils.toSystemDateTimeString(instance.getModified()));
+                row.add(variable.description());
+                table.addRow(row);
+
+            }
+        }
+        
+        return page;
+    }
+
+    @GET
+    @Path("/operator/variables/modify")
+    public Element modify() throws Throwable
+    {
+        OperatorPage page=this.serverApplication.buildOperatorPage("Modify Operator Variables"); 
+
+        List<String> list=Arrays.asList(serverApplication.getOperatorVariableManager().getCategories());
+        Collections.sort(list);
+
+        for (String category:list)
+        {
+            List<VariableInstance> instances=Arrays.asList(this.serverApplication.getOperatorVariableManager().getInstances(category));
+//          Collections.sort(variables);
+            Panel3 panel=page.content().returnAddInner(new Panel3(page.head(),category));
+            page.content().addInner(new p());
+            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+
+            TableHeader header=new TableHeader();
+            header.add("Name");
+            header.add("Type");
+            header.add("Default");
+            header.add("Value");
+            header.add(new th_title("Min","Minimum"));
+            header.add(new th_title("Max","Maximum"));
+            header.add(new th_title("\u2205","Null String"));
+            header.add("New Value");
+            header.add("Action");
+            header.add("Result");
+            table.setHeader(header);
+            int textSize=10;
+
+            for (VariableInstance instance:instances)
+            {
+                Field field=instance.getField();
+                OperatorVariable variable=instance.getOperatorVariable();
+                String name=instance.getName();
+                Class<?> type=field.getType();
+                Object value=instance.getValue();
+                String resultElementId=(category+name+"Result").replace('.', '_');
+                String valueKey=(category+name+"Value").replace('.', '_');
+
+                TableRow row=new TableRow();
+                row.add(new td().style("text-align:left;").addInner(new TitleText(variable.description(),name)));
+                row.add(type.getSimpleName());
+                row.add(instance.getDefaultValue());
+                row.add(instance.getValue());//,new Attribute("id",valueKey));
+                String buttonKey=(category+name+"Button").replace('.', '_');
+                String[] options=variable.options();
+                Inputs inputs=new Inputs(QuotationMark.QOUT);
+                inputs.add(new InputHidden("resultElementId", resultElementId));
+                if (options[0].length()!=0)
+                {
+                    row.add("","","");
+                    
+                    SelectOptions selectOptions=new SelectOptions();
+                    inputs.add(selectOptions);
+                    for (String option:options)
+                    {
+                        selectOptions.add(option);
+                    }
+                    row.add(selectOptions);
+                    
+                }
+                else if (type==boolean.class)
+                {
+                    row.add("","","");
+                    row.add(inputs.returnAdd(new input_checkbox().id(name).checked((boolean)value)));
+                    
+                }
+                else if (type.isEnum())
+                {
+                    row.add("","","");
+                    
+                    SelectOptions selectOptions=new SelectOptions();
+                    for (Object enumConstant:field.getType().getEnumConstants())
+                    {
+                        String option=enumConstant.toString();
+                        selectOptions.add(option);
+                    }
+                    row.add(selectOptions);
+                }
+                else if (type==String.class) 
+                {
+                    row.add("","");
+                    if (value!=null)
+                    {
+                        row.add(new input_checkbox().id("nullString").checked(false));
+                        row.add(new input_text().id(name).value(value.toString()).size(textSize));
+                    }
+                    else
+                    {
+                        row.add(new input_checkbox().id("nullString").checked(true));
+                        row.add(new input_text().id(name).size(textSize));
+                    }
+                }
+                else
+                {
+                    row.add(variable.minimum(),variable.maximum(),"");
+                    row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
+                }
+                button_button button=new button_button().addInner("Update");
+                button.onclick(inputs.js_post("/operator/variable",true));
+                row.add(button);
+                row.add(new div().id(resultElementId));
+                table.addRow(row);
+            }
+        }
+        
+        return page;
+    }
+
+    @POST
+    @Path("/operator/variable")
+    public RemoteResponse update(@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue,@QueryParam("resultElementId") String resultElementId) throws Throwable
+    {
+        RemoteResponse response=new RemoteResponse();
+        VariableInstance instance=this.serverApplication.getOperatorVariableManager().getInstance(category, name);
+        OperatorVariable variable=instance.getOperatorVariable();
+        Object old=instance.getValue();
+        ValidationResult validationResult=instance.set(value);
+        if (validationResult.getStatus()==Status.SUCCESS)
+        {
+            response.innerText(resultElementId, "old="+old+", new="+value);
+        }
+        else
+        {
+          response.innerText(resultElementId, "Error: "+validationResult.getMessage());
+        }
+        return response;
+      }
+
 }

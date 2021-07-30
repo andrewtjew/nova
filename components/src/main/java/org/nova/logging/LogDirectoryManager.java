@@ -242,39 +242,39 @@ public class LogDirectoryManager
 		return info;
 	}
 	
-	public File createFile(String extension) throws FileNotFoundException
-	{
-		makeSpace();
-		long now=System.currentTimeMillis();
-		String dateTime=Utils.millisToLocalDateTimeFileName(now);
-		String name=dateTime;
-        int counter=0;
-		while (this.map.containsKey(name))
-		{
-			synchronized (this)
-			{
-				counter++;
-			}
-            name=dateTime+"X"+counter;
-		}
-		return new File(this.fullDirectoryPath+File.separator+name+extension);
-	}
-    public File createFile(long millis,String extension) throws FileNotFoundException
-    {
-        makeSpace();
-        String dateTime=Utils.millisToLocalDateTimeFileName(millis);
-        String name=dateTime;
-        int counter=0;
-        while (this.map.containsKey(name))
-        {
-            synchronized (this)
-            {
-                counter++;
-            }
-            name=dateTime+"_"+counter;
-        }
-        return new File(this.fullDirectoryPath+File.separator+name+extension);
-    }
+//	public File createFile(String extension) throws FileNotFoundException
+//	{
+//		makeSpace();
+//		long now=System.currentTimeMillis();
+//		String dateTime=Utils.millisToLocalDateTimeFileName(now);
+//		String name=dateTime;
+//        int counter=0;
+//		while (this.map.containsKey(name))
+//		{
+//			synchronized (this)
+//			{
+//				counter++;
+//			}
+//            name=dateTime+"X"+counter;
+//		}
+//		return new File(this.fullDirectoryPath+File.separator+name+extension);
+//	}
+//    public File createFile(long millis,String extension) throws FileNotFoundException
+//    {
+//        makeSpace();
+//        String dateTime=Utils.millisToLocalDateTimeFileName(millis);
+//        String name=dateTime;
+//        int counter=0;
+//        while (this.map.containsKey(name))
+//        {
+//            synchronized (this)
+//            {
+//                counter++;
+//            }
+//            name=dateTime+"_"+counter;
+//        }
+//        return new File(this.fullDirectoryPath+File.separator+name+extension);
+//    }
 
 	public String getFullDirectoryPath()
 	{
@@ -320,7 +320,7 @@ public class LogDirectoryManager
                 {
                     counter++;
                 }
-                name=dateTime+"_"+counter;
+                name=dateTime+"X"+counter;
             }
             File file=new File(this.fullDirectoryPath+File.separator+name+extension);
             try (FileOutputStream fileOutputStream=new FileOutputStream(file))
@@ -345,7 +345,7 @@ public class LogDirectoryManager
                 {
                     counter++;
                 }
-                name=dateTime+"_"+counter;
+                name=dateTime+"X"+counter;
             }
             File file=new File(this.fullDirectoryPath+File.separator+name+extension);
             FileOutputStream fileOutputStream=new FileOutputStream(file);

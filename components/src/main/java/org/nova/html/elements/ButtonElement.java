@@ -49,13 +49,17 @@ public class ButtonElement<ELEMENT extends ButtonElement<ELEMENT>> extends Globa
     {
         return attr("form",form_id);
     }
+    public ELEMENT form(FormElement<?> element)
+    {
+        return attr("form",element.id());
+    }
     public ELEMENT name(String text)
     {
         return attr("name",text);
     }
-    public ELEMENT value(String text)
+    public ELEMENT value(Object value)
     {
-        return attr("value",text);
+        return attr("value",value);
     }
 
 }

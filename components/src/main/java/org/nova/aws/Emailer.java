@@ -113,9 +113,13 @@ public class Emailer
     }
     public void send(Trace parent,String to,String subject,String content,String mediaType,String filename,String attachment) throws Throwable
     {
-        send(parent,this.from,to,subject,content,mediaType,filename,attachment);
+        send(parent,this.from,to,subject,content,mediaType,mediaType,filename,attachment.getBytes());
     }
-    public void send(Trace parent,String from,String to,String subject,String content,String mediaType,String filename,String attachment) throws Throwable
+    public String getFrom()
+    {
+        return this.from;
+    }
+    public void send(Trace parent,String from,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
     {
         // Create a message with the specified information. 
 
@@ -128,14 +132,14 @@ public class Emailer
             msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
             msg.setSubject(subject);
             //msg.setContent(content,mediaType);
-            BodyPart contentBodyPart=new MimeBodyPart();
-            contentBodyPart.setText(content);
+            MimeBodyPart contentBodyPart=new MimeBodyPart();
+            contentBodyPart.setContent(content,mediaType);
 
             Multipart multipart=new MimeMultipart();
             multipart.addBodyPart(contentBodyPart);
             
             BodyPart attachmentBodyPart=new MimeBodyPart();
-            DataSource source=new ByteArrayDataSource(attachment.getBytes(),mediaType);
+            DataSource source=new ByteArrayDataSource(attachment,attachementMediaType);
             attachmentBodyPart.setDataHandler(new DataHandler(source));
             attachmentBodyPart.setFileName(filename);
             multipart.addBodyPart(attachmentBodyPart);

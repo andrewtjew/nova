@@ -46,7 +46,7 @@ public class TraceWidget extends Element
     final private Trace trace;
     public TraceWidget(Head head,Trace trace,boolean showStackTraces,boolean openExceptionStackTraces,boolean openStackTraces)
     {
-        this.panel=new Panel2(head, trace.getCategory());
+        this.panel=new Panel2(head, "Trace Category: "+trace.getCategory());
         this.head=head;
         this.trace=trace;
         Table table=this.panel.content().returnAddInner(new Table(this.head));

@@ -37,6 +37,10 @@ public class meta extends GlobalEventTagElement<meta>
     {
         return attr("charset",character_set);
     }
+    public meta charset(String charset)
+    {
+        return attr("charset",charset);
+    }
     public meta content(String text)
     {
         return attr("content",text);

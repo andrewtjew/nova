@@ -324,6 +324,11 @@ public class Style
         sb.append("overflow-y:"+value+";");
         return this;
     }
+    public Style white_space(white_space value)
+    {
+        sb.append("white-space:"+value+";");
+        return this;
+    }
     
     @Override
     public String toString()

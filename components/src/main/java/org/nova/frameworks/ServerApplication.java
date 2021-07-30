@@ -27,9 +27,11 @@ import org.nova.collections.FileCache;
 import org.nova.collections.FileCacheConfiguration;
 import org.nova.concurrent.Synchronization;
 import org.nova.configuration.Configuration;
-import org.nova.html.ExtionsionToTypeMappings;
+import org.nova.html.ExtionsionToContentTypeMappings;
+import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.operator.MenuBar;
+import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remoting.HtmlRemotingWriter;
 import org.nova.html.templating.Template;
 import org.nova.http.server.JettyServerFactory;
@@ -38,6 +40,7 @@ import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HtmlContentWriter;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpServerConfiguration;
+import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
@@ -51,13 +54,17 @@ import com.nova.disrupt.DisruptorManager;
 
 public abstract class ServerApplication extends CoreEnvironmentApplication
 {
-	final private HttpServer publicServer;
-	final private HttpServer privateServer;
-	final private HttpServer operatorServer;
+    final private HttpTransport publicTransport;
+    final private HttpTransport privateTransport;
+    final private HttpTransport operatorTransport;
+    
+    final private HttpServer privateServer;
+    final private HttpServer publicServer;
+    
 	final private OperatorVariableManager operatorVariableManager;
 	final private FileCache fileCache;
 	final private String baseDirectory;
-	final private ExtionsionToTypeMappings typeMappings;
+	final private ExtionsionToContentTypeMappings typeMappings;
 	final private DisruptorManager disruptorManager;
 	private long startTime;
 	final private MenuBar menuBar;
@@ -67,12 +74,12 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	boolean test;
 	final private String localHostName;
 	
-	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpServer operatorServer) throws Throwable 
+	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable 
 	{
 	    super(name,coreEnvironment);
 
 	    this.hostName=Utils.getLocalHostName();
-		this.operatorServer=operatorServer;
+		this.operatorTransport=operatorTransport;
 		
 		Configuration configuration=coreEnvironment.getConfiguration();
 		
@@ -81,6 +88,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.baseDirectory=baseDirectory.getCanonicalPath();
         CoreEnvironment.SOURCE_EVENT_BOARD.set("Application.baseDirectory",this.baseDirectory);
         System.out.println("base directory: "+this.baseDirectory);
+        
+        Element.HREF_LOCAL_DIRECTORY=configuration.getValue("Application.HREF_LOCAL_DIRECTORY",null);
 
         this.test=configuration.getBooleanValue("System.test",false);
         this.disruptorManager=new DisruptorManager();
@@ -88,9 +97,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
         
         this.operatorVariableManager=new OperatorVariableManager();
-		this.typeMappings=ExtionsionToTypeMappings.fromDefault();
-		
-        int operatorPort=this.operatorServer.getPorts()[0];
+		this.typeMappings=ExtionsionToContentTypeMappings.fromDefault();
+
+        int operatorPort=this.operatorTransport.getPorts()[0];
  
         { //Private
             boolean https=configuration.getBooleanValue("HttpServer.private.https",false);
@@ -138,7 +147,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                 }
-                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),privateServerConfiguration, servers);
+                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),privateServerConfiguration);
+                this.privateTransport=new HttpTransport(privateServer, servers);
                 
                 this.privateServer.addContentDecoders(new GzipContentDecoder());
                 this.privateServer.addContentEncoders(new GzipContentEncoder());
@@ -148,6 +158,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             else
             {
                 this.privateServer=null;
+                this.privateTransport=null;
             }
         }
         
@@ -198,8 +209,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                 }
-                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration, servers);
-                
+                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
+                this.publicTransport=new HttpTransport(this.publicServer, servers);
                 this.publicServer.addContentDecoders(new GzipContentDecoder());
                 this.publicServer.addContentEncoders(new GzipContentEncoder());
                 this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
@@ -208,6 +219,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             else
             {
                 this.publicServer=null;
+                this.publicTransport=null;
             }
         }
 
@@ -218,7 +230,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
 		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
 		
-        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorServer);
+        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
         {
             this.getOperatorVariableManager().register("HttpServer.private", this.privateServer);
@@ -230,24 +242,19 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 
         this.menuBar=new MenuBar();
         String namespace=configuration.getValue("ServerApplication.APIDefinitionNamespace","");
-        this.operatorServer.registerHandlers(new ServerApplicationPages(this,namespace));
+        this.operatorTransport.getHttpServer().getTransformers().add(new RemoteResponseWriter());
+        this.operatorTransport.getHttpServer().registerHandlers(new ServerApplicationPages(this,namespace));
         
         //Build template and start operator server so we can monitor the rest of the startup.
         this.template=OperatorPage.buildTemplate(this.menuBar,this.getName(),this.hostName); 
 	}
 	
-	private void startServer(HttpServer server) throws Throwable
+	private void startTransport(HttpTransport transport) throws Throwable
 	{
-		if (server!=null)
+		if (transport!=null)
 		{
-			server.start();
+		    transport.start();
 		}
-	}
-	
-	public void startServers() throws Throwable
-	{
-        startServer(this.privateServer);
-        startServer(this.publicServer);
 	}
 	
 	public void start() throws Throwable
@@ -263,7 +270,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             onStart(trace);
         }
         buildOperatorPageTemplate();
-        startServers();
+        startTransport(this.privateTransport);
+        startTransport(this.publicTransport);
 
         try (Trace trace=new Trace(this.getTraceManager(),"postStart"))
         {
@@ -315,20 +323,36 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     {
     }
     
+    public HttpTransport getPublicTransport()
+	{
+		return this.publicTransport;
+	}
+
+	public HttpTransport getPrivateTransport()
+	{
+		return this.privateTransport;
+	}
+
+	public HttpTransport getOperatorTransport()
+	{
+		return this.operatorTransport;
+	}
+
     public HttpServer getPublicServer()
-	{
-		return publicServer;
-	}
+    {
+        return this.publicTransport.getHttpServer();
+    }
 
-	public HttpServer getPrivateServer()
-	{
-		return privateServer;
-	}
+    public HttpServer getPrivateServer()
+    {
+        return this.privateTransport.getHttpServer();
+    }
 
-	public HttpServer getOperatorServer()
-	{
-		return operatorServer;
-	}
+    public HttpServer getOperatorServer()
+    {
+        return this.operatorTransport.getHttpServer();
+    }
+	
 	public OperatorVariableManager getOperatorVariableManager()
 	{
 		return operatorVariableManager;
@@ -344,7 +368,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 		return this.fileCache;
 	}
 
-	public ExtionsionToTypeMappings getContentTypeMappings()
+	public ExtionsionToContentTypeMappings getContentTypeMappings()
 	{
 		return this.typeMappings;
 	}

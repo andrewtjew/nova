@@ -54,68 +54,71 @@ public class VariableInstance
         Class<?> type = this.field.getType();
         Object value=null;
         
-        try
+        if (valueText!=null)
         {
-            if (type.isEnum())
+            try
             {
-                value=valueText;
+                if (type.isEnum())
+                {
+                    value=valueText;
+                }
+                else if (type == String.class)
+                {
+                    value=valueText;
+                }
+                else if (type == boolean.class)
+                {
+                    value=Boolean.parseBoolean(valueText);
+                }
+                else if (type == byte.class)
+                {
+                    value = Byte.parseByte(valueText);
+                }
+                else if (type == short.class)
+                {
+                    value = Short.parseShort(valueText);
+                }
+                else if (type == int.class)
+                {
+                    value= Integer.parseInt(valueText);
+                }
+                else if (type == long.class)
+                {
+                    value = Long.parseLong(valueText);
+                }
+                else if (type == float.class)
+                {
+                    value = Float.parseFloat(valueText);
+                }
+                else if (type == double.class)
+                {
+                    value = Double.parseDouble(valueText);
+                }
+                else if (type == AtomicBoolean.class)
+                {
+                    value = Boolean.parseBoolean(valueText);
+                }
+                else if (type == AtomicInteger.class)
+                {
+                    value = Integer.parseInt(valueText);
+                }
+                else if (type == AtomicLong.class)
+                {
+                    value = Long.parseLong(valueText);
+                }
+                else if (type == AtomicLong.class)
+                {
+                    value = Double.parseDouble(valueText);
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
-            else if (type == String.class)
+            catch (Throwable t)
             {
-                value=valueText;
+                return new ValidationResult(Status.VALIDATION_FAILED,null,"Parse failed: "+t.getMessage());
             }
-            else if (type == boolean.class)
-            {
-                value=Boolean.parseBoolean(valueText);
-            }
-            else if (type == byte.class)
-            {
-                value = Byte.parseByte(valueText);
-            }
-            else if (type == short.class)
-            {
-                value = Short.parseShort(valueText);
-            }
-            else if (type == int.class)
-            {
-                value= Integer.parseInt(valueText);
-            }
-            else if (type == long.class)
-            {
-                value = Long.parseLong(valueText);
-            }
-            else if (type == float.class)
-            {
-                value = Float.parseFloat(valueText);
-            }
-            else if (type == double.class)
-            {
-                value = Double.parseDouble(valueText);
-            }
-            else if (type == AtomicBoolean.class)
-            {
-                value = Boolean.parseBoolean(valueText);
-            }
-            else if (type == AtomicInteger.class)
-            {
-                value = Integer.parseInt(valueText);
-            }
-            else if (type == AtomicLong.class)
-            {
-                value = Long.parseLong(valueText);
-            }
-            else if (type == AtomicLong.class)
-            {
-                value = Double.parseDouble(valueText);
-            }
-            else
-            {
-                throw new Exception();
-            }
-        }
-        catch (Throwable t)
-        {
-            return new ValidationResult(Status.VALIDATION_FAILED,null,"Parse failed: "+t.getMessage());
         }
         
         try
@@ -132,7 +135,18 @@ public class VariableInstance
 	        return new ValidationResult(Status.VALIDATION_FAILED,null,t.getMessage());
 	    }
         
-        if (type.isEnum())
+        if (value==null)
+        {
+            try
+            {
+                this.field.set(this.object, null);
+            }
+            catch (Throwable t)
+            {
+                return new ValidationResult(Status.SET_FAILED,null,"Set failed: type="+type.getSimpleName()+", value="+valueText);
+            }
+        }
+        else if (type.isEnum())
         {
             try
             {

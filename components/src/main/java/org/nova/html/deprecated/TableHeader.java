@@ -40,6 +40,10 @@ public class TableHeader extends Element
     {
         return this.thead;
     }
+    public tr tr()
+    {
+        return this.tr;
+    }
     public TableHeader add(Object...items)
     {
         for (Object item:items)
@@ -59,6 +63,7 @@ public class TableHeader extends Element
         }
         return this;
     }
+    
 
     @Override
     public void compose(Composer composer) throws Throwable

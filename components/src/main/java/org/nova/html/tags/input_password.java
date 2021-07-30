@@ -22,14 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.autocomplete;
 
 public class input_password extends InputElement<input_password>
 {
     public input_password()
     {
-        super();
-        attr("type","password");
+        super(InputType.password);
     }
 
     public input_password autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.

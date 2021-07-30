@@ -80,7 +80,7 @@ public class Insert
             sql.append(",?");
         }
         sql.append(')');
-        return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).getLong(0);
+        return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).getAsLong(0);
     }
     public int executeAndReturnIntKey(Trace parent,Accessor accessor) throws Throwable
     {

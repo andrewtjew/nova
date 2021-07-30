@@ -41,6 +41,10 @@ public class TableFooter extends Element
     {
         return this.tfoot;
     }
+    public tr tr()
+    {
+        return this.tr;
+    }
     public TableFooter add(Object...items)
     {
         for (Object item:items)

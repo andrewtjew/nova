@@ -22,13 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class input_file extends InputElement<input_file>
 {
     public input_file()
     {
-        super();
-        attr("type","file");
+        super(InputType.file);
     }
     public input_file accept(String value) //file
     {

@@ -39,6 +39,7 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -135,10 +136,21 @@ public class HttpClientFactory
             return HttpClientFactory.verify(hostname, session);
         }
     };
+
+    final static HostnameVerifier TRUE_HOSTNAME_VERIFIER=new HostnameVerifier()
+    {
+        
+        @Override
+        public boolean verify(String hostname, SSLSession session)
+        {
+            return true;
+        }
+    };
+    
     
     static public HttpClient createSSLClient(HttpClientConfiguration configuration,String clientCertficateStorePath, String clientCertficateStorePassword,String serverCertificateStorePath,String serverCertificateStorePassword,String clusterName) throws Throwable
     {
-        return createSSLClient(configuration,clientCertficateStorePath, clientCertficateStorePassword,serverCertificateStorePath,serverCertificateStorePassword,clusterName,"TLSv1.2");
+        return createSSLClient(configuration,clientCertficateStorePath, clientCertficateStorePassword,serverCertificateStorePath,serverCertificateStorePassword,clusterName,"TLSv1.2",null);
     }
 
     static private HttpClientConnectionManager buildConnectionManager(HttpClientConfiguration configuration,SSLConnectionSocketFactory sslConnectionSocketFactory)
@@ -179,7 +191,7 @@ public class HttpClientFactory
         return config;
     }
 
-    static public HttpClient createSSLClient(HttpClientConfiguration configuration,String clientCertficateStorePath, String clientCertficateStorePassword,String serverCertificateStorePath,String serverCertificateStorePassword,String clusterName,String tls) throws Throwable
+    static public HttpClient createSSLClient(HttpClientConfiguration configuration,String clientCertficateStorePath, String clientCertficateStorePassword,String serverCertificateStorePath,String serverCertificateStorePassword,String clusterName,String tls,HostnameVerifier verifier) throws Throwable
     {
         KeyStore clientCertficateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(clientCertficateStorePath))), "JKS", null, clientCertficateStorePassword);
         KeyStore serverCertificateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(serverCertificateStorePath))), "JKS", null, serverCertificateStorePassword);
@@ -187,8 +199,11 @@ public class HttpClientFactory
                 loadKeyMaterial(clientCertficateStore,clientCertficateStorePassword.toCharArray()).  
                 loadTrustMaterial(serverCertificateStore,null);
 
-        
-        HostnameVerifier verifier=clusterName!=null?new ClusterNameVerifier(clusterName):STRICT_HOSTNAME_VERIFIER;
+
+        if (verifier==null)
+        {
+            verifier=clusterName!=null?new ClusterNameVerifier(clusterName):STRICT_HOSTNAME_VERIFIER;
+        }
         SSLConnectionSocketFactory connectionSocketFactory=new SSLConnectionSocketFactory(contextBuilder.build(),new String[]{tls},null,verifier);
 
         RequestConfig config=buildRequestConfig(configuration);
@@ -197,11 +212,17 @@ public class HttpClientFactory
         
         return HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(config).setSSLSocketFactory(connectionSocketFactory).build();
     }
-    static public HttpClient createSSLClient(HttpClientConfiguration configuration,String tls) throws Throwable
+    static public HttpClient createSSLClient(HttpClientConfiguration configuration) throws Throwable
     {
-        SSLContextBuilder contextBuilder=new SSLContextBuilder();
-        HostnameVerifier verifier=STRICT_HOSTNAME_VERIFIER;
-        SSLConnectionSocketFactory connectionSocketFactory=new SSLConnectionSocketFactory(contextBuilder.build());
+        SSLContextBuilder contextBuilder=new SSLContextBuilder().loadTrustMaterial(null,new TrustSelfSignedStrategy());
+        SSLConnectionSocketFactory connectionSocketFactory=new SSLConnectionSocketFactory(contextBuilder.build(),new String[]{"TLSv1.2"},null,new HostnameVerifier()
+        {
+            @Override
+            public boolean verify(String hostname, SSLSession session)
+            {
+                return true;
+            }
+        });
 
         if (configuration==null)
         {
@@ -215,6 +236,10 @@ public class HttpClientFactory
         return HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(config).setSSLSocketFactory(connectionSocketFactory).build();
     }
     
+    static public HttpClient createSSLClient() throws Throwable
+    {
+        return createSSLClient(null);
+    }
     
     static public HttpClient createClient()
     {

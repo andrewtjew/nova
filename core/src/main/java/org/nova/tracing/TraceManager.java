@@ -202,7 +202,7 @@ public class TraceManager
                 }
             }
         
-    		log=logTraces||logExceptionTraces||(trace.getDurationNs()/10000000>=logTracesWithGreaterDuration);
+    		log=trace.log||logTraces||(logExceptionTraces&&trace.getThread()!=null)||(trace.getDurationNs()/10000000>=logTracesWithGreaterDuration);
 		}
         if (log)
         {

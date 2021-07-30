@@ -201,6 +201,32 @@ public class Utils
         }
         return sb.toString();
     }
+    public static String combine(double[] items,String seperator)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (double item:items)
+        {
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(item);
+        }
+        return sb.toString();
+    }
+    public static String combine(int[] items,String seperator)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (long item:items)
+        {
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(item);
+        }
+        return sb.toString();
+    }
     public static String combine(String[] items,String seperator)
     {
         if (items==null)
@@ -650,7 +676,7 @@ public class Utils
         }
         return sb.toString();
     }
-    
+
 }
 
 

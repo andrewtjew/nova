@@ -29,11 +29,11 @@ public class input extends InputElement<input>
 {
     public input()
     {
-        super();
+        super(null);
     }
     public input(datalist datalist)
     {
-        super();
+        this();
         add(datalist);
     }
     public input list(String id)

@@ -24,9 +24,12 @@ package org.nova.testing;
 import java.util.LinkedList;
 
 import org.nova.http.server.JettyServerFactory;
+import org.eclipse.jetty.server.HttpConfiguration;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.HtmlContentWriter;
 import org.nova.http.server.HttpServer;
+import org.nova.http.server.HttpServerConfiguration;
+import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.Transformers;
@@ -48,7 +51,8 @@ public class TestTraceServer
 	{
 		this.maximumMessages=maximumMessages;
 		this.messages=new LinkedList<>();
-		this.server=new HttpServer(new TraceManager(), LogUtils.createConsoleLogger(),false,JettyServerFactory.createServer(threads,port));
+        this.server=new HttpServer(new TraceManager(), LogUtils.createConsoleLogger(),false,new HttpServerConfiguration());
+        HttpTransport httpTransport=new HttpTransport(this.server,JettyServerFactory.createServer(threads,port));
 
 		Transformers transformers=new Transformers();
         transformers.add(new GzipContentDecoder());
@@ -57,7 +61,7 @@ public class TestTraceServer
         transformers.add(new HtmlContentWriter());
 		this.server.setTransformers(transformers);
 		this.server.registerHandlers(this);
-		this.server.start();
+		httpTransport.start();
 		System.out.println("TestTraceServer started: port="+port);
 	}
 

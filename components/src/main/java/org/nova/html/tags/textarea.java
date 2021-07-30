@@ -22,13 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.wrap;
 
 public class textarea extends InputElement<textarea>
 {
     public textarea()
     {
-        super("textarea");
+        super("textarea",InputType.textarea);
     }
     
     

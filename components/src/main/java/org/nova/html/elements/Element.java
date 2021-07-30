@@ -25,12 +25,17 @@ public abstract class Element
 {
     abstract public void compose(Composer composer) throws Throwable;
 
+    private QuotationMark mark=QuotationMark.DOUBLE;
     @Override
     public String toString()
     {
+        return getHtml();
+    }
+    
+    public String getHtml(Composer composer)
+    {
         try
         {
-            StringComposer composer=new StringComposer();
             compose(composer);
             return composer.getStringBuilder().toString();
         }
@@ -39,8 +44,39 @@ public abstract class Element
             throw new RuntimeException(t);
         }
    }
+    public String getHtml()
+    {
+        return getHtml(mark);
+    }
+    public void setQuotationMark(QuotationMark mark)
+    {
+        this.mark=mark;
+    }
+    public QuotationMark getQuotationMark()
+    {
+        return this.mark;
+    }
+    
+    public String getHtml(QuotationMark quotationMark)
+    {
+        return getHtml(new StringComposer(quotationMark));
+   }
 
     static public String HREF_LOCAL_DIRECTORY=null;
     
+    static protected String replaceURL(String URL)
+    {
+        if (HREF_LOCAL_DIRECTORY!=null)
+        {
+            if (URL!=null)
+            {
+                if (URL.indexOf(':')>=0)
+                {
+                    return HREF_LOCAL_DIRECTORY+"/"+URL;
+                }
+            }
+        }
+        return URL;
+    }
     
 }

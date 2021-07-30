@@ -32,6 +32,8 @@ import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HtmlContentWriter;
 import org.nova.http.server.HttpServer;
+import org.nova.http.server.HttpServerConfiguration;
+import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
@@ -50,7 +52,7 @@ public class ServerApplicationRunner //
 {
     public static interface ServerApplicationInstantiator
     {
-        ServerApplication instantiate(CoreEnvironment coreEnvironment,HttpServer operatorServer) throws Throwable;
+        ServerApplication instantiate(CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable;
     }
 
     public static void main(String[] args,ServerApplicationInstantiator instantiator) throws Throwable
@@ -61,19 +63,22 @@ public class ServerApplicationRunner //
     
     private Throwable startupException;
     
-    private HttpServer startOperatorServer(Configuration configuration,TraceManager traceManager,Logger logger) throws Exception
+    private HttpTransport startOperatorTransport(Configuration configuration,TraceManager traceManager,Logger logger) throws Exception
     {
-        int threads=configuration.getIntegerValue("HttpServer.operator.threads",10);
+        int threads=configuration.getIntegerValue("HttpServer.operator.threads",20);
         int operatorPort=configuration.getIntegerValue("HttpServer.operator.port",10051);
         boolean test=configuration.getBooleanValue("System.test",false);
         System.out.println("http://"+Utils.getLocalHostName()+":"+operatorPort);
-        HttpServer operatorServer=new HttpServer(traceManager,logger, test,JettyServerFactory.createServer(threads, operatorPort));
+       
+        HttpServer operatorServer=new HttpServer(traceManager,logger, test,new HttpServerConfiguration());
+        
         operatorServer.addContentDecoders(new GzipContentDecoder());
         operatorServer.addContentEncoders(new GzipContentEncoder());
         operatorServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
         operatorServer.addContentWriters(new HtmlContentWriter(),new HtmlElementWriter(),new JSONContentWriter(),new AjaxQueryResultWriter());
-        operatorServer.start();
-        return operatorServer;
+        HttpTransport operatorTransport=new HttpTransport(operatorServer, JettyServerFactory.createServer(threads, operatorPort));
+        operatorTransport.start();
+        return operatorTransport;
     }
     
     private void showNotice(Logger logger,String message)
@@ -111,7 +116,7 @@ public class ServerApplicationRunner //
         CoreEnvironment coreEnvironment=null;
         try
         {
-            System.out.println("Starting CoreEnvironment...");
+            //  //System.out.println("Starting CoreEnvironment...");
             coreEnvironment=new CoreEnvironment(configuration);
         }
         catch (Throwable t)
@@ -120,12 +125,12 @@ public class ServerApplicationRunner //
             return null;
         }
         
-        HttpServer operatorServer=null;
+        HttpTransport operatorTransport;
         try
         {
             showNotice(coreEnvironment.getLogger(),"Starting Operator HttpServer...");
-            operatorServer=startOperatorServer(configuration, coreEnvironment.getTraceManager(), coreEnvironment.getLogger("HttpServer.Operator"));
-            operatorServer.registerHandlers(this);
+            operatorTransport=startOperatorTransport(configuration, coreEnvironment.getTraceManager(), coreEnvironment.getLogger("HttpServer.Operator"));
+            operatorTransport.getHttpServer().registerHandlers(this);
         }
         catch (Throwable t)
         {
@@ -137,7 +142,7 @@ public class ServerApplicationRunner //
         try
         {
             showNotice(coreEnvironment.getLogger(),"New ServerApplication...");
-            serverApplication=instantiator.instantiate(coreEnvironment,operatorServer);
+            serverApplication=instantiator.instantiate(coreEnvironment,operatorTransport);
         }
         catch (Throwable t)
         {
@@ -179,4 +184,7 @@ public class ServerApplicationRunner //
             context.getHttpServletResponse().setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
         }
     }
+    
+    
+    
 }

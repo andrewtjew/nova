@@ -50,14 +50,7 @@ public class area extends GlobalEventTagElement<area>
     }
     public area href(String URL)
     {
-        if (Element.HREF_LOCAL_DIRECTORY!=null)
-        {
-            if (URL!=null)
-            {
-                URL=URL.replace("http:/", Element.HREF_LOCAL_DIRECTORY);
-                URL=URL.replace("https:/", Element.HREF_LOCAL_DIRECTORY);
-            }
-        }
+        URL=Element.replaceURL(URL);
         return attr("href",URL);
     }
     public area hreflang(String language_code)

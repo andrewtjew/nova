@@ -29,11 +29,24 @@ public class Transaction implements AutoCloseable
 {
 	private Accessor accessor;
 	final Trace trace;
+    final private StackTraceElement[] createStackTrace;
 	
 	Transaction(Accessor accessor,Trace trace)
 	{
 		this.trace=trace;
 		this.accessor=accessor;
+//        this.createStackTrace=null;
+        this.createStackTrace=Thread.currentThread().getStackTrace();
+	}
+
+	public StackTraceElement[] getCreateStackTrace()
+	{
+	    return this.createStackTrace;
+	}
+	
+	public Trace getTrace()
+	{
+	    return this.trace;
 	}
 	
 	private Throwable closeConnection(Throwable throwable)
@@ -48,7 +61,7 @@ public class Transaction implements AutoCloseable
         {
             throwable=new MultiException(t,throwable);
         }
-        this.accessor.connector.logger.log(this.trace,this.accessor.connector.getName());
+        this.accessor.connector.logger.log(this.trace,"Transaction.closeConnection:"+this.accessor.connector.getName());
         this.trace.close(throwable);
         return throwable;
 	}

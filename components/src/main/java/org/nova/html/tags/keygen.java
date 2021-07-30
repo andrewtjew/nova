@@ -22,7 +22,7 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
-import com.nimbusds.jose.jwk.KeyType;
+import org.nova.html.enums.keytype;
 
 public class keygen extends GlobalEventTagElement<keygen>
 {
@@ -71,7 +71,7 @@ public class keygen extends GlobalEventTagElement<keygen>
     {
         return attr("form",form_id);
     }
-    public keygen keytype(KeyType keytype)
+    public keygen keytype(keytype keytype)
     {
         return attr("keytype",keytype.toString());
     }

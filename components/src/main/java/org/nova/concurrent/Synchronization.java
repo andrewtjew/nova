@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.concurrent;
 
+import org.nova.core.Condition;
 import org.nova.core.NoThrowPredicate;
 import org.nova.core.Predicate;
 import org.nova.tracing.Trace;
@@ -51,6 +52,18 @@ public class Synchronization
         catch (InterruptedException e)
         {
         }
+    }
+
+    public static void notifyAll(Object synchronizationObject,Condition condition) 
+    {
+        condition.set();
+        synchronizationObject.notifyAll();
+    }
+
+    public static void notify(Object synchronizationObject,Condition condition)
+    {
+        condition.set();
+        synchronizationObject.notify();
     }
     
     public static void waitFor(Object synchronizationObject,Predicate predicate)  throws Throwable

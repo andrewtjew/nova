@@ -22,6 +22,7 @@
 package org.nova.sqldb;
 
 import java.sql.Connection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nova.annotations.Description;
@@ -64,7 +65,9 @@ public abstract class Connector
     final CountMeter rollbackFailures;
     final CountMeter executeFailures;
     final RateMeter callRate;
-	
+	final CountMeter parkRollbackTransactions;
+	final LinkedList<Transaction> lastParkRolledbackTransactions;
+	final int maxLastParkRolledbackTransactions;
 	public Connector(TraceManager traceManager,Logger logger,Disruptor disruptor,long maximumRecentlyUsedCount)
 	{
 		this.traceManager=traceManager;
@@ -86,6 +89,9 @@ public abstract class Connector
         this.rollbackFailures=new CountMeter();
         this.executeFailures=new CountMeter();
 		this.disruptor=disruptor;
+		this.parkRollbackTransactions=new CountMeter();
+		this.lastParkRolledbackTransactions=new LinkedList<Transaction>();
+		this.maxLastParkRolledbackTransactions=100;
 	}
 	abstract protected Connection createConnection() throws Throwable;
 	abstract public String getName();
@@ -243,9 +249,40 @@ public abstract class Connector
         List<Accessor> list=this.pool.getSnapshotOfInUseResources();
         return list.toArray(new Accessor[list.size()]);
     }
+    public Accessor[] getSnapshotOfRetiredConnectors()
+    {
+        List<Accessor> list=this.pool.getSnapshotRetiredResources();
+        return list.toArray(new Accessor[list.size()]);
+    }
     public void setCaptureActivateStackTrace(boolean captureActivateStackTrace)
     {
         this.pool.setCaptureActivateStackTrace(captureActivateStackTrace);
+    }
+    public CountMeter getParkRolledbacks(Transaction transaction)
+    {
+        if (transaction!=null)
+        {
+            synchronized(this)
+            {
+                this.lastParkRolledbackTransactions.addFirst(transaction);
+                if (this.lastParkRolledbackTransactions.size()>this.maxLastParkRolledbackTransactions)
+                {
+                    this.lastParkRolledbackTransactions.removeLast();
+                }
+            }
+        }
+        return this.parkRollbackTransactions;
+    }
+    public Transaction[] getSnapshotOfLastParkRolledbackTransactions()
+    {
+        synchronized(this)
+        {
+            return this.lastParkRolledbackTransactions.toArray(new Transaction[this.lastParkRolledbackTransactions.size()]);
+        }
+    }
+    public Logger getLogger()
+    {
+        return this.logger;
     }
 
 }

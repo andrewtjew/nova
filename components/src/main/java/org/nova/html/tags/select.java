@@ -22,12 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class select extends InputElement<select>
 {
     public select()
     {
-        super("select");
+        super("select",InputType.select);
     }
     
     public select multiple()

@@ -23,17 +23,27 @@ package org.nova.html.elements;
 
 public class InputElement<ELEMENT extends InputElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
-    private String name; 
-    protected InputElement()
+    private String name;
+    final InputType inputType;
+    
+    protected InputElement(String tag,InputType inputType)
     {
-        super("input");
+        super(tag);
+        this.inputType=inputType;
     }
 
-    protected InputElement(String tag)
+    protected InputElement(InputType inputType)
     {
-        super(tag,false);
+        this("input",inputType);
+        attr("type",inputType);
     }
 
+
+    public InputType getInputType()
+    {
+        return this.inputType;
+    }
+    
     public ELEMENT autofocus()
     {
         return attr("autofocus");
@@ -81,24 +91,19 @@ public class InputElement<ELEMENT extends InputElement<ELEMENT>> extends GlobalE
     public ELEMENT name(String name)
     {
         this.name=name;
+        attr("name",this.name);
+        return (ELEMENT)this;
+    }
+    public ELEMENT list(TagElement<?> element)
+    {
+        attr("list",element.id());
         return (ELEMENT)this;
     }
     public String name()
     {
-        if (this.name==null)
-        {
-            this.name="_"+this.hashCode();
-            return this.name;
-        }
         return this.name;
     }
     
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        attr("name",this.name);
-        super.compose(composer);
-    }
 
     /*
     public input accept(String value) //file

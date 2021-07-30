@@ -22,13 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class input_week extends InputElement<input_week>
 {
     public input_week()
     {
-        super();
-        attr("type","week");
+        super(InputType.week);
     }
 
     public input_week max(String date) //number, range, date, datetime, datetime-local, month, time and week.

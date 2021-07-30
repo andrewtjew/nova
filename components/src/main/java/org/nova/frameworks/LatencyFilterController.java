@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.nova.frameworks;
 
-import org.nova.html.DataTables.OperatorDataTable;
 import org.nova.html.deprecated.LinkButton;
 import org.nova.html.deprecated.NameValueList;
+import org.nova.html.deprecated.OperatorDataTable;
 import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;

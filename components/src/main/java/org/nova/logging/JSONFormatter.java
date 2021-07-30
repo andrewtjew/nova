@@ -99,6 +99,7 @@ public class JSONFormatter extends Formatter
             if (throwable!=null)
             {
                 sb.append("\r\n");
+                writeString(true,sb,"exceptionMessage",throwable.getMessage());
                 writeString(true,sb,"exception",Utils.toString(throwable.getStackTrace()));
             }
             StackTraceElement[] elements=trace.getCreateStackTrace();

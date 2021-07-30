@@ -22,6 +22,7 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.enctype;
 import org.nova.html.enums.target;;
 
@@ -29,8 +30,7 @@ public class input_image extends InputElement<input_image>
 {
     public input_image()
     {
-        super();
-        attr("type","image");
+        super(InputType.image);
     }
 
     public input_image alt(String text) //image

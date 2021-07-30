@@ -27,11 +27,17 @@ public class StringComposer extends Composer
 
     public StringComposer()
     {
-        this.sb=new StringBuilder();
+
+        this(QuotationMark.DOUBLE);
+    }
+    public StringComposer(QuotationMark quotationMark)
+    {
+        this(quotationMark,new StringBuilder());
     }
 
-    public StringComposer(StringBuilder sb)
+    public StringComposer(QuotationMark quotationMark,StringBuilder sb)
     {
+        super(quotationMark);
         this.sb=sb;
     }
 

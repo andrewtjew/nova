@@ -22,6 +22,7 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.autocomplete;
 import org.nova.utils.Utils;
 
@@ -29,8 +30,7 @@ public class input_datetime_local extends InputElement<input_datetime_local>
 {
     public input_datetime_local()
     {
-        super();
-        attr("type","datetime-local");
+        super(InputType.datetime_local);
     }
     public input_datetime_local autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
     {

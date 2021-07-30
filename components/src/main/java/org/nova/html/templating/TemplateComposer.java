@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.Text;
 
 public class TemplateComposer extends Composer
@@ -32,8 +33,14 @@ public class TemplateComposer extends Composer
     final ArrayList<Element> elements;
     private StringBuilder sb;
     
-    TemplateComposer()
+    public TemplateComposer()
     {
+        this(QuotationMark.DOUBLE);
+    }
+    
+    public TemplateComposer(QuotationMark quotationMark)
+    {
+        super(quotationMark);
         this.elements=new ArrayList<>();
         this.sb=new StringBuilder();
     }

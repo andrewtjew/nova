@@ -21,28 +21,58 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.nova.core.NameObject;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.json.ObjectMapper;
+
 
 public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElement<ELEMENT>
 {
     private String id;
-    final private StringBuilder sb;
     final private String tag;
     final private boolean noEndTag;
     final private StringBuilder classBuilder;
+    final private ArrayList<NameObject> attributes;
     
     public TagElement(String tag,boolean noEndTag)
     {
         this.tag=tag;
-        this.sb=new StringBuilder();
         this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
+        this.attributes=new ArrayList<NameObject>();
     }
+    
     public TagElement(String tag)
     {
         this(tag,false);
     }
-    public ELEMENT addClass(String class_)
+    public List<NameObject> getAttributes()
+    {
+        return this.attributes;
+    }
+    public String getTag()
+    {
+        return this.tag;
+    }
+    
+//    public ELEMENT addClass(String class_)
+//    {
+//        if (class_!=null)
+//        {
+//            if (this.classBuilder.length()>0)
+//            {
+//                this.classBuilder.append(' ');
+//            }
+//            this.classBuilder.append(class_);
+//        }
+//        return (ELEMENT) this;
+//    }
+    
+    public ELEMENT addClass(Object class_,Object...fragments)
     {
         if (class_!=null)
         {
@@ -51,28 +81,32 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElemen
                 this.classBuilder.append(' ');
             }
             this.classBuilder.append(class_);
+            if (fragments!=null)
+            {
+                if (class_!=null)
+                {
+                    for (Object fragment:fragments)
+                    {
+                        if (fragment!=null)
+                        {
+                            this.classBuilder.append('-').append(fragment);
+                        }
+                    }
+                }
+            }
         }
-        return (ELEMENT) this;
+        return (ELEMENT)this;
     }
+    
+    
     public ELEMENT id(String value)
     {
         if (value!=null)
         {
             this.id=value;
         }
-        else
-        {
-//            id();
-        }
         return (ELEMENT) this;
     }
-    /*
-    public ELEMENT autoid()
-    {
-        this.id="_"+this.hashCode();
-        return (ELEMENT) this;
-    }
-    */
     public String id()
     {
         if (this.id==null)
@@ -85,14 +119,17 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElemen
     @SuppressWarnings("unchecked")
     public ELEMENT attr(String name,Object value)
     {
-        return attr(name,value,QuotationMark.DOUBLE);
-    }
-    @SuppressWarnings("unchecked")
-    public ELEMENT attr(String name,Object value,QuotationMark quotationMark)
-    {
         if (value!=null)
         {
-            this.sb.append(' ').append(name).append("=").append(quotationMark.toString()).append(value).append(quotationMark.toString());
+            this.attributes.add(new NameObject(name,value));
+        }
+        return (ELEMENT) this;
+    }
+    public ELEMENT attr(NameObject attr)
+    {
+        if (attr!=null)
+        {
+            this.attributes.add(attr);
         }
         return (ELEMENT) this;
     }
@@ -100,7 +137,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElemen
     @SuppressWarnings("unchecked")
     public ELEMENT attr(String name)
     {
-        sb.append(' ').append(name);
+        this.attributes.add(new NameObject(name,null));
         return (ELEMENT) this;
     }
 
@@ -117,10 +154,47 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElemen
             attr("class",this.classBuilder.toString());
         }
         attr("id",this.id);
+
         
         StringBuilder composerStringBuilder=composer.getStringBuilder();
         composerStringBuilder.append('<').append(this.tag);
-        composerStringBuilder.append(this.sb.toString());
+
+        QuotationMark mark=composer.getQuotationMark();
+        for (NameObject item:this.attributes)
+        {
+            composerStringBuilder.append(' ').append(item.getName());
+            Object value=item.getValue();
+            if (value!=null)
+            {
+                Class<?> type=value.getClass();
+                if (type==String.class)
+                {
+                    composerStringBuilder.append("=").append(mark).append(value).append(mark);
+                }
+                else if ((type.isPrimitive())
+                        ||(type.isEnum())
+                        ||(type==Long.class)
+                        ||(type==Float.class)
+                        ||(type==Double.class)
+                        ||(type==Boolean.class)
+                        ||(type==Integer.class)
+                        ||(type==BigDecimal.class)
+                        ||(type==Byte.class)
+                        ||(type==Short.class)
+                        
+                        )
+                {
+                    composerStringBuilder.append("=").append(mark).append(value).append(mark);
+                }
+                else
+                {
+                    String text=ObjectMapper.writeObjectToString(value).replace("\"", "&#34;");
+//                    composerStringBuilder.append("=").append(mark).append(text).append(mark);
+                    composerStringBuilder.append("=").append(mark).append(text).append(mark);
+                }
+            }
+            
+        }
         composerStringBuilder.append('>');
         if (this.noEndTag==false)
         {

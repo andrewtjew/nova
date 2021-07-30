@@ -115,9 +115,23 @@ public class JSONClient
     {
         this(traceManager,logger,null,0,0,endPoint,client);
     }
+    
+    static private HttpClient selectClient(String endPoint) throws Throwable
+    {
+        if (endPoint.startsWith("http://"))
+        {
+            return HttpClientFactory.createClient();
+        }
+        if (endPoint.startsWith("https://"))
+        {
+            return HttpClientFactory.createSSLClient();
+        }
+        throw new Exception();
+    }
+    
     public JSONClient(TraceManager traceManager,Logger logger,String endPoint) throws Throwable
     {
-        this(traceManager,logger,endPoint,HttpClientFactory.createClient());
+        this(traceManager,logger,endPoint,selectClient(endPoint));
     }
     public void setHeader(Header header)
     {
@@ -167,9 +181,9 @@ public class JSONClient
        int statusCode=response.getStatusLine().getStatusCode();
        if (statusCode>=300)
        {
-           return new JSONResponse<TYPE>(statusCode, null);
+           return new JSONResponse<TYPE>(statusCode, null,response);
        }
-       return new JSONResponse<TYPE>(statusCode,ObjectMapper.readObject(json, responseContentType));
+       return new JSONResponse<TYPE>(statusCode,ObjectMapper.readObject(json, responseContentType),response);
     }
     
     public <TYPE> JSONResponse<TYPE> getJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType,Header...headers) throws Throwable
@@ -418,6 +432,7 @@ public class JSONClient
 			if (content!=null)
 			{
 			    String jsonContent=ObjectMapper.writeObjectToString(content);
+//			    System.out.println(jsonContent);
                 context.addLogItem(new Item("request",jsonContent));
 				StringEntity entity=new StringEntity(jsonContent);
 				post.setEntity(entity);

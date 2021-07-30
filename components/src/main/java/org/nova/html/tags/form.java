@@ -22,11 +22,19 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.FormElement;
+import org.nova.html.enums.enctype;
+import org.nova.html.enums.method;
 
 public class form extends FormElement<form>
 {
-    public form()
+    public form(method method)
     {
-        super();
+        super(method);
+        
     }
+    public form enctype(enctype enctype) 
+    {
+        return attr("enctype",enctype);
+    }
+    
 }

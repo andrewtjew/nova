@@ -831,6 +831,54 @@ public class ObjectMapper
         public void skip() throws Exception
         {
             char c=nextNonWhiteSpaceCharacter();
+            if (c=='"')
+            {
+                this.position--;
+                getString(); //we can optimize this by noticing that we don't need the computed string.
+            }
+            else if (c=='{')
+            {
+                if (nextNonWhiteSpaceCharacter()!='}')
+                {
+                    this.position--;
+                    for (;;)
+                    {
+                        if (getName()==null)
+                        {
+                            break;
+                        }
+                        skip();
+                        if (isEndOfElements())
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (c=='[')
+            {
+                if (nextNonWhiteSpaceCharacter()!=']')
+                {
+                    this.position--;
+                    for (;;)
+                    {
+                        skip();
+                        if (isEndOfArray())
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                this.position--;
+                getValueText();
+            }
+        }
+        public void skipOld() throws Exception
+        {
+            char c=nextNonWhiteSpaceCharacter();
             this.position--;
             if (c=='"')
             {
@@ -1003,6 +1051,12 @@ public class ObjectMapper
         public boolean getPrimitiveBoolean() throws Exception
         {
             char character=nextNonWhiteSpaceCharacter();
+            boolean quoted=false;
+            if (character=='\"')
+            {
+                quoted=true;
+                character=next();
+            }
             if (character=='t')
             {
                 if (next()=='r')
@@ -1011,6 +1065,13 @@ public class ObjectMapper
                     {
                         if (next()=='e')
                         {
+                            if (quoted)
+                            {
+                                if (next()!='\"')
+                                {
+                                    throw new Exception("Boolean value expected: "+getError());
+                                }
+                            }
                             return true;
                         }
                     }
@@ -1026,6 +1087,13 @@ public class ObjectMapper
                         {
                             if (next()=='e')
                             {
+                                if (quoted)
+                                {
+                                    if (next()!='\"')
+                                    {
+                                        throw new Exception("Boolean value expected: "+getError());
+                                    }
+                                }
                                 return false;
                             }
                         }

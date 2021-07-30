@@ -32,6 +32,7 @@ import org.nova.html.deprecated.Template;
 import org.nova.html.deprecated.TemplateComposer;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.QuotationMark;
 
 public class TemplateComposer extends Composer
 {
@@ -40,6 +41,12 @@ public class TemplateComposer extends Composer
     
     public TemplateComposer()
     {
+        this(QuotationMark.DOUBLE);
+    }
+    
+    public TemplateComposer(QuotationMark quotationMark)
+    {
+        super(quotationMark);
         this.sections=new ArrayList<>();
     }
     

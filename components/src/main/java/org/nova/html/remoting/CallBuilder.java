@@ -24,7 +24,6 @@ package org.nova.html.remoting;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
-import org.nova.html.ext.FormQueryBuilder;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
@@ -70,6 +69,10 @@ public class CallBuilder
     public String js_post(PathAndQuery pathAndQuery,FormQueryBuilder formQueryBuilder)
     {
         return "org.nova.html.remoting.post("+formQueryBuilder.js_query(pathAndQuery)+")";
+    }
+    public String js_post(String path,FormQueryBuilder formQueryBuilder)
+    {
+        return js_post(new PathAndQuery(path),formQueryBuilder);
     }
     /*
     public String generateOneGet(PathAndQuery pathAndQuery,FormQueryBuilder formQueryBuilder)

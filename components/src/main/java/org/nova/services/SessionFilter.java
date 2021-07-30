@@ -21,9 +21,12 @@
  ******************************************************************************/
 package org.nova.services;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.nova.concurrent.Lock;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
@@ -104,8 +107,13 @@ public class SessionFilter extends Filter
         
     }
     
-    @Override
-    public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
+    public Session getSession(Context context)
+    {
+        String token=getToken(context);
+        return this.sessionManager.getSessionByToken(token);
+    }
+
+    private String getToken(Context context)
     {
         String token=null;
         if (this.headerTokenKey!=null)
@@ -131,7 +139,26 @@ public class SessionFilter extends Filter
                 }
             }
         }
+        return token;
+    }
+
+    
+    
+    @Override
+    public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
+    {
+        String token=getToken(context);
         Session session=this.sessionManager.getSessionByToken(token);
+
+        Method method=context.getRequestHandler().getMethod();
+        if (method.getAnnotation(AllowNoSession.class)!=null)
+        {
+            if (session!=null)
+            {
+                context.setState(session);
+            }
+            return filterChain.next(parent, context);
+        }
         if (session==null)
         {
             if (this.debugSession==null)
@@ -171,6 +198,10 @@ public class SessionFilter extends Filter
         finally
         {
             session.endSessionProcessing();
+            HttpServletResponse response=context.getHttpServletResponse();
+            response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "0");
         }
         
     }

@@ -158,9 +158,9 @@ public class ThreadWorkerQueue extends Node
                         {
                             if (TESTING)
                             {
-                                Testing.oprintln("ThreadWorkerQueue="+this.id+":receiver.beginSegment="+packet.getSegmentObject(0));
+                                Testing.oprintln("ThreadWorkerQueue="+this.id+":receiver.beginSegment="+packet.getSegmentMarker());
                             }
-                            this.receiver.beginGroup((long)packet.getSegmentObject(0));
+                            this.receiver.beginGroup((long)packet.getSegmentMarker());
                         }
                         else if (size==Packet.END_SEGMENT)
                         {
@@ -199,7 +199,7 @@ public class ThreadWorkerQueue extends Node
 	}
 
     @Override
-    public void process(Packet container) throws Throwable
+    public void process(Packet packet) throws Throwable
     {
         synchronized (this.lock)
         {
@@ -224,10 +224,10 @@ public class ThreadWorkerQueue extends Node
                 }
                 this.stalledMeter.increment();
             }
-            this.queue.add(container);
-            if (container.sizeOrType()>0)
+            this.queue.add(packet);
+            if (packet.sizeOrType()>0)
             {
-                this.waitingMeter.add(container.sizeOrType());
+                this.waitingMeter.add(packet.sizeOrType());
             }
             this.lock.notify();
             if (TESTING)
@@ -258,7 +258,7 @@ public class ThreadWorkerQueue extends Node
             {
                 return;
             }
-            this.queue.add(Packet.BeginSegment(marker));
+            this.queue.add(Packet.BeginSegmentPacket(marker));
             this.lock.notify();
         }
     }

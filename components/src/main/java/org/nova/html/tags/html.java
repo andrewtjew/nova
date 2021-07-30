@@ -37,5 +37,9 @@ public class html extends GlobalEventTagElement<html>
     {
         return attr("xmlns","http://www.w3.org/1999/xhtml");
     }
+    public html xmlns(String ns)
+    {
+        return attr("xmlns",ns);
+    }
     
 }

@@ -60,30 +60,29 @@ public class HttpServer
 	@Description("Overall request rate.")
 	final private RateMeter requestRateMeter;
 	final private String categoryPrefix;
-	final private Server[] servers;
 	final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
 	final private RingBuffer<RequestLogEntry> lastExceptionRequestsLogEntries;
 	final private RingBuffer<RequestHandlerNotFoundLogEntry> lastRequestHandlerNotFoundLogEntries;
-	final private int [] ports;
 	private Transformers transformers;
 	final private Logger logger;
-	private boolean started;
+//  final private Server[] servers;
+//  final private int [] ports;
 	
 	@OperatorVariable()
 	private boolean test;
 	
-	public HttpServer(TraceManager traceManager, Logger logger,boolean test,HttpServerConfiguration configuration,Server[] servers) throws Exception
+	public HttpServer(TraceManager traceManager, Logger logger,boolean test,HttpServerConfiguration configuration) throws Exception
 	{
 	    this.logger=logger;
-	    this.ports=new int[servers.length];
-	    for (int i=0;i<servers.length;i++)
-	    {
-	        this.ports[i]=((ServerConnector)((servers[i].getConnectors())[0])).getPort();
-	    }
+//	    this.ports=new int[servers.length];
+//	    for (int i=0;i<servers.length;i++)
+//	    {
+//	        this.ports[i]=((ServerConnector)((servers[i].getConnectors())[0])).getPort();
+//	    }
+//        this.servers = servers;
 		this.categoryPrefix=configuration.categoryPrefix+"@";
 		this.requestHandlerMap = new RequestHandlerMap(test,configuration.requestLastRequestLogEntryBufferSize);
 		this.traceManager = traceManager;
-		this.servers = servers;
 		this.requestRateMeter = new RateMeter();
 		this.identityContentDecoder = new IdentityContentDecoder();
 		this.identityContentEncoder = new IdentityContentEncoder();
@@ -94,33 +93,28 @@ public class HttpServer
 		this.transformers=new Transformers();
 	}
 
-	public HttpServer(TraceManager traceManager, Logger logger,boolean test,Server server) throws Exception
+//	public HttpServer(TraceManager traceManager, Logger logger,boolean test,Server server) throws Exception
+//	{
+//		this(traceManager, logger ,test,new HttpServerConfiguration(),  new Server[]{server});
+//	}
+	
+//	public Server[] getServers()
+//	{
+//	    return this.servers;
+//	}
+
+	protected Logger getLogger()
 	{
-		this(traceManager, logger ,test,new HttpServerConfiguration(),  new Server[]{server});
+	    return this.logger;
 	}
 	
-
-	public void start() throws Exception
+	protected TraceManager getTraceManager()
 	{
-	    if (started)
-	    {
-	        return;
-	    }
-		for (Server server:this.servers)
-		{
-	        AbstractHandler handler=new AbstractHandler()
-	        {
-	            @Override
-	            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
-	            {
-	                handleRequest(target, baseRequest, request, response);
-	            }
-	        };
-			server.setHandler(handler);
-			server.start();
-		}
-        this.started=true;
+	    return this.traceManager;
 	}
+	
+//    abstract public void start() throws Throwable;
+//    abstract public void stop() throws Throwable;
 	
 	public void setTransformers(Transformers transformers)
 	{
@@ -148,10 +142,10 @@ public class HttpServer
         this.transformers.add(filters);
     }
 
-    public int[] getPorts()
-    {
-        return this.ports;
-    }
+//    public int[] getPorts()
+//    {
+//        return this.ports;
+//    }
 	public Transformers getTransformers()
 	{
 	    return this.transformers;
@@ -179,23 +173,6 @@ public class HttpServer
 	public RequestHandler getRequestHandler(String key)
 	{
 		return this.requestHandlerMap.getRequestHandler(key);
-	}
-	public void handleRequest(String string, Request request, HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-			throws IOException, ServletException
-	{
-		try
-		{
-			this.requestRateMeter.increment();
-			decode(servletRequest, servletResponse);
-		}
-		catch (Throwable t)
-		{
-		    this.logger.log(t);
-		}
-		finally
-		{
-            request.setHandled(true);
-		}
 	}
 
 	private ContentReader<?> findContentReader(String contentType, RequestHandler handler)
@@ -282,10 +259,11 @@ public class HttpServer
 		return this.identityContentEncoder;
 	}
 
-	private void decode(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
+	public boolean handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
 	{
 		try (Trace trace = new Trace(this.traceManager, "HttpServer.handle"))
 		{
+		    this.requestRateMeter.increment();
 			String URI = servletRequest.getRequestURI();
 			String method = servletRequest.getMethod();
 			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
@@ -301,12 +279,14 @@ public class HttpServer
 				{
 					this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
 				}
+				return false;
 			}
 			if (requestHandlerWithParameters.requestHandler.isPublic()==true)
 			{
 				//TODO: prevent access
 			}
 			handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
+			return true;
 		}
 	}
 
@@ -351,7 +331,9 @@ public class HttpServer
 						{
 						    for (Cookie cookie:response.cookies)
 						    {
-						        servletResponse.addCookie(new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue()));
+						        javax.servlet.http.Cookie httpCookie=new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue());
+						        httpCookie.setPath("/");
+						        servletResponse.addCookie(httpCookie);
 						    }
 						}
 						servletResponse.setStatus(response.getStatusCode());
@@ -373,7 +355,6 @@ public class HttpServer
 								Method write = writer.getClass().getMethod("write", Context.class, OutputStream.class, Object.class);
 								Object content = response.getContent();
 								write.invoke(writer, context, encoderContext.getOutputStream(), content);
-	    
 							}
 							finally
 							{
@@ -414,7 +395,8 @@ public class HttpServer
 			}
             catch (Throwable e)
             {
-                throw new Exception(requestHandlerWithParameters.requestHandler.getKey(),e);
+                String key=requestHandlerWithParameters.requestHandler.getKey();
+                throw new Exception(key,e);
             }
 			finally
 			{
@@ -501,24 +483,49 @@ public class HttpServer
             return list.toArray(new RequestLogEntry[list.size()]);
 		}
 	}
+
+	public void clearLastRequestLogEntries()
+    {
+        synchronized (this.lastRequestsLogEntries)
+        {
+            this.lastRequestsLogEntries.clear();
+        }
+    }
 	
 	public RequestHandlerNotFoundLogEntry[] getRequestHandlerNotFoundLogEntries()
 	{
-		synchronized (this.lastRequestsLogEntries)
+		synchronized (this.lastRequestHandlerNotFoundLogEntries)
 		{
 			List<RequestHandlerNotFoundLogEntry> list=this.lastRequestHandlerNotFoundLogEntries.getSnapshot();
             return list.toArray(new RequestHandlerNotFoundLogEntry[list.size()]);
 		}
 	}
 	
+    public void clearRequestHandlerNotFoundLogEntries()
+    {
+        synchronized (this.lastRequestHandlerNotFoundLogEntries)
+        {
+            this.lastRequestHandlerNotFoundLogEntries.clear();
+        }
+    }
+    
 	public RequestLogEntry[] getLastExceptionRequestLogEntries()
 	{
-		synchronized (this.lastRequestsLogEntries)
+		synchronized (this.lastExceptionRequestsLogEntries)
 		{
             List<RequestLogEntry> list=this.lastExceptionRequestsLogEntries.getSnapshot();
             return list.toArray(new RequestLogEntry[list.size()]);
 		}
 	}
+
+	public void clearLastExceptionRequestLogEntries()
+    {
+        synchronized (this.lastExceptionRequestsLogEntries)
+        {
+            this.lastExceptionRequestsLogEntries.clear();
+        }
+    }
+	
 	public RateMeter getRequestRateMeter()
 	{
 		return this.requestRateMeter;

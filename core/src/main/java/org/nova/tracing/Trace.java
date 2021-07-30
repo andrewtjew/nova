@@ -44,8 +44,9 @@ public class Trace implements AutoCloseable
 	private StackTraceElement[] closeStackTrace;
 	private TraceContext context;
 	private boolean closed;
+	final boolean log;
 	
-	public Trace(TraceManager traceManager,Trace parent,String category,String details,boolean waiting)
+	public Trace(TraceManager traceManager,Trace parent,String category,String details,boolean waiting,boolean log)
 	{
 		this.thread=Thread.currentThread();
 		this.traceManager=traceManager;
@@ -66,7 +67,12 @@ public class Trace implements AutoCloseable
 		}
 		this.traceNode=traceManager.getTraceNode(category, parent);
 		this.closed=false;
+		this.log=log;
 	}
+    public Trace(TraceManager traceManager,Trace parent,String category,String details,boolean waiting)
+    {
+        this(traceManager,parent,category,details,waiting,false);
+    }
 	public Trace(TraceManager traceManager,Trace parent,String category,boolean waiting)
 	{
 		this(traceManager,parent,category,null,waiting);
@@ -83,6 +89,10 @@ public class Trace implements AutoCloseable
     public Trace(Trace parent,String category,boolean waiting)
     {
         this(parent.traceManager,parent,category,waiting);
+    }
+    public Trace(Trace parent,String category,boolean waiting,boolean log)
+    {
+        this(parent.traceManager,parent,category,null,waiting,log);
     }
     public Trace(Trace parent,String category)
     {
@@ -111,7 +121,6 @@ public class Trace implements AutoCloseable
 		return category;
 	}
 	
-
 	public long getNumber()
 	{
 		return this.context.number;

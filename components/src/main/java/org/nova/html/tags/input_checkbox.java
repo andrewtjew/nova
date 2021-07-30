@@ -22,13 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class input_checkbox extends InputElement<input_checkbox>
 {
     public input_checkbox()
     {
-        super();
-        attr("type","checkbox");
+        super(InputType.checkbox);
     }
     public input_checkbox checked() //checkbox or radio
     {

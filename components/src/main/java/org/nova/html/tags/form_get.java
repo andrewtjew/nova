@@ -28,7 +28,6 @@ public class form_get extends FormElement<form_get>
 {
     public form_get()
     {
-        super();
-        attr("method",method.get);    
+        super(method.get);
     }
 }

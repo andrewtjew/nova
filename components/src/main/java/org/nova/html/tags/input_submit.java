@@ -22,14 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.enctype;
 
 public class input_submit extends InputElement<input_submit>
 {
     public input_submit()
     {
-        super();
-        attr("type","submit");
+        super(InputType.submit);
     }
     public input_submit formaction(String URL) //submit, image
     {

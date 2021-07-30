@@ -22,13 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class input_month extends InputElement<input_month>
 {
     public input_month()
     {
-        super();
-        attr("type","month");
+        super(InputType.month);
     }
 
 

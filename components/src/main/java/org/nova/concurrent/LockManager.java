@@ -28,7 +28,7 @@ import org.nova.tracing.TraceManager;
 
 public class LockManager<KEY>
 {
-	final private HashMap<KEY,Slot> slots;
+	final private HashMap<KEY,LockState<KEY>> slots;
 	private String category;
 	private final TraceManager traceManager;
 	
@@ -46,7 +46,7 @@ public class LockManager<KEY>
 
 	public Lock<KEY> waitForLock(Trace parent,KEY key,long timeoutMs)
     {
-        Slot slot;
+        LockState<KEY> slot;
         Trace trace=new Trace(parent, this.category,true);
         trace.setDetails(key.toString());
         synchronized (this)
@@ -54,11 +54,11 @@ public class LockManager<KEY>
             slot=this.slots.get(key);
             if (slot==null)
             {
-                slot=new Slot();
+                slot=new LockState<KEY>(key);
                 this.slots.put(key, slot);
             }
         }
-        final Slot slot_=slot;
+        final LockState<KEY> slot_=slot;
         synchronized (slot_)
         {
             if (slot_.locked)
@@ -78,14 +78,15 @@ public class LockManager<KEY>
                 }
             }
             slot_.locked=true;
+            slot.created=System.currentTimeMillis();
         }
 
         
         trace.endWait();
-        return new Lock<KEY>(key,this,slot,trace);
+        return new Lock<KEY>(this,slot,trace);
     }
 
-	void release(KEY key,Slot slot)
+	void release(LockState<KEY> slot)
 	{
 		synchronized (slot)
 		{
@@ -94,12 +95,20 @@ public class LockManager<KEY>
             {
                 synchronized (this)
                 {
-                    this.slots.remove(key);
+                    this.slots.remove(slot.key);
                     
                     return;
                 }
             }
 			slot.notify();
 		}
+	}
+	
+	public LockState<KEY>[] getSnapshot()
+	{
+        synchronized (this)
+        {
+            return this.slots.values().toArray(new LockState[this.slots.size()]); 
+        }	    
 	}
 }

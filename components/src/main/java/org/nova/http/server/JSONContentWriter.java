@@ -24,6 +24,8 @@ package org.nova.http.server;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.nova.json.ObjectExample;
 import org.nova.json.ObjectMapper;
 import org.nova.json.SchemaWriter;
@@ -42,6 +44,7 @@ public class JSONContentWriter extends ContentWriter<Object>
 		String contentText=ObjectMapper.writeObjectToString(content);
 		outputStream.write(contentText.getBytes(StandardCharsets.UTF_8));
 		context.setResponseContentText(contentText);
+		HttpServletResponse response=context.getHttpServletResponse();
 	}
 
 	@Override

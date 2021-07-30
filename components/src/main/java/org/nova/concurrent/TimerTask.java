@@ -37,6 +37,7 @@ public class TimerTask
 	final private long offset;
 	final private long number;
 	final private long created;
+	final private StackTraceElement source;
 	
 	final TimeBase schedulingMode;
 	private long due;
@@ -54,12 +55,29 @@ public class TimerTask
 	TimerTask(long number,String category,TimerScheduler timerScheduler,TimeBase schedulingMode,long offset,long period,TimerRunnable executable)
 	{
 		this.created=System.currentTimeMillis();
+		this.source=Thread.currentThread().getStackTrace()[3];
 		this.number=number;
 		this.offset=offset;
 		this.category=category;
 		this.timerScheduler=timerScheduler;
 		this.executable=executable;
-		this.period=period;
+        switch (schedulingMode)
+        {
+            case DAY:
+            case HALF_HOUR:
+            case HOUR:
+            case MINUTE:
+            case MONTH:
+            case QUARTER_HOUR:
+            case WEEK:
+            case YEAR:
+                this.period=0;
+                break;
+                
+            default:
+                this.period=period;
+                break;
+        }
 		this.executeStatus=TaskStatus.READY;
 		this.schedulingMode=schedulingMode;
 		this.key=new Key(this.due, this.number);
@@ -342,6 +360,11 @@ public class TimerTask
 	public long getAttempts()
 	{
 		return attempts;
+	}
+	
+	public StackTraceElement getSource()
+	{
+	    return this.source;
 	}
 
 	public long getSuccesses()

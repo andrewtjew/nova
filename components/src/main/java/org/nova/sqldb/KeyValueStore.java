@@ -218,6 +218,9 @@ public class KeyValueStore extends ContentCache<String,String>
             String value=rowSet.getRow(0).getVARCHAR(0);
             return new ValueSize<String>(value);
         }
-    }    
-
+    }
+    public void refresh(Trace parent,String key) throws Throwable
+    {
+        this.fill(parent, getFullKey(key));
+    }
 }

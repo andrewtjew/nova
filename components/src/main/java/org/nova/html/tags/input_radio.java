@@ -22,13 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 
 public class input_radio extends InputElement<input_radio>
 {
     public input_radio()
     {
-        super();
-        attr("type","radio");
+        super(InputType.radio);
     }
 
 

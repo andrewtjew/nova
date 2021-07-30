@@ -29,16 +29,27 @@ import org.nebula.sqlserver.DatabaseUpdatePermissions;
 import org.nebula.sqlserver.DatabaseUpdater;
 import org.nova.annotations.Description;
 import org.nova.configuration.Configuration;
-import org.nova.html.DataTables.OperatorDataTable;
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.unit;
 import org.nova.html.deprecated.NameValueList;
+import org.nova.html.deprecated.OperatorDataTable;
+import org.nova.html.deprecated.Table;
 import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
+import org.nova.html.operator.Panel;
+import org.nova.html.operator.Panel1;
+import org.nova.html.operator.Panel2;
+import org.nova.html.operator.Panel3;
+import org.nova.html.operator.TraceWidget;
+import org.nova.html.tags.a;
 import org.nova.html.tags.hr;
+import org.nova.html.tags.link;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
 import org.nova.html.tags.ext.th_title;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
@@ -59,7 +70,9 @@ import org.nova.metrics.RateMeter;
 import org.nova.metrics.RateSample;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
+import org.nova.sqldb.Transaction;
 import org.nova.tracing.Trace;
+import org.nova.utils.DateTimeUtils;
 import org.nova.utils.Utils;
 
 @Description("Handlers for server operator pages")
@@ -192,8 +205,8 @@ public class ConnectorController
     private void writeMin(TableRow row,LevelMeter meter)
     {
         LevelSample sample=meter.sample();
-        row.add(sample.getLevel());
         row.add(sample.getBaseLevel());
+        row.add(sample.getLevel());
         row.add(sample.getMinLevel());
         if (sample.getMinLevel()<sample.getBaseLevel())
         {
@@ -241,8 +254,8 @@ public class ConnectorController
         table.lengthMenu(-1,40,60,100);
         TableHeader header=new TableHeader();
         header.add("Name");
-        header.add(new th_title("Available","Accessors available in pool"));
         header.add(new th_title("Size","Accessor pool size"));
+        header.add(new th_title("Available","Accessors available in pool"));
         header.add(new th_title("Min","Minimum accessors available"));
         header.add(new th_title("Min available Instant","Instant when minimum acccessors occurred"));
         header.add(new th_title("Waiting","Threads waiting for accessors"));
@@ -256,6 +269,8 @@ public class ConnectorController
         header.add(new th_title("StdDev","Standard deviation wait for accessor (ms)"));
         header.add(new th_title("Max","Maximum wait for accessor (ms)"));
         header.add(new th_title("Max Duration Instant","Instant when maximum wait occurs"));
+        header.add(new th_title("PRT","Park rolled back transaction"));
+        header.add(new th_title("Retires","Retired accessors"));
         table.setHeader(header);
 
         synchronized(this)
@@ -274,13 +289,97 @@ public class ConnectorController
                 row.add(String.format("%.3f", useSample.getWeightedRate()));
                 
                 write(row,connector.getAcessorsWaitNsMeter(),used);
-                
+                long parkRollbacks=connector.getParkRolledbacks(null).getCount();
+                if (parkRollbacks==0)
+                {
+                    row.add(parkRollbacks);
+                }
+                else
+                {
+                    row.add(new a().addInner(parkRollbacks).href(new PathAndQuery("/operator/connector/parkRolledbacks").addQuery("name", entry.getKey()).toString()));
+                }
+
+                int retires=connector.getSnapshotOfRetiredConnectors().length;
+                if (retires==0)
+                {
+                    row.add(retires);
+                }
+                else
+                {
+                    row.add(new a().addInner(retires).href(new PathAndQuery("/operator/connector/retiredConnectors").addQuery("name", entry.getKey()).toString()));
+                }
                 table.addRow(row);
             }
         }
 
         return page;
     }
+    @GET
+    @Path("/operator/connector/retiredConnectors")
+    public Element viewRetiredAccessors(@QueryParam("name") String name) throws Throwable
+    {
+        Connector connector=this.connectors.get(name);
+        OperatorPage page=this.application.buildOperatorPage("View Retired Accessors of Connector "+name);
+        for (Accessor accessor:connector.getSnapshotOfRetiredConnectors())
+        {
+            Panel panel=page.content().returnAddInner(new Panel1(page.head(),"Accessor. Identifier="+accessor.getIdentifier()));
+
+            {
+                StackTraceElement[] activateStackTrace=accessor.getActivateStackTrace();
+                if (activateStackTrace!=null)
+                {
+                    panel.content().addInner(ServerApplicationPages.formatStackTrace(page.head(),"Activate Stack Trace",activateStackTrace));
+                }
+            }
+            
+            TraceWidget traceWidget=new TraceWidget(page.head(), accessor.getTrace(), false, false, false);
+            panel.content().addInner(traceWidget);
+//            ServerApplicationPages.writeTrace(page.head(), panel.content(), "Parent Trace", accessor.getParent());
+            Transaction transaction=accessor.getRetireTransaction();
+            if (transaction!=null)
+            {
+                StackTraceElement[] stackTrace=transaction.getCreateStackTrace();
+                if (stackTrace!=null)
+                {
+                    panel.content().addInner(ServerApplicationPages.formatStackTrace(page.head(),"Transaction Create Success Stack Trace",stackTrace,3));
+                }
+                
+            }
+            panel.content().addInner(ServerApplicationPages.formatStackTrace(page.head(),"Transaction Clash Stack Trace",accessor.getRetireStackTrace(),0));
+            
+            page.content().addInner(new p());
+        }        
+        
+        return page;
+    }
+
+    @GET
+    @Path("/operator/connector/parkRolledbacks")
+    public Element viewParkRolledbacks(@QueryParam("name") String name) throws Throwable
+    {
+        Connector connector=this.connectors.get(name);
+        OperatorPage page=this.application.buildOperatorPage("Park Rollback Transactions of Connector "+name);
+        for (Transaction transaction:connector.getSnapshotOfLastParkRolledbackTransactions())
+        {
+            Panel panel=page.content().returnAddInner(new Panel1(page.head(),"Transaction"));
+            {
+//                Panel contentPanel=panel.content().returnAddInner(new Panel2(page.head(),"Activate Stack Trace"));
+                StackTraceElement[] stackTrace=transaction.getCreateStackTrace();
+                if (stackTrace!=null)
+                {
+                    panel.content().addInner(ServerApplicationPages.formatStackTrace(page.head(),"Transaction Create Stack Trace",stackTrace,3));
+                }
+            }
+            
+            TraceWidget traceWidget=new TraceWidget(page.head(), transaction.getTrace(), false, false, false);
+            panel.content().addInner(traceWidget);
+//            ServerApplicationPages.writeTrace(page.head(), panel.content(), "Parent Trace", accessor.getParent());
+            page.content().addInner(new p());
+        }        
+        
+        return page;
+    }
+    
     @GET
     @Path("/operator/connector/stackTraces/view")
     public Element viewStackTraces() throws Throwable
@@ -295,7 +394,12 @@ public class ConnectorController
                 for (Accessor accessor:connector.getSnapshotOfAccessorsInUse())
                 {
                     String stackTrace=Utils.toString(accessor.getActivateThread().getStackTrace());
-                    page.content().addInner("Trace:"+accessor.getParent().getCategory());
+                    page.content().addInner("Trace:"+accessor.getTrace().getCategory());
+                    Trace parentTrace=accessor.getTrace().getParent();
+                    if (parentTrace!=null)
+                    {
+                        page.content().addInner("Parent Trace:"+parentTrace.getCategory());
+                    }
                     page.content().addInner(", Thread:"+accessor.getActivateThread().getName());
                     page.content().addInner(new p());
                     page.content().addInner("Current Stack Trace:");
@@ -310,6 +414,14 @@ public class ConnectorController
                 }
             }
         }
+
+        return page;
+    }
+    @GET
+    @Path("/operator/connector/retiredAccessors")
+    public Element viewRetiredAccessors() throws Throwable
+    {
+        OperatorPage page=this.application.buildOperatorPage("View Connector Pools");
 
         return page;
     }

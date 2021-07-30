@@ -30,14 +30,14 @@ import org.nova.html.attributes.Style;
 import org.nova.html.attributes.border_style;
 import org.nova.html.attributes.text_align;
 import org.nova.html.attributes.unit;
-import org.nova.html.bootstrap4.Item;
-import org.nova.html.bootstrap4.StyleComponent;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.InnerElement;
 import org.nova.html.ext.Text;
 import org.nova.html.tags.div;
 
-public class NameValueList extends StyleComponent<NameValueList>
+public class NameValueList extends GlobalEventTagElement<NameValueList>
 {
     final private ArrayList<NameValue<Element>> list;
     private int longest;
@@ -46,7 +46,7 @@ public class NameValueList extends StyleComponent<NameValueList>
     
     public NameValueList(Size leftWidth,boolean frame)
     {
-        super("div",null);
+        super("div");
         style("display:block;");
         this.list=new ArrayList<>();
         this.longest=0;

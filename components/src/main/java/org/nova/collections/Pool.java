@@ -43,6 +43,7 @@ public class Pool<RESOURCE extends Resource>
     
 
 	final private LinkedList<RESOURCE> container;
+	final private ArrayList<RESOURCE> retireList;
 	final TraceManager traceManager;
 	final private long maximumRecentlyUsedCount;
 	private AtomicLong identifier;
@@ -59,6 +60,7 @@ public class Pool<RESOURCE extends Resource>
 		this.container=new LinkedList<>();
 		this.maximumRecentlyUsedCount=maximumRecentActivateCount;
 		this.identifier=new AtomicLong();
+		this.retireList=new ArrayList<RESOURCE>();
 	}
 	
 	public void setCaptureActivateStackTrace(boolean captureActivateStackTrace)
@@ -130,6 +132,7 @@ public class Pool<RESOURCE extends Resource>
                     }				    
                     RESOURCE resource=container.pop();
                     resource.activate(parent);
+                    this.useMeter.increment();
                     this.InUseResources.put(resource.getIdentifier(), resource);
                     this.availableMeter.decrement();
                     return resource;
@@ -171,35 +174,57 @@ public class Pool<RESOURCE extends Resource>
 	    
 	}
 	
+	
+	
 	@SuppressWarnings("unchecked")
     void release(Resource resource)
 	{
-        this.useMeter.increment();
 		synchronized (this)
 		{
-		    if (resource.canAddLast(this.maximumRecentlyUsedCount))
-		    {
-		        container.addLast((RESOURCE)resource);
-		    }
-		    else
-		    {
-		        container.addFirst((RESOURCE)resource);
-		    }
-		    if (this.waitingMeter.getLevel()>0)
-			{
-				this.notify();
-			}
-			this.InUseResources.remove(resource.getIdentifier());
-            this.availableMeter.increment();
+            if (this.InUseResources.remove(resource.getIdentifier())!=null)
+            {
+    		    if (resource.canAddLast(this.maximumRecentlyUsedCount))
+    		    {
+    		        container.addLast((RESOURCE)resource);
+    		    }
+    		    else
+    		    {
+    		        container.addFirst((RESOURCE)resource);
+    		    }
+    		    if (this.waitingMeter.getLevel()>0)
+    			{
+    				this.notify();
+    			}
+                this.availableMeter.increment();
+            }
 		}
 	}
+    
+    @SuppressWarnings("unchecked")
+    void retire(Resource resource)
+    {
+        synchronized (this)
+        {
+            if (this.InUseResources.remove(resource.getIdentifier())!=null)
+            {
+                this.retireList.add((RESOURCE)resource);
+            }
+        }
+    }
 	
-	public List<RESOURCE> getSnapshotOfInUseResources()
-	{
-	    synchronized(this)
-	    {
-	        return new ArrayList<>(this.InUseResources.values());
-	    }
-	}
+    public List<RESOURCE> getSnapshotOfInUseResources()
+    {
+        synchronized(this)
+        {
+            return new ArrayList<>(this.InUseResources.values());
+        }
+    }
+    public List<RESOURCE> getSnapshotRetiredResources()
+    {
+        synchronized(this)
+        {
+            return new ArrayList<>(this.retireList);
+        }
+    }
 	
 }

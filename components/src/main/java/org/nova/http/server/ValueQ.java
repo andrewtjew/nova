@@ -67,6 +67,7 @@ class ValueQ
 						//Be tolerant...
 					}
 				}
+                list.add(new ValueQ(mediaTypeParameter[0],q));
 			}
 			else
 			{

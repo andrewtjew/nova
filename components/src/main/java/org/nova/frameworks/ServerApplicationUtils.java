@@ -41,7 +41,6 @@ public class ServerApplicationUtils
         public long idleConnectionTimeoutMs=0;
     }
     
-    
     public static JSONClient createJSONClient(ServerApplication application,String configurationName) throws Throwable
     {
         HttpClientEndPointConfiguration configuration=application.getConfiguration().getJSONObject(configurationName, null, HttpClientEndPointConfiguration.class);

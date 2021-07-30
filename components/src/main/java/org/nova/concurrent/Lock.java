@@ -25,14 +25,12 @@ import org.nova.tracing.Trace;
 
 public class Lock<KEY> implements AutoCloseable
 {
-	final Slot slot;
+	final LockState<KEY> slot;
 	LockManager<KEY> lockManager;
 	final Trace trace;
-	final KEY key;
 	
-	Lock(KEY key,LockManager<KEY> lockManager,Slot lockObject,Trace trace)
+	Lock(LockManager<KEY> lockManager,LockState<KEY> lockObject,Trace trace)
 	{
-	    this.key=key;
 		this.trace=trace;
 		this.lockManager=lockManager;
 		this.slot=lockObject;
@@ -47,10 +45,14 @@ public class Lock<KEY> implements AutoCloseable
 			{
 				return;
 			}
-			this.lockManager.release(this.key,this.slot);
+			this.lockManager.release(this.slot);
 			this.trace.close();
 			this.lockManager=null;
 		}
 	}
 
+	public KEY getKey()
+	{
+	    return this.slot.key;
+	}
 }

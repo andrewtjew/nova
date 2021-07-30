@@ -82,6 +82,8 @@ public class OperatorPage extends Document
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/ServerApplication/style.css"));
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
         head.addInner(new InsertMarker("head"));
+        head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
+//        head.addInner(new script().src("/resources/html/js/remote.js"));
         
         div heading=body.returnAddInner(new div()).addClass("heading");
         div banner=heading.returnAddInner(new div()).addClass("heading-banner");

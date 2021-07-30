@@ -22,14 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.InputType;
 import org.nova.html.enums.autocomplete;
 
 public class input_text extends InputElement<input_text>
 {
     public input_text()
     {
-        super();
-        attr("type","text");
+        super(InputType.text);
     }
     
     public input_text autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.

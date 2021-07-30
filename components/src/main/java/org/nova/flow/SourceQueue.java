@@ -292,7 +292,7 @@ public class SourceQueue<ITEM>
                         this.buffer = new ArrayList<>(toSendBuffer.size() * 2);
                         this.waitingMeter.set(0);
                     }
-                }
+                } //end synchronized
                 if (toSendBuffer != null)
                 {
                     int sendSize = 0;
@@ -319,7 +319,7 @@ public class SourceQueue<ITEM>
                                 sendPacket = new Packet((int) this.waitingMeter.getLevel());
                             }
                             long rollOver = System.currentTimeMillis();
-                            if (rollOver < lastRollOver)
+                            if (rollOver <= lastRollOver)
                             {
                                 rollOver = lastRollOver + 1;
                             }

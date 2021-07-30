@@ -21,15 +21,23 @@
  ******************************************************************************/
 package org.nova.http.client;
 
+import org.apache.http.HttpResponse;
+
 public class JSONResponse<TYPE>
 {
 	private final int statusCode;
 	private final TYPE content;
-	public JSONResponse(int statusCode,TYPE content) 
+	private final HttpResponse response;
+	public JSONResponse(int statusCode,TYPE content,HttpResponse response) 
 	{
 		this.statusCode=statusCode;
 		this.content=content;
+		this.response=response;
 	}
+    public JSONResponse(TYPE content,HttpResponse response) 
+    {
+        this(200,content,response);
+    }
 	public TYPE get() throws Exception
 	{
 		if (this.statusCode>=300)
@@ -41,5 +49,9 @@ public class JSONResponse<TYPE>
 	public int getStatusCode()
 	{
 		return this.statusCode;
+	}
+	public HttpResponse getHttpResponse()
+	{
+	    return this.response;
 	}
 }

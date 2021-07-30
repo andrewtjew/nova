@@ -23,6 +23,7 @@ package org.nova.utils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -69,6 +70,14 @@ public class DateTimeUtils
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), UTC_ZONE_ID).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
 
+    public static long getEpochDayStart(ZoneId zoneId,long startOffsetS)
+    {
+        OffsetDateTime odt=OffsetDateTime.now(zoneId);
+        long start=(odt.toEpochSecond()-odt.getHour()*3600L-odt.getMinute()*60L-odt.getSecond()+startOffsetS)*1000L;
+        return start;
+    }
+    
+    
     public static long getNextDailyOffset(ZoneId zoneId,long dayOffsetS)
     {
         ZonedDateTime zonedNow=ZonedDateTime.now(zoneId);

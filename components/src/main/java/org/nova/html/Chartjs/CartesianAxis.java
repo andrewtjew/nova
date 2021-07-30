@@ -25,8 +25,9 @@ public class CartesianAxis
 {
     public String type;
     public String position; //change to enum
-    public boolean offset;
+    public Boolean offset;
     public String id;
+    public Boolean display;
 //    public Object gridLines;
 //    public Object scaleLabel;
     public Ticks ticks;

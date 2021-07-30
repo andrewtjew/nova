@@ -24,6 +24,7 @@ package org.nova.html.deprecated;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.div;
 
@@ -32,6 +33,7 @@ public abstract class TemplatePage extends Element
     final private Template template;
     final private Head head;
     final private InnerElement<?> content;
+    private QuotationMark quotationMark;
     
     protected abstract Template getStaticTemplate();
     
@@ -40,6 +42,7 @@ public abstract class TemplatePage extends Element
         this.content=new div();
         this.head=new Head(); 
         this.template=getStaticTemplate().copy();
+        this.quotationMark=QuotationMark.DOUBLE;
     }
     public Template getTemplate()
     {
@@ -58,6 +61,19 @@ public abstract class TemplatePage extends Element
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        this.template.compose(composer);
+        composer.pushQuotationMark(this.quotationMark);
+        try
+        {
+            this.template.compose(composer);
+        }
+        finally
+        {
+            composer.popQuotationMark();
+        }
+    }
+    
+    public void setQuotationMark(QuotationMark quotationMark)
+    {
+        this.quotationMark=quotationMark;
     }
 }

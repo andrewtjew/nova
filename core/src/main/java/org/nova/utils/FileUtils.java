@@ -139,7 +139,7 @@ public class FileUtils
 
     public static void writeTextFile(String fileName, String text, Charset charset) throws Exception
     {
-        File file = new File(fileName);
+        File file = new File(FileUtils.toNativePath(fileName));
         if (file.isDirectory() == true)
         {
             throw new Exception("File is a directory. Filename=" + fileName);
@@ -153,7 +153,7 @@ public class FileUtils
 
     public static void writeTextFile(String fileName, String text, String encoding) throws Exception
     {
-        File file = new File(fileName);
+        File file = new File(FileUtils.toNativePath(fileName));
         if (file.isDirectory() == true)
         {
             throw new Exception("File is a directory. Filename=" + fileName);
@@ -167,7 +167,7 @@ public class FileUtils
 
     public static void writeBinaryFile(String fileName, byte[] bytes, int offset,int lengtht) throws Exception
     {
-        File file = new File(fileName);
+        File file = new File(FileUtils.toNativePath(fileName));
         if (file.isDirectory() == true)
         {
             throw new Exception("File is a directory. Filename=" + fileName);
@@ -178,21 +178,29 @@ public class FileUtils
             stream.write(bytes,offset,lengtht);
         }
     }
-
-    public static String computeHashSHA256(File file, int buffer) throws Throwable
+    public static void writeBinaryFile(String fileName, byte[] bytes) throws Exception
     {
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        writeBinaryFile(fileName,bytes,0,bytes.length);
+    }
+
+    public static String computeHash(MessageDigest digest,File file, int buffer) throws Throwable
+    {
         try (FileInputStream fis = new FileInputStream(file))
         {
             byte[] data = new byte[buffer];
             int read = 0;
             while ((read = fis.read(data)) != -1)
             {
-                sha256.update(data, 0, read);
+                digest.update(data, 0, read);
             }
         }
-        byte[] hashBytes = sha256.digest();
+        byte[] hashBytes = digest.digest();
         return TypeUtils.bigEndianByteArrayToHexString(hashBytes);
+    }
+    public static String computeHashSHA256(File file, int buffer) throws Throwable
+    {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return computeHash(digest, file, buffer);
     }
  
     public static String computeHashSHA256(String file) throws Throwable

@@ -48,12 +48,15 @@ public class Accessor extends Resource
 	Connection connection;
 	private long lastExecuteMs;
 	private Transaction transaction;
+    private Transaction retireTransaction;
+    private StackTraceElement[] retireStackTrace;
 
 	Accessor(Pool<Accessor> pool, Connector connector, long connectionIdleTimeoutMs)
 	{
 		super(pool);
 		this.connectionIdleTimeoutMs = connectionIdleTimeoutMs;
 		this.connector = connector;
+		this.retireTransaction=null;
 	}
 
 	public Transaction beginTransaction(String traceCategory) throws Throwable
@@ -62,14 +65,28 @@ public class Accessor extends Resource
 		{
 			if (this.transaction != null)
 			{
-				throw new Exception("Cannot begin more than one transaction. Existing transaction category=" + transaction.trace.getCategory());
+                Exception ex=new Exception("Cannot begin more than one transaction. Existing transaction category=" + transaction.trace.getCategory());
+			    
+                //Bug testing: Should not retire the accessor
+                this.retireTransaction=this.transaction;
+                this.retireStackTrace=Thread.currentThread().getStackTrace();
+                this.retire(ex);
+			    throw ex;
 			}
-			this.transaction = new Transaction(this, new Trace(this.connector.traceManager,this.getParent(), traceCategory));
 			this.connection.setAutoCommit(false);
+            this.transaction = new Transaction(this, new Trace(this.connector.traceManager,this.getTrace(), traceCategory));
             this.connector.beginTransactionRate.increment();
 			return this.transaction;
 		}
 	}
+    public Transaction getRetireTransaction()
+    {
+        return this.retireTransaction;
+    }
+    public StackTraceElement[] getRetireStackTrace()
+    {
+        return this.retireStackTrace;
+    }
 
 	void commit() throws Throwable
 	{
@@ -108,13 +125,13 @@ public class Accessor extends Resource
 		}
 	}
 
-	@Override
-	protected void activate() throws Throwable
-	{
-		long now = System.currentTimeMillis();
+    @Override
+    protected void activate() throws Throwable
+    {
+	    long now=System.currentTimeMillis();
 		if (this.connection != null)
 		{
-			if (now - this.lastExecuteMs < connectionIdleTimeoutMs)
+			if (now - this.lastExecuteMs < this.connectionIdleTimeoutMs)
 			{
 				return;
 			}
@@ -127,7 +144,10 @@ public class Accessor extends Resource
 	            this.connector.logger.log(e,this.connector.getName()+":connection.close failed");
 				this.connector.closeConnectionExceptions.increment();
 			}
-			this.connection = null;
+			finally
+			{
+			    this.connection = null;
+			}
 		}
 		try
 		{
@@ -141,6 +161,7 @@ public class Accessor extends Resource
 			throw e;
 		}
 	}
+	
     private void setParameters(AccessorTraceContext context,PreparedStatement statement,Object[] parameters) throws SQLException
     {
         for (int i = 0; i < parameters.length; i++)
@@ -154,7 +175,28 @@ public class Accessor extends Resource
     @Override
 	protected void park() throws Exception
 	{
+        synchronized (this)
+        {
+            Transaction transaction=this.transaction;
+            if (transaction!=null)
+            {
+                try (Trace trace=new Trace(getTrace(),"ParkRolledbackTransactions",false,true))
+                {
+                    try
+                    {
+                        this.connector.getParkRolledbacks(transaction).increment();
+                        transaction.rollback();
+                    }
+                    catch (Throwable t)
+                    {
+                        trace.close(t);
+                        throw new Exception(t);
+                    }
+                }
+            }
+        }
 	}
+    
 	public int executeUpdate(Trace parent, String traceCategoryOverride, String sql, Object... parameters) throws Throwable
 	{
 		return executeUpdate(parent, traceCategoryOverride, parameters, sql);

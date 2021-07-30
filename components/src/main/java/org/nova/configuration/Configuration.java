@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import org.nova.annotations.Alias;
 import org.nova.json.ObjectMapper;
+import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public class Configuration
@@ -443,7 +444,12 @@ public class Configuration
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <ENUM> ENUM getEnumValue(String name,Class<ENUM> type) throws Exception
 	{
-		return (ENUM) Enum.valueOf((Class<Enum>)type, getValue(name));
+	    String value=getValue(name);
+	    if (TypeUtils.isNullOrEmpty(value))
+	    {
+	        return null;
+	    }
+		return (ENUM) Enum.valueOf((Class<Enum>)type, value);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -458,6 +464,10 @@ public class Configuration
 	    {
 	        return null;
 	    }
+        if (TypeUtils.isNullOrEmpty(value))
+        {
+            return null;
+        }
 		return (ENUM) Enum.valueOf((Class<Enum>)type, value);
 	}
 	

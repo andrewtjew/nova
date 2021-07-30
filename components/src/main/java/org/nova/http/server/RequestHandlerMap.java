@@ -130,7 +130,7 @@ class RequestHandlerMap
 			return getMap;
 		case "HEAD":
 			return headMap;
-		case "OPTION":
+		case "OPTIONS":
 			return optionsMap;
 		case "POST":
 			return postMap;
@@ -418,7 +418,7 @@ class RequestHandlerMap
 			}
 			else if (type == OPTIONS.class)
 			{
-				httpMethod = "OPTION";
+				httpMethod = "OPTIONS";
 				verbs++;
 			}
 			else if (type == TRACE.class)

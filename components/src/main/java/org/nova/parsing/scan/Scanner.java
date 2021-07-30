@@ -599,6 +599,19 @@ public class Scanner
             }
         }
     }
+    public char skip(int amount) throws Throwable
+    {
+        char c=0;
+        for (int i=0;i<amount;i++)
+        {
+            c=this.source.next();
+            if (c==0)
+            {
+                break;
+            }
+        }
+        return c;
+    }
     
     public char skipWhiteSpaceAndBegin() throws Throwable
     {

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.flow;
 
+//This class is used to represent different data types to be transported. It is overloaded to avoid having a complex type hierarchy.
 public class Packet
 {
     final static int BEGIN_SEGMENT=-1;
@@ -28,46 +29,47 @@ public class Packet
     final static int FLUSH=-3;
     
     final private Object[] array;
-    private int size;
+    private int sizeOrType;
+    
     public Packet(int capacity)
     {
         if (capacity>=0)
         {
             this.array=new Object[capacity];
-            this.size=0;
+            this.sizeOrType=0;
         }
         else
         {
-            this.size=capacity;
+            this.sizeOrType=capacity;
             this.array=null;
         }
     }
     Packet(Object[] array)
     {
-        this.size=BEGIN_SEGMENT;
+        this.sizeOrType=BEGIN_SEGMENT;
         this.array=array;
     }
     
     final static Packet FLUSH_PACKET=new Packet(FLUSH);
     final static Packet END_SEGMENT_PACKET=new Packet(END_SEGMENT);
     
-    static Packet BeginSegment(long marker)
+    static Packet BeginSegmentPacket(long marker)
     {
         return new Packet(new Object[]{marker});
     }
     
     public boolean add(Object item)
     {
-        if (this.size==this.array.length)
+        if (this.sizeOrType==this.array.length)
         {
             return false;
         }
-        this.array[this.size++]=item;
+        this.array[this.sizeOrType++]=item;
         return true;
     }
     public int sizeOrType()
     {
-        return size;
+        return sizeOrType;
     }
     /*
     public Object[] get()
@@ -77,19 +79,19 @@ public class Packet
     */
     public Object get(int index)
     {
-        if (index>=this.size)
-        {
-            throw new ArrayIndexOutOfBoundsException(index);
-        }
+//        if (index>=this.sizeOrType)
+//        {
+//            throw new ArrayIndexOutOfBoundsException(index);
+//        }
         return this.array[index];
     }
-    public Object getSegmentObject(int index)
+    public long getSegmentMarker()
     {
-        if (size!=-1)
+        if (sizeOrType!=-1)
         {
-            throw new ArrayIndexOutOfBoundsException(index);
+            throw new RuntimeException("sizeOrType="+this.sizeOrType);
         }
-        return this.array[index];
+        return (long)this.array[0];
         
     }
 }

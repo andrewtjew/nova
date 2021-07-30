@@ -28,11 +28,11 @@ public abstract class Resource implements AutoCloseable
 {
 	final private Pool<?> pool;
     final private long identifier;
-	private Trace parent;
 	private long recentlyUsedCount;
     private Thread activateThread;
     private StackTraceElement[] activateStackTrace;
     private boolean activated;
+    private Trace trace;
 	
 	public Resource(Pool<?> pool)
 	{
@@ -46,11 +46,14 @@ public abstract class Resource implements AutoCloseable
 		synchronized(this)
 		{
 		    this.activated=true;
-			this.parent=parent;
 			this.activateThread=Thread.currentThread();
 	        if (pool.captureActiveStackTrace())
 	        {
 	            this.activateStackTrace=this.activateThread.getStackTrace();
+	        }
+	        if (parent!=null)
+	        {
+	            this.trace=new Trace(parent,this.getClass().getName());
 	        }
 			activate();
 		}
@@ -85,9 +88,19 @@ public abstract class Resource implements AutoCloseable
 		{
 			if (this.activated)
 			{
-                park();
-                pool.release(this);
-				this.parent=null;
+			    try
+			    {
+			        park();
+			    }
+			    catch (Throwable t)
+			    {
+			        
+			    }
+			    pool.release(this);
+			    if (this.trace!=null)
+			    {
+			        this.trace.close();
+			    }
 				this.activateThread=null;
 				this.activateStackTrace=null;
 				this.activated=false;
@@ -95,11 +108,23 @@ public abstract class Resource implements AutoCloseable
 		}
 	}
 	
-	public Trace getParent()
+	public void retire(Throwable throwable) throws Exception
 	{
         synchronized(this)
         {
-            return this.parent;
+            if (this.trace!=null)
+            {
+                this.trace.close(throwable);
+            }
+            pool.retire(this);
+        }
+	}
+	
+	public Trace getTrace()
+	{
+        synchronized(this)
+        {
+            return this.trace;
         }
 	}
 	public Thread getActivateThread()

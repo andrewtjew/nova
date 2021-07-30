@@ -51,7 +51,8 @@ public class RowSet
 			this.rows[i]=new Row(this.mappings,list.get(i));
 		}
 	}
-	RowSet(String[] columnNames,Row[] rows)
+
+	public RowSet(String[] columnNames,Row[] rows)
 	{
 		this.columnNames=columnNames;
 		this.rows=rows;
@@ -67,6 +68,10 @@ public class RowSet
 	public int getColumns()
 	{
 		return this.columnNames.length;
+	}
+	public String[] getColumnNames()
+	{
+	    return this.columnNames;
 	}
 	public Row getRow(int index)
 	{

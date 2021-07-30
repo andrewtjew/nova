@@ -71,7 +71,7 @@ public class AbnormalBrowserSessionResponder implements AbnormalSessionRequestHa
     @Override
     public String[] getMediaTypes()
     {
-        return new String[]{"text/html"};
+        return new String[]{"text/html","*/*"};
     }
 
 }
