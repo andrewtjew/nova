@@ -32,6 +32,7 @@ abstract public class ContentCache<KEY,VALUE>
 	final private long maxAgeMs;
 	final private long contentCapacity;
 	private long totalContentSize;
+	private long freeMemoryCapacity;
 	
 	static class Node<KEY,VALUE>
 	{
@@ -68,10 +69,10 @@ abstract public class ContentCache<KEY,VALUE>
 
 	public ContentCache()
     {
-	    this(0,0,0);
+	    this(0,0,0,1024L*1024L*64L);
     }
 	
-	public ContentCache(int capacity,long maxAgeMs,long contentCapacity)
+	public ContentCache(int capacity,long maxAgeMs,long contentCapacity,long freeMemory)
 	{
 		this.hits=new CountMeter();
 		this.misses=new CountMeter();
@@ -82,6 +83,8 @@ abstract public class ContentCache<KEY,VALUE>
 		this.capacity=capacity;
 		this.maxAgeMs=maxAgeMs;
 		this.contentCapacity=contentCapacity;
+		this.freeMemoryCapacity=freeMemory;
+		        
 	}
 	
 	final private HashMap<KEY,Node<KEY,VALUE>> nodeMap;
@@ -135,12 +138,11 @@ abstract public class ContentCache<KEY,VALUE>
             if (node!=null)
             {
                 long now=System.currentTimeMillis();
-                if ((this.maxAgeMs>0)&&(now-node.created<this.maxAgeMs))
+                if ((this.maxAgeMs<=0)||(now-node.created<this.maxAgeMs))
                 {
                     if (node.previous!=null)
                     {
                         node.previous.next=node.next;
-                        node.previous=null;
                         if (node.next!=null)
                         {
                             node.next.previous=node.previous;
@@ -149,6 +151,7 @@ abstract public class ContentCache<KEY,VALUE>
                         {
                             this.last=node.previous;
                         }
+                        node.previous=null;
                         node.next=this.first;
                         this.first=node;
                     }
@@ -176,6 +179,37 @@ abstract public class ContentCache<KEY,VALUE>
         return put(parent,key,new ValueSize<VALUE>(value,0));
     }
     
+    boolean needRemove(Node<KEY,VALUE> node)
+    {
+        if (this.nodeMap.size()==0)
+        {
+            return false;
+        }
+        if ((this.contentCapacity>0)&&(this.totalContentSize+node.valueSize.size>this.contentCapacity))
+        {
+            return true;
+        }
+        if ((this.capacity>0)&&(this.nodeMap.size()==this.capacity))
+        {
+            return true;
+        }
+        if (this.freeMemoryCapacity>0)
+        {
+            long freeMemory=Runtime.getRuntime().freeMemory();
+            if (freeMemory<this.freeMemoryCapacity)
+            {
+                Runtime.getRuntime().gc();
+                freeMemory=Runtime.getRuntime().freeMemory();
+                if (freeMemory<this.freeMemoryCapacity)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
 	public VALUE put(Trace parent,KEY key,ValueSize<VALUE> valueSize) throws Throwable
     {
 	    if (valueSize==null)
@@ -187,29 +221,11 @@ abstract public class ContentCache<KEY,VALUE>
             Node<KEY,VALUE> node=new Node<KEY,VALUE>(key,valueSize);
             synchronized(this.nodeMap)
             {
-                if (this.contentCapacity>0)
-                {
-                    while (this.totalContentSize+node.valueSize.size>this.contentCapacity)
-                    {
-                        this.nodeMap.remove(this.last.key);
-                        this.totalContentSize-=this.last.valueSize.size;
-                        this.sizeEvicts.increment();
-                        this.last=last.previous;
-                        if (this.last!=null)
-                        {
-                            this.last.next=null;
-                        }
-                        else
-                        {
-                            this.first=null;
-                            break;
-                        }
-                    }
-                }
-                if ((this.capacity>0)&&(this.nodeMap.size()==this.capacity))
+                while (needRemove(node))
                 {
                     this.nodeMap.remove(this.last.key);
                     this.totalContentSize-=this.last.valueSize.size;
+                    this.sizeEvicts.increment();
                     this.last=last.previous;
                     if (this.last!=null)
                     {
@@ -218,11 +234,16 @@ abstract public class ContentCache<KEY,VALUE>
                     else
                     {
                         this.first=null;
+                        break;
                     }
                 }
                 this.nodeMap.put(key, node);
                 this.totalContentSize+=node.valueSize.size;
                 node.next=this.first;
+                if (this.first!=null)
+                {
+                    this.first.previous=node;
+                }
                 this.first=node;
                 if (this.last==null)
                 {

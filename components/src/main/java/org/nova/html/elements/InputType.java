@@ -19,15 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.collections;
+package org.nova.html.elements;
 
-public class FileCacheConfiguration
+public enum InputType
 {
-    public String sharedDirectory="../resources/client";
-    public String localDirectory="./resources/client";
-    
-    public long maxAgeMs=Long.MAX_VALUE;
-    public long maxSize=Long.MAX_VALUE;
-    public int capacity=10000;
-    public long freeMemoryCapacity=1024L*1024L*1L;
+    textarea("textarea"),
+    checkbox("checkbox"),
+    radio("radio"),
+    select("select"),
+    button("button"),
+    color("color"),
+    date("date"),
+    datetime_local("datetime-local"),
+    email("email"),
+    file("file"),
+    hidden("hidden"),
+    image("image"),
+    month("month"),
+    number("number"),
+    password("password"),
+    range("range"),
+    reset("reset"),
+    search("search"),
+    submit("submit"),
+    tel("tel"),
+    text("text"),
+    time("time"),
+    url("url"),
+    week("week"),
+    ;
+    private String value;
+    InputType(String value)
+    {
+        this.value=value;
+    }
+    public String toString()
+    {
+        return this.value;
+    }
 }

@@ -30,12 +30,14 @@ import org.nova.utils.FileUtils;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
+    final public static boolean TEST_PRINT=false;
+    
     final private String sharedDirectory;
     final private String localDirectory;
 
 	public FileCache(FileCacheConfiguration configuration) throws Exception
 	{
-		super(configuration.capacity,configuration.maxAgeMs,configuration.maxSize);
+		super(configuration.capacity,configuration.maxAgeMs,configuration.maxSize,configuration.freeMemoryCapacity);
         this.sharedDirectory=new File(FileUtils.toNativePath(configuration.sharedDirectory)).getCanonicalPath();
         this.localDirectory=new File(FileUtils.toNativePath(configuration.localDirectory)).getCanonicalPath();
 	}
@@ -49,6 +51,15 @@ public class FileCache extends ContentCache<String,byte[]>
 		}
 	}
     
+    public String getLocalDirectoy()
+    {
+        return this.localDirectory;
+    }
+    public String getSharedDirectoy()
+    {
+        return this.sharedDirectory;
+    }
+	
 	static byte[] readFile(File file) throws Exception
     {
         if (file.exists()==false)
@@ -72,11 +83,11 @@ public class FileCache extends ContentCache<String,byte[]>
         }
     }
     	
-	final private boolean TEST_PRINT=false;
-	
 	@Override
 	protected ValueSize<byte[]> load(Trace trace, String filePath) throws Throwable
 	{
+//	    if (filePath.startsWith("ex))
+	    
 	    String fullPath=this.localDirectory+File.separator+filePath;
 	    if (TEST_PRINT)
 	    {

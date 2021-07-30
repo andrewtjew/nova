@@ -71,7 +71,15 @@ public class SecurityUtils
         return AesCipher.doFinal(data);
     }
 
-    static private SecretKey buildKey(String password,String salt) throws NoSuchAlgorithmException, InvalidKeySpecException
+    public static final byte[] encrypt(SecretKey secretKey,byte[] data) throws Exception
+    {
+        Cipher AesCipher = Cipher.getInstance("AES");
+        AesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        return AesCipher.doFinal(data);
+    }
+
+
+    static public SecretKey buildKey(String password,String salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 1000, 256);
@@ -82,6 +90,12 @@ public class SecurityUtils
     public static byte[] decrypt(String password,String salt,byte[] bytes) throws Exception
     {
         SecretKey secretKey = buildKey(password,salt);
+        Cipher AesCipher = Cipher.getInstance("AES");
+        AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
+        return AesCipher.doFinal(bytes);
+    }
+    public static byte[] decrypt(SecretKey secretKey,byte[] bytes) throws Exception
+    {
         Cipher AesCipher = Cipher.getInstance("AES");
         AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
         return AesCipher.doFinal(bytes);
