@@ -173,6 +173,8 @@ namespace nova.remote
         }); 
     }
 
+    
+
     function run(instructions:Instruction[])
     {
         if (instructions!=null)

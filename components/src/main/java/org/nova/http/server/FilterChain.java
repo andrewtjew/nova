@@ -438,7 +438,11 @@ public class FilterChain
                 {
                     parameters[i]=request.getParameter(parameterInfo.getName())!=null;
                 }
-                break;
+            }
+            break;
+            case INTERNAL:
+            {
+                parameters[i]=buildParameter(parameterInfo,request.getParameter(parameterInfo.getName()));
             }
             default:
                 break;

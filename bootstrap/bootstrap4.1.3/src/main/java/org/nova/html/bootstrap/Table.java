@@ -70,6 +70,11 @@ public class Table extends StyleComponent<Table>
         addClass("table-bordered");
         return this;
     }
+    public Table borderless()
+    {
+        addClass("table-borderless");
+        return this;
+    }
     public Table responsive()
     {
         this.responsive=true;
