@@ -80,19 +80,26 @@ public class HttpTransport
 
 	public void start() throws Exception
 	{
-		for (Server server:this.servers)
-		{
-	        AbstractHandler handler=new AbstractHandler()
-	        {
-	            @Override
-	            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
-	            {
-	                handleRequest(target, baseRequest, request, response);
-	            }
-	        };
-			server.setHandler(handler);
-			server.start();
-		}
+	    try
+	    {
+    		for (Server server:this.servers)
+    		{
+    	        AbstractHandler handler=new AbstractHandler()
+    	        {
+    	            @Override
+    	            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
+    	            {
+    	                handleRequest(target, baseRequest, request, response);
+    	            }
+    	        };
+    			server.setHandler(handler);
+    			server.start();
+    		}
+	    }
+	    catch (Throwable t)
+	    {
+	        throw new Exception("Unable to start using ports: "+Utils.combine(this.ports, ", "),t);
+	    }
 	}
 	public int[] getPorts()
 	{

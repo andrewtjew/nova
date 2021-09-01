@@ -577,13 +577,13 @@ class RequestHandlerMap
 			{
 				throw new Exception("Only one param annotation allowed. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 			}
-			else if (params.size() == 0)
-			{
-				if ((parameterType != Context.class)&&(parameterType!=Trace.class)&&(parameterType!=Queries.class))
-				{
-					throw new Exception("Annotation required for param. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
-				}
-			}
+//			else if (params.size() == 0)
+//			{
+//				if ((parameterType != Context.class)&&(parameterType!=Trace.class)&&(parameterType!=Queries.class))
+//				{
+//					throw new Exception("Annotation required for param. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+//				}
+//			}
 
 			// No multiple param annotations. Check each and add.
 			if (parameterType == Context.class)
@@ -687,6 +687,11 @@ class RequestHandlerMap
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
                             null));
                 }
+			}
+			else
+			{
+                parameterInfos.add(new ParameterInfo(ParameterSource.INTERNAL, null, null, parameterIndex, parameterType,
+                        null));
 			}
 		}
 

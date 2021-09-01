@@ -66,6 +66,8 @@ public class ResourceController
     private final HashMap<String,String> hashMap;
     private final HashSet<String> doNotCacheFiles;  
     private final MessageDigest digest; 
+    private final String pathPrefixFind;
+    private final String pathPrefixReplace;
     
     public final static boolean TEST=true;
 
@@ -75,6 +77,8 @@ public class ResourceController
         this.cacheControl= serverApplication.getConfiguration().getBooleanValue("ResourceController.cacheControl", true);
         this.cacheControlMaxAge = serverApplication.getConfiguration().getIntegerValue("ResourceController.cacheControl.maxAgeS", 3600*24);
         this.cacheControlValue = serverApplication.getConfiguration().getValue("ResourceController.cacheControl.controlValue", "public");
+        this.pathPrefixFind= serverApplication.getConfiguration().getValue("ResourceController.pathPrefixFind", null);
+        this.pathPrefixReplace = serverApplication.getConfiguration().getValue("ResourceController.pathPrefixReplace", null);
         this.serverApplication = serverApplication;
         this.hashMap=new HashMap<>();
         this.doNotCacheFiles=new HashSet<>();
@@ -131,6 +135,13 @@ public class ResourceController
     @Log(responseContent=false)
     public void resource(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace parent) throws Throwable
     {
+        if (this.pathPrefixFind!=null)
+        {
+            if (file.startsWith(this.pathPrefixFind))
+            {
+                file=file.replaceFirst(pathPrefixFind, pathPrefixReplace);
+            }
+        }
         HttpServletResponse response = context.getHttpServletResponse();
         if (file!=null)
         {
