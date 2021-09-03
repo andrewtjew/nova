@@ -141,8 +141,6 @@ public class SessionFilter extends Filter
         }
         return token;
     }
-
-    
     
     @Override
     public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
