@@ -128,10 +128,9 @@ public class ExpireMap<KEY,VALUE>
                 HashMap<KEY,VALUE> generation=this.generations[index];
                 if (generation!=null)
                 {
-                    VALUE value=generation.get(key);
+                    VALUE value=generation.remove(key);
                     if (value!=null)
                     {
-                        generation.remove(key);
                         HashMap<KEY,VALUE> current=this.generations[this.generationIndex];
                         if (current==null)
                         {
@@ -287,10 +286,9 @@ public class ExpireMap<KEY,VALUE>
 		HashMap<KEY,VALUE> oldestGeneration=null;
 		synchronized (this)
 		{
-			int index=(this.generationIndex+1+this.generations.length)%this.generations.length;
-			oldestGeneration=this.generations[index];
-			this.generations[index]=null;
-			this.generationIndex++;
+		    this.generationIndex=(this.generationIndex+1)%this.generations.length;
+			oldestGeneration=this.generations[this.generationIndex];
+			this.generations[this.generationIndex]=null;
 		}
 		if (oldestGeneration==null)
 		{

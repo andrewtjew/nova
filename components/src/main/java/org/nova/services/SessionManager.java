@@ -68,6 +68,15 @@ public class SessionManager<SESSION extends Session>
         this.removeSessionMeter=new CountMeter();
         this.timeoutSessionMeter=new CountMeter();
     }
+    
+    public void enableExpiration() throws Exception
+    {
+        this.tokenSessions.start();
+    }
+    public void stop() throws Exception
+    {
+        this.tokenSessions.stop();
+    }
     public void addSession(Trace parent,SESSION session)
     {
         removeSessionByUser(parent, session.getUser());
