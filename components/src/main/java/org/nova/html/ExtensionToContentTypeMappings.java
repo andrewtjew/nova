@@ -23,11 +23,11 @@ package org.nova.html;
 
 import java.util.HashMap;
 
-public class ExtionsionToContentTypeMappings
+public class ExtensionToContentTypeMappings
 {
-    public static ExtionsionToContentTypeMappings fromDefault()
+    public static ExtensionToContentTypeMappings fromDefault()
     {
-        ExtionsionToContentTypeMappings mappings=new ExtionsionToContentTypeMappings();
+        ExtensionToContentTypeMappings mappings=new ExtensionToContentTypeMappings();
         mappings.addMappings("audio/aac", "aac");
         mappings.addMappings("audio/mpeg", "mp3","mpeg");
         mappings.addMappings("audio/mp4", "mp4");
@@ -52,7 +52,7 @@ public class ExtionsionToContentTypeMappings
     
     final private HashMap<String,String> typeMappings;
 
-	public ExtionsionToContentTypeMappings()
+	public ExtensionToContentTypeMappings()
 	{
 		this.typeMappings=new HashMap<>();
 	}

@@ -61,5 +61,14 @@ public class FormCheck extends StyleComponent<FormCheck>
         label.for_(element);
         return element;
     }
+    public InputRadio addInputRadio(String labelText,String id)
+    {
+        InputRadio element=new InputRadio().form_check_input();
+        element.id(id);
+        returnAddInner(element);
+        FormCheckLabel label=returnAddInner(new FormCheckLabel()).addInner(labelText);
+        label.for_(element);
+        return element;
+    }
     
 }
