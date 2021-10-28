@@ -26,8 +26,8 @@ import org.nova.core.Pair;
 public class Header extends Pair<String,String>
 {
 
-	public Header(String name, String value) 
-	{
-		super(name, value);
-	}
+    public Header(String name, Object value) 
+    {
+        super(name, value.toString());
+    }
 }

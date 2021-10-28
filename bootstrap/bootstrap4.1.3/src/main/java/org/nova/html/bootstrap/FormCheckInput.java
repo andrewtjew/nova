@@ -32,6 +32,11 @@ public class FormCheckInput extends InputComponent<FormCheckInput>
         super(radio?InputType.radio:InputType.checkbox,"form-check-input");
         
     }
+    public FormCheckInput(InputType type)
+    {
+        super(type,"form-check-input");
+        
+    }
     public FormCheckInput()
     {
         this(false);

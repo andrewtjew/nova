@@ -36,6 +36,10 @@ public class InputPassword extends InputComponent<InputPassword>
     {
         return attr("autocomplete",autocomplete);
     }
+    public InputPassword autocomplete(String autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
+    {
+        return attr("autocomplete",autocomplete);
+    }
     public InputPassword autocomplete(boolean autocomplete)
     {
         if (autocomplete)

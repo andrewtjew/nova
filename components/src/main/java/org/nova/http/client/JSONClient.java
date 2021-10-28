@@ -506,7 +506,6 @@ public class JSONClient
                 post.setHeader(header.getName(),header.getValue());
             }
             post.setHeader("Accept",this.contentType);
-            post.setHeader("Content-Type",this.contentType);
             logHeaders(context,post.getAllHeaders());
             context.beginWait();
             HttpResponse response=this.client.execute(post);

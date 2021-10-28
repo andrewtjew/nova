@@ -32,7 +32,7 @@ public class HtmlContentWriter extends ContentWriter<String>
     @Override
     public String getMediaType()
     {
-        return "text/html";
+        return "text/html;charset=utf-8";
     }
 
     @Override

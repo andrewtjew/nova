@@ -42,7 +42,7 @@ public class LogDirectoryManager
 	final private File directory;
 	final private String fullDirectoryPath;
 	final private long reserveSpace;
-	final private long maximumSize;
+	final private long maximumDirectorySize;
 	final private long maximumFiles;
 	private Throwable throwable;
 	private TreeMap<String,File> map;
@@ -65,7 +65,7 @@ public class LogDirectoryManager
 	{
 		this.reserveSpace=reserveSpace;
 		this.maximumFiles=maximumFiles;
-		this.maximumSize=maximumSize;
+		this.maximumDirectorySize=maximumSize;
 		this.directory=new File(directory);
 		this.maximumMakeSpaceAttempts=maximumMakeSpaceAttemps;
 		
@@ -169,10 +169,10 @@ public class LogDirectoryManager
 					}
 				}
 			}
-			if (this.maximumSize>0)
+			if (this.maximumDirectorySize>0)
 			{
 				int attempts=0;
-				while ((this.directorySize>this.maximumSize))
+				while ((this.directorySize>this.maximumDirectorySize))
 				{
 					this.directorySizeDeleteMeter.increment();
 					deleteFirst();
