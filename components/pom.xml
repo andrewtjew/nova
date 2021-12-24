@@ -25,7 +25,17 @@
 		<dependency>
 			<groupId>org.eclipse.jetty.http2</groupId>
 			<artifactId>http2-server</artifactId>
-			<version>9.4.8.v20171121</version>
+			<version>9.4.44.v20210927</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-server</artifactId>
+			<version>9.4.44.v20210927</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-servlet</artifactId>
+			<version>9.4.44.v20210927</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -99,16 +109,6 @@
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch.agentproxy.jsch</artifactId>
 			<version>0.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-server</artifactId>
-			<version>9.4.8.v20171121</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-servlet</artifactId>
-			<version>9.4.8.v20171121</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>

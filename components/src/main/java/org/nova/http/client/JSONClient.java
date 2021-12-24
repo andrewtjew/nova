@@ -480,6 +480,7 @@ public class JSONClient
     {
         return post(parent,traceCategoryOverride,pathAndQuery,content,new Header[0]);
     }
+
     public int post(Trace parent,String traceCategoryOverride,String pathAndQuery,Object content,Header...headers) throws Throwable
     {
         try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
@@ -506,6 +507,7 @@ public class JSONClient
                 post.setHeader(header.getName(),header.getValue());
             }
             post.setHeader("Accept",this.contentType);
+            post.setHeader("Content-Type",this.contentType);
             logHeaders(context,post.getAllHeaders());
             context.beginWait();
             HttpResponse response=this.client.execute(post);

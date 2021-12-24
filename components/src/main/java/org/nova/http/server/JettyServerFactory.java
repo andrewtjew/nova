@@ -50,7 +50,7 @@ public class JettyServerFactory
 
     static public Server createServer(int threads, int port)
     {
-        return createServer(new ExecutorThreadPool(threads, threads, 0), port);
+        return createServer(new ExecutorThreadPool(threads, threads), port);
     }
 
     static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
@@ -60,14 +60,14 @@ public class JettyServerFactory
         config.setRequestHeaderSize(8192);
         config.setResponseHeaderSize(8192);
         config.setSecurePort(port);
-        return createHttpsServer(new ExecutorThreadPool(threads, threads, 0),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+        return createHttpsServer(new ExecutorThreadPool(threads, threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
     }
     
     static public Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
     {
         Server server = new Server(threadPool);
         config.addCustomizer(new SecureRequestCustomizer());
-        SslContextFactory sslContextFactory = new SslContextFactory();
+        SslContextFactory sslContextFactory = new SslContextFactory.Server();
         if ((serverCertificateKeyPassword!=null)&&(serverCertificateKeyStorePath!=null))
         {
             sslContextFactory.setKeyStorePath(FileUtils.toNativePath(serverCertificateKeyStorePath));

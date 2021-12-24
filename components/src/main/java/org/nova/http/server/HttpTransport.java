@@ -37,6 +37,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.http.Header;
@@ -92,6 +93,8 @@ public class HttpTransport
     	                handleRequest(target, baseRequest, request, response);
     	            }
     	        };
+//    	        server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 1000000);
+//    	        server.setAttribute("org.eclipse.jetty.server.Request.maxFormKeys", 10000);
     			server.setHandler(handler);
     			server.start();
     		}
@@ -101,6 +104,7 @@ public class HttpTransport
 	        throw new Exception("Unable to start using ports: "+Utils.combine(this.ports, ", "),t);
 	    }
 	}
+	
 	public int[] getPorts()
 	{
        return this.ports;

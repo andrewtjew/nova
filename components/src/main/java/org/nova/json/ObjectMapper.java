@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.nova.utils.FileUtils;
 
@@ -51,6 +52,14 @@ public class ObjectMapper
         void write(WriteState writeState,Object object)
         {
             writeState.write(object.toString());
+        }
+    }
+    static class ValueStringWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            ValueString value=(ValueString)object;
+            writeState.writeEscapedString(value.get());
         }
     }
     static class StringWriter extends  Writer
@@ -74,6 +83,31 @@ public class ObjectMapper
             }
         }
     }
+    static class ObjectMapWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object) throws Throwable
+        {
+            boolean needComma = false;
+            writeState.begin('{');
+            ObjectMap map = (ObjectMap) object;
+            
+            for (Entry<String, Object> entry:map.entrySet())
+            {
+                Object fieldObject = entry.getValue();
+                if (fieldObject!=null)
+                {
+                    char[] jsonName = ('"' + entry.getKey() + '"' + ':').toCharArray();
+                    writeState.writeSeperator(needComma);
+                    writeState.writeName(jsonName);
+                    Writer writer=getWriter(fieldObject.getClass());
+                    writer.write(writeState, fieldObject);
+                    needComma=true;
+                }
+            }
+            writeState.end('}');
+        }
+    }
+    
     static class ObjectWriter extends  Writer
     {
         void write(WriteState writeState,Object object) throws Throwable
@@ -135,6 +169,14 @@ public class ObjectMapper
             else if (type == BigDecimal.class)
             {
                 writer=new PrimitiveWriter();
+            }
+            else if (type == ValueString.class)
+            {
+                writer=new ValueStringWriter();
+            }
+            else if (type == ObjectMap.class)
+            {
+                writer=new ObjectMapWriter();
             }
             if (writer!=null)
             {
@@ -880,7 +922,7 @@ public class ObjectMapper
             else
             {
                 this.position--;
-                getValueText();
+                getPrimitiveValue();
             }
         }
         public void skipOld() throws Exception
@@ -925,7 +967,7 @@ public class ObjectMapper
             }
             else
             {
-                getValueText();
+                getPrimitiveValue();
             }
         }
         private char next()
@@ -1110,7 +1152,7 @@ public class ObjectMapper
             throw new Exception("Boolean value expected: "+getError());
         }
 
-        public String getValueText() throws Exception
+        public String getPrimitiveValue() throws Exception
         {
             char character=nextNonWhiteSpaceCharacter();
             int start=this.position-1;
@@ -1138,11 +1180,25 @@ public class ObjectMapper
             }
         }
 
+        public String getValueString() throws Exception
+        {
+            char c=nextNonWhiteSpaceCharacter();
+            int start=--this.position;
+            skip();
+            if (c=='"')
+            {
+                String value=this.text.substring(start+1, this.position-1);
+                return value;
+            }
+            String value=this.text.substring(start, this.position);
+            return value;
+        }
+
         public byte getPrimitiveByte() throws Exception
         {
             try
             {
-                return Byte.parseByte(getValueText());
+                return Byte.parseByte(getPrimitiveValue());
             }
             catch (Throwable t)
             {
@@ -1153,7 +1209,7 @@ public class ObjectMapper
         {
             try
             {
-                return (char)Integer.parseUnsignedInt(getValueText());
+                return (char)Integer.parseUnsignedInt(getPrimitiveValue());
             }
             catch (Throwable t)
             {
@@ -1164,7 +1220,7 @@ public class ObjectMapper
         {
             try
             {
-                return Short.parseShort(getValueText());
+                return Short.parseShort(getPrimitiveValue());
             }
             catch (Throwable t)
             {
@@ -1173,7 +1229,7 @@ public class ObjectMapper
         }
         public int getPrimitiveInteger() throws Exception
         {
-            String text=getValueText();
+            String text=getPrimitiveValue();
             try
             {
                 return Integer.parseInt(text);
@@ -1213,7 +1269,7 @@ public class ObjectMapper
         
         public long getPrimitiveLong() throws Exception
         {
-            String value=getValueText();
+            String value=getPrimitiveValue();
             try
             {
                 return Long.parseLong(value);
@@ -1227,7 +1283,7 @@ public class ObjectMapper
         {
             try
             {
-                return Float.parseFloat(getValueText());
+                return Float.parseFloat(getPrimitiveValue());
             }
             catch (Throwable t)
             {
@@ -1238,7 +1294,7 @@ public class ObjectMapper
         {
             try
             {
-                return Double.parseDouble(getValueText());
+                return Double.parseDouble(getPrimitiveValue());
             }
             catch (Throwable t)
             {
@@ -1251,7 +1307,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1267,7 +1323,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1283,7 +1339,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1299,7 +1355,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1315,7 +1371,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1331,7 +1387,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1347,7 +1403,7 @@ public class ObjectMapper
         {
             try
             {
-                String text=getValueText();
+                String text=getPrimitiveValue();
                 if ("null".equals(text))
                 {
                     return null;
@@ -1364,12 +1420,12 @@ public class ObjectMapper
     
     static abstract class Reader
     {
-        abstract Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable;
+        abstract Object read(Scanner parser,Class<?> type,Options options) throws Throwable;
     }
     static class PrimitiveBooleanReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveBoolean();
         }
@@ -1377,7 +1433,7 @@ public class ObjectMapper
     static class PrimitiveIntegerReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveInteger();
         }
@@ -1385,7 +1441,7 @@ public class ObjectMapper
     static class PrimitiveLongReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveLong();
         }
@@ -1393,7 +1449,7 @@ public class ObjectMapper
     static class PrimitiveFloatReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveFloat();
         }
@@ -1401,7 +1457,7 @@ public class ObjectMapper
     static class PrimitiveDoubleReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveDouble();
         }
@@ -1409,7 +1465,7 @@ public class ObjectMapper
     static class PrimitiveByteReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveByte();
         }
@@ -1417,7 +1473,7 @@ public class ObjectMapper
     static class PrimitiveCharacterReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveCharacter();
         }
@@ -1425,7 +1481,7 @@ public class ObjectMapper
     static class PrimitiveShortReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getPrimitiveShort();
         }
@@ -1433,7 +1489,7 @@ public class ObjectMapper
     static class StringReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getString();
         }
@@ -1441,7 +1497,7 @@ public class ObjectMapper
     static class BooleanReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getBoolean();
         }
@@ -1449,7 +1505,7 @@ public class ObjectMapper
     static class IntegerReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getInteger();
         }
@@ -1457,7 +1513,7 @@ public class ObjectMapper
     static class LongReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getLong();
         }
@@ -1465,7 +1521,7 @@ public class ObjectMapper
     static class FloatReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getFloat();
         }
@@ -1473,7 +1529,7 @@ public class ObjectMapper
     static class DoubleReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getDouble();
         }
@@ -1481,7 +1537,7 @@ public class ObjectMapper
     static class ByteReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getByte();
         }
@@ -1489,7 +1545,7 @@ public class ObjectMapper
     static class CharacterReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getCharacter();
         }
@@ -1497,7 +1553,7 @@ public class ObjectMapper
     static class ShortReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             return parser.getShort();
         }
@@ -1505,7 +1561,7 @@ public class ObjectMapper
     static class EnumReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             String value=parser.getString();
             if (value==null)
@@ -1518,15 +1574,15 @@ public class ObjectMapper
     static class BigDecimalReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
-            return new BigDecimal(parser.getValueText()); 
+            return new BigDecimal(parser.getPrimitiveValue()); 
         }
     }
     static class ArrayReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             char c=parser.nextNonWhiteSpaceCharacter();
             if (c=='n')
@@ -1545,7 +1601,7 @@ public class ObjectMapper
             {
                 for (;;)
                 {
-                    list.add(reader.read(parser, componentType,ignoreUnknownFields));
+                    list.add(reader.read(parser, componentType,options));
                     if (parser.isEndOfArray())
                     {
                         break;
@@ -1560,10 +1616,12 @@ public class ObjectMapper
             return array;
         }
     }
+    
+    
     static class ObjectReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
         {
             char c=parser.nextNonWhiteSpaceCharacter();
             if (c=='n')
@@ -1589,7 +1647,7 @@ public class ObjectMapper
                     FieldReader fieldReader=reader.getFieldReader(name);
                     if (fieldReader==null)
                     {
-                        if (ignoreUnknownFields)
+                        if (options.ignoreUnknownFields)
                         {
                             parser.skip();
                         }
@@ -1600,7 +1658,7 @@ public class ObjectMapper
                     }
                     else
                     {
-                        fieldReader.read(parser, object,ignoreUnknownFields);
+                        fieldReader.read(parser, object,options);
                     }
                     if (parser.isEndOfElements())
                     {
@@ -1609,6 +1667,53 @@ public class ObjectMapper
                 }
             }
             return object;
+        }
+    }
+    
+    static class StringValueMapReader extends Reader
+    {
+        @Override
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        {
+            char c=parser.nextNonWhiteSpaceCharacter();
+            if (c=='n')
+            {
+                parser.expectRestOfNull();
+                return null;
+            }
+            if (c!='{')
+            {
+                throw new Exception("Elements or null expected: "+parser.getError()+". Error character="+c);
+            }
+            ObjectMap object=new ObjectMap();
+            if (parser.isNonEmptyElements())
+            {
+                for (;;)
+                {
+                    String name=parser.getName();
+                    if (name==null)
+                    {
+                        break;
+                    }
+                    String value=parser.getValueString();
+                    object.put(name, value);
+                    
+                    if (parser.isEndOfElements())
+                    {
+                        break;
+                    }
+                }
+            }
+            return object;
+        }
+    }
+    
+    static class ValueStringReader extends Reader
+    {
+        @Override
+        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        {
+            return new ValueString(parser.getValueString());
         }
     }
     
@@ -1623,9 +1728,9 @@ public class ObjectMapper
             this.reader=reader;
             this.field = field;
         }
-        void read(Scanner parser,Object object,boolean ignoreUnknownFields) throws Throwable
+        void read(Scanner parser,Object object,Options options) throws Throwable
         {
-            field.set(object, reader.read(parser,this.field.getType(),ignoreUnknownFields));
+            field.set(object, reader.read(parser,this.field.getType(),options));
         }
     }
 
@@ -1729,6 +1834,14 @@ public class ObjectMapper
         else if (type==BigDecimal.class)
         {
             reader=new BigDecimalReader();
+        }
+        else if (type==ObjectMap.class)
+        {
+            reader=new StringValueMapReader();
+        }
+        else if (type==ValueString.class)
+        {
+            reader=new ValueStringReader();
         }
         else
         {
@@ -1876,14 +1989,16 @@ public class ObjectMapper
         return classReader;
     }
 
+    static final Options DEFAULT_OPTIONS=new Options();
+    
     static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type) throws Throwable
     {
-        return readObjectFromFile(fileName,type,true);
+        return readObjectFromFile(fileName,type,DEFAULT_OPTIONS);
     }
-    static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type,boolean ignoreUnknownFields) throws Throwable
+    static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type,Options options) throws Throwable
     {
         String text=FileUtils.readTextFile(fileName);
-        return readObject(text,type,ignoreUnknownFields);
+        return readObject(text,type,options);
     }
     
     static public <OBJECT> OBJECT readObject(String text,Class<OBJECT> type) throws Throwable
@@ -1892,19 +2007,20 @@ public class ObjectMapper
         {
             return null;
         }
-        return readObject(text,type,true);
+        return readObject(text,type,DEFAULT_OPTIONS);
     }
     
-    static public <OBJECT> OBJECT readObject(String text,Class<OBJECT> type,boolean ignoreUnknownFields) throws Throwable
+    @SuppressWarnings("unchecked")
+    static public <OBJECT> OBJECT readObject(String text,Class<OBJECT> type,Options options) throws Throwable
     {
         Scanner parser=new Scanner(text);
-        return (OBJECT)readObject(parser,type,ignoreUnknownFields);
+        return (OBJECT)readObject(parser,type,options);
     }
 
-    static Object readObject(Scanner parser,Class<?> type,boolean ignoreUnknownFields) throws Throwable
+    static Object readObject(Scanner parser,Class<?> type,Options options) throws Throwable
     {
         Reader reader=getReader(type);
-        return reader.read(parser,type,ignoreUnknownFields);
+        return reader.read(parser,type,options);
     }
     
     

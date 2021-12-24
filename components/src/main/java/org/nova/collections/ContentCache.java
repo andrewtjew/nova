@@ -301,7 +301,7 @@ abstract public class ContentCache<KEY,VALUE>
 		this.ageMisses.set(0);
 	}
 	
-	public int getEntrySize()
+	public int size()
 	{
 		synchronized(this.nodeMap)
 		{

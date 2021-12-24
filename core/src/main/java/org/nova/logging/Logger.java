@@ -65,7 +65,19 @@ public abstract class Logger
 	{
 	    return this.category;
 	}
-	abstract public void log(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items);
+
+    public boolean enabled=true;
+    
+    
+    private void log(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
+    {
+        if (this.enabled)
+        {
+            write(trace,logLevel,category,throwable,message,items);
+        }
+    }
+    
+    abstract public void write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items);
 	
 	public static Item[] toArray(ArrayList<Item> items)
 	{

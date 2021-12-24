@@ -57,7 +57,7 @@ public class BootStrapPage extends Element
     	{
     	    this.head().addInner(new meta().http_equiv_content(http_equiv.X_UA_compatible,compatible));
     	}
-        this.head.addInner(new meta().http_equiv(http_equiv.content_type).name(name.viewport).content("text/html; charset=utf-8;width=device-width, initial-scale=1, shrink-to-fit=no"));
+        this.head.addInner(new meta().charset(character_set.UTF_8).http_equiv(http_equiv.content_type).name(name.viewport).content("width=device-width, initial-scale=1, shrink-to-fit=no"));
 //        this.head.addInner(new meta().http_equiv(http_equiv.content_type).content("text/html;charset=utf-8;"));
     	
     	

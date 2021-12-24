@@ -35,6 +35,7 @@ import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remoting.HtmlRemotingWriter;
 import org.nova.html.templating.Template;
 import org.nova.http.server.JettyServerFactory;
+import org.nova.http.server.WebSocketTransport;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HtmlContentWriter;
@@ -57,6 +58,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     final private HttpTransport publicTransport;
     final private HttpTransport privateTransport;
     final private HttpTransport operatorTransport;
+    final private WebSocketTransport websocketPublicTransport;
     
     final private HttpServer privateServer;
     final private HttpServer publicServer;
@@ -165,6 +167,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         { //Public http server
             boolean https=configuration.getBooleanValue("HttpServer.public.https",true);
             boolean http=configuration.getBooleanValue("HttpServer.public.http",false);
+            boolean websocket=configuration.getBooleanValue("HttpServer.public.websocket",false);
+            
+            
             int ports=0;
             if (https)
             {
@@ -211,15 +216,34 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 }
                 this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
+                int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
+                int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
+                for (Server server:servers)
+                {
+                    server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", maxFormContentSize);
+                    server.setAttribute("org.eclipse.jetty.server.Request.maxFormKeys", maxFormKeys);
+                }
+                
                 this.publicServer.addContentDecoders(new GzipContentDecoder());
                 this.publicServer.addContentEncoders(new GzipContentEncoder());
                 this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.publicServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter());
+                
+                if (websocket)
+                {
+                    Server server=JettyServerFactory.createServer(threads, 8080);
+                    this.websocketPublicTransport=new WebSocketTransport("/ws_hello", this.publicServer, server);
+                }
+                else
+                {
+                    this.websocketPublicTransport=null;
+                }
             }
             else
             {
                 this.publicServer=null;
                 this.publicTransport=null;
+                this.websocketPublicTransport=null;
             }
         }
 
@@ -255,7 +279,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 		{
 		    try
 		    {
-		        transport.start();
+                String ports="Ports: "+Utils.combine(transport.getPorts(), ", ");
+                System.out.println("Ports used:"+ports);
+                transport.start();
 		    }
 		    catch (Throwable t)
 		    {

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import javax.servlet.AsyncContext;
@@ -27,6 +28,9 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
 import org.eclipse.jetty.websocket.api.Session;
+import org.nova.json.ObjectMap;
+import org.nova.json.ObjectMapper;
+import org.nova.json.ValueString;
 import org.nova.parsing.scan.Scanner;
 import org.nova.parsing.scan.TextSource;
 
@@ -103,44 +107,59 @@ class WebSocketHttpServletRequest implements HttpServletRequest
     final String path;
     final String method;
     private WebSocketHttpServletInputStream inputStream;
+
+    static public class WebSocketHttpRequest
+    {
+        public String method;
+        public String url;
+        public ValueString data;
+        public ObjectMap headers;
+        
+    }
     
     WebSocketHttpServletRequest(Session session,String text) throws Throwable
     {
         this.session=session;
-        TextSource source=new TextSource(text);
-        Scanner scanner=new Scanner(source);
-        this.method=scanner.produceDelimitedText(' ', false).getValue();
-        scanner.skipWhiteSpaceAndBegin();
-        this.path=scanner.produceDelimitedText(' ', false).getValue();
-        scanner.skipWhiteSpaceAndBegin();
-        this.protocol=scanner.produceDelimitedText('\r', false).getValue();
+        WebSocketHttpRequest request=ObjectMapper.readObject(text, WebSocketHttpRequest.class);
+        this.method=request.method;
+        this.path=request.url;
+        this.protocol="NOVA-WS-HTTP/1.0";
         this.headers=new HashMap<>();
-        for (;;)
-        {
-            if (scanner.skipWhiteSpaceAndBegin()==0)
-            {
-                break;
-            }
-            String name=scanner.produceDelimitedText(':', false).getValue();
-            scanner.skip(1);
-            scanner.skipWhiteSpaceAndBegin();
-            String value=scanner.produceDelimitedText('\r', false).getValue();
-            this.headers.put(name, value);
-        }
         String contentLength=this.headers.get("Content-Length");
-        if (contentLength!=null)
+        
+        
+        this.headers.put("Content-Type", "application/json");
+        this.headers.put("Accept", "*/*");
+        if (request.headers!=null)
         {
-            this.contentLength=Integer.parseInt(contentLength);
+            for (Entry<String, Object> entry:request.headers.entrySet())
+            {
+                this.headers.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+        if (request.data!=null)
+        {
+            String data=request.data.get();
+            byte[] bytes=data.getBytes();
+            this.inputStream=new WebSocketHttpServletInputStream(bytes,0,bytes.length);
+            if (contentLength!=null)
+            {
+                this.contentLength=Integer.parseInt(contentLength);
+            }
+            else
+            {
+                this.contentLength=bytes.length;
+            }
         }
         else
         {
             this.contentLength=0;
         }
     }
-    void setContent(byte[] bytes,int offset,int length)
-    {
-        this.inputStream=new WebSocketHttpServletInputStream(bytes,offset,length);
-    }
+//    void setContent(byte[] bytes,int offset,int length)
+//    {
+//        this.inputStream=new WebSocketHttpServletInputStream(bytes,offset,length);
+//    }
     
     @Override
     public Object getAttribute(String name)

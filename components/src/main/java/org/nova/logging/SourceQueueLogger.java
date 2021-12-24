@@ -63,7 +63,7 @@ public class SourceQueueLogger extends Logger
     }
 
     @Override
-    public void log(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
+    public void write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
     {
         synchronized(this)
         {

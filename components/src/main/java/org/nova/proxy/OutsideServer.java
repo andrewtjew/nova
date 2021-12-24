@@ -177,7 +177,7 @@ public class OutsideServer
                 }
                 else
                 {
-                    tr.add("","");
+                    tr.add("","","");
                 }
                 tr.add(connection.getOutsideConnectionSize());
                 tr.add(new MoreButton(page.head(),new PathAndQuery("/proxy/outside/viewConnection").addQuery("insideHost",entry.getKey()).toString()));
