@@ -11,7 +11,7 @@ import com.mysql.fabric.xmlrpc.base.Array;
 public class Packet
 {
     private byte[] buffer;
-    private int insideDataSize;
+    private int size;
 
     
     static void read(InputStream inputStream,byte[] buffer,int offset,int size) throws Throwable
@@ -43,17 +43,17 @@ public class Packet
         return new Packet(buffer,insideDataSize);
     }
 
-    public Packet(byte[] buffer,int insideDataSize)
+    public Packet(byte[] buffer,int size)
     {
         this.buffer=buffer;
-        this.insideDataSize=insideDataSize;
+        this.size=size;
     }
 
     public Packet()
     {
         this.buffer=new byte[4];
         TypeUtils.bigEndianIntToBytes(0,this.buffer,0);
-        this.insideDataSize=0;
+        this.size=0;
     }
     
     public Packet(int capacity,int port)
@@ -73,20 +73,20 @@ public class Packet
         int read=inputStream.read(this.buffer, 8, this.buffer.length-8);
         if (read>0)
         {
-            this.insideDataSize=read+4;
-            TypeUtils.bigEndianIntToBytes(insideDataSize,this.buffer,0);
+            this.size=read+4;
+            TypeUtils.bigEndianIntToBytes(size,this.buffer,0);
         }
         return read;
     }
     public void writeToProxyStream(OutputStream outputStream) throws Throwable
     {
-        outputStream.write(this.buffer,0,this.insideDataSize+4);
+        outputStream.write(this.buffer,0,this.size+4);
         outputStream.flush();
     }
     
-    public int getDataSize()
+    public int size()
     {
-        return this.insideDataSize;
+        return this.size;
     }
     
     public int getPort()
@@ -96,7 +96,7 @@ public class Packet
     
     public void writeToStream(OutputStream outputStream) throws Throwable
     {
-        outputStream.write(this.buffer,8,this.insideDataSize-4);
+        outputStream.write(this.buffer,8,this.size-4);
         outputStream.flush();
     }
 }

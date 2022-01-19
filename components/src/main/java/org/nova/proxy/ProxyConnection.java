@@ -100,7 +100,7 @@ class ProxyConnection implements TraceRunnable
                 for (;;)
                 {
                     Packet proxyPacket=Packet.readFromProxyStream(this.inputStream);
-                    int dataSize=proxyPacket.getDataSize();
+                    int dataSize=proxyPacket.size();
                     if (dataSize==0)
                     {
                         this.lastKeepAliveReceived=System.currentTimeMillis();
@@ -258,7 +258,7 @@ class ProxyConnection implements TraceRunnable
             }
             try
             {
-                int dataSize=proxyPacket.getDataSize();
+                int dataSize=proxyPacket.size();
                 if (dataSize==4)
                 {
                     synchronized (this.outsideConnections)

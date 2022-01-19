@@ -56,6 +56,24 @@ public class Transformers
             }
         }
     }
+    public void addByMediaType(ContentReader<?>...contentReaders)
+    {
+        for (ContentReader<?> contentReader:contentReaders)
+        {
+            for (ContentReader<?> item:this.contentReaders)
+            {
+                if (item.getClass()==contentReader.getClass())
+                {
+                    this.contentReaders.remove(item);
+                }
+                else if (item.getMediaType().equalsIgnoreCase(contentReader.getMediaType()))
+                {
+                    this.contentReaders.remove(item);
+                }
+            }
+            this.contentReaders.add(contentReader);
+        }
+    }
     public void add(ContentWriter<?>...contentWriters)
     {
         for (ContentWriter<?> contentWriter:contentWriters)
@@ -64,6 +82,24 @@ public class Transformers
             {
                 this.contentWriters.add(contentWriter);
             }
+        }
+    }
+    public void addByMediaType(ContentWriter<?>...contentWriters)
+    {
+        for (ContentWriter<?> contentWriter:contentWriters)
+        {
+            for (ContentWriter<?> item:this.contentWriters)
+            {
+                if (item.getClass()==contentWriter.getClass())
+                {
+                    this.contentWriters.remove(item);
+                }
+                else if (item.getMediaType().equalsIgnoreCase(contentWriter.getMediaType()))
+                {
+                    this.contentWriters.remove(item);
+                }
+            }
+            this.contentWriters.add(contentWriter);
         }
     }
     public void add(ContentEncoder...contentEncoders)
@@ -76,14 +112,40 @@ public class Transformers
             }
         }
     }
+    public void addByCoding(ContentEncoder...contentEncoders)
+    {
+        for (ContentEncoder contentEncoder:contentEncoders)
+        {
+            for (ContentEncoder item:this.contentEncoders)
+            {
+                if (item.getCoding().equalsIgnoreCase(contentEncoder.getCoding()))
+                {
+                    this.contentEncoders.remove(item);
+                }
+                else if (item.getClass()==contentEncoder.getClass())
+                {
+                    this.contentEncoders.remove(item);
+                }
+            }
+            this.contentEncoders.add(contentEncoder);
+        }
+    }
     public void add(ContentDecoder...contentDecoders)
     {
         for (ContentDecoder contentDecoder:contentDecoders)
         {
-            if (this.getContentDecoder(contentDecoder.getClass())==null)
+            for (ContentDecoder item:this.contentDecoders)
             {
-                this.contentDecoders.add(contentDecoder);
+                if (item.getCoding().equalsIgnoreCase(contentDecoder.getCoding()))
+                {
+                    this.contentDecoders.remove(item);
+                }
+                else if (item.getClass()==contentDecoder.getClass())
+                {
+                    this.contentDecoders.remove(item);
+                }
             }
+            this.contentDecoders.add(contentDecoder);
         }
     }
     public void add(Filter...filters)

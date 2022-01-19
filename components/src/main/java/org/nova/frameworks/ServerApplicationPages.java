@@ -3674,6 +3674,59 @@ public class ServerApplicationPages
         }
         return null;
     }
+    private static String[] HTML_ESCAPES=new String[]{"&", "\"", "<", ">"};
+    private static String[] HTML_ESCAPEDS=new String[]{"&amp;", "&quot;", "&lt;", "&gt;"};
+      public static String escapeHtml(String text)
+      {
+          StringBuilder sb=new StringBuilder();
+          int start=0;
+          for (int i=0;i<text.length();i++)
+          {
+              char c=text.charAt(i);
+              if (c=='&')
+              {
+                  if (start<i)
+                  {
+                      sb.append(text.substring(start,i));
+                      sb.append("&amp;");
+                  }
+                  start=i+1;
+              }
+              else if (c=='"')
+              {
+                  if (start<i)
+                  {
+                      sb.append(text.substring(start,i));
+                      sb.append("&quot;");
+                  }
+                  start=i+1;
+              }
+              else if (c=='<')
+              {
+                  if (start<i)
+                  {
+                      sb.append(text.substring(start,i));
+                      sb.append("&lt;");
+                  }
+                  start=i+1;
+              }
+              else if (c=='>')
+              {
+                  if (start<i)
+                  {
+                      sb.append(text.substring(start,i));
+                      sb.append("&gt;");
+                  }
+                  start=i+1;
+              }
+    
+          }
+          if (start<text.length())
+          {
+              sb.append(text.substring(start,text.length()));
+          }
+          return sb.toString();
+      }
 
     static public class ParameterWriter
     {
@@ -3731,12 +3784,12 @@ public class ServerApplicationPages
     
                     if (fieldType.isArray())
                     {
-                        row.add(Utils.escapeHtml(fieldType.getComponentType().getName() + "[]"));
+                        row.add(escapeHtml(fieldType.getComponentType().getName() + "[]"));
                         fieldType = fieldType.getComponentType();
                     }
                     else
                     {
-                        row.add(Utils.escapeHtml(fieldType.getName()));
+                        row.add(escapeHtml(fieldType.getName()));
                     }
                     description = field.getAnnotation(Description.class);
                     if (description != null)
@@ -4295,7 +4348,7 @@ public class ServerApplicationPages
             page.content().addInner(new p());
         }
         Panel2 methodPanel=page.content().returnAddInner(new Panel2(page.head(),"Class Method"));
-        methodPanel.content().addInner(Utils.escapeHtml(method.toGenericString()+";"));
+        methodPanel.content().addInner(escapeHtml(method.toGenericString()+";"));
         page.content().addInner(new p());
         
         Panel2 executePanel=page.content().returnAddInner(new Panel2(page.head(),"Execute: "+key));

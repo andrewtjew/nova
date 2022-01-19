@@ -90,7 +90,7 @@ import org.nova.tracing.TraceRunnable;
             {
                 //this.outputStream cannot be null. If so, then implementation error.
                 proxyPacket.writeToStream(this.outputStream);
-                this.totalSent+=proxyPacket.getDataSize()-4;
+                this.totalSent+=proxyPacket.size()-4;
                 this.lastSent=System.currentTimeMillis();
             }
         }

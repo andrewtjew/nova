@@ -648,6 +648,7 @@ public class HtmlUtils
     public static String js_copyToClipboard(TagElement<?> element)
     {
         return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
+//        return "getElementById('"+element.id()+"').select();document.execCommand('Copy');";
     }
     public static String js_scollIntoView(String id)
     {

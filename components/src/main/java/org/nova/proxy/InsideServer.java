@@ -151,7 +151,7 @@ public class InsideServer
                     for (;;)
                     {
                         Packet proxyPacket=Packet.readFromProxyStream(this.proxyInputStream);
-                        int dataSize=proxyPacket.getDataSize();
+                        int dataSize=proxyPacket.size();
                         if (dataSize==0)
                         {
                             this.lastKeepAliveReceived=System.currentTimeMillis();
