@@ -27,7 +27,7 @@ import org.nova.html.deprecated.Table;
 import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
@@ -126,7 +126,7 @@ public class OperatorUtils
         return accordion;
     }
 
-    public static void writeTrace(Head head,InnerElement<?> content,Trace trace,boolean includeStackTraces) throws Exception
+    public static void writeTrace(Head head,NodeElement<?> content,Trace trace,boolean includeStackTraces) throws Exception
     {
         Panel3 panel=content.returnAddInner(new Panel3(head,trace.getCategory()));
         Table table=panel.content().returnAddInner(new Table(head));

@@ -24,7 +24,7 @@ package org.nova.html.operator;
 import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.Head;
@@ -54,11 +54,11 @@ public class Panel extends Element
         this.leftHeaderElements=new Content();
     }
     
-    public InnerElement<?> content()
+    public NodeElement<?> content()
     {
         return this.content;
     }
-    public InnerElement<?> header()
+    public NodeElement<?> header()
     {
         return this.header;
     }

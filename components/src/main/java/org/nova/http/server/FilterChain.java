@@ -39,12 +39,10 @@ public class FilterChain
 	private int filterIndex=0;
 	private final RequestHandlerWithParameters methodResult;
 	private final Filter[] filters;
-	private final DecoderContext decoderContext;
-	FilterChain(RequestHandlerWithParameters methodResult,DecoderContext decoderContext)
+	FilterChain(RequestHandlerWithParameters methodResult)
 	{
 		this.methodResult=methodResult;
 		this.filters=methodResult.requestHandler.getFilters();
-		this.decoderContext=decoderContext;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -299,6 +297,7 @@ public class FilterChain
         ContentReader<?> reader=null;
         Object content=null;
         
+        DecoderContext decoderContext=context.getDecoderContext();
         for (int i=0;i<parameterInfos.length;i++)
         {
             ParameterInfo parameterInfo=parameterInfos[i];
@@ -310,11 +309,11 @@ public class FilterChain
                     reader=context.getContentReader();
                     if (reader!=null)
                     {
-                        content=reader.read(context,this.decoderContext.getContentLength(),this.decoderContext.getInputStream(),parameterInfo.getType());
+                        content=reader.read(context,decoderContext.getContentLength(),decoderContext.getInputStream(),parameterInfo.getType());
                     }
                     else
                     {
-                        int value=this.decoderContext.getInputStream().read();
+                        int value=decoderContext.getInputStream().read();
                         if (value==-1)
                         {
                             content=null;

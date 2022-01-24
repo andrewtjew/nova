@@ -43,7 +43,7 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;

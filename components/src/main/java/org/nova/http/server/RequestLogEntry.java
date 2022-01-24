@@ -32,36 +32,21 @@ public class RequestLogEntry
 	final Trace trace;
 	final String requestContentText;
 	final String responseContentText;
-	final RequestHandler requestHandler;
-	final private String queryString;
+	final String queryString;
     final String requestHeaders;
     final String responseHeaders;
     final String requestParameters;
 	final int statusCode;
 	final String remoteEndPoint;
 	final String request;
-	final boolean htmlResponse;
+	final String contentType;
 
-	public RequestLogEntry(Trace trace,Context context,RequestHandler requestHandler,HttpServletRequest request,HttpServletResponse response)
+	public RequestLogEntry(Trace trace,String requestContentText,String responseContentText,HttpServletRequest request,HttpServletResponse response) throws Throwable
 	{
-	    boolean htmlResponse=false;
 		this.trace=trace;
-		this.requestContentText=context.getRequestContentText();
-		String contentType=response.getContentType();
-		if (contentType!=null)
-		{
-		    if (contentType.startsWith("text/html"))
-		    {
-				htmlResponse=true;
-		    }
-            this.responseContentText=context.getResponseContentText();
-		}
-		else
-		{
-			this.responseContentText=null;
-		}
-		this.htmlResponse=htmlResponse;
-		this.requestHandler=requestHandler;
+		this.requestContentText=requestContentText;
+        this.responseContentText=responseContentText;
+		this.contentType=response.getContentType();
 		this.queryString=request.getQueryString();
 		this.statusCode=response.getStatus();
 		this.request=request.getMethod()+" "+request.getRequestURI();
@@ -85,12 +70,6 @@ public class RequestLogEntry
 	{
 		return responseContentText;
 	}
-
-	public RequestHandler getRequestHandler()
-	{
-		return requestHandler;
-	}
-
 
 	public int getStatusCode()
 	{
@@ -124,8 +103,8 @@ public class RequestLogEntry
         return responseHeaders;
     }
 	
-    public boolean isHtmlResponse()
+    public String getContentType()
     {
-        return this.htmlResponse;
+        return this.contentType;
     }
 }

@@ -51,15 +51,6 @@ public class FileCache extends ContentCache<String,byte[]>
 		}
 	}
     
-    public String getLocalDirectoy()
-    {
-        return this.localDirectory;
-    }
-    public String getSharedDirectoy()
-    {
-        return this.sharedDirectory;
-    }
-	
 	static byte[] readFile(File file) throws Exception
     {
         if (file.exists()==false)
@@ -86,37 +77,41 @@ public class FileCache extends ContentCache<String,byte[]>
 	@Override
 	protected ValueSize<byte[]> load(Trace trace, String filePath) throws Throwable
 	{
-//	    if (filePath.startsWith("ex))
-	    
-	    String fullPath=this.localDirectory+File.separator+filePath;
-	    if (TEST_PRINT)
+	    if (this.localDirectory!=null)
 	    {
-	        System.out.println("FileCache.local:"+fullPath);
-	    }
-        File file=new File(FileUtils.toNativePath(fullPath));
-        if (file.getCanonicalPath().startsWith(this.localDirectory))
-        {
-            byte[] bytes=readFile(file);
-            if (bytes!=null)
+    	    String fullPath=this.localDirectory+File.separator+filePath;
+    	    if (TEST_PRINT)
+    	    {
+    	        System.out.println("FileCache.local:"+fullPath);
+    	    }
+            File file=new File(FileUtils.toNativePath(fullPath));
+            if (file.getCanonicalPath().startsWith(this.localDirectory))
             {
+                byte[] bytes=readFile(file);
+                if (bytes!=null)
+                {
+                    return new ValueSize<byte[]>(bytes,bytes.length);
+                }
+            }
+	    }
+	    if (this.sharedDirectory!=null)
+	    {
+            String fullPath=this.sharedDirectory+File.separator+filePath;
+            File file=new File(FileUtils.toNativePath(fullPath));
+            if (TEST_PRINT)
+            {
+                System.out.println("FileCache.shared:"+fullPath);
+            }
+            if (file.getCanonicalPath().startsWith(this.sharedDirectory))
+            {
+                byte[] bytes=readFile(file);
+                if (bytes==null)
+                {
+                    throw new Exception("File not found: "+filePath);
+                }
                 return new ValueSize<byte[]>(bytes,bytes.length);
             }
-        }
-        fullPath=this.sharedDirectory+File.separator+filePath;
-        file=new File(FileUtils.toNativePath(fullPath));
-        if (TEST_PRINT)
-        {
-            System.out.println("FileCache.shared:"+fullPath);
-        }
-        if (file.getCanonicalPath().startsWith(this.sharedDirectory))
-        {
-            byte[] bytes=readFile(file);
-            if (bytes==null)
-            {
-                throw new Exception("File not found: "+filePath);
-            }
-            return new ValueSize<byte[]>(bytes,bytes.length);
-        }
+	    }
         throw new Exception("Invalid file: "+filePath);
 	}
 	

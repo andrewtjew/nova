@@ -154,7 +154,7 @@ public class RequestHandler
 		return this.public_;
 	}
 	
-	public void update(Context context,int statusCode,long duration,long requestUncompressedContentSize,long responseUncompressedContentSize,long requestCompressedContentSize,long responseCompressedContentSize)
+	public void update(int statusCode,long duration,long requestUncompressedContentSize,long responseUncompressedContentSize,long requestCompressedContentSize,long responseCompressedContentSize)
 	{
 		synchronized (this)
 		{

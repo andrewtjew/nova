@@ -131,5 +131,13 @@ public class WsUtils
 		}
 		return true;
 	}
+	public static boolean isURIDirectorySafe(String URI)
+	{
+	    if (URI.contains("/../"))
+	    {
+	        return false;
+	    }
+	    return true;
+	}
 		
 }

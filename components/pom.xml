@@ -27,6 +27,7 @@
 			<artifactId>http2-server</artifactId>
 			<version>9.4.44.v20210927</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
 			<artifactId>websocket-server</artifactId>
@@ -57,7 +58,11 @@
 			<artifactId>javax.mail-api</artifactId>
 			<version>1.5.5</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>com.nixxcode.jvmbrotli</groupId>
+		    <artifactId>jvmbrotli</artifactId>
+		    <version>0.2.0</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>

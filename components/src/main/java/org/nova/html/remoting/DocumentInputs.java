@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import org.nova.core.NameObject;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;

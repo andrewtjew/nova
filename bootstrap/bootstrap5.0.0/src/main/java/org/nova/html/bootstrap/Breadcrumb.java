@@ -23,7 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.tags.nav;
 
 public class Breadcrumb extends StyleComponent<Breadcrumb>
@@ -46,7 +46,7 @@ public class Breadcrumb extends StyleComponent<Breadcrumb>
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        InnerElement<?> parent=new nav();
+        NodeElement<?> parent=new nav();
         
         parent.addInner(new Element()
         {

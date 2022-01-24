@@ -563,6 +563,14 @@ public class TypeUtils
         }
         return a.equalsIgnoreCase(b);
     }
+    static public boolean containsIgnoreCase(String a,String b)
+    {
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.toLowerCase().contains(b.toLowerCase());
+    }
 }
 
 

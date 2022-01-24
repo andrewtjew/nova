@@ -27,24 +27,24 @@ import java.util.ArrayList;
 public class Transformers
 {
 
-	final ArrayList<ContentReader<?>> contentReaders;
-	final ArrayList<ContentWriter<?>> contentWriters;
-	final ArrayList<ContentEncoder> contentEncoders;
-	final ArrayList<ContentDecoder> contentDecoders;
-	final ArrayList<Filter> filters;
-	final ArrayList<Filter> bottomFilters;
-	final ArrayList<Filter> topFilters;
-	
-	public Transformers()
-	{
-	    this.contentDecoders=new ArrayList<>();
-	    this.contentEncoders=new ArrayList<>();
-	    this.contentReaders=new ArrayList<>();
-	    this.contentWriters=new ArrayList<>();
-	    this.filters=new ArrayList<>();
-	    this.bottomFilters=new ArrayList<>();
-	    this.topFilters=new ArrayList<>();
-	}
+    final ArrayList<ContentReader<?>> contentReaders;
+    final ArrayList<ContentWriter<?>> contentWriters;
+    final ArrayList<ContentEncoder> contentEncoders;
+    final ArrayList<ContentDecoder> contentDecoders;
+    final ArrayList<Filter> filters;
+    final ArrayList<Filter> bottomFilters;
+    final ArrayList<Filter> topFilters;
+    
+    public Transformers()
+    {
+        this.contentDecoders=new ArrayList<>();
+        this.contentEncoders=new ArrayList<>();
+        this.contentReaders=new ArrayList<>();
+        this.contentWriters=new ArrayList<>();
+        this.filters=new ArrayList<>();
+        this.bottomFilters=new ArrayList<>();
+        this.topFilters=new ArrayList<>();
+    }
 
     public void add(ContentReader<?>...contentReaders)
     {
@@ -54,24 +54,6 @@ public class Transformers
             {
                 this.contentReaders.add(contentReader);
             }
-        }
-    }
-    public void addByMediaType(ContentReader<?>...contentReaders)
-    {
-        for (ContentReader<?> contentReader:contentReaders)
-        {
-            for (ContentReader<?> item:this.contentReaders)
-            {
-                if (item.getClass()==contentReader.getClass())
-                {
-                    this.contentReaders.remove(item);
-                }
-                else if (item.getMediaType().equalsIgnoreCase(contentReader.getMediaType()))
-                {
-                    this.contentReaders.remove(item);
-                }
-            }
-            this.contentReaders.add(contentReader);
         }
     }
     public void add(ContentWriter<?>...contentWriters)
@@ -84,24 +66,6 @@ public class Transformers
             }
         }
     }
-    public void addByMediaType(ContentWriter<?>...contentWriters)
-    {
-        for (ContentWriter<?> contentWriter:contentWriters)
-        {
-            for (ContentWriter<?> item:this.contentWriters)
-            {
-                if (item.getClass()==contentWriter.getClass())
-                {
-                    this.contentWriters.remove(item);
-                }
-                else if (item.getMediaType().equalsIgnoreCase(contentWriter.getMediaType()))
-                {
-                    this.contentWriters.remove(item);
-                }
-            }
-            this.contentWriters.add(contentWriter);
-        }
-    }
     public void add(ContentEncoder...contentEncoders)
     {
         for (ContentEncoder contentEncoder:contentEncoders)
@@ -112,40 +76,14 @@ public class Transformers
             }
         }
     }
-    public void addByCoding(ContentEncoder...contentEncoders)
-    {
-        for (ContentEncoder contentEncoder:contentEncoders)
-        {
-            for (ContentEncoder item:this.contentEncoders)
-            {
-                if (item.getCoding().equalsIgnoreCase(contentEncoder.getCoding()))
-                {
-                    this.contentEncoders.remove(item);
-                }
-                else if (item.getClass()==contentEncoder.getClass())
-                {
-                    this.contentEncoders.remove(item);
-                }
-            }
-            this.contentEncoders.add(contentEncoder);
-        }
-    }
     public void add(ContentDecoder...contentDecoders)
     {
         for (ContentDecoder contentDecoder:contentDecoders)
         {
-            for (ContentDecoder item:this.contentDecoders)
+            if (this.getContentDecoder(contentDecoder.getClass())==null)
             {
-                if (item.getCoding().equalsIgnoreCase(contentDecoder.getCoding()))
-                {
-                    this.contentDecoders.remove(item);
-                }
-                else if (item.getClass()==contentDecoder.getClass())
-                {
-                    this.contentDecoders.remove(item);
-                }
+                this.contentDecoders.add(contentDecoder);
             }
-            this.contentDecoders.add(contentDecoder);
         }
     }
     public void add(Filter...filters)
@@ -158,91 +96,91 @@ public class Transformers
             }
         }
     }
-	
-	
-	public Filter getFilter(Class<? extends Filter> type)
-	{
-		for (Filter filter:this.filters)
-		{
-		    for (Class<?> filterClass=filter.getClass();filterClass!=null;filterClass=filterClass.getSuperclass())
-		    {
-    			if (filterClass==type)
-    			{
-    				return filter;
-    			}
-		    }
-		}
-		return null;
-	}
+    
+    
+    public Filter getFilter(Class<? extends Filter> type)
+    {
+        for (Filter filter:this.filters)
+        {
+            for (Class<?> filterClass=filter.getClass();filterClass!=null;filterClass=filterClass.getSuperclass())
+            {
+                if (filterClass==type)
+                {
+                    return filter;
+                }
+            }
+        }
+        return null;
+    }
 
-	public ContentDecoder getContentDecoder(Class<? extends ContentDecoder> type)
-	{
-		for (ContentDecoder item:this.contentDecoders)
-		{
-			if (item.getClass()==type)
-			{
-				return item;
-			}
-		}
-		return null;
-	}
-	
-	public ContentEncoder getContentEncoder(Type type)
-	{
-		for (ContentEncoder item:this.contentEncoders)
-		{
-			if (item.getClass()==type)
-			{
-				return item;
-			}
-		}
-		return null;
-	}
-	
-	public ContentReader<?> getContentReader(Type type)
-	{
-		for (ContentReader<?> item:this.contentReaders)
-		{
-			if (item.getClass()==type)
-			{
-				return item;
-			}
-		}
-		return null;
-	}
+    public ContentDecoder getContentDecoder(Class<? extends ContentDecoder> type)
+    {
+        for (ContentDecoder item:this.contentDecoders)
+        {
+            if (item.getClass()==type)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    public ContentEncoder getContentEncoder(Type type)
+    {
+        for (ContentEncoder item:this.contentEncoders)
+        {
+            if (item.getClass()==type)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    public ContentReader<?> getContentReader(Type type)
+    {
+        for (ContentReader<?> item:this.contentReaders)
+        {
+            if (item.getClass()==type)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
 
-	public ContentWriter<?> getContentWriter(Type type)
-	{
-		for (ContentWriter<?> item:this.contentWriters)
-		{
-			if (item.getClass()==type)
-			{
-				return item;
-			}
-		}
-		return null;
-	}
-	public ContentReader<?> getContentReader(String mediaType)
-	{
-		for (ContentReader<?> item:this.contentReaders)
-		{
-			if (item.getMediaType().equals(mediaType))
-			{
-				return item;
-			}
-		}
-		return null;
-	}
-
-	public ContentWriter<?> getContentWriter(String mediaType)
-	{
-		for (ContentWriter<?> item:this.contentWriters)
-		{
-			if (item.getMediaType().equals(mediaType))
-			{
-				return item;
-			}
-		}
-		return null;
-	}
+    public ContentWriter<?> getContentWriter(Type type)
+    {
+        for (ContentWriter<?> item:this.contentWriters)
+        {
+            if (item.getClass()==type)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+//    public ContentReader<?> getContentReader(String mediaType)
+//    {
+//        for (ContentReader<?> item:this.contentReaders)
+//        {
+//            if (item.getMediaType().equalsIgnoreCase(mediaType))
+//            {
+//                return item;
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public ContentWriter<?> getContentWriter(String mediaType)
+//    {
+//        for (ContentWriter<?> item:this.contentWriters)
+//        {
+//            if (item.getMediaType().equalsIgnoreCase(mediaType))
+//            {
+//                return item;
+//            }
+//        }
+//        return null;
+//    }
 }

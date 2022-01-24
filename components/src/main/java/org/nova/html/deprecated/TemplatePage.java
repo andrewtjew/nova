@@ -23,7 +23,7 @@ package org.nova.html.deprecated;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.div;
@@ -32,7 +32,7 @@ public abstract class TemplatePage extends Element
 {
     final private Template template;
     final private Head head;
-    final private InnerElement<?> content;
+    final private NodeElement<?> content;
     private QuotationMark quotationMark;
     
     protected abstract Template getStaticTemplate();
@@ -49,7 +49,7 @@ public abstract class TemplatePage extends Element
         return this.template;
     }
 
-    public InnerElement<?> content()
+    public NodeElement<?> content()
     {
         return this.content;
     }

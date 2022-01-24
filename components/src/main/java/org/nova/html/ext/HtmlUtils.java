@@ -559,7 +559,8 @@ public class HtmlUtils
                             }
                             try
                             {
-                                sb.append(mark.toString()+ObjectMapper.writeObjectToString(Array.get(parameter, i))+mark.toString());
+//                                sb.append(mark.toString()+ObjectMapper.writeObjectToString(Array.get(parameter, i))+mark.toString());
+                                sb.append(escapeString(ObjectMapper.writeObjectToString(Array.get(parameter, i))));
                             }
                             catch (Throwable e)
                             {
@@ -572,7 +573,7 @@ public class HtmlUtils
                     {
                         try
                         {
-                            sb.append(mark.toString()+ObjectMapper.writeObjectToString(parameter)+mark.toString());
+                            sb.append(escapeString(ObjectMapper.writeObjectToString(parameter)));
                         }
                         catch (Throwable e)
                         {

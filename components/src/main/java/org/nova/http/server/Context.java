@@ -21,8 +21,15 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 public class Context
 {
@@ -36,12 +43,21 @@ public class Context
 	
 	private String responseContentText;
 	private String requestContentText;
-	
-	Context(RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
+	private DecoderContext decoderContext;
+	Context(DecoderContext decoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
 		this.requestHandler=requestHandler;
 		this.httpServletRequest=servletRequest;
 		this.httpServletResponse=servletResponse;
+		this.decoderContext=decoderContext;
+	}
+	public DecoderContext getDecoderContext()
+	{
+	    return this.decoderContext;
+	}
+	public void setDecoderContext(DecoderContext decoderContext)
+	{
+	    this.decoderContext=decoderContext;
 	}
 	public RequestHandler getRequestHandler()
 	{
@@ -99,13 +115,25 @@ public class Context
 	{
 		this.responseContentText=responseContentText;
 	}
-	public String getRequestContentText()
-	{
-		return requestContentText;
-	}
+	private boolean requestContentTextValid=false;
+    public String getRequestContentText() throws Throwable
+    {
+        if (this.requestContentTextValid==false)
+        {
+            InputStream inputStream=this.decoderContext.getInputStream();
+            this.requestContentText=FileUtils.readString(inputStream, StandardCharsets.UTF_8);
+            this.requestContentTextValid=true;
+        }
+        return this.requestContentText;
+    }
+    String getFinalRequestContentText() throws Throwable
+    {
+        return this.requestContentText;
+    }
 	public void setRequestContentText(String requestContentText)
 	{
 		this.requestContentText=requestContentText;
+        this.requestContentTextValid=true;
 	}
 	public boolean isCaptured()
 	{
@@ -120,3 +148,4 @@ public class Context
 		this.captured = true;
 	}
 }
+	

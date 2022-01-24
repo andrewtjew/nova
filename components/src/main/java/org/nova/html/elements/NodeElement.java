@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.nova.html.ext.Text;
 
-public class InnerElement<ELEMENT extends InnerElement<ELEMENT>> extends Element
+public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
 {
     protected ArrayList<Element> inners=null; 
 
@@ -81,13 +81,13 @@ public class InnerElement<ELEMENT extends InnerElement<ELEMENT>> extends Element
         return this.inners;
     }
     @Override
-    public void compose(Composer builder) throws Throwable
+    public void compose(Composer composer) throws Throwable
     {
         if (this.inners!=null)
         {
             for (Element inner:this.inners)
             {
-                inner.compose(builder);
+                inner.compose(composer);
             }
         }
     }
