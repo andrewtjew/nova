@@ -185,7 +185,7 @@ public class DatabaseUpdater
                     sb.append(" ["+column.getName()+"] "+column.getType());
                     if (column.getSize()>0)
                     {
-                        sb.append('('+column.getSize()+')');
+                        sb.append("("+column.getSize()+")");
                     }
                     if (column.isNullAllowed()==false)
                     {
