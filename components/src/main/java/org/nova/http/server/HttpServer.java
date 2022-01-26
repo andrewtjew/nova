@@ -397,8 +397,14 @@ public class HttpServer
                 decoderContext=this.identityContentDecoder.open(servletRequest, servletResponse);
             }
             //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
+            ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
+            if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
+            {
+                servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
+            }
+            EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 			
-            Context context = new Context(decoderContext, requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+            Context context = new Context(decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
             try 
 			{
 				FilterChain chain = new FilterChain(requestHandlerWithParameters);
@@ -434,12 +440,6 @@ public class HttpServer
                             {
                                 servletResponse.setContentType(writer.getMediaType());
                             }
-							ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
-							if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
-							{
-							    servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
-							}
-							EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 							try 
 							{
 								Method write = writer.getClass().getMethod("write", Context.class, OutputStream.class, Object.class);

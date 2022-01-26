@@ -42,7 +42,7 @@ public class JSONPatchContentReader extends ContentReader<Object>
 	@Override
 	public Object read(Context context, int contentLength, InputStream inputStream,Class<?> contentType) throws Throwable
 	{
-        String contentText=context.readDecodedContentText();
+        String contentText=context.readDecodedRequestContentText();
         return ObjectMapper.readObject(contentText,contentType);
 	}
 
