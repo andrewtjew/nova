@@ -207,5 +207,14 @@ public class FileUtils
     {
         return computeHashSHA256(new File(file),4096);
     }
+    public static String getFileNameWithExtension(String fullFilePath)
+    {
+        int index=fullFilePath.lastIndexOf(File.separatorChar);
+        if (index<0)
+        {
+            index=0;
+        }
+        return fullFilePath.substring(index);
+    }
 
 }

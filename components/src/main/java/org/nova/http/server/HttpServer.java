@@ -490,7 +490,7 @@ public class HttpServer
             }
 			finally
 			{
-			    requestContentText=context.getFinalRequestContentText();
+			    requestContentText=context.getRequestContentText();
 			    responseContentText=context.getResponseContentText();
 				if (decoderContext!=null)
 				{

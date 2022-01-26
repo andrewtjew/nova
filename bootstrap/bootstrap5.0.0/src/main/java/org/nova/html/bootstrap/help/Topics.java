@@ -38,14 +38,14 @@ public class Topics extends div
         addInner(topic);
     }
     
-    public String js_activate(int targetMargin,int zIndex) throws Throwable
+    public String js_activate(int startIndex,int targetMargin,int zIndex) throws Throwable
     {
         Link[] links=this.links.toArray(new Link[this.links.size()]);
-        String code=HtmlUtils.js_call("Nova.Help.activate", targetMargin,zIndex,links);
+        String code=HtmlUtils.js_call("Nova.Help.activate", startIndex,targetMargin,zIndex,links);
         return code;
     }
     public String js_activate() throws Throwable
     {
-        return js_activate(2,100);
+        return js_activate(0,2,100);
     }
 }

@@ -113,13 +113,18 @@ public class FileDownloadHandler extends ServletHandler
     final private long cacheControlMaxAge;
     final private ExtensionToContentTypeMappings mappings;
     final private HashSet<String> doNotCompressFileExtensions;
-    final private String indexFile="index.html";
+    final private HashSet<String> noBrowserCachingPaths;
+    final private String indexFile;
     final private Cache cache;
 //    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
     final private String[] preferredEncodings=new String[] {"deflate","gzip","raw"};
     
+    static public String CACHE_CONTROL="public";
+    static public long CACHE_CONTROL_MAX_AGE=100L*24L*3600L;
+    static public long MAX_AGE=0;
     
-    static HashSet<String> defaultDoNotCompressFileExtensions()
+    
+    public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
         HashSet<String> set=new HashSet<String>();
         set.add("gif");
@@ -127,24 +132,44 @@ public class FileDownloadHandler extends ServletHandler
         set.add("png");
         return set;
     }
+
+    public static HashSet<String> defaultNoBrowserCachingPaths()
+    {
+        HashSet<String> set=new HashSet<String>();
+        set.add("/index.html");
+        return set;
+    }
     
     //cacheControlMaxAge in seconds, maxAge in ms
-    public FileDownloadHandler(String rootDirectory,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
+    public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions) throws Throwable
     {
         this.mappings=mappings;
         this.doNotCompressFileExtensions=doNotCompressExtensions;
+        this.noBrowserCachingPaths=noBrowserCachingPaths;
         
         File file=new File(rootDirectory);
         this.rootDirectory=file.getCanonicalPath();
         this.cacheControlMaxAge=cacheControlMaxAge;
         this.cache=new Cache(maxAge, maxSize, freeMemory);
         this.cacheControl=cacheControl;
+        this.indexFile=indexFile;
+    }
+    public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
+    {
+        this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions());
+    }
+    public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths) throws Throwable
+    {
+        this(rootDirectory,noBrowserCachingPaths,CACHE_CONTROL,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
     }
     public FileDownloadHandler(String rootDirectory) throws Throwable
     {
-        this(rootDirectory,ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),"public",100L*24L*3600L,0,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
+        this(rootDirectory,defaultNoBrowserCachingPaths());
     }
-
+    public void evictAll()
+    {
+        this.cache.evictAll();
+    }
     @Override
     public void handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
@@ -164,8 +189,9 @@ public class FileDownloadHandler extends ServletHandler
         {
             remoteFile=URI;
         }
-        String localFile=FileUtils.toNativePath(this.rootDirectory+remoteFile);
-        File file=new File(localFile);
+        String localFilePath=FileUtils.toNativePath(this.rootDirectory+remoteFile);
+        
+        File file=new File(localFilePath);
         String path=file.getCanonicalPath();
         if (path.contains(this.rootDirectory)==false)
         {
@@ -186,6 +212,13 @@ public class FileDownloadHandler extends ServletHandler
         }
 
         boolean browserCachingEnabled=this.cacheControl!=null;
+        if (this.noBrowserCachingPaths!=null)
+        {
+            if (this.noBrowserCachingPaths.contains(remoteFile))
+            {
+                browserCachingEnabled=false;
+            }
+        }
 
         String cacheControlValue=request.getHeader("Cache-Control");
         boolean cacheControlSet=false;
@@ -230,7 +263,7 @@ public class FileDownloadHandler extends ServletHandler
         response.setContentType(this.mappings.getContentType(remoteFile));
         String extension=Files.getFileExtension(remoteFile).toLowerCase();
         boolean doNotCompress=this.doNotCompressFileExtensions.contains(extension);
-        send(parent, request, response, localFile,doNotCompress);
+        send(parent, request, response, localFilePath,doNotCompress);
         response.setStatus(HttpStatus.OK_200);
     }
 

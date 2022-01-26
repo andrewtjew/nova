@@ -116,7 +116,7 @@ public class Context
 		this.responseContentText=responseContentText;
 	}
 	private boolean requestContentTextValid=false;
-    public String getRequestContentText() throws Throwable
+    public String readDecodedContentText() throws Throwable
     {
         if (this.requestContentTextValid==false)
         {
@@ -126,7 +126,7 @@ public class Context
         }
         return this.requestContentText;
     }
-    String getFinalRequestContentText() throws Throwable
+    String getRequestContentText() throws Throwable
     {
         return this.requestContentText;
     }

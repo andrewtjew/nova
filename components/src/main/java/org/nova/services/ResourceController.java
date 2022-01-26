@@ -88,7 +88,7 @@ public class ResourceController
 
     public void clearCache()
     {
-        this.cache.removeAll();
+        this.cache.evictAll();
         synchronized(this)
         {
             this.hashMap.clear();
@@ -176,7 +176,7 @@ public class ResourceController
             {
                 if (this.cacheControl==false)
                 {
-                    this.cache.remove(file);
+                    this.cache.evict(file);
                 }
                 bytes = this.cache.get(parent, file);
                 if (TEST)
