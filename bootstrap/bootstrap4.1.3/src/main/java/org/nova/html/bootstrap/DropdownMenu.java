@@ -36,7 +36,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
         {
             button.addClass("dropdown-toggle-split");
         }
-        button.data("toggle","dropdown");
+        button.attr("data-toggle","dropdown");
         
     }
     public DropdownMenu(StyleComponent<?> button)

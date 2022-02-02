@@ -27,22 +27,22 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.Content;
 
-public class Document extends Element
+public class Instance extends Element
 {
     final HashMap<String,Content> map;
     final Content content;
     
-    public Document(Template template)
+    public Instance(Template template)
     {
         this.content=new Content();
         this.map=new HashMap<>();
         for (Element element:template.elements)
         {
-            if (element instanceof InsertMarker)
+            if (element instanceof ReplaceMarker)
             {
-                InsertMarker marker=(InsertMarker)element;
+                ReplaceMarker marker=(ReplaceMarker)element;
                 Content markerContent=new Content();
-                this.map.put(marker.name,markerContent);
+                this.map.put(marker.key,markerContent);
                 this.content.addInner(markerContent);
             }
             else

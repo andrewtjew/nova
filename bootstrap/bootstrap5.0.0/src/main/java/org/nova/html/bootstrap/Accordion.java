@@ -52,8 +52,8 @@ public class Accordion extends StyleComponent<Accordion>
 //        body.border();
 //        body.addInner(text);
         
-        button.data("toggle","collapse");
-        button.data("target","#"+collapse.id());
+        button.attr("data-toggle","collapse");
+        button.attr("data-target","#"+collapse.id());
         
         return this;
     }

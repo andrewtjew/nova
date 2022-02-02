@@ -297,7 +297,6 @@ public class FilterChain
         ContentReader<?> reader=null;
         Object content=null;
         
-        DecoderContext decoderContext=context.getDecoderContext();
         for (int i=0;i<parameterInfos.length;i++)
         {
             ParameterInfo parameterInfo=parameterInfos[i];
@@ -309,10 +308,11 @@ public class FilterChain
                     reader=context.getContentReader();
                     if (reader!=null)
                     {
-                        content=reader.read(context,decoderContext.getContentLength(),decoderContext.getInputStream(),parameterInfo.getType());
+                        content=reader.read(context,parameterInfo.getType());
                     }
                     else
                     {
+                        DecoderContext decoderContext=context.getDecoderContext();
                         int value=decoderContext.getInputStream().read();
                         if (value==-1)
                         {

@@ -26,13 +26,13 @@ import org.nova.html.elements.Element;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
 
-public class ButtonDropdown extends ButtonComponent<ButtonDropdown>
+public class DropdownButton extends ButtonComponent<DropdownButton>
 {
     final private Item menu;
     private boolean split;
     private boolean menuRight;
     
-    public ButtonDropdown(String label)
+    public DropdownButton(String label)
     {
         super("button");
         attr("type","button");
@@ -41,29 +41,29 @@ public class ButtonDropdown extends ButtonComponent<ButtonDropdown>
         this.menu=new Item();
     }
     
-    public ButtonDropdown addToMenu(String label,String href)
+    public DropdownButton addToMenu(String label,String href)
     {
         this.menu.addInner(new a().addClass("dropdown-item").href(href).addInner(label));
         return this;
     }
-    public ButtonDropdown addToMenu(Element element)
+    public DropdownButton addToMenu(Element element)
     {
         this.menu.addInner(element);
         return this;
     }
 
-    public ButtonDropdown addDivider()
+    public DropdownButton addDivider()
     {
         this.menu.addInner(new div().addClass("dropdown-divider"));
         return this;
     }
-    public ButtonDropdown menuRight(boolean value)
+    public DropdownButton menuRight(boolean value)
     {
         this.menuRight=value;
         return this;
     }
 
-    public ButtonDropdown split()
+    public DropdownButton split()
     {
         this.split=true;
         return this;

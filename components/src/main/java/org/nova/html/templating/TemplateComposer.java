@@ -53,7 +53,7 @@ public class TemplateComposer extends Composer
     }
     
     
-    void mark(InsertMarker marker)
+    void mark(ReplaceMarker marker)
     {
         if (this.sb.length()>0)
         {

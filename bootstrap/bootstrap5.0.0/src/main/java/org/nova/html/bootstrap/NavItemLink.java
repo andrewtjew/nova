@@ -21,17 +21,52 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.tags.span;
+import org.nova.html.elements.Composer;
 
-public class ToggleDropdownButton extends ButtonComponent<ToggleDropdownButton>
+public class NavItemLink extends ToggleComponent<NavItemLink>
 {
-
-    public ToggleDropdownButton()
+    public NavItemLink()
     {
-        super("button");
-        addClass("dropdown-toggle-split");
-        attr("type","button");
-        addInner(new span().addClass("sr-only").addInner("Toggle Dropdown"));
+        super("a","nav-link");
     }
-   
+    public NavItemLink(String label,String href)
+    {
+        this();
+        attr("href",href);
+        addInner(label);
+    }
+    public NavItemLink(String label)
+    {
+        this(label,null);
+    }
+    public NavItemLink active()
+    {
+        addClass("active");
+        return this;
+    }
+    public NavItemLink disabled()
+    {
+        addClass("disabled");
+        return this;
+    }
+    public NavItemLink href(String href)
+    {
+        attr("href",href);
+        return this;
+    }
+    boolean composing=false;
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (composing==false)
+        {
+            composing=true;
+            NavItem item=new NavItem();
+            item.addInner(this);
+            item.compose(composer);
+            return;
+        }
+        super.compose(composer);
+    }    
+    
 }

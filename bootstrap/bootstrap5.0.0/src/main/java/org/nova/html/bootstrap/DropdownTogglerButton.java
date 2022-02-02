@@ -19,28 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.templating;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
+import org.nova.html.tags.span;
 
-public class InsertMarker extends Element
+public class DropdownTogglerButton extends ButtonComponent<DropdownTogglerButton>
 {
-    final public String name;
-    
-    public InsertMarker(String name)
-    {
-        this.name=name;
-    }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        if (composer instanceof TemplateComposer)
-        {
-            TemplateComposer templateComposer=(TemplateComposer)composer;
-            templateComposer.mark(this);
-        }
-    }
 
+    public DropdownTogglerButton()
+    {
+        super("button");
+        addClass("dropdown-toggle-split");
+        attr("type","button");
+        addInner(new span().addClass("sr-only").addInner("Toggle Dropdown"));
+    }
+   
 }

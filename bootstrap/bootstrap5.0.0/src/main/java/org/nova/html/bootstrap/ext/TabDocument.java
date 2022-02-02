@@ -51,7 +51,7 @@ public class TabDocument extends TabContent
         NavItem navItem=this.nav.returnAddInner(new NavItem());
         TabPane tabPane=returnAddInner(new TabPane()).fade();
         NavLink navLink=navItem.returnAddInner(new NavLink()).addInner(label);
-        navLink.data("toggle", "tab");
+        navLink.attr("data-toggle", "tab");
         navLink.attr("href", "#"+tabPane.id());
         
         
@@ -82,7 +82,7 @@ public class TabDocument extends TabContent
     {
         NavItem navItem=this.nav.returnAddInner(new NavItem());
         navItem.addInner(navLink);
-        navLink.data("toggle", "tab");
+        navLink.attr("data-toggle", "tab");
         navLink.attr("href", "#"+tabPane.id());
         
         addInner(tabPane);

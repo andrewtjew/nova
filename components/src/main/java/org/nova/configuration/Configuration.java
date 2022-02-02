@@ -89,7 +89,7 @@ public class Configuration
 		return element.getFileName()+"."+element.getLineNumber();
 	}
 
-	public ConfigurationItem getConfigurationItem(String name,String defaultValue)
+	public ConfigurationItem getConfigurationItem(String name,String defaultValue) throws Exception
 	{
 		synchronized (this)
 		{
@@ -101,6 +101,14 @@ public class Configuration
 					this.map.put(name, item);
 				}
 			}
+			else if (item.getSource()==ConfigurationSource.DEFAULT)
+			{
+			    if (TypeUtils.equals(defaultValue, item.getValue())==false)
+			    {
+			        throw new Exception("Inconsistent default values:  from "+item.getSourceContext()+"="+item.getValue()+", new="+defaultValue);
+			    }
+			}
+			
 			return item;
 		}
 	}
@@ -114,7 +122,7 @@ public class Configuration
 		}
 		return item.getValue();
 	}
-	public String getValue(String name,String defaultValue)
+	public String getValue(String name,String defaultValue) throws Exception
 	{
 		ConfigurationItem item=getConfigurationItem(name,defaultValue);
 		if (item==null)
@@ -124,7 +132,7 @@ public class Configuration
 		return item.getValue();
 	}
 
-	private String getValue(String name,Object defaultValue)
+	private String getValue(String name,Object defaultValue) throws Exception
     {
         ConfigurationItem item=getConfigurationItem(name,defaultValue==null?null:defaultValue.toString());
         if (item==null)
@@ -139,7 +147,7 @@ public class Configuration
 		String value=getValue(name);
 		return Double.parseDouble(value);
 	}
-	public double getDoubleValue(String name,double defaultValue)
+	public double getDoubleValue(String name,double defaultValue) throws Exception
 	{
 		String value=getValue(name,defaultValue);
 		if (value==null)
@@ -157,7 +165,7 @@ public class Configuration
         }
         return Double.parseDouble(value);
     }
-    public Double getNullableDoubleValue(String name,Double defaultValue)
+    public Double getNullableDoubleValue(String name,Double defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -171,7 +179,7 @@ public class Configuration
 		String value=getValue(name);
 		return Float.parseFloat(value);
 	}
-	public float getFloatValue(String name,float defaultValue)
+	public float getFloatValue(String name,float defaultValue) throws Exception
 	{
 		String value=getValue(name,defaultValue);
         if (value==null)
@@ -272,7 +280,7 @@ public class Configuration
 	}
 
 	
-	public long getLongValue(String name,long defaultValue)
+	public long getLongValue(String name,long defaultValue) throws Exception
 	{
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -291,7 +299,7 @@ public class Configuration
         return parseLong(value);
     }
 
-    public Long getNullableLongValue(String name,Long defaultValue)
+    public Long getNullableLongValue(String name,Long defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -307,7 +315,7 @@ public class Configuration
         return parseInt(value);
     }
 
-    public int getIntegerValue(String name,int defaultValue)
+    public int getIntegerValue(String name,int defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -326,7 +334,7 @@ public class Configuration
         return parseInt(value);
     }
 
-    public Integer getNullableIntegerValue(String name,Integer defaultValue)
+    public Integer getNullableIntegerValue(String name,Integer defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -342,7 +350,7 @@ public class Configuration
 		return Short.parseShort(value);
 	}
 
-	public short getShortValue(String name,short defaultValue)
+	public short getShortValue(String name,short defaultValue) throws Exception
 	{
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -361,7 +369,7 @@ public class Configuration
         return Short.parseShort(value);
     }
 
-    public Short getNullableShortValue(String name,Short defaultValue)
+    public Short getNullableShortValue(String name,Short defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -377,7 +385,7 @@ public class Configuration
         return Byte.parseByte(value);
     }
 
-    public byte getByteValue(String name,byte defaultValue)
+    public byte getByteValue(String name,byte defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -412,7 +420,7 @@ public class Configuration
 		return Boolean.parseBoolean(value);
 	}
 
-	public boolean getBooleanValue(String name,boolean defaultValue)
+	public boolean getBooleanValue(String name,boolean defaultValue) throws Exception
 	{
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -431,7 +439,7 @@ public class Configuration
         return Boolean.parseBoolean(value);
     }
 
-    public Boolean getNullableBooleanValue(String name,Boolean defaultValue)
+    public Boolean getNullableBooleanValue(String name,Boolean defaultValue) throws Exception
     {
         String value=getValue(name,defaultValue);
         if (value==null)
@@ -453,7 +461,7 @@ public class Configuration
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue,Class<ENUM> type)
+	public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue,Class<ENUM> type) throws Exception
 	{
 	    String value=getValue(name,defaultValue);
 	    if (value==null)

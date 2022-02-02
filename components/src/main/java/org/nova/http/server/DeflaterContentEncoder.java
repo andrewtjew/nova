@@ -23,6 +23,7 @@ package org.nova.http.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,17 +31,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nova.io.SizeOutputStream;
 
-public class GzipContentEncoder extends ContentEncoder
+public class DeflaterContentEncoder extends ContentEncoder
 {
 	static class Context extends EncoderContext
 	{
 		final private SizeOutputStream uncompressedOutputStream;
 		final private SizeOutputStream compressedOutputStream;
-		final private GZIPOutputStream compressingOutputStream;		
+		final private DeflaterOutputStream compressingOutputStream;		
 		Context(OutputStream outputStream) throws IOException
 		{
 			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.compressingOutputStream=new GZIPOutputStream(this.compressedOutputStream);
+			this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream);
 			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
 		}
 
@@ -71,7 +72,7 @@ public class GzipContentEncoder extends ContentEncoder
 	@Override
 	public String getCoding()
 	{
-		return "gzip";
+		return "deflate";
 	}
 
 	@Override

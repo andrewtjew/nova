@@ -22,63 +22,73 @@
 package org.nova.http.server;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.GZIPOutputStream;
+import java.io.InputStream;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nova.io.SizeOutputStream;
+import org.nova.io.SizeInputStream;
 
-public class GzipContentEncoder extends ContentEncoder
+public class DeflaterContentDecoder extends ContentDecoder
 {
-	static class Context extends EncoderContext
+	static class Context extends DecoderContext
 	{
-		final private SizeOutputStream uncompressedOutputStream;
-		final private SizeOutputStream compressedOutputStream;
-		final private GZIPOutputStream compressingOutputStream;		
-		Context(OutputStream outputStream) throws IOException
+		final private SizeInputStream uncompressedInputStream;
+		final private SizeInputStream compressedInputStream;
+		final private DeflaterInputStream decompressingInputStream;
+		final private int contentLength;
+		
+		Context(InputStream inputStream,int contentLength) throws IOException
 		{
-			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.compressingOutputStream=new GZIPOutputStream(this.compressedOutputStream);
-			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
+			this.compressedInputStream=new SizeInputStream(inputStream);
+			this.decompressingInputStream=new DeflaterInputStream(this.compressedInputStream);
+			this.uncompressedInputStream=new SizeInputStream(decompressingInputStream);
+			this.contentLength=contentLength;
+		}
+		
+		@Override
+		public InputStream getInputStream() throws Throwable
+		{
+			return this.uncompressedInputStream;
 		}
 
 		@Override
 		public void close() throws Exception
 		{
-			this.uncompressedOutputStream.close();
+			this.uncompressedInputStream.close();
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws Throwable
+		public long getUncompressedContentSize() throws Throwable
 		{
-			return this.uncompressedOutputStream;
-		}
-		
-		@Override
-		public long getUncompressedContentSize()
-		{
-			return this.uncompressedOutputStream.getBytesStreamed();
+			return this.uncompressedInputStream.getBytesStreamed();
 		}
 
 		@Override
 		public long getCompressedContentSize() throws Throwable
 		{
-			return this.compressedOutputStream.getBytesStreamed();
+			return this.compressedInputStream.getBytesStreamed();
 		}
+
+        @Override
+        public int getContentLength() throws Throwable
+        {
+            return this.contentLength;
+        }
 	}
+	
 	@Override
 	public String getCoding()
 	{
-		return "gzip";
+		return "deflate";
 	}
 
 	@Override
-	public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
+	public DecoderContext open(HttpServletRequest request,HttpServletResponse response) throws IOException
 	{
-		response.setHeader("Content-Encoding", getCoding());
-		return new Context(response.getOutputStream());
+		return new Context(request.getInputStream(),request.getContentLength());
 	}
 
 }

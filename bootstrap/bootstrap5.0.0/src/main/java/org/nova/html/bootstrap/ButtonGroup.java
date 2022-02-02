@@ -28,7 +28,7 @@ public class ButtonGroup extends StyleComponent<ButtonGroup>
     public ButtonGroup()
     { 
         super("div","btn-group");
-        attr("role","group");
+//        attr("role","group");
     }
     
     public ButtonGroup vertical()

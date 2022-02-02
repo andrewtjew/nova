@@ -38,7 +38,7 @@ public class AjaxQueryResultWriter extends ContentWriter<AjaxQueryResult>
 	}
 
 	@Override
-	public void write(Context context, OutputStream outputStream, AjaxQueryResult content) throws Throwable
+	public void write(Context context, AjaxQueryResult content) throws Throwable
 	{
 		StringBuilder sb=new StringBuilder();
 		sb.append('{');
@@ -115,7 +115,7 @@ public class AjaxQueryResultWriter extends ContentWriter<AjaxQueryResult>
 			}
 		}
 		sb.append('}');
-		outputStream.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+		context.writeEncodedContentText(sb.toString(), StandardCharsets.UTF_8);
 	}
 
 	@Override

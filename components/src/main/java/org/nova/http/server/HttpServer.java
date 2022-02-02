@@ -442,9 +442,9 @@ public class HttpServer
                             }
 							try 
 							{
-								Method write = writer.getClass().getMethod("write", Context.class, OutputStream.class, Object.class);
+								Method write = writer.getClass().getMethod("write", Context.class, Object.class);
 								Object content = response.getContent();
-								write.invoke(writer, context, encoderContext.getOutputStream(), content);
+								write.invoke(writer, context, content);
 							}
 							finally
 							{

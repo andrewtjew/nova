@@ -19,45 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.html.templating;
 
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.Element;
+import org.nova.html.elements.NodeElement;
+import org.nova.html.elements.TagElement;
 
-public class TextContentWriter extends ContentWriter<String>
+public class ReplaceMarker extends TagElement<ReplaceMarker>
 {
-	final private String mediaType;
-	
-    public TextContentWriter(String mediaType)
+    final String key;
+    
+    public ReplaceMarker(String key)
     {
-        this.mediaType=mediaType;
+        super("x-replace");
+        attr("key",key);
+        this.key=key;
     }
     
-    public TextContentWriter()
+    @Override
+    public void compose(Composer composer) throws Throwable
     {
-        this("text/plain");
+        if (composer instanceof TemplateComposer)
+        {
+            TemplateComposer templateComposer=(TemplateComposer)composer;
+            templateComposer.mark(this);
+        }
+        else
+        {
+            super.compose(composer);
+        }
     }
-    
-	@Override
-	public String getMediaType()
-	{
-		return this.mediaType;
-	}
-
-	@Override
-	public void write(Context context, String content) throws Throwable
-	{
-        context.writeEncodedContentText(content, StandardCharsets.UTF_8);
-	}
-
-	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-	}
-
-	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-	}
 
 }
