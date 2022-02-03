@@ -190,6 +190,7 @@ public class WebSocketTransport
 	
     static public class NovaWsHttpResponse
     {
+        //The names map to javascript 
         public int statusCode;
         public String data;
     }
@@ -206,7 +207,7 @@ public class WebSocketTransport
                 Session session=listener.getSession();
                 try
                 {
-                    WebSocketHttpServletRequest request=new WebSocketHttpServletRequest(listener.getSession(), text);
+                    WebSocketHttpServletRequest request=new WebSocketHttpServletRequest(session, text);
                     this.httpServer.handle(request, response);
         //            byte[] contentBytes=response.getContent();
         //            if (contentBytes!=null)

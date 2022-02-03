@@ -21,26 +21,59 @@
  ******************************************************************************/
 package org.nova.html.templating;
 
+import java.util.HashMap;
+
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.ext.Content;
 
-public class InsertMarker extends Element
+public class Instance extends Element
 {
-    final public String name;
+    final HashMap<String,Content> map;
+    final Content content;
     
-    public InsertMarker(String name)
+    public Instance(Template template)
     {
-        this.name=name;
+        this.content=new Content();
+        this.map=new HashMap<>();
+        for (Element element:template.elements)
+        {
+            if (element instanceof ReplaceMarker)
+            {
+                ReplaceMarker marker=(ReplaceMarker)element;
+                Content markerContent=new Content();
+                this.map.put(marker.key,markerContent);
+                this.content.addInner(markerContent);
+            }
+            else
+            {
+                this.content.addInner(element);
+            }
+        }
     }
     
+    public <E extends Element> E fill(String name,E element)
+    {
+        if (element!=null)
+        {
+            this.map.get(name).addInner(element);
+        }
+        return element;
+    }
+
+    public Object fill(String name,Object object)
+    {
+        if (object!=null)
+        {
+            this.map.get(name).addInner(object);
+        }
+        return object;
+    }
+
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        if (composer instanceof TemplateComposer)
-        {
-            TemplateComposer templateComposer=(TemplateComposer)composer;
-            templateComposer.mark(this);
-        }
+        composer.compose(this.content);
     }
 
 }

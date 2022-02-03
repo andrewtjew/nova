@@ -19,51 +19,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.html.bootstrap;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import org.nova.html.elements.Composer;
 
-import org.nova.json.ObjectExample;
-import org.nova.json.ObjectMapper;
-import org.nova.json.SchemaWriter;
-import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
-
-public class JSONContextContentReader extends ContentReader<Object>
+public class NavItemLink extends ToggleComponent<NavItemLink>
 {
-	@Override
-	public String getMediaType()
-	{
-		return "application/json";
-	}
-
-	int er=0;
-	@Override
-	public Object read(Context context, int contentLength,InputStream inputStream,Class<?> contentType) throws Throwable
-	{
-        String contentText=context.getRequestContentText();
-        if (TypeUtils.isNullOrEmpty(contentText))
+    public NavItemLink()
+    {
+        super("a","nav-link");
+    }
+    public NavItemLink(String label,String href)
+    {
+        this();
+        attr("href",href);
+        addInner(label);
+    }
+    public NavItemLink(String label)
+    {
+        this(label,null);
+    }
+    public NavItemLink active()
+    {
+        addClass("active");
+        return this;
+    }
+    public NavItemLink disabled()
+    {
+        addClass("disabled");
+        return this;
+    }
+    public NavItemLink href(String href)
+    {
+        attr("href",href);
+        return this;
+    }
+    boolean composing=false;
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (composing==false)
         {
-            contentText=FileUtils.readString(inputStream, StandardCharsets.UTF_8);
-    		context.setRequestContentText(contentText);
+            composing=true;
+            NavItem item=new NavItem();
+            item.addInner(this);
+            item.compose(composer);
+            return;
         }
-		return ObjectMapper.readObject(contentText,contentType);
-	}
-
-	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws IOException
-	{
-		SchemaWriter.writeSchema(outputStream, contentType);
-	}
-		
-
-	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-		ObjectExample.write(outputStream, contentType);
-	}
-
+        super.compose(composer);
+    }    
+    
 }

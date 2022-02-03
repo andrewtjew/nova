@@ -22,6 +22,7 @@
 package org.nova.http.server;
 
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class TextContentWriter extends ContentWriter<String>
 {
@@ -44,9 +45,9 @@ public class TextContentWriter extends ContentWriter<String>
 	}
 
 	@Override
-	public void write(Context context, OutputStream outputStream, String content) throws Throwable
+	public void write(Context context, String content) throws Throwable
 	{
-		outputStream.write(content.getBytes());
+        context.writeEncodedContentText(content, StandardCharsets.UTF_8);
 	}
 
 	@Override

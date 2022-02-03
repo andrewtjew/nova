@@ -159,7 +159,7 @@ abstract public class ContentCache<KEY,VALUE>
                     this.hits.increment();
                     return node.valueSize;
                 }
-                remove(key);
+                evict(key);
             }
         }
         this.misses.increment();
@@ -254,7 +254,7 @@ abstract public class ContentCache<KEY,VALUE>
         }
     }
 	
-	public VALUE remove(KEY key)
+	public VALUE evict(KEY key)
 	{
 		synchronized(this.nodeMap)
 		{
@@ -284,7 +284,7 @@ abstract public class ContentCache<KEY,VALUE>
 		}
 	}
 	
-	public void removeAll()
+	public void evictAll()
 	{
 		synchronized(this.nodeMap)
 		{

@@ -128,7 +128,7 @@ import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.ext.BasicPage;
@@ -463,7 +463,7 @@ public class ServerApplicationPages
     }
     
     
-    public void writeMeters(Meters meters,Head head,InnerElement<?> element) throws Throwable
+    public void writeMeters(Meters meters,Head head,NodeElement<?> element) throws Throwable
     {
         if (meters.countMeterAttributeValues.size()>0)
         {
@@ -799,7 +799,7 @@ public class ServerApplicationPages
             
             if (entry.getException()!=null)
             {
-                writeContent(page.head(),"Exception",page.content(),Utils.toString(entry.getException()),false);
+                writeContent(page.head(),"Exception",page.content(),Utils.toString(entry.getException()),null);
             }
             
             if (entry.getTrace()!=null)
@@ -2139,7 +2139,7 @@ public class ServerApplicationPages
         return page;
     }
 
-    private void resetTraceNodes(InnerElement<?> element,Entry<String, TraceNode> entry,Queries queries)
+    private void resetTraceNodes(NodeElement<?> element,Entry<String, TraceNode> entry,Queries queries)
     {
         TraceNode traceNode=entry.getValue();
         if (queries.containsName("~"+entry.getKey()))
@@ -2157,7 +2157,7 @@ public class ServerApplicationPages
         }
     }
     
-    private void resetTraceNodes(InnerElement<?> element,Map<String, TraceNode> roots,Queries queries)
+    private void resetTraceNodes(NodeElement<?> element,Map<String, TraceNode> roots,Queries queries)
     {
         HashMap<String, TraceSample> categorySamples = new HashMap<>();
         for (Entry<String, TraceNode> entry : roots.entrySet())
@@ -2330,7 +2330,7 @@ public class ServerApplicationPages
     {
         return new div().addInner(formatNsToMs(ns)).addInner(" ms");
     }
-    private void writeTraceSample(Head head,InnerElement<?> content,TraceSample sample) throws Exception
+    private void writeTraceSample(Head head,NodeElement<?> content,TraceSample sample) throws Exception
     {
         Panel3 panel=content.returnAddInner(new Panel3(head,"Stats"));
         NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
@@ -2378,7 +2378,7 @@ public class ServerApplicationPages
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(occurs+1).addInner(text));
         return accordion;
     }
-    static public void writeTrace(Head head,InnerElement<?> content,String title,Trace trace) throws Exception
+    static public void writeTrace(Head head,NodeElement<?> content,String title,Trace trace) throws Exception
     {
         Panel4 panel=content.returnAddInner(new Panel4(head,title));
         NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
@@ -2957,7 +2957,7 @@ public class ServerApplicationPages
 //        row.add(trace.getThread().getId()+":"+trace.getThread().getName());
     }
     
-    private void writeTrace(Head head,InnerElement<?> content,Trace trace,boolean includeStackTraces) throws Exception
+    private void writeTrace(Head head,NodeElement<?> content,Trace trace,boolean includeStackTraces) throws Exception
     {
         WideTable table=content.returnAddInner(new WideTable(head));
         TableHeader header=new TableHeader();
@@ -3061,7 +3061,7 @@ public class ServerApplicationPages
             list.add(name,value);
         }
     }    
-    private void writeHeaders(Head head,String heading,InnerElement<?> content,String headers)
+    private void writeHeaders(Head head,String heading,NodeElement<?> content,String headers)
     {
         if (headers==null)
         {
@@ -3084,7 +3084,7 @@ public class ServerApplicationPages
         }
     }    
     
-    private void writeContent(Head head,String heading,InnerElement<?> content,String text,boolean htmlResponse)
+    private void writeContent(Head head,String heading,NodeElement<?> content,String text,String contentType)
     {
         if (text==null)
         {
@@ -3099,7 +3099,7 @@ public class ServerApplicationPages
             rows=20;
         }
 //      textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;").addInner(text).rows(rows));
-        if (htmlResponse)
+        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
         {
             text=HtmlUtils.toHtmlText(text);
         }
@@ -3129,10 +3129,10 @@ public class ServerApplicationPages
         
         writeHeaders(head,"Request Headers",panel.content(),entry.getRequestHeaders());
         writeHeaders(head,"Request Parameters",panel.content(),entry.getRequestParameters());
-        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),false);
+        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),null);
 
         writeHeaders(head,"Response Headers",panel.content(),entry.getResponseHeaders());
-        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.isHtmlResponse());
+        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
     }    
     private Element writeRequestLogEntries(Head head, RequestLogEntry[] entries) throws Throwable
     {
@@ -3382,7 +3382,7 @@ public class ServerApplicationPages
                 HashMap<String, ContentWriterList> lists = new HashMap<>();
                 for (Entry<String, ContentWriter<?>> entry : requestHandler.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType());
+                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
                         types = new ContentWriterList(entry.getValue());
@@ -3605,7 +3605,7 @@ public class ServerApplicationPages
         panel.content().addInner(new p());
     }
 
-    private void writeInputParameterInfos(Head head,InnerElement<?> container, AjaxButton button, String heading, RequestHandler handler, ParameterSource source) throws Exception
+    private void writeInputParameterInfos(Head head,NodeElement<?> container, AjaxButton button, String heading, RequestHandler handler, ParameterSource source) throws Exception
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
@@ -4265,7 +4265,7 @@ public class ServerApplicationPages
                 HashMap<String, ContentWriterList> lists = new HashMap<>();
                 for (Entry<String, ContentWriter<?>> entry : requestHandler.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType());
+                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
                         types = new ContentWriterList(entry.getValue());

@@ -1670,7 +1670,7 @@ public class ObjectMapper
         }
     }
     
-    static class StringValueMapReader extends Reader
+    static class ObjectMapReader extends Reader
     {
         @Override
         Object read(Scanner parser,Class<?> type,Options options) throws Throwable
@@ -1837,7 +1837,7 @@ public class ObjectMapper
         }
         else if (type==ObjectMap.class)
         {
-            reader=new StringValueMapReader();
+            reader=new ObjectMapReader();
         }
         else if (type==ValueString.class)
         {

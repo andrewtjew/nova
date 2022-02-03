@@ -28,7 +28,7 @@ import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.p;
@@ -92,9 +92,9 @@ public class HttpRequestWidget extends Element
         
         writeHeaders(head,"Request Headers",panel.content(),entry.getRequestHeaders());
         writeHeaders(head,"Request Parameters",panel.content(),entry.getRequestParameters());
-        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),false);
+        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),null);
         writeHeaders(head,"Response Headers",panel.content(),entry.getResponseHeaders());
-        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.isHtmlResponse());
+        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
         
     
         if (trace.getThrowable() != null)
@@ -111,7 +111,7 @@ public class HttpRequestWidget extends Element
         return new TitleText(Utils.millisToNiceDurationString(durationNs/1000000),String.format("%.3f",durationNs/1.0e6));
     }
     
-    private void writeContent(Head head,String heading,InnerElement<?> content,String text,boolean htmlResponse)
+    private void writeContent(Head head,String heading,NodeElement<?> content,String text,String contentType)
     {
         if (text==null)
         {
@@ -123,14 +123,14 @@ public class HttpRequestWidget extends Element
         {
             rows=20;
         }
-        if (htmlResponse)
+        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
         {
             text=HtmlUtils.toHtmlText(text);
         }
         textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;resize:vertical;").addInner(text).rows(rows));
     }
 
-    private void writeHeaders(Head head,String heading,InnerElement<?> content,String headers)
+    private void writeHeaders(Head head,String heading,NodeElement<?> content,String headers)
     {
         if (headers==null)
         {

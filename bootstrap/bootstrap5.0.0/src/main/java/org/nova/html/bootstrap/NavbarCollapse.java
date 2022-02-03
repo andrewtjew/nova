@@ -30,9 +30,9 @@ public class NavbarCollapse extends StyleComponent<NavbarCollapse>
         super("div","collapse navbar-collapse");
         if (toggleButton!=null)
         {
-            toggleButton.data("bs-toggle","collapse");
+            toggleButton.attr("data-bs-toggle","collapse");
             toggleButton.addClass("navbar-toggler");
-            toggleButton.data("bs-target","#"+id());
+            toggleButton.attr("data-bs-target","#"+id());
         }
     }
     public NavbarCollapse()

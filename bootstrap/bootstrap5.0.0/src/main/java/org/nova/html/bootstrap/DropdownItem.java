@@ -28,15 +28,24 @@ public class DropdownItem extends StyleComponent<DropdownItem>
     public DropdownItem(String label,String URL)
     {
         super("a", "dropdown-item");
-        if (URL!=null)
-        {
-            attr("href",URL);
-        }
+        href(URL);
         addInner(label);
     }
     public DropdownItem(String label)
     {
         this(label,null);
+    }
+    public DropdownItem()
+    {
+        this(null,null);
+    }
+    public DropdownItem href(String URL)
+    {
+        if (URL!=null)
+        {
+            attr("href",URL);
+        }
+        return this;
     }
     
 }

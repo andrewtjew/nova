@@ -21,8 +21,8 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 
-public class Content extends InnerElement<Content>
+public class Content extends NodeElement<Content>
 {
 }

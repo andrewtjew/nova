@@ -25,15 +25,16 @@ import java.util.ArrayList;
 
 import org.nova.html.DataTables.ColumnDef;
 import org.nova.html.DataTables.DataTableOptions;
+import org.nova.html.bootstrap.BootStrapPage;
 import org.nova.html.bootstrap.StyleComponent;
-import org.nova.html.bootstrap.Table;
+import org.nova.html.bootstrap.TableBody;
+import org.nova.html.bootstrap.TableFooter;
+import org.nova.html.bootstrap.TableHeader;
 import org.nova.html.ext.TableRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Head;
-import org.nova.html.ext.TableFooter;
-import org.nova.html.ext.TableHeader;
 import org.nova.html.tags.link;
 import org.nova.html.tags.script;
 import org.nova.html.tags.tbody;
@@ -42,65 +43,51 @@ import org.nova.utils.TypeUtils;
 
 //!!! Requires jquery
 
-public class DataTable extends StyleComponent<DataTable>
+public class DataTable extends org.nova.html.DataTables.DataTable
 {
-    private DataTableOptions options;
-
-    public DataTable(DataTableOptions options)
+    final private TableHeader header;
+    final private TableBody body;
+    final private TableFooter footer;
+    final private DataTableOptions options;
+    
+    private DataTable(BootStrapPage page,DataTableOptions options)
     {
-        super("table","table");
-        if (options==null)
-        {
-            options=new DataTableOptions();
-        }
+        super(options);
+        String dataTableKey=DataTable.class.getCanonicalName();
+        page.head().add(dataTableKey+".0", new script().src("https://code.jquery.com/jquery-3.5.1.js"));
+        page.head().add(dataTableKey+".1", new script().src("https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"));
+        page.head().add(dataTableKey+".2", new script().src("https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"));
+        page.head().add(dataTableKey+".3",new link().rel(link_rel.stylesheet).type("text/css").href("https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"));
+        page.head().add(dataTableKey+".4",new link().rel(link_rel.stylesheet).type("text/css").href("https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css"));
         this.options=options;
-    }
+        this.header=returnAddInner(new TableHeader());
+        this.body=returnAddInner(new TableBody());
+        this.footer=returnAddInner(new TableFooter());
+    }    
 
-    public DataTable w_auto()
+    public DataTable(BootStrapPage page)
     {
-        addClass("w-auto");
-        return this;
-    }
-    public DataTable hover()
-    {
-        addClass("table-hover");
-        return this;
-    }
-    public DataTable striped()
-    {
-        addClass("table-striped");
-        return this;
-    }
-    public DataTable bordered()
-    {
-        addClass("table-bordered");
-        return this;
-    }
-    public DataTable borderless()
-    {
-        addClass("table-borderless");
-        return this;
-    }
+        this(page,new DataTableOptions());
+    }    
 
-    @Override
-    public void compose(Composer composer) throws Throwable
+    public TableHeader header()
     {
-        StringBuilder sb=new StringBuilder();
-        sb.append("$(document).ready(function(){$('#").append(id()).append("').DataTable(");
-        {
-            ObjectBuilder ob=new ObjectBuilder();
-            ob.add(this.options);
-            sb.append(ob.toString());
-        }
-        sb.append(");});");
-
-        if (sb.length()>0)
-        {
-            script script=new script().addInner(sb.toString());
-            composer.getStringBuilder().append(script.getHtml());
-        }
-        super.compose(composer);
+        return this.header;
     }
-
+    
+    public TableFooter footer()
+    {
+        return this.footer;
+    }
+    
+    public TableBody body()
+    {
+        return this.body;
+    }
+    
+    public DataTableOptions options()
+    {
+        return this.options;
+    }
     
 }

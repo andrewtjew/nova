@@ -40,6 +40,7 @@ public class ExtensionToContentTypeMappings
         mappings.addMappings("image/gif", "gif");
         mappings.addMappings("image/x-icon", "ico");
         mappings.addMappings("image/jpeg", "jpeg","jpg","jpe");
+        mappings.addMappings("image/gif", "gif");
         mappings.addMappings("image/png", "png");
         mappings.addMappings("image/bmp", "bmp","bm");
         mappings.addMappings("application/json", "json");
@@ -47,6 +48,7 @@ public class ExtensionToContentTypeMappings
         mappings.addMappings("application/vnd.ms-excel", "xls");
         mappings.addMappings("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx");
         mappings.addMappings("application/xml", "xml");
+        mappings.addMappings("application/wasm", "wasm");
         return mappings;
     }
     
@@ -72,7 +74,9 @@ public class ExtensionToContentTypeMappings
 		{
 			return null;
 		}
-		return this.typeMappings.get(file.substring(index+1));
+		String extension=file.substring(index+1).toLowerCase();
+		
+		return this.typeMappings.get(extension);
 		
 	}
 

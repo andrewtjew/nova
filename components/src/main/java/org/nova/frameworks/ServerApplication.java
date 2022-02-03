@@ -36,6 +36,8 @@ import org.nova.html.remoting.HtmlRemotingWriter;
 import org.nova.html.templating.Template;
 import org.nova.http.server.JettyServerFactory;
 import org.nova.http.server.WebSocketTransport;
+import org.nova.http.server.DeflaterContentDecoder;
+import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HtmlContentWriter;
@@ -152,8 +154,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),privateServerConfiguration);
                 this.privateTransport=new HttpTransport(privateServer, servers);
                 
-                this.privateServer.addContentDecoders(new GzipContentDecoder());
-                this.privateServer.addContentEncoders(new GzipContentEncoder());
+                this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
+                this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
                 this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter());
             }
@@ -224,11 +226,12 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     server.setAttribute("org.eclipse.jetty.server.Request.maxFormKeys", maxFormKeys);
                 }
                 
-                this.publicServer.addContentDecoders(new GzipContentDecoder());
-                this.publicServer.addContentEncoders(new GzipContentEncoder());
+                this.publicServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
+                this.publicServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
                 this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.publicServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter());
                 
+                //Testing
                 if (websocket)
                 {
                     Server server=JettyServerFactory.createServer(threads, 8080);

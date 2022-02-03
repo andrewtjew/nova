@@ -47,6 +47,7 @@ import org.nova.operations.OperatorVariable;
 import org.nova.test.Testing;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
+import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 import com.google.common.base.Strings;
@@ -65,6 +66,7 @@ public class HttpServer
 	final private RingBuffer<RequestHandlerNotFoundLogEntry> lastRequestHandlerNotFoundLogEntries;
 	private Transformers transformers;
 	final private Logger logger;
+	private ServletHandler servletHandler;
 //  final private Server[] servers;
 //  final private int [] ports;
 	
@@ -89,7 +91,8 @@ public class HttpServer
 		this.test=test;
 		this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[configuration.lastRequestLogEntryBufferSize]);
 		this.lastExceptionRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[configuration.lastExceptionRequestLogEntryBufferSize]);
-		this.lastRequestHandlerNotFoundLogEntries=new RingBuffer<>(new RequestHandlerNotFoundLogEntry[configuration.lastNotFoundBufferSize]);
+		this.lastRequestHandlerNotFoundLogEntries=new RingBuffer<>(new RequestHandlerNotFoundLogEntry[configuration.lastNotFoundLogEntryBufferSize]);
+				
 		this.transformers=new Transformers();
 	}
 
@@ -141,6 +144,10 @@ public class HttpServer
     {
         this.transformers.add(filters);
     }
+    public void setServletHandler(ServletHandler servletHandler)
+    {
+        this.servletHandler=servletHandler;
+    }
 
 //    public int[] getPorts()
 //    {
@@ -181,6 +188,7 @@ public class HttpServer
 		{
 			return null;
 		}
+		contentType=contentType.toLowerCase();
 		contentType = org.nova.utils.Utils.split(contentType, ';')[0];
 
 		ContentReader<?> reader = handler.getContentReaders().get(contentType);
@@ -201,6 +209,7 @@ public class HttpServer
 		Map<String, ContentWriter<?>> map = handler.getContentWriters();
 		if (accept != null)
 		{
+		    accept=accept.toLowerCase();
 			List<ValueQ> list = ValueQ.sort(accept);
 			for (ValueQ item : list)
 			{
@@ -259,59 +268,146 @@ public class HttpServer
 		return this.identityContentEncoder;
 	}
 
-	public boolean handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
+	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
 	{
 		try (Trace trace = new Trace(this.traceManager, "HttpServer.handle"))
 		{
 		    this.requestRateMeter.increment();
 			String URI = servletRequest.getRequestURI();
 			String method = servletRequest.getMethod();
-			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
-			if (requestHandlerWithParameters == null)
+			String connection=servletRequest.getHeader("Connection");
+			if (TypeUtils.containsIgnoreCase(connection, "keep-alive"))
 			{
+			    servletResponse.setHeader("Connection", "keep-alive");
+			}
+			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
+			if (requestHandlerWithParameters != null)
+			{
+	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
+			}
+			else if (this.servletHandler!=null)
+	        {
+	            handle(trace,method, URI,servletRequest,servletResponse);
+	        }
+	        else
+	        {
 				if (Testing.ENABLED)
 				{
 					System.out.println(method+" "+URI+": No Handler");
 					servletResponse.getWriter().println("404 - NOT FOUND: "+URI);
-				}	
+				}
 				servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
 				synchronized (this.lastRequestHandlerNotFoundLogEntries)
 				{
 					this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
 				}
-				return false;
 			}
-			if (requestHandlerWithParameters.requestHandler.isPublic()==true)
-			{
-				//TODO: prevent access
-			}
-			handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
-			return true;
 		}
 	}
-
+    private void handle(Trace parent, String method, String URI, HttpServletRequest request, HttpServletResponse response) throws Throwable
+    {
+        String key=method+" "+URI;
+        Trace trace = new Trace(traceManager,parent,this.categoryPrefix+key);
+        ServletHandler handler=this.servletHandler;
+        try
+        {
+            handler.handle(trace, request, response);
+        }
+        catch (Throwable e)
+        {
+            trace.close(e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        finally
+        {
+            trace.close();
+            int status=response.getStatus();
+            if ((status>=400)&&(status<500))
+            {
+                synchronized (this.lastRequestHandlerNotFoundLogEntries)
+                {
+                    this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,request));
+                }
+            }
+            RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
+            if (handler.isLogLastRequestsInMemory())
+            {
+                synchronized (this.lastRequestsLogEntries)
+                {
+                    this.lastRequestsLogEntries.add(entry);
+                }
+                if (trace.getThrowable()!=null)
+                {
+                    synchronized (this.lastExceptionRequestsLogEntries)
+                    {
+                        this.lastExceptionRequestsLogEntries.add(entry);
+                    }
+                }
+            }
+            ArrayList<Item> items=new ArrayList<>();
+            if (handler.isLog())
+            {
+                items.add(new Item("remoteEndPoint",entry.getRemoteEndPoint()));
+                items.add(new Item("queryString",entry.getQueryString()));
+                items.add(new Item("statusCode",entry.statusCode));
+                items.add(new Item("contentType",entry.getContentType()));
+            }
+            if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
+            {
+                if (entry.requestHeaders!=null)
+                {
+                    items.add(new Item("requestHeaders",entry.getRequestHeaders()));
+                }
+            }
+            if (handler.isLogResponseHeaders())
+            {
+                if (entry.responseHeaders!=null)
+                {
+                    items.add(new Item("responseHeaders",entry.getResponseHeaders()));
+                }
+            }
+            this.logger.log(parent,key,Logger.toArray(items));
+        }
+    }
+	
 	private void handle(Trace parent, HttpServletRequest servletRequest, HttpServletResponse servletResponse, RequestHandlerWithParameters requestHandlerWithParameters) throws Throwable
 	{
+        if (requestHandlerWithParameters.requestHandler.isPublic()==false)
+        {
+            //TODO: prevent access
+        }
 		long responseUncompressedContentSize=0;
-		long requestUncompressedContentSize=0;
+		long requestUncompressedContentSize=0;//////////////////rrrrrrrrrrrrrrrrrrrrrr
 		long responseCompressedContentSize=0;
 		long requestCompressedContentSize=0;
-		Context context = new Context(requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+		String requestContentText=null;
+		String responseContentText=null;
 		RequestHandler handler = requestHandlerWithParameters.requestHandler;
 		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ handler.getKey());
 		try
 		{
 		    
             DecoderContext decoderContext = null;
-            if ("application/x-www-form-urlencoded".equals(servletRequest.getParameter("Content-Type"))==false)
+            if ("application/x-www-form-urlencoded".equalsIgnoreCase(servletRequest.getParameter("Content-Type"))==false)
             {
                 decoderContext = getContentDecoder(servletRequest.getHeader("Content-Encoding"), handler).open(servletRequest, servletResponse);
             }
+            else 
+            {
+                decoderContext=this.identityContentDecoder.open(servletRequest, servletResponse);
+            }
             //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
+            ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
+            if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
+            {
+                servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
+            }
+            EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 			
-			try 
+            Context context = new Context(decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+            try 
 			{
-				FilterChain chain = new FilterChain(requestHandlerWithParameters, decoderContext);
+				FilterChain chain = new FilterChain(requestHandlerWithParameters);
 				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
 				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
 
@@ -344,17 +440,11 @@ public class HttpServer
                             {
                                 servletResponse.setContentType(writer.getMediaType());
                             }
-							ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
-							if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
-							{
-							    servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
-							}
-							EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 							try 
 							{
-								Method write = writer.getClass().getMethod("write", Context.class, OutputStream.class, Object.class);
+								Method write = writer.getClass().getMethod("write", Context.class, Object.class);
 								Object content = response.getContent();
-								write.invoke(writer, context, encoderContext.getOutputStream(), content);
+								write.invoke(writer, context, content);
 							}
 							finally
 							{
@@ -400,6 +490,8 @@ public class HttpServer
             }
 			finally
 			{
+			    requestContentText=context.getRequestContentText();
+			    responseContentText=context.getResponseContentText();
 				if (decoderContext!=null)
 				{
 					requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
@@ -420,13 +512,15 @@ public class HttpServer
 		finally
 		{
 			trace.close();
-			handler.update(context,servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
-			RequestLogEntry entry=new RequestLogEntry(trace,context,handler,servletRequest,servletResponse);
-			
+			handler.update(servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
+			RequestLogEntry entry=new RequestLogEntry(trace,requestContentText,responseContentText,servletRequest,servletResponse);
 			if (handler.isLogLastRequestsInMemory())
 			{
 			    handler.log(entry);
-                this.lastRequestsLogEntries.add(entry);
+                synchronized (this.lastRequestsLogEntries)
+                {
+                    this.lastRequestsLogEntries.add(entry);
+                }
     			if (trace.getThrowable()!=null)
     			{
     				synchronized (this.lastExceptionRequestsLogEntries)
@@ -442,6 +536,7 @@ public class HttpServer
                 items.add(new Item("request",entry.request));
                 items.add(new Item("statusCode",entry.statusCode));
                 items.add(new Item("queryString",entry.getQueryString()));
+                items.add(new Item("contentType",entry.getContentType()));
             }
             if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
             {

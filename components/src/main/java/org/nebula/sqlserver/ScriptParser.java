@@ -268,6 +268,7 @@ public class ScriptParser
                 }
                 c=lexer.skipWhiteSpaceAndBegin();
             }
+//            System.out.println("Type="+type.getValue());
             Column column=new Column(name.getValue(), type.getValue(), size==null?0:Integer.parseInt(size.getValue()), identity,identityStart==null?0:Long.parseLong(identityStart.getValue()), identityIncrement==null?0:Long.parseLong(identityIncrement.getValue()), nullAllowed);
             columns.add(column);
             if (c==',')

@@ -97,6 +97,7 @@ public class ModalDocument extends Modal
     public String js_option(ModalOption option)
     {
         return "$('#"+id()+"').modal('"+option+"');";
+//        return "document.getElementById('"+id()+"').modal('"+option+"');";
     }
     
 }

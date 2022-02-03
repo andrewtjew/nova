@@ -32,20 +32,20 @@ public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> 
 
     public ELEMENT toggleCollapse(NavbarCollapse target)
     {
-        data("toggle","collapse");
-        data("target","#"+target.id());
+        attr("data-toggle","collapse");
+        attr("data-target","#"+target.id());
         return (ELEMENT)this;
     }
     public ELEMENT toggleCollapse(Collapse collapse)
     {
-        data("toggle","collapse");
-        data("target","#"+collapse.id());
+        attr("data-toggle","collapse");
+        attr("data-target","#"+collapse.id());
         return (ELEMENT)this;
     }
     public ELEMENT toggleCollapse(Collapse collapse,String collapseClass)
     {
-        data("toggle","collapse");
-        data("target","."+collapseClass);
+        attr("data-toggle","collapse");
+        attr("data-target","."+collapseClass);
         return (ELEMENT)this;
     }
     
@@ -74,8 +74,8 @@ public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> 
     public ELEMENT toggleTabPane(TabPane tabPane)
     {
         String id=tabPane.id();
-        data("bs-toggle","tab");
-        data("bs-targetref","#"+id);
+        attr("data-bs-toggle","tab");
+        attr("data-bs-targetref","#"+id);
         attr("href","#"+id);
         attr("role","tab");
         return (ELEMENT)this;

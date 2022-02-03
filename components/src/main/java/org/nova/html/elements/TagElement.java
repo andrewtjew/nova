@@ -30,7 +30,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
 
 
-public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElement<ELEMENT>
+public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement<ELEMENT>
 {
     private String id;
     final private String tag;
@@ -200,7 +200,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends InnerElemen
         {
             super.compose(composer);
             composerStringBuilder=composer.getStringBuilder();
-            composerStringBuilder.append("</").append(this.tag).append('>');
+            composerStringBuilder.append("</").append(this.tag).append('>'); //end tag
         }
     }
 }

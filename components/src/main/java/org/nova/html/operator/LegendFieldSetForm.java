@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.elements.InnerElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.tags.fieldset;
@@ -29,7 +29,7 @@ import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.legend;
 
-public class LegendFieldSetForm extends InnerElement<LegendFieldSetForm>
+public class LegendFieldSetForm extends NodeElement<LegendFieldSetForm>
 {
     final private GlobalEventTagElement<?> form;
     final private fieldset fieldset;

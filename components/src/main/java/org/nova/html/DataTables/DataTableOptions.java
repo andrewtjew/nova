@@ -24,7 +24,7 @@ package org.nova.html.DataTables;
 public class DataTableOptions
 {
     static public class Paginate
-    {
+    {       
         public String previous;
         public String next;
     }

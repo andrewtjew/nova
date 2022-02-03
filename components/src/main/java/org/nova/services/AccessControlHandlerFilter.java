@@ -19,61 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.templating;
+package org.nova.services;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.ext.Content;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
-public class Document extends Element
+import org.nova.concurrent.Lock;
+import org.nova.http.Header;
+import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
+import org.nova.http.server.FilterChain;
+import org.nova.http.server.Response;
+import org.nova.http.server.annotations.OPTIONS;
+import org.nova.http.server.annotations.Path;
+import org.nova.http.server.annotations.PathParam;
+import org.nova.tracing.Trace;
+
+
+public class AccessControlHandlerFilter extends HeaderFilter
 {
-    final HashMap<String,Content> map;
-    final Content content;
-    
-    public Document(Template template)
+    public AccessControlHandlerFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
     {
-        this.content=new Content();
-        this.map=new HashMap<>();
-        for (Element element:template.elements)
-        {
-            if (element instanceof InsertMarker)
-            {
-                InsertMarker marker=(InsertMarker)element;
-                Content markerContent=new Content();
-                this.map.put(marker.name,markerContent);
-                this.content.addInner(markerContent);
-            }
-            else
-            {
-                this.content.addInner(element);
-            }
-        }
+        super(new Header("Access-Control-Allow-Origin", allowOrigin)
+                ,new Header("Access-Control-Allow-Methods", allowOrigin)
+                ,new Header("Access-Control-Allow-Headers", allowOrigin)
+                ,new Header("Access-Control-Max-Age", maxAge)
+                );
     }
-    
-    public <E extends Element> E fill(String name,E element)
+    public AccessControlHandlerFilter(int maxAge,String allowOrigin)
     {
-        if (element!=null)
-        {
-            this.map.get(name).addInner(element);
-        }
-        return element;
+        this(maxAge,allowOrigin,"*","*");
     }
 
-    public Object fill(String name,Object object)
+    @OPTIONS
+    @Path("/{+}")
+    public void options(Trace parent) throws Throwable
     {
-        if (object!=null)
-        {
-            this.map.get(name).addInner(object);
-        }
-        return object;
     }
-
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        composer.compose(this.content);
-    }
-
 }

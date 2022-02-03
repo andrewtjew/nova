@@ -103,12 +103,10 @@ class WebSocketHttpServletRequest implements HttpServletRequest
     final private Session session;
     final HashMap<String,String> headers;
     final int contentLength;
-    final String protocol;
     final String path;
     final String method;
     private WebSocketHttpServletInputStream inputStream;
-
-    static public class WebSocketHttpRequest
+    static public class NovaWsHttpRequest
     {
         public String method;
         public String url;
@@ -120,10 +118,9 @@ class WebSocketHttpServletRequest implements HttpServletRequest
     WebSocketHttpServletRequest(Session session,String text) throws Throwable
     {
         this.session=session;
-        WebSocketHttpRequest request=ObjectMapper.readObject(text, WebSocketHttpRequest.class);
+        NovaWsHttpRequest request=ObjectMapper.readObject(text, NovaWsHttpRequest.class);
         this.method=request.method;
         this.path=request.url;
-        this.protocol="NOVA-WS-HTTP/1.0";
         this.headers=new HashMap<>();
         String contentLength=this.headers.get("Content-Length");
         
@@ -176,13 +173,12 @@ class WebSocketHttpServletRequest implements HttpServletRequest
     @Override
     public String getCharacterEncoding()
     {
-        return this.headers.get("Accept-Charset");
+        return "UTF-8";
     }
 
     @Override
     public void setCharacterEncoding(String env) throws UnsupportedEncodingException
     {
-        this.headers.put("Accept-Charset", env);
     }
 
     @Override
@@ -239,13 +235,13 @@ class WebSocketHttpServletRequest implements HttpServletRequest
     @Override
     public String getProtocol()
     {
-        return this.protocol;
+        return "NOVA-WS-HTTP/1.0";
     }
 
     @Override
     public String getScheme()
     {
-        return "http";//!!incomplete. get this from the server.
+        return "NOVA-WS-HTTP";
     }
 
     @Override

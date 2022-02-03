@@ -49,9 +49,11 @@ class ValueQ
 	{
 		String[] parts=org.nova.utils.Utils.split(accept.trim(), ',');
 		ArrayList<ValueQ> list=new ArrayList<>();
+		double defaultQ=-1;
 		for (String item:parts)
 		{
-			double q=1;
+			double q=defaultQ;
+			defaultQ-=1.0f;
 			String[] mediaTypeParameter=org.nova.utils.Utils.split(item.trim(), ';');
 			if (mediaTypeParameter.length>1)
 			{

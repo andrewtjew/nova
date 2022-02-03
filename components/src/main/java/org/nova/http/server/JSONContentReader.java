@@ -30,6 +30,7 @@ import org.nova.json.ObjectExample;
 import org.nova.json.ObjectMapper;
 import org.nova.json.SchemaWriter;
 import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 public class JSONContentReader extends ContentReader<Object>
 {
@@ -41,11 +42,10 @@ public class JSONContentReader extends ContentReader<Object>
 
 	int er=0;
 	@Override
-	public Object read(Context context, int contentLength,InputStream inputStream,Class<?> contentType) throws Throwable
+	public Object read(Context context, Class<?> contentType) throws Throwable
 	{
-		String contentText=FileUtils.readString(inputStream, StandardCharsets.UTF_8);
-		context.setRequestContentText(contentText);
-		return ObjectMapper.readObject(contentText,contentType);
+        String contentText=context.readDecodedRequestContentText();
+        return ObjectMapper.readObject(contentText,contentType);
 	}
 
 	@Override

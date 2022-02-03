@@ -21,8 +21,17 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 public class Context
 {
@@ -36,12 +45,24 @@ public class Context
 	
 	private String responseContentText;
 	private String requestContentText;
+	private DecoderContext decoderContext;
+	private EncoderContext encoderContext;
 	
-	Context(RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
+	Context(DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
 		this.requestHandler=requestHandler;
 		this.httpServletRequest=servletRequest;
 		this.httpServletResponse=servletResponse;
+		this.decoderContext=decoderContext;
+		this.encoderContext=encoderContext;
+	}
+	public DecoderContext getDecoderContext()
+	{
+	    return this.decoderContext;
+	}
+	public void setDecoderContext(DecoderContext decoderContext)
+	{
+	    this.decoderContext=decoderContext;
 	}
 	public RequestHandler getRequestHandler()
 	{
@@ -99,13 +120,69 @@ public class Context
 	{
 		this.responseContentText=responseContentText;
 	}
-	public String getRequestContentText()
+	private boolean requestContentTextValid=false;
+	
+	public void writeEncodedResponseContentText(String text) throws Throwable
 	{
-		return requestContentText;
+	    writeEncodedContentText(text,StandardCharsets.UTF_8);
 	}
+	public void writeEncodedContentText(String text,Charset charset) throws Throwable
+	{
+        OutputStream outputStream=this.encoderContext.getOutputStream();
+        outputStream.write(text.getBytes(charset));
+	    if (this.responseContentText==null)
+	    {
+	        this.responseContentText=text;
+	    }
+	    else
+	    {
+	        this.requestContentText+=text;
+	    }
+	}
+
+    public void writeEncodedContent(byte[] content) throws Throwable
+    {
+        OutputStream outputStream=this.encoderContext.getOutputStream();
+        outputStream.write(content);
+    }
+    public void writeEncodedContent(byte[] content,int offset,int length) throws Throwable
+    {
+        OutputStream outputStream=this.encoderContext.getOutputStream();
+        outputStream.write(content,offset,length);
+    }
+	
+    public String readDecodedRequestContentText() throws Throwable
+    {
+        return readDecodedContentText(StandardCharsets.UTF_8);
+    }
+    public String readDecodedContentText(Charset charset) throws Throwable
+    {
+        if (this.requestContentTextValid==false)
+        {
+            InputStream inputStream=this.decoderContext.getInputStream();
+            this.requestContentText=FileUtils.readString(inputStream, charset);
+            this.requestContentTextValid=true;
+        }
+        return this.requestContentText;
+    }
+    public byte[] readDecodedContent() throws Throwable
+    {
+        InputStream inputStream=this.decoderContext.getInputStream();
+        int bufferSize=this.httpServletRequest.getContentLength();
+        if (bufferSize<=0)
+        {
+            bufferSize=4096;
+        }
+        return FileUtils.readBytes(inputStream, bufferSize);
+    }
+    String getRequestContentText() throws Throwable
+    {
+        return this.requestContentText;
+    }
 	public void setRequestContentText(String requestContentText)
 	{
 		this.requestContentText=requestContentText;
+        this.requestContentTextValid=true;
 	}
 	public boolean isCaptured()
 	{
@@ -120,3 +197,4 @@ public class Context
 		this.captured = true;
 	}
 }
+	

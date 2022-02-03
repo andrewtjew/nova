@@ -739,7 +739,7 @@ class RequestHandlerMap
     				    int distance=TypeUtils.getAncestorDistance((Class<?>)returnType, (Class<?>)writerContentType);
     				    if (distance>=0)
     				    {
-        				    String mediaType=writer.getMediaType();
+        				    String mediaType=writer.getMediaType().toLowerCase();
         				    storeClosestDistanceWriter(closestDistanceWriters, mediaType, distance, writer);
         					String anySubType = org.nova.http.server.WsUtils.toAnySubMediaType(mediaType);
                             storeClosestDistanceWriter(closestDistanceWriters, anySubType, distance, writer);
@@ -774,7 +774,7 @@ class RequestHandlerMap
 				ContentReader<?> reader=transformers.getContentReader(type);
 				if (reader!=null)
 				{
-					contentReaderMap.put(reader.getMediaType(), reader);
+					contentReaderMap.put(reader.getMediaType().toLowerCase(), reader);
 				}
 			}
 		}

@@ -519,59 +519,6 @@ public class Utils
 		}
 		return sb.toString();
 	}
-	private static String[] HTML_ESCAPES=new String[]{"&", "\"", "<", ">"};
-	private static String[] HTML_ESCAPEDS=new String[]{"&amp;", "&quot;", "&lt;", "&gt;"};
-	public static String escapeHtml(String text)
-	{
-		StringBuilder sb=new StringBuilder();
-		int start=0;
-		for (int i=0;i<text.length();i++)
-		{
-			char c=text.charAt(i);
-			if (c=='&')
-			{
-				if (start<i)
-				{
-					sb.append(text.substring(start,i));
-					sb.append("&amp;");
-				}
-				start=i+1;
-			}
-			else if (c=='"')
-			{
-				if (start<i)
-				{
-					sb.append(text.substring(start,i));
-					sb.append("&quot;");
-				}
-				start=i+1;
-			}
-			else if (c=='<')
-			{
-				if (start<i)
-				{
-					sb.append(text.substring(start,i));
-					sb.append("&lt;");
-				}
-				start=i+1;
-			}
-			else if (c=='>')
-			{
-				if (start<i)
-				{
-					sb.append(text.substring(start,i));
-					sb.append("&gt;");
-				}
-				start=i+1;
-			}
-
-		}
-		if (start<text.length())
-		{
-			sb.append(text.substring(start,text.length()));
-		}
-		return sb.toString();
-	}
 	
 	
 	public static String getStrackTraceAsString(Throwable t)

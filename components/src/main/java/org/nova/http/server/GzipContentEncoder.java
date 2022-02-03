@@ -36,12 +36,12 @@ public class GzipContentEncoder extends ContentEncoder
 	{
 		final private SizeOutputStream uncompressedOutputStream;
 		final private SizeOutputStream compressedOutputStream;
-		final private GZIPOutputStream gzipOutputStream;		
+		final private GZIPOutputStream compressingOutputStream;		
 		Context(OutputStream outputStream) throws IOException
 		{
 			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.gzipOutputStream=new GZIPOutputStream(this.compressedOutputStream);
-			this.uncompressedOutputStream=new SizeOutputStream(this.gzipOutputStream);
+			this.compressingOutputStream=new GZIPOutputStream(this.compressedOutputStream);
+			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
 		}
 
 		@Override

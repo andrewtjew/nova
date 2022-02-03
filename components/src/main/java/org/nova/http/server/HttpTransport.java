@@ -115,10 +115,7 @@ public class HttpTransport
 	{
 		try
 		{
-			if (this.httpServer.handle(servletRequest, servletResponse)==false)
-			{
-			    return;
-			}
+			this.httpServer.handle(servletRequest, servletResponse);
 		}
 		catch (Throwable t)
 		{
