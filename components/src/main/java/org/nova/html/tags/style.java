@@ -46,7 +46,7 @@ public class style extends GlobalEventTagElement<style>
         }
         return this;
     }
-   public style type(String type)
+    public style type(String type)
     {
         return attr("type",type);
     }

@@ -129,6 +129,11 @@ public class Style
         sb.append("border:"+size+";");
         return this;
     }
+    public Style border_radius(Size size)
+    {
+        sb.append("border-radius:"+size+";");
+        return this;
+    }
 
     public Style margin(Size size)
     {
@@ -327,6 +332,11 @@ public class Style
     public Style white_space(white_space value)
     {
         sb.append("white-space:"+value+";");
+        return this;
+    }
+    public Style add(String name,String value)
+    {
+        sb.append(name+":"+value+";");
         return this;
     }
     
