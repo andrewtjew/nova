@@ -109,6 +109,7 @@ public class FileDownloadHandler extends ServletHandler
     
     
     final private String rootDirectory;
+    final private String pathPrefix;
     final private String cacheControl;
     final private long cacheControlMaxAge;
     final private ExtensionToContentTypeMappings mappings;
@@ -141,7 +142,7 @@ public class FileDownloadHandler extends ServletHandler
     }
     
     //cacheControlMaxAge in seconds, maxAge in ms
-    public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions) throws Throwable
+    public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String pathPrefix,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions) throws Throwable
     {
         this.mappings=mappings;
         this.doNotCompressFileExtensions=doNotCompressExtensions;
@@ -153,10 +154,11 @@ public class FileDownloadHandler extends ServletHandler
         this.cache=new Cache(maxAge, maxSize, freeMemory);
         this.cacheControl=cacheControl;
         this.indexFile=indexFile;
+        this.pathPrefix=pathPrefix;
     }
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
-        this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions());
+        this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,null,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions());
     }
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths) throws Throwable
     {
@@ -188,6 +190,14 @@ public class FileDownloadHandler extends ServletHandler
         else
         {
             remoteFile=URI;
+        }
+        if (this.pathPrefix!=null)
+        {
+            if (remoteFile.startsWith(this.pathPrefix)==false)
+            {
+                response.setStatus(HttpStatus.BAD_REQUEST_400);
+                return;
+            }
         }
         String localFilePath=FileUtils.toNativePath(this.rootDirectory+remoteFile);
         

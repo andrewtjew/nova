@@ -24,28 +24,19 @@ package org.nova.html.bootstrap;
 
 public class DropdownItem extends StyleComponent<DropdownItem>
 {
-
     public DropdownItem(String label,String URL)
     {
-        super("a", "dropdown-item");
-        href(URL);
+        super("a","dropdown-item");
+        attr("href",URL);
         addInner(label);
     }
     public DropdownItem(String label)
     {
         this(label,null);
     }
-    public DropdownItem()
-    {
-        this(null,null);
-    }
     public DropdownItem href(String URL)
     {
-        if (URL!=null)
-        {
-            attr("href",URL);
-        }
+        attr("href",URL);
         return this;
-    }
-    
+    }    
 }

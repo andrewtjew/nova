@@ -4,13 +4,22 @@ import java.lang.reflect.Constructor;
 import java.util.Locale;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.nova.html.DataTables.Column;
+import org.nova.html.DataTables.ColumnDef;
+import org.nova.html.DataTables.DataTableOptions;
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.Alert;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.DropdownButton;
 import org.nova.html.bootstrap.ButtonGroup;
 import org.nova.html.bootstrap.CardDocument;
-import org.nova.html.bootstrap.DropdownItem;
+import org.nova.html.bootstrap.CustomSwitch;
+import org.nova.html.bootstrap.DropdownMenuItem;
 import org.nova.html.bootstrap.Form;
+import org.nova.html.bootstrap.FormCheck;
+import org.nova.html.bootstrap.InputCheckbox;
+import org.nova.html.bootstrap.InputRadio;
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.LinkButton;
@@ -21,6 +30,7 @@ import org.nova.html.bootstrap.Table;
 import org.nova.html.bootstrap.TableHeader;
 import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.Display;
+import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
@@ -35,9 +45,11 @@ import org.nova.html.localization.StringHandle;
 import org.nova.html.localization.StringHandleSqlResolver;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remoting.HtmlRemotingWriter;
+import org.nova.html.tags.col;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.i;
 import org.nova.html.tags.option;
+import org.nova.html.tags.textarea;
 import org.nova.html.templating.ReplaceMarker;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -64,6 +76,7 @@ import org.nova.sqldb.RowSet;
 import org.nova.sqldb.SqlUtils;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
+import org.nova.utils.TypeUtils;
 
 
 @ContentDecoders({GzipContentDecoder.class,DeflaterContentDecoder.class})
@@ -237,14 +250,16 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element viewByLanguages(Trace parent) throws Throwable
+    public Element viewByLanguages(Trace parent,@QueryParam("languageID") Long languageID) throws Throwable
     {
         Page page=new Page();
         
-        Item item=page.content().returnAddInner(new Item()).m(2);
+        Item main=page.content().returnAddInner(new Item()).m(2);
         
-        Select select=item.returnAddInner(new Select());
-        DropdownButtonMenuGroup group=item.returnAddInner(new DropdownButtonMenuGroup("Languages"));
+        Item bar=main.returnAddInner(new Item()).d(Display.flex).mb(2).border(Edge.bottom).pb(1);
+        bar.returnAddInner(new Item()).addInner("Language:").me(2).mt(1);
+        DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup("Languages"));
+        group.button().color(StyleColor.light).sm();
         
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
@@ -252,24 +267,60 @@ public class StringHandleEditor
                     , "SELECT * FROM HandleLanguages");
             for (Row languageRow:rowSet.rows())
             {
-                long languageID=languageRow.getBIGINT("ID");
+                long id=languageRow.getBIGINT("ID");
+                if (languageID==null)
+                {
+                    languageID=id;
+                }
                 String language=languageRow.getVARCHAR("Language");
                 boolean active=languageRow.getBIT("Active");
-                select.returnAddInner(new option()).value(languageID).addInner(language); 
-                DropdownItem dropDownItem=new DropdownItem().href("#?languageID="+languageID);
+                DropdownMenuItem dropDownItem=new DropdownMenuItem(language,"#?languageID="+id);
                 dropDownItem.d(Display.flex).justify_content(Justify.between);
-                dropDownItem.returnAddInner(new Item()).addInner(language);
-                if (active)
-                {
-                    dropDownItem.returnAddInner(new LinkButton()).sm().outline(StyleColor.secondary).addInner("test").addInner(new Icon("check")).href("./activateLanguage?languageID="+languageID);
-                }
-                else
-                {
-                    dropDownItem.text(StyleColor.muted);
-                }
                 
-                        
+                FormCheck formCheck=dropDownItem.returnAddInner(new FormCheck()).switch_().mt(1);
+                InputCheckbox checkbox=formCheck.addInputCheckbox(null).checked(active);
                 group.menu().returnAddInner(dropDownItem);
+            }
+            RowSet handleRowSet=accessor.executeQuery(parent, null
+                    , "SELECT * FROM HandleFormats WHERE LanguageID=?",languageID);
+            
+            DataTableOptions options=new DataTableOptions();
+            options.lengthMenu=new int[]{25,100,1000};
+            Column formatColumn=new Column();
+            formatColumn.searchable=false;
+            options.columns=new Column[] {formatColumn,null};
+            
+            ColumnDef formatColumnDef=new ColumnDef(0);
+            formatColumnDef.width(new Size(25,unit.percent));
+            
+            options.columnDefs=new ColumnDef[] {formatColumnDef};
+            DataTable table=new DataTable(page,options);
+//            table.w_auto();
+            Styler.style(table).w(100);
+            main.addInner(table);
+            table.header().addRow("Handle","Format");
+            for (Row handleRow:handleRowSet.rows())
+            {
+                String handle=handleRow.getVARCHAR("Handle");
+                String format=handleRow.getVARCHAR("Format");
+                Item handleCell=new Item().d(Display.flex).justify_content(Justify.between);
+                handleCell.addInner(handle);
+                Item ui=handleCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
+                Button languageButton=ui.returnAddInner(new Button()).addInner(new Icon("play")).sm().color(StyleColor.primary).ms(1).title("Preview test").pt(0).px(1);
+                Button testButton=ui.returnAddInner(new Button()).addInner(new Icon("play")).sm().color(StyleColor.primary).ms(1).title("Preview test").pt(0).px(1);
+                Button updateButton=ui.returnAddInner(new Button()).addInner(new Icon("save")).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
+                
+                Item formatCell=new Item();
+                textarea ta=formatCell.returnAddInner(new textarea());
+                if (TypeUtils.isNullOrEmpty(format))
+                {
+                    testButton.disabled();
+                    updateButton.disabled();
+                    ta.rows(1);
+                }
+                ta.addInner("help");
+                Styler.style(ta).w(100);
+                table.body().addRow(handleCell,formatCell);
             }
         }
 

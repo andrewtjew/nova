@@ -131,7 +131,7 @@ public class DataTableOptions
     //public searchCols
     public Integer searchDelay;
     public Column[] columns;
-    public Column[] columnDefs;
+    public ColumnDef[] columnDefs;
     public Integer stateDuration;
 //    public stripeClasses
     

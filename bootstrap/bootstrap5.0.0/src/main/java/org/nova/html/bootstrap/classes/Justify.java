@@ -28,6 +28,7 @@ public enum Justify
     end("end"), 
     around("around"), 
     between("between"), 
+    evenly("evenly"), 
     ;
     private String value;
 

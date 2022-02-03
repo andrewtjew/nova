@@ -10,7 +10,7 @@ import org.nova.html.bootstrap.Styler;
 import org.nova.html.bootstrap.NavbarTogglerButton;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.Container;
-import org.nova.html.bootstrap.DropdownItem;
+import org.nova.html.bootstrap.DropdownMenuItem;
 import org.nova.html.bootstrap.DropdownMenu;
 import org.nova.html.bootstrap.Footer;
 import org.nova.html.bootstrap.Item;
@@ -53,7 +53,7 @@ public class Page extends BootStrapPage
         String title="StringHandleEditor";
         head().title(title);
 
-        head().addInner(new link().rel(link_rel.stylesheet).href("/resources/html/css/style.css"));
+        head().addInner(new link().rel(link_rel.stylesheet).href("/resources/html/css/editor.css"));
         head().addInner(new script().src("/resources/html/js/remote.js"));
         head().addInner(new script().src("https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"));
 

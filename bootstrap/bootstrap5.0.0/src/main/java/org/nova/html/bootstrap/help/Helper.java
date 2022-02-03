@@ -12,13 +12,6 @@ import org.nova.html.tags.div;
 
 public class Helper extends HelperElement
 {
-//    private div topic;
-//    
-//    private div bottomOverlay;
-//    private div rightOverlay;
-//    private div leftOverlay;
-//    private div topOverlay;
-
     private Button back;
     private Button next;
     private Button close;
