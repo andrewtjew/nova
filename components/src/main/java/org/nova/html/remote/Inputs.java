@@ -32,16 +32,16 @@ public class Inputs
     final private ArrayList<Input> inputs;
     final private ArrayList<Element> elements;
     final private FormElement<?> form;
-    
+    private boolean trace=false;
 
-    public Inputs(FormElement<?> element,QuotationMark mark,QuotationMark innerMark)
+    public Inputs(FormElement<?> formElement,QuotationMark mark,QuotationMark innerMark)
     {
         this.elements=new ArrayList<Element>();
-        this.elements.add(element);
         this.mark=mark;
         this.innerMark=innerMark;
         this.inputs=new ArrayList<Input>();
-        this.form=element;
+        this.form=formElement;
+        this.addElements(formElement);
     }
     public Inputs(FormElement<?> element,QuotationMark mark)
     {
@@ -110,6 +110,10 @@ public class Inputs
         return;
     }
     
+    public void trace()
+    {
+        this.trace=true;
+    }
     
     public String getContent() throws Throwable
     {
@@ -134,7 +138,7 @@ public class Inputs
     }
     public String js_post(String formID,String action,boolean async) throws Throwable
     {
-        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),async);
+        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),async,this.trace);
     }
 
 //    public String escapeString(String string)
@@ -286,7 +290,7 @@ public class Inputs
         {
             this.data=ObjectMapper.writeObjectToString(this.inputs.toArray(new Input[this.inputs.size()]));
         }
-        return HtmlUtils.js_call(this.mark,"nova.remote.get",formID,action,getContent(),async);
+        return HtmlUtils.js_call(this.mark,"nova.remote.get",formID,action,getContent(),async,trace);
     }
     public String js_post(String action,boolean async) throws Throwable
     {

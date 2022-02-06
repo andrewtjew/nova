@@ -19,6 +19,10 @@ public class DropdownButtonMenuGroup extends ButtonGroup
         this.button=returnAddInner(new Button(buttonLabel));
         this.menu=returnAddInner(new DropdownMenu(this.button));
     }
+    public DropdownButtonMenuGroup()
+    {
+        this(null);
+    }
     
     public DropdownButtonMenuGroup buttonToggles()
     {

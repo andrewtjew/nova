@@ -29,6 +29,7 @@ import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.NavbarPlacement;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.Text;
+import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.Span;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.HtmlUtils;
@@ -55,6 +56,7 @@ public class Page extends BootStrapPage
 
         head().addInner(new link().rel(link_rel.stylesheet).href("/resources/html/css/editor.css"));
         head().addInner(new script().src("/resources/html/js/remote.js"));
+        head().addInner(new script().src("/resources/html/js/nova-handle.js"));
         head().addInner(new script().src("https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"));
 
         this.navbar=body().returnAddInner(new Navbar()).expand(BreakPoint.sm);
@@ -68,18 +70,18 @@ public class Page extends BootStrapPage
         NavbarTogglerButton navButton=navbar.returnAddInner(new NavbarTogglerButton());
         NavbarCollapse navBarCollapse=navbar.returnAddInner(new NavbarCollapse(navButton));
         NavbarNav nav=navBarCollapse.returnAddInner(new NavbarNav());
-        nav.mx_auto().mx(0).d(Display.flex).w(100);
+        nav.mx(0).d(Display.flex).w(100).justify_content(Justify.end);
         {
-            this.content=new Item();
-//            this.content.mx_auto().d(Display.flex).justify_content(Justify.center);
-            body().addInner(content);
 
-            nav.returnAddInner(new NavItemLink()).addInner(new i().addClass("bi-list-ul")+" Language").href("/StringHandleEditor/viewByLanguages").text(StyleColor.light).title("View by language");
-            nav.returnAddInner(new NavItemLink()).addInner(new i().addClass("bi-list-ul")+" Handles").href("/StringHandleEditor/name").text(StyleColor.light).title("View by handles");
-            nav.returnAddInner(new NavItemLink()).addInner(new i().addClass("bi-plus-circle-fill")).addInner(" Handle").href("/StringHandleEditor/addHandle").text(StyleColor.light).title("Add handle");
-            nav.returnAddInner(new NavItemLink()).addInner(new i().addClass("bi-plus-circle-fill")).addInner(" Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
-            nav.returnAddInner(new NavItemLink()).addInner(new i().addClass("bi-question-diamond-fill")+" Undefines").href("/StringHandleEditor/checkHandles").text(StyleColor.warning).title("Check for undefined handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.LANGUAGE)+" Language").href("/StringHandleEditor/viewByLanguages").text(StyleColor.light).title("View by language");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.HANDLES)+" Handles").href("/StringHandleEditor/viewByHandles").text(StyleColor.light).title("View by handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Handle").href("/StringHandleEditor/addHandle").text(StyleColor.light).title("Add handle");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.UNDEFINED)+" Undefines").href("/StringHandleEditor/nextUndefined").text(StyleColor.warning).title("Check for undefined handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.SETTINGS)+" Settings").href("/StringHandleEditor/settings").text(StyleColor.light).title("Language and enum settings").ms_auto();
         }
+        this.content=new Item();
+        body().addInner(content);
     }
   
     public StyleComponent<?> content()

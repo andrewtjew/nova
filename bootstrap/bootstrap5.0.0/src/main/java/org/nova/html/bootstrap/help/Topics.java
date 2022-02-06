@@ -41,7 +41,7 @@ public class Topics extends div
     public String js_activate(int startIndex,int targetMargin,int zIndex) throws Throwable
     {
         Link[] links=this.links.toArray(new Link[this.links.size()]);
-        String code=HtmlUtils.js_call("Nova.Help.activate", startIndex,targetMargin,zIndex,links);
+        String code=HtmlUtils.js_call("nova.help.activate", startIndex,targetMargin,zIndex,links);
         return code;
     }
     public String js_activate() throws Throwable

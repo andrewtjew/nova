@@ -34,6 +34,10 @@ public class DropdownItem extends StyleComponent<DropdownItem>
     {
         this(label,null);
     }
+    public DropdownItem()
+    {
+        this(null);
+    }
     public DropdownItem href(String URL)
     {
         attr("href",URL);
