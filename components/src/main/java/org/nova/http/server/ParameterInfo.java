@@ -62,11 +62,11 @@ public class ParameterInfo
 	}
 	public Class<?> getType()
 	{
-		return type;
+		return this.type;
 	}
 	public Object getDefaultValue()
 	{
-		return defaultValue;
+		return this.defaultValue;
 	}
 	public int getPathIndex()
 	{
@@ -76,10 +76,10 @@ public class ParameterInfo
 	{
 		return name;
 	}
-	public Class<?> getParameterType()
-	{
-	    return this.type;
-	}
+//	public Class<?> getParameterType()
+//	{
+//	    return this.type;
+//	}
 	public Annotation getAnnotation()
 	{
 	    return this.annotation;

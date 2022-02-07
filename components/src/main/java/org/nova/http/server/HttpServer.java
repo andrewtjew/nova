@@ -24,6 +24,7 @@ package org.nova.http.server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.http.Header;
+import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
@@ -404,16 +406,29 @@ public class HttpServer
             }
             EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 			
-            Context context = new Context(decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+            FilterChain chain = new FilterChain(requestHandlerWithParameters);
+            Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
             try 
 			{
-				FilterChain chain = new FilterChain(requestHandlerWithParameters);
 				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
 				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
 
+                servletResponse=context.getHttpServletResponse();
 				Response<?> response = chain.next(trace, context);
                 if (context.isCaptured()==false)
                 {
+                    
+                    CookieState[] cookieStates=context.getFilterChain().getCookieStates();
+                    if (cookieStates!=null)
+                    {
+                        for (CookieState cookieState:cookieStates)
+                        {
+                            String value=ObjectMapper.writeObjectToString(cookieState.parameter);
+                            value=URLEncoder.encode(value);
+                            Cookie cookie=new Cookie(cookieState.cookieParam.value(), value);
+                            servletResponse.addCookie(cookie);
+                        }
+                    }
 					if (response != null)
 					{
 						if (response.headers != null)

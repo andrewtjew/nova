@@ -37,6 +37,11 @@ public class Topics extends div
         this.links.add(new Link(topic.id(),target.id()));
         addInner(topic);
     }
+    public void add(TagElement<?> topic)
+    {
+        this.links.add(new Link(topic.id(),null));
+        addInner(topic);
+    }
     
     public String js_activate(int startIndex,int targetMargin,int zIndex) throws Throwable
     {

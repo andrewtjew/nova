@@ -1,4 +1,4 @@
-package org.nova.html.localization;
+package org.nova.localization;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import org.nova.sqldb.SqlUtils;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
-public class StringHandleSqlResolver extends StringHandleResolver
+public class SqlStringHandleResolver extends StringHandleResolver
 {
     final private HashMap<String,String> formatMap;
     final private HashMap<String,Locale_ISO_639_1> localeMap;
@@ -21,7 +21,7 @@ public class StringHandleSqlResolver extends StringHandleResolver
     final private String notFoundFormat;
     final private String selectFormat;
     final private TraceManager traceManager;
-    public StringHandleSqlResolver(TraceManager traceManager,Connector connector,String notFoundFormat,String selectFormat)
+    public SqlStringHandleResolver(TraceManager traceManager,Connector connector,String notFoundFormat,String selectFormat)
     {
         this.formatMap=new HashMap<String, String>();
         this.localeMap=new HashMap<String, Locale_ISO_639_1>(); 
@@ -31,19 +31,18 @@ public class StringHandleSqlResolver extends StringHandleResolver
         this.traceManager=traceManager;
     }
 
-    public StringHandleSqlResolver(TraceManager traceManager,Connector connector)
+    public SqlStringHandleResolver(TraceManager traceManager,Connector connector)
     {
         this(traceManager,connector,"[|%s:%s|]"
-                ,"SELECT format FROM HandleFormats WHERE language=? and handle=?"
+                ,"SELECT format FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLanguages ON HandleLanguages.ID=LanguageID WHERE Language=? AND Enum=? AND Handle=?"
                 );
     }
     @Override
-    public String resolve(LanguageCode language,Class<?> type,String handle,Object...parameters) throws Throwable
+    public String resolve(LanguageCode languageCode,Class<?> enum_,String handle,Object...parameters) throws Throwable
     {
-        String l=language.name();
-        String h=handle.toString();
-        String t=type!=null?type.getName():"";
-        String key=l+":"+type+"."+h;
+        String language=languageCode.name();
+        String enumName=enum_!=null?enum_.getName():"";
+        String key=language+":"+enum_+":"+handle;
         String format;
         synchronized(this)
         {
@@ -56,7 +55,7 @@ public class StringHandleSqlResolver extends StringHandleResolver
                 Row row;
                 try (Accessor accessor=this.connector.openAccessor(trace))
                 {
-                    row=SqlUtils.executeQueryOne(trace, null, accessor, this.selectFormat, l,h);
+                    row=SqlUtils.executeQueryOne(trace, null, accessor, this.selectFormat, language,enumName,handle);
                 }
                 if (row!=null)
                 {
@@ -70,8 +69,8 @@ public class StringHandleSqlResolver extends StringHandleResolver
         }
         if (format==null)
         {
-            return String.format(this.notFoundFormat, "handle",h);
+            return String.format(this.notFoundFormat, "handle",handle);
         }
-        return String.format(language.getValue().locale,format,parameters);
+        return String.format(languageCode.getValue().locale,format,parameters);
     }
 }

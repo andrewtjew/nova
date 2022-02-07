@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
 
@@ -47,14 +48,24 @@ public class Context
 	private String requestContentText;
 	private DecoderContext decoderContext;
 	private EncoderContext encoderContext;
+	final private FilterChain filterChain;
 	
-	Context(DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
+	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
+	    this.filterChain=filterChain;
 		this.requestHandler=requestHandler;
 		this.httpServletRequest=servletRequest;
 		this.httpServletResponse=servletResponse;
 		this.decoderContext=decoderContext;
 		this.encoderContext=encoderContext;
+	}
+	public Response<?> next(Trace parent) throws Throwable
+	{
+	    return this.filterChain.next(parent, this);
+	}
+	public FilterChain getFilterChain()
+	{
+	    return this.filterChain;
 	}
 	public DecoderContext getDecoderContext()
 	{

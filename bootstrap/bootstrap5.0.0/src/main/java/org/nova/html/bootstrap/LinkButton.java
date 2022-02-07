@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
+
 public class LinkButton extends ButtonComponent<LinkButton>
 {
     public LinkButton(String label)
@@ -42,6 +45,10 @@ public class LinkButton extends ButtonComponent<LinkButton>
         this(null);
     }
     
+    public LinkButton target(target target)
+    {
+        return attr("target",target.toString());
+    }
     public LinkButton target(String target)
     {
         attr("target",target);

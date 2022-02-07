@@ -17,6 +17,7 @@ public class Icons
     static String HANDLES="list-ul";    
     static String ADD="plus-circle-fill";    
     static String UNDEFINED="question-diamond-fill";    
+    static String DOCUMENTATION="globe";    
     static String SETTINGS="gear";    
     static String DELETE="x-square";    
 }

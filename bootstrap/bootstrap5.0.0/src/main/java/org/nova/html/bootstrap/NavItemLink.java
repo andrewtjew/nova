@@ -22,6 +22,8 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
 
 public class NavItemLink extends ToggleComponent<NavItemLink>
 {
@@ -47,6 +49,15 @@ public class NavItemLink extends ToggleComponent<NavItemLink>
     public NavItemLink disabled()
     {
         addClass("disabled");
+        return this;
+    }
+    public NavItemLink target(target target)
+    {
+        return attr("target",target.toString());
+    }
+    public NavItemLink target(String target)
+    {
+        attr("target",target);
         return this;
     }
     public NavItemLink href(String href)

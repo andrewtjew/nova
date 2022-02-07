@@ -62,8 +62,9 @@ public class RequestHandler
 	final private LongValueMeter requestCompressedContentSizeMeter;
 	final private LongValueMeter responseCompressedContentSizeMeter;
     final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
-	
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] filters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize)
+    final private int cookieStatesLength;
+    
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] filters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieStatesLength)
 	{
 		this.object=object;
 		this.method=method;
@@ -91,8 +92,15 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
+        this.cookieStatesLength=cookieStatesLength;
 	}
 
+	int getCookieStatesLength()
+	{
+	    return this.cookieStatesLength;
+	}
+
+	
 	public Object getObject()
 	{
 		return object;

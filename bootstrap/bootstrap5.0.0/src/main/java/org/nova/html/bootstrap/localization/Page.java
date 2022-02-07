@@ -32,6 +32,7 @@ import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.Span;
 import org.nova.html.enums.link_rel;
+import org.nova.html.enums.target;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
@@ -59,8 +60,7 @@ public class Page extends BootStrapPage
         head().addInner(new script().src("/resources/html/js/nova-handle.js"));
         head().addInner(new script().src("https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"));
 
-        this.navbar=body().returnAddInner(new Navbar()).expand(BreakPoint.sm);
-        this.navbar.color(StyleColor.dark).bg(StyleColor.dark).px(2).py(0);
+        this.navbar=body().returnAddInner(new Navbar()).expand(BreakPoint.sm);        this.navbar.color(StyleColor.dark).bg(StyleColor.dark).px(2).py(0);
         
         NavbarBrand brand=navbar.returnAddInner(new NavbarBrand(title));
         brand.onclick(HtmlUtils.js_location(""));
@@ -75,9 +75,12 @@ public class Page extends BootStrapPage
 
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.LANGUAGE)+" Language").href("/StringHandleEditor/viewByLanguages").text(StyleColor.light).title("View by language");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.HANDLES)+" Handles").href("/StringHandleEditor/viewByHandles").text(StyleColor.light).title("View by handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Language").href("/StringHandleEditor/addLanguage").text(StyleColor.light).title("Add language");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Handle").href("/StringHandleEditor/addHandle").text(StyleColor.light).title("Add handle");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.UNDEFINED)+" Undefines").href("/StringHandleEditor/nextUndefined").text(StyleColor.warning).title("Check for undefined handles");
+
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.DOCUMENTATION)+" Format Docs").href("https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html").target(target._blank).text(StyleColor.info).title("Link to Format string documentation");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.SETTINGS)+" Settings").href("/StringHandleEditor/settings").text(StyleColor.light).title("Language and enum settings").ms_auto();
         }
         this.content=new Item();

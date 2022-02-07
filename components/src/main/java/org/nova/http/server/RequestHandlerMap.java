@@ -480,7 +480,7 @@ class RequestHandlerMap
 		ArrayList<ParameterInfo> parameterInfos = new ArrayList<ParameterInfo>();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		Annotation[][] annotations = method.getParameterAnnotations();
-
+		int cookieStatesLength=0;
 		for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++)
 		{
 			Class<?> parameterType = parameterTypes[parameterIndex];
@@ -520,6 +520,10 @@ class RequestHandlerMap
 				else if (type == CookieParam.class)
 				{
 					cookieParam = (CookieParam) annotation;
+					if (cookieParam.preserveState())
+					{
+					    cookieStatesLength++;
+					}
 				}
 				else if (type == HeaderParam.class)
 				{
@@ -630,10 +634,10 @@ class RequestHandlerMap
 								+ object.getClass().getCanonicalName() + "." + method.getName());
 					}
 				}
-				else if (isSimpleParameterType(parameterType) == false)
-				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + method.getName());
-				}
+//				else if (isSimpleParameterType(parameterType) == false)
+//				{
+//					throw new Exception("Only simple types allowed for parameter. Site=" + method.getName());
+//				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE, cookieParam, cookieParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType)));
 			}
@@ -874,7 +878,7 @@ class RequestHandlerMap
         RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, filters,
                 parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap, contentEncoderMap, contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
-                true,this.bufferSize);
+                true,this.bufferSize,cookieStatesLength);
         add(httpMethod, fullPath, requestHandler);
         
         for (Filter filter:filters)

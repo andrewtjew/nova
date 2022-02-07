@@ -1,6 +1,7 @@
 package org.nova.html.bootstrap.localization;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Locale;
 
 import org.apache.commons.lang.LocaleUtils;
@@ -40,16 +41,15 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.DataTables.DataTable;
+import org.nova.html.bootstrap.remote.ProceedModalDialog;
 import org.nova.html.bootstrap.remote.Switch;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
+import org.nova.html.ext.Locale_ISO_639_1;
 import org.nova.html.ext.TableRow;
-import org.nova.html.localization.LanguageCode;
-import org.nova.html.localization.StringHandle;
-import org.nova.html.localization.StringHandleSqlResolver;
 import org.nova.html.remote.Inputs;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
@@ -73,6 +73,7 @@ import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
+import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
@@ -80,6 +81,9 @@ import org.nova.http.server.annotations.PUT;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
+import org.nova.localization.LanguageCode;
+import org.nova.localization.SqlStringHandleResolver;
+import org.nova.localization.StringHandle;
 import org.nova.services.AllowGroups;
 import org.nova.services.SessionFilter;
 import org.nova.sqldb.Accessor;
@@ -104,9 +108,19 @@ public class StringHandleEditor
     public StringHandleEditor(TraceManager traceManager,Connector connector)
     {
         this.connector=connector;
-        StringHandleSqlResolver resolver=new StringHandleSqlResolver(traceManager, connector);
-        StringHandle.setResolver(resolver);
+        SqlStringHandleResolver resolver=new SqlStringHandleResolver(traceManager, connector);
+//        StringHandle.setResolver(resolver);
     }
+    
+    
+    public void addLanguage(Trace parent,LanguageCode languageCode) throws Exception, Throwable
+    {
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            addLanguage(parent, accessor, languageCode);
+        }        
+    }
+    
     
     private void addLanguage(Trace parent,Accessor accessor,LanguageCode languageCode) throws Throwable
     {
@@ -115,7 +129,51 @@ public class StringHandleEditor
                 ,languageCode.name());
         if (row==null)
         {
-            Insert.table("HandleLanguages").value("Language", languageCode.name()).value("Active", true).execute(parent, accessor);
+            long id=Insert.table("HandleLanguages").value("Language", languageCode.name()).value("Description",languageCode.getValue().description).value("Active", true)
+            .executeAndReturnLongKey(parent, accessor);
+            
+            RowSet enumSet=accessor.executeQuery(parent, null
+                    , "SELECT * FROM HandleEnums"
+                    );
+            for (Row enumRow:enumSet.rows())
+            {
+                String enum_=enumRow.getVARCHAR("Enum");
+                long enumID=enumRow.getBIGINT("ID");
+                if (enum_!=null)
+                {
+                    Class<?> type=Class.forName(enum_);
+                    for (Object value:type.getEnumConstants())
+                    {
+                        Enum<?> e=(Enum<?>)value;
+                        String name=e.name();
+                        Row existing=SqlUtils.executeQueryOne(parent, null, accessor
+                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
+                                ,id,enumID,name);
+                        if (existing==null)
+                        {
+                            Insert.table("HandleFormats").value("Handle",name).value("LanguageID", id).value("EnumID", enumID).execute(parent, accessor);
+                        }
+                    }
+                }
+                else
+                {
+                    RowSet stringHandleSet=accessor.executeQuery(parent, null
+                            , "SELECT * FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID WHERE Enum IS NULL"
+                            );
+                    for (Row stringHandleRow:stringHandleSet.rows())
+                    {
+                        String name=stringHandleRow.getVARCHAR("Handle");
+                        Row existing=SqlUtils.executeQueryOne(parent, null, accessor
+                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
+                                ,id,enumID,name);
+                        if (existing==null)
+                        {
+                            Insert.table("HandleFormats").value("Handle",name).value("LanguageID", id).value("EnumID", enumID).execute(parent, accessor);
+                        }
+                    }
+                    
+                }
+            }
         }
     }
     
@@ -243,6 +301,41 @@ public class StringHandleEditor
     }
 
     @GET
+    public Element addLanguage() throws Throwable
+    {
+        Page page=new Page();
+        
+        Form form=page.content().returnAddInner(new Form(method.post));
+        form.action("#");
+        Item item=form.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.center);
+        CardDocument card=createInputCard();
+        card.header().addInner("Select language");
+        Select select=card.body().returnAddInner(new Select().w(100).name("name"));
+        for (LanguageCode languageCode:LanguageCode.values())
+        {
+            Locale_ISO_639_1 locale=languageCode.getValue();
+            String text=locale.description+" ("+locale.code+")";
+            select.returnAddInner(new option()).addInner(text).value(locale.code);
+        }
+        card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
+
+        item.addInner(card);
+        return page;
+    }
+    @POST
+    public Element addLanguage(Trace parent,@QueryParam("name") String name) throws Throwable
+    {
+        Page page=new Page();
+        Item item=page.content().returnAddInner(new Item()).m(2);
+        LanguageCode languageCode=LanguageCode.fromCode(name);
+        Locale_ISO_639_1 locale=languageCode.getValue();
+        String text=locale.description+" ("+locale.code+")";
+        item.returnAddInner(new Alert()).addInner("Added: "+text).color(StyleColor.success);
+        addLanguage(parent, languageCode);
+        return page;
+    }
+
+    @GET
     public Element addEnum() throws Throwable
     {
         Page page=new Page();
@@ -254,7 +347,7 @@ public class StringHandleEditor
         card.header().addInner("Enter fully qualified enum name");
         card.body().returnAddInner(new InputText().w(100).name("name"));
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
-
+        
         item.addInner(card);
         return page;
     }
@@ -280,12 +373,7 @@ public class StringHandleEditor
             return page;
         }
         
-        type.getEnumConstants();
-    
         item.returnAddInner(new Alert()).addInner("Added: "+name).color(StyleColor.success);
-        TableHeader header=new TableHeader();
-        header.addRow("Formats");
-        Table table=item.returnAddInner(new Table(header));
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
             long enumID;
@@ -302,36 +390,76 @@ public class StringHandleEditor
                     enumID=row.getBIGINT("ID");
                 }
             }
-            RowSet rowSet=accessor.executeQuery(parent, null
-                    , "SELECT * FROM HandleLanguages");
-                    
-            for (Object value:type.getEnumConstants())
+            
+            HashSet<String> staleHandles=new HashSet<String>();
             {
-                Enum<?> e=(Enum<?>)value;
-                String handle=e.name();
-                for (Row languageRow:rowSet.rows())
+                RowSet rowSet=accessor.executeQuery(parent, null
+                        , "SELECT Handle FROM HandleFormats WHERE EnumID=? GROUP BY Handle",enumID);
+                for (Row row:rowSet.rows())
                 {
-                    long languageID=languageRow.getBIGINT("ID");
-                    
-                    Row row=SqlUtils.executeQueryOne(parent, null, accessor
-                            , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
-                            ,languageID,enumID,handle);
-                    if (row==null)
+                    staleHandles.add(row.getVARCHAR(0));
+                }                
+            }
+            
+
+            {
+                TableHeader header=new TableHeader();
+                header.addRow("Handles");
+                Table table=item.returnAddInner(new Table(header));
+                RowSet rowSet=accessor.executeQuery(parent, null
+                        , "SELECT * FROM HandleLanguages");
+                for (Object value:type.getEnumConstants())
+                {
+                    Enum<?> e=(Enum<?>)value;
+                    String handle=e.name();
+                    staleHandles.remove(handle);
+                    for (Row languageRow:rowSet.rows())
                     {
-                        Insert.table("HandleFormats").value("Handle",handle).value("LanguageID", languageID).value("EnumID", enumID).execute(parent, accessor);
+                        long languageID=languageRow.getBIGINT("ID");
+                        
+                        Row row=SqlUtils.executeQueryOne(parent, null, accessor
+                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
+                                ,languageID,enumID,handle);
+                        if (row==null)
+                        {
+                            Insert.table("HandleFormats").value("Handle",handle).value("LanguageID", languageID).value("EnumID", enumID).execute(parent, accessor);
+                        }
                     }
+                    TableRow tr=new TableRow();
+                    tr.add(handle);
+                    table.addInner(tr);
                 }
+            }
+            
+            TableHeader header=new TableHeader();
+            header.addRow("Removed: "+staleHandles.size());
+            Table table=item.returnAddInner(new Table(header));
+            for (String handle:staleHandles)
+            {
+                accessor.executeUpdate(parent, null
+                        , "DELETE FROM HandleFormats WHERE Handle=? AND EnumID=?"
+                        ,handle,enumID);
                 TableRow tr=new TableRow();
                 tr.add(handle);
                 table.addInner(tr);
             }
+            
         }
         return page;
     }
 
-    @GET
-    public Element viewByLanguages(Trace parent,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID) throws Throwable
+    static class UserState
     {
+        public Long enumID;
+        public Long languageID;
+        public String handle;
+    }
+    
+    @GET
+    public Element viewByLanguages(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
+    {
+        
+        
         Page page=new Page();
         
         Item main=page.content().returnAddInner(new Item()).m(2);
@@ -345,7 +473,7 @@ public class StringHandleEditor
 //
 //            DropdownMenuItem dropDownItem=group.menu().returnAddInner(new DropdownMenuItem());
 //            DropdownItem item=dropDownItem.returnAddInner(new DropdownItem());
-//            Table table=dropDownItem.returnAddInner(new Table());
+//            Table table=dropDownItem.returnAddInner(new Table());i
 //            TableHeader heading=table.returnAddInner(new TableHeader());
 //            heading.addRow("Specifier","Description");
 //            TableBody body=table.returnAddInner(new TableBody());
@@ -356,6 +484,14 @@ public class StringHandleEditor
 //            
 //        }
         
+        if (languageID==null)
+        {
+            languageID=userState.languageID;
+        }
+        if (enumID==null)
+        {
+            enumID=userState.enumID;
+        }
         
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
@@ -364,13 +500,18 @@ public class StringHandleEditor
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
                 group.button().color(StyleColor.secondary).sm().me(2);
                 RowSet rowSet=accessor.executeQuery(parent, null
-                        , "SELECT * FROM HandleEnums");
+                        , "SELECT * FROM HandleEnums WHERE Active=?"
+                        , true
+                        );
+                boolean found=false;
+                String groupEnum=null;
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
                     String enum_=row.getVARCHAR("Enum");
                     if (enumID==null)
                     {
+                        userState.enumID=id;
                         enumID=id;
                     }
                     if (enum_==null)
@@ -379,12 +520,27 @@ public class StringHandleEditor
                     }
                     if (enumID==id)
                     {
-                        group.button().addInner(enum_);
+                        groupEnum=enum_;
+                        found=true;
+                    }
+                    if (found==false)
+                    {
+                        groupEnum=enum_;
                     }
     
                     DropdownMenuItem dropDownItem=new DropdownMenuItem(enum_,"?enumID="+id);
                     group.menu().returnAddInner(dropDownItem);
                 }
+                if (found)
+                {
+                    userState.enumID=enumID;
+                }
+                else
+                {
+                    enumID=userState.enumID;
+                }
+                group.button().addInner(groupEnum);
+                
             }
             //Build language dropdown
             {
@@ -393,27 +549,44 @@ public class StringHandleEditor
                 group.button().color(StyleColor.primary).sm();
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT * FROM HandleLanguages WHERE Active=?",true);
+                boolean found=false;
+                String groupLanguage=null;
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
-                    String language=row.getVARCHAR("Language");
-//                    boolean active=row.getBIT("Active");
+                    String description=row.getVARCHAR("Description");
+                    
                     if (languageID==null)
                     {
+                        userState.languageID=id;
                         languageID=id;
                     }
                     if (id==languageID)
                     {
-                        group.button().addInner(language);
+                        groupLanguage=description;
+                        found=true;
+                    }
+                    if (found==false)
+                    {
+                        groupLanguage=description;
                     }
     
-                    DropdownMenuItem dropDownItem=new DropdownMenuItem(language,"?languageID="+id);
+                    DropdownMenuItem dropDownItem=new DropdownMenuItem(description,"?languageID="+id);
                     dropDownItem.d(Display.flex).justify_content(Justify.between);
                     
 //                    FormCheck formCheck=dropDownItem.returnAddInner(new FormCheck()).switch_().mt(1);
 //                    InputCheckbox checkbox=formCheck.addInputCheckbox(null).checked(active);
                     group.menu().returnAddInner(dropDownItem);
                 }
+                if (found)
+                {
+                    userState.languageID=languageID;
+                }
+                else
+                {
+                    languageID=userState.languageID;
+                }
+                group.button().addInner(groupLanguage);
             }
             
             
@@ -447,7 +620,6 @@ public class StringHandleEditor
                 Item ui=handleCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
                 LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).sm().color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByHandles").addQuery("enumID", enumID).addQuery("handle",handle).toString());
-                Button previewButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-test-"+handle).addInner(new Icon(Icons.PREVIEW)).sm().color(StyleColor.primary).ms(1).title("Preview test").pt(0).px(1);
                 Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+handle).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
@@ -457,7 +629,6 @@ public class StringHandleEditor
                 ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", handle));
                 if (TypeUtils.isNullOrEmpty(format))
                 {
-                    previewButton.disabled();
                     ta.rows(1);
                 }
                 ta.placeholder("Undefined");
@@ -482,9 +653,18 @@ public class StringHandleEditor
         return page;
     }
     @GET
-    public Element viewByHandles(Trace parent,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
+    public Element viewByHandles(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
     {
+
         Page page=new Page();
+        if (handle==null)
+        {
+            handle=userState.handle;
+        }
+        if (enumID==null)
+        {
+            enumID=userState.enumID;
+        }
         
         Item main=page.content().returnAddInner(new Item()).m(2);
         
@@ -497,7 +677,11 @@ public class StringHandleEditor
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
                 group.button().color(StyleColor.secondary).sm().me(2);
                 RowSet rowSet=accessor.executeQuery(parent, null
-                        , "SELECT * FROM HandleEnums");
+                        , "SELECT * FROM HandleEnums WHERE Active=?"
+                        ,true
+                        );
+                boolean found=false;
+                String groupEnum=null;
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
@@ -505,44 +689,72 @@ public class StringHandleEditor
                     if (enumID==null)
                     {
                         enumID=id;
+                        userState.enumID=id;
+                    }
+                    if (enum_==null)
+                    {
+                        enum_="{String}";
                     }
                     if (enumID==id)
                     {
-                        group.button().addInner(enum_);
+                        found=true;
+                        groupEnum=enum_;
                         enumID=id;
+                    }
+                    if (found==false)
+                    {
+                        groupEnum=enum_;
                     }
     
                     DropdownMenuItem dropDownItem=new DropdownMenuItem(enum_,"?enumID="+id);
                     group.menu().returnAddInner(dropDownItem);
                 }
+                if (found)
+                {
+                    userState.enumID=enumID;
+                }
+                else
+                {
+                    enumID=userState.enumID;
+                }
+                group.button().addInner(groupEnum);
             }
             {
                 bar.returnAddInner(new Item()).addInner("Handle:").me(1).mt(1);
-                String selectedLanguage=null;
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
                 group.button().color(StyleColor.primary).sm();
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT Handle FROM HandleFormats WHERE EnumID=? GROUP BY Handle",enumID);
+                boolean found=false;
                 for (Row row:rowSet.rows())
                 {
                     String h=row.getVARCHAR("Handle");
+                    userState.handle=h;
                     if (handle==null)
                     {
                         handle=h;
                     }
                     if (h.equals(handle))
                     {
-                        group.button().addInner(handle);
+                        found=true;
                     }
     
                     DropdownMenuItem dropDownItem=new DropdownMenuItem(h,"?handle="+h);
                     group.menu().returnAddInner(dropDownItem);
                 }
-                group.button().addInner(selectedLanguage);
+                if (found)
+                {
+                    userState.handle=handle;
+                }
+                else
+                {
+                    handle=userState.handle;
+                }
+                group.button().addInner(handle);
             }
             
             RowSet handleRowSet=accessor.executeQuery(parent, null
-                    , "SELECT Format,LanguageID,Language FROM HandleFormats JOIN HandleLanguages ON HandleFormats.LanguageID=HandleLanguages.ID WHERE EnumID=? AND Handle=? AND HandleLanguages.Active=? ORDER BY LanguageID"
+                    , "SELECT Format,LanguageID,Language,Description FROM HandleFormats JOIN HandleLanguages ON HandleFormats.LanguageID=HandleLanguages.ID WHERE EnumID=? AND Handle=? AND HandleLanguages.Active=? ORDER BY LanguageID"
                     ,enumID,handle,true);
             
             DataTableOptions options=new DataTableOptions();
@@ -562,15 +774,14 @@ public class StringHandleEditor
             table.header().addRow("Language","Format");
             for (Row handleRow:handleRowSet.rows())
             {
-                String language=handleRow.getVARCHAR("Language");
+                String description=handleRow.getVARCHAR("Description");
                 String format=handleRow.getVARCHAR("Format");
                 long languageID=handleRow.getBIGINT("LanguageID");
                 Item languageCell=new Item().d(Display.flex).justify_content(Justify.between);
-                languageCell.addInner(language);
+                languageCell.addInner(description);
                 Item ui=languageCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
-                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).sm().color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
+                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).sm().color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByLanguages").addQuery("enumID", enumID).addQuery("languageID",languageID).toString());
-                Button previewButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-test-"+languageID).addInner(new Icon(Icons.PREVIEW)).sm().color(StyleColor.primary).ms(1).title("Preview test").pt(0).px(1);
                 Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+languageID).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
@@ -580,7 +791,6 @@ public class StringHandleEditor
                 ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", languageID));
                 if (TypeUtils.isNullOrEmpty(format))
                 {
-                    previewButton.disabled();
                     ta.rows(1);
                 }
                 ta.placeholder("Undefined");
@@ -613,7 +823,7 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element nextUndefined(Trace parent) throws Throwable
+    public Element nextUndefined(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
@@ -624,7 +834,7 @@ public class StringHandleEditor
             {
                 long enumID=row.getBIGINT("EnumID");
                 String handle=row.getVARCHAR("Handle");
-                return viewByHandles(parent, enumID, handle);
+                return viewByHandles(parent, userState,enumID, handle);
             }
         }
 
@@ -659,17 +869,18 @@ public class StringHandleEditor
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
-                    String language=row.getVARCHAR("Language");
+                    String description=row.getVARCHAR("Description");
                     boolean active=row.getBIT("Active");
                     Item item=card.body().returnAddInner(new Item());
                     item.d(Display.flex).justify_content(Justify.between);
                     item.border(Edge.bottom).py(1);
-                    item.addInner(language);
+                    item.addInner(description);
                     String name="name_"+id;
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setLanguage?ID="+id));
                     s.pt(1);
-                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger);
+                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs(), "Confirmation required","Delete "+description+"?",new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString()));
+                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
         }
@@ -698,8 +909,8 @@ public class StringHandleEditor
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setEnum?ID="+id));
                     s.pt(1);
-                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger);
-                    
+                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs(), "Confirmation required", "Delete "+enum_+"?",new PathAndQuery("/StringHandleEditor/deleteEnum").addQuery("ID", id).toString()));
+                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
         }
@@ -716,6 +927,43 @@ public class StringHandleEditor
             int updated=accessor.executeUpdate(parent, null
                     , "UPDATE HandleEnums SET Active=? WHERE ID=?"
                     ,checked,ID);
+        }
+        return response;
+    }
+
+    @POST
+    public RemoteResponse deleteLanguage(Trace parent,@QueryParam("ID") long ID) throws Throwable, Throwable
+    {
+        RemoteResponse response=new RemoteResponse();
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            accessor.executeUpdate(parent, null
+                    , "DELETE HandleFormats WHERE LanguageID=?"
+                    ,ID);
+
+            accessor.executeUpdate(parent, null
+                    , "DELETE HandleLanguages WHERE ID=?"
+                    ,ID);
+            
+            response.location("/StringHandleEditor/settings");
+        }
+        return response;
+    }
+    @POST
+    public RemoteResponse deleteEnum(Trace parent,@QueryParam("ID") long ID) throws Throwable, Throwable
+    {
+        RemoteResponse response=new RemoteResponse();
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            accessor.executeUpdate(parent, null
+                    , "DELETE HandleFormats WHERE EnumID=?"
+                    ,ID);
+
+            accessor.executeUpdate(parent, null
+                    , "DELETE HandleEnums WHERE ID=?"
+                    ,ID);
+            
+            response.location("/StringHandleEditor/settings");
         }
         return response;
     }

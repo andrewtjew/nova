@@ -1,4 +1,4 @@
-package org.nova.html.localization;
+package org.nova.localization;
 
 import org.nova.html.ext.Locale_ISO_639_1;
 
@@ -422,16 +422,16 @@ public enum LanguageCode
         return this.value;
     }
     
-//    public static LanguageCode fromValue(short value)
-//    {
-//        for (LanguageCode type : LanguageCode.values())
-//        {
-//            if (type.name().equals(anObject) == value)
-//            {
-//                return type;
-//            }
-//        }
-//        return null;
-//    }
+    public static LanguageCode fromCode(String value)
+    {
+        for (LanguageCode languageCode : LanguageCode.values())
+        {
+            if (languageCode.getValue().code.equals(value))
+            {
+                return languageCode;
+            }
+        }
+        return null;
+    }
 
 }

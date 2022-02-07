@@ -1,4 +1,4 @@
-package org.nova.html.localization;
+package org.nova.localization;
 
 public abstract class StringHandleResolver
 {
