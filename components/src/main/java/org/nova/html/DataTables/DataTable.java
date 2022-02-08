@@ -47,6 +47,7 @@ public class DataTable extends GlobalEventTagElement<table>
     public DataTable(DataTableOptions options)
     {
         super("table");
+        addClass("table");
         if (options==null)
         {
             options=new DataTableOptions();

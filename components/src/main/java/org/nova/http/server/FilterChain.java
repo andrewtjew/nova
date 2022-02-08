@@ -30,6 +30,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
@@ -281,7 +282,8 @@ public class FilterChain
 
     RequestHandler requestHandler;
     Object[] parameters;
-
+    CookieState[] cookieStates;
+    
     public void decodeParameters(Trace trace,Context context) throws Throwable
     {
         if (this.requestHandler!=null)
@@ -296,8 +298,12 @@ public class FilterChain
         
         ContentReader<?> reader=null;
         Object content=null;
-        
-        DecoderContext decoderContext=context.getDecoderContext();
+        int cookieStateIndex=0;
+        int cookieStatesLength=this.requestHandler.getCookieStatesLength();
+        if (cookieStatesLength>0)
+        {
+            this.cookieStates=new CookieState[cookieStatesLength];
+        }
         for (int i=0;i<parameterInfos.length;i++)
         {
             ParameterInfo parameterInfo=parameterInfos[i];
@@ -309,10 +315,11 @@ public class FilterChain
                     reader=context.getContentReader();
                     if (reader!=null)
                     {
-                        content=reader.read(context,decoderContext.getContentLength(),decoderContext.getInputStream(),parameterInfo.getType());
+                        content=reader.read(context,parameterInfo.getType());
                     }
                     else
                     {
+                        DecoderContext decoderContext=context.getDecoderContext();
                         int value=decoderContext.getInputStream().read();
                         if (value==-1)
                         {
@@ -330,25 +337,54 @@ public class FilterChain
                 try
                 {
                     Cookie cookie=null;
-                    for (Cookie c:request.getCookies())
+                    Cookie[] cookies=request.getCookies();
+                    if (cookies!=null)
                     {
-                        if (parameterInfo.getName().equals(c.getName()))
+                        for (Cookie c:cookies)
                         {
-                            cookie=c;
-                            break;
+                            if (parameterInfo.getName().equals(c.getName()))
+                            {
+                                cookie=c;
+                                break;
+                            }
                         }
                     }
-                    if (parameterInfo.getType()==Cookie.class)
+
+                    CookieParam cookieParam=(CookieParam)parameterInfo.getAnnotation();
+                    if (cookieParam.preserveState())
                     {
-                        parameters[i]=cookie;
-                    }
-                    else if (cookie!=null)
-                    {
-                        parameters[i]=buildParameter(parameterInfo,cookie.getValue());
+                        if (this.cookieStates==null)
+                        {
+                            this.cookieStates=new CookieState[parameters.length];
+                        }
+                        String value=null;
+                        if (cookie!=null)
+                        {
+                            value=cookie.getValue();
+                            value=URLDecoder.decode(value);
+                        }
+                        Object object=ObjectMapper.readObject(value, parameterInfo.getType());
+                        if (object==null)
+                        {
+                            object=ObjectMapper.readObject("{}", parameterInfo.getType());
+                        }
+                        this.cookieStates[cookieStateIndex++]=new CookieState(cookieParam,parameterInfo,object);
+                        parameters[i]=object;
                     }
                     else
                     {
-                        parameters[i]=buildParameter(parameterInfo,null);
+                        if (parameterInfo.getType()==Cookie.class)
+                        {
+                            parameters[i]=cookie;
+                        }
+                        else if (cookie!=null)
+                        {
+                            parameters[i]=buildParameter(parameterInfo,cookie.getValue());
+                        }
+                        else
+                        {
+                            parameters[i]=buildParameter(parameterInfo,null);
+                        }
                     }
                 }
                 catch (Throwable t)
@@ -449,6 +485,11 @@ public class FilterChain
         }
     }
 	
+    public CookieState[] getCookieStates()
+    {
+        return this.cookieStates;
+    }
+    
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response<?> next(Trace trace,Context context) throws Throwable
@@ -482,7 +523,7 @@ public class FilterChain
             for (int i=0;i<parameterInfos.length;i++)
             {
                 ParameterInfo parameterInfo=parameterInfos[i];
-                if (parameterInfo.getParameterType().isPrimitive())
+                if (parameterInfo.getType().isPrimitive())
                 { 
                     if (parameters[i]==null)
                     {

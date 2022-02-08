@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.DataTables;
 
+import org.nova.html.attributes.Size;
+
 public class Column
 {
     public Boolean searchable;
@@ -31,6 +33,43 @@ public class Column
     public String defaultContent;
     public String name;
     public Boolean orderable;
-
+    private String width;
+    public Boolean visiable;
+    
+    public Column searchable(boolean searchable)
+    {
+        this.searchable=searchable;
+        return this;
+    }
+    public Column className(String className)
+    {
+        this.className=className;
+        return this;
+    }
+    public Column contentPadding(String contentPadding)
+    {
+        this.contentPadding=contentPadding;
+        return this;
+    }
+    public Column defaultContent(String defaultContent)
+    {
+        this.defaultContent=defaultContent;
+        return this;
+    }
+    public Column name(String name)
+    {
+        this.name=name;
+        return this;
+    }
+    public Column orderable(boolean orderable)
+    {
+        this.orderable=orderable;
+        return this;
+    }
+    public Column width(Size width)
+    {
+        this.width=width.toString();
+        return this;
+    }
     
 }

@@ -129,7 +129,7 @@ public class Parser
         }
     }
     
-    private void parseInsert() throws Throwable
+    private void parseReplace() throws Throwable
     {
         char c=lexer.skipWhiteSpaceAndBegin();
         Lexeme lexeme = lexer.produceWord();
@@ -149,7 +149,7 @@ public class Parser
             {
                 this.sections.add(new Text(this.sb.toString()));
                 this.sb=new StringBuilder();
-                this.sections.add(new InsertMarker(lexeme.getValue()));
+                this.sections.add(new ReplaceMarker(lexeme.getValue()));
 
                 c=this.lexer.skipWhiteSpaceAndBegin();
                 if (c=='>')
@@ -175,9 +175,9 @@ public class Parser
     private void parseTag() throws Throwable
     {
         Lexeme lexeme = lexer.produceWord();
-        if ("<insert".equals(lexeme.getValue()))
+        if ("<x-replace".equals(lexeme.getValue()))
         {
-            parseInsert();
+            parseReplace();
             return;
         }
         this.sb.append(lexeme.getSnippet().getTarget());

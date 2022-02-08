@@ -32,7 +32,7 @@ public class NavbarCollapse extends StyleComponent<NavbarCollapse>
         super("div","collapse navbar-collapse");
         if (toggleButton!=null)
         {
-            toggleButton.data("toggle","collapse");
+            toggleButton.attr("data-toggle","collapse");
             toggleButton.addClass("navbar-toggler");
         }
         this.toggleButton=toggleButton;
@@ -46,7 +46,7 @@ public class NavbarCollapse extends StyleComponent<NavbarCollapse>
     {
         if (this.toggleButton!=null)
         {
-            this.toggleButton.data("target","#"+id());
+            this.toggleButton.attr("data-target","#"+id());
         }
         super.compose(composer);
     }

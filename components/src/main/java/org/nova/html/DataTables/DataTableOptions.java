@@ -24,7 +24,7 @@ package org.nova.html.DataTables;
 public class DataTableOptions
 {
     static public class Paginate
-    {
+    {       
         public String previous;
         public String next;
     }
@@ -131,7 +131,7 @@ public class DataTableOptions
     //public searchCols
     public Integer searchDelay;
     public Column[] columns;
-    public Column[] columnDefs;
+    public ColumnDef[] columnDefs;
     public Integer stateDuration;
 //    public stripeClasses
     

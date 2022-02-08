@@ -21,27 +21,34 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
+
 public class LinkButton extends ButtonComponent<LinkButton>
 {
     public LinkButton(String label)
     {
-        super("a");
-        attr("role","button");
-        addInner(label);
+        this(label,null);
     }
     public LinkButton(String label,String href)
     {
         super("a");
         attr("href",href);
         attr("role","button");
-        addInner(label);
+        if (label!=null)
+        {
+            addInner(label);
+        }
     }
     public LinkButton()
     {
-        super("a");
-        attr("role","button");
+        this(null);
     }
     
+    public LinkButton target(target target)
+    {
+        return attr("target",target.toString());
+    }
     public LinkButton target(String target)
     {
         attr("target",target);

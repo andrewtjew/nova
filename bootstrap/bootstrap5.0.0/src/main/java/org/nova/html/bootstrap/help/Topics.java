@@ -37,11 +37,16 @@ public class Topics extends div
         this.links.add(new Link(topic.id(),target.id()));
         addInner(topic);
     }
+    public void add(TagElement<?> topic)
+    {
+        this.links.add(new Link(topic.id(),null));
+        addInner(topic);
+    }
     
     public String js_activate(int startIndex,int targetMargin,int zIndex) throws Throwable
     {
         Link[] links=this.links.toArray(new Link[this.links.size()]);
-        String code=HtmlUtils.js_call("Nova.Help.activate", startIndex,targetMargin,zIndex,links);
+        String code=HtmlUtils.js_call("nova.help.activate", startIndex,targetMargin,zIndex,links);
         return code;
     }
     public String js_activate() throws Throwable

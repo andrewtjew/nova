@@ -94,7 +94,6 @@ public class RemoteResponse
 
     public RemoteResponse location(String pathAndQuery) throws UnsupportedEncodingException
     {
-        QuotationMark mark=QuotationMark.SINGLE;
         String code=HtmlUtils.js_location(pathAndQuery);
         return script(code);
     }

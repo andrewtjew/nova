@@ -74,12 +74,20 @@ public class Insert
 
     public long executeAndReturnLongKey(Trace parent,Accessor accessor) throws Throwable
     {
-        StringBuilder sql=new StringBuilder("INSERT INTO "+this.table+" ("+this.columns.toString()+") VALUES (?");
-        for (int i=1;i<this.parameters.size();i++)
+        StringBuilder sql=new StringBuilder();
+        if (this.columns.length()>0)
         {
-            sql.append(",?");
+            sql.append("INSERT INTO "+this.table+" ("+this.columns.toString()+") VALUES (?");
+            for (int i=1;i<this.parameters.size();i++)
+            {
+                sql.append(",?");
+            }
+            sql.append(')');
         }
-        sql.append(')');
+        else
+        {
+            sql.append("INSERT INTO "+this.table);
+        }
         return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).getAsLong(0);
     }
     public int executeAndReturnIntKey(Trace parent,Accessor accessor) throws Throwable

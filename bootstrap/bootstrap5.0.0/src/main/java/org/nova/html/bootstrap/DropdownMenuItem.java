@@ -22,22 +22,19 @@
 package org.nova.html.bootstrap;
 
 
-//public class DropdownMenuItem extends StyleComponent<DropdownMenuItem>
-//{
-////    final private DropdownItem dropdowItem;
-//    public DropdownMenuItem(String label,String URL)
-//    {
-//        super("li", null);
-//        if (URL!=null)
-//        {
-//            attr("href",URL);
-//        }
-//        addInner(label);
-//    }
-//
-//    public DropdownMenuItem(String label)
-//    {
-//        this(label,null);
-//    }
-//    
-//}
+public class DropdownMenuItem extends StyleComponent<DropdownMenuItem>
+{
+    public DropdownMenuItem(String label,String URL)
+    {
+        super("li",null);
+        if ((label!=null)||(URL!=null))
+        {
+            returnAddInner(new DropdownItem(label,URL));
+        }
+    }
+    public DropdownMenuItem()
+    {
+        this(null,null);
+    }
+    
+}

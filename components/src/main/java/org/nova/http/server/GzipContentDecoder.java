@@ -36,14 +36,14 @@ public class GzipContentDecoder extends ContentDecoder
 	{
 		final private SizeInputStream uncompressedInputStream;
 		final private SizeInputStream compressedInputStream;
-		final private GZIPInputStream gzipInputStream;
+		final private GZIPInputStream decompressingInputStream;
 		final private int contentLength;
 		
 		Context(InputStream inputStream,int contentLength) throws IOException
 		{
 			this.compressedInputStream=new SizeInputStream(inputStream);
-			this.gzipInputStream=new GZIPInputStream(this.compressedInputStream);
-			this.uncompressedInputStream=new SizeInputStream(gzipInputStream);
+			this.decompressingInputStream=new GZIPInputStream(this.compressedInputStream);
+			this.uncompressedInputStream=new SizeInputStream(decompressingInputStream);
 			this.contentLength=contentLength;
 		}
 		

@@ -40,7 +40,7 @@ public class HtmlElementWriter extends ContentWriter<Element>
 	}
 	
 	@Override
-	public void write(Context context, OutputStream outputStream, Element element) throws Throwable
+	public void write(Context context, Element element) throws Throwable
 	{
         context.getHttpServletResponse().setContentType("text/html;charset=utf-8");
 		if (element!=null)
@@ -48,8 +48,7 @@ public class HtmlElementWriter extends ContentWriter<Element>
 		    StringComposer composer=new StringComposer(element.getQuotationMark());
             element.compose(composer);
             String text=composer.getStringBuilder().toString();
-            outputStream.write(text.getBytes(StandardCharsets.UTF_8));
-            context.setResponseContentText(text);
+            context.writeEncodedContentText(text, StandardCharsets.UTF_8);
 		}
 	}
 

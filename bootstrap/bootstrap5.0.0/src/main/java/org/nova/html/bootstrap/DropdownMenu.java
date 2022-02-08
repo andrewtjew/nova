@@ -45,7 +45,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
         if (toggler!=null)
         {
             toggler.addClass("dropdown-toggle");
-            toggler.data("bs-toggle","dropdown");
+            toggler.attr("data-bs-toggle","dropdown");
             if (split)
             {
                 toggler.addClass("dropdown-toggle-split");

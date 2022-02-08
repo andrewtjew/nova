@@ -50,7 +50,7 @@ public class DataTable extends org.nova.html.DataTables.DataTable
     final private TableFooter footer;
     final private DataTableOptions options;
     
-    private DataTable(BootStrapPage page,DataTableOptions options)
+    public DataTable(BootStrapPage page,DataTableOptions options)
     {
         super(options);
         String dataTableKey=DataTable.class.getCanonicalName();

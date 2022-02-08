@@ -21,9 +21,11 @@
  ******************************************************************************/
 package org.nova.html.DataTables;
 
+import org.nova.html.attributes.Size;
+
 public class ColumnDef extends Column
 { 
-    Object targets;
+    final Object targets;
     public ColumnDef(int...targets)
     {
         this.targets=targets;

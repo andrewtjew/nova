@@ -30,27 +30,27 @@ public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> 
 
     public ELEMENT toggleCollapse(NavbarCollapse target)
     {
-        data("toggle","collapse");
-        data("target","#"+target.id());
+        attr("data-toggle","collapse");
+        attr("data-target","#"+target.id());
         return (ELEMENT)this;
     }
     public ELEMENT toggleCollapse(Collapse collapse)
     {
-        data("toggle","collapse");
-        data("target","#"+collapse.id());
+        attr("data-toggle","collapse");
+        attr("data-target","#"+collapse.id());
         return (ELEMENT)this;
     }
     public ELEMENT toggleCollapse(Collapse collapse,String collapseClass)
     {
-        data("toggle","collapse");
-        data("target","."+collapseClass);
+        attr("data-toggle","collapse");
+        attr("data-target","."+collapseClass);
         return (ELEMENT)this;
     }
     
     public ELEMENT toggleModal(Modal modal)
     {
-        data("toggle","modal");
-        data("target","#"+modal.id());
+        attr("data-toggle","modal");
+        attr("data-target","#"+modal.id());
         return (ELEMENT)this;
     }    
 
@@ -65,14 +65,14 @@ public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> 
 
     public ELEMENT toggleTabContent(TabContent tabContent)
     {
-        data("toggle","list");
-        data("target","#"+tabContent.id());
+        attr("data-toggle","list");
+        attr("data-target","#"+tabContent.id());
         return (ELEMENT)this;
     }
     public ELEMENT toggleTabPane(TabPane tabPane)
     {
         String id=tabPane.id();
-        data("toggle","tab");
+        attr("data-toggle","tab");
         attr("href","#"+id);
         return (ELEMENT)this;
     }

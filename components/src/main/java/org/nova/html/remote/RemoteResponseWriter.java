@@ -41,13 +41,12 @@ public class RemoteResponseWriter extends ContentWriter<RemoteResponse>
 	}
 	
 	@Override
-	public void write(Context context, OutputStream outputStream, RemoteResponse program) throws Throwable
+	public void write(Context context, RemoteResponse program) throws Throwable
 	{
         context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
         Instruction[] instructions=program.instructions.toArray(new Instruction[program.instructions.size()]);
         String text=ObjectMapper.writeObjectToString(instructions);
-        outputStream.write(text.getBytes(StandardCharsets.UTF_8));
-        context.setResponseContentText(text);
+        context.writeEncodedContentText(text, StandardCharsets.UTF_8);
 	}
 
 	@Override

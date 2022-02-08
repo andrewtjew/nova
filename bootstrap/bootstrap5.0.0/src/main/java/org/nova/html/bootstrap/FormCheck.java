@@ -36,6 +36,11 @@ public class FormCheck extends StyleComponent<FormCheck>
         this.addClass("form-check-inline");
         return this;
     }
+    public FormCheck switch_()
+    {
+        this.addClass("form-switch");
+        return this;
+    }
 
 //    public FormCheck add(FormCheckbox element,String labelText)
 //    {
@@ -53,12 +58,19 @@ public class FormCheck extends StyleComponent<FormCheck>
         label.for_(element);
         return element;
     }
+    public InputRadio addInputRadio()
+    {
+        return addInputRadio(null);
+    }
     public InputRadio addInputRadio(String labelText)
     {
         InputRadio element=new InputRadio().form_check_input();
         returnAddInner(element);
-        FormCheckLabel label=returnAddInner(new FormCheckLabel()).addInner(labelText);
-        label.for_(element);
+        if (labelText!=null)
+        {
+            FormCheckLabel label=returnAddInner(new FormCheckLabel()).addInner(labelText);
+            label.for_(element);
+        }
         return element;
     }
     public InputRadio addInputRadio(String labelText,String id)

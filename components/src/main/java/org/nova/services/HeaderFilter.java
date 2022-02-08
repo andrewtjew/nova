@@ -19,19 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.services;
 
-import org.nova.html.tags.span;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
-public class ToggleDropdownButton extends ButtonComponent<ToggleDropdownButton>
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+import org.nova.concurrent.Lock;
+import org.nova.http.Header;
+import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
+import org.nova.http.server.FilterChain;
+import org.nova.http.server.Response;
+import org.nova.tracing.Trace;
+
+
+public class HeaderFilter extends Filter
 {
-
-    public ToggleDropdownButton()
+    final private Header[] headers;
+    
+    public HeaderFilter(Header...headers)
     {
-        super("button");
-        addClass("dropdown-toggle-split");
-        attr("type","button");
-        addInner(new span().addClass("sr-only").addInner("Toggle Dropdown"));
+        this.headers=headers;
     }
-   
+
+    @Override
+    public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
+    {
+        HttpServletResponse response=context.getHttpServletResponse();
+        for (Header header:this.headers)
+        {
+            response.addHeader(header.getName(), header.getValue());
+        }
+        return filterChain.next(parent, context);
+    }
+
 }

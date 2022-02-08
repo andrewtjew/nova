@@ -34,11 +34,11 @@ import org.nova.html.tags.link;
 import org.nova.html.tags.p;
 import org.nova.html.tags.script;
 import org.nova.html.tags.style;
-import org.nova.html.templating.Document;
-import org.nova.html.templating.InsertMarker;
+import org.nova.html.templating.Instance;
+import org.nova.html.templating.ReplaceMarker;
 import org.nova.html.templating.Template;
 
-public class OperatorPage extends Document
+public class OperatorPage extends Instance
 {
     final private Head head;
     final private Content content;
@@ -81,7 +81,7 @@ public class OperatorPage extends Document
         
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/ServerApplication/style.css"));
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
-        head.addInner(new InsertMarker("head"));
+        head.addInner(new ReplaceMarker("head"));
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
 //        head.addInner(new script().src("/resources/html/js/remote.js"));
         
@@ -90,14 +90,14 @@ public class OperatorPage extends Document
         div bannerLeft=banner.returnAddInner(new div()).addClass("heading-banner-left");
         bannerLeft.addInner(new div().style("text-align:left;font-size:15px;font-weight:bold;margin:16px;").addInner(name));
         div bannerCenter=banner.returnAddInner(new div()).addClass("heading-banner-center");
-        bannerCenter.addInner(new div().style("text-align:center;font-size:24px;font-weight:bold;margin:10px;").addInner(new InsertMarker("title")));
+        bannerCenter.addInner(new div().style("text-align:center;font-size:24px;font-weight:bold;margin:10px;").addInner(new ReplaceMarker("title")));
         div bannerRight=banner.returnAddInner(new div()).addClass("heading-banner-right");
-        bannerRight.addInner(new div().style("text-align:center;").addInner(new p().addClass("heading-p").addInner(hostName).addInner(new p().addClass("heading-p").addInner(new InsertMarker("now")))));
+        bannerRight.addInner(new div().style("text-align:center;").addInner(new p().addClass("heading-p").addInner(hostName).addInner(new p().addClass("heading-p").addInner(new ReplaceMarker("now")))));
         
         heading.addInner(new div().addInner(menuBar));
         
         body.returnAddInner(new div()).style("height:"+height+"px;");
-        body.returnAddInner(new div()).addClass("body-content").addInner(new InsertMarker("content"));
+        body.returnAddInner(new div()).addClass("body-content").addInner(new ReplaceMarker("content"));
         return new Template(content);
     }
     

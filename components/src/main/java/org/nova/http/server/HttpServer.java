@@ -24,6 +24,7 @@ package org.nova.http.server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.http.Header;
+import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
@@ -401,17 +403,36 @@ public class HttpServer
                 decoderContext=this.identityContentDecoder.open(servletRequest, servletResponse);
             }
             //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
+            ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
+            if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
+            {
+                servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
+            }
+            EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 			
-            Context context = new Context(decoderContext, requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+            FilterChain chain = new FilterChain(requestHandlerWithParameters);
+            Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
             try 
 			{
-				FilterChain chain = new FilterChain(requestHandlerWithParameters);
 				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
 				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
 
+                servletResponse=context.getHttpServletResponse();
 				Response<?> response = chain.next(trace, context);
                 if (context.isCaptured()==false)
                 {
+                    
+                    CookieState[] cookieStates=context.getFilterChain().getCookieStates();
+                    if (cookieStates!=null)
+                    {
+                        for (CookieState cookieState:cookieStates)
+                        {
+                            String value=ObjectMapper.writeObjectToString(cookieState.parameter);
+                            value=URLEncoder.encode(value);
+                            Cookie cookie=new Cookie(cookieState.cookieParam.value(), value);
+                            servletResponse.addCookie(cookie);
+                        }
+                    }
 					if (response != null)
 					{
 						if (response.headers != null)
@@ -438,17 +459,11 @@ public class HttpServer
                             {
                                 servletResponse.setContentType(writer.getMediaType());
                             }
-							ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
-							if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
-							{
-							    servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
-							}
-							EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
 							try 
 							{
-								Method write = writer.getClass().getMethod("write", Context.class, OutputStream.class, Object.class);
+								Method write = writer.getClass().getMethod("write", Context.class, Object.class);
 								Object content = response.getContent();
-								write.invoke(writer, context, encoderContext.getOutputStream(), content);
+								write.invoke(writer, context, content);
 							}
 							finally
 							{
