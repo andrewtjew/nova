@@ -147,13 +147,17 @@ public class FileDownloadHandler extends ServletHandler
         this.doNotCompressFileExtensions=doNotCompressExtensions;
         this.noBrowserCachingPaths=noBrowserCachingPaths;
         
-        File file=new File(rootDirectory);
+        File file=new File(FileUtils.toNativePath(rootDirectory));
         this.rootDirectory=file.getCanonicalPath();
         this.cacheControlMaxAge=cacheControlMaxAge;
         this.cache=new Cache(maxAge, maxSize, freeMemory);
         this.cacheControl=cacheControl;
         this.indexFile=indexFile;
     }
+    
+
+    
+    
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
         this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions());
@@ -239,7 +243,7 @@ public class FileDownloadHandler extends ServletHandler
         {
             if (this.cacheControlMaxAge>0)
             {
-                response.setHeader("Cache-Control",this.cacheControl+" max-age="+this.cacheControlMaxAge);
+                response.setHeader("Cache-Control",this.cacheControl+", max-age="+this.cacheControlMaxAge);
                 String expires=OffsetDateTime.now().plusSeconds(this.cacheControlMaxAge).format(DateTimeFormatter.RFC_1123_DATE_TIME);
                 response.setHeader("Expires",expires);
             }
@@ -291,6 +295,7 @@ public class FileDownloadHandler extends ServletHandler
                     if ("raw".equals(encoding)==false)
                     {
                         response.setHeader("Content-Encoding", encoding);
+                        response.setContentLength(bytes.length);
                     }
                     else
                     {

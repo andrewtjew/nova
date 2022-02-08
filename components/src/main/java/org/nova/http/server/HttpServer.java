@@ -386,7 +386,11 @@ public class HttpServer
 		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ handler.getKey());
 		try
 		{
-		    
+
+//			if (servletRequest.getRequestURI().equals("/gt/RegisterSite"))
+//			{
+//				System.out.println(servletRequest.getRequestURI());
+//			}
             DecoderContext decoderContext = null;
             if ("application/x-www-form-urlencoded".equalsIgnoreCase(servletRequest.getParameter("Content-Type"))==false)
             {
