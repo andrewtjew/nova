@@ -61,7 +61,7 @@ public class Scanner
             }
         }
         Snippet snippet=this.source.endAndGetSnippet(1);
-        return new Lexeme(Token.STRING, snippet.getTarget(),snippet);
+        return new Lexeme(Token.TEXT, "",snippet);
     }
     public Lexeme produceError(int revert)
     {

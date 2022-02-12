@@ -93,10 +93,14 @@ public class Configuration
 	{
 		synchronized (this)
 		{
+//			if ("lgs".equals(defaultValue))
+//			{
+//				System.out.println("def");
+//			}
 			ConfigurationItem item=this.map.get(name);
 			if (item==null)
 			{
-				item=new ConfigurationItem(name,defaultValue, ConfigurationSource.DEFAULT, getSource(Thread.currentThread().getStackTrace()[4]),null);
+				item=new ConfigurationItem(name,defaultValue, ConfigurationSource.DEFAULT, getSource(Thread.currentThread().getStackTrace()[3]),null);
 				{
 					this.map.put(name, item);
 				}

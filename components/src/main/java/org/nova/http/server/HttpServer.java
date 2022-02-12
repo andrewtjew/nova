@@ -68,7 +68,7 @@ public class HttpServer
 	final private RingBuffer<RequestHandlerNotFoundLogEntry> lastRequestHandlerNotFoundLogEntries;
 	private Transformers transformers;
 	final private Logger logger;
-	private ServletHandler servletHandler;
+	private ArrayList<ServletHandler> servletHandlers;
 //  final private Server[] servers;
 //  final private int [] ports;
 	
@@ -96,6 +96,7 @@ public class HttpServer
 		this.lastRequestHandlerNotFoundLogEntries=new RingBuffer<>(new RequestHandlerNotFoundLogEntry[configuration.lastNotFoundLogEntryBufferSize]);
 				
 		this.transformers=new Transformers();
+		this.servletHandlers=new ArrayList<>();
 	}
 
 //	public HttpServer(TraceManager traceManager, Logger logger,boolean test,Server server) throws Exception
@@ -146,9 +147,12 @@ public class HttpServer
     {
         this.transformers.add(filters);
     }
-    public void setServletHandler(ServletHandler servletHandler)
+    public void addServletHandler(ServletHandler...servletHandlers)
     {
-        this.servletHandler=servletHandler;
+        for (ServletHandler handler:servletHandlers)
+        {
+        	this.servletHandlers.add(handler);
+        }
     }
 
 //    public int[] getPorts()
@@ -287,38 +291,46 @@ public class HttpServer
 			{
 	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
 			}
-			else if (this.servletHandler!=null)
+			else
 	        {
-	            handle(trace,method, URI,servletRequest,servletResponse);
-	        }
-	        else
-	        {
-				if (Testing.ENABLED)
+				boolean handled=false;
+				for (ServletHandler handler:this.servletHandlers)
 				{
-					System.out.println(method+" "+URI+": No Handler");
-					servletResponse.getWriter().println("404 - NOT FOUND: "+URI);
+					handled=handle(trace,handler,method, URI,servletRequest,servletResponse);
+					if (handled)
+					{
+						break;
+					}
 				}
-				servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
-				synchronized (this.lastRequestHandlerNotFoundLogEntries)
+				if (handled==false)
 				{
-					this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
+					if (Testing.ENABLED)
+					{
+						System.out.println(method+" "+URI+": No Handler");
+						servletResponse.getWriter().println("404 - NOT FOUND: "+URI);
+					}
+					servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
+					synchronized (this.lastRequestHandlerNotFoundLogEntries)
+					{
+						this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
+					}
 				}
 			}
 		}
 	}
-    private void handle(Trace parent, String method, String URI, HttpServletRequest request, HttpServletResponse response) throws Throwable
+    private boolean handle(Trace parent, ServletHandler handler,String method, String URI, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
         String key=method+" "+URI;
         Trace trace = new Trace(traceManager,parent,this.categoryPrefix+key);
-        ServletHandler handler=this.servletHandler;
         try
         {
-            handler.handle(trace, request, response);
+            return handler.handle(trace, request, response);
         }
         catch (Throwable e)
         {
             trace.close(e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            return true;
         }
         finally
         {

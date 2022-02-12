@@ -151,22 +151,26 @@ public class Context
 	    }
 	}
 
-    public void writeEncodedContent(byte[] content) throws Throwable
+    public void writeEncodedResponseContent(byte[] content) throws Throwable
     {
         OutputStream outputStream=this.encoderContext.getOutputStream();
         outputStream.write(content);
     }
-    public void writeEncodedContent(byte[] content,int offset,int length) throws Throwable
+    public void writeEncodedResponseContent(byte[] content,int offset,int length) throws Throwable
     {
         OutputStream outputStream=this.encoderContext.getOutputStream();
         outputStream.write(content,offset,length);
     }
 	
+//    public String readDecodedRequestContentText() throws Throwable
+//    {
+//        return readDecodedContentText(StandardCharsets.UTF_8);
+//    }
     public String readDecodedRequestContentText() throws Throwable
     {
-        return readDecodedContentText(StandardCharsets.UTF_8);
+    	return readDecodedRequestContentText(StandardCharsets.UTF_8);
     }
-    public String readDecodedContentText(Charset charset) throws Throwable
+    public String readDecodedRequestContentText(Charset charset) throws Throwable
     {
         if (this.requestContentTextValid==false)
         {

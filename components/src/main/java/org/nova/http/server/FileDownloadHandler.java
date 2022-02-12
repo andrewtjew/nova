@@ -177,13 +177,13 @@ public class FileDownloadHandler extends ServletHandler
         this.cache.evictAll();
     }
     @Override
-    public void handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
+    public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
         String method=request.getMethod();
         if ("GET".equalsIgnoreCase(method)==false)
         {
             response.setStatus(HttpStatus.METHOD_NOT_ALLOWED_405);
-            return;
+            return true;
         }
         String URI = request.getRequestURI();
         String remoteFile;
@@ -200,7 +200,7 @@ public class FileDownloadHandler extends ServletHandler
             if (remoteFile.startsWith(this.pathPrefix)==false)
             {
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
-                return;
+                return true;
             }
         }
         String localFilePath=FileUtils.toNativePath(this.rootDirectory+remoteFile);
@@ -210,19 +210,18 @@ public class FileDownloadHandler extends ServletHandler
         if (path.contains(this.rootDirectory)==false)
         {
             response.setStatus(HttpStatus.FORBIDDEN_403);
-            return;
+            return true;
         }
         if (file.isDirectory())
         {
             String location=request.getRequestURL().toString()+"/";
             response.setHeader("Location", location);
             response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
-            return;
+            return true;
         }
         if (file.exists()==false)
         {
-            response.setStatus(HttpStatus.NOT_FOUND_404);
-            return;
+            return false;
         }
 
         boolean browserCachingEnabled=this.cacheControl!=null;
@@ -279,6 +278,7 @@ public class FileDownloadHandler extends ServletHandler
         boolean doNotCompress=this.doNotCompressFileExtensions.contains(extension);
         send(parent, request, response, localFilePath,doNotCompress);
         response.setStatus(HttpStatus.OK_200);
+        return true;
     }
 
     private void send(Trace parent, HttpServletRequest request, HttpServletResponse response,String localFile,boolean doNotCompress) throws Throwable

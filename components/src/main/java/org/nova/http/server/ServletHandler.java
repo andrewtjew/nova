@@ -7,7 +7,7 @@ import org.nova.tracing.Trace;
 
 public abstract class ServletHandler
 {
-    public abstract void handle(Trace parent,HttpServletRequest request, HttpServletResponse response) throws Throwable;
+    public abstract boolean handle(Trace parent,HttpServletRequest request, HttpServletResponse response) throws Throwable;
     public boolean isLog()
     {
         return true;
