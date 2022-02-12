@@ -127,17 +127,17 @@ public class Context
 	{
 		return responseContentText;
 	}
-	public void setResponseContentText(String responseContentText)
-	{
-		this.responseContentText=responseContentText;
-	}
+//	public void setResponseContentText(String responseContentText)
+//	{
+//		this.responseContentText=responseContentText;
+//	}
 	private boolean requestContentTextValid=false;
 	
-	public void writeEncodedResponseContentText(String text) throws Throwable
+	public void writeContentTextUsingAcceptedEncoding(String text) throws Throwable
 	{
-	    writeEncodedContentText(text,StandardCharsets.UTF_8);
+	    writeContentTextUsingAcceptedEncoding(text,StandardCharsets.UTF_8);
 	}
-	public void writeEncodedContentText(String text,Charset charset) throws Throwable
+	public void writeContentTextUsingAcceptedEncoding(String text,Charset charset) throws Throwable
 	{
         OutputStream outputStream=this.encoderContext.getOutputStream();
         outputStream.write(text.getBytes(charset));
@@ -147,11 +147,11 @@ public class Context
 	    }
 	    else
 	    {
-	        this.requestContentText+=text;
+	        this.responseContentText+=text;
 	    }
 	}
 
-    public void writeEncodedResponseContent(byte[] content) throws Throwable
+    public void writeResponseContentUsingAcceptedEncoding(byte[] content) throws Throwable
     {
         OutputStream outputStream=this.encoderContext.getOutputStream();
         outputStream.write(content);

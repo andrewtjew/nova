@@ -329,7 +329,11 @@ public class TypeUtils
         {
             return true;
         }
-        return text.isBlank();
+        if (text.trim().length()==0) //Don't use isBlank for compatibilty with older JVMs
+        {
+            return true;
+        }
+        return false;
     }
     static public boolean isNullOrEmpty(String text)
     {
