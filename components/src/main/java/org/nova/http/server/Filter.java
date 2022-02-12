@@ -25,7 +25,7 @@ import org.nova.tracing.Trace;
 
 public abstract class Filter
 {
-    public abstract Response<?> executeNext(Trace parent,Context context,FilterChain filterChain) throws Throwable;
+    public abstract Response<?> executeNext(Trace parent,Context context) throws Throwable;
     public void onRegister(RequestHandler requestHandler)
     {
     }

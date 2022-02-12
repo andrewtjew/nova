@@ -496,7 +496,7 @@ public class FilterChain
 	{
 		if (this.filterIndex<this.filters.length)
 		{
-			return filters[this.filterIndex++].executeNext(trace,context,this);
+			return filters[this.filterIndex++].executeNext(trace,context);
 		}
 
 		decodeParameters(trace, context);

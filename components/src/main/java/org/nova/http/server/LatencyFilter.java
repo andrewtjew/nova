@@ -76,7 +76,7 @@ public class LatencyFilter extends Filter
     }
     
     @Override
-    public Response<?> executeNext(Trace trace, Context context, FilterChain filterChain) throws Throwable
+    public Response<?> executeNext(Trace trace, Context context) throws Throwable
     {
         long beforeLatencyMs=0;
         long afterLatencyMs=0;
@@ -114,7 +114,7 @@ public class LatencyFilter extends Filter
                 Thread.sleep(beforeLatencyMs);
             }
         }
-        Response<?> response=filterChain.next(trace, context);
+        Response<?> response=context.next(trace);
         if (afterLatencyMs>0)
         {
             try (TraceWaiter waiter=new TraceWaiter(trace))

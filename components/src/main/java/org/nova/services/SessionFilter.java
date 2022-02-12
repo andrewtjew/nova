@@ -143,7 +143,7 @@ public class SessionFilter extends Filter
     }
     
     @Override
-    public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
+    public Response<?> executeNext(Trace parent, Context context) throws Throwable
     {
         String token=getToken(context);
         Session session=this.sessionManager.getSessionByToken(token);
@@ -155,7 +155,7 @@ public class SessionFilter extends Filter
             {
                 context.setState(session);
             }
-            return filterChain.next(parent, context);
+            return context.next(parent);
         }
         if (session==null)
         {
@@ -191,7 +191,7 @@ public class SessionFilter extends Filter
                 return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
             }
             context.setState(session);
-            return filterChain.next(parent, context);
+            return context.next(parent);
         }
         finally
         {

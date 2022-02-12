@@ -46,14 +46,14 @@ public class HeaderFilter extends Filter
     }
 
     @Override
-    public Response<?> executeNext(Trace parent, Context context, FilterChain filterChain) throws Throwable
+    public Response<?> executeNext(Trace parent, Context context) throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         for (Header header:this.headers)
         {
             response.addHeader(header.getName(), header.getValue());
         }
-        return filterChain.next(parent, context);
+        return context.next(parent);
     }
 
 }
