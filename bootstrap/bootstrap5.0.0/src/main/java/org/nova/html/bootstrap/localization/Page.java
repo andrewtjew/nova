@@ -56,8 +56,8 @@ public class Page extends BootStrapPage
         head().title(title);
 
         head().addInner(new link().rel(link_rel.stylesheet).href("/resources/html/css/editor.css"));
-        head().addInner(new script().src("/resources/html/js/remote.js"));
-        head().addInner(new script().src("/resources/html/js/nova-handle.js"));
+        head().addInner(new script().src("/resources/html/js/nova/remote.js"));
+        head().addInner(new script().src("/resources/html/js/nova/nova-handle.js"));
         head().addInner(new script().src("https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"));
 
         this.navbar=body().returnAddInner(new Navbar()).expand(BreakPoint.sm);        this.navbar.color(StyleColor.dark).bg(StyleColor.dark).px(2).py(0);
@@ -80,8 +80,8 @@ public class Page extends BootStrapPage
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.UNDEFINED)+" Undefines").href("/StringHandleEditor/nextUndefined").text(StyleColor.warning).title("Check for undefined handles");
 
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.DOCUMENTATION)+" Format Docs").href("https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html").target(target._blank).text(StyleColor.info).title("Link to Format string documentation");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.SETTINGS)+" Settings").href("/StringHandleEditor/settings").text(StyleColor.light).title("Language and enum settings").ms_auto();
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.DOCUMENTATION)).href("https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html").target(target._blank).text(StyleColor.light).title("Link to Format string documentation");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.SETTINGS)).href("/StringHandleEditor/settings").text(StyleColor.light).title("Language and enum settings").ms_auto();
         }
         this.content=new Item();
         body().addInner(content);

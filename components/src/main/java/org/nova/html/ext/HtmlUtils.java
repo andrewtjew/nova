@@ -322,14 +322,27 @@ public class HtmlUtils
         return js_statement("document.getElementById('"+id+"')."+function,parameters);
     }  
 
+    @Deprecated
     public static String js_statement(String function,Object...parameters)
     {
         return js_call(function,parameters)+";";
     }
 
+    public static String js_setElementProperty(String id,String property,String value)
+    {
+        return "document.getElementById('"+id+"')."+property+"='"+value+"'";
+    }  
+    public static String js_setElementProperty(TagElement<?> element,String property,String value)
+    {
+        return js_setElementProperty(element.id(), property, value);
+    }  
     public static String js_elementCall(String id,String function,Object...parameters)
     {
         return js_call("document.getElementById('"+id+"')."+function,parameters);
+    }  
+    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
+    {
+        return js_elementCall(element.id(), function, parameters);
     }  
     
     public static String js_jqueryCall(String id,String function,Object...parameters)

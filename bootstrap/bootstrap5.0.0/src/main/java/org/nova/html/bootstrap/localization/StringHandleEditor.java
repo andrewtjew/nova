@@ -879,7 +879,10 @@ public class StringHandleEditor
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setLanguage?ID="+id));
                     s.pt(1);
-                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs(), "Confirmation required","Delete "+description+"?",new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString()));
+                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs()
+                            ,new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString()
+                            , "Confirmation required","Delete "+description+"?"
+                            ));
                     ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }

@@ -28,86 +28,10 @@ import com.nixxcode.jvmbrotli.enc.Encoder;
 
 public class FileDownloadHandler extends ServletHandler
 {
-    static public class Cache extends ContentCache<String,byte[]>
-    {
-        public Cache(long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
-        {
-            super(0,maxAgeMs,maxSize,freeMemoryCapacity);
-        }
-        
-        @Override
-        protected ValueSize<byte[]> load(Trace trace, String fileKey) throws Throwable
-        {
-            int index=fileKey.indexOf('|');
-            String compression=fileKey.substring(0,index).toLowerCase();
-            String localFile=fileKey.substring(index+1);
-            byte[] bytes=null;
-            if ("gzip".equals(compression))
-            {
-                bytes=getValueFromCache(trace,"raw|"+localFile);
-                if (bytes==null)
-                {
-                    bytes=FileUtils.readFile(localFile);
-                }
-                try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
-                {
-                    try (GZIPOutputStream encodingOutputStream=new GZIPOutputStream(byteArrayOutputStream))
-                    {
-                       encodingOutputStream.write(bytes);
-                       encodingOutputStream.close();
-                    }
-                    byteArrayOutputStream.close();
-                    bytes= byteArrayOutputStream.toByteArray();
-                }
-            }
-            else if ("deflate".equals(compression))
-            {
-                bytes=getValueFromCache(trace,"raw|"+localFile);
-                if (bytes==null)
-                {
-                    bytes=FileUtils.readFile(localFile);
-                }
-                try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
-                {
-                    try (DeflaterOutputStream encodingOutputStream=new DeflaterOutputStream(byteArrayOutputStream))
-                    {
-                       encodingOutputStream.write(bytes);
-                       encodingOutputStream.close();
-                    }
-                    byteArrayOutputStream.close();
-                    bytes= byteArrayOutputStream.toByteArray();
-                }
-            }
-            else if ("br".equals(compression))
-            {
-                bytes=getValueFromCache(trace,"raw|"+localFile);
-                if (bytes==null)
-                {
-                    bytes=FileUtils.readFile(localFile);
-                }
-                Encoder.Parameters params = new Encoder.Parameters().setQuality(4);
-                try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
-                {
-                    try (BrotliOutputStream  encodingOutputStream=new BrotliOutputStream(byteArrayOutputStream))
-                    {
-                       encodingOutputStream.write(bytes);
-                       encodingOutputStream.close();
-                    }
-                    byteArrayOutputStream.close();
-                    bytes= byteArrayOutputStream.toByteArray();
-                }
-            }
-            else
-            {
-                bytes=FileUtils.readFile(localFile);
-            }
-            return new ValueSize<byte[]>(bytes,bytes.length);
-        }
-        
-        
-    }
-    
-    
+    static public String CACHE_CONTROL="public";
+    static public long CACHE_CONTROL_MAX_AGE=100L*24L*3600L;
+    static public long MAX_AGE=0;
+
     final private String rootDirectory;
     final private String pathPrefix;
     final private String cacheControl;
@@ -116,14 +40,11 @@ public class FileDownloadHandler extends ServletHandler
     final private HashSet<String> doNotCompressFileExtensions;
     final private HashSet<String> noBrowserCachingPaths;
     final private String indexFile;
-    final private Cache cache;
+    final private FileCache cache;
 //    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
     final private String[] preferredEncodings=new String[] {"deflate","gzip","raw"};
     
-    static public String CACHE_CONTROL="public";
-    static public long CACHE_CONTROL_MAX_AGE=100L*24L*3600L;
-    static public long MAX_AGE=0;
-    
+    private boolean active;
     
     public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
@@ -151,14 +72,16 @@ public class FileDownloadHandler extends ServletHandler
         File file=new File(FileUtils.toNativePath(rootDirectory));
         this.rootDirectory=file.getCanonicalPath();
         this.cacheControlMaxAge=cacheControlMaxAge;
-        this.cache=new Cache(maxAge, maxSize, freeMemory);
+        this.cache=new FileCache(maxAge, maxSize, freeMemory);
         this.cacheControl=cacheControl;
         this.indexFile=indexFile;
         this.pathPrefix=pathPrefix;
     }
-    
 
-    
+    synchronized public void setActive(boolean active)
+    {
+        this.active=active;
+    }
     
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
@@ -179,6 +102,10 @@ public class FileDownloadHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
+        if (this.active==false)
+        {
+            return false;
+        }
         String method=request.getMethod();
         if ("GET".equalsIgnoreCase(method)==false)
         {
@@ -275,7 +202,7 @@ public class FileDownloadHandler extends ServletHandler
         }
         response.setContentType(this.mappings.getContentType(remoteFile));
         String extension=Files.getFileExtension(remoteFile).toLowerCase();
-        boolean doNotCompress=this.doNotCompressFileExtensions.contains(extension);
+        boolean doNotCompress=this.doNotCompressFileExtensions!=null?this.doNotCompressFileExtensions.contains(extension):true;
         send(parent, request, response, localFilePath,doNotCompress);
         response.setStatus(HttpStatus.OK_200);
         return true;

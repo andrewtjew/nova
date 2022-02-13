@@ -33,12 +33,16 @@ namespace nova.remote
         return element;
     }
 
-    function toData(formID:string,text:string):object
+    function toData(formID:string,text:string,trace:boolean):object
     {
-        var parent=formID==null?document:document.getElementById(formID)
         if (text==null)
         {
             return;
+        }
+        var parent=formID==null?document:document.getElementById(formID);
+        if (parent==null)
+        {
+            throw new Error("No element with id="+formID);
         }
 
         var data=new Object();
@@ -46,6 +50,10 @@ namespace nova.remote
         for (var i=0,len=inputs.length;i<len;i++)
         {
             var input=inputs[i];
+            if (trace==true)
+            {
+                console.log("remote:name="+input.name+",type="+input.inputType);
+            }
             switch (input.inputType)
             {
                 case "value":
@@ -92,12 +100,12 @@ namespace nova.remote
     }
 
 
-    export function post(formID:string,action:string,text:string,async:boolean)
+    export function post(formID:string,action:string,text:string,async:boolean,trace:boolean)
     {
-        var data=toData(formID,text);
+        var data=toData(formID,text,trace);
         call("POST",action,data,async);
     }
-    export function get(formID:string,action:string,text:string,async:boolean)
+    export function get(formID:string,action:string,text:string,async:boolean,trace:boolean)
     {
         var parent=formID==null?document:document.getElementById(formID)
         var inputs=JSON.parse(text) as Input[];
@@ -105,6 +113,10 @@ namespace nova.remote
         for (var i=0,len=inputs.length;i<len;i++)
         {
             var input=inputs[i];
+            if (trace==true)
+            {
+                console.log("input:name="+input.name+",type="+input.inputType);
+            }
             switch (input.inputType)
             {
                 case "value":
@@ -162,7 +174,7 @@ namespace nova.remote
             dataType:"json",
             cache: false,
             data:data,
-            success:function(instructions:Instruction[])
+            success:function(instructions:Instruction[],status,xhr)
             {
                 run(instructions);
             },
@@ -173,8 +185,6 @@ namespace nova.remote
         }); 
     }
 
-    
-
     function run(instructions:Instruction[])
     {
         if (instructions!=null)
@@ -183,7 +193,7 @@ namespace nova.remote
             {
                 var instruction=instructions[i];
                 var parameters=instruction.parameters;
-                if (instruction.trace)
+//                if (instruction.trace)
                 {
                     console.log("command:"+instruction.command);
                     console.log("parameters:"+parameters);

@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.help;
+package org.nova.html.help;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,12 +13,12 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.div;
 import org.nova.json.ObjectMapper;
 
-public class Topics extends div
+public class Document extends div
 {
     static class Link
     {
-        final private String topicId;
-        final private String targetId;
+        final public String topicId;
+        final public String targetId;
         public Link(String topicID,String targetId)
         {
             this.topicId=topicID;
@@ -27,9 +27,9 @@ public class Topics extends div
     }
     final private ArrayList<Link> links;
     
-    public Topics()
+    public Document()
     {
-        addClass("nova-help-topics");
+        addClass("nova-help-document");
         this.links=new ArrayList<Link>();
     }
     public void add(TagElement<?> topic,TagElement<?> target)
@@ -51,6 +51,6 @@ public class Topics extends div
     }
     public String js_activate() throws Throwable
     {
-        return js_activate(0,2,100);
+        return js_activate(0,2,10000);
     }
 }

@@ -1,11 +1,5 @@
-package org.nova.html.bootstrap.help;
+package org.nova.html.help;
 
-import org.nova.html.bootstrap.Button;
-import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Edge;
-import org.nova.html.bootstrap.classes.Flex;
-import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.elements.Composer;
 import org.nova.html.tags.div;
 

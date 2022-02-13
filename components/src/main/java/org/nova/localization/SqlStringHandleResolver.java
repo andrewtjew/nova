@@ -16,7 +16,6 @@ import org.nova.tracing.TraceManager;
 public class SqlStringHandleResolver extends StringHandleResolver
 {
     final private HashMap<String,String> formatMap;
-    final private HashMap<String,Locale_ISO_639_1> localeMap;
     final private Connector connector;
     final private String notFoundFormat;
     final private String selectFormat;
@@ -24,7 +23,6 @@ public class SqlStringHandleResolver extends StringHandleResolver
     public SqlStringHandleResolver(TraceManager traceManager,Connector connector,String notFoundFormat,String selectFormat)
     {
         this.formatMap=new HashMap<String, String>();
-        this.localeMap=new HashMap<String, Locale_ISO_639_1>(); 
         this.connector=connector;
         this.notFoundFormat=notFoundFormat;
         this.selectFormat=selectFormat;
@@ -33,10 +31,28 @@ public class SqlStringHandleResolver extends StringHandleResolver
 
     public SqlStringHandleResolver(TraceManager traceManager,Connector connector)
     {
-        this(traceManager,connector,"[|%s:%s|]"
+        this(traceManager,connector,"{{%s:%s:%s}}"
                 ,"SELECT format FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLanguages ON HandleLanguages.ID=LanguageID WHERE Language=? AND Enum=? AND Handle=?"
                 );
     }
+    public void evict(LanguageCode languageCode,Class<?> enum_,String handle)
+    {
+        String language=languageCode.name();
+        String key=language+":"+enum_+":"+handle;
+        synchronized(this)
+        {
+            this.formatMap.remove(key);
+        }
+        
+    }
+    public void evictAll()
+    {
+        synchronized(this)
+        {
+            this.formatMap.clear();
+        }
+    }
+    
     @Override
     public String resolve(LanguageCode languageCode,Class<?> enum_,String handle,Object...parameters) throws Throwable
     {
@@ -69,7 +85,7 @@ public class SqlStringHandleResolver extends StringHandleResolver
         }
         if (format==null)
         {
-            return String.format(this.notFoundFormat, "handle",handle);
+            return String.format(this.notFoundFormat, language,enumName,handle);
         }
         return String.format(languageCode.getValue().locale,format,parameters);
     }

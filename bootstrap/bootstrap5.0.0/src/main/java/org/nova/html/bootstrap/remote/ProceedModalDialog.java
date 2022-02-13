@@ -1,6 +1,7 @@
 package org.nova.html.bootstrap.remote;
 
 import org.nova.html.bootstrap.Button;
+import org.nova.html.bootstrap.ButtonComponent;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.classes.Display;
@@ -8,6 +9,7 @@ import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.ModalDocument;
 import org.nova.html.bootstrap.ext.ModalOption;
+import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.bootstrap.localization.UIHandle;
 import org.nova.html.remote.Inputs;
 import org.nova.localization.LanguageCode;
@@ -15,7 +17,7 @@ import org.nova.localization.StringHandle;
 
 public class ProceedModalDialog extends ModalDocument
 {
-    public ProceedModalDialog(Inputs inputs,String action,String title,String message,Button cancelButton,Button proceedButton) throws Throwable
+    public ProceedModalDialog(Inputs inputs,String action,String title,String message,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
     {
         this.header().returnAddInner(new Item()).fs(3).addInner(title);
         this.body().addInner(message);
@@ -29,8 +31,8 @@ public class ProceedModalDialog extends ModalDocument
     {
         this(inputs,action
                 ,title,message
-                ,new Button(cancel).color(StyleColor.warning)
-                ,new Button(proceed).color(StyleColor.success)
+                ,new Button(cancel).color(StyleColor.warning).w(25)
+                ,new SpinnerButton(proceed).color(StyleColor.success).w(25)
                 );
     }
 
