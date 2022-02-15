@@ -28,6 +28,7 @@ public abstract class Source
     public abstract void revert();
     public abstract void end(int revert);
     public abstract Snippet endAndGetSnippet(int revert);
+    public abstract Snippet getEndSnippet();
     public abstract String endContext();
     public abstract void beginContext();
     public abstract int getContextPosition();

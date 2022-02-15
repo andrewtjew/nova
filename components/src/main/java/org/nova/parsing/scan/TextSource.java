@@ -75,10 +75,7 @@ public class TextSource extends Source
     {
         if (this.index>=this.length)
         {
-            if (this.index==this.length)
-            {
-                this.index++;
-            }
+            this.index=this.length+1;
             return 0;
         }
         return this.text.charAt(this.index++);
@@ -94,13 +91,6 @@ public class TextSource extends Source
     public void end(int revert)
     {
         this.index=this.index-revert;
-    }
-
-    @Override
-    public TextSnippet endAndGetSnippet(int revert)
-    {
-        end(revert);
-        return new TextSnippet(this.text, this.beginIndex, this.index);
     }
 
     @Override
@@ -125,6 +115,20 @@ public class TextSource extends Source
     {
         this.index=this.beginIndex;
     }
+
+    @Override
+    public TextSnippet endAndGetSnippet(int revert)
+    {
+        end(revert);
+        return new TextSnippet(this.text, this.beginIndex, this.index);
+    }
+
+    @Override
+    public Snippet getEndSnippet()
+    {
+        return new TextSnippet(this.text, this.text.length(),this.text.length());
+    }
+
 
 
 }

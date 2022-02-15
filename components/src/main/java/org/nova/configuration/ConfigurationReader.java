@@ -147,6 +147,10 @@ public class ConfigurationReader
                 {
                     lexeme=scanner.produceEnclosedJSONText('[', ']');
                 }
+                else if (character==0)
+                {
+                    lexeme=scanner.produceEnd();
+                }
                 else
                 {
                     lexeme=scanner.produceTerminatedTextAndSkipTerminator('\r','\n',';');

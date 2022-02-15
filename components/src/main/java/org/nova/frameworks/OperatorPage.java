@@ -46,8 +46,8 @@ public class OperatorPage extends Instance
     public OperatorPage(Template template)
     {
         super(template);
-        this.head=this.fill("head", new Head());
-        this.content=this.fill("content", new Content());
+        this.head=this.returnAdd("head", new Head());
+        this.content=this.returnAdd("content", new Content());
     }
     
     public Head head()

@@ -18,7 +18,7 @@ class FileCache extends ContentCache<String,byte[]>
     {
         super(0,maxAgeMs,maxSize,freeMemoryCapacity);
     }
-    
+     
     @Override
     protected ValueSize<byte[]> load(Trace trace, String fileKey) throws Throwable
     {

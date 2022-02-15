@@ -52,7 +52,7 @@ public class Instance extends Element
         }
     }
     
-    public <E extends Element> E fill(String name,E element)
+    public <ELEMENT extends Element> ELEMENT returnAdd(String name,ELEMENT element)
     {
         if (element!=null)
         {
@@ -61,13 +61,22 @@ public class Instance extends Element
         return element;
     }
 
-    public Object fill(String name,Object object)
+    public Instance add(String name,Element element)
+    {
+        if (element!=null)
+        {
+            this.map.get(name).addInner(element);
+        }
+        return this;
+    }
+
+    public Instance add(String name,Object object)
     {
         if (object!=null)
         {
             this.map.get(name).addInner(object);
         }
-        return object;
+        return this;
     }
 
     @Override

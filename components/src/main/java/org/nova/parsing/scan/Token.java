@@ -33,5 +33,5 @@ public enum Token
     NUMBER,
 	//specials
     ERROR,
-//    END,
+    END,
 }

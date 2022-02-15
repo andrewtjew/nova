@@ -47,7 +47,10 @@ public class ReplaceMarker extends TagElement<ReplaceMarker>
         }
         else
         {
-            super.compose(composer);
+            for (Element inner:this.inners)
+            {
+                inner.compose(composer);
+            }
         }
     }
 
