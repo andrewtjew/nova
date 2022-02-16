@@ -21,6 +21,10 @@
  ******************************************************************************/
 package org.nova.frameworks;
 
+import java.io.PrintStream;
+
+import javax.servlet.http.HttpServletResponse;
+
 //11:47
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.configuration.Configuration;
@@ -176,7 +180,7 @@ public class ServerApplicationRunner //
     {
         if (this.startupException!=null)
         {
-            this.startupException.printStackTrace(context.getHttpServletResponse().getWriter());
+            this.startupException.printStackTrace(new PrintStream(context.getHttpServletResponse().getOutputStream()));
         }
         else
         {

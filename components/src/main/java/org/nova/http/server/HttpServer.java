@@ -446,8 +446,8 @@ public class HttpServer
 				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
 				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
 
-                servletResponse=context.getHttpServletResponse();
 				Response<?> response = chain.next(trace, context);
+                servletResponse=context.getHttpServletResponse();
                 if (context.isCaptured()==false)
                 {
                     
