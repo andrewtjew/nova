@@ -295,16 +295,16 @@ public class HttpServer
 			{
 			    servletResponse.setHeader("Connection", "keep-alive");
 			}
-            boolean preHandled=false;
-            for (ServletHandler handler:this.afterServletHandlers)
+            boolean before=false;
+            for (ServletHandler handler:this.beforeServletHandlers)
             {
-                preHandled=handle(trace,handler,method, URI,servletRequest,servletResponse);
-                if (preHandled)
+                before=handle(trace,handler,method, URI,servletRequest,servletResponse);
+                if (before)
                 {
                     break;
                 }
             }
-            if (preHandled==false)
+            if (before==false)
             {
     			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
     			if (requestHandlerWithParameters != null)
@@ -313,16 +313,16 @@ public class HttpServer
     			}
     			else
     	        {
-    				boolean handled=false;
-    				for (ServletHandler handler:this.beforeServletHandlers)
+    				boolean after=false;
+    	            for (ServletHandler handler:this.afterServletHandlers)
     				{
-    					handled=handle(trace,handler,method, URI,servletRequest,servletResponse);
-    					if (handled)
+    					after=handle(trace,handler,method, URI,servletRequest,servletResponse);
+    					if (after)
     					{
     						break;
     					}
     				}
-    				if (handled==false)
+    				if (after==false)
     				{
     					if (Testing.ENABLED)
     					{

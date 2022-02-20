@@ -175,6 +175,11 @@ public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> ex
     {
         return addClass("border",value,size);
     }
+    public ELEMENT border(int size)
+    {
+        return addClass("border",size);
+        
+    }
     public ELEMENT border()
     {
         return addClass("border");
