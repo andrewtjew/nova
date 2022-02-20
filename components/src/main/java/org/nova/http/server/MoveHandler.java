@@ -39,6 +39,7 @@ public class MoveHandler extends ServletHandler
     {
         response.setHeader("Location", this.moveToLocation);
         response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+        response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
     	return true;
     }
 

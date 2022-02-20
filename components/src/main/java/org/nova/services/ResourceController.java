@@ -56,6 +56,8 @@ import org.nova.utils.FileUtils;
 @ContentEncoders(GzipContentEncoder.class)
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 
+@Deprecated
+//Use FileDownloadHandler instead
 public class ResourceController
 {
     private final ServerApplication serverApplication;

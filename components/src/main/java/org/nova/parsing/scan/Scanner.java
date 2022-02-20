@@ -66,7 +66,7 @@ public class Scanner
     public Lexeme produceEnd() throws Throwable
     {
         Snippet snippet=this.source.getEndSnippet();
-        return new Lexeme(Token.TEXT,snippet.getTarget() ,snippet);
+        return new Lexeme(Token.END,snippet.getTarget() ,snippet);
     }
     public Lexeme produceError(int revert)
     {

@@ -153,14 +153,14 @@ public class HttpServer
     {
         for (ServletHandler handler:servletHandlers)
         {
-            this.beforeServletHandlers.add(handler);
+            this.afterServletHandlers.add(handler);
         }
     }
     public void registerBeforeServletHandlers(ServletHandler...servletHandlers)
     {
         for (ServletHandler handler:servletHandlers)
         {
-            this.afterServletHandlers.add(handler);
+            this.beforeServletHandlers.add(handler);
         }
     }
 

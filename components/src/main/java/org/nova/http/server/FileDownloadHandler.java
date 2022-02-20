@@ -44,8 +44,6 @@ public class FileDownloadHandler extends ServletHandler
 //    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
     final private String[] preferredEncodings=new String[] {"deflate","gzip","raw"};
     
-    private boolean active;
-    
     public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
         HashSet<String> set=new HashSet<String>();
@@ -78,11 +76,6 @@ public class FileDownloadHandler extends ServletHandler
         this.pathPrefix=pathPrefix;
     }
 
-    synchronized public void setActive(boolean active)
-    {
-        this.active=active;
-    }
-    
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
         this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,null,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions());
@@ -102,10 +95,6 @@ public class FileDownloadHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        if (this.active==false)
-        {
-            return false;
-        }
         String method=request.getMethod();
         if ("GET".equalsIgnoreCase(method)==false)
         {
