@@ -43,7 +43,7 @@ public class FileDownloadHandler extends ServletHandler
     final private FileCache cache;
 //    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
     final private String[] preferredEncodings=new String[] {"deflate","gzip","raw"};
-    
+    private boolean active;
     public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
         HashSet<String> set=new HashSet<String>();
@@ -74,6 +74,7 @@ public class FileDownloadHandler extends ServletHandler
         this.cacheControl=cacheControl;
         this.indexFile=indexFile;
         this.pathPrefix=pathPrefix;
+        this.active=true;
     }
 
     public FileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
@@ -88,6 +89,20 @@ public class FileDownloadHandler extends ServletHandler
     {
         this(rootDirectory,defaultNoBrowserCachingPaths());
     }
+    
+    public boolean isActive()
+    {
+        return this.active;
+    }
+    
+    public void setActive(boolean active)
+    {
+        synchronized(this)
+        {
+            this.active=active;
+        }
+    }
+    
     public void evictAll()
     {
         this.cache.evictAll();
@@ -95,6 +110,10 @@ public class FileDownloadHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
+        if (this.active==false)
+        {
+            return false;
+        }
         String method=request.getMethod();
         if ("GET".equalsIgnoreCase(method)==false)
         {
