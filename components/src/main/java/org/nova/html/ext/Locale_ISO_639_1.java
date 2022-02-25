@@ -11,7 +11,20 @@ public class Locale_ISO_639_1
         this.description=description;
         this.code=code;
         this.alternate=alternate;
-        this.locale=LocaleUtils.toLocale(locale);
+        this.locale=new Locale(locale);
+
+    	switch (code)
+    	{
+    	case "zh-Hans":
+    		this.displayName="简体中文";
+    	break;
+    	case"zh-Hant":
+    		this.displayName="繁体中文";
+    	break;
+    	
+    	default:
+    		this.displayName=this.locale.getDisplayLanguage(this.locale);
+    	}
     }
     public Locale_ISO_639_1(String description,String code)
     {
@@ -21,4 +34,6 @@ public class Locale_ISO_639_1
     final public String code;
     final public String alternate;
     final public Locale locale;
+    final public String displayName;
+    
 }

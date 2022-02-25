@@ -74,6 +74,7 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.CookieParam;
+import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
@@ -456,7 +457,7 @@ public class StringHandleEditor
     }
     
     @GET
-    public Element viewByLanguages(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
+    public Element viewByLanguages(Trace parent,@CookieStateParam("X-Nova-UserState") UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
     {
         
         
@@ -653,7 +654,7 @@ public class StringHandleEditor
         return page;
     }
     @GET
-    public Element viewByHandles(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
+    public Element viewByHandles(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
     {
 
         Page page=new Page();
@@ -823,7 +824,7 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element nextUndefined(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState) throws Throwable
+    public Element nextUndefined(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {

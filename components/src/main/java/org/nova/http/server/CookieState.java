@@ -1,17 +1,22 @@
 package org.nova.http.server;
 
 import org.nova.http.server.annotations.CookieParam;
+import org.nova.http.server.annotations.CookieStateParam;
 
-class CookieState
+public class CookieState
 {
-    final CookieParam cookieParam;
+    final CookieStateParam cookieStateParam;
     final ParameterInfo parameterInfo;
     final Object parameter;
     
-    CookieState(CookieParam cookieParam,ParameterInfo parameterInfo,Object parameter)
+    public CookieState(CookieStateParam cookieStateParam,ParameterInfo parameterInfo,Object parameter)
     {
-        this.cookieParam=cookieParam;
+        this.cookieStateParam=cookieStateParam;
         this.parameterInfo=parameterInfo;
         this.parameter=parameter;
+    }
+    public Object getParameter()
+    {
+    	return this.parameter;    			
     }
 }

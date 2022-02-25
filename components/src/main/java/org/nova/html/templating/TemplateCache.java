@@ -22,7 +22,7 @@ public class TemplateCache
             this.generators.put(key, generator);
         }
     }
-    public Template get(String key, LanguageCode languageCode) throws Throwable
+    public Instance get(String key, LanguageCode languageCode) throws Throwable
     {
         String k=languageCode.name()+":"+key;
         synchronized (this)
@@ -38,7 +38,7 @@ public class TemplateCache
                 template=generator.generate(languageCode);
                 this.templates.put(k, template);
             }
-            return template;
+            return new Instance(template);
         }
         
     }

@@ -4335,12 +4335,12 @@ public class ServerApplicationPages
             }
             page.content().addInner(new p());
         }
-        if (requestHandler.getFilters().length > 0)
+        if (requestHandler.getBottomFilters().length > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
-            for (Filter filter : requestHandler.getFilters())
+            for (Filter filter : requestHandler.getBottomFilters())
             {
                 row.add(filter.getClass().getName());
             }

@@ -31,6 +31,4 @@ import java.lang.annotation.Target;
 public @interface CookieParam
 {
 	String value();
-    boolean preserveState() default false;
-
 }

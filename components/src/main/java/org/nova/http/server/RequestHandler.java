@@ -37,7 +37,8 @@ public class RequestHandler
 {
 	final private Object object;
 	final private Method method;
-	final private Filter[] filters;
+	final private Filter[] bottomFilters;
+	final private Filter[] topFilters;
 	final private ParameterInfo[] parameterInfos;
 	final private String path;
 	final private Map<String,ContentReader<?>> contentReaders;
@@ -54,7 +55,7 @@ public class RequestHandler
     final private boolean logResponseHeaders;
     final private boolean logResponseContent;
     final private boolean logLastRequestsInMemory;
-	
+	final int cookieParamCount;
 	
 	final private HashMap<Integer,LongValueMeter> meters;
 	final private LongValueMeter requestUncompressedContentSizeMeter;
@@ -62,13 +63,14 @@ public class RequestHandler
 	final private LongValueMeter requestCompressedContentSizeMeter;
 	final private LongValueMeter responseCompressedContentSizeMeter;
     final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
-    final private int cookieStatesLength;
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] filters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieStatesLength)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieParamCount)
 	{
+		this.cookieParamCount=cookieParamCount;
 		this.object=object;
 		this.method=method;
-		this.filters=filters;
+		this.bottomFilters=bottomFilters;
+		this.topFilters=topFilters;
 		this.parameterInfos=parameterInfos;
 		this.path=path;
 		this.contentReaders=contentReaders;
@@ -92,14 +94,7 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
-        this.cookieStatesLength=cookieStatesLength;
 	}
-
-	int getCookieStatesLength()
-	{
-	    return this.cookieStatesLength;
-	}
-
 	
 	public Object getObject()
 	{
@@ -116,9 +111,13 @@ public class RequestHandler
 		return this.httpMethod;
 	}
 
-	public Filter[] getFilters()
+	public Filter[] getBottomFilters()
 	{
-		return filters;
+		return this.bottomFilters;
+	}
+	public Filter[] getTopFilters()
+	{
+		return this.topFilters;
 	}
 
 	public ParameterInfo[] getParameterInfos()

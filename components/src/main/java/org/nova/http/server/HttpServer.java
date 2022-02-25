@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +148,11 @@ public class HttpServer
     }
     public void addFilters(Filter...filters)
     {
-        this.transformers.add(filters);
+        this.transformers.addBottomFilters(filters);
+    }
+    public void addTopFilters(Filter...filters)
+    {
+        this.transformers.addTopFilters(filters);
     }
     public void registerAfterServletHandlers(ServletHandler...servletHandlers)
     {
@@ -451,17 +456,18 @@ public class HttpServer
                 if (context.isCaptured()==false)
                 {
                     
-                    CookieState[] cookieStates=context.getFilterChain().getCookieStates();
-                    if (cookieStates!=null)
-                    {
-                        for (CookieState cookieState:cookieStates)
-                        {
-                            String value=ObjectMapper.writeObjectToString(cookieState.parameter);
-                            value=URLEncoder.encode(value);
-                            Cookie cookie=new Cookie(cookieState.cookieParam.value(), value);
-                            servletResponse.addCookie(cookie);
-                        }
-                    }
+//                    if (context.getRequestHandler().cookieParamCount>0)
+//                    {
+//                    	ParameterInfo
+//                    	for (Object object:context.get)
+//                        for (CookieState cookieState:cookieStates.values())
+//                        {
+//                            String value=ObjectMapper.writeObjectToString(cookieState.parameter);
+//                            value=URLEncoder.encode(value,StandardCharsets.UTF_8);
+//                            Cookie cookie=new Cookie(cookieState.cookieStateParam.value(), value);
+//                            servletResponse.addCookie(cookie);
+//                        }
+//                    }
 					if (response != null)
 					{
 						if (response.headers != null)

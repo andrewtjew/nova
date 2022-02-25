@@ -19,20 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.http.server.annotations;
 
-public enum ParameterSource
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CookieStateParam
 {
-	CONTENT,
-	COOKIE,
-	HEADER,
-	PATH,
-	QUERY,
-	STATE,
-	CONTEXT,
-	TRACE,
-	NAME,
-	QUERIES,
-	INTERNAL,
-	COOKIE_STATE
+	String value();
+    boolean preserveState() default false;
+
 }

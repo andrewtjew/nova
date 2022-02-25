@@ -26,10 +26,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nova.core.ObjectBox;
+import org.nova.http.server.annotations.CookieStateParam;
+import org.nova.http.server.annotations.PathParam;
+import org.nova.http.server.annotations.QueryParam;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
@@ -49,6 +55,7 @@ public class Context
 	private DecoderContext decoderContext;
 	private EncoderContext encoderContext;
 	final private FilterChain filterChain;
+	private HashMap<String,CookieState> cookieStates;
 	
 	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
@@ -58,7 +65,9 @@ public class Context
 		this.httpServletResponse=servletResponse;
 		this.decoderContext=decoderContext;
 		this.encoderContext=encoderContext;
+		this.cookieStates=new HashMap<String, CookieState>();
 	}
+
 	public Response<?> next(Trace parent) throws Throwable
 	{
 	    return this.filterChain.next(parent, this);
@@ -115,6 +124,54 @@ public class Context
 	{
 		this.contentWriter = contentWriter;
 	}
+	public void setCookieState(CookieState cookieState)
+	{
+		this.cookieStates.put(cookieState.cookieStateParam.value(), cookieState);
+	}
+//	public Map<String,CookieState> getCookieStates()
+//	{
+//		return this.cookieStates;
+//	}
+	public ObjectBox getCookieState(String name)
+	{
+		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+		for (int i=0;i<infos.length;i++)
+		{
+			ParameterInfo info=infos[i];
+			if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
+			{
+				return new ObjectBox(this.filterChain.parameters[i]);
+			}
+		}
+		return null;
+	}
+	public ObjectBox getQueryParameter(String name)
+	{
+		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+		for (int i=0;i<infos.length;i++)
+		{
+			ParameterInfo info=infos[i];
+			if ((info.getAnnotation() instanceof QueryParam)&&(info.getName().equals(name)))
+			{
+				return new ObjectBox(this.filterChain.parameters[i]);
+			}
+		}
+		return null;
+	}
+	public ObjectBox getPathParameter(String name)
+	{
+		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+		for (int i=0;i<infos.length;i++)
+		{
+			ParameterInfo info=infos[i];
+			if ((info.getAnnotation() instanceof PathParam)&&(info.getName().equals(name)))
+			{
+				return new ObjectBox(this.filterChain.parameters[i]);
+			}
+		}
+		return null;
+	}
+	
 	public Object getState()
 	{
 		return state;

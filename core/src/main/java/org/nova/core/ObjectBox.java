@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017-2019 Kat Fung Tjew
+ * Copyright (C) 2016-2019 Kat Fung Tjew
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,20 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.core;
 
-public enum ParameterSource
+public class ObjectBox
 {
-	CONTENT,
-	COOKIE,
-	HEADER,
-	PATH,
-	QUERY,
-	STATE,
-	CONTEXT,
-	TRACE,
-	NAME,
-	QUERIES,
-	INTERNAL,
-	COOKIE_STATE
+    private Object value;
+    public ObjectBox(Object value)
+    {
+        this.value=value;
+    }
+    public ObjectBox()
+    {
+        this.value=null;
+    }
+    public void set(long value)
+    {
+        this.value=value;
+    }
+    public Object get()
+    {
+        return this.value;
+    }
+    
 }

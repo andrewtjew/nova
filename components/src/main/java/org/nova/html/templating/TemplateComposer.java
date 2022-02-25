@@ -45,11 +45,15 @@ public class TemplateComposer extends Composer
         this.sb=new StringBuilder();
     }
     
+    public void end()
+    {
+        this.elements.add(new Text(this.sb.toString()));
+    }
     
     @Override
     public StringBuilder getStringBuilder()
     {
-        return this.sb;
+    	return this.sb;
     }
     
     

@@ -41,6 +41,7 @@ import org.nova.http.server.annotations.ContentParam;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.CookieParam;
+import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.DELETE;
 import org.nova.http.server.annotations.DefaultValue;
 import org.nova.http.server.annotations.Filters;
@@ -448,31 +449,29 @@ class RequestHandlerMap
 		}
 
 		// filters
-		ArrayList<Filter> handlerFilters = new ArrayList<Filter>();
-		if (transformers.bottomFilters != null)
-		{
-			for (Filter filter : transformers.bottomFilters)
-			{
-				handlerFilters.add(filter);
-			}
-		}
+		ArrayList<Filter> bottomHandlerFilters = new ArrayList<Filter>();
+		ArrayList<Filter> topHandlerFilters = new ArrayList<Filter>();
 		if (handlerAnnotations.filters != null)
 		{
 			for (Class<? extends Filter> type: handlerAnnotations.filters.value())
 			{
-				Filter filter = transformers.getFilter(type);
-				if (filter == null)
+				Filter filter = transformers.getBottomFilter(type);
+				if (filter != null)
 				{
-					throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+					bottomHandlerFilters.add(filter);
 				}
-				handlerFilters.add(filter);
-			}
-		}
-		if (transformers.topFilters != null)
-		{
-			for (Filter filter : transformers.topFilters)
-			{
-				handlerFilters.add(filter);
+				else
+				{
+					filter = transformers.getTopFilter(type);
+					if (filter != null)
+					{
+						topHandlerFilters.add(filter);
+					}
+					else
+					{
+						throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+					}
+				}
 			}
 		}
 
@@ -480,7 +479,7 @@ class RequestHandlerMap
 		ArrayList<ParameterInfo> parameterInfos = new ArrayList<ParameterInfo>();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		Annotation[][] annotations = method.getParameterAnnotations();
-		int cookieStatesLength=0;
+		int cookieStateParamCount=0;
 		for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++)
 		{
 			Class<?> parameterType = parameterTypes[parameterIndex];
@@ -496,6 +495,7 @@ class RequestHandlerMap
 			DefaultValue defaultValue = null;
 			ContentParam contentParam = null;
 			CookieParam cookieParam = null;
+			CookieStateParam cookieStateParam = null;
 			HeaderParam headerParam = null;
 			PathParam pathParam = null;
 			QueryParam queryParam = null;
@@ -519,11 +519,12 @@ class RequestHandlerMap
 				}
 				else if (type == CookieParam.class)
 				{
-					cookieParam = (CookieParam) annotation;
-					if (cookieParam.preserveState())
-					{
-					    cookieStatesLength++;
-					}
+					cookieParam=(CookieParam)annotation;
+				}
+				else if (type == CookieStateParam.class)
+				{
+					cookieStateParamCount++;
+					cookieStateParam=(CookieStateParam)annotation;
 				}
 				else if (type == HeaderParam.class)
 				{
@@ -556,6 +557,10 @@ class RequestHandlerMap
 			if (cookieParam != null)
 			{
 				params.add(cookieParam);
+			}
+			if (cookieStateParam != null)
+			{
+				params.add(cookieStateParam);
 			}
 			if (pathParam != null)
 			{
@@ -639,6 +644,12 @@ class RequestHandlerMap
 //					throw new Exception("Only simple types allowed for parameter. Site=" + method.getName());
 //				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE, cookieParam, cookieParam.value(), parameterIndex, parameterType,
+						getDefaultValue(method, defaultValue, parameterType)));
+			}
+			else if (cookieStateParam != null)
+			{
+				cookieStateParamCount++;
+				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE_STATE, cookieStateParam, cookieStateParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType)));
 			}
 			else if (pathParam != null)
@@ -873,15 +884,16 @@ class RequestHandlerMap
         {
             fullPath=fullPath.substring(0, fullPath.length()-1)+object.getClass().getSimpleName()+"/"+method.getName(); 
         }
-	    Filter[] filters=handlerFilters.toArray(new Filter[handlerFilters.size()]);
+	    Filter[] bottomFilters=bottomHandlerFilters.toArray(new Filter[bottomHandlerFilters.size()]);
+	    Filter[] topFilters=topHandlerFilters.toArray(new Filter[topHandlerFilters.size()]);
 	    
-        RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, filters,
+        RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters,
                 parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap, contentEncoderMap, contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
-                true,this.bufferSize,cookieStatesLength);
+                true,this.bufferSize,cookieStateParamCount);
         add(httpMethod, fullPath, requestHandler);
         
-        for (Filter filter:filters)
+        for (Filter filter:bottomFilters)
         {
             filter.onRegister(requestHandler);
         }

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @SuppressWarnings("unused")
 public class Testing
 {
-    public final static boolean ENABLED=true;
+    public final static boolean ENABLED=false;
     public final static boolean PRINT=true;
     public final static boolean OPRINT=true;
 	public final static boolean TEST_TRACE_SERVER_PRINT=false;

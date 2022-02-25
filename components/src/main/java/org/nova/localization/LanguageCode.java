@@ -1,5 +1,7 @@
 package org.nova.localization;
 
+import java.util.Locale;
+
 import org.nova.html.ext.Locale_ISO_639_1;
 
 //public enum LanguageCode
@@ -239,8 +241,8 @@ public enum LanguageCode
     Nyanja(new Locale_ISO_639_1("Nyanja","ny")),
     
     Chinese(new Locale_ISO_639_1("Chinese","zh")),
-    Chinese_Simplified(new Locale_ISO_639_1("Chinese (Simplified)","zh-Hans",null,"zh")),
-    Chinese_Traditional(new Locale_ISO_639_1("Chinese (Traditional)","zh-Hant",null,"zh")),
+    Chinese_Simplified(new Locale_ISO_639_1("Chinese (Simplified)","zh-Hans",null,"zh-Hans")),
+    Chinese_Traditional(new Locale_ISO_639_1("Chinese (Traditional)","zh-Hant",null,"zh-Hant")),
     Chuvash(new Locale_ISO_639_1("Chuvash","cv")),
     Cornish(new Locale_ISO_639_1("Cornish","kw")),
     Corsican(new Locale_ISO_639_1("Corsican","co")),
@@ -426,12 +428,12 @@ public enum LanguageCode
     {
         for (LanguageCode languageCode : LanguageCode.values())
         {
-            if (languageCode.getValue().code.equals(value))
+            if (languageCode.name().equals(value))
             {
                 return languageCode;
             }
         }
         return null;
     }
-
+    
 }

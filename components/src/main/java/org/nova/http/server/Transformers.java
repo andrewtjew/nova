@@ -31,7 +31,6 @@ public class Transformers
     final ArrayList<ContentWriter<?>> contentWriters;
     final ArrayList<ContentEncoder> contentEncoders;
     final ArrayList<ContentDecoder> contentDecoders;
-    final ArrayList<Filter> filters;
     final ArrayList<Filter> bottomFilters;
     final ArrayList<Filter> topFilters;
     
@@ -41,7 +40,6 @@ public class Transformers
         this.contentEncoders=new ArrayList<>();
         this.contentReaders=new ArrayList<>();
         this.contentWriters=new ArrayList<>();
-        this.filters=new ArrayList<>();
         this.bottomFilters=new ArrayList<>();
         this.topFilters=new ArrayList<>();
     }
@@ -86,21 +84,31 @@ public class Transformers
             }
         }
     }
-    public void add(Filter...filters)
+    public void addBottomFilters(Filter...filters)
     {
         for (Filter filter:filters)
         {
-            if (this.getFilter(filter.getClass())==null)
+            if (this.getBottomFilter(filter.getClass())==null)
             {
-                this.filters.add(filter);
+                this.bottomFilters.add(filter);
             }
         }
     }
-    
-    
-    public Filter getFilter(Class<? extends Filter> type)
+
+    public void addTopFilters(Filter...filters)
     {
-        for (Filter filter:this.filters)
+        for (Filter filter:filters)
+        {
+            if (this.getTopFilter(filter.getClass())==null)
+            {
+                this.topFilters.add(filter);
+            }
+        }
+    }
+
+    private Filter getFilter(ArrayList<Filter> filters,Class<? extends Filter> type)
+    {
+        for (Filter filter:filters)
         {
             for (Class<?> filterClass=filter.getClass();filterClass!=null;filterClass=filterClass.getSuperclass())
             {
@@ -111,6 +119,16 @@ public class Transformers
             }
         }
         return null;
+    }
+    
+    public Filter getBottomFilter(Class<? extends Filter> type)
+    {
+    	return getFilter(this.bottomFilters,type);
+    }
+
+    public Filter getTopFilter(Class<? extends Filter> type)
+    {
+    	return getFilter(this.topFilters,type);
     }
 
     public ContentDecoder getContentDecoder(Class<? extends ContentDecoder> type)
