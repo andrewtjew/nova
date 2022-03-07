@@ -68,7 +68,12 @@ public class SessionFilter extends Filter
     }
     public void setAbnormalSessionHandler(AbnormalSessionRequestHandling handler)
     {
-        for (String mediaType:handler.getMediaTypes())
+        String[] mediaTypes=handler.getMediaTypes();
+        if (mediaTypes==null)
+        {
+            return;
+        }
+        for (String mediaType:mediaTypes)
         {
             this.abnormalSessionHandlers.put(mediaType, handler);
             
