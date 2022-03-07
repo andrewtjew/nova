@@ -522,11 +522,11 @@ public class FilterChain
     /* Stack 
      * 
      * invoke
-     * TopFilter
-     * TopFilter
+     * TopFilterA
+     * TopFilterB
      * decode params + set state cookies
-     * BottomFilter
-     * BottomFilter
+     * BottomFilterC
+     * BottomFilterD
      */
     
     
@@ -542,11 +542,20 @@ public class FilterChain
 		{
 			decodeParameters(trace, context);
 		}
+		Response<?> response=null;
 		if (index-this.bottomFilters.length<this.topFilters.length)
 		{
-			Response<?> response=this.topFilters[index-this.bottomFilters.length].executeNext(trace,context);
-			if (index==this.bottomFilters.length)
+			response=this.topFilters[index-this.bottomFilters.length].executeNext(trace,context);
+		}
+		else if (index==this.bottomFilters.length+this.topFilters.length)
+		{
+			response=invoke(context);
+		}
+		if (index==this.bottomFilters.length)
+		{
+			if (context.isCaptured()==false)
 			{
+				HttpServletResponse servletResponse=context.getHttpServletResponse();
 		        ParameterInfo[] parameterInfos=this.requestHandler.getParameterInfos();
 				if (requestHandler.cookieParamCount>0)
 				{
@@ -555,17 +564,20 @@ public class FilterChain
 						ParameterInfo info=parameterInfos[i];
 						if (info.getAnnotation() instanceof CookieStateParam)
 						{
-                            String value=ObjectMapper.writeObjectToString(parameters[i]);
-                            value=URLEncoder.encode(value,StandardCharsets.UTF_8);
-                            Cookie cookie=new Cookie(info.getName(), value);
-                            response.addCookie(cookie);
+	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
+	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
+	                        Cookie cookie=new Cookie(info.getName(), value);
+	                        servletResponse.addCookie(cookie);
 						}
 					}
 				}
 			}
-			return response;
 		}
-		
+		return response;
+	}
+	
+	Response<?> invoke(Context context) throws Throwable
+	{
         ParameterInfo[] parameterInfos=this.requestHandler.getParameterInfos();
 		try
 		{
@@ -582,6 +594,7 @@ public class FilterChain
 				}
 				return new Response(HttpStatus.OK_200,result);
 			}
+			return null;
 		}
         catch (IllegalArgumentException e)
         {
@@ -613,6 +626,5 @@ public class FilterChain
         {
             throw e;
         }
-		return null;
 	}
 }
