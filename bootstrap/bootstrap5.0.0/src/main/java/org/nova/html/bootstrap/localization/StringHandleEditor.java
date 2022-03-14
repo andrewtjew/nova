@@ -196,6 +196,7 @@ public class StringHandleEditor
         card.footer().d(Display.flex).justify_content(Justify.center).mx(3).mb(2);
         return card;
     }
+    
     @GET
     public Element main() throws Throwable
     {
@@ -316,7 +317,7 @@ public class StringHandleEditor
         {
             Locale_ISO_639_1 locale=languageCode.getValue();
             String text=locale.description+" ("+locale.code+")";
-            select.returnAddInner(new option()).addInner(text).value(locale.code);
+            select.returnAddInner(new option()).addInner(text).value(languageCode);
         }
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
 

@@ -49,7 +49,8 @@ public class DataTable extends org.nova.html.DataTables.DataTable
     final private TableBody body;
     final private TableFooter footer;
     final private DataTableOptions options;
-    
+
+    @Deprecated
     public DataTable(BootStrapPage page,DataTableOptions options)
     {
         super(options);
@@ -64,7 +65,16 @@ public class DataTable extends org.nova.html.DataTables.DataTable
         this.body=returnAddInner(new TableBody());
         this.footer=returnAddInner(new TableFooter());
     }    
+    public DataTable(DataTableOptions options)
+    {
+        super(options);
+        this.options=options;
+        this.header=returnAddInner(new TableHeader());
+        this.body=returnAddInner(new TableBody());
+        this.footer=returnAddInner(new TableFooter());
+    }    
 
+    @Deprecated
     public DataTable(BootStrapPage page)
     {
         this(page,new DataTableOptions());
