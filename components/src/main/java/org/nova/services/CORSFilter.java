@@ -39,9 +39,9 @@ import org.nova.http.server.annotations.PathParam;
 import org.nova.tracing.Trace;
 
 
-public class AccessControlHandlerFilter extends HeaderFilter
+public class CORSFilter extends HeaderFilter
 {
-    public AccessControlHandlerFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
+    public CORSFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
     {
         super(new Header("Access-Control-Allow-Origin", allowOrigin)
                 ,new Header("Access-Control-Allow-Methods", allowOrigin)
@@ -49,7 +49,7 @@ public class AccessControlHandlerFilter extends HeaderFilter
                 ,new Header("Access-Control-Max-Age", maxAge)
                 );
     }
-    public AccessControlHandlerFilter(int maxAge,String allowOrigin)
+    public CORSFilter(int maxAge,String allowOrigin)
     {
         this(maxAge,allowOrigin,"*","*");
     }
