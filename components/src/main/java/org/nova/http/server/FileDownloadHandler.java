@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -35,153 +36,154 @@ public abstract class FileDownloadHandler extends ServletHandler
     final private FileCache cache;
 //    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
 
-    final private String[] preferredEncodings=new String[] {"deflate","gzip","raw"};
+    final private HashSet<String> supportedEncodings;
     private boolean active;
-    
-    public abstract DownloadResponse getDownloadResponse(Trace parent,HttpServletRequest request, HttpServletResponse response,String rootDirectory) throws Throwable;
-    
-    //cacheControlMaxAge in seconds, maxAge in ms
-    public FileDownloadHandler(String rootDirectory,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,boolean active) throws Throwable
+
+    public abstract DownloadResponse getDownloadResponse(Trace parent, HttpServletRequest request,
+            HttpServletResponse response, String rootDirectory) throws Throwable;
+
+    // cacheControlMaxAge in seconds, maxAge in ms
+    public FileDownloadHandler(String rootDirectory, String cacheControl, long cacheControlMaxAge, long maxAge,
+            long maxSize, long freeMemory, boolean active) throws Throwable
     {
-        File file=new File(FileUtils.toNativePath(rootDirectory));
-        this.rootDirectory=file.getCanonicalPath();
-        this.cacheControlMaxAge=cacheControlMaxAge;
-        this.cache=new FileCache(maxAge, maxSize, freeMemory);
-        this.cacheControl=cacheControl;
-        this.active=active;
+        File file = new File(FileUtils.toNativePath(rootDirectory));
+        this.rootDirectory = file.getCanonicalPath();
+        this.cacheControlMaxAge = cacheControlMaxAge;
+        this.cache = new FileCache(maxAge, maxSize, freeMemory);
+        this.cacheControl = cacheControl;
+        this.active = active;
+        this.supportedEncodings = new HashSet();
+        this.supportedEncodings.add("deflate");
+        this.supportedEncodings.add("gzip");
+        this.supportedEncodings.add("br");
     }
-    
+
     public boolean isActive()
     {
         return this.active;
     }
-    
+
     public void setActive(boolean active)
     {
-        synchronized(this)
+        synchronized (this)
         {
-            this.active=active;
+            this.active = active;
         }
     }
-    
+
     public void evictAll()
     {
         this.cache.evictAll();
     }
-    
+
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        if (this.active==false)
+        if (this.active == false)
         {
             return false;
         }
-        DownloadResponse downloadResponse=getDownloadResponse(parent, request, response,this.rootDirectory);
-        if (downloadResponse.getHandled()!=null)
+        DownloadResponse downloadResponse = getDownloadResponse(parent, request, response, this.rootDirectory);
+        if (downloadResponse.getHandled() != null)
         {
             return downloadResponse.getHandled();
         }
 
-        String rootFilePath=FileUtils.toNativePath(this.rootDirectory+downloadResponse.getFilePath());
-        File file=new File(rootFilePath);
+        String rootFilePath = FileUtils.toNativePath(this.rootDirectory + downloadResponse.getFilePath());
+        File file = new File(rootFilePath);
         if (file.isDirectory())
         {
             response.setStatus(HttpStatus.FORBIDDEN_403);
             return true;
         }
-        if (file.exists()==false)
+        if (file.exists() == false)
         {
             return false;
         }
-        if (file.getCanonicalPath().contains(this.rootDirectory)==false)
+        if (file.getCanonicalPath().contains(this.rootDirectory) == false)
         {
             response.setStatus(HttpStatus.FORBIDDEN_403);
             return true;
         }
 
-        boolean browserCachingEnabled=this.cacheControl==null?false:downloadResponse.isAllowBrowserCaching();
+        boolean browserCachingEnabled = this.cacheControl == null ? false : downloadResponse.isAllowBrowserCaching();
 
-        String cacheControlValue=request.getHeader("Cache-Control");
-        boolean cacheControlSet=false;
+        String cacheControlValue = request.getHeader("Cache-Control");
+        boolean cacheControlSet = false;
         if (TypeUtils.containsIgnoreCase(cacheControlValue, "no-cache"))
         {
-            browserCachingEnabled=false;
-            cacheControlSet=true;
+            browserCachingEnabled = false;
+            cacheControlSet = true;
         }
-        String pragmaValue=request.getHeader("Pragma");
-        boolean pragmaSet=false;
+        String pragmaValue = request.getHeader("Pragma");
+        boolean pragmaSet = false;
         if (TypeUtils.containsIgnoreCase(pragmaValue, "no-cache"))
         {
-            browserCachingEnabled=false;
-            pragmaSet=true;
+            browserCachingEnabled = false;
+            pragmaSet = true;
         }
         if (browserCachingEnabled)
         {
-            if (this.cacheControlMaxAge>0)
+            if (this.cacheControlMaxAge > 0)
             {
-                response.setHeader("Cache-Control",this.cacheControl+", max-age="+this.cacheControlMaxAge);
-                String expires=OffsetDateTime.now().plusSeconds(this.cacheControlMaxAge).format(DateTimeFormatter.RFC_1123_DATE_TIME);
-                response.setHeader("Expires",expires);
-            }
-            else
+                response.setHeader("Cache-Control", this.cacheControl + ", max-age=" + this.cacheControlMaxAge);
+                String expires = OffsetDateTime.now().plusSeconds(this.cacheControlMaxAge)
+                        .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+                response.setHeader("Expires", expires);
+            } else
             {
-                response.setHeader("Cache-Control",this.cacheControl);
+                response.setHeader("Cache-Control", this.cacheControl);
             }
-        }
-        else
+        } else
         {
-            if (cacheControlSet==false)
+            if (cacheControlSet == false)
             {
-                response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
+                response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             }
-            if (pragmaSet==false)
+            if (pragmaSet == false)
             {
-                response.setHeader("Pragma","no-cache");
+                response.setHeader("Pragma", "no-cache");
             }
-            response.setHeader("Expires","0");
+            response.setHeader("Expires", "0");
         }
 
         response.setContentType(downloadResponse.getContentType());
-        send(parent, request, response, rootFilePath,downloadResponse.isAllowCompression());
+        send(parent, request, response, rootFilePath, downloadResponse.isAllowCompression());
         response.setStatus(HttpStatus.OK_200);
         return true;
     }
 
-    private void send(Trace parent, HttpServletRequest request, HttpServletResponse response,String localFile,boolean allowCompression) throws Throwable
+    private void send(Trace parent, HttpServletRequest request, HttpServletResponse response, String localFile,
+            boolean allowCompression) throws Throwable
     {
-        HashSet<String> set=new HashSet<String>();
-        set.add("none");
+        HashSet<String> set = new HashSet<String>();
+        String encoding = "none";
         if (allowCompression)
         {
-            String accept=request.getHeader("Accept-Encoding");
-            String[] accepts=Utils.split(accept.toLowerCase(), ',');
-            for (String item:accepts)
+            String accepts = request.getHeader("Accept-Encoding");
+            List<ValueQ> values = ValueQ.sort(accepts);
+            for (ValueQ value : values)
             {
-                set.add(item.trim());
+                if (value.value != null)
+                {
+                    String accept = value.value.toLowerCase();
+
+                    if (this.supportedEncodings.contains(accept))
+                    {
+                        response.setHeader("Content-Encoding", value.value);
+                        encoding = accept;
+                        break;
+                    }
+                }
             }
         }
-        
-        for (String encoding:this.preferredEncodings)
+
+        byte[] bytes = this.cache.get(parent, encoding + "|" + localFile);
+        if (bytes != null)
         {
-            if (set.contains(encoding))
-            {
-                byte[] bytes=this.cache.get(parent,encoding+"|"+localFile);
-                if (bytes!=null)
-                {
-                    if ("none".equals(encoding)==false)
-                    {
-                        response.setHeader("Content-Encoding", encoding);
-                        response.setContentLength(bytes.length);
-                    }
-                    else
-                    {
-                        response.setContentLength(bytes.length);
-                    }
-                   response.getOutputStream().write(bytes);
-                   System.out.println("Cache size:"+this.cache.getTotalContentSize()/1024L);
-                   return;
-               }
-            }
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            System.out.println("Cache size:" + this.cache.getTotalContentSize() / 1024L+" KB");
         }
     }
 

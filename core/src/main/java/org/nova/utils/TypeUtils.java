@@ -540,6 +540,42 @@ public class TypeUtils
         }
         return string.trim();
     }
+    static public boolean equals(Integer a,Integer b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Short a,Short b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Long a,Long b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
     
     static public boolean equals(String a,String b)
     {

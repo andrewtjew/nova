@@ -23,11 +23,14 @@ package org.nova.http.server;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.nova.collections.RingBuffer;
+import org.nova.http.server.annotations.Attributes;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
 
@@ -63,8 +66,10 @@ public class RequestHandler
 	final private LongValueMeter requestCompressedContentSizeMeter;
 	final private LongValueMeter responseCompressedContentSizeMeter;
     final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
+//    final private Attributes attributes;
+    final private HashSet<String> attributes;
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieParamCount)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieParamCount,Attributes attributes)
 	{
 		this.cookieParamCount=cookieParamCount;
 		this.object=object;
@@ -94,7 +99,19 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
-	}
+        if (attributes!=null)
+        {
+            this.attributes=new HashSet<String>();
+            for (String value:attributes.value())
+            {
+                this.attributes.add(value);
+            }
+        }
+        else
+        {
+            this.attributes=null;
+        }
+   }
 	
 	public Object getObject()
 	{
@@ -130,6 +147,19 @@ public class RequestHandler
 		return key;
 	}
 
+	public boolean containsAttribute(String name)
+	{
+	    if (this.attributes==null)
+	    {
+	        return false;
+	    }
+	    return this.attributes.contains(name);
+	}
+	public Set<String> getAttributes()
+	{
+	    return this.attributes;
+	}
+	
 	
 	public String getPath()
 	{

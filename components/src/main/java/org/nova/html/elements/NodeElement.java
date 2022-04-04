@@ -80,6 +80,31 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
     {
         return this.inners;
     }
+    
+    private void getAllInners(List<Element> results,List<Element> list)
+    {
+        if (list==null)
+        {
+            return;
+        }
+        for (Element element:list)
+        {
+            results.add(element);
+            if (element instanceof NodeElement)
+            {
+                getAllInners(results,((NodeElement)element).getInners());
+            }
+        }
+    }
+    
+    public List<Element> getAllInners()
+    {
+        List<Element> results=new ArrayList<Element>();
+        getAllInners(results,getInners());
+        return results;
+    }
+    
+    
     @Override
     public void compose(Composer composer) throws Throwable
     {

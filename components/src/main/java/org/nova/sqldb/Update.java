@@ -69,7 +69,7 @@ public class Update
         {
             this.parameters.add(parameter);
         }
-        return accessor.executeUpdate(parent, this.categoryOverride, parameters, sql.toString());
+        return accessor.executeUpdate(parent, this.categoryOverride, this.parameters, sql.toString());
     }
 
     public int execute(Trace parent,Connector connector,String where,Object...parameters) throws Throwable
@@ -78,6 +78,10 @@ public class Update
         {
             return execute(parent, accessor,where,parameters);
         }
+    }
+    public int getNumberOfColumns()
+    {
+        return this.parameters.size();
     }
 
 }

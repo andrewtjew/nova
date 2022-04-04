@@ -88,7 +88,7 @@ public class ModalSpinner extends GlobalEventTagElement<Spinner>
 	}
 	public style style(Size spinnerSize,Size spinnerTop)
 	{
-		return style(spinnerSize,spinnerTop,new Color("#3498db"),new Color("#f3f3f3"),new Size(1.0f,unit.em),2.0f,10000,Color.rgba(64, 64,64,0.5f));
+		return style(spinnerSize,spinnerTop,new Color("#3498db"),new Color("#f3f3f3"),new Size(spinnerSize.value()/7.5,spinnerSize.unit()),1.0f,10000,Color.rgba(64, 64,64,0.5f));
 	}
 	public style style(Size size)
 	{
@@ -113,13 +113,15 @@ public class ModalSpinner extends GlobalEventTagElement<Spinner>
     	return js_hide(QuotationMark.APOS);
     }
 
-    public script js_on(String onName)
+    public script js_on(String onName,int delay)
     {
-    	return new script().addInner(onName+"=function(){"+js_show()+";}");
+//        return new script().addInner(onName+"=function(){"+js_show()+";}");
+//      return new script().addInner(onName+"=setTimeout(function(){"+js_show()+";},"+delay+")");
+      return new script().addInner(onName+"=function(){setTimeout(function(){"+js_show()+";},"+delay+");}");
     }
-    public script js_onbeforeunload()
+    public script js_onbeforeunload(int delay)
     {
-    	return js_on("window.onbeforeunload");
+    	return js_on("window.onbeforeunload",delay);
     }
 	
 }

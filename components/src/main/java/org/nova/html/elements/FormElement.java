@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nova.html.enums.autocomplete;
 import org.nova.html.enums.method;
 import org.nova.html.enums.target;
@@ -65,7 +68,7 @@ public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEve
     {
         return attr("novalidate");
     }
-    public ELEMENT formnovalidate(boolean novalidate)  
+    public ELEMENT novalidate(boolean novalidate)  
     {
         if (novalidate)
         {
@@ -73,17 +76,35 @@ public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEve
         }
         return (ELEMENT)this;
     }
-    public ELEMENT formtarget(target target)
+    public ELEMENT target(target target)
     {
         return attr("target",target);
     }
-    public ELEMENT formtarget(String framename)
+    public ELEMENT target(String framename)
     {
         return attr("target",framename);
     }
     public ELEMENT onsubmit(String script)
     {
         return attr("onsubmit",script);
+    }
+    public ELEMENT form_inline()
+    {
+        return addClass("form-inline");
+    }
+    
+    public String[] getAllInputIds()
+    {
+        List<Element> elements=this.getAllInners();
+        ArrayList<String> list=new ArrayList<String>();
+        for (Element element:elements)
+        {
+            if (element instanceof InputElement<?>)
+            {
+                list.add(((InputElement<?>)element).id());
+            }
+        }
+        return list.toArray(new String[list.size()]);
     }
     
 }

@@ -36,7 +36,7 @@ public class DropdownButton extends ButtonComponent<DropdownButton>
     {
         super("button");
         attr("type","button");
-        attr("data-toggle","dropdown");
+        attr("data-bs-toggle","dropdown");
         addInner(label);
         this.menu=new Item();
     }

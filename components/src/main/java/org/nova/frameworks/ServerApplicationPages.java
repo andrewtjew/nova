@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.http.Cookie;
@@ -1446,6 +1447,7 @@ public class ServerApplicationPages
         for (CategorySample sample:samples)
         {
             TableRow row=new TableRow();
+   //         row.add("&#128462;");
             row.add(new TitleText(sample.getCategory(),80));
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
@@ -3751,6 +3753,10 @@ public class ServerApplicationPages
             }
             this.shownClasses.add(typeName);
             Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,"Type: "+displayTypeName));
+            if (TypeUtils.isDerivedFrom(type,Element.class))
+            {
+                return;
+            }
             Description description = type.getAnnotation(Description.class);
             if (description != null)
             {
@@ -4257,7 +4263,7 @@ public class ServerApplicationPages
             }
             else
             {
-                parameterWriter.write(returnType);
+                parameterWriter.write(returnType); 
             }
 
             if (requestHandler.getContentWriters().size() > 0)
@@ -4350,6 +4356,15 @@ public class ServerApplicationPages
         Panel2 methodPanel=page.content().returnAddInner(new Panel2(page.head(),"Class Method"));
         methodPanel.content().addInner(escapeHtml(method.toGenericString()+";"));
         page.content().addInner(new p());
+        
+        Set<String> attributes=requestHandler.getAttributes();
+        if (attributes!=null)
+        {
+            String[] array=attributes.toArray(new String[attributes.size()]);
+            Panel2 attributesPanel=page.content().returnAddInner(new Panel2(page.head(),"Attributes"));
+            attributesPanel.content().addInner(escapeHtml(Utils.combine(array,", ")));
+            page.content().addInner(new p());
+        }
         
         Panel2 executePanel=page.content().returnAddInner(new Panel2(page.head(),"Execute: "+key));
         String httpMethod = requestHandler.getHttpMethod();

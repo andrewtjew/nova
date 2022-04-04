@@ -46,8 +46,8 @@ public class OperatorPage extends Instance
     public OperatorPage(Template template)
     {
         super(template);
-        this.head=this.returnAdd("head", new Head());
-        this.content=this.returnAdd("content", new Content());
+        this.head=this.returnReplace("head", new Head());
+        this.content=this.returnReplace("content", new Content());
     }
     
     public Head head()
@@ -88,7 +88,7 @@ public class OperatorPage extends Instance
         div heading=body.returnAddInner(new div()).addClass("heading");
         div banner=heading.returnAddInner(new div()).addClass("heading-banner");
         div bannerLeft=banner.returnAddInner(new div()).addClass("heading-banner-left");
-        bannerLeft.addInner(new div().style("text-align:left;font-size:15px;font-weight:bold;margin:16px;").addInner(name));
+        bannerLeft.addInner(new div().style("text-align:left;font-size:15px;font-weight:bold;margin:16px;white-space:nowrap;").addInner(name));
         div bannerCenter=banner.returnAddInner(new div()).addClass("heading-banner-center");
         bannerCenter.addInner(new div().style("text-align:center;font-size:24px;font-weight:bold;margin:10px;").addInner(new ReplaceMarker("title")));
         div bannerRight=banner.returnAddInner(new div()).addClass("heading-banner-right");

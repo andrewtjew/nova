@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.PathParam;
@@ -145,6 +146,7 @@ public class Context
 		}
 		return null;
 	}
+	
 	public ObjectBox getQueryParameter(String name)
 	{
 		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
@@ -176,10 +178,28 @@ public class Context
 	{
 		return state;
 	}
-	public void setState(Object state)
-	{
-		this.state = state;
-	}
+    public void setState(Object state)
+    {
+        this.state = state;
+    }
+
+    public void setStateParameter(Object state)
+    {
+        this.filterChain.setStateParameter(state);
+    }
+    public void setContentParameter(Object content)
+    {
+        this.filterChain.setContentParameter(content);
+    }
+    
+    public Object getStateParameter()
+    {
+        return this.filterChain.getStateParameter();
+    }
+    public Object getContentParameter()
+    {
+        return this.filterChain.getContentParameter();
+    }
 	public String getResponseContentText()
 	{
 		return responseContentText;
@@ -268,5 +288,20 @@ public class Context
 	{
 		this.captured = true;
 	}
+    public void seeOther(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.SEE_OTHER_303);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void movedPermanently(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void temporaryRedirect(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
+        this.httpServletResponse.setHeader("Location",url);
+    }
 }
 	

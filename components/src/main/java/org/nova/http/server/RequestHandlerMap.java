@@ -35,6 +35,7 @@ import javax.servlet.http.Cookie;
 
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ParamName;
+import org.nova.http.server.annotations.Attributes;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentParam;
@@ -147,7 +148,7 @@ class RequestHandlerMap
 
 	void registerObject(String root, Object object, Transformers transformers) throws Exception
 	{
-		Annotations classAnnotations = new Annotations();
+		ClassAnnotations classAnnotations = new ClassAnnotations();
 		for (Class<?> classType=object.getClass();classType!=null;classType=classType.getSuperclass())
 		{
 		    if (Modifier.isPublic(classType.getModifiers())==false)
@@ -189,17 +190,21 @@ class RequestHandlerMap
                 {
                     classAnnotations.test=(Test)annotation;
                 }
+                else if (type==Attributes.class)
+                {
+                    classAnnotations.attributes=(Attributes)annotation;
+                }
     		}
 		}
 		for (Method method : object.getClass().getMethods())
 		{
-			registerMethod(root, object, method, new Annotations(classAnnotations), transformers);
+			registerMethod(root, object, method, new ClassAnnotations(classAnnotations), transformers);
 		}
 	}
 
 	void registerObjectMethod(String root, Object object, Method method, Transformers transformers) throws Exception
 	{
-		registerMethod(root, object, method, new Annotations(), transformers);
+		registerMethod(root, object, method, new ClassAnnotations(), transformers);
 	}
 
 	private boolean isSimpleParameterType(Class<?> type)
@@ -349,7 +354,7 @@ class RequestHandlerMap
 	    }
 	}
 	
-	private void registerMethod(String root, Object object, Method method, Annotations handlerAnnotations, Transformers transformers) throws Exception
+	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Exception
 	{
 		String httpMethod = null;
 		int verbs = 0;
@@ -427,10 +432,14 @@ class RequestHandlerMap
 				httpMethod = "TRACE";
 				verbs++;
 			}
-			else if (type == Path.class)
-			{
-				handlerAnnotations.path = (Path) annotation;
-			}
+            else if (type == Path.class)
+            {
+                handlerAnnotations.path = (Path) annotation;
+            }
+            else if (type == Attributes.class)
+            {
+                handlerAnnotations.attributes = (Attributes) annotation;
+            }
 		}
 		if (handlerAnnotations.test!=null)
 		{
@@ -890,7 +899,7 @@ class RequestHandlerMap
         RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters,
                 parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap, contentEncoderMap, contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
-                true,this.bufferSize,cookieStateParamCount);
+                true,this.bufferSize,cookieStateParamCount,handlerAnnotations.attributes);
         add(httpMethod, fullPath, requestHandler);
         
         for (Filter filter:bottomFilters)

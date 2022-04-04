@@ -52,7 +52,7 @@ public class Instance extends Element
         }
     }
     
-    public <ELEMENT extends Element> ELEMENT returnAdd(String name,ELEMENT element)
+    public <ELEMENT extends Element> ELEMENT returnReplace(String name,ELEMENT element)
     {
         if (element!=null)
         {
@@ -61,7 +61,7 @@ public class Instance extends Element
         return element;
     }
 
-    public Instance add(String name,Element element)
+    public Instance replace(String name,Element element)
     {
         if (element!=null)
         {
@@ -70,7 +70,7 @@ public class Instance extends Element
         return this;
     }
 
-    public Instance add(String name,Object object)
+    public Instance replace(String name,Object object)
     {
         if (object!=null)
         {

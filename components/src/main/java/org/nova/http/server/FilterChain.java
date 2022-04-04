@@ -46,12 +46,15 @@ public class FilterChain
 	private final Filter[] topFilters;
     RequestHandler requestHandler;
     Object[] parameters;
+    int stateParameterIndex=-1;
+    int contentParameterIndex=-1;
 
     FilterChain(RequestHandlerWithParameters methodResult)
 	{
 		this.methodResult=methodResult;
 		this.bottomFilters=methodResult.requestHandler.getBottomFilters();
 		this.topFilters=this.methodResult.requestHandler.getTopFilters();
+		this.parameters=null;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -288,7 +291,40 @@ public class FilterChain
 //        throw new Exception("Unable to parse parameter "+parameterInfo.getName()+", value="+value);
 	}
 
+    void setStateParameter(Object state)
+    {
+        if (this.stateParameterIndex>=0)
+        {
+            this.parameters[this.stateParameterIndex]=state;
+        }
+    }
+    void setContentParameter(Object state)
+    {
+        if (this.contentParameterIndex>=0)
+        {
+            this.parameters[this.contentParameterIndex]=state;
+        }
+    }
     
+    Object getContentParameter()
+    {
+        if (this.contentParameterIndex>=0)
+        {
+            return this.parameters[this.contentParameterIndex];
+        }
+        return null;
+    }
+
+    Object getStateParameter()
+    {
+        if (this.stateParameterIndex>=0)
+        {
+            return this.parameters[this.stateParameterIndex];
+        }
+        return null;
+    }
+   
+	
     public void decodeParameters(Trace trace,Context context) throws Throwable
     {
         if (this.requestHandler!=null)
@@ -475,10 +511,12 @@ public class FilterChain
                 }
                 break;
             case CONTEXT:
+                this.contentParameterIndex=i;
                 parameters[i]=context;
                 break;
             case STATE:
                 parameters[i]=context.getState();
+                this.stateParameterIndex=i;
                 break;
             case TRACE:
                 parameters[i]=trace;
@@ -567,6 +605,7 @@ public class FilterChain
 	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
 	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
 	                        Cookie cookie=new Cookie(info.getName(), value);
+	                        cookie.setPath("/");
 	                        servletResponse.addCookie(cookie);
 						}
 					}

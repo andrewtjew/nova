@@ -27,7 +27,9 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
+import org.nova.utils.Utils;
 
+@Deprecated
 public class CallBuilder
 {
     public CallBuilder(QuotationMark mark,Head head)
@@ -73,6 +75,25 @@ public class CallBuilder
     public String js_post(String path,FormQueryBuilder formQueryBuilder)
     {
         return js_post(new PathAndQuery(path),formQueryBuilder);
+    }
+    public static String js_post(String path,Object...values) throws Exception
+    {
+    	int index=path.indexOf("?");
+    	String queryString=null;
+    	if (index>=0)
+    	{
+    		queryString=path.substring(index+1);
+    		path=path.substring(0,index);
+    	}
+    	String[] queries=Utils.split(queryString,'&');
+    	PathAndQuery pathAndQuery=new PathAndQuery(path);
+    	for (int i=0;i<values.length;i++)
+    	{
+    		index=queries[i].indexOf('=');
+    		String name=queries[i].substring(index);
+    		pathAndQuery.addQuery(name,values[i]);
+    	}
+        return "org.nova.html.remoting.post("+pathAndQuery.toString()+")";
     }
     /*
     public String generateOneGet(PathAndQuery pathAndQuery,FormQueryBuilder formQueryBuilder)

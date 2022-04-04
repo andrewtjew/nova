@@ -48,7 +48,7 @@ import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.ext.Locale_ISO_639_1;
+import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.html.ext.TableRow;
 import org.nova.html.remote.Inputs;
 import org.nova.html.remote.RemoteResponse;
@@ -196,7 +196,6 @@ public class StringHandleEditor
         card.footer().d(Display.flex).justify_content(Justify.center).mx(3).mb(2);
         return card;
     }
-    
     @GET
     public Element main() throws Throwable
     {
@@ -315,9 +314,9 @@ public class StringHandleEditor
         Select select=card.body().returnAddInner(new Select().w(100).name("name"));
         for (LanguageCode languageCode:LanguageCode.values())
         {
-            Locale_ISO_639_1 locale=languageCode.getValue();
+            Language_ISO_639_1 locale=languageCode.getValue();
             String text=locale.description+" ("+locale.code+")";
-            select.returnAddInner(new option()).addInner(text).value(languageCode);
+            select.returnAddInner(new option()).addInner(text).value(locale.code);
         }
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
 
@@ -329,8 +328,8 @@ public class StringHandleEditor
     {
         Page page=new Page();
         Item item=page.content().returnAddInner(new Item()).m(2);
-        LanguageCode languageCode=LanguageCode.fromCode(name);
-        Locale_ISO_639_1 locale=languageCode.getValue();
+        LanguageCode languageCode=LanguageCode.fromCodeISO_639_1(name);
+        Language_ISO_639_1 locale=languageCode.getValue();
         String text=locale.description+" ("+locale.code+")";
         item.returnAddInner(new Alert()).addInner("Added: "+text).color(StyleColor.success);
         addLanguage(parent, languageCode);
