@@ -109,7 +109,7 @@ public class Configuration
 			{
 			    if (TypeUtils.equals(defaultValue, item.getValue())==false)
 			    {
-			        throw new Exception("Inconsistent default values:  from "+item.getSourceContext()+"="+item.getValue()+", new="+defaultValue);
+			        throw new Exception("Inconsistent default values: from "+item.getSourceContext()+"="+item.getValue()+", new="+defaultValue);
 			    }
 			}
 			
@@ -482,6 +482,26 @@ public class Configuration
         }
 		return (ENUM) Enum.valueOf((Class<Enum>)type, value);
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue) throws Exception
+    {
+	    Class<ENUM> type=(Class<ENUM>)defaultValue.getClass();
+        String value=getValue(name,defaultValue);
+        if (value==null)
+        {
+            return null;
+        }
+        if ("null".equals(value))
+        {
+            return null;
+        }
+        if (TypeUtils.isNullOrEmpty(value))
+        {
+            return null;
+        }
+        return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+    }
 	
 	public <OBJECT> OBJECT getJSONObject(String name,Class<OBJECT> type) throws Throwable
 	{
