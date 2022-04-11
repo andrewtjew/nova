@@ -16,7 +16,7 @@ namespace nova.ui.validation
 namespace nova.ui
 {
     //To show results as you type and allows item to be selected.
-    export  class AutoCompleteForm
+    export  class SearchPicker
     {
         private readonly itemIdPrefix:string;
         private readonly focusClass:string;
@@ -80,62 +80,62 @@ namespace nova.ui
     
     }
     
-    export function toggleInput(checkboxId:string,inputId:string):void
-    {
-        var checkbox=document.getElementById(checkboxId) as HTMLInputElement;
-        var input=document.getElementById(inputId) as HTMLInputElement;
-        input.disabled=!checkbox.checked;
-    }
+    // export function toggleInput(checkboxId:string,inputId:string):void
+    // {
+    //     var checkbox=document.getElementById(checkboxId) as HTMLInputElement;
+    //     var input=document.getElementById(inputId) as HTMLInputElement;
+    //     input.disabled=!checkbox.checked;
+    // }
 
-    export function showModalMessage(root:string,header:string,body:string)
-    {
-        document.getElementById(root+".header").innerHTML=header;
-        document.getElementById(root+".body").innerHTML=body;
-        $('#'+root).modal("show");
+    // export function showModalMessage(root:string,header:string,body:string)
+    // {
+    //     document.getElementById(root+".header").innerHTML=header;
+    //     document.getElementById(root+".body").innerHTML=body;
+    //     $('#'+root).modal("show");
 
-    }
+    // }
 
-    export function validate()
-    {
-            var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form)
-            {
-                form.addEventListener('submit', function(event)
-                {
-                    if (form.checkValidity()===false)
-                    {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }
-                ,false);
-            }
-            );
-    }
+    // export function validate()
+    // {
+    //         var forms = document.getElementsByClassName('needs-validation');
+    //         var validation = Array.prototype.filter.call(forms, function(form)
+    //         {
+    //             form.addEventListener('submit', function(event)
+    //             {
+    //                 if (form.checkValidity()===false)
+    //                 {
+    //                     event.preventDefault();
+    //                     event.stopPropagation();
+    //                 }
+    //                 form.classList.add('was-validated');
+    //             }
+    //             ,false);
+    //         }
+    //         );
+    // }
 
-    export function validateOnLoad()
-    {
-        window.addEventListener('load', function()
-        {
-            var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form)
-            {
-                form.addEventListener('submit', function(event)
-                {
-                    if (form.checkValidity()===false)
-                    {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }
-                ,false);
-            }
-            );
-        }
-        , false);
-    }
+    // export function validateOnLoad()
+    // {
+    //     window.addEventListener('load', function()
+    //     {
+    //         var forms = document.getElementsByClassName('needs-validation');
+    //         var validation = Array.prototype.filter.call(forms, function(form)
+    //         {
+    //             form.addEventListener('submit', function(event)
+    //             {
+    //                 if (form.checkValidity()===false)
+    //                 {
+    //                     event.preventDefault();
+    //                     event.stopPropagation();
+    //                 }
+    //                 form.classList.add('was-validated');
+    //             }
+    //             ,false);
+    //         }
+    //         );
+    //     }
+    //     , false);
+    // }
 
 }
 namespace nova.ui.password

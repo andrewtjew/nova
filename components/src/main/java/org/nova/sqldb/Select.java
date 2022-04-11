@@ -28,18 +28,20 @@ import org.nova.tracing.Trace;
 public class Select 
 {
     final private StringBuilder columns;
-    final private String table;
+    final private String source; //Table with optional JOINs
     private String categoryOverride;
+    private int numberOfColumns;
     
-    public static Select table(String table)
+    public static Select source(String source)
     {
-        return new Select(table);
+        return new Select(source);
     }
     
-    public Select(String table)
+    public Select(String source)
     {
         this.columns=new StringBuilder();
-        this.table=table;
+        this.source=source;
+        this.numberOfColumns=0;
     }
     
     public Select columns(String...columnNames)
@@ -52,7 +54,13 @@ public class Select
             }
             this.columns.append(columnName);
         }
+        this.numberOfColumns+=columnNames.length;
         return this;
+    }
+    
+    public int getNumberOfColumns()
+    {
+        return this.numberOfColumns;
     }
     
     public Select categoryOverride(String categoryOverride)
@@ -71,7 +79,7 @@ public class Select
             parameters=new Object[old.length+1];
             if (connector instanceof SqlServerConnector)
             {
-                sql="SELECT TOP(?) "+this.columns.toString()+" FROM "+this.table+" WHERE "+where;
+                sql="SELECT TOP(?) "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
                 parameters[0]=max;
                 for (int i=0;i<old.length;i++)
                 {
@@ -80,7 +88,7 @@ public class Select
             }
             else if (connector instanceof MySqlConnector)
             {
-                sql="SELECT "+this.columns.toString()+" FROM "+this.table+" WHERE "+where+" LIMIT ?";
+                sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where+" LIMIT ?";
                 for (int i=0;i<old.length;i++)
                 {
                     parameters[i]=old[i];
@@ -94,7 +102,7 @@ public class Select
         }
         else
         {
-            sql="SELECT "+this.columns.toString()+" FROM "+this.table+" WHERE "+where;
+            sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
         }
         return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
     }

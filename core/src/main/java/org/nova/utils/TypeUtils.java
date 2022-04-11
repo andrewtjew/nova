@@ -552,6 +552,18 @@ public class TypeUtils
         }
         return a.equals(b);
     }
+    static public boolean equals(Boolean a,Boolean b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
     static public boolean equals(Short a,Short b)
     {
         if ((a==null)&&(b==null))

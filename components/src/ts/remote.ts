@@ -193,7 +193,7 @@ namespace nova.remote
             {
                 var instruction=instructions[i];
                 var parameters=instruction.parameters;
-//                if (instruction.trace)
+                if (instruction.trace)
                 {
                     console.log("command:"+instruction.command);
                     console.log("parameters:"+parameters);
