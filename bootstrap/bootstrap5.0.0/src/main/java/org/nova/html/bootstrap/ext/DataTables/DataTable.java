@@ -64,6 +64,15 @@ public class DataTable extends org.nova.html.DataTables.DataTable
         this.body=returnAddInner(new TableBody());
         this.footer=returnAddInner(new TableFooter());
     }    
+    public DataTable(DataTableOptions options)
+    {
+        super(options);
+        String dataTableKey=DataTable.class.getCanonicalName();
+        this.options=options;
+        this.header=returnAddInner(new TableHeader());
+        this.body=returnAddInner(new TableBody());
+        this.footer=returnAddInner(new TableFooter());
+    }    
 
     public DataTable(BootStrapPage page)
     {

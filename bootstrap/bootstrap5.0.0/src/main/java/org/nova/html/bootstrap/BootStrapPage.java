@@ -61,9 +61,9 @@ public class BootStrapPage extends Element
 //        this.head.addInner(new meta().http_equiv(http_equiv.content_type).content("text/html;charset=utf-8;"));
     	
     	
-    	this.head.addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"));
+    	this.head.addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"));
         this.head.addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"));
-    	this.head.addInner(new script().src("https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"));
+    	this.head.addInner(new script().src("https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"));
 //        this.head.addInner(new script().src("/resources/html/js/remote.js"));
         
 

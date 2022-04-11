@@ -1,6 +1,7 @@
 package org.nova.html.templating;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.nova.localization.LanguageCode;
 
@@ -22,7 +23,7 @@ public class TemplateCache
             this.generators.put(key, generator);
         }
     }
-    public Template get(String key, LanguageCode languageCode) throws Throwable
+    public Instance get(String key, LanguageCode languageCode) throws Throwable
     {
         String k=languageCode.name()+":"+key;
         synchronized (this)
@@ -38,7 +39,7 @@ public class TemplateCache
                 template=generator.generate(languageCode);
                 this.templates.put(k, template);
             }
-            return template;
+            return new Instance(template);
         }
         
     }
@@ -49,5 +50,9 @@ public class TemplateCache
         {
             this.templates.clear();
         }        
+    }
+    public Map<String,TemplateGenerator> getTemplateGenerators()
+    {
+        return this.generators;
     }
 }

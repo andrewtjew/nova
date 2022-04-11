@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-class ValueQ 
+public class ValueQ 
 {
 	static class ValueQComparator implements Comparator<ValueQ>
 	{
@@ -36,8 +36,8 @@ class ValueQ
 		}
 	}
 	
-	final String value;
-	final double q;
+	public final String value;
+	public final double q;
 	ValueQ(String value,double q)
 	{
 		this.value=value;
@@ -45,11 +45,11 @@ class ValueQ
 	}
 	final static ValueQ.ValueQComparator COMPARATOR=new ValueQComparator();
 	
-	static List<ValueQ> sort(String accept)
+	public static List<ValueQ> sort(String accept)
 	{
 		String[] parts=org.nova.utils.Utils.split(accept.trim(), ',');
 		ArrayList<ValueQ> list=new ArrayList<>();
-		double defaultQ=-1;
+		double defaultQ=1;
 		for (String item:parts)
 		{
 			double q=defaultQ;

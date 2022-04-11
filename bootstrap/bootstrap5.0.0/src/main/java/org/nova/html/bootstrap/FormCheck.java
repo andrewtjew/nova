@@ -58,6 +58,14 @@ public class FormCheck extends StyleComponent<FormCheck>
         label.for_(element);
         return element;
     }
+    public InputCheckbox addInputCheckbox()
+    {
+        InputCheckbox element=new InputCheckbox().form_check_input();
+        returnAddInner(element);
+        FormCheckLabel label=returnAddInner(new FormCheckLabel());
+        label.for_(element);
+        return element;
+    }
     public InputRadio addInputRadio()
     {
         return addInputRadio(null);

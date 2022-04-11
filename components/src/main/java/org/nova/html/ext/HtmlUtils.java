@@ -29,11 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
-import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
@@ -152,6 +150,10 @@ public class HtmlUtils
     public static String js_location(PathAndQuery builder)
     {
         return "window.location='"+builder.toString()+"'";
+    }
+    public static String js_location(QuotationMark mark,PathAndQuery builder)
+    {
+        return "window.location="+mark.toString()+builder.toString()+mark.toString();
     }
     public static String js_location(String url)
     {
@@ -658,6 +660,15 @@ public class HtmlUtils
             }
         }
         return sb.toString();
+    }
+
+    public static String js_inputTimeZone(InputElement<?> element)
+    {
+        return js_inputTimeZone(element.id());
+    }
+    public static String js_inputTimeZone(String id)
+    {
+        return "document.getElementById('"+id+"').value=Intl.DateTimeFormat().resolvedOptions().timeZone;";
     }
     public static String js_copyToClipboard(TagElement<?> element)
     {

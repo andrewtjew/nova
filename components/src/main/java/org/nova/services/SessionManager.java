@@ -87,18 +87,25 @@ public class SessionManager<SESSION extends Session>
         }
         this.addSessionMeter.increment();
     }
-    public SESSION getSessionByToken(String token)
+//    public SESSION getSessionByToken(String token)
+//    {
+//        synchronized (this)
+//        {
+//            return this.tokenSessions.update(token);
+//        }
+//    }
+    public <S extends SESSION> S getSessionByToken(String token)
     {
         synchronized (this)
         {
-            return this.tokenSessions.update(token);
+            return (S)this.tokenSessions.update(token);
         }
     }
-    public SESSION getSessionByUser(String user)
+    public <S extends SESSION> S getSessionByUser(String user)
     {
         synchronized (this)
         {
-            return this.userSessions.get(user);
+            return (S)this.userSessions.get(user);
         }
     }
     

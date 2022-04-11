@@ -116,4 +116,9 @@ public class Insert
 		}
 	}
 	
+	public int getNumberOfColumns()
+	{
+	    return this.parameters.size();
+	}
+	
 }

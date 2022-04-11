@@ -48,7 +48,7 @@ import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.ext.Locale_ISO_639_1;
+import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.html.ext.TableRow;
 import org.nova.html.remote.Inputs;
 import org.nova.html.remote.RemoteResponse;
@@ -74,6 +74,7 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.CookieParam;
+import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
@@ -108,7 +109,7 @@ public class StringHandleEditor
     public StringHandleEditor(TraceManager traceManager,Connector connector)
     {
         this.connector=connector;
-        SqlStringHandleResolver resolver=new SqlStringHandleResolver(traceManager, connector);
+//        SqlStringHandleResolver resolver=new SqlStringHandleResolver(traceManager, connector);
 //        StringHandle.setResolver(resolver);
     }
     
@@ -313,7 +314,7 @@ public class StringHandleEditor
         Select select=card.body().returnAddInner(new Select().w(100).name("name"));
         for (LanguageCode languageCode:LanguageCode.values())
         {
-            Locale_ISO_639_1 locale=languageCode.getValue();
+            Language_ISO_639_1 locale=languageCode.getValue();
             String text=locale.description+" ("+locale.code+")";
             select.returnAddInner(new option()).addInner(text).value(locale.code);
         }
@@ -327,8 +328,8 @@ public class StringHandleEditor
     {
         Page page=new Page();
         Item item=page.content().returnAddInner(new Item()).m(2);
-        LanguageCode languageCode=LanguageCode.fromCode(name);
-        Locale_ISO_639_1 locale=languageCode.getValue();
+        LanguageCode languageCode=LanguageCode.fromCodeISO_639_1(name);
+        Language_ISO_639_1 locale=languageCode.getValue();
         String text=locale.description+" ("+locale.code+")";
         item.returnAddInner(new Alert()).addInner("Added: "+text).color(StyleColor.success);
         addLanguage(parent, languageCode);
@@ -374,6 +375,13 @@ public class StringHandleEditor
         }
         
         item.returnAddInner(new Alert()).addInner("Added: "+name).color(StyleColor.success);
+        addEnum(parent,type,item);
+        return page;
+    }
+    
+    public void addEnum(Trace parent,Class<?> type,Item item) throws Throwable
+    {
+    	String name=type.getCanonicalName();
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
             long enumID;
@@ -405,7 +413,11 @@ public class StringHandleEditor
             {
                 TableHeader header=new TableHeader();
                 header.addRow("Handles");
-                Table table=item.returnAddInner(new Table(header));
+                Table table=new Table(header);
+                if (item!=null)
+                {
+                	item.addInner(table);
+                }
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT * FROM HandleLanguages");
                 for (Object value:type.getEnumConstants())
@@ -433,7 +445,11 @@ public class StringHandleEditor
             
             TableHeader header=new TableHeader();
             header.addRow("Removed: "+staleHandles.size());
-            Table table=item.returnAddInner(new Table(header));
+            Table table=new Table(header);
+            if (item!=null)
+            {
+            	item.returnAddInner(new Table(header));
+            }
             for (String handle:staleHandles)
             {
                 accessor.executeUpdate(parent, null
@@ -445,7 +461,6 @@ public class StringHandleEditor
             }
             
         }
-        return page;
     }
 
     static class UserState
@@ -456,7 +471,7 @@ public class StringHandleEditor
     }
     
     @GET
-    public Element viewByLanguages(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
+    public Element viewByLanguages(Trace parent,@CookieStateParam("X-Nova-UserState") UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
     {
         
         
@@ -613,6 +628,8 @@ public class StringHandleEditor
             {
                 String handle=handleRow.getVARCHAR("Handle");
                 String format=handleRow.getVARCHAR("Format");
+                String key=handle+"-"+languageID+"-"+enumID;
+
 //                form_post post=table.body().returnAddInner(new form_post()).action(new PathAndQuery("/StringHandleEditor/save").addQuery("handle", handle).toString());
 //                TableRow tr=post.returnAddInner(new TableRow());
                 Item handleCell=new Item().d(Display.flex).justify_content(Justify.between);
@@ -620,13 +637,13 @@ public class StringHandleEditor
                 Item ui=handleCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
                 LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).sm().color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByHandles").addQuery("enumID", enumID).addQuery("handle",handle).toString());
-                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+handle).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
+                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
-                textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+handle).name("textarea-"+handle);
+                textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+key).name("textarea-"+key);
                 Styler.style(ta).w(100);
                 ta.addInner(format);
-                ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", handle));
+                ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", key));
                 if (TypeUtils.isNullOrEmpty(format))
                 {
                     ta.rows(1);
@@ -639,7 +656,6 @@ public class StringHandleEditor
                 inputs.trace();
                 inputs.add(ta);
                 String action=new PathAndQuery("/StringHandleEditor/save")
-                        .addQuery("key", handle)
                         .addQuery("handle", handle)
                         .addQuery("languageID", languageID)
                         .addQuery("enumID", enumID)
@@ -653,9 +669,8 @@ public class StringHandleEditor
         return page;
     }
     @GET
-    public Element viewByHandles(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
+    public Element viewByHandles(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
     {
-
         Page page=new Page();
         if (handle==null)
         {
@@ -777,18 +792,19 @@ public class StringHandleEditor
                 String description=handleRow.getVARCHAR("Description");
                 String format=handleRow.getVARCHAR("Format");
                 long languageID=handleRow.getBIGINT("LanguageID");
+                String key=handle+"-"+languageID+"-"+enumID;
                 Item languageCell=new Item().d(Display.flex).justify_content(Justify.between);
                 languageCell.addInner(description);
                 Item ui=languageCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
                 LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).sm().color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByLanguages").addQuery("enumID", enumID).addQuery("languageID",languageID).toString());
-                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+languageID).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
+                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
-                textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+languageID).name("textarea-"+handle);
+                textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+key).name("textarea-"+key);
                 Styler.style(ta).w(100);
                 ta.addInner(format);
-                ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", languageID));
+                ta.oninput(HtmlUtils.js_call("nova.handle.onTextAreaChange", key));
                 if (TypeUtils.isNullOrEmpty(format))
                 {
                     ta.rows(1);
@@ -801,7 +817,6 @@ public class StringHandleEditor
                 inputs.trace();
                 inputs.add(ta);
                 String action=new PathAndQuery("/StringHandleEditor/save")
-                        .addQuery("key", languageID)
                         .addQuery("handle", handle)
                         .addQuery("languageID", languageID)
                         .addQuery("enumID", enumID)
@@ -815,6 +830,29 @@ public class StringHandleEditor
         return page;
     }
     
+    @POST
+    public RemoteResponse save(Trace parent,@QueryParam("handle") String handle,@QueryParam("languageID") long languageID,@QueryParam("enumID") long enumID,Context context) throws Throwable, Throwable
+    {
+        String key=handle+"-"+languageID+"-"+enumID;
+        RemoteResponse response=new RemoteResponse();
+        response.trace();
+        String value=context.getHttpServletRequest().getParameter("textarea-"+key);
+  //      System.out.println("value:"+value);
+        boolean undefined=TypeUtils.isNullOrSpace(value);
+        if (undefined)
+        {
+            value=null;
+        }
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            
+                int updated=accessor.executeUpdate(parent, null
+                        , "UPDATE HandleFormats SET Format=? WHERE Handle=? AND LanguageID=? AND EnumID=?"
+                        ,value,handle,languageID,enumID);
+        }
+        response.script(HtmlUtils.js_call("nova.handle.disableSaveButton", key,undefined)+";");
+        return response;
+    }
     CardDocument createSettingsCard()
     {
         CardDocument card=new CardDocument();
@@ -823,7 +861,7 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element nextUndefined(Trace parent,@CookieParam(value="X-Nova-UserState",preserveState=true) UserState userState) throws Throwable
+    public Element nextUndefined(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
@@ -985,27 +1023,6 @@ public class StringHandleEditor
         return response;
     }
     
-    @POST
-    public RemoteResponse save(Trace parent,@QueryParam("key") String key,@QueryParam("handle") String handle,@QueryParam("languageID") long languageID,@QueryParam("enumID") long enumID,Context context) throws Throwable, Throwable
-    {
-        RemoteResponse response=new RemoteResponse();
-        response.trace();
-        String value=context.getHttpServletRequest().getParameter("textarea-"+handle);
-        boolean undefined=TypeUtils.isNullOrSpace(value);
-        if (undefined)
-        {
-            value=null;
-        }
-        try (Accessor accessor=this.connector.openAccessor(parent))
-        {
-            
-                int updated=accessor.executeUpdate(parent, null
-                        , "UPDATE HandleFormats SET Format=? WHERE Handle=? AND LanguageID=? AND EnumID=?"
-                        ,value,handle,languageID,enumID);
-        }
-        response.script(HtmlUtils.js_call("nova.handle.disableSaveButton", key,undefined)+";");
-        return response;
-    }
     
     
     

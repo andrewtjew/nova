@@ -105,7 +105,17 @@ public class Row
     }
 	public short getSMALLINT(int columnIndex)
 	{
-		return (short)this.data[columnIndex];
+	    Object object=this.data[columnIndex];
+	    if (object instanceof Short)
+	    {
+	        return (short)object;
+	    }
+	    else if (object instanceof Integer)
+	    {
+	        Integer value=(Integer)object;
+	        return value.shortValue();
+	    }
+	    throw new RuntimeException();
 	}
 	public short getSMALLINT(String columnName)
 	{
@@ -113,7 +123,23 @@ public class Row
 	}
     public Short getNullableSMALLINT(int columnIndex)
     {
-        return (Short)this.data[columnIndex];
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Short)
+        {
+            return (Short)object;
+        }
+        else if (object instanceof Integer)
+        {
+            Integer value=(Integer)object;
+            return value.shortValue();
+        }
+        throw new RuntimeException();
+
+        //return (Short)this.data[columnIndex];
     }
     public Short getNullableSMALLINT(String columnName)
     {

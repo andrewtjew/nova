@@ -33,5 +33,6 @@ public enum ParameterSource
 	TRACE,
 	NAME,
 	QUERIES,
-	INTERNAL
+	INTERNAL,
+	COOKIE_STATE
 }

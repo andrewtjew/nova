@@ -19,42 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.html.bootstrap.ext;
 
-import org.nova.http.server.annotations.ContentDecoders;
-import org.nova.http.server.annotations.ContentEncoders;
-import org.nova.http.server.annotations.ContentReaders;
-import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.Filters;
-import org.nova.http.server.annotations.Log;
-import org.nova.http.server.annotations.Path;
-import org.nova.http.server.annotations.Test;
-
-public class Annotations
+public enum ModalOption
 {
-	Path path=null;
-	ContentWriters contentWriters = null;
-	ContentReaders contentReaders = null;
-	ContentEncoders contentEncoders=null;
-	ContentDecoders contentDecoders=null;
-	Test test=null;
-	Filters filters = null;
-	Log log=null;
-	
-    Annotations()
-    {
-        
-    }
-	Annotations(Annotations that)
-	{
-	    this.path=that.path;
-	    this.contentWriters = that.contentWriters;
-	    this.contentReaders = that.contentReaders;
-	    this.contentEncoders=that.contentEncoders;
-	    this.contentDecoders=that.contentDecoders;
-	    this.filters = that.filters;
-	    this.log=that.log;
-	    this.test=that.test;
-	}
-
+    hide,
+    show,
 }

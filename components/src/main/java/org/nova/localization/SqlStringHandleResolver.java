@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import org.apache.commons.lang.LocaleUtils;
-import org.nova.html.ext.Locale_ISO_639_1;
+import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;

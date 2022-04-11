@@ -179,5 +179,66 @@ public class SqlUtils
             return executeQueryOne(parent,traceCategoryOverride,accessor,sql,parameters);
         }
     }
+    public static boolean isTrue(Row row,String columnName)
+    {
+        if (row==null)
+        {
+            return false;
+        }
+        Boolean value=row.getNullableBIT(columnName);
+        if (value==null)
+        {
+            return false;
+        }
+        return value;
+    }
     
+//    public static String getVARCHAR(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getVARCHAR(columnName);
+//    }
+//    public static Long getNullableBIGINT(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getNullableBIGINT(columnName);
+//    }
+//    public static Integer getNullableINTEGER(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getNullableINTEGER(columnName);
+//    }
+//    public static Short getNullableSHORT(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getNullableSMALLINT(columnName);
+//    }
+//    public static Double getNullableDOUBLE(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getNullableDOUBLE(columnName);
+//    }
+//    public static Float getNullableREAL(Row row,String columnName)
+//    {
+//        if (row==null)
+//        {
+//            return null;
+//        }
+//        return row.getNullableREAL(columnName);
+//    }
 }

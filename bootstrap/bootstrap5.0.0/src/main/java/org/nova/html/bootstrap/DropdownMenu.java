@@ -29,6 +29,7 @@ import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
+import org.nova.html.tags.li;
 
 public class DropdownMenu extends StyleComponent<DropdownMenu>
 {
@@ -77,7 +78,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     }
     public DropdownMenu addItem(String label,String URL)
     {
-        returnAddInner(new a()).addClass("dropdown-item").href(URL).addInner(label);
+        returnAddInner(new li().addInner(new a().addClass("dropdown-item").href(URL).addInner(label)));
         return this;
     }
     public DropdownMenu addDivider()

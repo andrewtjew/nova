@@ -23,11 +23,14 @@ package org.nova.http.server;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.nova.collections.RingBuffer;
+import org.nova.http.server.annotations.Attributes;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
 
@@ -37,7 +40,8 @@ public class RequestHandler
 {
 	final private Object object;
 	final private Method method;
-	final private Filter[] filters;
+	final private Filter[] bottomFilters;
+	final private Filter[] topFilters;
 	final private ParameterInfo[] parameterInfos;
 	final private String path;
 	final private Map<String,ContentReader<?>> contentReaders;
@@ -54,7 +58,7 @@ public class RequestHandler
     final private boolean logResponseHeaders;
     final private boolean logResponseContent;
     final private boolean logLastRequestsInMemory;
-	
+	final int cookieParamCount;
 	
 	final private HashMap<Integer,LongValueMeter> meters;
 	final private LongValueMeter requestUncompressedContentSizeMeter;
@@ -62,13 +66,16 @@ public class RequestHandler
 	final private LongValueMeter requestCompressedContentSizeMeter;
 	final private LongValueMeter responseCompressedContentSizeMeter;
     final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
-    final private int cookieStatesLength;
+//    final private Attributes attributes;
+    final private HashSet<String> attributes;
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] filters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieStatesLength)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieParamCount,Attributes attributes)
 	{
+		this.cookieParamCount=cookieParamCount;
 		this.object=object;
 		this.method=method;
-		this.filters=filters;
+		this.bottomFilters=bottomFilters;
+		this.topFilters=topFilters;
 		this.parameterInfos=parameterInfos;
 		this.path=path;
 		this.contentReaders=contentReaders;
@@ -92,14 +99,19 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
-        this.cookieStatesLength=cookieStatesLength;
-	}
-
-	int getCookieStatesLength()
-	{
-	    return this.cookieStatesLength;
-	}
-
+        if (attributes!=null)
+        {
+            this.attributes=new HashSet<String>();
+            for (String value:attributes.value())
+            {
+                this.attributes.add(value);
+            }
+        }
+        else
+        {
+            this.attributes=null;
+        }
+   }
 	
 	public Object getObject()
 	{
@@ -116,9 +128,13 @@ public class RequestHandler
 		return this.httpMethod;
 	}
 
-	public Filter[] getFilters()
+	public Filter[] getBottomFilters()
 	{
-		return filters;
+		return this.bottomFilters;
+	}
+	public Filter[] getTopFilters()
+	{
+		return this.topFilters;
 	}
 
 	public ParameterInfo[] getParameterInfos()
@@ -131,6 +147,19 @@ public class RequestHandler
 		return key;
 	}
 
+	public boolean containsAttribute(String name)
+	{
+	    if (this.attributes==null)
+	    {
+	        return false;
+	    }
+	    return this.attributes.contains(name);
+	}
+	public Set<String> getAttributes()
+	{
+	    return this.attributes;
+	}
+	
 	
 	public String getPath()
 	{

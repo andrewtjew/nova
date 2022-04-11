@@ -3,6 +3,7 @@ package org.samples;
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplicationRunner;
 import org.nova.http.server.HttpServer;
+import org.nova.http.server.HttpTransport;
 import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;
 
@@ -15,9 +16,9 @@ public class Service extends SessionServerApplication<UserSession>
     }
 
 
-    public Service(CoreEnvironment coreEnvironment,HttpServer operatorServer) throws Throwable
+    public Service(CoreEnvironment coreEnvironment,HttpTransport transport) throws Throwable
     {
-        super("Sample", coreEnvironment,operatorServer);
+        super("Sample", coreEnvironment,transport);
     }
     
     public void onStart(Trace parent) throws Throwable

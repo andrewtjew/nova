@@ -15,13 +15,15 @@ import com.amazonaws.services.devicefarm.model.Run;
 
 public class RemoteResponse
 {
-    final ArrayList<Instruction> instructions;
+    private final ArrayList<Instruction> instructions;
     boolean trace;
     public RemoteResponse()
     {
         this.instructions=new ArrayList<Instruction>();
         this.trace=false;
     }
+    
+    
     
     public RemoteResponse trace(boolean trace)
     {
@@ -41,6 +43,12 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.value,id,value.toString()));
         return this;
     }
+    
+    public Instruction[] getInstructions()
+    {
+    	return this.instructions.toArray(new Instruction[this.instructions.size()]);
+    }
+    
     public RemoteResponse documentObject(String name,Object documentObject) throws Throwable
     {
         String text=ObjectMapper.writeObjectToString(documentObject);

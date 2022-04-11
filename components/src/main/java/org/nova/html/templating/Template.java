@@ -34,6 +34,7 @@ public class Template
     {
         TemplateComposer composer=new TemplateComposer();
         element.compose(composer);
+        composer.end();
         this.elements=composer.elements;
     }
 

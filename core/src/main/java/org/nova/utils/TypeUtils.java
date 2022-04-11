@@ -25,6 +25,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nova.core.ObjectBox;
+
 public class TypeUtils
 {
     static public <OBJECT> OBJECT replaceIfNull(OBJECT value,OBJECT nullReplacementValue)
@@ -538,6 +540,54 @@ public class TypeUtils
         }
         return string.trim();
     }
+    static public boolean equals(Integer a,Integer b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Boolean a,Boolean b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Short a,Short b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Long a,Long b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
     
     static public boolean equals(String a,String b)
     {
@@ -570,6 +620,14 @@ public class TypeUtils
             return false;
         }
         return a.toLowerCase().contains(b.toLowerCase());
+    }
+    static public Object unbox(ObjectBox box)
+    {
+    	if (box==null)
+    	{
+    		return null;
+    	}
+    	return box.get();
     }
 }
 

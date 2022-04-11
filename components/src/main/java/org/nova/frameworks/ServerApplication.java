@@ -434,8 +434,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     {
         Template template=this.test?OperatorPage.buildTemplate(this.menuBar, this.getName(), this.hostName):this.template;
         OperatorPage page=new OperatorPage(template);
-        page.add("title", title);
-        page.add("now", Utils.nowToLocalDateTimeString());
+        page.replace("title", title);
+        page.replace("now", Utils.nowToLocalDateTimeString());
         return page;
     }
 

@@ -31,7 +31,7 @@ public class DropdownTogglerButton extends ButtonComponent<DropdownTogglerButton
         super("button");
         addClass("dropdown-toggle-split");
         attr("type","button");
-        addInner(new span().addClass("sr-only").addInner("Toggle Dropdown"));
+        addInner(new span().addClass("sr-only"));
     }
    
 }

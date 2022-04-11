@@ -770,4 +770,9 @@ public class Accessor extends Resource
     		}
         }
 	}
+	
+	public Connector getConnector()
+	{
+	    return this.connector;
+	}
 }

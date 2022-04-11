@@ -67,13 +67,13 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     {
         this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),true);
     }
-    public IndexFileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,String cacheControl) throws Throwable
     {
-        this(rootDirectory,noBrowserCachingPaths,CACHE_CONTROL,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
+      this(rootDirectory,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
     }
     public IndexFileDownloadHandler(String rootDirectory) throws Throwable
     {
-        this(rootDirectory,defaultNoBrowserCachingPaths());
+        this(rootDirectory,null);
     }
     
     @Override
