@@ -19,65 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.tags.button_button;
 
-public class script extends GlobalEventTagElement<script>
+public class Alert extends StyleComponent<Alert>
 {
-    public script()
+    public Alert()
     {
-        super("script");
+        super("div","alert");
     }
-    
-    public script integrity(String code)
+
+    public Alert dismissible()
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("alert-dismissible");
+        addInner(new button_button().addClass("close").attr("data-dismiss","alert").addInner("&times;"));
         return this;
     }
-    public script charset(character_set character_set)
+
+    public Alert fade()
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        addClass("fade show");
         return this;
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
+
 }

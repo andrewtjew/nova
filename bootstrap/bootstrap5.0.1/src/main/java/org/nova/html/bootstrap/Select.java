@@ -19,65 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.InputType;
+import org.nova.html.enums.autocomplete;
+import org.nova.html.tags.input_email;
+import org.nova.html.tags.select;
 
-public class script extends GlobalEventTagElement<script>
+public class Select extends InputComponent<Select>
 {
-    public script()
+    public Select()
     {
-        super("script");
+        super("select",InputType.select);
     }
     
-    public script integrity(String code)
+    public Select multiple()
     {
-        return attr("integrity",code);
+        return attr("multiple");
     }
-    public script crossorigin(crossorigin crossorigin)
+    public Select multiple(boolean multiple)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        if (multiple)
         {
-            return attr("async");
+            return attr("multiple");
         }
         return this;
     }
-    public script charset(character_set character_set)
+    public Select required()
     {
-        return attr("charset",character_set);
+        return attr("required");
     }
-    public script defer()
+    public Select required(boolean required)
     {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        if (required)
         {
-            return attr("defer");
+            return attr("required");
         }
         return this;
     }
-    public script src(String URL)
+    public Select form_select()
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        addClass("form-select");
+        return this;
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
-}
+ }
+

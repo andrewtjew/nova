@@ -19,65 +19,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.Size;
+import org.nova.html.bootstrap.classes.StyleColor;
+import org.nova.html.elements.FormElement;
 
-public class script extends GlobalEventTagElement<script>
+public abstract class TableDataComponent<ELEMENT extends TableDataComponent<ELEMENT>> extends StyleComponent<ELEMENT> 
 {
-    public script()
+    public TableDataComponent(String tag)
     {
-        super("script");
+        super(tag,"btn");
+    }
+    public TableDataComponent(String tag,String componentClass)
+    {
+        super(tag,componentClass);
+    }
+    @SuppressWarnings("unchecked")
+    public ELEMENT active()
+    {
+        addClass("active");
+        return (ELEMENT)this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ELEMENT disabled()
+    {
+        addClass("disabled");
+        attr("disabled","disabled");
+        return (ELEMENT)this;
+    }
+
+    public ELEMENT form(String form_id)
+    {
+        return attr("form",form_id);
+    }
+    public ELEMENT form(FormElement<?> element)
+    {
+        return attr("form",element);
+    }
+    @SuppressWarnings("unchecked")
+    public ELEMENT size(Size value)
+    {
+        addClass("btn",value);
+        return (ELEMENT)this;
     }
     
-    public script integrity(String code)
+    public ELEMENT name(String name)
     {
-        return attr("integrity",code);
+        attr("name",name);
+        return (ELEMENT)this;
     }
-    public script crossorigin(crossorigin crossorigin)
+    public ELEMENT value(Object value)
     {
-        return attr("crossorigin",crossorigin.toString());
+        return attr("value",value);
     }
-    public script async()
+    
+    public ELEMENT outline(StyleColor value)
     {
-        return attr("async","async");
+        addClass("btn-outline",value);
+        return (ELEMENT)this;
     }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
 }

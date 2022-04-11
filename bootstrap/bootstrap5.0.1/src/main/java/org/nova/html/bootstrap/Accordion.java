@@ -19,65 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.TextAlign;
+import org.nova.html.elements.Composer;
+import org.nova.html.ext.Content;
+import org.nova.html.tags.a;
+import org.nova.html.tags.div;
+import org.nova.html.tags.li;
+import org.nova.html.tags.script;
+import org.nova.html.tags.span;
+import org.nova.html.tags.ul;
 
-public class script extends GlobalEventTagElement<script>
+public class Accordion extends StyleComponent<Accordion>
 {
-    public script()
+    public Accordion()
     {
-        super("script");
+        super("div","accordion");
     }
     
-    public script integrity(String code)
+    public Accordion add(String title,String text)
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        Card card=returnAddInner(new Card());
+        Button button=card.returnAddInner(new Button()).addInner(title);
+//        button.rounded(0);
+//        button.text(TextAlign.left);
+        button.addClass("btn-accordion");
+        
+        Collapse collapse=returnAddInner(new Collapse());
+        collapse.linkDataParent(card);
+        CardBody body=collapse.returnAddInner(new CardBody());
+//        body.border();
+//        body.addInner(text);
+        
+        button.attr("data-toggle","collapse");
+        button.attr("data-target","#"+collapse.id());
+        
         return this;
     }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
+    
     
 }

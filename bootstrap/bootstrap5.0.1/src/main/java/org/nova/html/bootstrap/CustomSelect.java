@@ -19,65 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.BreakPoint;
+import org.nova.html.elements.InputType;
 
-public class script extends GlobalEventTagElement<script>
+public class CustomSelect extends InputComponent<CustomSelect>
 {
-    public script()
+    public CustomSelect()
     {
-        super("script");
+        super("select",InputType.select,"custom-select");
     }
-    
-    public script integrity(String code)
+    public CustomSelect(BreakPoint deviceClass)
     {
-        return attr("integrity",code);
+        this();
+        addClass("custom-select-"+deviceClass);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public CustomSelect multiple()
     {
-        return attr("crossorigin",crossorigin.toString());
+        return attr("multiple");
     }
-    public script async()
+    public CustomSelect multiple(boolean multiple)
     {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        if (multiple)
         {
-            return attr("async");
+            return attr("multiple");
         }
         return this;
     }
-    public script charset(character_set character_set)
+    public CustomSelect required()
     {
-        return attr("charset",character_set);
+        return attr("required");
     }
-    public script defer()
+    public CustomSelect required(boolean required)
     {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        if (required)
         {
-            return attr("defer");
+            return attr("required");
         }
         return this;
     }
-    public script src(String URL)
+    public CustomSelect size(int number)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        return attr("size",number);
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

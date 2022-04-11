@@ -19,65 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.InputType;
 
-public class script extends GlobalEventTagElement<script>
+public class CustomCheckBox extends InputComponent<CustomCheckBox>
 {
-    public script()
+    public CustomCheckBox()
     {
-        super("script");
+        super(InputType.checkbox,"custom-control-input");
     }
-    
-    public script integrity(String code)
+    public CustomCheckBox checked()
     {
-        return attr("integrity",code);
+        attr("checked");
+        return this;
     }
-    public script crossorigin(crossorigin crossorigin)
+    public CustomCheckBox checked(boolean checked)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        if (checked)
         {
-            return attr("async");
+            attr("checked");
         }
         return this;
     }
-    public script charset(character_set character_set)
+    public CustomCheckBox required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
     {
-        return attr("charset",character_set);
+        return attr("required");
     }
-    public script defer()
+    public CustomCheckBox required(boolean required)
     {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        if (required)
         {
-            return attr("defer");
+            attr("required");
         }
         return this;
     }
-    public script src(String URL)
+    public CustomCheckBox value(Object text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        return attr("value",text);
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

@@ -19,65 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
+import org.nova.html.attributes.Style;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.td;
+import org.nova.html.tags.th;
+import org.nova.html.tags.tr;
 
-public class script extends GlobalEventTagElement<script>
+public class TableBody extends StyleComponent<TableBody>
 {
-    public script()
+    public TableBody()
     {
-        super("script");
+        super("tbody",null);
     }
     
-    public script integrity(String code)
+    public TableBody addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        returnAddInner(new TableDataRow()).addWithStyle(template, objects);
         return this;
     }
-    public script charset(character_set character_set)
+
+    public TableBody addRow(Object...objects)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        returnAddInner(new TableDataRow()).add(objects);
         return this;
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
+
 }

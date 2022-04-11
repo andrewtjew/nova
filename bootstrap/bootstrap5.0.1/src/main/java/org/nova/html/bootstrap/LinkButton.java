@@ -19,65 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
 
-public class script extends GlobalEventTagElement<script>
+public class LinkButton extends ButtonComponent<LinkButton>
 {
-    public script()
+    public LinkButton(String label)
     {
-        super("script");
+        this(label,null);
+    }
+    public LinkButton(String label,String href)
+    {
+        super("a");
+        attr("href",href);
+        attr("role","button");
+        if (label!=null)
+        {
+            addInner(label);
+        }
+    }
+    public LinkButton()
+    {
+        this(null);
     }
     
-    public script integrity(String code)
+    public LinkButton target(target target)
     {
-        return attr("integrity",code);
+        return attr("target",target.toString());
     }
-    public script crossorigin(crossorigin crossorigin)
+    public LinkButton target(String target)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        attr("target",target);
         return this;
     }
-    public script charset(character_set character_set)
+    public LinkButton href(String href)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        attr("href",href);
         return this;
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

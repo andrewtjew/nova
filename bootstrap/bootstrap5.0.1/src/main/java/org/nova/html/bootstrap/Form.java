@@ -19,65 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.FormElement;
+import org.nova.html.enums.method;
+import org.nova.html.tags.script;
 
-public class script extends GlobalEventTagElement<script>
+public class Form extends FormElement<Form>
 {
-    public script()
+    public Form()
     {
-        super("script");
+        super();
     }
     
-    public script integrity(String code)
+    public Form(method method)
     {
-        return attr("integrity",code);
+        super(method);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public Form inline()
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("form-inline");
         return this;
     }
-    public script charset(character_set character_set)
+
+    public static script js_needsValidation()
     {
-        return attr("charset",character_set);
+        script script=new script();
+//        script.addInner("(function(){'use strict';window.addEventListener('load', function(){var forms = document.getElementsByClassName('needs-validation');var validation = Array.prototype.filter.call(forms, function(form){form.addEventListener('submit', function(event){if (form.checkValidity()===false){event.preventDefault();event.stopPropagation();}form.classList.add('was-validated');},false);});}, false);})();");
+        script.addInner("ui.validateOnLoad();");
+        return script;
     }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
 }

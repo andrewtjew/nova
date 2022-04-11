@@ -19,65 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.NodeElement;
+import org.nova.html.tags.nav;
 
-public class script extends GlobalEventTagElement<script>
+public class Breadcrumb extends StyleComponent<Breadcrumb>
 {
-    public script()
+    public Breadcrumb()
     {
-        super("script");
+        super("ol", "breadcrumb");
+    }   
+    
+    public Breadcrumb addItemInline(String title,String href,boolean active)
+    {
+        BreadcrumbItem item=new BreadcrumbItem(title,href);
+        if (active)
+        {
+            item.active();
+        }
+        return addInner(item);
     }
     
-    public script integrity(String code)
+    @Override
+    public void compose(Composer composer) throws Throwable
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        NodeElement<?> parent=new nav();
+        
+        parent.addInner(new Element()
         {
-            return attr("async");
-        }
-        return this;
+            @Override
+            public void compose(Composer composer) throws Throwable
+            {
+                composeThis(composer);
+            }
+        });
+        parent.compose(composer);
+        
     }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

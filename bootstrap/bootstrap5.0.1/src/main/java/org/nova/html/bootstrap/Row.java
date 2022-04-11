@@ -19,65 +19,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.BreakPoint;
 
-public class script extends GlobalEventTagElement<script>
+public class Row extends StyleComponent<Row> 
 {
-    public script()
-    {
-        super("script");
-    }
+    public Row()
+	{
+        super("div","row");
+	}
+
+//    public Row no_gutters()
+//    {
+//        addClass("no-gutters");
+//        return this;
+//    }
     
-    public script integrity(String code)
+    public Row gx(int value)
     {
-        return attr("integrity",code);
+        return addClass("gx",value);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public Row gx(BreakPoint breakPoint,int value)
     {
-        return attr("crossorigin",crossorigin.toString());
+        return addClass("gx",breakPoint,value);
     }
-    public script async()
+    public Row gy(int value)
     {
-        return attr("async","async");
+        return addClass("gy",value);
     }
-    public script async(boolean async)
+    public Row gy(BreakPoint breakPoint,int value)
     {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
+        return addClass("gy",breakPoint,value);
     }
-    public script charset(character_set character_set)
+    public Row g(int value)
     {
-        return attr("charset",character_set);
+        return addClass("g",value);
     }
-    public script defer()
+    public Row g(BreakPoint breakPoint,int value)
     {
-        return attr("defer");
+        return addClass("g",breakPoint,value);
     }
-    public script defer(boolean defer)
+    public Row cols(int value)
     {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
+        return addClass(getComponentClass(),"cols",value);
     }
-    public script src(String URL)
+    public Row cols(BreakPoint breakPoint,int value)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        return addClass(getComponentClass(),"cols",breakPoint,value);
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

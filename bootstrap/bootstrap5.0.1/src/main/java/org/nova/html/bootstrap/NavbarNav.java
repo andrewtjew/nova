@@ -19,65 +19,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.tags.li;
 
-public class script extends GlobalEventTagElement<script>
+public class NavbarNav extends StyleComponent<NavbarNav>
 {
-    public script()
+    public NavbarNav()
     {
-        super("script");
+        super("ul",null);
+        addClass("navbar-nav");
     }
-    
-    public script integrity(String code)
+    public NavbarNav addItem(Element element)
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        returnAddInner(new NavItem()).addInner(element);
         return this;
     }
-    public script charset(character_set character_set)
+
+    /*
+    public NavbarNav addLink(String label,String href,NavbarState state)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        li li=returnAddInner(new li().addClass("nav-item"));
+        a a=li.returnAddInner(new a());
+        a.addInner(label).href(href);
+        ClassBuilder cb=new ClassBuilder("nav-link");
+        cb.add(state);
+        a.addClass(cb.toString());
         return this;
     }
-    public script src(String URL)
+    public NavbarNav addLink(String label,String href)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        return addLink(label,href,NavbarState.active);
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
+    public NavbarNav add(ButtonDropdown dropdown)
+    {
+        li li=returnAddInner(new li().addClass("nav-item dropdown"));
+        li.returnAddInner(dropdown);
+        return this;
+    }
+
+    public NavbarNav add(LinkDropdown dropdown)
+    {
+        li li=returnAddInner(new li().addClass("nav-item dropdown"));
+        li.returnAddInner(dropdown);
+        return this;
+    }
+    */
 }

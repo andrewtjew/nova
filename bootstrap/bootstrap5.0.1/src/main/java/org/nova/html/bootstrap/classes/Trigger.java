@@ -19,65 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap.classes;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
 
-public class script extends GlobalEventTagElement<script>
+public enum Trigger
 {
-    public script()
-    {
-        super("script");
-    }
+    click("click"), 
+    hover("hover"), 
+    focus("focus"), 
+    manual("manual"), 
+    click_hover("click hover"), 
+    click_focus("click focus"), 
+    hover_focus("hover focus"), 
+    click_hover_focus("click hover focus"), 
+    ;
     
-    public script integrity(String code)
+    private String value;
+
+    Trigger(String value)
     {
-        return attr("integrity",code);
+        this.value = value;
     }
-    public script crossorigin(crossorigin crossorigin)
+
+    public String toString()
     {
-        return attr("crossorigin",crossorigin.toString());
+        return this.value;
     }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }
+

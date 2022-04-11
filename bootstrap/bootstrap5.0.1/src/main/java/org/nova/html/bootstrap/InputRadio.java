@@ -19,65 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.InputType;
 
-public class script extends GlobalEventTagElement<script>
+public class InputRadio extends InputComponent<InputRadio>
 {
-    public script()
+    public InputRadio()
     {
-        super("script");
+        super(InputType.radio);
     }
-    
-    public script integrity(String code)
+    public InputRadio checked() //checkbox or radio
     {
-        return attr("integrity",code);
+        return attr("checked");
     }
-    public script crossorigin(crossorigin crossorigin)
+    public InputRadio checked(boolean checked)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        if (checked)
         {
-            return attr("async");
+            attr("checked");
         }
         return this;
     }
-    public script charset(character_set character_set)
+    public InputRadio value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
-        return attr("charset",character_set);
+        return attr("value",text);
     }
-    public script defer()
+    public InputRadio value(Object value)
     {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        if (value==null)
         {
-            return attr("defer");
+            return this;
         }
+        return attr("value",value.toString());
+    }
+    public InputRadio form_check_input()
+    {
+        addClass("form-check-input");
         return this;
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }
+

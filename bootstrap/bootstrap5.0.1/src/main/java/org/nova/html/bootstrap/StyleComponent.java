@@ -19,65 +19,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.TagElement;
 
-public class script extends GlobalEventTagElement<script>
+public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> extends GlobalEventTagElement<ELEMENT> implements Styling<ELEMENT>
 {
-    public script()
+    final private String componentClass;
+
+    public StyleComponent(String tag, String componentClass)
     {
-        super("script");
+        this(tag, componentClass, false, false);
+    }
+
+    public StyleComponent(String tag, String componentClass, boolean noEndTag)
+    {
+        this(tag, componentClass, noEndTag, false);
+    }
+
+    public StyleComponent(String tag, String componentClass, boolean noEndTag,boolean noRootComponentClass)
+    {
+        super(tag, noEndTag);
+        this.componentClass = componentClass;
+        if (noRootComponentClass==false)
+        {
+            addClass(componentClass);
+        }
     }
     
-    public script integrity(String code)
+    public TagElement<?> getElement()
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
         return this;
-    }
-    public script charset(character_set character_set)
+    }    
+    
+    protected void composeThis(Composer composer) throws Throwable
     {
-        return attr("charset",character_set);
+        super.compose(composer);
     }
-    public script defer()
+    
+    protected String getComponentClass()
     {
-        return attr("defer");
+        return this.componentClass;
     }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
 }

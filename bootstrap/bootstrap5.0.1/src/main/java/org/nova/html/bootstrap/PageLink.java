@@ -19,65 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
-
-public class script extends GlobalEventTagElement<script>
+public class PageLink extends StyleComponent<PageLink>
 {
-    public script()
+    public PageLink()
     {
-        super("script");
+        super("a","page-link");
     }
-    
-    public script integrity(String code)
+    public PageLink(String label,String href)
     {
-        return attr("integrity",code);
+        this();
+        attr("href",href);
+        addInner(label);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public PageLink active()
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("active");
         return this;
     }
-    public script charset(character_set character_set)
+    public PageLink disabled()
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        addClass("disabled");
         return this;
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

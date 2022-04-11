@@ -19,65 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
+import org.nova.annotations.Description;
+import org.nova.html.bootstrap.classes.Boundary;
+import org.nova.html.bootstrap.classes.Placement;
+import org.nova.html.bootstrap.classes.Trigger;
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.NodeElement;
+import org.nova.html.elements.QuotationMark;
+import org.nova.html.elements.StringComposer;
+import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
+import org.nova.html.tags.script;
+import org.nova.json.ObjectMapper;
+import org.nova.utils.Utils;
 
-public class script extends GlobalEventTagElement<script>
+public class Popover extends TipComponent<Popover> 
 {
-    public script()
+    public Popover(TagElement<?> toggler)
     {
-        super("script");
+    	super(toggler);
+        this.toggler.attr("data-toggle","popover");
     }
     
-    public script integrity(String code)
+    public String js_popover(TipOption option,QuotationMark mark)
     {
-        return attr("integrity",code);
+//    	return "document.getElementById("+mark+this.parent.id()+mark+").popover("+mark+option+mark+")";
+    	return "$("+mark+"#"+this.toggler.id()+mark+").popover("+mark+option+mark+")";
     }
-    public script crossorigin(crossorigin crossorigin)
+    public String js_popover(TipOption option)
     {
-        return attr("crossorigin",crossorigin.toString());
+    	return js_popover(option, QuotationMark.DOUBLE);
     }
-    public script async()
+    
+    public static script js_ready()
     {
-        return attr("async","async");
+        return new script().addInner("$(document).ready(function(){$('[data-toggle=\"popover\"]').popover();});");
     }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
+
+    
     
 }

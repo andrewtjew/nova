@@ -19,65 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.Composer;
 
-public class script extends GlobalEventTagElement<script>
+public class CardDocument extends Card 
 {
-    public script()
+    private CardHeader header;
+    private CardFooter footer;
+    private CardBody body;
+    
+    public CardHeader header()
     {
-        super("script");
+        if (this.header==null)
+        {
+            this.header=new CardHeader();
+        }
+        return this.header;
+    }
+    public CardFooter footer()
+    {
+        if (this.footer==null)
+        {
+            this.footer=new CardFooter();
+        }
+        return this.footer;
+    }
+    public CardBody body()
+    {
+        if (this.body==null)
+        {
+            this.body=new CardBody();
+        }
+        return this.body;
     }
     
-    public script integrity(String code)
+    @Override
+    public void compose(Composer composer) throws Throwable
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        if (this.header!=null)
         {
-            return attr("async");
+            this.addInner(this.header);
         }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        if (this.body!=null)
         {
-            return attr("defer");
+            this.addInner(this.body);
         }
-        return this;
+        if (this.footer!=null)
+        {
+            this.addInner(this.footer);
+        }
+        super.compose(composer);
     }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
 }

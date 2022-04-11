@@ -19,65 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.TagElement;
 
-public class script extends GlobalEventTagElement<script>
+public class Nav extends StyleComponent<Nav>
 {
-    public script()
+    public Nav(String tag)
     {
-        super("script");
+        super(tag,"nav");
     }
     
-    public script integrity(String code)
+    public Nav()
     {
-        return attr("integrity",code);
+        this("ul");
     }
-    public script crossorigin(crossorigin crossorigin)
+
+    public Nav tabs()
     {
-        return attr("crossorigin",crossorigin.toString());
+        return addClass("nav-tabs");
     }
-    public script async()
+    public Nav pills()
     {
-        return attr("async","async");
+        return addClass("nav-pills");
     }
-    public script async(boolean async)
+    public Nav fill()
     {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
+        return addClass("nav-fill");
     }
-    public script charset(character_set character_set)
+    public Nav justified()
     {
-        return attr("charset",character_set);
+        return addClass("nav-justified");
     }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
+
+
 }

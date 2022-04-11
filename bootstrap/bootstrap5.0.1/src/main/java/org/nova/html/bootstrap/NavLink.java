@@ -19,65 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.Composer;
 
-public class script extends GlobalEventTagElement<script>
+public class NavLink extends ToggleComponent<NavLink>
 {
-    public script()
+    public NavLink()
     {
-        super("script");
+        super("a","nav-link");
     }
-    
-    public script integrity(String code)
+    public NavLink(String label,String href)
     {
-        return attr("integrity",code);
+        this();
+        attr("href",href);
+        addInner(label);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public NavLink(String label)
     {
-        return attr("crossorigin",crossorigin.toString());
+        this(label,null);
     }
-    public script async()
+    public NavLink active()
     {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("active");
         return this;
     }
-    public script charset(character_set character_set)
+    public NavLink disabled()
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        addClass("disabled");
         return this;
     }
-    public script src(String URL)
+    public NavLink href(String href)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        attr("href",href);
+        return this;
     }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
-    
 }

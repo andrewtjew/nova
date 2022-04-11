@@ -19,65 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
+import org.nova.annotations.Description;
+import org.nova.html.bootstrap.classes.Boundary;
+import org.nova.html.bootstrap.classes.Placement;
+import org.nova.html.bootstrap.classes.Trigger;
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.NodeElement;
+import org.nova.html.elements.QuotationMark;
+import org.nova.html.elements.StringComposer;
+import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
+import org.nova.html.tags.script;
+import org.nova.json.ObjectMapper;
+import org.nova.utils.Utils;
 
-public class script extends GlobalEventTagElement<script>
+public class Tooltip extends TipComponent<Tooltip>
 {
-    public script()
+    public Tooltip(TagElement<?> toggler)
     {
-        super("script");
+    	super(toggler);
+        this.toggler.attr("data-toggle","tooltip");
     }
     
-    public script integrity(String code)
+    public String js_tooltip(TipOption option,QuotationMark mark)
     {
-        return attr("integrity",code);
+    	return "$("+mark+"#"+this.toggler.id()+mark+").tooltip("+mark+option+mark+")";
     }
-    public script crossorigin(crossorigin crossorigin)
+    public String js_tooltip(TipOption option)
     {
-        return attr("crossorigin",crossorigin.toString());
+    	return js_tooltip(option, QuotationMark.APOS);
     }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-         
     
+    public static script script_ready()
+    {
+        return new script().addInner("$(document).ready(function(){$('[data-toggle=\"tooltip\"]').tooltip();});");
+    }
 }

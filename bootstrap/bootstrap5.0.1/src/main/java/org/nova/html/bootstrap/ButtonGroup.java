@@ -19,65 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.Drop;
 
-public class script extends GlobalEventTagElement<script>
+public class ButtonGroup extends StyleComponent<ButtonGroup>
 {
-    public script()
-    {
-        super("script");
+    public ButtonGroup()
+    { 
+        super("div","btn-group");
+//        attr("role","group");
     }
     
-    public script integrity(String code)
+    public ButtonGroup vertical()
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("btn-group-vertical");
         return this;
     }
-    public script charset(character_set character_set)
+    public ButtonGroup drop(Drop drop)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        addClass(drop.toString());
         return this;
     }
-    public script src(String URL)
+    public ButtonGroup dropright()
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        addClass("dropright");
+        return this;
     }
-    public script type(String media_type)
+    
+    public ButtonGroup dropup()
     {
-        return attr("type",media_type);
+        addClass("dropup");
+        return this;
     }
-         
+    
+    public ButtonGroup dropleft()
+    {
+        addClass("dropleft");
+        return this;
+    }
     
 }

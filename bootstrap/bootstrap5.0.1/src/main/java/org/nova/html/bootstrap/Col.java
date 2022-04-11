@@ -19,65 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.bootstrap.classes.BreakPoint;
 
-public class script extends GlobalEventTagElement<script>
+public class Col extends StyleComponent<Col>
 {
-    public script()
+    public Col()
     {
-        super("script");
+        super("div",null);
     }
-    
-    public script integrity(String code)
+    public Col(BreakPoint breakPoint)
     {
-        return attr("integrity",code);
+        super("div",null);
+        addClass("col",breakPoint);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public Col(BreakPoint breakPoint,boolean auto)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
+        super("div",null);
+        if (auto)
         {
-            return attr("async");
+            addClass("col",breakPoint,"auto");
         }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
+        else
         {
-            return attr("defer");
+            addClass("col",breakPoint);
         }
-        return this;
+            
     }
-    public script src(String URL)
+    public Col(BreakPoint breakPoint,int columns)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        super("div",null);
+        addClass("col",breakPoint,columns);
     }
-    public script type(String media_type)
+    public Col(int columns)
     {
-        return attr("type",media_type);
+        super("div",null);
+        addClass("col",columns);
     }
-         
-    
 }

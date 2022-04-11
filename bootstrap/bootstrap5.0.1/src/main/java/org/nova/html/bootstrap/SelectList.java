@@ -19,65 +19,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.StyleColor;
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.div;
+import org.nova.html.tags.label;
+import org.nova.html.tags.option;
+import org.nova.html.tags.select;
 
-public class script extends GlobalEventTagElement<script>
+
+public class SelectList extends TagElement<SelectList>
 {
-    public script()
+    final private select select;
+    
+    public SelectList(String id,String label) throws Exception
     {
-        super("script");
+        super("div");
+        addClass("form-group");
+        if (label!=null)
+        {
+            addInner(new label().for_(id).addInner(label));
+        }
+        this.select=returnAddInner(new select()).id(id);
     }
     
-    public script integrity(String code)
+    public SelectList(String id) throws Exception
     {
-        return attr("integrity",code);
+        this(id,null);
     }
-    public script crossorigin(crossorigin crossorigin)
+    public SelectList add(option option)
     {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        this.select.addInner(option);
         return this;
     }
-    public script charset(character_set character_set)
+    public SelectList add(Object option)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        this.select.addInner(new option().addInner(option));
         return this;
     }
-    public script src(String URL)
+    public SelectList add(Object value,Object option)
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        this.select.addInner(new option().addInner(option).value(value));
+        return this;
     }
-    public script type(String media_type)
+    public SelectList add(Object value,Object option,boolean selected)
     {
-        return attr("type",media_type);
+        this.select.addInner(new option().addInner(option).value(value).selected(selected));
+        return this;
     }
-         
-    
+    public select select()
+    {
+        return this.select;
+    }
 }

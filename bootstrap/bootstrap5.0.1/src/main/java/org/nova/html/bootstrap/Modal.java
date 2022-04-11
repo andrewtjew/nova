@@ -19,65 +19,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.crossorigin;
-import org.nova.html.enums.character_set;
-
-public class script extends GlobalEventTagElement<script>
+public class Modal extends StyleComponent<Modal>
 {
-    public script()
+    public Modal()
     {
-        super("script");
+        super("div","modal");
     }
     
-    public script integrity(String code)
+    public Modal fade()
     {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
+        addClass("fade");
         return this;
     }
-    public script charset(character_set character_set)
+
+    public Modal backdrop(boolean value)
     {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
+        attr("data-bs-backdrop",value);
         return this;
     }
-    public script src(String URL)
+    public Modal backdrop()
     {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
+        return backdrop(true);
     }
-    public script type(String media_type)
+    public Modal backdrop_static()
     {
-        return attr("type",media_type);
+        attr("data-bs-backdrop","static");
+        return this;
     }
-         
-    
+    public Modal keyboard(boolean value)
+    {
+        attr("data-bs-keyboard",value);
+        return this;
+    }
+    public Modal keyboard()
+    {
+        return keyboard(true);
+    }
+
+    public Modal show(boolean value)
+    {
+        attr("data-bs-show",value);
+        return this;
+    }
+    public Modal show()
+    {
+        return show(true);
+    }
+    public Modal focus(boolean value)
+    {
+        attr("data-bs-focus",value);
+        return this;
+    }
+    public Modal focus()
+    {
+        return focus(true);
+    }
 }
