@@ -17,7 +17,7 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.html.tags.style;
 
-public class ModalSpinner extends GlobalEventTagElement<Spinner>
+public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 {
 	final String rootName;
 	public ModalSpinner(String rootName) 
@@ -67,7 +67,9 @@ public class ModalSpinner extends GlobalEventTagElement<Spinner>
 			style.position(position.fixed);
 			style.left(new Size(50.0,unit.percent));
 			style.top(spinnerTop);
-			style.add("transform", "translate(-50%,0)");
+			style.margin_left(new Size(-spinnerSize.value()/2,spinnerSize.unit()));
+//			style.add("transform", "translate(-100%,0)");
+			//style.add("transform", "translate(-100%,0)");
 			
 			sb.begin("."+this.rootName+"-spinner");
 			sb.add(style);
