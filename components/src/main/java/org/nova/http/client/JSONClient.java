@@ -532,6 +532,7 @@ public class JSONClient
             context.addLogItem(new Item("responseHeader:"+header.getName(),header.getValue()));
         }
         String responseContent=FileUtils.readString(response.getEntity().getContent());
+//        System.out.println(responseContent);
         if (responseContent.length()>0)
         {
             context.addLogItem(new Item("response",responseContent));
