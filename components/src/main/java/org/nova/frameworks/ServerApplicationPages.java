@@ -2670,6 +2670,14 @@ public class ServerApplicationPages
     }
 
     @GET
+    @Path("/operator/traces/exception/console")
+    public Element printStackTrace(@QueryParam("category") String category) throws Throwable
+    {
+        this.serverApplication.getTraceManager().addSecondaryCategories(new String[]{category});
+        return lastExeptions();
+    }
+
+    @GET
     @Path("/operator/traces/clear/lastTraces")
     public Element clearLastTraces() throws Throwable
     {

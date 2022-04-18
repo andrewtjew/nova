@@ -26,13 +26,15 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.nova.sqldb.FieldMaps.ConstructorFieldMap;
 
 public class RowSet
 {
 	final String[] columnNames;
 	final private Row[] rows;
-	final HashMap<String,Integer> mappings; 
+	final Map<String,Integer> mappings; 
 	public RowSet(String[] columnNames,List<Object[]> list)
 	{
 		this.columnNames=columnNames;
@@ -51,7 +53,10 @@ public class RowSet
 			this.rows[i]=new Row(this.mappings,list.get(i));
 		}
 	}
-
+	public Map<String,Integer> getMappings()
+	{
+		return this.mappings;
+	}
 	public RowSet(String[] columnNames,Row[] rows)
 	{
 		this.columnNames=columnNames;

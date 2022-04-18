@@ -27,16 +27,26 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Row
 {
-	final HashMap<String,Integer> mappings;
-	final Object[] data;
-	Row(HashMap<String,Integer> mappings,Object[] data)
+	final protected Map<String,Integer> mappings;
+	final protected Object[] data;
+	public Row(Map<String,Integer> mappings,Object[] data)
 	{
 		this.mappings=mappings;
 		this.data=data;
 	}
+	
+//	public void set(String columnName,Object value)
+//	{
+//		set(this.mappings.get(columnName),value);
+//	}
+//	public void set(int columnIndex,Object value)
+//	{
+//		this.data[columnIndex]=value;
+//	}
 	
 	//get using SQL types
 	public String getCHAR(int columnIndex)
