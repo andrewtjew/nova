@@ -497,8 +497,13 @@ public class Utils
             return ""; //Hack
         }
         byte[] mac = network.getHardwareAddress();
+        if (mac==null)
+        {
+        	return "";
+        }
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < mac.length; i++) {
+        for (int i = 0; i < mac.length; i++) 
+        {
             sb.append(String.format("%02X", mac[i]));
         }
         return sb.toString();
