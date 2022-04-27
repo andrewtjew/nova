@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.Button;
-import org.nova.html.bootstrap.ModalDismissButton;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.tags.h5;
 

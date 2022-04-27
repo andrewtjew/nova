@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.tags.button_button;
 
 public class Alert extends StyleComponent<Alert>
@@ -34,6 +35,11 @@ public class Alert extends StyleComponent<Alert>
     {
         addClass("alert-dismissible");
         addInner(new button_button().addClass("close").attr("data-dismiss","alert").addInner("&times;"));
+        return this;
+    }
+    public Alert color(StyleColor value)
+    {
+        addClass("alert",value.toString());
         return this;
     }
 

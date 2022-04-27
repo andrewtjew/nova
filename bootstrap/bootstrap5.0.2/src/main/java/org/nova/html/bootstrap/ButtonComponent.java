@@ -24,6 +24,7 @@ package org.nova.html.bootstrap;
 import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.elements.FormElement;
+import org.nova.html.elements.TagElement;
 
 public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> extends StyleComponent<ELEMENT> 
 {
@@ -89,10 +90,20 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         addClass("btn-outline",value);
         return (ELEMENT)this;
     }
+    public ELEMENT color(StyleColor value)
+    {
+        addClass("btn",value.toString());
+        return (ELEMENT)this;
+    }
+
     
     public ELEMENT dismissModal()
     {
         return attr("data-bs-dismiss","modal");
+    }
+    public ELEMENT close()
+    {
+        return addClass("btn-close");
     }
     
 }

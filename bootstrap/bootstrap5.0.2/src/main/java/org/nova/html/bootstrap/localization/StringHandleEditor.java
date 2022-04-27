@@ -594,7 +594,7 @@ public class StringHandleEditor
             formatColumnDef.width(new Size(25,unit.percent));
             
             options.columnDefs=new ColumnDef[] {formatColumnDef};
-            DataTable table=new DataTable(page,options);
+            DataTable table=new DataTable(options);
 //            table.w_auto();
             Styler.style(table).w(100);
             main.addInner(table);
@@ -757,7 +757,7 @@ public class StringHandleEditor
             formatColumnDef.width(new Size(25,unit.percent));
             
             options.columnDefs=new ColumnDef[] {formatColumnDef};
-            DataTable table=new DataTable(page,options);
+            DataTable table=new DataTable(options);
 //            table.w_auto();
             Styler.style(table).w(100);
             main.addInner(table);

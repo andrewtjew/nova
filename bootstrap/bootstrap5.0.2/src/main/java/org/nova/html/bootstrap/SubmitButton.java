@@ -28,10 +28,15 @@ public class SubmitButton extends ButtonComponent<SubmitButton>
 {
     public SubmitButton(String label)
     {
-        super("input");
+        super("button");
         attr("type","submit");
-        attr("value",label);
+        addInner(label);
         
+    }
+    public SubmitButton()
+    {
+        super("button");
+        attr("type","submit");
     }
     
     public SubmitButton buttonState(ButtonState value)

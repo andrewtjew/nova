@@ -42,10 +42,6 @@ public class ModalDocument extends Modal
     
     public ModalDocument(boolean centered)
     {
-        this(centered,null);
-    }
-    public ModalDocument(boolean centered,BreakPoint deviceClass)
-    {
         this.dialog=returnAddInner(new ModalDialog());
         
         this.content=this.dialog.returnAddInner(new ModalContent());
@@ -53,17 +49,9 @@ public class ModalDocument extends Modal
         {
             this.dialog.centered();
         }
-        if (deviceClass!=null)
-        {
-            this.dialog.deviceClass(deviceClass);
-        }
         this.header=this.content.returnAddInner(new ModalHeader());
         this.body=this.content.returnAddInner(new ModalBody());
         this.footer=this.content.returnAddInner(new ModalFooter());
-    }
-    public ModalDocument(BreakPoint deviceClass)
-    {
-        this(false,deviceClass);
     }
     
     public ModalDocument()
@@ -97,8 +85,4 @@ public class ModalDocument extends Modal
         return HtmlUtils.js_jqueryCall(this,"modal",option);
     }
     
-    public Button showDismissbutton()
-    {
-        return this.header.returnAddInner(new Button()).addClass("btn-close").dismissModal();
-    }
 }

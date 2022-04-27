@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-public class ModalDismissButton extends ButtonComponent<Button>
-{
-    public ModalDismissButton()
-    { 
-        this(null);
-    }
-    public ModalDismissButton(String label)
-    { 
-        super("button");
-        attr("type","button");
-        attr("data-dismiss","modal");
-        addInner(label);
-    }
-
-}
+//public class ModalDismissButton extends ButtonComponent<Button>
+//{
+//    public ModalDismissButton()
+//    { 
+//        this(null);
+//    }
+//    public ModalDismissButton(String label)
+//    { 
+//        super("button");
+//        attr("type","button");
+//        attr("data-dismiss","modal");
+//        addInner(label);
+//    }
+//
+//}

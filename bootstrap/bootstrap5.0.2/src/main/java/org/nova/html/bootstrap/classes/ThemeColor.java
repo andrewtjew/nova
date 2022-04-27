@@ -19,37 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.html.bootstrap.classes;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Fixed;
-import org.nova.html.bootstrap.classes.NavbarPlacement;
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.classes.ThemeColor;
-
-public class Navbar extends StyleComponent<Navbar>
+public enum ThemeColor
 {
-    public Navbar()
+    light("light"), 
+    dark("dark"), 
+    ;
+    private String value;
+
+    ThemeColor(String value)
     {
-        super("nav","navbar");
+        this.value = value;
     }
-    public Navbar color(ThemeColor value)
+
+    public String toString()
     {
-        addClass("alert",value.toString());
-        return this;
+        return this.value;
     }
-    
-    public Navbar expand(BreakPoint deviceClass)
-    {
-        addClass("navbar-expand",deviceClass);
-        return this;
-    }
-    
-    public Navbar placement(NavbarPlacement placement)
-    {
-        addClass(placement);
-        return this;
-    }
-    
     
 }

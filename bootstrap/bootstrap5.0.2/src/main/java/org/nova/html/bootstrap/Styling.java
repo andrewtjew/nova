@@ -49,30 +49,30 @@ public interface Styling<ELEMENT>
     public ELEMENT addClass(Object class_,Object...fragments);
     public TagElement<?> getElement();
 
-    public default ELEMENT color(StyleColor value,boolean outline)
-    {
-        TagElement<?> element=getElement();
-        if (element instanceof StyleComponent<?>)
-        {
-            StyleComponent<?> component=(StyleComponent<?>)element;
-            if (outline)
-            {
-                addClass(component.getComponentClass(),outline?"outline":null,value.toString());
-            }
-            else
-            {
-                addClass(component.getComponentClass(),value.toString());
-            }
-        }
-        
-        return (ELEMENT)this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public default ELEMENT color(StyleColor value)
-    {
-        return color(value,false);
-    }
+//    public default ELEMENT color(StyleColor value,boolean outline)
+//    {
+//        TagElement<?> element=getElement();
+//        if (element instanceof StyleComponent<?>)
+//        {
+//            StyleComponent<?> component=(StyleComponent<?>)element;
+//            if (outline)
+//            {
+//                addClass(component.getComponentClass(),outline?"outline":null,value.toString());
+//            }
+//            else
+//            {
+//                addClass(component.getComponentClass(),value.toString());
+//            }
+//        }
+//        
+//        return (ELEMENT)this;
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public default ELEMENT color(StyleColor value)
+//    {
+//        return color(value,false);
+//    }
 
 //    public default ELEMENT addClass(Object class_,Object...fragments)
 //    {

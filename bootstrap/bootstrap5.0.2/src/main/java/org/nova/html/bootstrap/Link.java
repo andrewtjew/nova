@@ -23,7 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
 
-public class Link extends ToggleComponent<Link>
+public class Link extends ButtonComponent<Link>
 {
     public Link()
     {

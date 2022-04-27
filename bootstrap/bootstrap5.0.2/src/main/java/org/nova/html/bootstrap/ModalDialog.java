@@ -35,9 +35,15 @@ public class ModalDialog extends StyleComponent<ModalDialog>
         addClass("modal-dialog","centered");
         return this;
     }
-    public ModalDialog deviceClass(BreakPoint deviceClass)
+    public ModalDialog lg()
     {
-        addClass("modal",deviceClass);
-        return this;
+    	addClass("modal-lg");
+    	return this;
     }
+    public ModalDialog xl()
+    {
+    	addClass("modal-xl");
+    	return this;
+    }
+    
 }
