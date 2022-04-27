@@ -148,4 +148,9 @@ public class DateTimeUtils
        
     }
     
+    static public long getDayInstantBeforeNow(long days)
+    {
+    	return System.currentTimeMillis()-24L*3600L*1000L;
+    }
+    
 }

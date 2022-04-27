@@ -41,6 +41,10 @@ public class SqlUtils
     {
         return new Timestamp(System.currentTimeMillis());
     }
+    static public Timestamp daysBeforeNow(int days)
+    {
+        return new Timestamp(System.currentTimeMillis()-days*3600L*1000L);
+    }
 
     static public RowSet executeQuery(Trace parent, String traceCategoryOverride, Connector connector,String sql, Object... parameters) throws Throwable
     {
