@@ -25,5 +25,6 @@ public enum Size
 {
     sm, 
     md, 
-    lg, 
+    lg,
+    xl,
 }

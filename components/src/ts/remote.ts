@@ -184,6 +184,49 @@ namespace nova.remote
             }
         }); 
     }
+    export function postJSON(type:string,pathAndQuery:string,data:object,async:boolean)
+    {
+        fetch(pathAndQuery,
+            {
+                method:"POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+                alert(response);
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+
+        
+
+        // $.ajax(
+        //     {url:pathAndQuery,
+        //     type:type,
+        //     headers: 
+        //     {
+        //         "Content-Type": 'application/json'
+        //     },
+        //     async:async,
+        //     dataType:"json",
+        //     cache: false,
+        //     data:data!=null?JSON.stringify(data):null,
+        //     success:function(instructions:Instruction[],status,xhr)
+        //     {
+        //         run(instructions);
+        //     },
+        //     error:function(xhr)
+        //     {
+        //         alert("Error: "+xhr.status+" "+xhr.statusText);
+        //     }
+        // }); 
+    }
 
     function run(instructions:Instruction[])
     {

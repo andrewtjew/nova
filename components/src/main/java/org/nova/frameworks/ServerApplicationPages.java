@@ -375,14 +375,16 @@ public class ServerApplicationPages
         for (ConfigurationItem item : this.serverApplication.getConfiguration().getConfigurationItemSnapshot())
         {
             TableRow row=new TableRow();
-            if (item.getName().startsWith("$"))
-            {
-            	continue;
-            }
             		
             row.add(new td().addInner(item.getName()).title(item.getDescription()));
-//            row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;"));
-            row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;word-break:break-all;"));
+            if (item.getName().startsWith("$"))
+            {
+            	row.add(new td().addInner("Hidden").style("color:gray;"));
+            }
+            else
+            {
+            	row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;word-break:break-all;"));
+            }
             row.add(new td().addInner(item.getSource()).title(item.getSourceContext()));
             table.addRow(row);
         }

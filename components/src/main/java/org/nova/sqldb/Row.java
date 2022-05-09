@@ -38,15 +38,11 @@ public class Row
 		this.mappings=mappings;
 		this.data=data;
 	}
-	
-//	public void set(String columnName,Object value)
-//	{
-//		set(this.mappings.get(columnName),value);
-//	}
-//	public void set(int columnIndex,Object value)
-//	{
-//		this.data[columnIndex]=value;
-//	}
+
+	public Integer getColumnIndex(String columnName)
+	{
+		return this.mappings.get(columnName);
+	}
 	
 	//get using SQL types
 	public String getCHAR(int columnIndex)
@@ -293,7 +289,21 @@ public class Row
     }
     public Boolean getNullableBIT(int columnIndex)
     {
-        return (Boolean)this.data[columnIndex];
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Boolean)
+        {
+            return (Boolean)object;
+        }
+        else if (object instanceof Integer)
+        {
+            Integer value=(Integer)object;
+            return value==1;
+        }
+        throw new RuntimeException();
     }
     public Boolean getNullableBIT(String columnName)
     {

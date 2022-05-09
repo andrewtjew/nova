@@ -35,7 +35,7 @@ public class Navbar extends StyleComponent<Navbar>
     }
     public Navbar color(ThemeColor value)
     {
-        addClass("alert",value.toString());
+        addClass("navbar",value.toString());
         return this;
     }
     

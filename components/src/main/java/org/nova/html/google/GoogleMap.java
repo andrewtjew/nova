@@ -28,6 +28,7 @@ import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.tags.div;
+import org.nova.html.tags.script;
 
 public class GoogleMap extends Element
 {
@@ -36,6 +37,11 @@ public class GoogleMap extends Element
     final double longtitude;
     final double zoom;
     final ArrayList<GoogleMapCircle> circles;
+    
+    public static script api_script(String key)
+    {
+    	return new script().src("https://maps.googleapis.com/maps/api/js?key="+key);
+    }
     
     public GoogleMap(Size width,Size height,double lattitude,double longtitude,double zoom)
     {

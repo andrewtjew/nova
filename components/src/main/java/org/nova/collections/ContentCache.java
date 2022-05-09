@@ -72,7 +72,7 @@ abstract public class ContentCache<KEY,VALUE>
 	    this(0,0,0,1024L*1024L*64L);
     }
 	
-	public ContentCache(int capacity,long maxAgeMs,long contentCapacity,long freeMemory)
+	public ContentCache(int capacity,long maxAgeMs,long contentCapacity,long freeMemoryCapacity)
 	{
 		this.hits=new CountMeter();
 		this.misses=new CountMeter();
@@ -83,7 +83,7 @@ abstract public class ContentCache<KEY,VALUE>
 		this.capacity=capacity;
 		this.maxAgeMs=maxAgeMs;
 		this.contentCapacity=contentCapacity;
-		this.freeMemoryCapacity=freeMemory;
+		this.freeMemoryCapacity=freeMemoryCapacity;
 		        
 	}
 	

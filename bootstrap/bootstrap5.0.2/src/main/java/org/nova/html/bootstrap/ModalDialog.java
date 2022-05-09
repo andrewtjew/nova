@@ -22,6 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.BreakPoint;
+import org.nova.html.bootstrap.classes.Size;
 
 public class ModalDialog extends StyleComponent<ModalDialog>
 {
@@ -35,15 +36,9 @@ public class ModalDialog extends StyleComponent<ModalDialog>
         addClass("modal-dialog","centered");
         return this;
     }
-    public ModalDialog lg()
+    public ModalDialog size(Size size)
     {
-    	addClass("modal-lg");
+    	addClass("modal",size.toString());
     	return this;
     }
-    public ModalDialog xl()
-    {
-    	addClass("modal-xl");
-    	return this;
-    }
-    
 }

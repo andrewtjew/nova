@@ -127,7 +127,6 @@ public class RequestHandler
 	{
 		return this.httpMethod;
 	}
-
 	public Filter[] getBottomFilters()
 	{
 		return this.bottomFilters;

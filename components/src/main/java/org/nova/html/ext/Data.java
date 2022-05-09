@@ -19,36 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.html.ext;
 
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.tags.span;
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.Element;
+import org.nova.html.elements.NodeElement;
+import org.nova.json.ObjectMapper;
 
-public class NavbarTogglerButton extends ButtonComponent<NavbarTogglerButton>
+public class Data extends Element
 {
-    public NavbarTogglerButton()
-    {
-        this(true);
-    }
-    public NavbarTogglerButton(boolean togglerIcon)
-    {
-        super("button",null);
-        if (togglerIcon)
-        {
-            returnAddInner(new Span().addClass("navbar-toggler-icon"));
-        }
-        attr("type","button");
-        attr("data-bs-toggle","collapse");
-        addClass("navbar-togler");
-    }
-
-//    @Deprecated
-//    public ToggleNavbarButton toggleCollapse(NavbarCollapse collapse)
-//    {
-//        data("toggle","collapse");
-//        data("target","#"+collapse.id());
-//        return this;
-//    }
-   
+	final private Object data;
+	public Data(Object data)
+	{
+		this.data=data;
+	}
+	@Override
+	public void compose(Composer composer) throws Throwable 
+	{
+		StringBuilder sb=composer.getStringBuilder();
+		sb.append("<scriptt>");
+		sb.append(ObjectMapper.writeObjectToString(this.data));
+		sb.append("</script>");
+	}
 }

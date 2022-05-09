@@ -1,0 +1,72 @@
+.nova-helper-bubble-top {
+    position: relative;
+    background: #f2eb8c;
+    line-height: 5em;
+    text-align: center;
+    border-radius: 0.5em;
+    padding: 0px;
+}
+.nova-help-bubble-top:after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 0;
+    border-style: solid;
+    border-color: #f2eb8c transparent;
+    border-width: 1em 0.5em 0;
+    bottom: -1em;
+    left: 50%;
+    margin-left: -0.5em;
+}
+
+.nova-help-helper 
+{
+    display: none; 
+	position: absolute;
+    background: #ffffff;
+    margin-top:1em;
+    min-height:5em;
+    min-width:25%;
+    border-radius: 0.25em;
+    padding: 0.5em;
+}
+.nova-help-helper:after 
+{
+    content: '';
+    position: absolute;
+    display: block;
+    width: 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    border-width: var(--nova-help-helper-border-width);
+    top: var(--nova-help-helper-top);
+    bottom: var(--nova-help-helper-bottom);
+    left: var(--nova-help-helper-left);
+    margin-left: -0.5em;
+}
+
+.nova-help-helper-test:after 
+{
+    content: '';
+    position: absolute;
+    display: block;
+    width: 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    border-width: 0 0.5em 1em;
+    top: -1em;
+    left: var(--nova-help-helper-left);
+    margin-left: -0.5em;
+}
+
+.nova-help-overlay {
+  position: fixed;
+  display: none; 
+  background-color: rgba(50,50,50,0.3); /* Black background with opacity */
+  cursor: pointer; 
+  transition: all 200ms ease-in-out;
+}
+.nova-help-document
+{
+  display: none; 
+}

@@ -17,7 +17,7 @@ public class FormLabelSwitch extends StyleComponent<FormLabelSwitch>
 //        addClass("form-check");
         addClass("form-switch");
         this.inputCheckbox = returnAddInner(new InputCheckbox()).name(name).form_check_input();
-        this.label=returnAddInner(new Label(label)).for_(this.inputCheckbox).form_check_label();
+        this.label=returnAddInner(new Label(label)).for_(this.inputCheckbox).form_check_label().ms(2);
     }
     
     public InputCheckbox inputCheckbox()

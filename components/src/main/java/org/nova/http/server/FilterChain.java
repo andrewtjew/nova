@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.core.ObjectBox;
 import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
@@ -315,14 +316,15 @@ public class FilterChain
         return null;
     }
 
-    Object getStateParameter()
+    ObjectBox getStateParameter()
     {
         if (this.stateParameterIndex>=0)
         {
-            return this.parameters[this.stateParameterIndex];
+            return new ObjectBox(this.parameters[this.stateParameterIndex]);
         }
         return null;
     }
+  
    
 	
     public void decodeParameters(Trace trace,Context context) throws Throwable

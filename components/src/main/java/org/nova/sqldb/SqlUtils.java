@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -245,4 +246,32 @@ public class SqlUtils
 //        }
 //        return row.getNullableREAL(columnName);
 //    }
+
+    
+      public static Boolean getBIT(Row row,String columnName)
+	  {
+	      if (row==null)
+	      {
+	          return null;
+	      }
+	      Integer columnIndex=row.getColumnIndex(columnName);
+	      if (columnIndex==null)
+	      {
+	    	  return null;
+	      }
+	      return row.getNullableBIT(columnIndex);
+	  }
+      public static Time getTIME(Row row,String columnName)
+	  {
+	      if (row==null)
+	      {
+	          return null;
+	      }
+	      Integer columnIndex=row.getColumnIndex(columnName);
+	      if (columnIndex==null)
+	      {
+	    	  return null;
+	      }
+	      return row.getTIME(columnIndex);
+	  }
 }
