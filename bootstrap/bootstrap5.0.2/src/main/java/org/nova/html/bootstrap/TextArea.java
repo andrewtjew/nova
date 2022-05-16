@@ -19,45 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.ext;
+package org.nova.html.bootstrap;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
+import org.nova.html.elements.InputType;
+import org.nova.html.enums.autocomplete;
 
-public class Text extends Element
+public class TextArea extends InputComponent<TextArea>
 {
-    final private String text;
-    public Text(String text)
+    public TextArea()
     {
-        super();
-        this.text=text;
+        super("textarea",InputType.textarea);
     }
-    public Text(Object object)
+    public TextArea rows(int value) 
     {
-        super();
-        if (object!=null)
-        {
-            this.text=object.toString();
-        }
-        else
-        {
-            text=null;
-        }
+        return attr("rows",value);
     }
 
-    @Override
-    public String toString()
-    {
-        return this.text;
-    }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        if (this.text!=null)
-        {
-            composer.getStringBuilder().append(StringEscapeUtils.escapeHtml4(this.text));
-        }
-    }
 }
+

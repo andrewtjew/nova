@@ -28,7 +28,6 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.Table;
 import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.bootstrap.classes.Font;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.TableRow;

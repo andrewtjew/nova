@@ -4,35 +4,44 @@ import java.util.Locale;
 
 public class Country_ISO_3166_1
 {
-    final public String description;
+    final public String name;
     final public String alpha2Code;
     final public String alpha3Code;
     final public String numericCode;
     final public String displayName;
     final public String flagCode;
     
-    public Country_ISO_3166_1(String description,String alpha2Code,String alpha3Code,String numericCode)
+    public Country_ISO_3166_1(String name,String alpha2Code,String alpha3Code,String numericCode)
     {
         this.flagCode=null;
-        this.description=description;
+        this.name=name;
         this.alpha2Code=alpha2Code;
         this.alpha3Code=alpha3Code;
         this.numericCode=numericCode;
-        this.displayName=description;
+        this.displayName=name;
     }
-    public Country_ISO_3166_1(String description,String alpha2Code,String alpha3Code,String numericCode,String flagCode)
+    public Country_ISO_3166_1(String name,String alpha2Code,String alpha3Code,String numericCode,String flagCode)
     {
         this.flagCode=flagCode;
-        this.description=description;
+        this.name=name;
         this.alpha2Code=alpha2Code;
         this.alpha3Code=alpha3Code;
         this.numericCode=numericCode;
-        this.displayName=description;
+        this.displayName=name;
+    }
+    public Country_ISO_3166_1(String name,String alpha2Code,String alpha3Code,String numericCode,String flagCode,String displayName)
+    {
+        this.flagCode=flagCode;
+        this.name=name;
+        this.alpha2Code=alpha2Code;
+        this.alpha3Code=alpha3Code;
+        this.numericCode=numericCode;
+        this.displayName=displayName;
     }
 
-    public String getDescription()
+    public String getName()
     {
-        return description;
+        return name;
     }
 
 

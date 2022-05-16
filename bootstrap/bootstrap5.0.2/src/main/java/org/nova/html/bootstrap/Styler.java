@@ -30,7 +30,6 @@ import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.bootstrap.classes.Font;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.Overflow;
 import org.nova.html.bootstrap.classes.Position;

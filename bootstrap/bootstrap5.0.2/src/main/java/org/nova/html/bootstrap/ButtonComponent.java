@@ -74,16 +74,16 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     {
         return attr("value",value);
     }
-    public ELEMENT sm()
-    {
-        addClass("btn-sm");
-        return (ELEMENT)this;
-    }
-    public ELEMENT lg()
-    {
-        addClass("btn-lg");
-        return (ELEMENT)this;
-    }
+//    public ELEMENT sm()
+//    {
+//        addClass("btn-sm");
+//        return (ELEMENT)this;
+//    }
+//    public ELEMENT lg()
+//    {
+//        addClass("btn-lg");
+//        return (ELEMENT)this;
+//    }
     
     public ELEMENT outline(StyleColor value)
     {

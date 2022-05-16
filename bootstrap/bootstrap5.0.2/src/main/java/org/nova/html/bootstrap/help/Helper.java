@@ -6,6 +6,7 @@ import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Justify;
+import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.localization.UIHandle;
 import org.nova.html.elements.Composer;
@@ -22,15 +23,15 @@ public class Helper extends HelperElement
     
     public Helper(String close,String back,String next)
     {
-        this.close=new Button(close).sm();
+        this.close=new Button(close).size(Size.sm);
         this.close.color(StyleColor.muted);
         this.close.id("nova-help-navigation-close");
         
-        this.back=new Button(back).sm();
+        this.back=new Button(back).size(Size.sm);
         this.back.color(StyleColor.secondary).ms(1);
         this.back.id("nova-help-navigation-back");
         
-        this.next=new Button(next).sm();
+        this.next=new Button(next).size(Size.sm);
         this.next.color(StyleColor.primary).ms(1);
         this.next.id("nova-help-navigation-next");
         

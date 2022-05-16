@@ -5,6 +5,7 @@ import org.nova.html.bootstrap.CardFooter;
 import org.nova.html.bootstrap.CardHeader;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.StyleComponent;
+import org.nova.html.bootstrap.classes.StyleColor;
 
 public class Topic extends StyleComponent<Topic> 
 {
@@ -14,6 +15,7 @@ public class Topic extends StyleComponent<Topic>
     public Topic(String heading)
     {
         super("div",null);
+        bg(StyleColor.warning);
         this.header=new CardHeader();
         if (heading!=null)
         {

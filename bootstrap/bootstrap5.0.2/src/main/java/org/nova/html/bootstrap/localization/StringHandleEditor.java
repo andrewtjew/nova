@@ -4,7 +4,6 @@ import java.util.HashSet;
 import org.nova.html.DataTables.Column;
 import org.nova.html.DataTables.ColumnDef;
 import org.nova.html.DataTables.DataTableOptions;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.Alert;
 import org.nova.html.bootstrap.Button;
@@ -23,6 +22,7 @@ import org.nova.html.bootstrap.TableHeader;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Justify;
+import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
 import org.nova.html.bootstrap.ext.Icon;
@@ -459,7 +459,7 @@ public class StringHandleEditor
 //        {
 //            DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup("Format Specifiers"));
 //            group.me(2);
-//            group.button().color(StyleColor.secondary).sm();
+//            group.button().color(StyleColor.secondary).size(Size.sm);
 //
 //            DropdownMenuItem dropDownItem=group.menu().returnAddInner(new DropdownMenuItem());
 //            DropdownItem item=dropDownItem.returnAddInner(new DropdownItem());
@@ -488,7 +488,7 @@ public class StringHandleEditor
             {
                 bar.returnAddInner(new Item()).addInner("Enum:").me(1).mt(1);
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
-                group.button().color(StyleColor.secondary).sm().me(2);
+                group.button().color(StyleColor.secondary).size(Size.sm).me(2);
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT * FROM HandleEnums WHERE Active=?"
                         , true
@@ -536,7 +536,7 @@ public class StringHandleEditor
             {
                 bar.returnAddInner(new Item()).addInner("Language:").me(1).mt(1);
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
-                group.button().color(StyleColor.primary).sm();
+                group.button().color(StyleColor.primary).size(Size.sm);
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT * FROM HandleLanguages WHERE Active=?",true);
                 boolean found=false;
@@ -591,7 +591,7 @@ public class StringHandleEditor
             options.columns=new Column[] {formatColumn,null};
             
             ColumnDef formatColumnDef=new ColumnDef(0);
-            formatColumnDef.width(new Size(25,unit.percent));
+            formatColumnDef.width(new org.nova.html.attributes.Size(25,unit.percent));
             
             options.columnDefs=new ColumnDef[] {formatColumnDef};
             DataTable table=new DataTable(options);
@@ -610,9 +610,9 @@ public class StringHandleEditor
                 Item handleCell=new Item().d(Display.flex).justify_content(Justify.between);
                 handleCell.addInner(handle);
                 Item ui=handleCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
-                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).sm().color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
+                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByHandles").addQuery("enumID", enumID).addQuery("handle",handle).toString());
-                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
+                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).size(Size.sm).color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
                 textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+key).name("textarea-"+key);
@@ -665,7 +665,7 @@ public class StringHandleEditor
             { //enum drop down
                 bar.returnAddInner(new Item()).addInner("Enum:").ms(2).me(1).mt(1);
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
-                group.button().color(StyleColor.secondary).sm().me(2);
+                group.button().color(StyleColor.secondary).size(Size.sm).me(2);
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT * FROM HandleEnums WHERE Active=?"
                         ,true
@@ -712,7 +712,7 @@ public class StringHandleEditor
             {
                 bar.returnAddInner(new Item()).addInner("Handle:").me(1).mt(1);
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
-                group.button().color(StyleColor.primary).sm();
+                group.button().color(StyleColor.primary).size(Size.sm);
                 RowSet rowSet=accessor.executeQuery(parent, null
                         , "SELECT Handle FROM HandleFormats WHERE EnumID=? GROUP BY Handle",enumID);
                 boolean found=false;
@@ -754,7 +754,7 @@ public class StringHandleEditor
             options.columns=new Column[] {formatColumn,null};
             
             ColumnDef formatColumnDef=new ColumnDef(0);
-            formatColumnDef.width(new Size(25,unit.percent));
+            formatColumnDef.width(new org.nova.html.attributes.Size(25,unit.percent));
             
             options.columnDefs=new ColumnDef[] {formatColumnDef};
             DataTable table=new DataTable(options);
@@ -771,9 +771,9 @@ public class StringHandleEditor
                 Item languageCell=new Item().d(Display.flex).justify_content(Justify.between);
                 languageCell.addInner(description);
                 Item ui=languageCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
-                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).sm().color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
+                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
                 languageButton.href(new PathAndQuery("/StringHandleEditor/viewByLanguages").addQuery("enumID", enumID).addQuery("languageID",languageID).toString());
-                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).sm().color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
+                Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).size(Size.sm).color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
                 textarea ta=formatCell.returnAddInner(new textarea()).id("textarea-"+key).name("textarea-"+key);
@@ -906,7 +906,7 @@ public class StringHandleEditor
                             ,new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString()
                             , "Confirmation required","Delete "+description+"?"
                             ));
-                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger).onclick(dialog.js_show());
+                    ui.returnAddInner(new Button()).addInner("X").size(Size.sm).color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
         }
@@ -936,7 +936,7 @@ public class StringHandleEditor
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setEnum?ID="+id));
                     s.pt(1);
                     ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs(), "Confirmation required", "Delete "+enum_+"?",new PathAndQuery("/StringHandleEditor/deleteEnum").addQuery("ID", id).toString()));
-                    ui.returnAddInner(new Button()).addInner("X").sm().color(StyleColor.danger).onclick(dialog.js_show());
+                    ui.returnAddInner(new Button()).addInner("X").size(Size.sm).color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
         }

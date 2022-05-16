@@ -31,11 +31,11 @@ import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.FW;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.bootstrap.classes.Font;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.Overflow;
 import org.nova.html.bootstrap.classes.Position;
 import org.nova.html.bootstrap.classes.Rounded;
+import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
@@ -166,6 +166,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("form-control");
     }
+    public default ELEMENT form_control(Size size)
+    {
+        return addClass("form-control",size.toString());
+    }
     public default ELEMENT form_control(BreakPoint breakPoint)
     {
         return addClass("form-control",breakPoint);
@@ -202,10 +206,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("text",value);
     }
-    public default ELEMENT font(Font value)
-    {
-        return addClass("font",value);
-    }
+//    public default ELEMENT font(Font value)
+//    {
+//        return addClass("fw",value);
+//    }
     public default ELEMENT lead()
     {
         return addClass("lead");
@@ -267,7 +271,6 @@ public interface Styling<ELEMENT>
     }
     public default ELEMENT border(StyleColor color)
     {
-        addClass("border");
         return addClass("border",color);
     }
     public default ELEMENT clearfix()

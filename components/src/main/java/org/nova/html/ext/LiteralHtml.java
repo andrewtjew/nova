@@ -25,39 +25,34 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
-public class Text extends Element
+public class LiteralHtml extends Element
 {
-    final private String text;
-    public Text(String text)
+    final private String html;
+    public LiteralHtml(String html)
     {
         super();
-        this.text=text;
+        this.html=html;
     }
-    public Text(Object object)
+    public LiteralHtml(Object object)
     {
         super();
         if (object!=null)
         {
-            this.text=object.toString();
+            this.html=object.toString();
         }
         else
         {
-            text=null;
+            html=null;
         }
     }
 
-    @Override
-    public String toString()
-    {
-        return this.text;
-    }
     
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        if (this.text!=null)
+        if (this.html!=null)
         {
-            composer.getStringBuilder().append(StringEscapeUtils.escapeHtml4(this.text));
+            composer.getStringBuilder().append(this.html);
         }
     }
 }
