@@ -12,7 +12,7 @@ import org.nova.utils.FileUtils;
 import com.nixxcode.jvmbrotli.enc.BrotliOutputStream;
 import com.nixxcode.jvmbrotli.enc.Encoder;
 
-class FileCache extends ContentCache<String,byte[]>
+public class FileCache extends ContentCache<String,byte[]>
 {
     public FileCache(long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
     {

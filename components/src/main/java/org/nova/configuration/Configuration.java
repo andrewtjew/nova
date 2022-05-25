@@ -279,228 +279,423 @@ public class Configuration
     
 	public long getLongValue(String name) throws Exception
 	{
-		String value=getValue(name);
-		return parseLong(value);
+		try
+		{
+			String value=getValue(name);
+			return parseLong(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}
 	}
 
 	
 	public long getLongValue(String name,long defaultValue) throws Exception
 	{
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-		return parseLong(value);
+		try
+		{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+			return parseLong(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
 	}
     public Long getNullableLongValue(String name) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return null;
-        }
-        return parseLong(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        return parseLong(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 
     public Long getNullableLongValue(String name,Long defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return parseLong(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return parseLong(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 	
     public int getIntegerValue(String name) throws Exception
     {
-        String value=getValue(name);
-        return parseInt(value);
+    	try
+    	{
+    		String value=getValue(name);
+    		return parseInt(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 
     public int getIntegerValue(String name,int defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return parseInt(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return parseInt(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
     public Integer getNullableIntegerValue(String name) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return null;
-        }
-        return parseInt(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        return parseInt(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 
     public Integer getNullableIntegerValue(String name,Integer defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return parseInt(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return parseInt(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
     
 	public short getShortValue(String name) throws Exception
 	{
-		String value=getValue(name);
-		return Short.parseShort(value);
+		try
+		{
+			String value=getValue(name);
+			return Short.parseShort(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
 	}
 
 	public short getShortValue(String name,short defaultValue) throws Exception
 	{
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-		return Short.parseShort(value);
+		try
+		{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+			return Short.parseShort(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
 	}
     public Short getNullableShortValue(String name) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return null;
-        }
-        return Short.parseShort(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        return Short.parseShort(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
 
     public Short getNullableShortValue(String name,Short defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return Short.parseShort(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return Short.parseShort(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
 	
     public byte getByteValue(String name) throws Exception
     {
-        String value=getValue(name);
-        return Byte.parseByte(value);
+    	try
+    	{
+    		String value=getValue(name);
+    		return Byte.parseByte(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 
     public byte getByteValue(String name,byte defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return Byte.parseByte(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return Byte.parseByte(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
     public Byte getNullableByteValue(String name) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return null;
-        }
-        return Byte.parseByte(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        return Byte.parseByte(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
 
     public Byte getNullableByteValue(String name,Byte defaultValue) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return Byte.parseByte(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return Byte.parseByte(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
     
 	public boolean getBooleanValue(String name) throws Exception
 	{
-		String value=getValue(name);
-		return Boolean.parseBoolean(value);
+		try
+		{
+			String value=getValue(name);
+			return Boolean.parseBoolean(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
 	}
 
 	public boolean getBooleanValue(String name,boolean defaultValue) throws Exception
 	{
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-		return Boolean.parseBoolean(value);
+		try
+		{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+			return Boolean.parseBoolean(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
 	}
     public Boolean getNullableBooleanValue(String name) throws Exception
     {
-        String value=getValue(name);
-        if (value==null)
-        {
-            return null;
-        }
-        return Boolean.parseBoolean(value);
+    	try
+    	{
+	        String value=getValue(name);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        return Boolean.parseBoolean(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+
     }
 
     public Boolean getNullableBooleanValue(String name,Boolean defaultValue) throws Exception
     {
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return defaultValue;
-        }
-        return Boolean.parseBoolean(value);
+    	try
+    	{
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return defaultValue;
+	        }
+	        return Boolean.parseBoolean(value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
     }
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <ENUM> ENUM getEnumValue(String name,Class<ENUM> type) throws Exception
 	{
-	    String value=getValue(name);
-	    if (TypeUtils.isNullOrEmpty(value))
-	    {
-	        return null;
-	    }
-		return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		try
+		{
+		    String value=getValue(name);
+		    if (TypeUtils.isNullOrEmpty(value))
+		    {
+		        return null;
+		    }
+			return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue,Class<ENUM> type) throws Exception
 	{
-	    String value=getValue(name,defaultValue);
-	    if (value==null)
-	    {
-	        return null;
-	    }
-	    if ("null".equals(value))
-	    {
-	        return null;
-	    }
-        if (TypeUtils.isNullOrEmpty(value))
-        {
-            return null;
-        }
-		return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		try
+		{
+		    String value=getValue(name,defaultValue);
+		    if (value==null)
+		    {
+		        return null;
+		    }
+		    if ("null".equals(value))
+		    {
+		        return null;
+		    }
+	        if (TypeUtils.isNullOrEmpty(value))
+	        {
+	            return null;
+	        }
+			return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
     public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue) throws Exception
     {
-	    Class<ENUM> type=(Class<ENUM>)defaultValue.getClass();
-        String value=getValue(name,defaultValue);
-        if (value==null)
-        {
-            return null;
-        }
-        if ("null".equals(value))
-        {
-            return null;
-        }
-        if (TypeUtils.isNullOrEmpty(value))
-        {
-            return null;
-        }
-        return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		try
+		{
+		    Class<ENUM> type=(Class<ENUM>)defaultValue.getClass();
+	        String value=getValue(name,defaultValue);
+	        if (value==null)
+	        {
+	            return null;
+	        }
+	        if ("null".equals(value))
+	        {
+	            return null;
+	        }
+	        if (TypeUtils.isNullOrEmpty(value))
+	        {
+	            return null;
+	        }
+	        return (ENUM) Enum.valueOf((Class<Enum>)type, value);
+		}
+		catch (Throwable t)
+		{
+			ConfigurationItem item=getConfigurationItem(name);
+			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
+		}			
+		
     }
 	
 	public <OBJECT> OBJECT getJSONObject(String name,Class<OBJECT> type) throws Throwable

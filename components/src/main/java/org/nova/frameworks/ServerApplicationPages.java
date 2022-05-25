@@ -3808,7 +3808,12 @@ public class ServerApplicationPages
                     }
                     else
                     {
-                        row.add(escapeHtml(fieldType.getName()));
+                        String fieldName=fieldType.getName();
+                        if (fieldName.startsWith("java.lang."))
+                        {
+                            fieldName=fieldName.substring("java.lang.".length());
+                        }
+                        row.add(escapeHtml(fieldName));
                     }
                     description = field.getAnnotation(Description.class);
                     if (description != null)

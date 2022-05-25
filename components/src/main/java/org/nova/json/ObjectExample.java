@@ -63,10 +63,15 @@ public class ObjectExample
 		{
 			sb.append(integerValue+++"."+fractionValue++);
 		}
-		else if (type==String.class)
-		{
-			sb.append("\""+integerValue+++" bottles\"");
-		}
+        else if (type==String.class)
+        {
+            sb.append("\""+integerValue+++" bottles\"");
+        }
+        else if (type.isEnum())
+        {
+            Object[] enums=type.getEnumConstants();
+            sb.append("\""+enums[(integerValue++)%enums.length]+"\"");
+        }
 		else if (type.isArray())
 		{
             if (this.shownClasses.contains(type.getComponentType().getName())==false)

@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.utils;
 
+import java.util.List;
+
 public class MathUtils
 {
     public static int mod(int value,int mod)
@@ -33,6 +35,51 @@ public class MathUtils
         long result=value%mod;
         return result<0?result+mod:result;
     }
+    
+    
+    
+    public static double average(double[] values)
+    {
+        double total=0;
+        for (double value:values)
+        {
+            total+=value;
+        }
+        return total/values.length;
+    }
+    public static double sumDeviationSquared(double[] values,double average)
+    {
+        double sumDeviationSquared=0;
+        for (double value:values)
+        {
+            double diff=value-average;
+            sumDeviationSquared+=diff*diff;
+        }
+        return sumDeviationSquared;
+    }
+    public static double sampleStandardDeviation(double[] values,double average)
+    {
+        double sumDeviationSquared=sumDeviationSquared(values,average);
+        return Math.sqrt(sumDeviationSquared/(values.length-1));
+    }
+    public static double sampleStandardDeviation(double[] values)
+    {
+        double average=average(values);
+        double sumDeviationSquared=sumDeviationSquared(values,average);
+        return Math.sqrt(sumDeviationSquared/(values.length-1));
+    }
+    public static double populationStandardDeviation(double[] values,double average)
+    {
+        double sumDeviationSquared=sumDeviationSquared(values,average);
+        return Math.sqrt(sumDeviationSquared/(values.length));
+    }
+    public static double populationStandardDeviation(double[] values)
+    {
+        double average=average(values);
+        double sumDeviationSquared=sumDeviationSquared(values,average);
+        return Math.sqrt(sumDeviationSquared/(values.length));
+    }
+    
 }
 
 
