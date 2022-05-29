@@ -100,12 +100,12 @@ namespace nova.remote
     }
 
 
-    export function post(formID:string,action:string,text:string,async:boolean,trace:boolean)
+    export function post(formID:string,action:string,text:string,trace:boolean)
     {
         var data=toData(formID,text,trace);
-        call("POST",action,data,async);
+        call("POST",action,data);
     }
-    export function get(formID:string,action:string,text:string,async:boolean,trace:boolean)
+    export function get(formID:string,action:string,text:string,trace:boolean)
     {
         var parent=formID==null?document:document.getElementById(formID)
         var inputs=JSON.parse(text) as Input[];
@@ -162,15 +162,15 @@ namespace nova.remote
             }
             seperator="&";
         }
-        call("GET",action,null,async);
+        call("GET",action,null);
     }
 
-    export function call(type:string,pathAndQuery:string,data:object,async:boolean)
+    export function call(type:string,pathAndQuery:string,data:object)
     {
         $.ajax(
             {url:pathAndQuery,
             type:type,
-            async:async,
+            async:true,
             dataType:"json",
             cache: false,
             data:data,
@@ -184,7 +184,8 @@ namespace nova.remote
             }
         }); 
     }
-    export function postJSON(type:string,pathAndQuery:string,data:object,async:boolean)
+    
+    export function postStatic(pathAndQuery:string,data:object)
     {
         fetch(pathAndQuery,
             {
@@ -204,28 +205,49 @@ namespace nova.remote
                 run(instructions);
             });
 
-        
+    }
 
-        // $.ajax(
-        //     {url:pathAndQuery,
-        //     type:type,
-        //     headers: 
-        //     {
-        //         "Content-Type": 'application/json'
-        //     },
-        //     async:async,
-        //     dataType:"json",
-        //     cache: false,
-        //     data:data!=null?JSON.stringify(data):null,
-        //     success:function(instructions:Instruction[],status,xhr)
-        //     {
-        //         run(instructions);
-        //     },
-        //     error:function(xhr)
-        //     {
-        //         alert("Error: "+xhr.status+" "+xhr.statusText);
-        //     }
-        // }); 
+    export function getStatic(pathAndQuery:string)
+    {
+        fetch(pathAndQuery,
+            {
+                method:"GET",
+                headers: {'Content-Type': 'application/json'},
+            }).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+                alert(response);
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+
+    }
+
+    export function postJSONString(pathAndQuery:string,data:string)
+    {
+        fetch(pathAndQuery,
+            {
+                method:"POST",
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            }).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+                alert(response);
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+
     }
 
     function run(instructions:Instruction[])

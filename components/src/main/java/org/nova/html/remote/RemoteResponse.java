@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.HtmlUtils;
@@ -81,7 +82,7 @@ public class RemoteResponse
     }
     public RemoteResponse innerText(String id,String text)
     {
-        this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
+        this.instructions.add(new Instruction(this.trace,Command.innerText,id,StringEscapeUtils.escapeHtml4(text)));
         return this;
     }
     public RemoteResponse script(String script)

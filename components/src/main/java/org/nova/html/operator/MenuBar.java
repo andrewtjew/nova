@@ -26,6 +26,7 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Head;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.ul;
 import org.nova.html.tags.a;
 import org.nova.html.tags.hr;
@@ -213,7 +214,7 @@ public class MenuBar extends Element
                     }
                     if ((subItems!=null)&&(level>0))
                     {
-                        a.addInner(new span().addClass("menu-expand").addInner("&#x27a4;"));
+                        a.addInner(new span().addClass("menu-expand").addInner(new LiteralHtml("&#x27a4;")));
                         a.addInner(item.name);
                     //    a.addInner(new span().class_("menu-expand").addInner("&#9658;"));
                         ;            

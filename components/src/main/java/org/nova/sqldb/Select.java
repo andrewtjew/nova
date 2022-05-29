@@ -104,6 +104,7 @@ public class Select
         {
             sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
         }
+        System.out.println(sql);
         return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
     }
 

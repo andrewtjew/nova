@@ -23,11 +23,12 @@ package org.nova.html.operator;
 
 import org.nova.html.deprecated.LinkButton;
 import org.nova.html.ext.Head;
+import org.nova.html.ext.LiteralHtml;
 
 public class MoreButton extends LinkButton
 {
     public MoreButton(Head head,String href)
     {
-        super(head,href,"&#8230;","More...");
+        super(head,href,new LiteralHtml("&#8230;"),"More...");
     }
 }
