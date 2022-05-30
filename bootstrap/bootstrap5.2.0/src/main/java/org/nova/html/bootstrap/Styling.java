@@ -239,40 +239,37 @@ public interface Styling<ELEMENT>
     {
         return addClass("rounded");
     }
-//    public default ELEMENT rounded(int value)
-//    {
-//        return addClass("rounded",value);
-//    }
-    public default ELEMENT rounded(Rounded value)
+    public default ELEMENT rounded(int value)
     {
         return addClass("rounded",value);
     }
-    public default ELEMENT rounded(Rounded value,boolean subtract)
+    public default ELEMENT rounded(Rounded rounded,int value)
     {
-        return addClass("rounded",value,0);
+        return addClass("rounded",rounded,value);
     }
     public default ELEMENT border()
     {
         return addClass("border");
     }
-    public default ELEMENT border(Edge value)
+    public default ELEMENT border(Edge edge)
     {
-        return addClass("border",value);
+        return addClass("border",edge);
     }
-    public default ELEMENT border(Edge value,boolean substract)
+    public default ELEMENT border(Edge edge,boolean subtract)
     {
-        if (substract)
+        if (subtract)
         {
-            return addClass("border",value,0);
+            return addClass("border",edge,0);
         }
-        else
-        {
-            return addClass("border",value);
-        }
+        return addClass("border",edge);
     }
-    public default ELEMENT border(int size)
+    public default ELEMENT border(boolean subtract)
     {
-        return addClass("border",size);
+        if (subtract)
+        {
+            return addClass("border",0);
+        }
+        return addClass("border");
     }
     public default ELEMENT border(StyleColor color)
     {

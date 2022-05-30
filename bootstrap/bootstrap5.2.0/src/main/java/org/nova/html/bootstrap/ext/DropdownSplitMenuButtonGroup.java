@@ -8,20 +8,30 @@ import org.nova.html.bootstrap.DropdownTogglerButton;
 import org.nova.html.bootstrap.classes.Drop;
 import org.nova.html.bootstrap.classes.StyleColor;
 
-public class DropdownSplitButtonMenuGroup extends ButtonGroup
+public class DropdownSplitMenuButtonGroup extends ButtonGroup
 {
     final private Button button;
     final private DropdownTogglerButton toggler;
     final private DropdownMenu menu;
     
-    public DropdownSplitButtonMenuGroup(String buttonLabel)
+    public DropdownSplitMenuButtonGroup(boolean dropstart)
     {
-        this.button=returnAddInner(new Button(buttonLabel));
-        this.toggler=returnAddInner(new DropdownTogglerButton());
-        this.menu=returnAddInner(new DropdownMenu(this.toggler(),true));
+        if (dropstart)
+        {
+            this.toggler=returnAddInner(new DropdownTogglerButton());
+            this.menu=returnAddInner(new DropdownMenu(this.toggler(),true));
+            this.button=returnAddInner(new Button());
+            dropstart();
+        }
+        else
+        {
+            this.button=returnAddInner(new Button());
+            this.toggler=returnAddInner(new DropdownTogglerButton());
+            this.menu=returnAddInner(new DropdownMenu(this.toggler(),true));
+        }
     }
     
-    public DropdownSplitButtonMenuGroup buttonToggles()
+    public DropdownSplitMenuButtonGroup buttonToggles()
     {
         this.button().onclick(this.menu.js_dropdown_toggle());
         button.attr("data-toggle","dropdown");
@@ -44,7 +54,7 @@ public class DropdownSplitButtonMenuGroup extends ButtonGroup
         return menu;
     }
     
-    public DropdownSplitButtonMenuGroup static_()
+    public DropdownSplitMenuButtonGroup static_()
     {
         this.toggler.attr("data-bs-display","static");
         this.menu.attr("data-bs-display","static");
@@ -55,7 +65,7 @@ public class DropdownSplitButtonMenuGroup extends ButtonGroup
 //        addClass("btn-group-vertical");
 //        return this;
 //    }
-    public DropdownSplitButtonMenuGroup drop(Drop drop)
+    public DropdownSplitMenuButtonGroup drop(Drop drop)
     {
         addClass(drop);
         return this;

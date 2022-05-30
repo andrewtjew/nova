@@ -38,6 +38,10 @@ public class DropdownMenuItem extends StyleComponent<DropdownMenuItem>
         }
         returnAddInner(this.dropdownItem);
     }
+    public DropdownMenuItem(String label)
+    {
+        this(label,null);
+    }
     public DropdownMenuItem()
     {
         this(null,null);

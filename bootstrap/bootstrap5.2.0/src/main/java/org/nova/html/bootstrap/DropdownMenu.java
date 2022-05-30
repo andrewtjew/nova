@@ -22,6 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.BreakPoint;
+import org.nova.html.bootstrap.classes.ThemeColor;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalTagElement;
@@ -138,7 +139,11 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
         this.toggler.attr("data-boundary","#"+element.id());
         return this;
     }
- 
+    public DropdownMenu color(ThemeColor value)
+    {
+        addClass("dropdown-menu",value.toString());
+        return this;
+    } 
     public DropdownMenu reference(StyleComponent<?> button,GlobalTagElement<?> element)
     {
         this.toggler.attr("data-reference","#"+element.id());
