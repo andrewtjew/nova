@@ -31,6 +31,7 @@ public class Select
     final private String source; //Table with optional JOINs
     private String categoryOverride;
     private int numberOfColumns;
+    private String orderBy;
     
     public static Select source(String source)
     {
@@ -69,9 +70,19 @@ public class Select
         return this;
     }
     
+    public Select orderBy(String orderBy)
+    {
+        this.orderBy=orderBy;
+        return this;
+    }
+    
     public RowSet execute(Trace parent,Accessor accessor,Integer max,String where,Object...parameters) throws Throwable
     {
         String sql=null;
+        if (this.columns.length()==0)
+        {
+            this.columns.append("*");
+        }
         if (max!=null)
         {
             Connector connector=accessor.getConnector();
@@ -104,6 +115,11 @@ public class Select
         {
             sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
         }
+        if (this.orderBy!=null)
+        {
+            sql=sql+" ORDER BY "+this.orderBy;
+        }
+   
         System.out.println(sql);
         return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
     }
