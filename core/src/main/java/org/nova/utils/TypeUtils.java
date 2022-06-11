@@ -325,6 +325,14 @@ public class TypeUtils
         }
         return value;
     }
+    static public boolean isFalse(Boolean value)
+    {
+        if (value==null)
+        {
+            return true;
+        }
+        return !value;
+    }
     static public boolean isNullOrSpace(String text)
     {
         if (text==null)
