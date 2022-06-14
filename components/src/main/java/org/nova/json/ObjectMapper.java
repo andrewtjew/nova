@@ -777,7 +777,7 @@ public class ObjectMapper
                 if (c=='"')
                 {
                     int end=this.position-1;
-                    c=next();
+                    c=nextNonWhiteSpaceCharacter();
                     if (c==':')
                     {
                         return this.text.substring(start, end);

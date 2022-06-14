@@ -325,11 +325,11 @@ public class TypeUtils
         }
         return value;
     }
-    static public boolean isFalse(Boolean value)
+    static public boolean isNullOrFalse(Boolean value)
     {
         if (value==null)
         {
-            return true;
+            return false;
         }
         return !value;
     }
@@ -549,6 +549,30 @@ public class TypeUtils
         return string.trim();
     }
     static public boolean equals(Integer a,Integer b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Double a,Double b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
+    static public boolean equals(Float a,Float b)
     {
         if ((a==null)&&(b==null))
         {
