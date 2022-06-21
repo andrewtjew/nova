@@ -185,13 +185,13 @@ namespace nova.remote
         }); 
     }
     
-    export function postStatic(pathAndQuery:string,data:object)
+    export function postStatic(pathAndQuery:string,data:string)
     {
         fetch(pathAndQuery,
             {
                 method:"POST",
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
+                body: data
             }).then(response=>
             {
                 if (response.ok)

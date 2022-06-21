@@ -25,6 +25,8 @@ public enum Overflow
 {
     hidden("hidden"), 
     auto("auto"),
+    visible("visible"),
+    scroll("scroll"),
     ;
     
     private String value;

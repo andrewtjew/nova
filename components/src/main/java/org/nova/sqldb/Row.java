@@ -209,7 +209,21 @@ public class Row
 	}
     public Double getNullableFLOAT(int columnIndex)
     {
-        return (Double)this.data[columnIndex];
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Double)
+        {
+            return (Double)object;
+        }
+        else if (object instanceof Float)
+        {
+            Float value=(Float)object;
+            return value.doubleValue();
+        }
+        throw new RuntimeException();
     }
     public Double getNullableFLOAT(String columnName)
     {
