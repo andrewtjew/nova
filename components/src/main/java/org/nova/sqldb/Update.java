@@ -44,7 +44,7 @@ public class Update
         this.table=table;
     }
     
-    public Update value(String columnName,Object value)
+    public Update set(String columnName,Object value)
     {
         if (this.parameters.size()>0)
         {

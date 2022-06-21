@@ -110,9 +110,10 @@ public class Inputs
         return;
     }
     
-    public void trace()
+    public Inputs trace()
     {
         this.trace=true;
+        return this;
     }
     
     public String getContent() throws Throwable

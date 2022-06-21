@@ -169,7 +169,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
                 Class<?> type=value.getClass();
                 if (type==String.class)
                 {
-                    composerStringBuilder.append("=").append(mark).append(value).append(mark);
+                    composerStringBuilder.append("=").append(mark).append(HtmlUtils.escapeAttributeString(value.toString())).append(mark);
                 }
                 else if ((type.isPrimitive())
                         ||(type.isEnum())
@@ -188,9 +188,8 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
                 }
                 else
                 {
-                    String text=ObjectMapper.writeObjectToString(value).replace("\"", "&#34;");
-//                    composerStringBuilder.append("=").append(mark).append(text).append(mark);
-                    composerStringBuilder.append("=").append(mark).append(text).append(mark);
+                    String text=ObjectMapper.writeObjectToString(value);//.replace("\"", "&#34;");
+                    composerStringBuilder.append("=").append(mark).append(HtmlUtils.escapeAttributeString(text)).append(mark);
                 }
             }
             

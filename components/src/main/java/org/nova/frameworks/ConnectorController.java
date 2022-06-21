@@ -38,6 +38,7 @@ import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
+import org.nova.html.ext.Text;
 import org.nova.html.operator.Panel;
 import org.nova.html.operator.Panel1;
 import org.nova.html.operator.Panel2;
@@ -296,7 +297,7 @@ public class ConnectorController
                 }
                 else
                 {
-                    row.add(new a().addInner(parkRollbacks).href(new PathAndQuery("/operator/connector/parkRolledbacks").addQuery("name", entry.getKey()).toString()));
+                    row.add(new a().addInner(new Text(parkRollbacks)).href(new PathAndQuery("/operator/connector/parkRolledbacks").addQuery("name", entry.getKey()).toString()));
                 }
 
                 int retires=connector.getSnapshotOfRetiredConnectors().length;
@@ -306,7 +307,7 @@ public class ConnectorController
                 }
                 else
                 {
-                    row.add(new a().addInner(retires).href(new PathAndQuery("/operator/connector/retiredConnectors").addQuery("name", entry.getKey()).toString()));
+                    row.add(new a().addInner(new Text(retires)).href(new PathAndQuery("/operator/connector/retiredConnectors").addQuery("name", entry.getKey()).toString()));
                 }
                 table.addRow(row);
             }

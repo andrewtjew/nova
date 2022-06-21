@@ -174,9 +174,9 @@ public interface Styling<ELEMENT>
     {
         return addClass("display",size);
     }
-    public default ELEMENT rounded()
+    public default ELEMENT rounded(int size)
     {
-        return addClass("rounded");
+        return addClass("rounded",size);
     }
 //    public default ELEMENT rounded(int value)
 //    {

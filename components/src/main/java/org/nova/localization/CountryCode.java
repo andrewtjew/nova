@@ -1,10 +1,12 @@
 package org.nova.localization;
 
+import java.util.HashMap;
+
 import org.nova.html.ext.Language_ISO_639_1;
 
 public enum CountryCode
 {
-    Afghanistan(new Country_ISO_3166_1("Afghanistan Afghanistan","AF","AFG","004","🇦🇫")),
+    Afghanistan(new Country_ISO_3166_1("Afghanistan","AF","AFG","004","🇦🇫")),
     Åland_Islands(new Country_ISO_3166_1("Åland Islands","AX","ALA","248",null)),
     Albania(new Country_ISO_3166_1("Albania","AL","ALB","008","🇦🇱")),
     Algeria(new Country_ISO_3166_1("Algeria","DZ","DZA","012","🇩🇿")),
@@ -238,8 +240,8 @@ public enum CountryCode
     Uganda(new Country_ISO_3166_1("Uganda","UG","UGA","800")),
     Ukraine(new Country_ISO_3166_1("Ukraine","UA","UKR","804")),
     USA(new Country_ISO_3166_1("United Arab Emirates","AE","ARE","784")),
-    UK(new Country_ISO_3166_1("United Kingdom of Great Britain and Northern Ireland","GB","GBR","826")),
-    United_States_of_America(new Country_ISO_3166_1("United States of America","US","USA","840")),
+    UK(new Country_ISO_3166_1("United Kingdom of Great Britain and Northern Ireland","GB","GBR","826",null,"UK")),
+    United_States_of_America(new Country_ISO_3166_1("United States of America","US","USA","840","USA")),
     United_States_Minor_Outlying_Islands(new Country_ISO_3166_1("United States Minor Outlying Islands[f]","UM","UMI","581")),
     Uruguay(new Country_ISO_3166_1("Uruguay","UY","URY","858")),
     Uzbekistan(new Country_ISO_3166_1("Uzbekistan","UZ","UZB","860")),
@@ -256,6 +258,24 @@ public enum CountryCode
     ;
     
     private Country_ISO_3166_1 value;
+    
+    static private HashMap<String,CountryCode> NAME_MAP=constructNameMap();
+    
+    static private HashMap<String,CountryCode> constructNameMap()
+    {
+    	HashMap<String,CountryCode> map=new HashMap<String, CountryCode>();
+    	for (CountryCode value:CountryCode.values())
+    	{
+    		map.put(value.name(), value);
+    	}
+    	return map;
+    }
+    
+    static public CountryCode from(String name)
+    {
+    	return NAME_MAP.get(name);
+    }
+    
     
     private CountryCode(Country_ISO_3166_1 value)
     {

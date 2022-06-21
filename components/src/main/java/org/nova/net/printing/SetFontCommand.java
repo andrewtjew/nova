@@ -23,11 +23,11 @@ package org.nova.net.printing;
 
 public class SetFontCommand extends Command
 { 
-    private final String name; 
-    private final float size; 
-    private final boolean bold;
-    private final boolean italic;
-    private final boolean underline;
+    public final String name; 
+    public final float size; 
+    public final boolean bold;
+    public final boolean italic;
+    public final boolean underline;
     
     public SetFontCommand(String name,float size,boolean bold, boolean italic, boolean underline)
     {

@@ -23,10 +23,10 @@ package org.nova.net.printing;
 
 public class Margin
 {
-    final private Size top;
-    final private Size right;
-    final private Size bottom;
-    final private Size left;
+    final public Size top;
+    final public Size right;
+    final public Size bottom;
+    final public Size left;
     
     public Margin(Size top,Size right,Size bottom,Size left)
     {

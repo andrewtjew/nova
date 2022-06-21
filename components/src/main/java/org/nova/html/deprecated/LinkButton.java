@@ -26,13 +26,14 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Head;
+import org.nova.html.ext.Text;
 import org.nova.html.tags.a;
 import org.nova.html.tags.link;
 
 public class LinkButton extends Element
 {
     final private a a;
-    public LinkButton(Head head,String href,String label,String title,String cssPath)
+    public LinkButton(Head head,String href,Element label,String title,String cssPath)
     {
         this.a=new a().href(href);
         String class_="MoreLink";
@@ -42,13 +43,17 @@ public class LinkButton extends Element
         this.a.addInner(label);
         this.a.title(title);
     }
-    public LinkButton(Head head,String href,String label,String title)
+    public LinkButton(Head head,String href,Element label,String title)
     {
         this(head,href,label,title,"/resources/html/widgets/LinkButton/style.css");
     }
-    public LinkButton(Head head,String href,String label)
+    public LinkButton(Head head,String href,Element label)
     {
         this(head,href,label,null);
+    }
+    public LinkButton(Head head,String href,String label)
+    {
+        this(head,href,new Text(label),null);
     }
     
     public LinkButton style(String style)

@@ -23,7 +23,7 @@ package org.nova.net.printing;
 
 public class SetMarginCommand extends Command
 { 
-    private final Margin margin;
+    public final Margin margin;
     
     public SetMarginCommand(Margin margin)
     {

@@ -23,9 +23,9 @@ package org.nova.net.printing;
 
 public class PrintCommand extends Command
 {
-    private final String text;
-    private final Align align;
-    private final Margin margin;
+    public final String text;
+    public final Align align;
+    public final Margin margin;
     
     public PrintCommand(Object text,Align align,Margin margin)
     {

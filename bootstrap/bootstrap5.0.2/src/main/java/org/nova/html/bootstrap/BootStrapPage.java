@@ -36,6 +36,7 @@ import org.nova.html.tags.html;
 import org.nova.html.tags.link;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.script;
+import org.nova.html.tags.title;
 
 public class BootStrapPage extends Element
 {
@@ -52,6 +53,7 @@ public class BootStrapPage extends Element
     	if (title!=null)
     	{
     	    this.head.title(title);
+    	    this.head.returnAddInner(new title()).addInner(title);
     	}
     	if (compatible!=null)
     	{

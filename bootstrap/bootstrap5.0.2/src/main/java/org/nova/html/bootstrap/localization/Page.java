@@ -17,7 +17,9 @@ import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.FW;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.StyleColor;
+import org.nova.html.bootstrap.classes.ThemeColor;
 import org.nova.html.bootstrap.ext.Icon;
+import org.nova.html.bootstrap.ext.DataTables.DataTable;
 import org.nova.html.enums.link_rel;
 import org.nova.html.enums.target;
 import org.nova.html.ext.HtmlUtils;
@@ -40,9 +42,11 @@ public class Page extends BootStrapPage
         head().addInner(new script().src("/resources/html/js/nova/remote.js"));
         head().addInner(new script().src("/resources/html/js/nova/nova-handle.js"));
         head().addInner(new script().src("https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"));
+        head().addInner(DataTable.SCRIPT);
+        head().addInner(DataTable.CSS);
 
         this.navbar=body().returnAddInner(new Navbar()).expand(BreakPoint.sm);       
-        this.navbar.color(StyleColor.dark).bg(StyleColor.dark).px(2).py(0);
+        this.navbar.color(ThemeColor.dark).bg(StyleColor.dark).px(2).py(0);
         
         NavbarBrand brand=navbar.returnAddInner(new NavbarBrand(title));
         brand.onclick(HtmlUtils.js_location(""));

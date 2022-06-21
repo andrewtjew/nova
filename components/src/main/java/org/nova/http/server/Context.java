@@ -192,7 +192,7 @@ public class Context
         this.filterChain.setContentParameter(content);
     }
     
-    public Object getStateParameter()
+    public ObjectBox getStateParameter()
     {
         return this.filterChain.getStateParameter();
     }

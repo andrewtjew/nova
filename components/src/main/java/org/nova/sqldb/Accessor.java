@@ -435,7 +435,7 @@ public class Accessor extends Resource
 		String[] columnNames = new String[columns];
 		for (int columnIndex = 0; columnIndex < columns; columnIndex++)
 		{
-			columnNames[columnIndex] = metaData.getColumnName(columnIndex + 1);
+			columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
 		}
 		ArrayList<Object[]> list = new ArrayList<>();
 		while (resultSet.next())

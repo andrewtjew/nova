@@ -397,13 +397,18 @@ public class HtmlUtils
                 switch (c)
                 {
                     case '"':
-                        sb.append("&quot;");
+//                        sb.append("&quot;");
+                        sb.append("\\\"");
                         break;
                         
                     case '\'':
                         sb.append("\\'");
                         break;
                         
+                    case '/':
+                        sb.append("\\/");
+                        break;
+
                     case '\\':
                         sb.append("\\\\");
                         break;
@@ -426,9 +431,14 @@ public class HtmlUtils
                         break;
                         
                     case '\'':
-                        sb.append("&apos;");
+//                        sb.append("&apos;");
+                        sb.append("'");
                         break;
                         
+                    case '/':
+                        sb.append("\\/");
+                        break;
+
                     case '\\':
                         sb.append("\\\\");
                         break;
@@ -439,6 +449,38 @@ public class HtmlUtils
                 }
             }
             break;
+        }
+        
+        return sb.toString();
+    }
+
+    public static String escapeAttributeString(String string)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (int i=0;i<string.length();i++)
+        {
+            char c=string.charAt(i);
+            switch (c)
+            {
+	            case '"':
+	                sb.append("&#34;");
+	                break;
+                
+	            case '\'':
+	                sb.append("&#39;");
+	                break;
+                
+//                case '\\':
+//                    sb.append("\\\\");
+//                    break;
+//                    
+//                case '/':
+//                    sb.append("\\/");
+//                    break;
+                    
+                default:
+                    sb.append(c);
+            }
         }
         
         return sb.toString();

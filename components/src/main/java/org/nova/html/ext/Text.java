@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
@@ -51,12 +52,21 @@ public class Text extends Element
         return this.text;
     }
     
+    public static boolean SAFE_ESCAPE=false;
+    
     @Override
     public void compose(Composer composer) throws Throwable
     {
         if (this.text!=null)
         {
-            composer.getStringBuilder().append(this.text);
+        	if (SAFE_ESCAPE)
+        	{
+        		composer.getStringBuilder().append(StringEscapeUtils.escapeHtml4(this.text));
+        	}
+        	else
+        	{
+        		composer.getStringBuilder().append(this.text);
+        	}
         }
     }
 }

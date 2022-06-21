@@ -137,6 +137,7 @@ import org.nova.html.ext.Content;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.Refresher;
 import org.nova.html.ext.SelectEnums;
@@ -248,7 +249,7 @@ public class ServerApplicationPages
             table().style("width:100%;");
         }
     }
-    final static String WARNING="&#9888;";
+    final static LiteralHtml WARNING=new LiteralHtml("&#9888;");
     
     public final ServerApplication serverApplication;
 
@@ -375,14 +376,16 @@ public class ServerApplicationPages
         for (ConfigurationItem item : this.serverApplication.getConfiguration().getConfigurationItemSnapshot())
         {
             TableRow row=new TableRow();
-            if (item.getName().startsWith("$"))
-            {
-            	continue;
-            }
             		
             row.add(new td().addInner(item.getName()).title(item.getDescription()));
-//            row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;"));
-            row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;word-break:break-all;"));
+            if (item.getName().startsWith("$"))
+            {
+            	row.add(new td().addInner("Hidden").style("color:gray;"));
+            }
+            else
+            {
+            	row.add(new td().addInner(item.getValue()).style("word-wrap:break-word;word-break:break-all;"));
+            }
             row.add(new td().addInner(item.getSource()).title(item.getSourceContext()));
             table.addRow(row);
         }
@@ -1274,11 +1277,11 @@ public class ServerApplicationPages
             {
                 if (nodeActiveNs==hotActiveNs)
                 {                
-                    content.addInner(new span().addInner("&#128293; "));
+                    content.addInner(new span().addInner(new LiteralHtml("&#128293; ")));
                 }
                 if (nodeWaitNs==hotWaitNs)
                 {
-                    content.addInner(new span().addInner("&#x1F4A4; "));
+                    content.addInner(new span().addInner(new LiteralHtml("&#x1F4A4; ")));
                 }
             }
         }
@@ -1939,19 +1942,19 @@ public class ServerApplicationPages
         header.add(new th_title("Rate","Trace rate (per second)"));
         header.add(new th_title("Ct","Sample count"));
 
-        header.add(new th_title("Tot&#x23F1;","Total trace duration in category in milliseconds"));
-        header.add(new th_title("Ave&#x23F1;","Average trace duration in milliseconds"));
-        header.add(new th_title("Std &#x23F1;","Standard deviation of trace duration in milliseconds"));
-        header.add(new th_title("min&#x23F1;","Minimum trace duration in milliseconds"));
-        header.add(new th_title("max&#x23F1;","Maximum trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Ave0rage trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
 
-        header.add(new th_title("Tot&#8987;","Total trace wait in category in milliseconds"));
-        header.add(new th_title("Ave&#8987;","Average trace wait in milliseconds"));
-        header.add(new th_title("Std&#8987;","Standard deviation of trace wait in milliseconds"));
-        header.add(new th_title("min&#8987;","Minimum trace wait in milliseconds"));
-        header.add(new th_title("max&#8987;","Maximum trace wait in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Tot&#8987;"),"Total trace wait in category in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Ave&#8987;"),"Average trace wait in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Std&#8987;"),"Standard deviation of trace wait in milliseconds"));
+        header.add(new th_title(new LiteralHtml("min&#8987;"),"Minimum trace wait in milliseconds"));
+        header.add(new th_title(new LiteralHtml("max&#8987;"),"Maximum trace wait in milliseconds"));
 
-        header.add(new th_title("&#9888;","Exception count and rate (in popup)"));
+        header.add(new th_title(new LiteralHtml("&#9888;"),"Exception count and rate (in popup)"));
     }
     
     static final Style ATTENTION_STYLE=new Style().background_color(Color.rgb(255, 255, 192));
@@ -4165,7 +4168,7 @@ public class ServerApplicationPages
         textarea.id();
         String id=textarea.id();
         
-        button_button button=new button_button().addInner("&#128203;").title("Copy to clipboard");
+        button_button button=new button_button().addInner(new LiteralHtml("&#128203;")).title("Copy to clipboard");
         button.onclick("var copyText=document.getElementById('"+id+"');copyText.select();document.execCommand('Copy');");
         
         

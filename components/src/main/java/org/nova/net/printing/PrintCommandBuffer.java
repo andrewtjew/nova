@@ -22,6 +22,7 @@
 package org.nova.net.printing;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.nova.json.ObjectMapper;
 
@@ -55,5 +56,8 @@ public class PrintCommandBuffer
             throw new RuntimeException(t);
         }
     }
-    
+    public List<Command> getCommands()
+    {
+    	return this.commands;
+    }
 }

@@ -40,6 +40,11 @@ public class input_range extends InputElement<input_range>
     {
         return attr("max",number);
     }
+    public input_range value(Object value)
+    {
+        return attr("value",value);
+    }
+    
     public input_range min(long number)
     {
         return attr("min",number);

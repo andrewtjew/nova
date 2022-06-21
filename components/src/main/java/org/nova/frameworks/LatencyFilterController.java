@@ -28,6 +28,7 @@ import org.nova.html.deprecated.TableHeader;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.operator.MoreButton;
 import org.nova.html.operator.Panel3;
 import org.nova.html.tags.form_post;
@@ -158,7 +159,7 @@ public class LatencyFilterController
             page.content().addInner("Latency is disabled.");
         }
         page.content().addInner(new p());
-        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view","&#129104; Back"));
+        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view",new LiteralHtml("&#129104; Back")));
         return page;
     }
     
@@ -184,7 +185,7 @@ public class LatencyFilterController
         list.add("After Execute Minimum Latency (ms)", descriptor.getAfterExecuteMinimumMs());
         list.add("After Execute Maximum Latency (ms)", descriptor.getAfterExecuteMaximumMs());
         page.content().addInner(new p());
-        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view","&#129104; Back"));
+        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view",new LiteralHtml("&#129104; Back")));
         return page;
     }
     
@@ -241,7 +242,7 @@ public class LatencyFilterController
         list.add("After Execute Minimum Latency (ms)", descriptor.getAfterExecuteMinimumMs());
         list.add("After Execute Maximum Latency (ms)", descriptor.getAfterExecuteMaximumMs());
         page.content().addInner(new p());
-        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view","&#129104; Back"));
+        page.content().addInner(new LinkButton(page.head(),"/operator/latency/view",new LiteralHtml("&#129104; Back")));
         return page;
     }
     
