@@ -76,4 +76,19 @@ public class Modal extends StyleComponent<Modal>
     {
         return focus(true);
     }
+
+    public String js_show()
+    {
+        return "new bootstrap.Modal(document.getElementById('"+this.id()+"'),{}).show()";
+    }
+    public String js_hide()
+    {
+        return "new bootstrap.Modal(document.getElementById('"+this.id()+"'),{}).hide()";
+    }
+    public String js_toggle()
+    {
+        return "new bootstrap.Modal(document.getElementById('"+this.id()+"'),{}).toggle()";
+    }
+    
+    
 }

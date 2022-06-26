@@ -59,12 +59,12 @@ public class Page extends BootStrapPage
         nav.mx(0).d(Display.flex).w(100).justify_content(Justify.end);
         {
 
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.LANGUAGE)+" Language").href("/StringHandleEditor/viewByLanguages").text(StyleColor.light).title("View by language");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.HANDLES)+" Handles").href("/StringHandleEditor/viewByHandles").text(StyleColor.light).title("View by handles");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Language").href("/StringHandleEditor/addLanguage").text(StyleColor.light).title("Add language");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Handle").href("/StringHandleEditor/addHandle").text(StyleColor.light).title("Add handle");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD)).addInner(" Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
-            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.UNDEFINED)+" Undefines").href("/StringHandleEditor/nextUndefined").text(StyleColor.warning).title("Check for undefined handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.LANGUAGE).me(1)).addInner("Language").href("/StringHandleEditor/viewByLanguages").text(StyleColor.light).title("View by language");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.HANDLES).me(1)).addInner("Handles").href("/StringHandleEditor/viewByHandles").text(StyleColor.light).title("View by handles");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD).me(1)).addInner("Language").href("/StringHandleEditor/addLanguage").text(StyleColor.light).title("Add language");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD).me(1)).addInner("Handle").href("/StringHandleEditor/addHandle").text(StyleColor.light).title("Add handle");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.ADD).me(1)).addInner("Enum").href("/StringHandleEditor/addEnum").text(StyleColor.light).title("Add all enum constants");
+            nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.UNDEFINED).me(1)).addInner(" Undefines").href("/StringHandleEditor/nextUndefined").text(StyleColor.warning).title("Check for undefined handles");
 
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.DOCUMENTATION)).href("https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html").target(target._blank).text(StyleColor.light).title("Link to Format string documentation");
             nav.returnAddInner(new NavItemLink()).addInner(new Icon(Icons.SETTINGS)).href("/StringHandleEditor/settings").text(StyleColor.light).title("Language and enum settings").ms_auto();

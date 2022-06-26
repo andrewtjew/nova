@@ -493,6 +493,11 @@ public interface Styling<ELEMENT>
         return addClass("overflow",value);
         
     }
+    public default ELEMENT text_truncate()
+    {
+        return addClass("text-truncate");
+        
+    }
     
     public default ELEMENT justify_content(Justify value)
     {

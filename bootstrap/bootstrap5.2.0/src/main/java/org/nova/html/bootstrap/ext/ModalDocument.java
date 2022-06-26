@@ -80,9 +80,5 @@ public class ModalDocument extends Modal
         return this.content;
     }
     
-    public String js_option(ModalOption option)
-    {
-        return HtmlUtils.js_jqueryCall(this,"modal",option);
-    }
     
 }

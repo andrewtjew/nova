@@ -12,6 +12,7 @@ import org.nova.html.bootstrap.ext.ModalOption;
 import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.bootstrap.localization.UIHandle;
 import org.nova.html.remote.Inputs;
+import org.nova.html.remote.PostStatic;
 import org.nova.localization.LanguageCode;
 import org.nova.localization.StringHandle;
 
@@ -23,8 +24,15 @@ public class ProceedModalDialog extends ModalDocument
         this.body().addInner(message);
         this.footer().d(Display.flex).justify_content(Justify.between);
         this.footer().addInner(cancelButton).addInner(proceedButton);
-        proceedButton.onclick(inputs.js_post(action));
-        cancelButton.onclick(this.js_option(ModalOption.hide));
+        if (inputs!=null)
+        {
+            proceedButton.onclick(inputs.js_post(action));
+        }
+        else
+        {
+            proceedButton.onclick(new PostStatic().js_post(action));
+        }
+        cancelButton.onclick(this.js_hide());
     }
 
     public ProceedModalDialog(Inputs inputs,String action,String title,String message,String cancel,String proceed) throws Throwable
@@ -35,15 +43,21 @@ public class ProceedModalDialog extends ModalDocument
                 ,new SpinnerButton(proceed).color(StyleColor.success).w(25)
                 );
     }
+    public ProceedModalDialog(String action,String title,String message,String cancel,String proceed) throws Throwable
+    {
+        this(null,action
+                ,title,message
+                ,cancel,proceed);
+    }
 
     public ProceedModalDialog(Inputs inputs,String action,String title,String message) throws Throwable
     {
         this(inputs,action,title,message,"Cancel","Proceed");
     }
-    
-    public String js_show()
+    public ProceedModalDialog(String action,String title,String message) throws Throwable
     {
-        return this.js_option(ModalOption.show);
+        this(null,action,title,message);
     }
+    
 
 }

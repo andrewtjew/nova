@@ -872,9 +872,6 @@ public class StringHandleEditor
     {
         Page page=new Page();
         
-//        Item main=page.content().returnAddInner(new Item()).d(Display.flex).justify_content(Justify.center).returnAddInner(new Item());
-//        Col main=page.content().returnAddInner(new org.nova.html.bootstrap.Row()).returnAddInner(new Col(10)).mx_auto();
-
         org.nova.html.bootstrap.Row bRow=new org.nova.html.bootstrap.Row();
         page.content().returnAddInner(bRow);
         bRow.returnAddInner(new Col(2));

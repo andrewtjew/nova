@@ -32,6 +32,7 @@ import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 import org.nova.json.ObjectMapper;
 import org.nova.utils.Utils;
@@ -41,22 +42,36 @@ public class Popover extends TipComponent<Popover>
     public Popover(TagElement<?> toggler)
     {
     	super(toggler);
-        this.toggler.attr("data-toggle","popover");
+        this.toggler.attr("data-bs-toggle","popover");
     }
     
-    public String js_popover(TipOption option,QuotationMark mark)
-    {
-//    	return "document.getElementById("+mark+this.parent.id()+mark+").popover("+mark+option+mark+")";
-    	return "$("+mark+"#"+this.toggler.id()+mark+").popover("+mark+option+mark+")";
-    }
     public String js_popover(TipOption option)
     {
-    	return js_popover(option, QuotationMark.DOUBLE);
+ //   	return "bootstrap.Popover.getInstance(document.getElementById("+mark+this.toggler.id()+mark+")).toggle();";
+        //   return "$("+mark+"#"+this.toggler.id()+mark+").popover("+mark+option+mark+")";
+    	return "$('#"+this.toggler.id()+"').popover('"+option+"');";
+    }
+    public script script_popover(TipOption option)
+    {
+        return new script().addInner(new LiteralHtml(js_popover(option)));
+    }
+    public String js_popover()
+    {
+        return HtmlUtils.js_call("nova.bs.popover", this.toggler.id())+";";
+    }
+
+    public script script_popover()
+    {
+        return new script().addInner(new LiteralHtml(js_popover()));
     }
     
-    public static script js_ready()
+    public static script script_readyAll()
     {
-        return new script().addInner("$(document).ready(function(){$('[data-toggle=\"popover\"]').popover();});");
+        return new script().addInner(new LiteralHtml("var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"popover\"]'));var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {return new bootstrap.Popover(popoverTriggerEl)});"));
+    }
+    public static script script_dismiss()
+    {
+        return new script().addInner(new LiteralHtml("var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {trigger: 'focus'});"));
     }
 
     
