@@ -27,7 +27,7 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.DataTables.DataTable;
-import org.nova.html.bootstrap.remote.ProceedModalDialog;
+import org.nova.html.bootstrap.remote.ProceedModal;
 import org.nova.html.bootstrap.remote.Switch;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
@@ -899,10 +899,10 @@ public class StringHandleEditor
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setLanguage?ID="+id));
                     s.pt(1);
-                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs()
-                            ,new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString()
-                            , "Confirmation required","Delete "+description+"?"
+                    ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required","Delete "+description+"?"
                             ));
+                    dialog.onProceed(new Inputs()
+                            ,new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString());
                     ui.returnAddInner(new Button()).addInner("X").size(Size.sm).color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
@@ -932,7 +932,8 @@ public class StringHandleEditor
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
                     Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setEnum?ID="+id));
                     s.pt(1);
-                    ProceedModalDialog dialog=ui.returnAddInner(new ProceedModalDialog(new Inputs(), "Confirmation required", "Delete "+enum_+"?",new PathAndQuery("/StringHandleEditor/deleteEnum").addQuery("ID", id).toString()));
+                    ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required", "Delete "+enum_+"?"));
+                    dialog.onProceed(new Inputs(),new PathAndQuery("/StringHandleEditor/deleteEnum").addQuery("ID", id).toString());
                     ui.returnAddInner(new Button()).addInner("X").size(Size.sm).color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
