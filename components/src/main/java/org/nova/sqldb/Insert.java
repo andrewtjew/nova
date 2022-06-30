@@ -98,7 +98,7 @@ public class Insert
             sql.append(",?");
         }
         sql.append(')');
-        return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).getInt(0);
+        return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).get(0);
     }
 	public int execute(Trace parent,Connector connector) throws Throwable
 	{

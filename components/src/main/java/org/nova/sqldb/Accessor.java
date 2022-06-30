@@ -88,7 +88,7 @@ public class Accessor extends Resource
         return this.retireStackTrace;
     }
 
-	void commit() throws Throwable
+	void commit() throws Exception
 	{
 		synchronized (this)
 		{
@@ -108,7 +108,7 @@ public class Accessor extends Resource
 		}
 	}
 
-	void rollback() throws Throwable
+	void rollback() throws Exception
 	{
 		synchronized (this)
 		{

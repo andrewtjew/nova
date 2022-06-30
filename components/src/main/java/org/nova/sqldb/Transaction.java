@@ -49,7 +49,7 @@ public class Transaction implements AutoCloseable
 	    return this.trace;
 	}
 	
-	private Throwable closeConnection(Throwable throwable)
+	private Exception closeConnection(Exception throwable)
 	{
         try
         {
@@ -57,7 +57,7 @@ public class Transaction implements AutoCloseable
             this.accessor.connection=null;
             connection.close();
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
             throwable=new MultiException(t,throwable);
         }
@@ -66,7 +66,7 @@ public class Transaction implements AutoCloseable
         return throwable;
 	}
 	
-	public void commit() throws Throwable
+	public void commit() throws Exception
 	{
 		synchronized(this)
 		{
@@ -76,7 +76,7 @@ public class Transaction implements AutoCloseable
 				{
 					this.accessor.commit();
 				}
-                catch (Throwable t)
+                catch (Exception t)
                 {
                     this.accessor.connector.commitFailures.increment();
                     throw closeConnection(t);
@@ -90,7 +90,7 @@ public class Transaction implements AutoCloseable
 		}
 	}
 	
-	public void rollback() throws Throwable
+	public void rollback() throws Exception
 	{
 		synchronized(this)
 		{
@@ -100,7 +100,7 @@ public class Transaction implements AutoCloseable
 				{
 					this.accessor.rollback();
 				}
-				catch (Throwable t)
+				catch (Exception t)
 				{
                     this.accessor.connector.rollbackFailures.increment();
                     throw closeConnection(t);
