@@ -3,14 +3,18 @@ package org.nova.sqldb.graph;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.HashMap;
 
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;
+import org.nova.sqldb.RowSet;
+import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
+import org.nova.sqldb.graph.Graph.ColumnAccessor;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -19,32 +23,30 @@ public class GraphTransaction implements AutoCloseable
     final private Transaction transaction;
     final private Accessor accessor;
     final private Trace trace;
-    final private Long creatorId;
-
+    final private long creatorId;
+    final private Graph graph;
+    final private boolean atomic;
     private Long eventId;
     
-    private GraphTransaction(Trace parent,String category,Connector connector,Long creatorId) throws Throwable
+    GraphTransaction(Trace parent,Graph graph,String category,long creatorId,boolean atomic) throws Throwable
     {
         this.trace=new Trace(parent, category);
-        this.accessor=connector.openAccessor(parent);
-        this.transaction=this.accessor.beginTransaction(category);
+        this.graph=graph;
+        this.accessor=this.graph.getConnector().openAccessor(parent);
         this.creatorId=creatorId;
-    }
-    public GraphTransaction(Trace parent,String category,Connector connector,long creatorId) throws Throwable
-    {
-        this(parent,category,connector,(Long)creatorId);
-    }
-    public GraphTransaction(Trace parent,String category,Connector connector) throws Throwable
-    {
-        this(parent,category,connector,null);
+        this.atomic=atomic;
+        if (atomic)
+        {
+            this.transaction=this.accessor.beginTransaction(category);
+        }
+        else
+        {
+            this.transaction=null;
+        }
     }
     
     public long getEventId() throws Throwable
     {
-        if (this.creatorId==null)
-        {
-            throw new Exception("Graph instance not created in update mode");
-        }
         if (this.eventId==null)
         {
             this.eventId=this.accessor.executeUpdateAndReturnGeneratedKeys(this.trace,"getEventId"
@@ -57,14 +59,20 @@ public class GraphTransaction implements AutoCloseable
     
     public void commit() throws Exception
     {
+        if (this.atomic==false)
+        {
+            throw new Exception("Not atomic");
+        }
         this.transaction.commit();
     }
-    
     
     @Override
     public void close() throws Exception
     {
-        this.transaction.close();
+        if (this.transaction!=null)
+        {
+            this.transaction.close();
+        }
         this.accessor.close();
         this.trace.close();
     }
@@ -72,351 +80,321 @@ public class GraphTransaction implements AutoCloseable
     public Node createNode() throws Throwable
     {
         long eventId=this.getEventId();
-        
-        long id=this.accessor.executeUpdateAndReturnGeneratedKeys(trace,"createNode"
+        long nodeId=this.accessor.executeUpdateAndReturnGeneratedKeys(trace,"createNode"
                 ,"INSERT INTO _node (createdEventId) VALUES(?)"
                 ,eventId).getLong(0);
+        return new Node(this,nodeId);
+    }
+
+    public void put(NodeObject object) throws Throwable
+    {
+        if (object._id==null)
+        {
+            throw new Exception("Unknown object");
+        }
+        put(object,object._nodeId);
+    }
+
+    public void put(NodeObject object,NodeObject nodeObject) throws Throwable
+    {
+        if (nodeObject._id==null)
+        {
+            throw new Exception("Unknown object");
+        }
+        put(object,nodeObject._nodeId);
+    }
+    public void put(NodeObject object,long nodeId) throws Throwable
+    {
+        put(object,nodeId,this.getEventId());
+    }
+
+    public Node createNodeAndPut(NodeObject...objects) throws Throwable
+    {
+        Node node=createNode();
+        for (NodeObject object:objects)
+        {
+            node.put(object);
+        }
+        return node;
+    }
+    
+    public <OBJECT extends NodeObject> OBJECT get(Class<? extends NodeObject> type,long nodeId) throws Throwable
+    {
+        String table=type.getSimpleName();
+        Row row=Select.source(table).executeOne(this.trace, accessor, "_nodeId=? AND _retiredEventId IS NULL",nodeId);
+        if (row==null)
+        {
+            return null;
+        }
+        ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+        NodeObject object=type.newInstance();
+        for (ColumnAccessor columnAccessor:columnAccessors)
+        {
+            columnAccessor.set(object, null, row);
+        }        
+        return (OBJECT)object;
+    }
+
+    public <OBJECT extends NodeObject> OBJECT buildObject(Class<OBJECT> type,Row row) throws Throwable
+    {
+        String table=type.getSimpleName();
+        Long id=row.getNullableBIGINT(table+"._id");
+        if (id==null)
+        {
+            return null;
+        }
+        ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+        OBJECT object=type.newInstance();
+        for (ColumnAccessor columnAccessor:columnAccessors)
+        {
+            columnAccessor.set(object, table, row);
+        }        
+        return object;
+    }
+    
+    String buildSql(Class<?>[] types,boolean includeNodeEvent,String where,Long nodeId) throws Exception
+    {
+        StringBuilder select=new StringBuilder();
+        StringBuilder join=new StringBuilder();
+
+        if (includeNodeEvent)
+        {
+            join.append("JOIN _event ON _event.id=_node.createdEventId");
+            select.append(",_event.id AS '_event.id',_event.created AS '_event.created',_event.creatorId AS '_event.creatorId',_event.source AS '_event.source'");
+        }
+        
+        for (Class<?> type:types)
+        {
+            String typeName=type.getSimpleName();
+            ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+            for (ColumnAccessor columnAccessor:columnAccessors)
+            {
+                select.append(',');
+                String columnName=columnAccessor.getSelectColumnName(typeName);
+                select.append(columnName+" AS '"+columnName+'\'');
+            }
+            join.append(" LEFT JOIN "+typeName+" ON _node.id="+typeName+"._nodeId AND "+typeName+"._retiredEventId IS NULL");
+        }
+        
+        
+        if (nodeId!=null)
+        {
+            if (where!=null)
+            {
+                where="_node.id="+nodeId+" AND "+where;
+            }
+            else
+            {
+                where="_node.id="+nodeId;
+            }
+        }
+        String sql="SELECT _node.id"+select.toString()+" FROM _node "+join.toString();
+        if (where==null)
+        {
+            return sql;
+        }
+        return sql+" WHERE "+where;
+    }
+    
+    NodeResult build(Row row,boolean includeNodeEvent,Class<? extends NodeObject>[] types) throws Throwable
+    {
+        long nodeId=row.getBIGINT("id");
+        long createdEventId=0;
+        Timestamp created=null;
+        long creatorId=0;
+        String source=null;
+        if (includeNodeEvent)
+        {
+            createdEventId=row.getBIGINT("_event.id");
+            created=row.getTIMESTAMP("_event.created");
+            creatorId=row.getBIGINT("_event.creatorId");
+            source=row.getVARCHAR("_event.source");
+        }
+
+        NodeResult result=new NodeResult(nodeId,createdEventId,created,creatorId,source);
+        for (Class<? extends NodeObject> type:types)
+        {
+            String typeName=type.getSimpleName();
+            Long id=row.getNullableBIGINT(typeName+"._id");
+            if (id!=null)
+            {
+                ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+                NodeObject object=type.newInstance();
+                for (ColumnAccessor columnAccessor:columnAccessors)
+                {
+                    columnAccessor.set(object, typeName, row);
+                }        
+                result.put(typeName,object);
+            }
+        }
+        return result;
+    }
+    
+    public NodeResult get(long nodeId,boolean includeNodeEvent,Class<? extends NodeObject>...types) throws Throwable
+    {
+        String sql=buildSql(types, includeNodeEvent, null, nodeId);
+        System.out.println(sql);
+        RowSet rowSet=this.accessor.executeQuery(trace, "get-select", sql);
+        if (rowSet.rows()==null)
+        {
+            return null;
+        }
+        return build(rowSet.getRow(0),includeNodeEvent,types);
+    }
+    public NodeResult get(long nodeId,Class<? extends NodeObject>...types) throws Throwable
+    {
+        return get(nodeId,false,types);
+    }
+    
+    
+    public <OBJECT extends NodeObject> OBJECT get(Class<NodeObject> type,NodeObject nodeObject) throws Throwable
+    {
+        if (nodeObject._id==null)
+        {
+            throw new Exception("Unknown object");
+        }
+        return get(type,nodeObject._nodeId);
+    }
+
+    public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type,String where,Object...parameters) throws Throwable
+    {
+        String table=type.getSimpleName();
+        Row row=Select.source(table).executeOne(this.trace, accessor, "_retiredEventId IS NULL AND "+where,parameters);
+        if (row==null)
+        {
+            return null;
+        }
+        ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+        OBJECT object=type.newInstance();
+        for (ColumnAccessor columnAccessor:columnAccessors)
+        {
+            columnAccessor.set(object, null, row);
+        }        
+        return object;
+    }
+
+    public Long getNodeId(Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
+    {
+        String table=type.getSimpleName();
+        Row row=Select.source(table).columns("_nodeId").executeOne(this.trace, accessor, "_retiredEventId IS NULL AND "+where,parameters);
+        if (row==null)
+        {
+            return null;
+        }
+        return row.getBIGINT(0);
+    }
+    public Node getNode(Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
+    {
+        Long id=getNodeId(type,where,parameters);
+        if (id==null)
+        {
+            return null;
+        }
         return new Node(this,id);
     }
     
+    void put(NodeObject object,long nodeId,long eventId) throws Throwable
+    {
+        Class<?> type=object.getClass();
+        String typeName=type.getSimpleName();
+        
+        ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
+        Insert insert=Insert.table(typeName);
+        insert.value("_nodeId", nodeId);
+        insert.value("_createdEventId", eventId);
+        
+        ColumnAccessor idAccessor=null;
+        for (ColumnAccessor columnAccessor:columnAccessors)
+        {
+            if (columnAccessor.isGraphField())
+            {
+                switch (columnAccessor.getName())
+                {
+                case "_createdEventId":
+                    columnAccessor.set(object, eventId);
+                break;
+
+                case "_nodeId":
+                    columnAccessor.set(object, nodeId);
+                    break;
+                
+                case "_id":
+                    idAccessor=columnAccessor;
+                break;
+                }
+                
+                continue;
+            }
+            insert.value(columnAccessor.getName(), columnAccessor.get(object));
+        }
+        
+        Transaction transaction=null;
+        if (this.atomic==false)
+        {
+            transaction=this.accessor.beginTransaction(this.trace.getCategory());
+        }
+        try
+        {
+            if (object._id!=null)
+            {
+                if (accessor.executeUpdate(this.trace, "node.put", "UPDATE "+typeName+" SET _retiredEventId=? WHERE _id=? AND _retiredEvent IS NULL",eventId,object._id)==1)
+                {
+                    insert.execute(this.trace, accessor);
+                    this.graph.evict(typeName, nodeId);
+                }
+            }
+            else
+            {
+                accessor.executeUpdate(this.trace, "node.put", "UPDATE "+typeName+" SET _retiredEventId=? WHERE _nodeId=?",eventId,nodeId);
+                long id=insert.executeAndReturnLongKey(this.trace, accessor);
+                idAccessor.set(object, id);
+                this.graph.evict(typeName, nodeId);
+            }
+        }
+        catch (Throwable t)
+        {
+            if (transaction!=null)
+            {
+                transaction.rollback();
+                transaction=null;
+            }
+            throw t;
+        }
+        finally
+        {
+            if (transaction!=null)
+            {
+                transaction.commit();
+            }
+        }
+    }
     
-    final Accessor getAccessor()
+    public Event getEvent(long eventId) throws Throwable
+    {
+        Row row=Select.source("event").executeOne(this.trace, this.accessor, "SELECT * FROM _event WHERE id=?",eventId);
+        if (row==null)
+        {
+            return null;
+        }
+        Event event=new Event();
+        event.id=eventId;
+        event.creatorId=row.getBIGINT("creatorId");
+        event.created=row.getTIMESTAMP("created");
+        event.source=row.getVARCHAR("source");
+        return event;
+    }
+    
+    
+    public final Accessor getAccessor()
     {
         return this.accessor;
     }
-    final Trace getTrace()
-    {
-        return this.trace;
-    }
-    
-    static final private HashMap<String,ColumnAccessor[]> COLUMN_ACCESSOR_ARRAY_MAP=new HashMap<String, ColumnAccessor[]>();
-    static final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
-
-    static abstract public class ColumnAccessor
-    {
-        final Field field;
-        
-        public ColumnAccessor(Field field)
-        {
-            this.field = field;
-        }
-        
-        public abstract void set(Object object,String typeName,Row row) throws Throwable;        
-        public abstract Object get(Object object) throws Throwable;
-
-        
-        public String getName()
-        {
-            return this.field.getName();
-        }
-        
-        protected String getSelectColumnName(String typeName)
-        {
-            if (typeName!=null)
-            {
-                return typeName+'.'+this.field.getName();
-            }
-            return this.field.getName();
-        }
-        
-    }
-
-    static abstract public class DefaultGetColumnAccessor extends ColumnAccessor
-    {
-        public DefaultGetColumnAccessor(Field field)
-        {
-            super(field);
-          }
-
-        @Override
-        public Object get(Object object) throws Throwable
-        {
-            return field.get(object);
-        }
-    }
-   
-    
-    
-    static ColumnAccessor getColumnAccessor(Field field) throws Exception
-    {
-        ColumnAccessor accessor;
-        synchronized(COLUMN_ACCESSOR_MAP)
-        {
-            accessor=COLUMN_ACCESSOR_MAP.get(field.getName());
-        }
-        if (accessor!=null)
-        {
-            return accessor;
-        }
-        Class<?> type=field.getType();
-        if (type == String.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getVARCHAR(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Boolean.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableBIT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == boolean.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getBIT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == int.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getINTEGER(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Integer.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableINTEGER(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == long.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getBIGINT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Long.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableBIGINT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == float.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getREAL(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Float.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableREAL(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == double.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getFLOAT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Double.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableFLOAT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == short.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getSMALLINT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type == Short.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableSMALLINT(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else if (type.isEnum())
-        {
-            for (Class<?> i:type.getInterfaces())
-            {
-                if (ShortEnummerable.class==i)
-                {
-                    accessor=new ColumnAccessor(field)
-                    {
-                        @Override
-                        public void set(Object object, String typeName, Row row) throws Throwable
-                        {
-                            Short value=row.getNullableSMALLINT(getSelectColumnName(typeName));
-                            Object enumValue=null;
-                            if (value!=null)
-                            {
-                                for (Object enumConstantObject:type.getEnumConstants())
-                                {
-                                    if (((ShortEnummerable)enumConstantObject).getValue()==value)
-                                    {
-                                        enumValue=enumConstantObject;
-                                        break;
-                                    }
-                                }
-                            }
-                            field.set(object, enumValue);
-                        }
-
-                        @Override
-                        public Object get(Object object) throws Throwable
-                        {
-                            
-                            object=field.get(object);
-                            if (object==null)
-                            {
-                                return null;
-                            }
-                            return ((ShortEnummerable)object).getValue();
-                        }
-                    };
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-        }
-        else if (type == BigDecimal.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getDECIMAL(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
-        else
-        {
-            throw new Exception();
-        }
-        synchronized(COLUMN_ACCESSOR_MAP)
-        {
-            COLUMN_ACCESSOR_MAP.put(type.getName(), accessor);
-        }
-        return accessor;
-    }
-    
-
-    static ColumnAccessor[] getColumnAccessors(Class<?> type) throws Exception
-    {
-        ColumnAccessor[] columnAccessors=null;
-        synchronized (COLUMN_ACCESSOR_ARRAY_MAP)
-        {
-            columnAccessors= COLUMN_ACCESSOR_ARRAY_MAP.get(type.getTypeName());
-        }
-        if (columnAccessors==null)
-        {
-            HashMap<String, ColumnAccessor> map = new HashMap<String, ColumnAccessor>();
-            for (Field field : type.getDeclaredFields())
-            {
-                int modifiers = field.getModifiers();
-                if (Modifier.isTransient(modifiers))
-                {
-                    continue;
-                }
-                if (Modifier.isStatic(modifiers))
-                {
-                    continue;
-                }
-                if (map.containsKey(field.getName()) == false)
-                {
-                    try
-                    {
-                        field.setAccessible(true);
-                    }
-                    catch (Throwable t)
-                    {
-                        continue;
-                    }
-                    ColumnAccessor accessor=getColumnAccessor(field);
-                    map.put(field.getName(), accessor);
-                }
-            }
-            columnAccessors = map.values().toArray(new ColumnAccessor[map.size()]);
-            synchronized (COLUMN_ACCESSOR_ARRAY_MAP)
-            {
-                COLUMN_ACCESSOR_ARRAY_MAP.put(type.getName(), columnAccessors);
-            }
-        }
-        return columnAccessors;
-    }
-    
+//    final Trace getTrace()
+//    {
+//        return this.trace;
+//    }
+//    final Graph getGraph()
+//    {
+//        return this.graph;
+//    }
 }

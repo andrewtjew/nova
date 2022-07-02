@@ -2,7 +2,7 @@ package org.nova.sqldb.graph;
 
 
 
-public interface IntEnummerable
+public interface IntegerEnummerable
 {
     public short getValue();
 }
