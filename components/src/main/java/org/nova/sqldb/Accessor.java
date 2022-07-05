@@ -450,6 +450,7 @@ public class Accessor extends Resource
 		return new RowSet(columnNames, list);
 	}
 
+	@Deprecated //too specialized
 	public int executeInsert(Trace parent, String traceCategoryOverride, String table, Object object) throws Throwable
     {
 	    Class<?> type=object.getClass();

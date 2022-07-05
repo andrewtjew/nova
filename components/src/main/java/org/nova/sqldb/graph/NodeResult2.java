@@ -7,18 +7,24 @@ import org.nova.sqldb.Row;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
 
-public class NodeResult 
+public class NodeResult2 
 {
     final private HashMap<String, NodeObject> objects;
-    final private long nodeId;
-    NodeResult(long nodeId)
+    
+    final public long createdEventId;
+    final public Timestamp created;
+    final public long creatorId;
+    final public String source;
+    final public long nodeId;
+
+    NodeResult2(long nodeId,long createdEventId,Timestamp created,long creatorId,String source)
     {
-        this.objects=new HashMap<String, NodeObject>();
         this.nodeId=nodeId;
-    }
-    public long getNodeId()
-    {
-        return this.nodeId;
+        this.createdEventId=createdEventId;
+        this.created=created;
+        this.creatorId=creatorId;
+        this.source=source;
+        this.objects=new HashMap<String, NodeObject>();
     }
     void put(String typeName,NodeObject object)
     {

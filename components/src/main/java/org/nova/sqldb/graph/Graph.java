@@ -2,26 +2,24 @@ package org.nova.sqldb.graph;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.HashMap;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.nova.collections.ContentCache;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
-import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;
-import org.nova.sqldb.RowSet;
-import org.nova.sqldb.Select;
-import org.nova.sqldb.SqlUtils;
-import org.nova.sqldb.Transaction;
-import org.nova.sqldb.Update;
 import org.nova.tracing.Trace;
 
 public class Graph
 {
-
+    private int defaultVARCHARLength=45;
+    private String database="graph";
+    
     static abstract public class ColumnAccessor
     {
         final Field field;
@@ -38,7 +36,9 @@ public class Graph
         {
             this.field.set(object, value);
         }
+
         public abstract Object get(Object object) throws Throwable;
+        public abstract String getSqlType() throws Throwable;
 
         
         public String getName()
@@ -52,7 +52,7 @@ public class Graph
         }
         
         
-        protected String getSelectColumnName(String typeName)
+        protected String getColumnName(String typeName)
         {
             if (typeName!=null)
             {
@@ -79,7 +79,7 @@ public class Graph
     
     ColumnAccessor getColumnAccessor(Field field) throws Exception
     {
-        ColumnAccessor accessor;
+        ColumnAccessor accessor=null;
         synchronized(COLUMN_ACCESSOR_MAP)
         {
             accessor=COLUMN_ACCESSOR_MAP.get(field.getName());
@@ -96,8 +96,20 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getVARCHAR(getSelectColumnName(typeName)));
+                    field.set(object,row.getVARCHAR(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    int value=defaultVARCHARLength;
+                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    if (length!=null)
+                    {
+                        value=length.value();
+                    }
+                    return "varchar("+value+") DEFAULT NULL";
                 }
             };
         }
@@ -108,8 +120,13 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableBIT(getSelectColumnName(typeName)));
-                    
+                    field.set(object,row.getNullableBIT(getColumnName(typeName)));
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "bit(1) DEFAULT NULL";
                 }
             };
         }
@@ -120,8 +137,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getBIT(getSelectColumnName(typeName)));
+                    field.set(object,row.getBIT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "bit(1) NOT NULL";
                 }
             };
         }
@@ -132,8 +155,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getINTEGER(getSelectColumnName(typeName)));
+                    field.set(object,row.getINTEGER(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "int NOT NULL";
                 }
             };
         }
@@ -144,8 +173,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableINTEGER(getSelectColumnName(typeName)));
+                    field.set(object,row.getNullableINTEGER(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "int DEFAULT NULL";
                 }
             };
         }
@@ -156,8 +191,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getBIGINT(getSelectColumnName(typeName)));
+                    field.set(object,row.getBIGINT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "bigint NOT NULL";
                 }
             };
         }
@@ -168,8 +209,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableBIGINT(getSelectColumnName(typeName)));
+                    field.set(object,row.getNullableBIGINT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "bigint DEFAULT NULL";
                 }
             };
         }
@@ -180,8 +227,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getREAL(getSelectColumnName(typeName)));
+                    field.set(object,row.getREAL(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "real NOT NULL";
                 }
             };
         }
@@ -192,8 +245,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableREAL(getSelectColumnName(typeName)));
+                    field.set(object,row.getNullableREAL(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "real DEFAULT NULL";
                 }
             };
         }
@@ -204,8 +263,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getFLOAT(getSelectColumnName(typeName)));
+                    field.set(object,row.getFLOAT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "float NOT NULL";
                 }
             };
         }
@@ -216,8 +281,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableFLOAT(getSelectColumnName(typeName)));
+                    field.set(object,row.getNullableFLOAT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "real DEFAULT NULL";
                 }
             };
         }
@@ -228,8 +299,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getSMALLINT(getSelectColumnName(typeName)));
+                    field.set(object,row.getSMALLINT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "smallint NOT NULL";
                 }
             };
         }
@@ -240,8 +317,50 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getTIMESTAMP(getSelectColumnName(typeName)));
+                    field.set(object,row.getTIMESTAMP(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "timestamp NULL DEFAULT NULL";
+                }
+            };
+        }
+        else if (type == Date.class)
+        {
+            accessor=new DefaultGetColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    field.set(object,row.getDATE(getColumnName(typeName)));
+                    
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "date NULL DEFAULT NULL";
+                }
+            };
+        }
+        else if (type == Time.class)
+        {
+            accessor=new DefaultGetColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    field.set(object,row.getTIME(getColumnName(typeName)));
+                    
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "time NULL DEFAULT NULL";
                 }
             };
         }
@@ -252,8 +371,20 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getVARBINARY(getSelectColumnName(typeName)));
+                    field.set(object,row.getVARBINARY(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    int value=defaultVARCHARLength;
+                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    if (length!=null)
+                    {
+                        value=length.value();
+                    }
+                    return "varbinary("+value+") DEFAULT NULL";
                 }
             };
         }
@@ -264,8 +395,14 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableSMALLINT(getSelectColumnName(typeName)));
+                    field.set(object,row.getNullableSMALLINT(getColumnName(typeName)));
                     
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "smallint DEFAULT NULL";
                 }
             };
         }
@@ -280,7 +417,7 @@ public class Graph
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
                         {
-                            Short value=row.getNullableSMALLINT(getSelectColumnName(typeName));
+                            Short value=row.getNullableSMALLINT(getColumnName(typeName));
                             Object enumValue=null;
                             if (value!=null)
                             {
@@ -307,6 +444,12 @@ public class Graph
                             }
                             return ((ShortEnummerable)object).getValue();
                         }
+
+                        @Override
+                        public String getSqlType() throws Throwable
+                        {
+                            return "smallint DEFAULT NULL";
+                        }
                     };
                 }
                 else if (IntegerEnummerable.class==interfaceType)
@@ -316,7 +459,7 @@ public class Graph
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
                         {
-                            Integer value=row.getNullableINTEGER(getSelectColumnName(typeName));
+                            Integer value=row.getNullableINTEGER(getColumnName(typeName));
                             Object enumValue=null;
                             if (value!=null)
                             {
@@ -343,26 +486,38 @@ public class Graph
                             }
                             return ((ShortEnummerable)object).getValue();
                         }
+
+                        @Override
+                        public String getSqlType() throws Throwable
+                        {
+                            return "int DEFAULT NULL";
+                        }
                     };
                 }
-                else
-                {
-                    throw new Exception(type.getName()+" must include an Enumerable interface");
-                }
+            }
+            if (accessor==null)
+            {
+                throw new Exception(type.getName()+" must include an Enumerable interface");
             }
         }
-        else if (type == BigDecimal.class)
-        {
-            accessor=new DefaultGetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getDECIMAL(getSelectColumnName(typeName)));
-                    
-                }
-            };
-        }
+//        else if (type == BigDecimal.class)
+//        {
+//            accessor=new DefaultGetColumnAccessor(field)
+//            {
+//                @Override
+//                public void set(Object object, String typeName, Row row) throws Throwable
+//                {
+//                    field.set(object,row.getDECIMAL(getSelectColumnName(typeName)));
+//                    
+//                }
+//
+//                @Override
+//                public String getSqlType() throws Throwable
+//                {
+//                    return "`decimal` DEFAULT NULL";
+//                }
+//            };
+//        }
         else
         {
             throw new Exception();
@@ -479,6 +634,7 @@ public class Graph
     final private HashMap<String,ColumnAccessor[]> COLUMN_ACCESSOR_ARRAY_MAP=new HashMap<String, ColumnAccessor[]>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
+    final private HashMap<String,Class<? extends NodeObject>> linkedMap=new HashMap<String, Class<? extends NodeObject>>();
     
     public Graph(Connector connector)
     {
@@ -490,7 +646,7 @@ public class Graph
         return this.connector;
     }
     
-    public GraphTransaction beginTransaction(Trace parent,String category,long creatorId,boolean atomic) throws Throwable
+    public GraphTransaction beginTransaction(Trace parent,String category,Long creatorId,boolean atomic) throws Throwable
     {
         return new GraphTransaction(parent,this,category,creatorId,atomic);
     }
@@ -503,5 +659,61 @@ public class Graph
     {
         this.cache.evict(new NodeObjectKey(typeName,nodeId));
     }
+    public void createTable(Trace parent,Class<? extends NodeObject> type) throws Throwable
+    {
+        String table=type.getSimpleName();
+        
+        
+        StringBuilder sql=new StringBuilder();
+        sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,`_retiredEventId` bigint DEFAULT NULL,`_retired` timestamp DEFAULT NULL,");
+        ColumnAccessor[] columnAccessors=this.getColumnAccessors(type);
+        for (ColumnAccessor columnAccessor:columnAccessors)
+        {
+            if (columnAccessor.isGraphField())
+            {
+                continue;
+            }
+            sql.append("`"+columnAccessor.getName()+"` ");
+            sql.append(columnAccessor.getSqlType());
+            sql.append(",");
+        }
+        sql.append("PRIMARY KEY (`_id`)) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+        
+        
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            if (accessor.executeQuery(parent,"createTable","SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,this.database).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable", sql.toString());
+            }
+        }
+    }
+    public String getTableName(Class<? extends NodeObject> type)
+    {
+        return '`'+type.getSimpleName()+'`';
+    }
     
+    @SuppressWarnings("unchecked")
+    public Class<? extends NodeObject> getLinkedName(Class<? extends LinkedNodeObject<?>> type) throws ClassNotFoundException
+    {
+        String key=type.getSimpleName();
+        Class<? extends NodeObject> value=null;
+        synchronized(this.linkedMap)
+        {
+            this.linkedMap.get(key);
+        }
+        if (value==null)
+        {
+            Type generic=type.getGenericSuperclass();
+            ParameterizedType parametized=(ParameterizedType)generic;
+            Type actual=parametized.getActualTypeArguments()[0];
+            String className=actual.getTypeName();
+            value=(Class<? extends NodeObject>)Class.forName(className);
+            synchronized(this.linkedMap)
+            {
+                this.linkedMap.put(key, value);
+            }
+        }
+        return value;
+    }
 }

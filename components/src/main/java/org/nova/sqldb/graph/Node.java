@@ -39,7 +39,7 @@ public class Node
         return this.graphTransaction.get(type, this.id);
     }
     
-    public long getId()
+    public long getNodeId()
     {
         return this.id;
     }
