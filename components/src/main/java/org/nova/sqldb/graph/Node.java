@@ -1,49 +1,49 @@
 package org.nova.sqldb.graph;
 
-import org.nova.sqldb.Accessor;
-import org.nova.sqldb.Insert;
-import org.nova.sqldb.Row;
-import org.nova.sqldb.Select;
-import org.nova.sqldb.graph.Graph.ColumnAccessor;
-import org.nova.tracing.Trace;
-
 public class Node
 {
     final private long id;
-    final private GraphTransaction graphTransaction;
-    Node(GraphTransaction graphTransaction,long id)
+    final GraphAccess graphEvent;
+
+    Node(GraphAccess graphEvent,long id)
     {
         this.id=id;
-        this.graphTransaction=graphTransaction;
+        this.graphEvent=graphEvent;
     }
-    
-//
-//    public EntityMap getEntitities(Class<?>...types) throws Exception
-//    {
-//        StringBuilder columns=new StringBuilder("_node.id as '_node.id',_node.created as '_node.created'");
-//        StringBuilder joins=new StringBuilder("FROM _node");
-//        for (Class<?> type:types)
-//        {
-//            ColumnAccessor[] columnAccessors=GraphTransaction.getColumnAccessors(type);
-//        }
-//        return null;
-//    }
-    
-    public void put(NodeObject object) throws Throwable
-    {
-        this.graphTransaction.put(object,this.id);
-    }
-    
-    public <OBJECT extends NodeObject> OBJECT get(Class<? extends NodeObject> type) throws Throwable
-    {
-        return this.graphTransaction.get(type, this.id);
-    }
-    
+
     public long getNodeId()
     {
         return this.id;
     }
+
+    public void put(Entity...entities) throws Throwable
+    {
+        long eventId=this.graphEvent.getEventId();
+        for (Entity entity:entities)
+        {
+            this.graphEvent.put(entity,this.id,eventId);
+        }
+    }
     
+    public <ENTITY extends Entity> ENTITY getEntity(Class<ENTITY> type) throws Throwable
+    {
+        return new NodeQuery(this.graphEvent,this.id).getEntity(type);
+    }
+
+    public EntityResult getEntities(Class<? extends Entity>...types) throws Throwable
+    {
+        return new NodeQuery(this.graphEvent,this.id).getNodeResult(types);
+    }
+    
+//    public void link(Node toNode) throws Throwable
+//    {
+//        throw new Exception();
+//    }
+    public void link(long toNodeId) throws Throwable
+    {
+        throw new Exception();
+    }
+
     
     
 }

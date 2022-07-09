@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 
 import org.nova.collections.ContentCache;
+import org.nova.html.tags.col;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
@@ -36,6 +37,10 @@ public class Graph
         {
             this.field.set(object, value);
         }
+        public boolean isGraphfield()
+        {
+            return this.graphField;
+        }
 
         public abstract Object get(Object object) throws Throwable;
         public abstract String getSqlType() throws Throwable;
@@ -45,12 +50,6 @@ public class Graph
         {
             return this.field.getName();
         }
-        
-        public boolean isGraphField()
-        {
-            return this.graphField;
-        }
-        
         
         protected String getColumnName(String typeName)
         {
@@ -618,7 +617,7 @@ public class Graph
             return null;
         }
     }
-    static class NodeObjectCache extends Cache<NodeObject>
+    static class NodeObjectCache extends Cache<Entity>
     {
         NodeObjectCache(Graph graph)
         {
@@ -634,7 +633,7 @@ public class Graph
     final private HashMap<String,ColumnAccessor[]> COLUMN_ACCESSOR_ARRAY_MAP=new HashMap<String, ColumnAccessor[]>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends NodeObject>> linkedMap=new HashMap<String, Class<? extends NodeObject>>();
+    final private HashMap<String,Class<? extends Entity>> linkedMap=new HashMap<String, Class<? extends Entity>>();
     
     public Graph(Connector connector)
     {
@@ -646,30 +645,29 @@ public class Graph
         return this.connector;
     }
     
-    public GraphTransaction beginTransaction(Trace parent,String category,Long creatorId,boolean atomic) throws Throwable
+    public GraphAccess beginAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
     {
-        return new GraphTransaction(parent,this,category,creatorId,atomic);
+        return new GraphAccess(parent,this,category,creatorId,beginTransaction);
     }
 
-    public <OBJECT extends NodeObject> OBJECT getNodeObject(Class<OBJECT> type,long nodeId) throws Throwable
-    {
-        return (OBJECT)this.cache.get(new NodeObjectKey(type.getSimpleName(), nodeId));
-    }
+//    public <OBJECT extends NodeObject> OBJECT getNodeObject(Class<OBJECT> type,long nodeId) throws Throwable
+//    {
+//        return (OBJECT)this.cache.get(new NodeObjectKey(type.getSimpleName(), nodeId));
+//    }
     void evict(String typeName,long nodeId)
     {
         this.cache.evict(new NodeObjectKey(typeName,nodeId));
     }
-    public void createTable(Trace parent,Class<? extends NodeObject> type) throws Throwable
+    public void createTable(Trace parent,Class<? extends Entity> type) throws Throwable
     {
-        String table=type.getSimpleName();
-        
+        String table="e_"+type.getSimpleName();
         
         StringBuilder sql=new StringBuilder();
-        sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,`_retiredEventId` bigint DEFAULT NULL,`_retired` timestamp DEFAULT NULL,");
+        sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,");
         ColumnAccessor[] columnAccessors=this.getColumnAccessors(type);
         for (ColumnAccessor columnAccessor:columnAccessors)
         {
-            if (columnAccessor.isGraphField())
+            if (columnAccessor.isGraphfield())
             {
                 continue;
             }
@@ -677,7 +675,7 @@ public class Graph
             sql.append(columnAccessor.getSqlType());
             sql.append(",");
         }
-        sql.append("PRIMARY KEY (`_id`)) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+        sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
         
         
         try (Accessor accessor=this.connector.openAccessor(parent))
@@ -688,16 +686,24 @@ public class Graph
             }
         }
     }
-    public String getTableName(Class<? extends NodeObject> type)
+    public String getTableAlias(String typeName)
     {
-        return '`'+type.getSimpleName()+'`';
+        return '`'+typeName+'`';
+    }
+    public String getTableName(String typeName)
+    {
+        return "`e_"+typeName+'`';
+    }
+    public String getTableName(Class<? extends Entity> type)
+    {
+        return "`e_"+type.getSimpleName()+'`';
     }
     
     @SuppressWarnings("unchecked")
-    public Class<? extends NodeObject> getLinkedName(Class<? extends LinkedNodeObject<?>> type) throws ClassNotFoundException
+    public Class<? extends Entity> getLinkedName(Class<? extends Link<?>> type) throws ClassNotFoundException
     {
         String key=type.getSimpleName();
-        Class<? extends NodeObject> value=null;
+        Class<? extends Entity> value=null;
         synchronized(this.linkedMap)
         {
             this.linkedMap.get(key);
@@ -708,7 +714,7 @@ public class Graph
             ParameterizedType parametized=(ParameterizedType)generic;
             Type actual=parametized.getActualTypeArguments()[0];
             String className=actual.getTypeName();
-            value=(Class<? extends NodeObject>)Class.forName(className);
+            value=(Class<? extends Entity>)Class.forName(className);
             synchronized(this.linkedMap)
             {
                 this.linkedMap.put(key, value);
@@ -716,4 +722,5 @@ public class Graph
         }
         return value;
     }
+    
 }

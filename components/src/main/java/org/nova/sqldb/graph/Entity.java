@@ -1,17 +1,12 @@
 package org.nova.sqldb.graph;
 
-import org.nova.sqldb.Row;
+import java.sql.Timestamp;
 
-public class Entity<OBJECT>
+public class Entity
 {
-    final private Row row;
-    final private OBJECT object;
-    final private String typeName;
-    Entity(Row row,String typeName)
+    Long _nodeId;
+    public long getNodeId()
     {
-        this.row=row;
-        this.object=null;
-        this.typeName=typeName;
-        
+        return this._nodeId;
     }
 }
