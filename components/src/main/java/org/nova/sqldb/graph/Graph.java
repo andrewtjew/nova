@@ -9,11 +9,13 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.HashMap;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.nova.collections.ContentCache;
 import org.nova.html.tags.col;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
+import org.nova.sqldb.graph.Graph.ColumnAccessor;
 import org.nova.tracing.Trace;
 
 public class Graph
@@ -528,14 +530,61 @@ public class Graph
         return accessor;
     }
     
-    ColumnAccessor[] getColumnAccessors(Class<?> type) throws Exception
+    enum EntityType
     {
-        ColumnAccessor[] columnAccessors=null;
-        synchronized (COLUMN_ACCESSOR_ARRAY_MAP)
+        NODE,
+        LINK,
+    }
+    
+    static class EntityMeta
+    {
+        final private ColumnAccessor[] columnAccessors;
+        final private EntityType entityType;
+        final private String tableAlias;
+        final private String tableName;
+        final private String typeName;
+        
+        EntityMeta(String typeName,EntityType entityType,ColumnAccessor[] columnnAccessors)
         {
-            columnAccessors= COLUMN_ACCESSOR_ARRAY_MAP.get(type.getTypeName());
+            this.entityType=entityType;
+            this.columnAccessors=columnnAccessors;
+            this.typeName=typeName;
+            this.tableAlias='`'+typeName+'`';
+            this.tableName="`e_"+typeName+'`';
         }
-        if (columnAccessors==null)
+
+        String getTableAlias()
+        {
+            return this.tableAlias;
+        }
+        String getTableName()
+        {
+            return this.tableName;
+        }
+        EntityType getEntityType()
+        {
+            return this.entityType;
+        }
+        ColumnAccessor[] getColumnAccessors()
+        {
+            return this.columnAccessors;
+        }
+        String getTypeName()
+        {
+            return this.typeName;
+        }
+    }
+    
+    
+    EntityMeta getEntityMeta(Class<? extends Entity> type) throws Exception
+    {
+        EntityMeta entityMeta=null;
+        String typeName=type.getSimpleName();
+        synchronized (ENTITY_META_MAP)
+        {
+            entityMeta= ENTITY_META_MAP.get(typeName);
+        }
+        if (entityMeta==null)
         {
             HashMap<String, ColumnAccessor> map = new HashMap<String, ColumnAccessor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
@@ -566,13 +615,27 @@ public class Graph
                     }
                 }
             }
-            columnAccessors = map.values().toArray(new ColumnAccessor[map.size()]);
-            synchronized (COLUMN_ACCESSOR_ARRAY_MAP)
+            EntityType entityType;
+            if (type.getSuperclass()==NodeEntity.class)
             {
-                COLUMN_ACCESSOR_ARRAY_MAP.put(type.getName(), columnAccessors);
+                entityType=EntityType.NODE;
+            }
+            else if (type.getSuperclass()==LinkEntity.class)
+            {
+                entityType=EntityType.LINK;
+            }
+            else
+            {
+                throw new Exception();
+            }
+            
+            entityMeta = new EntityMeta(typeName,entityType,map.values().toArray(new ColumnAccessor[map.size()]));
+            synchronized (ENTITY_META_MAP)
+            {
+                ENTITY_META_MAP.put(type.getName(), entityMeta);
             }
         }
-        return columnAccessors;
+        return entityMeta;
     }
 
     static class NodeObjectKey
@@ -617,7 +680,7 @@ public class Graph
             return null;
         }
     }
-    static class NodeObjectCache extends Cache<Entity>
+    static class NodeObjectCache extends Cache<NodeEntity>
     {
         NodeObjectCache(Graph graph)
         {
@@ -630,10 +693,10 @@ public class Graph
 
     final private NodeObjectCache cache;
     
-    final private HashMap<String,ColumnAccessor[]> COLUMN_ACCESSOR_ARRAY_MAP=new HashMap<String, ColumnAccessor[]>();
+    final private HashMap<String,EntityMeta> ENTITY_META_MAP=new HashMap<String, EntityMeta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends Entity>> linkedMap=new HashMap<String, Class<? extends Entity>>();
+    final private HashMap<String,Class<? extends NodeEntity>> linkedMap=new HashMap<String, Class<? extends NodeEntity>>();
     
     public Graph(Connector connector)
     {
@@ -658,14 +721,14 @@ public class Graph
     {
         this.cache.evict(new NodeObjectKey(typeName,nodeId));
     }
-    public void createTable(Trace parent,Class<? extends Entity> type) throws Throwable
+    public void createTable(Trace parent,Class<? extends NodeEntity> type) throws Throwable
     {
         String table="e_"+type.getSimpleName();
         
         StringBuilder sql=new StringBuilder();
         sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,");
-        ColumnAccessor[] columnAccessors=this.getColumnAccessors(type);
-        for (ColumnAccessor columnAccessor:columnAccessors)
+        EntityMeta meta=this.getEntityMeta(type);
+        for (ColumnAccessor columnAccessor:meta.columnAccessors)
         {
             if (columnAccessor.isGraphfield())
             {
@@ -686,41 +749,42 @@ public class Graph
             }
         }
     }
-    public String getTableAlias(String typeName)
-    {
-        return '`'+typeName+'`';
-    }
-    public String getTableName(String typeName)
-    {
-        return "`e_"+typeName+'`';
-    }
-    public String getTableName(Class<? extends Entity> type)
-    {
-        return "`e_"+type.getSimpleName()+'`';
-    }
+//    public String getTableAlias(String typeName)
+//    {
+//        return '`'+typeName+'`';
+//    }
+//    public String getTableName(String typeName)
+//    {
+//        return "`e_"+typeName+'`';
+//    }
+//    public String getTableName(Class<? extends NodeEntity> type)
+//    {
+//        return "`e_"+type.getSimpleName()+'`';
+//    }
     
-    @SuppressWarnings("unchecked")
-    public Class<? extends Entity> getLinkedName(Class<? extends Link<?>> type) throws ClassNotFoundException
-    {
-        String key=type.getSimpleName();
-        Class<? extends Entity> value=null;
-        synchronized(this.linkedMap)
-        {
-            this.linkedMap.get(key);
-        }
-        if (value==null)
-        {
-            Type generic=type.getGenericSuperclass();
-            ParameterizedType parametized=(ParameterizedType)generic;
-            Type actual=parametized.getActualTypeArguments()[0];
-            String className=actual.getTypeName();
-            value=(Class<? extends Entity>)Class.forName(className);
-            synchronized(this.linkedMap)
-            {
-                this.linkedMap.put(key, value);
-            }
-        }
-        return value;
-    }
+//    @SuppressWarnings("unchecked")
+//    public Class<? extends NodeEntity> getLinkedName(Class<? extends Link<?>> type) throws ClassNotFoundException
+//    {
+//        String key=type.getSimpleName();
+//        Class<? extends NodeEntity> value=null;
+//        synchronized(this.linkedMap)
+//        {
+//            this.linkedMap.get(key);
+//        }
+//        if (value==null)
+//        {
+//            Type generic=type.getGenericSuperclass();
+//            ParameterizedType parametized=(ParameterizedType)generic;
+//            Type actual=parametized.getActualTypeArguments()[0];
+//            String className=actual.getTypeName();
+//            value=(Class<? extends NodeEntity>)Class.forName(className);
+//            synchronized(this.linkedMap)
+//            {
+//                this.linkedMap.put(key, value);
+//            }
+//        }
+//        return value;
+//    }
+    
     
 }

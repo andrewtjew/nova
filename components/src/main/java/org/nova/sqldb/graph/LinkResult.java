@@ -8,16 +8,20 @@ import org.nova.sqldb.Row;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
 
-public class NodeResult
+public class LinkResult 
 {
-    final private long nodeId;
-    final private NodeEntity[] entities;
+    final private long linkId;
+    final private long fromNodeId;
+    final private long toNodeId;
+    final private Entity[] entities;
     private Map<String,Integer> map;
     
-    NodeResult(long nodeId,NodeEntity[] entities)
+    LinkResult(long linkId,long fromNodeId,long toNodeId,Entity[] entities)
     {
         this.entities=entities;
-        this.nodeId=nodeId;
+        this.linkId=linkId;
+        this.fromNodeId=fromNodeId;
+        this.toNodeId=toNodeId;
     }
     
     void setMap(Map<String,Integer> map)
@@ -26,7 +30,7 @@ public class NodeResult
     }
     
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeEntity> ENTITY get(Class<ENTITY> type) throws Exception
+    public <ENTITY extends Entity> ENTITY get(Class<ENTITY> type) throws Exception
     {
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)
@@ -37,20 +41,22 @@ public class NodeResult
     }
 
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeEntity> ENTITY get(int index) throws Exception
+    public <ENTITY extends Entity> ENTITY get(int index) throws Exception
     {
         return (ENTITY) this.entities[index];
     }
-
     
-    public long getNodeId()
+    public long getLinkId()
     {
-        return this.nodeId;
+        return this.getLinkId();
     }
     
-    public Node openNode(GraphAccess access) throws Throwable
+    public long getFromNodeId()
     {
-        return access.openNode(this.nodeId);
+        return this.fromNodeId;
     }
-    
+    public long getToNodeId()
+    {
+        return this.toNodeId;
+    }
 }

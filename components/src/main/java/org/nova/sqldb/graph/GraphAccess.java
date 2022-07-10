@@ -18,6 +18,7 @@ import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
 import org.nova.sqldb.Update;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
+import org.nova.sqldb.graph.Graph.EntityMeta;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -78,7 +79,7 @@ public class GraphAccess implements AutoCloseable
         }
     }
 
-    public Node createNode(Entity...entities) throws Throwable
+    public Node createNode(NodeEntity...entities) throws Throwable
     {
         long nodeId=Insert.table("s_node").value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Node node=new Node(this,nodeId);
@@ -89,21 +90,23 @@ public class GraphAccess implements AutoCloseable
     public Node openNode(long nodeId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null
-                ,"SELECT count(*) FROM s_node WHERE id=?"
+                ,"SELECT id FROM s_node WHERE id=?"
                 ,nodeId);
-        if (rowSet.getRow(0).getBIGINT(0)==0)
+        int size=rowSet.size();
+        if (size==0)
         {
             return null;
         }
         return new Node(this,nodeId);
     }
     
-    void put(Entity object,long nodeId,long eventId) throws Throwable
+    void put(NodeEntity object,long nodeId,long eventId) throws Throwable
     {
-        Class<? extends Entity> type=object.getClass();
-        String table=this.graph.getTableName(type.getSimpleName());
+        Class<? extends NodeEntity> type=object.getClass();
+        EntityMeta meta=this.graph.getEntityMeta(type);
+        String table=meta.getTableName();
+        ColumnAccessor[] columnAccessors=meta.getColumnAccessors();
 
-        ColumnAccessor[] columnAccessors=this.graph.getColumnAccessors(type);
         StringBuilder insert=new StringBuilder();
         StringBuilder update=new StringBuilder();
         StringBuilder values=new StringBuilder();
@@ -140,77 +143,31 @@ public class GraphAccess implements AutoCloseable
     }
 
     @SuppressWarnings("unchecked")
-    <ENTITY extends Entity> ENTITY get(long nodeId,Class<? extends Entity> type) throws Throwable
+    <ENTITY extends NodeEntity> ENTITY get(long nodeId,Class<? extends NodeEntity> type) throws Throwable
     {
-        String typeName=type.getSimpleName();
-        String table=graph.getTableName(typeName);
-        
+        EntityMeta meta=this.graph.getEntityMeta(type);
+        String table=meta.getTableName();
+
         Row row=Select.source(table).executeOne(parent, this.accessor, "_nodeId_=?",nodeId);
         if (row==null)
         {
             return null;
         }
-        ColumnAccessor[] columnAccessors=graph.getColumnAccessors(type);
         ENTITY entity=(ENTITY) type.newInstance();
-        for (ColumnAccessor columnAccessor:columnAccessors)
+        for (ColumnAccessor columnAccessor:meta.getColumnAccessors())
         {
             columnAccessor.set(entity, null, row);
         }        
         return entity;
     }
-    
-    
-    public long getCount(Class<? extends Entity> type,String where,Object...parameters) throws Throwable
+
+    public long getCount(Class<? extends NodeEntity> type,String where,Object...parameters) throws Throwable
     {
-        String table=this.graph.getTableName(type.getSimpleName());
+        EntityMeta meta=this.graph.getEntityMeta(type);
+        String table=meta.getTableName();
         return this.accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
     }
     
-//    public void linkOne(long fromNodeId,long toNodeId,Class<? extends Entity> toType) throws Throwable
-//    {
-//        Event event=this.getEvent();
-//
-//        String table=this.graph.getTableName(toType.getSimpleName());
-//        Transaction transaction=null;
-//        if (this.atomic==false)
-//        {
-//            transaction=this.accessor.beginTransaction(this.trace.getCategory());
-//        }
-//        try
-//        {
-//            RowSet rowSet=accessor.executeQuery(this.trace, null
-//                    ,"SELECT _link.id FROM _link JOIN "+table+" ON _link.toNodeId="+table+"._nodeId AND "+table+"._retiredEventId IS NULL WHERE _link.retiredEventId IS NULL");
-//            if (rowSet.size()>1)
-//            {
-//                throw new Exception();
-//            }
-//            if (rowSet.size()==1)
-//            {
-//                long id=rowSet.getRow(0).getBIGINT(0);
-//                int updated=accessor.executeUpdate(this.trace,null
-//                        ,"UPDATE _link SET retiredEventId=? WHERE id=?"
-//                        ,event.id,id);
-//                System.out.println(updated);
-//            }
-//            this.accessor.executeUpdate(this.trace, null, "INSERT INTO _link (createdEventId,fromNodeId,toNodeId) VALUES(?,?,?)",event.id,fromNodeId,toNodeId);
-//        }
-//        catch (Throwable t)
-//        {
-//            if (transaction!=null)
-//            {
-//                transaction.rollback();
-//                transaction=null;
-//            }
-//            throw t;
-//        }
-//        finally
-//        {
-//            if (transaction!=null)
-//            {
-//                transaction.commit();
-//            }
-//        }
-//    }
     public final Accessor getAccessor() throws Exception
     {
         if (this.accessor==null)
@@ -229,9 +186,9 @@ public class GraphAccess implements AutoCloseable
         return this.accessor.beginTransaction("Graph");
     }
     
-    public Event getEntityEvent(long nodeId,Class<? extends Entity> type) throws Throwable
+    public Event getEntityEvent(long nodeId,Class<? extends NodeEntity> type) throws Throwable
     {
-        String tableName=this.graph.getTableName(type);
+        String tableName=this.graph.getEntityMeta(type).getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent,null
                 ,"SELECT id,created,creatorId,source FROM "+tableName+" JOIN s_event ON s_event.id="+tableName+"._createdEventId_ WHERE "+tableName+"._nodeId_=?",nodeId);
         if (rowSet.size()==0)
@@ -252,5 +209,77 @@ public class GraphAccess implements AutoCloseable
         {
             throw new Exception();
         }
+    }
+
+    public Link link(long fromNodeId,long toNodeId) throws Throwable
+    {
+        try
+        {
+            long id=Insert.table("s_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+            return new Link(this,id,fromNodeId,toNodeId);
+        }
+        catch (Throwable t)
+        {
+            return openLink(fromNodeId,toNodeId);
+        }
+    }
+    
+    int deleteLinks(long fromNodeId,Class<? extends NodeEntity> toType) throws Throwable
+    {
+        EntityMeta meta=this.graph.getEntityMeta(toType);
+        String table=meta.getTableName();
+        RowSet rowSet=this.accessor.executeQuery(parent, null
+                ,"SELECT s_link.id FROM s_link JOIN "+table+" ON "+table+"._nodeId=s_link.toNodeId WHERE fromNodeId=?"
+                ,fromNodeId);
+        Object[][] parameters=new Object[rowSet.size()][];
+        for (int i=0;i<parameters.length;i++)
+        {
+            parameters[i]=new Object[1];
+            parameters[i][0]=rowSet.getRow(i).getBIGINT(0);
+        }
+        
+        int[] results=this.accessor.executeBatchUpdate(this.parent,null,parameters,"DELETE FROM s_link WHERE id=?");
+        int total=0;
+        for (int i=0;i<results.length;i++)
+        {
+            total+=results[i];
+        }
+        return total;
+        
+    }
+    
+    public Link openLink(long linkId) throws Throwable
+    {
+        RowSet rowSet=this.accessor.executeQuery(parent, null
+                ,"SELECT fromNodeId,toNodeId FROM s_link WHERE id=?"
+                ,linkId);
+        int size=rowSet.size();
+        if (size==0)
+        {
+            return null;
+        }
+        else if (size>1)
+        {
+            throw new Exception();
+        }
+        Row row=rowSet.getRow(0);
+        return new Link(this,linkId,row.getBIGINT(0),row.getBIGINT(1));
+    }
+    public Link openLink(long fromNodeId,long toNodeId) throws Throwable
+    {
+        RowSet rowSet=this.accessor.executeQuery(parent, null
+                ,"SELECT id FROM s_link WHERE fromNodeId=? AND toNodeId=?"
+                ,fromNodeId,toNodeId);
+        int size=rowSet.size();
+        if (size==0)
+        {
+            return null;
+        }
+        else if (size>1)
+        {
+            throw new Exception();
+        }
+        Row row=rowSet.getRow(0);
+        return new Link(this,row.getBIGINT(0),fromNodeId,toNodeId);
     }
 }

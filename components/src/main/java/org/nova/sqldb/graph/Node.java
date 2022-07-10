@@ -3,12 +3,12 @@ package org.nova.sqldb.graph;
 public class Node
 {
     final private long id;
-    final GraphAccess graphEvent;
+    final GraphAccess access;
 
-    Node(GraphAccess graphEvent,long id)
+    Node(GraphAccess access,long id)
     {
         this.id=id;
-        this.graphEvent=graphEvent;
+        this.access=access;
     }
 
     public long getNodeId()
@@ -16,34 +16,35 @@ public class Node
         return this.id;
     }
 
-    public void put(Entity...entities) throws Throwable
+    public void put(NodeEntity...entities) throws Throwable
     {
-        long eventId=this.graphEvent.getEventId();
-        for (Entity entity:entities)
+        long eventId=this.access.getEventId();
+        for (NodeEntity entity:entities)
         {
-            this.graphEvent.put(entity,this.id,eventId);
+            this.access.put(entity,this.id,eventId);
         }
     }
     
-    public <ENTITY extends Entity> ENTITY getEntity(Class<ENTITY> type) throws Throwable
+//    public <ENTITY extends NodeEntity> ENTITY getEntity(Class<ENTITY> type) throws Throwable
+//    {
+//        return new NodeQuery(this.access,this.id).getEntity(type);
+//    }
+//
+//    public EntityResult getEntities(Class<? extends NodeEntity>...types) throws Throwable
+//    {
+//        return new NodeQuery(this.access,this.id).getNodeResult(types);
+//    }
+    
+    public Link link(long toNodeId) throws Throwable
     {
-        return new NodeQuery(this.graphEvent,this.id).getEntity(type);
+        return this.access.link(this.id,toNodeId);
     }
-
-    public EntityResult getEntities(Class<? extends Entity>...types) throws Throwable
+    public int deleteLinks(Class<? extends NodeEntity> toType) throws Throwable
     {
-        return new NodeQuery(this.graphEvent,this.id).getNodeResult(types);
+        return this.access.deleteLinks(this.id,toType);
     }
     
-//    public void link(Node toNode) throws Throwable
-//    {
-//        throw new Exception();
-//    }
-    public void link(long toNodeId) throws Throwable
-    {
-        throw new Exception();
-    }
-
+    
     
     
 }

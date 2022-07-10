@@ -1,27 +1,23 @@
 package org.nova.sqldb.graph;
 
-public class Link<OBJECT extends Entity>
+public class Link
 {
-    final private long nodeId;
+    final private long id;
     final private long fromNodeId;
     final private long toNodeId;
-    final private OBJECT toNodeObject;
+    final private GraphAccess access;
 
-    protected Link(long nodeId,long fromNodeId,long toNodeId,OBJECT toNodeObject)
+    protected Link(GraphAccess access,long id,long fromNodeId,long toNodeId)
     {
-        this.nodeId=nodeId;
+        this.access=access;
+        this.id=id;
         this.fromNodeId=fromNodeId;
         this.toNodeId=toNodeId;
-        this.toNodeObject=toNodeObject;
     }
 
-    public OBJECT getToNodeObject()
+    public long getLinkId()
     {
-        return this.toNodeObject;
-    }
-    public long getId()
-    {
-        return this.nodeId;
+        return this.id;
     }
     public long getFromNodeId()
     {
@@ -30,5 +26,9 @@ public class Link<OBJECT extends Entity>
     public long getToNodeId()
     {
         return this.toNodeId;
+    }
+    
+    public void delete()
+    {
     }
 }
