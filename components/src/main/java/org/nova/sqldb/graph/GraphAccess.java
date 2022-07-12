@@ -100,9 +100,9 @@ public class GraphAccess implements AutoCloseable
         return new Node(this,nodeId);
     }
     
-    void put(NodeEntity object,long nodeId,long eventId) throws Throwable
+    void put(NodeObject object,long nodeId,long eventId) throws Throwable
     {
-        Class<? extends NodeEntity> type=object.getClass();
+        Class<? extends NodeObject> type=object.getClass();
         EntityMeta meta=this.graph.getEntityMeta(type);
         String table=meta.getTableName();
         ColumnAccessor[] columnAccessors=meta.getColumnAccessors();

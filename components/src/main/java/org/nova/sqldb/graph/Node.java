@@ -16,10 +16,10 @@ public class Node
         return this.id;
     }
 
-    public void put(NodeEntity...entities) throws Throwable
+    public void put(NodeObject...entities) throws Throwable
     {
         long eventId=this.access.getEventId();
-        for (NodeEntity entity:entities)
+        for (NodeObject entity:entities)
         {
             this.access.put(entity,this.id,eventId);
         }

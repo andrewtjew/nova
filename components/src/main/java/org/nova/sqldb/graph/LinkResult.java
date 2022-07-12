@@ -13,10 +13,10 @@ public class LinkResult
     final private long linkId;
     final private long fromNodeId;
     final private long toNodeId;
-    final private Entity[] entities;
+    final private NodeObject[] entities;
     private Map<String,Integer> map;
     
-    LinkResult(long linkId,long fromNodeId,long toNodeId,Entity[] entities)
+    LinkResult(long linkId,long fromNodeId,long toNodeId,NodeObject[] entities)
     {
         this.entities=entities;
         this.linkId=linkId;
@@ -30,7 +30,7 @@ public class LinkResult
     }
     
     @SuppressWarnings("unchecked")
-    public <ENTITY extends Entity> ENTITY get(Class<ENTITY> type) throws Exception
+    public <ENTITY extends NodeObject> ENTITY get(Class<ENTITY> type) throws Exception
     {
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)
@@ -41,7 +41,7 @@ public class LinkResult
     }
 
     @SuppressWarnings("unchecked")
-    public <ENTITY extends Entity> ENTITY get(int index) throws Exception
+    public <ENTITY extends NodeObject> ENTITY get(int index) throws Exception
     {
         return (ENTITY) this.entities[index];
     }

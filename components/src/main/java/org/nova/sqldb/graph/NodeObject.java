@@ -1,5 +1,5 @@
 package org.nova.sqldb.graph;
 
-public class Entity
+public class NodeObject
 {
 }

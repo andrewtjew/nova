@@ -31,7 +31,7 @@ public class Graph
         public ColumnAccessor(Field field)
         {
             this.field = field;
-            this.graphField=field.getName().startsWith("_");
+            this.graphField=field.getAnnotation(GraphField.class)!=null;
         }
         
         public abstract void set(Object object,String typeName,Row row) throws Throwable;        
@@ -533,6 +533,7 @@ public class Graph
     enum EntityType
     {
         NODE,
+        NODE_ATTRIBUTE,
         LINK,
     }
     
@@ -576,7 +577,7 @@ public class Graph
     }
     
     
-    EntityMeta getEntityMeta(Class<? extends Entity> type) throws Exception
+    EntityMeta getEntityMeta(Class<?> type) throws Exception
     {
         EntityMeta entityMeta=null;
         String typeName=type.getSimpleName();
@@ -721,7 +722,7 @@ public class Graph
     {
         this.cache.evict(new NodeObjectKey(typeName,nodeId));
     }
-    public void createTable(Trace parent,Class<? extends NodeEntity> type) throws Throwable
+    public void createTable(Trace parent,Class<?> type) throws Throwable
     {
         String table="e_"+type.getSimpleName();
         

@@ -179,4 +179,14 @@ public class NodeQuery
         }
         return entities;
     }
+//    public <ENTITY extends NodeEntity> EntityMap<ENTITY> getEntityMap(Class<ENTITY> type) throws Throwable
+//    {
+//        ENTITY[] entities=getEntities(type);
+//        EntityMap<ENTITY> map=new EntityMap<ENTITY>();
+//        for (ENTITY entity:entities)
+//        {
+//            map.put(entity.getNodeId(), entity);
+//        }
+//        return map;
+//    }
 }

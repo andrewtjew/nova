@@ -39,7 +39,7 @@ public class LinkQuery
     }
     
     @SafeVarargs
-    final LinkResult[] _execute(Class<? extends Entity>...types) throws Throwable
+    final LinkResult[] _execute(Class<? extends NodeObject>...types) throws Throwable
     {
         Trace parent=this.access.parent;
         StringBuilder select = new StringBuilder();
@@ -49,7 +49,7 @@ public class LinkQuery
 
         boolean first=true;
         
-        for (Class<? extends Entity> type : types)
+        for (Class<? extends NodeObject> type : types)
         {
             EntityMeta meta=graph.getEntityMeta(type);
             String typeName = meta.getTypeName();
@@ -111,10 +111,10 @@ public class LinkQuery
             long fromNodeId = row.getBIGINT("_link.fromNodeId");
             long toNodeId = row.getBIGINT("_link.toNodeId");
 
-            Entity[] entities=new Entity[types.length];
+            NodeObject[] entities=new NodeObject[types.length];
             for (int j=0;j<types.length;j++)
             {
-                Class<? extends Entity> type=types[j];
+                Class<? extends NodeObject> type=types[j];
                 EntityMeta meta=graph.getEntityMeta(type);
                 String typeName=meta.getTypeName();
                 switch (meta.getEntityType())
@@ -123,7 +123,7 @@ public class LinkQuery
                     Long typeLinkId = row.getNullableBIGINT(typeName + "._linkId");
                     if (typeLinkId != null)
                     {
-                        Entity entity = (Entity) type.newInstance();
+                        NodeObject entity = (NodeObject) type.newInstance();
                         for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                         {
                             columnAccessor.set(entity, typeName, row);
@@ -135,7 +135,7 @@ public class LinkQuery
                     Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                     if (typeNodeId != null)
                     {
-                        Entity entity = (Entity) type.newInstance();
+                        NodeObject entity = (NodeObject) type.newInstance();
                         for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                         {
                             columnAccessor.set(entity, typeName, row);
@@ -151,7 +151,7 @@ public class LinkQuery
         return results;
     }
 
-    public LinkResult[] getLinkResults(Class<? extends Entity>...types) throws Throwable
+    public LinkResult[] getLinkResults(Class<? extends NodeObject>...types) throws Throwable
     {
         LinkResult[] results=_execute(types);
         HashMap<String,Integer> map=new HashMap<String, Integer>();
@@ -166,7 +166,7 @@ public class LinkQuery
         return results;
     }
     @SafeVarargs
-    final public LinkResult getLinkResult(Class<? extends Entity>...types) throws Throwable
+    final public LinkResult getLinkResult(Class<? extends NodeObject>...types) throws Throwable
     {
         LinkResult[] results=getLinkResults(types);
         if (results.length==0)
@@ -180,7 +180,7 @@ public class LinkQuery
         return results[0];
     }
     
-    public <ENTITY extends Entity> ENTITY getEntity(Class<? extends Entity> type) throws Throwable
+    public <ENTITY extends NodeObject> ENTITY getEntity(Class<? extends NodeObject> type) throws Throwable
     {
         ENTITY[] entities=getEntities(type);
         if (entities.length==0)
@@ -194,7 +194,7 @@ public class LinkQuery
         return entities[0];
     }
 
-    public <ENTITY extends Entity> ENTITY[] getEntities(Class<? extends Entity> type) throws Throwable
+    public <ENTITY extends NodeObject> ENTITY[] getEntities(Class<? extends NodeObject> type) throws Throwable
     {
         LinkResult[] results=_execute(type);
         @SuppressWarnings("unchecked")
@@ -205,4 +205,31 @@ public class LinkQuery
         }
         return entities;
     }
+//    public <ENTITY extends Entity> EntityMap<ENTITY> getEntityMap(Class<ENTITY> type) throws Throwable
+//    {
+//        
+//        ENTITY[] entities=getEntities(type);
+//        EntityMap<ENTITY> map=new EntityMap<ENTITY>();
+//        EntityMeta meta=this.access.graph.getEntityMeta(type);
+//        switch (meta.getEntityType())
+//        {
+//        case LINK:
+//            for (ENTITY entity:entities)
+//            {
+//                map.put(((LinkEntity)entity).getLinkId(), entity);
+//            }
+//            break;
+//        case NODE:
+//            for (ENTITY entity:entities)
+//            {
+//                map.put(((NodeEntity)entity).getNodeId(), entity);
+//            }
+//            break;
+//        default:
+//            throw new Exception();
+//        
+//        }
+//        return map;
+//    }
+    
 }
