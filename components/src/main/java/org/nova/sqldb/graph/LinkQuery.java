@@ -64,7 +64,7 @@ public class LinkQuery
                 }
                 join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.id=" + alias+ "._linkId");
                 break;
-            case NODE:
+            case ATTRIBUTE:
                 if (first)
                 {
                     join.append(" JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
@@ -131,7 +131,7 @@ public class LinkQuery
                         entities[j]=entity;
                     }
                     break;
-                case NODE:
+                case ATTRIBUTE:
                     Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                     if (typeNodeId != null)
                     {

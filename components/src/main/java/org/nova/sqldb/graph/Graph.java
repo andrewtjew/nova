@@ -532,8 +532,8 @@ public class Graph
     
     enum EntityType
     {
+        ATTRIBUTE,
         NODE,
-        NODE_ATTRIBUTE,
         LINK,
     }
     
@@ -617,7 +617,11 @@ public class Graph
                 }
             }
             EntityType entityType;
-            if (type.getSuperclass()==NodeEntity.class)
+            if (type.getSuperclass()==NodeAttribute.class)
+            {
+                entityType=EntityType.ATTRIBUTE;
+            }
+            else if (type.getSuperclass()==NodeEntity.class)
             {
                 entityType=EntityType.NODE;
             }
@@ -681,7 +685,7 @@ public class Graph
             return null;
         }
     }
-    static class NodeObjectCache extends Cache<NodeEntity>
+    static class NodeObjectCache extends Cache<NodeAttribute>
     {
         NodeObjectCache(Graph graph)
         {
@@ -697,7 +701,7 @@ public class Graph
     final private HashMap<String,EntityMeta> ENTITY_META_MAP=new HashMap<String, EntityMeta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends NodeEntity>> linkedMap=new HashMap<String, Class<? extends NodeEntity>>();
+    final private HashMap<String,Class<? extends NodeAttribute>> linkedMap=new HashMap<String, Class<? extends NodeAttribute>>();
     
     public Graph(Connector connector)
     {

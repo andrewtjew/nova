@@ -10,10 +10,10 @@ import org.nova.sqldb.graph.Graph.ColumnAccessor;
 
 public class EntityResult 
 {
-    final private NodeEntity[] entities;
+    final private NodeAttribute[] entities;
     private Map<String,Integer> map;
     
-    EntityResult(NodeEntity[] entities)
+    EntityResult(NodeAttribute[] entities)
     {
         this.entities=entities;
     }
@@ -24,7 +24,7 @@ public class EntityResult
     }
     
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeEntity> ENTITY get(Class<ENTITY> type) throws Exception
+    public <ENTITY extends NodeAttribute> ENTITY get(Class<ENTITY> type) throws Exception
     {
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)
@@ -35,7 +35,7 @@ public class EntityResult
     }
 
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeEntity> ENTITY get(int index) throws Exception
+    public <ENTITY extends NodeAttribute> ENTITY get(int index) throws Exception
     {
         return (ENTITY) this.entities[index];
     }

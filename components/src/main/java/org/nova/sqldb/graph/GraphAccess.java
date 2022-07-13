@@ -79,7 +79,7 @@ public class GraphAccess implements AutoCloseable
         }
     }
 
-    public Node createNode(NodeEntity...entities) throws Throwable
+    public Node createNode(NodeAttribute...entities) throws Throwable
     {
         long nodeId=Insert.table("s_node").value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Node node=new Node(this,nodeId);
@@ -143,7 +143,7 @@ public class GraphAccess implements AutoCloseable
     }
 
     @SuppressWarnings("unchecked")
-    <ENTITY extends NodeEntity> ENTITY get(long nodeId,Class<? extends NodeEntity> type) throws Throwable
+    <ENTITY extends NodeAttribute> ENTITY get(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
     {
         EntityMeta meta=this.graph.getEntityMeta(type);
         String table=meta.getTableName();
@@ -161,7 +161,7 @@ public class GraphAccess implements AutoCloseable
         return entity;
     }
 
-    public long getCount(Class<? extends NodeEntity> type,String where,Object...parameters) throws Throwable
+    public long getCount(Class<? extends NodeAttribute> type,String where,Object...parameters) throws Throwable
     {
         EntityMeta meta=this.graph.getEntityMeta(type);
         String table=meta.getTableName();
@@ -186,7 +186,7 @@ public class GraphAccess implements AutoCloseable
         return this.accessor.beginTransaction("Graph");
     }
     
-    public Event getEntityEvent(long nodeId,Class<? extends NodeEntity> type) throws Throwable
+    public Event getEntityEvent(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
     {
         String tableName=this.graph.getEntityMeta(type).getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent,null
@@ -224,7 +224,7 @@ public class GraphAccess implements AutoCloseable
         }
     }
     
-    int deleteLinks(long fromNodeId,Class<? extends NodeEntity> toType) throws Throwable
+    int deleteLinks(long fromNodeId,Class<? extends NodeAttribute> toType) throws Throwable
     {
         EntityMeta meta=this.graph.getEntityMeta(toType);
         String table=meta.getTableName();
