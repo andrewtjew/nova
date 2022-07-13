@@ -79,11 +79,12 @@ public class GraphAccess implements AutoCloseable
         }
     }
 
-    public Node createNode(NodeAttribute...entities) throws Throwable
+    public Node createNode(NodeEntity entity,NodeAttribute...attributes) throws Throwable
     {
         long nodeId=Insert.table("s_node").value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Node node=new Node(this,nodeId);
-        node.put(entities);
+        node.put(entity);
+        node.put(attributes);
         return node;
     }
 

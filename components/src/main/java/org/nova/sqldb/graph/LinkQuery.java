@@ -14,32 +14,64 @@ public class LinkQuery
 {
 //    final private ;
     final private long fromNodeId;
-    final private GraphAccess access;
-    private String where;
-    final private Object[] parameters;
+    final private Graph graph;
+    final private Trace parent;
+    
+    private GraphAccess access;
+    private String expression;
+    private Object[] parameters;
     private String orderBy;
 
-    @SafeVarargs
-    public LinkQuery(GraphAccess access,long fromNodeId,String where,Object...parameters)
+
+    public LinkQuery(GraphAccess access,long fromNodeId)
     {
+        this.parent=null;
         this.fromNodeId=fromNodeId;
         this.access=access;
-        this.parameters=parameters;
-        this.where=where;
+        this.graph=null;
+    }
+    public LinkQuery(Trace parent,Graph graph,long fromNodeId)
+    {
+        this.parent=parent;
+        this.fromNodeId=fromNodeId;
+        this.graph=graph;
+        this.access=null;
     }
     
-    public LinkQuery(GraphAccess access,long nodeId)
-    {
-        this(access,nodeId,null);
-    }
     public LinkQuery orderBy(String orderBy)
     {
         this.orderBy=orderBy;
         return this;
     }
+    public LinkQuery where(String expression,Object...parameters)
+    {
+        this.expression=expression;
+        this.parameters=parameters;
+        return this;
+    }    
     
     @SafeVarargs
-    final LinkResult[] _execute(Class<? extends NodeObject>...types) throws Throwable
+    final LinkResult[] _execute(Class<? extends NodeAttribute>...types) throws Throwable
+    {
+        if (this.access==null)
+        {
+            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
+            {
+                this.access=access;
+                return __execute(types);
+            }
+            finally
+            {
+                this.access=null;
+            }
+        }
+        else
+        {
+            return __execute(types);
+        }
+    }   
+    @SafeVarargs
+    final LinkResult[] __execute(Class<? extends NodeObject>...types) throws Throwable
     {
         Trace parent=this.access.parent;
         StringBuilder select = new StringBuilder();
@@ -84,16 +116,16 @@ public class LinkQuery
             }
         }
         StringBuilder query = new StringBuilder("SELECT s_link.id AS '_link.id',s_link.fromNodeId AS '_link.fromNodeId',s_link.toNodeId AS '_link.toNodeId'" + select + "FROM s_link" + join);
-        if (where==null)
+        if (expression==null)
         {
-            where="s_link.fromNodeId="+this.fromNodeId;
+            expression="s_link.fromNodeId="+this.fromNodeId;
         }
         else
         {
-            where="s_link.fromNodeId="+this.fromNodeId+" AND "+where;
+            expression="s_link.fromNodeId="+this.fromNodeId+" AND "+expression;
         }
         query.append(" WHERE ");
-        query.append(where);
+        query.append(expression);
         if (this.orderBy != null)
         {
             query.append(" ORDER BY ");
@@ -153,7 +185,7 @@ public class LinkQuery
 
     public LinkResult[] getLinkResults(Class<? extends NodeObject>...types) throws Throwable
     {
-        LinkResult[] results=_execute(types);
+        LinkResult[] results=__execute(types);
         HashMap<String,Integer> map=new HashMap<String, Integer>();
         for (int i=0;i<types.length;i++)
         {
@@ -196,7 +228,7 @@ public class LinkQuery
 
     public <ENTITY extends NodeObject> ENTITY[] getEntities(Class<? extends NodeObject> type) throws Throwable
     {
-        LinkResult[] results=_execute(type);
+        LinkResult[] results=__execute(type);
         @SuppressWarnings("unchecked")
         ENTITY[] entities=(ENTITY[]) Array.newInstance(type,results.length);
         for (int i=0;i<entities.length;i++)
