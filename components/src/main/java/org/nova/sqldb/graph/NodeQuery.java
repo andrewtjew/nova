@@ -12,40 +12,60 @@ import org.nova.tracing.Trace;
 public class NodeQuery
 {
 //    final private ;
-    final private Long nodeId;
-    final private GraphAccess access;
-    private String where;
-    final private Object[] parameters;
+    final private Graph graph;
+    final private Trace parent;
+    private GraphAccess access;
+    private String expression;
+    private Object[] parameters;
     private String orderBy;
 
-    @SafeVarargs
-    public NodeQuery(GraphAccess access,long nodeId,String where,Object...parameters)
+    public NodeQuery(GraphAccess access)
     {
-        this.nodeId=nodeId;
         this.access=access;
-        this.parameters=parameters;
-        this.where=where;
+        this.graph=null;
+        this.parent=null;
     }
-    
-    public NodeQuery(GraphAccess access,long nodeId)
+    public NodeQuery(Trace parent,Graph graph)
     {
-        this(access,nodeId,null);
+        this.access=null;
+        this.graph=graph;
+        this.parent=parent;
     }
-    public NodeQuery(GraphAccess access,String where,Object...parameters)
-    {
-        this.nodeId=null;
-        this.access=access;
-        this.parameters=parameters;
-        this.where=where;
-    }
+
     public NodeQuery orderBy(String orderBy)
     {
         this.orderBy=orderBy;
         return this;
     }
+    public NodeQuery where(String expression,Object...parameters)
+    {
+        this.expression=expression;
+        this.parameters=parameters;
+        return this;
+    }
     
-    @SafeVarargs
-    final NodeResult[] _execute(Class<? extends NodeEntity>...types) throws Throwable
+    NodeResult[] _execute(Long nodeId,Class<? extends NodeEntity>...types) throws Throwable
+    {
+        if (this.access==null)
+        {
+            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.NodeQuery",null, false))
+            {
+                this.access=access;
+                return __execute(nodeId,types);
+            }
+            finally
+            {
+                this.access=null;
+            }
+        }
+        else
+        {
+            return __execute(nodeId,types);
+        }
+    }
+    
+
+    NodeResult[] __execute(Long nodeId,Class<? extends NodeEntity>[] types) throws Throwable
     {
         Trace parent=this.access.parent;
         StringBuilder select = new StringBuilder();
@@ -62,31 +82,27 @@ public class NodeQuery
             join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_node.id=" + alias+ "._nodeId");
             for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
             {
-//                if (columnAccessor.isGraphfield())
-//                {
-//                    continue;
-//                }
                 String fieldColumnName = columnAccessor.getColumnName(typeName);
                 String tableColumnName = columnAccessor.getColumnName(alias);
                 select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
             }
         }
         StringBuilder query = new StringBuilder("SELECT s_node.id AS '_node.id'" + select + "FROM s_node" + join);
-        if (this.nodeId!=null)
+        if (nodeId!=null)
         {
-            if (where==null)
+            if (expression==null)
             {
-                where="s_node.id="+this.nodeId;
+                expression="s_node.id="+nodeId;
             }
             else
             {
-                where="s_node.id="+this.nodeId+" AND "+where;
+                expression="s_node.id="+nodeId+" AND "+expression;
             }
         }
-        if (where != null)
+        if (expression != null)
         {
             query.append(" WHERE ");
-            query.append(where);
+            query.append(expression);
         }
         if (this.orderBy != null)
         {
@@ -94,14 +110,22 @@ public class NodeQuery
             query.append(orderBy);
         }
         System.out.println(query);
-        RowSet rowSet = access.getAccessor().executeQuery(parent, null,
-                query.toString(), parameters);
-
+        RowSet rowSet;
+        if (this.parameters!=null)
+        {
+            rowSet = access.getAccessor().executeQuery(parent, null,
+                    query.toString(), parameters);
+        }
+        else
+        {
+            rowSet = access.getAccessor().executeQuery(parent, null,
+                query.toString());
+        }
         NodeResult[] results = new NodeResult[rowSet.size()];
         for (int i = 0; i < rowSet.size();i++)
         {
             Row row = rowSet.getRow(i);
-            long nodeId = row.getBIGINT("_node.id");
+            nodeId = row.getBIGINT("_node.id");
 
             NodeEntity[] entities=new NodeEntity[types.length];
             for (int j=0;j<types.length;j++)
@@ -127,7 +151,7 @@ public class NodeQuery
 
     public NodeResult[] getNodeResults(Class<? extends NodeEntity>...types) throws Throwable
     {
-        NodeResult[] results=_execute(types);
+        NodeResult[] results=_execute(null,types);
         HashMap<String,Integer> map=new HashMap<String, Integer>();
         for (int i=0;i<types.length;i++)
         {
@@ -140,9 +164,9 @@ public class NodeQuery
         return results;
     }
     @SafeVarargs
-    final public NodeResult getNodeResult(Class<? extends NodeEntity>...types) throws Throwable
+    final public NodeResult getNodeResult(long nodeId,Class<? extends NodeEntity>...types) throws Throwable
     {
-        NodeResult[] results=getNodeResults(types);
+        NodeResult[] results=_execute(nodeId,types);
         if (results.length==0)
         {
             return null;
@@ -151,26 +175,32 @@ public class NodeQuery
         {
             throw new Exception();
         }
+        HashMap<String,Integer> map=new HashMap<String, Integer>();
+        for (int i=0;i<types.length;i++)
+        {
+            map.put(types[i].getSimpleName(), i);
+        }
+        results[0].setMap(map);
         return results[0];
     }
     
-    public <ENTITY extends NodeEntity> ENTITY getEntity(Class<? extends NodeEntity> type) throws Throwable
+    public <ENTITY extends NodeEntity> ENTITY getEntity(long nodeId,Class<? extends NodeEntity> type) throws Throwable
     {
-        ENTITY[] entities=getEntities(type);
-        if (entities.length==0)
+        NodeResult[] results=_execute(nodeId,type);
+        if (results.length==0)
         {
             return null;
         }
-        if (entities.length>1)
+        if (results.length>1)
         {
             throw new Exception();
         }
-        return entities[0];
+        return results[0].get(0);
     }
 
     public <ENTITY extends NodeEntity> ENTITY[] getEntities(Class<? extends NodeEntity> type) throws Throwable
     {
-        NodeResult[] results=_execute(type);
+        NodeResult[] results=_execute(null,type);
         @SuppressWarnings("unchecked")
         ENTITY[] entities=(ENTITY[]) Array.newInstance(type,results.length);
         for (int i=0;i<entities.length;i++)
