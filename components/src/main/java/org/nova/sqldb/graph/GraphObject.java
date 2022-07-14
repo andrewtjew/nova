@@ -1,6 +1,5 @@
 package org.nova.sqldb.graph;
 
-//public class GraphObject
-//{
-//
-//}
+public class GraphObject
+{
+}

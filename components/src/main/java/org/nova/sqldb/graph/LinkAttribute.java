@@ -2,7 +2,7 @@ package org.nova.sqldb.graph;
 
 import java.sql.Timestamp;
 
-public class LinkEntity extends NodeObject
+public class LinkAttribute extends GraphObject
 {
     Long _linkId;    
     public long getLinkId()

@@ -532,9 +532,9 @@ public class Graph
     
     enum EntityType
     {
-        ATTRIBUTE,
         NODE,
-        LINK,
+        NODE_ATTRIBUTE,
+        LINK_ATTRIBUTE,
     }
     
     static class EntityMeta
@@ -619,15 +619,15 @@ public class Graph
             EntityType entityType;
             if (type.getSuperclass()==NodeAttribute.class)
             {
-                entityType=EntityType.ATTRIBUTE;
+                entityType=EntityType.NODE_ATTRIBUTE;
             }
             else if (type.getSuperclass()==NodeEntity.class)
             {
                 entityType=EntityType.NODE;
             }
-            else if (type.getSuperclass()==LinkEntity.class)
+            else if (type.getSuperclass()==LinkAttribute.class)
             {
-                entityType=EntityType.LINK;
+                entityType=EntityType.LINK_ATTRIBUTE;
             }
             else
             {

@@ -11,12 +11,12 @@ import org.nova.sqldb.graph.Graph.ColumnAccessor;
 public class NodeResult
 {
     final private long nodeId;
-    final private NodeAttribute[] entities;
+    final private NodeObject[] objects;
     private Map<String,Integer> map;
     
-    NodeResult(long nodeId,NodeAttribute[] entities)
+    NodeResult(long nodeId,NodeObject[] objects)
     {
-        this.entities=entities;
+        this.objects=objects;
         this.nodeId=nodeId;
     }
     
@@ -33,13 +33,13 @@ public class NodeResult
         {
             throw new Exception();
         }
-        return (ENTITY) this.entities[index];
+        return (ENTITY) this.objects[index];
     }
 
     @SuppressWarnings("unchecked")
     public <ENTITY extends NodeObject> ENTITY get(int index) throws Exception
     {
-        return (ENTITY) this.entities[index];
+        return (ENTITY) this.objects[index];
     }
 
     
