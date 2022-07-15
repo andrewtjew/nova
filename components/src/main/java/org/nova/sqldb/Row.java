@@ -26,6 +26,8 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -287,7 +289,21 @@ public class Row
 	}
 	public Timestamp getTIMESTAMP(int columnIndex)
 	{
-		return (Timestamp)this.data[columnIndex];
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Timestamp)
+        {
+            return (Timestamp)object;
+        }
+        else if (object instanceof LocalDateTime )
+        {
+            LocalDateTime ldt=(LocalDateTime)object;
+            return new Timestamp(ldt.toEpochSecond(ZoneOffset.UTC)*1000+ldt.getNano()/1000000);
+        }
+        throw new RuntimeException();
 	}
     public Timestamp getTIMESTAMP(String columnName)
     {

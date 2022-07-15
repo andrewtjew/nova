@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 import org.nova.utils.TypeUtils;
 
-import com.mysql.fabric.xmlrpc.base.Array;
 
 public class Packet
 {
