@@ -7,6 +7,8 @@ import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -311,6 +313,62 @@ public class Graph
                 }
             };
         }
+        else if (type == LocalTime.class)
+        {
+            accessor=new ColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    field.set(object,row.getTIME(getColumnName(typeName)).toLocalTime());
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "time NULL DEFAULT NULL";
+                }
+
+                @Override
+                public Object get(Object object) throws Throwable
+                {
+                    Object value=field.get(object);
+                    if (value==null)
+                    {
+                        return null;
+                    }
+                    return Time.valueOf((LocalTime)value);
+                }
+            };
+        }
+        else if (type == LocalDateTime.class)
+        {
+            accessor=new ColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    field.set(object,row.getTIMESTAMP(getColumnName(typeName)).toLocalDateTime());
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "timestamp NULL DEFAULT NULL";
+                }
+
+                @Override
+                public Object get(Object object) throws Throwable
+                {
+                    Object value=field.get(object);
+                    if (value==null)
+                    {
+                        return null;
+                    }
+                    return Timestamp.valueOf((LocalDateTime)value);
+                }
+            };
+        }
         else if (type == Timestamp.class)
         {
             accessor=new DefaultGetColumnAccessor(field)
@@ -537,7 +595,7 @@ public class Graph
         LINK_ATTRIBUTE,
     }
     
-    static class EntityMeta
+    static class Meta
     {
         final private ColumnAccessor[] columnAccessors;
         final private EntityType entityType;
@@ -545,7 +603,7 @@ public class Graph
         final private String tableName;
         final private String typeName;
         
-        EntityMeta(String typeName,EntityType entityType,ColumnAccessor[] columnnAccessors)
+        Meta(String typeName,EntityType entityType,ColumnAccessor[] columnnAccessors)
         {
             this.entityType=entityType;
             this.columnAccessors=columnnAccessors;
@@ -577,9 +635,9 @@ public class Graph
     }
     
     
-    EntityMeta getEntityMeta(Class<?> type) throws Exception
+    Meta getMeta(Class<?> type) throws Exception
     {
-        EntityMeta entityMeta=null;
+        Meta entityMeta=null;
         String typeName=type.getSimpleName();
         synchronized (ENTITY_META_MAP)
         {
@@ -631,10 +689,10 @@ public class Graph
             }
             else
             {
-                throw new Exception();
+                throw new Exception(type.getName()+" needs extend from a subclass of GraphObject.");
             }
             
-            entityMeta = new EntityMeta(typeName,entityType,map.values().toArray(new ColumnAccessor[map.size()]));
+            entityMeta = new Meta(typeName,entityType,map.values().toArray(new ColumnAccessor[map.size()]));
             synchronized (ENTITY_META_MAP)
             {
                 ENTITY_META_MAP.put(type.getName(), entityMeta);
@@ -698,7 +756,7 @@ public class Graph
 
     final private NodeObjectCache cache;
     
-    final private HashMap<String,EntityMeta> ENTITY_META_MAP=new HashMap<String, EntityMeta>();
+    final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
     final private HashMap<String,Class<? extends NodeAttribute>> linkedMap=new HashMap<String, Class<? extends NodeAttribute>>();
@@ -732,7 +790,7 @@ public class Graph
         
         StringBuilder sql=new StringBuilder();
         sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,");
-        EntityMeta meta=this.getEntityMeta(type);
+        Meta meta=this.getMeta(type);
         for (ColumnAccessor columnAccessor:meta.columnAccessors)
         {
             if (columnAccessor.isGraphfield())

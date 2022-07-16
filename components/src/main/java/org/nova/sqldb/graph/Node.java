@@ -35,9 +35,13 @@ public class Node
 //        return new NodeQuery(this.access,this.id).getNodeResult(types);
 //    }
     
-    public Link link(long toNodeId) throws Throwable
+    public Link linkTo(long toNodeId) throws Throwable
     {
         return this.access.link(this.id,toNodeId);
+    }
+    public Link linkFrom(long fromNodeId) throws Throwable
+    {
+        return this.access.link(fromNodeId,this.id);
     }
     public int deleteLinks(Class<? extends NodeAttribute> toType) throws Throwable
     {

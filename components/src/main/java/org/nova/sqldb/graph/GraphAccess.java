@@ -18,7 +18,7 @@ import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
 import org.nova.sqldb.Update;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
-import org.nova.sqldb.graph.Graph.EntityMeta;
+import org.nova.sqldb.graph.Graph.Meta;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -104,7 +104,7 @@ public class GraphAccess implements AutoCloseable
     void put(NodeObject object,long nodeId,long eventId) throws Throwable
     {
         Class<? extends NodeObject> type=object.getClass();
-        EntityMeta meta=this.graph.getEntityMeta(type);
+        Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
         ColumnAccessor[] columnAccessors=meta.getColumnAccessors();
 
@@ -146,7 +146,7 @@ public class GraphAccess implements AutoCloseable
     @SuppressWarnings("unchecked")
     <ENTITY extends NodeAttribute> ENTITY get(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
     {
-        EntityMeta meta=this.graph.getEntityMeta(type);
+        Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
 
         Row row=Select.source(table).executeOne(parent, this.accessor, "_nodeId_=?",nodeId);
@@ -164,7 +164,7 @@ public class GraphAccess implements AutoCloseable
 
     public long getCount(Class<? extends NodeAttribute> type,String where,Object...parameters) throws Throwable
     {
-        EntityMeta meta=this.graph.getEntityMeta(type);
+        Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
         return this.accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
     }
@@ -189,7 +189,7 @@ public class GraphAccess implements AutoCloseable
     
     public Event getEntityEvent(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
     {
-        String tableName=this.graph.getEntityMeta(type).getTableName();
+        String tableName=this.graph.getMeta(type).getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent,null
                 ,"SELECT id,created,creatorId,source FROM "+tableName+" JOIN s_event ON s_event.id="+tableName+"._createdEventId_ WHERE "+tableName+"._nodeId_=?",nodeId);
         if (rowSet.size()==0)
@@ -227,7 +227,7 @@ public class GraphAccess implements AutoCloseable
     
     int deleteLinks(long fromNodeId,Class<? extends NodeAttribute> toType) throws Throwable
     {
-        EntityMeta meta=this.graph.getEntityMeta(toType);
+        Meta meta=this.graph.getMeta(toType);
         String table=meta.getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent, null
                 ,"SELECT s_link.id FROM s_link JOIN "+table+" ON "+table+"._nodeId=s_link.toNodeId WHERE fromNodeId=?"

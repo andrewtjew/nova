@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
-import org.nova.sqldb.graph.Graph.EntityMeta;
+import org.nova.sqldb.graph.Graph.Meta;
 import org.nova.tracing.Trace;
 
 public class NodeQuery
@@ -77,7 +77,7 @@ public class NodeQuery
         if (entityType!=null)
         {
             totalResultTypes++;
-            EntityMeta meta=graph.getEntityMeta(entityType);
+            Meta meta=graph.getMeta(entityType);
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
@@ -92,7 +92,7 @@ public class NodeQuery
         totalResultTypes+=types.length;
         for (Class<? extends NodeAttribute> type : types)
         {
-            EntityMeta meta=graph.getEntityMeta(type);
+            Meta meta=graph.getMeta(type);
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
@@ -144,28 +144,27 @@ public class NodeQuery
             Row row = rowSet.getRow(i);
             nodeId = row.getBIGINT("_node.id");
 
-            NodeAttribute[] attributes=new NodeAttribute[totalResultTypes];
+            NodeObject[] objects=new NodeObject[totalResultTypes];
             int index=0;
             if (entityType!=null)
             {
-//                Class<? extends NodeAttribute> type=entityType;
-                EntityMeta meta=graph.getEntityMeta(entityType);
+                Meta meta=graph.getMeta(entityType);
                 String typeName=meta.getTypeName();
                 Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                 if (typeNodeId != null)
                 {
-                    NodeAttribute attribute = (NodeAttribute) entityType.newInstance();
+                    NodeEntity entity = (NodeEntity) entityType.newInstance();
                     for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                     {
-                        columnAccessor.set(attribute, typeName, row);
+                        columnAccessor.set(entity, typeName, row);
                     }
-                    attributes[index++]=attribute;
+                    objects[index++]=entity;
                 }
             }
             for (Class<? extends NodeAttribute> type:types)
             {
 //                    Class<? extends NodeAttribute> type=types[j];
-                EntityMeta meta=graph.getEntityMeta(type);
+                Meta meta=graph.getMeta(type);
                 String typeName=meta.getTypeName();
                 Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                 if (typeNodeId != null)
@@ -175,10 +174,10 @@ public class NodeQuery
                     {
                         columnAccessor.set(entity, typeName, row);
                     }
-                    attributes[index++]=entity;
+                    objects[index++]=entity;
                 }
             }
-            results[i]=new NodeResult(nodeId, attributes);
+            results[i]=new NodeResult(nodeId, objects);
         }
         return results;
     }
@@ -208,7 +207,7 @@ public class NodeQuery
         Trace parent=this.access.parent;
 
         Graph graph = access.graph;
-        EntityMeta meta=graph.getEntityMeta(entityType);
+        Meta meta=graph.getMeta(entityType);
         String table = meta.getTableName();
         StringBuilder query = new StringBuilder("SELECT s_node.id FROM s_node JOIN " + table+" ON s_node.id=" +table+ "._nodeId WHERE "+this.expression);
 

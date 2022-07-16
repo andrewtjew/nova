@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.graph.Graph.ColumnAccessor;
-import org.nova.sqldb.graph.Graph.EntityMeta;
+import org.nova.sqldb.graph.Graph.Meta;
 import org.nova.sqldb.graph.Graph.EntityType;
 import org.nova.tracing.Trace;
 
@@ -67,7 +67,7 @@ public class LinkQuery
         }
     }   
     @SafeVarargs
-    final LinkResult[] __execute(long fromNodeId,Class<? extends NodeObject> entityType,Class<? extends NodeObject>...types) throws Throwable
+    final LinkResult[] __execute(long fromNodeId,Class<? extends NodeObject> entityType,Class<? extends GraphObject>...types) throws Throwable
     {
         Trace parent=this.access.parent;
         StringBuilder select = new StringBuilder();
@@ -78,7 +78,7 @@ public class LinkQuery
         if (entityType!=null)
         {
             totalResultTypes++;
-            EntityMeta meta=graph.getEntityMeta(entityType);
+            Meta meta=graph.getMeta(entityType);
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
@@ -91,9 +91,9 @@ public class LinkQuery
             }
         }
         totalResultTypes+=types.length;
-        for (Class<? extends NodeObject> type : types)
+        for (Class<? extends GraphObject> type : types)
         {
-            EntityMeta meta=graph.getEntityMeta(type);
+            Meta meta=graph.getMeta(type);
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
@@ -134,8 +134,18 @@ public class LinkQuery
             query.append(orderBy);
         }
         System.out.println(query);
-        RowSet rowSet = access.getAccessor().executeQuery(parent, null,
-                query.toString(), parameters);
+        RowSet rowSet;
+        if (parameters!=null)
+        {
+            rowSet = access.getAccessor().executeQuery(parent, null,
+                    query.toString(), parameters);
+        }
+        else
+        {
+            rowSet = access.getAccessor().executeQuery(parent, null,
+                    query.toString());
+            
+        }
 
         LinkResult[] results = new LinkResult[rowSet.size()];
         for (int i = 0; i < rowSet.size();i++)
@@ -145,11 +155,26 @@ public class LinkQuery
 //            long fromNodeId = row.getBIGINT("_link.fromNodeId");
             long toNodeId = row.getBIGINT("_link.toNodeId");
 
-            GraphObject[] attributes=new GraphObject[totalResultTypes];
-            for (int j=0;j<types.length;j++)
+            GraphObject[] objects=new GraphObject[totalResultTypes];
+            int index=0;
+            if (entityType!=null)
             {
-                Class<? extends NodeObject> type=types[j];
-                EntityMeta meta=graph.getEntityMeta(type);
+                Meta meta=graph.getMeta(entityType);
+                String typeName=meta.getTypeName();
+                Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
+                if (typeNodeId != null)
+                {
+                    NodeEntity entity = (NodeEntity) entityType.newInstance();
+                    for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                    {
+                        columnAccessor.set(entity, typeName, row);
+                    }
+                    objects[index++]=entity;
+                }
+            }
+            for (Class<? extends GraphObject> type:types)
+            {
+                Meta meta=graph.getMeta(type);
                 String typeName=meta.getTypeName();
                 switch (meta.getEntityType())
                 {
@@ -157,24 +182,26 @@ public class LinkQuery
                     Long typeLinkId = row.getNullableBIGINT(typeName + "._linkId");
                     if (typeLinkId != null)
                     {
-                        NodeObject attribute = (NodeObject) type.newInstance();
+                        LinkAttribute attribute = (LinkAttribute) type.newInstance();
                         for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                         {
                             columnAccessor.set(attribute, typeName, row);
                         }
-                        attributes[j]=attribute;
+                        objects[index++]=attribute;
+                        attribute._linkId=typeLinkId;
                     }
                     break;
                 case NODE_ATTRIBUTE:
                     Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                     if (typeNodeId != null)
                     {
-                        NodeObject attribute = (NodeObject) type.newInstance();
+                        NodeObject nodeObject = (NodeObject) type.newInstance();
                         for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                         {
-                            columnAccessor.set(attribute, typeName, row);
+                            columnAccessor.set(nodeObject, typeName, row);
                         }
-                        attributes[j]=attribute;
+                        nodeObject._nodeId=typeNodeId;
+                        objects[index++]=nodeObject;
                     }
                     break;
                 case NODE:
@@ -184,7 +211,7 @@ public class LinkQuery
                 
                 }
             }
-            results[i]=new LinkResult(linkId, fromNodeId,toNodeId,attributes);
+            results[i]=new LinkResult(linkId, fromNodeId,toNodeId,objects);
         }
         return results;
     }
@@ -211,7 +238,7 @@ public class LinkQuery
     @SafeVarargs
     final public LinkResult[] getLinkResults(long fromNodeId,Class<? extends NodeEntity> entityType,Class<? extends NodeObject>...types) throws Throwable
     {
-        LinkResult[] results=__execute(fromNodeId,entityType,types);
+        LinkResult[] results=_execute(fromNodeId,entityType,types);
         buildMap(results,entityType,types);
         return results;
     }
@@ -256,7 +283,7 @@ public class LinkQuery
     
     public <ENTITY extends NodeObject> ENTITY[] getEntities(long fromNodeId,Class<? extends NodeEntity> entityType) throws Throwable
     {
-        LinkResult[] results=__execute(fromNodeId,entityType);
+        LinkResult[] results=_execute(fromNodeId,entityType);
         @SuppressWarnings("unchecked")
         ENTITY[] entities=(ENTITY[]) Array.newInstance(entityType,results.length);
         for (int i=0;i<entities.length;i++)
@@ -268,7 +295,7 @@ public class LinkQuery
 
     public <ENTITY extends NodeObject> ENTITY getEntity(long fromNodeId,Class<? extends NodeEntity> entityType) throws Throwable
     {
-        LinkResult[] results=__execute(fromNodeId,entityType);
+        LinkResult[] results=_execute(fromNodeId,entityType);
         if (results.length==0)
         {
             return null;
