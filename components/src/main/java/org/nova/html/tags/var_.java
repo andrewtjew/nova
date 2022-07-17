@@ -23,9 +23,9 @@ package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
 
-public class var extends GlobalEventTagElement<var>
+public class var_ extends GlobalEventTagElement<var_>
 {
-    public var()
+    public var_()
     {
         super("var");
     }

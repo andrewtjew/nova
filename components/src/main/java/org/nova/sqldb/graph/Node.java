@@ -24,17 +24,6 @@ public class Node
             this.access.put(entity,this.id,eventId);
         }
     }
-    
-//    public <ENTITY extends NodeEntity> ENTITY getEntity(Class<ENTITY> type) throws Throwable
-//    {
-//        return new NodeQuery(this.access,this.id).getEntity(type);
-//    }
-//
-//    public EntityResult getEntities(Class<? extends NodeEntity>...types) throws Throwable
-//    {
-//        return new NodeQuery(this.access,this.id).getNodeResult(types);
-//    }
-    
     public Link linkTo(long toNodeId) throws Throwable
     {
         return this.access.link(this.id,toNodeId);
@@ -46,6 +35,10 @@ public class Node
     public int deleteLinks(Class<? extends NodeAttribute> toType) throws Throwable
     {
         return this.access.deleteLinks(this.id,toType);
+    }
+    public boolean delete() throws Throwable
+    {
+        return this.access.deleteNode(this.id);
     }
     
     

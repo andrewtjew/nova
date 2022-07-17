@@ -248,6 +248,12 @@ public class GraphAccess implements AutoCloseable
         return total;
         
     }
+    boolean deleteNode(long nodeId) throws Throwable
+    {
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM s_link WHERE toNodeId=?",nodeId);
+        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM s_node WHERE id=?",nodeId);
+        return deleted>0;
+    }
     
     public Link openLink(long linkId) throws Throwable
     {
