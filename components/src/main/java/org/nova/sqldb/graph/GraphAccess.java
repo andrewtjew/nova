@@ -162,7 +162,7 @@ public class GraphAccess implements AutoCloseable
         return entity;
     }
 
-    public long getCount(Class<? extends NodeAttribute> type,String where,Object...parameters) throws Throwable
+    public long getCount(Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
     {
         Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
@@ -225,7 +225,7 @@ public class GraphAccess implements AutoCloseable
         }
     }
     
-    int deleteLinks(long fromNodeId,Class<? extends NodeAttribute> toType) throws Throwable
+    int deleteLinks(long fromNodeId,Class<? extends NodeEntity> toType) throws Throwable
     {
         Meta meta=this.graph.getMeta(toType);
         String table=meta.getTableName();

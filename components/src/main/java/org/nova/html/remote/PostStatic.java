@@ -6,7 +6,7 @@ import org.nova.json.ObjectMap;
 import org.nova.json.ObjectMapper;
 
 @Deprecated()
-//Use RemoteUtils
+//Use Static
 public class PostStatic 
 {
 	final private ObjectMap parameters;

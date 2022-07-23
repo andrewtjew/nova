@@ -32,7 +32,7 @@ public class Node
     {
         return this.access.link(fromNodeId,this.id);
     }
-    public int deleteLinks(Class<? extends NodeAttribute> toType) throws Throwable
+    public int deleteLinks(Class<? extends NodeEntity> toType) throws Throwable
     {
         return this.access.deleteLinks(this.id,toType);
     }

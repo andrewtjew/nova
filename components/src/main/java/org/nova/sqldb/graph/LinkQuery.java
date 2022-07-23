@@ -47,14 +47,15 @@ public class LinkQuery
     }    
     
     @SafeVarargs
-    final LinkResult[] _execute(long fromNodeId,Class<? extends NodeObject> entityType,Class<? extends NodeObject>...types) throws Throwable
+    final LinkResult[] _execute(long fromNodeId,Class<? extends NodeEntity> entityType,Class<? extends NodeObject>...types) throws Throwable
     {
+        NodeLinkTypes nodeLinkTypes=new NodeLinkTypes(entityType,types);
         if (this.access==null)
         {
             try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
             {
                 this.access=access;
-                return __execute(fromNodeId,entityType,types);
+                return __execute(fromNodeId,new NodeLinkTypes[] {nodeLinkTypes});
             }
             finally
             {
@@ -63,11 +64,30 @@ public class LinkQuery
         }
         else
         {
-            return __execute(fromNodeId,entityType,types);
+            return __execute(fromNodeId,new NodeLinkTypes[] {nodeLinkTypes});
         }
     }   
     @SafeVarargs
-    final LinkResult[] __execute(long fromNodeId,Class<? extends NodeObject> entityType,Class<? extends GraphObject>...types) throws Throwable
+    final LinkResult[] _execute(long fromNodeId,NodeLinkTypes...nodeLinkTypesArray) throws Throwable
+    {
+        if (this.access==null)
+        {
+            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
+            {
+                this.access=access;
+                return __execute(fromNodeId,nodeLinkTypesArray);
+            }
+            finally
+            {
+                this.access=null;
+            }
+        }
+        else
+        {
+            return __execute(fromNodeId,nodeLinkTypesArray);
+        }
+    }   
+    final LinkResult[] __execute(long fromNodeId,NodeLinkTypes[] nodeLinkTypesArray) throws Throwable
     {
         Trace parent=this.access.parent;
         StringBuilder select = new StringBuilder();
@@ -75,46 +95,52 @@ public class LinkQuery
 
         Graph graph = access.graph;
         int totalResultTypes=0;
-        if (entityType!=null)
+        for (NodeLinkTypes nodeLinkTypes:nodeLinkTypesArray )
         {
-            totalResultTypes++;
-            Meta meta=graph.getMeta(entityType);
-            String typeName = meta.getTypeName();
-            String table = meta.getTableName();
-            String alias= meta.getTableAlias();
-            join.append(" JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
-            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+            Class<? extends NodeEntity> entityType=nodeLinkTypes.nodeEntityType;
+            Class<? extends NodeObject>[] types=nodeLinkTypes.attributeTypes;
+            
+            if (entityType!=null)
             {
-                String fieldColumnName = columnAccessor.getColumnName(typeName);
-                String tableColumnName = columnAccessor.getColumnName(alias);
-                select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                totalResultTypes++;
+                Meta meta=graph.getMeta(entityType);
+                String typeName = meta.getTypeName();
+                String table = meta.getTableName();
+                String alias= meta.getTableAlias();
+                join.append(" JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
+                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                {
+                    String fieldColumnName = columnAccessor.getColumnName(typeName);
+                    String tableColumnName = columnAccessor.getColumnName(alias);
+                    select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                }
             }
-        }
-        totalResultTypes+=types.length;
-        for (Class<? extends GraphObject> type : types)
-        {
-            Meta meta=graph.getMeta(type);
-            String typeName = meta.getTypeName();
-            String table = meta.getTableName();
-            String alias= meta.getTableAlias();
-            switch (meta.getEntityType())
+            totalResultTypes+=types.length;
+            for (Class<? extends GraphObject> type : types)
             {
-            case LINK_ATTRIBUTE:
-                join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.id=" + alias+ "._linkId");
-                break;
-            case NODE_ATTRIBUTE:
-                join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
-                break;
-            case NODE:
-                throw new Exception();
-            default:
-                throw new Exception();
-            }
-            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
-            {
-                String fieldColumnName = columnAccessor.getColumnName(typeName);
-                String tableColumnName = columnAccessor.getColumnName(alias);
-                select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                Meta meta=graph.getMeta(type);
+                String typeName = meta.getTypeName();
+                String table = meta.getTableName();
+                String alias= meta.getTableAlias();
+                switch (meta.getEntityType())
+                {
+                case LINK_ATTRIBUTE:
+                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.id=" + alias+ "._linkId");
+                    break;
+                case NODE_ATTRIBUTE:
+                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
+                    break;
+                case NODE:
+                    throw new Exception();
+                default:
+                    throw new Exception();
+                }
+                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                {
+                    String fieldColumnName = columnAccessor.getColumnName(typeName);
+                    String tableColumnName = columnAccessor.getColumnName(alias);
+                    select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                }
             }
         }
         StringBuilder query = new StringBuilder("SELECT s_link.id AS '_link.id',s_link.fromNodeId AS '_link.fromNodeId',s_link.toNodeId AS '_link.toNodeId'" + select + "FROM s_link" + join);
@@ -148,70 +174,77 @@ public class LinkQuery
         }
 
         LinkResult[] results = new LinkResult[rowSet.size()];
-        for (int i = 0; i < rowSet.size();i++)
+        for (NodeLinkTypes nodeLinkTypes:nodeLinkTypesArray )
         {
-            Row row = rowSet.getRow(i);
-            long linkId = row.getBIGINT("_link.id");
-//            long fromNodeId = row.getBIGINT("_link.fromNodeId");
-            long toNodeId = row.getBIGINT("_link.toNodeId");
-
-            GraphObject[] objects=new GraphObject[totalResultTypes];
-            int index=0;
-            if (entityType!=null)
+            Class<? extends NodeEntity> entityType=nodeLinkTypes.nodeEntityType;
+            Class<? extends NodeObject>[] types=nodeLinkTypes.attributeTypes;
+            
+            for (int i = 0; i < rowSet.size();i++)
             {
-                Meta meta=graph.getMeta(entityType);
-                String typeName=meta.getTypeName();
-                Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
-                if (typeNodeId != null)
+                Row row = rowSet.getRow(i);
+                long linkId = row.getBIGINT("_link.id");
+    //            long fromNodeId = row.getBIGINT("_link.fromNodeId");
+                long toNodeId = row.getBIGINT("_link.toNodeId");
+    
+                GraphObject[] objects=new GraphObject[totalResultTypes];
+                int index=0;
+                if (entityType!=null)
                 {
-                    NodeEntity entity = (NodeEntity) entityType.newInstance();
-                    for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
-                    {
-                        columnAccessor.set(entity, typeName, row);
-                    }
-                    objects[index++]=entity;
-                }
-            }
-            for (Class<? extends GraphObject> type:types)
-            {
-                Meta meta=graph.getMeta(type);
-                String typeName=meta.getTypeName();
-                switch (meta.getEntityType())
-                {
-                case LINK_ATTRIBUTE:
-                    Long typeLinkId = row.getNullableBIGINT(typeName + "._linkId");
-                    if (typeLinkId != null)
-                    {
-                        LinkAttribute attribute = (LinkAttribute) type.newInstance();
-                        for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
-                        {
-                            columnAccessor.set(attribute, typeName, row);
-                        }
-                        objects[index++]=attribute;
-                        attribute._linkId=typeLinkId;
-                    }
-                    break;
-                case NODE_ATTRIBUTE:
+                    Meta meta=graph.getMeta(entityType);
+                    String typeName=meta.getTypeName();
                     Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
                     if (typeNodeId != null)
                     {
-                        NodeObject nodeObject = (NodeObject) type.newInstance();
+                        NodeEntity entity = (NodeEntity) entityType.newInstance();
                         for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                         {
-                            columnAccessor.set(nodeObject, typeName, row);
+                            columnAccessor.set(entity, typeName, row);
                         }
-                        nodeObject._nodeId=typeNodeId;
-                        objects[index++]=nodeObject;
+                        objects[index++]=entity;
                     }
-                    break;
-                case NODE:
-                    throw new Exception();
-                default:
-                    throw new Exception();
-                
                 }
+                for (Class<? extends GraphObject> type:types)
+                {
+                    Meta meta=graph.getMeta(type);
+                    String typeName=meta.getTypeName();
+                    switch (meta.getEntityType())
+                    {
+                    case LINK_ATTRIBUTE:
+                        Long typeLinkId = row.getNullableBIGINT(typeName + "._linkId");
+                        if (typeLinkId != null)
+                        {
+                            LinkAttribute attribute = (LinkAttribute) type.newInstance();
+                            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                            {
+                                columnAccessor.set(attribute, typeName, row);
+                            }
+                            objects[index++]=attribute;
+                            attribute._linkId=typeLinkId;
+                        }
+                        break;
+                    case NODE_ATTRIBUTE:
+                        Long typeNodeId = row.getNullableBIGINT(typeName + "._nodeId");
+                        if (typeNodeId != null)
+                        {
+                            NodeObject nodeObject = (NodeObject) type.newInstance();
+                            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                            {
+                                columnAccessor.set(nodeObject, typeName, row);
+                            }
+                            nodeObject._nodeId=typeNodeId;
+                            objects[index]=nodeObject;
+                        }
+                        break;
+                    case NODE:
+                        throw new Exception();
+                    default:
+                        throw new Exception();
+                    
+                    }
+                    index++;
+                }
+                results[i]=new LinkResult(linkId, fromNodeId,toNodeId,objects);
             }
-            results[i]=new LinkResult(linkId, fromNodeId,toNodeId,objects);
         }
         return results;
     }
@@ -306,6 +339,33 @@ public class LinkQuery
         }
         return results[0].get(0);
      }
+
+    @SafeVarargs
+    final public LinkResult[] getLinkResults(long fromNodeId,NodeLinkTypes...nodeLinkTypesArray) throws Throwable
+    {
+        LinkResult[] results=_execute(fromNodeId,nodeLinkTypesArray);
+        HashMap<String,Integer> map=new HashMap<String, Integer>();
+        int index=0;
+        for (NodeLinkTypes nodeLinkTypes:nodeLinkTypesArray)
+        {
+            Class<? extends NodeEntity> entityType=nodeLinkTypes.nodeEntityType;
+            Class<? extends NodeObject>[] types=nodeLinkTypes.attributeTypes;
+            if (entityType!=null)
+            {
+                map.put(entityType.getSimpleName(), index++);
+            }
+            for (Class<? extends NodeObject> type:types)
+            {
+                map.put(type.getSimpleName(), index++);
+            }
+            for (int i=0;i<results.length;i++)
+            {
+                results[i].setMap(map);
+            }
+        }
+        return results;
+    }
+
 
 //    public <ENTITY extends Entity> EntityMap<ENTITY> getEntityMap(Class<ENTITY> type) throws Throwable
 //    {

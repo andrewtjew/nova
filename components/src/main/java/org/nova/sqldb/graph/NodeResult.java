@@ -26,7 +26,7 @@ public class NodeResult
     }
     
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeAttribute> ENTITY get(Class<ENTITY> type) throws Exception
+    public <ENTITY extends NodeObject> ENTITY get(Class<ENTITY> type) throws Exception
     {
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)

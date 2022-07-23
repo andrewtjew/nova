@@ -174,8 +174,9 @@ public class NodeQuery
                     {
                         columnAccessor.set(entity, typeName, row);
                     }
-                    objects[index++]=entity;
+                    objects[index]=entity;
                 }
+                index++;
             }
             results[i]=new NodeResult(nodeId, objects);
         }
