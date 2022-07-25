@@ -11,11 +11,11 @@ import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 
 public class LinkResult 
 {
-    final private long linkId;
-    final private long fromNodeId;
-    final private long toNodeId;
-    final private GraphObject[] objects;
-    private Map<String,Integer> map;
+    final long linkId;
+    final long fromNodeId;
+    final long toNodeId;
+    final GraphObject[] objects;
+    Map<String,Integer> map;
     
     LinkResult(long linkId,long fromNodeId,long toNodeId,GraphObject[] objects)
     {
