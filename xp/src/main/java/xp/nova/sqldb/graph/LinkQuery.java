@@ -359,7 +359,8 @@ public class LinkQuery
         buildMap(results,entityType,types);
         return results;
     }
-    final public LinkResult[] getMultiLinkResults(long fromNodeId,Class<? extends NodeEntity> entityType,Class<? extends NodeEntity>...entityTypes) throws Throwable
+    @SafeVarargs
+    final public LinkResult[] getMultiLinkSingleResults(long fromNodeId,Class<? extends NodeEntity> entityType,Class<? extends NodeEntity>...entityTypes) throws Throwable
     {
         LinkResult[] firstResults=_execute(new long[] {fromNodeId},entityType);
 
@@ -370,6 +371,7 @@ public class LinkQuery
         HashMap<String,Integer> map=new HashMap<String, Integer>();
         this.expression=null;
         this.parameters=null;
+        this.orderBy=null;
         map.put(entityType.getSimpleName(),0);
         
         long[] nodeIds=new long[firstResults.length];

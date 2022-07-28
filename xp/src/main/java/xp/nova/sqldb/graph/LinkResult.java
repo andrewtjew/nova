@@ -36,7 +36,7 @@ public class LinkResult
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)
         {
-            throw new Exception();
+            return null;
         }
         return (ENTITY) this.objects[index];
     }
