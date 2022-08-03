@@ -55,7 +55,7 @@ public class LinkQuery
         NodeLinkTypes nodeLinkTypes=new NodeLinkTypes(entityType,types);
         if (this.access==null)
         {
-            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
+            try (GraphAccess access=this.graph.openAccess(this.parent,"Graph.LinkQuery",null, false))
             {
                 this.access=access;
                 return __execute(fromNodeIds,new NodeLinkTypes[] {nodeLinkTypes});
@@ -75,7 +75,7 @@ public class LinkQuery
     {
         if (this.access==null)
         {
-            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
+            try (GraphAccess access=this.graph.openAccess(this.parent,"Graph.LinkQuery",null, false))
             {
                 this.access=access;
                 return __execute(fromNodeIds,nodeLinkTypesArray);
@@ -110,7 +110,7 @@ public class LinkQuery
                 String typeName = meta.getTypeName();
                 String table = meta.getTableName();
                 String alias= meta.getTableAlias();
-                join.append(" JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
+                join.append(" JOIN " + table + "AS "+alias+" ON _link.toNodeId=" + alias+ "._nodeId");
                 for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
@@ -128,10 +128,10 @@ public class LinkQuery
                 switch (meta.getEntityType())
                 {
                 case LINK_ATTRIBUTE:
-                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.id=" + alias+ "._linkId");
+                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON _link.id=" + alias+ "._linkId");
                     break;
                 case NODE_ATTRIBUTE:
-                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_link.toNodeId=" + alias+ "._nodeId");
+                    join.append(" LEFT JOIN " + table + "AS "+alias+" ON _link.toNodeId=" + alias+ "._nodeId");
                     break;
                 case NODE:
                     throw new Exception();
@@ -146,16 +146,16 @@ public class LinkQuery
                 }
             }
         }
-        StringBuilder query = new StringBuilder("SELECT s_link.id AS '_link.id',s_link.fromNodeId AS '_link.fromNodeId',s_link.toNodeId AS '_link.toNodeId'" + select + "FROM s_link" + join);
+        StringBuilder query = new StringBuilder("SELECT _link.id AS '_link.id',_link.fromNodeId AS '_link.fromNodeId',_link.toNodeId AS '_link.toNodeId'" + select + "FROM _link" + join);
         
         query.append(" WHERE ");
         if (fromNodeIds.length==1)
         {
-            query.append("s_link.fromNodeId="+fromNodeIds[0]);
+            query.append("_link.fromNodeId="+fromNodeIds[0]);
         }
         else
         {
-            query.append("s_link.fromNodeId IN ("+Utils.combine(fromNodeIds,",")+")");
+            query.append("_link.fromNodeId IN ("+Utils.combine(fromNodeIds,",")+")");
         }
         if (expression!=null)
         {

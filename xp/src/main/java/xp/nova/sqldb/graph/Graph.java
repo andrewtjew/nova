@@ -610,7 +610,7 @@ public class Graph
             this.columnAccessors=columnnAccessors;
             this.typeName=typeName;
             this.tableAlias='`'+typeName+'`';
-            this.tableName="`e_"+typeName+'`';
+            this.tableName='`'+typeName+'`';
         }
 
         String getTableAlias()
@@ -729,33 +729,33 @@ public class Graph
         }
     }
     
-    static class Cache<VALUE> extends ContentCache<NodeObjectKey,VALUE>
-    {
-        final Graph graph;
-        
-        Cache(Graph graph)
-        {
-            this.graph=graph;
-        }
-
-        @Override
-        protected ValueSize<VALUE> load(Trace parent, NodeObjectKey key) throws Throwable
-        {
-            return null;
-        }
-    }
-    static class NodeObjectCache extends Cache<NodeAttribute>
-    {
-        NodeObjectCache(Graph graph)
-        {
-            super(graph);
-            // TODO Auto-generated constructor stub
-        }
-
-
-    }
-
-    final private NodeObjectCache cache;
+//    static class Cache<VALUE> extends ContentCache<NodeObjectKey,VALUE>
+//    {
+//        final Graph graph;
+//        
+//        Cache(Graph graph)
+//        {
+//            this.graph=graph;
+//        }
+//
+//        @Override
+//        protected ValueSize<VALUE> load(Trace parent, NodeObjectKey key) throws Throwable
+//        {
+//            return null;
+//        }
+//    }
+//    static class NodeObjectCache extends Cache<NodeAttribute>
+//    {
+//        NodeObjectCache(Graph graph)
+//        {
+//            super(graph);
+//            // TODO Auto-generated constructor stub
+//        }
+//
+//
+//    }
+//
+//    final private NodeObjectCache cache;
     
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
@@ -765,32 +765,28 @@ public class Graph
     public Graph(Connector connector)
     {
         this.connector=connector;
-        this.cache=new NodeObjectCache(this);
+//        this.cache=new NodeObjectCache(this);
     }
     public Connector getConnector()
     {
         return this.connector;
     }
     
-    public GraphAccess beginAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
+    public GraphAccess openAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
     {
         return new GraphAccess(parent,this,category,creatorId,beginTransaction);
     }
 
-//    public <OBJECT extends NodeObject> OBJECT getNodeObject(Class<OBJECT> type,long nodeId) throws Throwable
+//    void evict(String typeName,long nodeId)
 //    {
-//        return (OBJECT)this.cache.get(new NodeObjectKey(type.getSimpleName(), nodeId));
+//        this.cache.evict(new NodeObjectKey(typeName,nodeId));
 //    }
-    void evict(String typeName,long nodeId)
-    {
-        this.cache.evict(new NodeObjectKey(typeName,nodeId));
-    }
     public void createTable(Trace parent,Class<?> type) throws Throwable
     {
-        String table="e_"+type.getSimpleName();
+        String table=type.getSimpleName();
         
         StringBuilder sql=new StringBuilder();
-        sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_createdEventId` bigint NOT NULL,");
+        sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
         Meta meta=this.getMeta(type);
         for (ColumnAccessor columnAccessor:meta.columnAccessors)
         {
@@ -813,42 +809,5 @@ public class Graph
             }
         }
     }
-//    public String getTableAlias(String typeName)
-//    {
-//        return '`'+typeName+'`';
-//    }
-//    public String getTableName(String typeName)
-//    {
-//        return "`e_"+typeName+'`';
-//    }
-//    public String getTableName(Class<? extends NodeEntity> type)
-//    {
-//        return "`e_"+type.getSimpleName()+'`';
-//    }
-    
-//    @SuppressWarnings("unchecked")
-//    public Class<? extends NodeEntity> getLinkedName(Class<? extends Link<?>> type) throws ClassNotFoundException
-//    {
-//        String key=type.getSimpleName();
-//        Class<? extends NodeEntity> value=null;
-//        synchronized(this.linkedMap)
-//        {
-//            this.linkedMap.get(key);
-//        }
-//        if (value==null)
-//        {
-//            Type generic=type.getGenericSuperclass();
-//            ParameterizedType parametized=(ParameterizedType)generic;
-//            Type actual=parametized.getActualTypeArguments()[0];
-//            String className=actual.getTypeName();
-//            value=(Class<? extends NodeEntity>)Class.forName(className);
-//            synchronized(this.linkedMap)
-//            {
-//                this.linkedMap.put(key, value);
-//            }
-//        }
-//        return value;
-//    }
-    
     
 }

@@ -50,7 +50,7 @@ public class NodeQuery
     {
         if (this.access==null)
         {
-            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.NodeQuery",null, false))
+            try (GraphAccess access=this.graph.openAccess(this.parent,"Graph.NodeQuery",null, false))
             {
                 this.access=access;
                 return __execute(nodeId,entityType,types);
@@ -82,7 +82,7 @@ public class NodeQuery
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
-            join.append(" JOIN " + table + "AS "+alias+" ON s_node.id=" + alias+ "._nodeId");
+            join.append(" JOIN " + table + "AS "+alias+" ON _node.id=" + alias+ "._nodeId");
             for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
             {
                 String fieldColumnName = columnAccessor.getColumnName(typeName);
@@ -97,7 +97,7 @@ public class NodeQuery
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
             String alias= meta.getTableAlias();
-            join.append(" LEFT JOIN " + table + "AS "+alias+" ON s_node.id=" + alias+ "._nodeId");
+            join.append(" LEFT JOIN " + table + "AS "+alias+" ON _node.id=" + alias+ "._nodeId");
             for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
             {
                 String fieldColumnName = columnAccessor.getColumnName(typeName);
@@ -105,16 +105,16 @@ public class NodeQuery
                 select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
             }
         }
-        StringBuilder query = new StringBuilder("SELECT s_node.id AS '_node.id'" + select + "FROM s_node" + join);
+        StringBuilder query = new StringBuilder("SELECT _node.id AS '_node.id'" + select + "FROM _node" + join);
         if (nodeId!=null)
         {
             if (expression==null)
             {
-                expression="s_node.id="+nodeId;
+                expression="_node.id="+nodeId;
             }
             else
             {
-                expression="s_node.id="+nodeId+" AND "+expression;
+                expression="_node.id="+nodeId+" AND "+expression;
             }
         }
         if (expression != null)
@@ -188,7 +188,7 @@ public class NodeQuery
     {
         if (this.access==null)
         {
-            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.NodeQuery",null, false))
+            try (GraphAccess access=this.graph.openAccess(this.parent,"Graph.NodeQuery",null, false))
             {
                 this.access=access;
                 return __getNodeIds(entityType);
@@ -211,7 +211,7 @@ public class NodeQuery
         Graph graph = access.graph;
         Meta meta=graph.getMeta(entityType);
         String table = meta.getTableName();
-        StringBuilder query = new StringBuilder("SELECT s_node.id FROM s_node JOIN " + table+" ON s_node.id=" +table+ "._nodeId WHERE "+this.expression);
+        StringBuilder query = new StringBuilder("SELECT _node.id FROM _node JOIN " + table+" ON _node.id=" +table+ "._nodeId WHERE "+this.expression);
 
         if (this.orderBy != null)
         {

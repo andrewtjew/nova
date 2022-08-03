@@ -52,7 +52,7 @@ public class LinkQuery2
     {
         if (this.access==null)
         {
-            try (GraphAccess access=this.graph.beginAccess(this.parent,"Graph.LinkQuery",null, false))
+            try (GraphAccess access=this.graph.openAccess(this.parent,"Graph.LinkQuery",null, false))
             {
                 this.access=access;
                 return __execute(fromNodeId,entityType,types);

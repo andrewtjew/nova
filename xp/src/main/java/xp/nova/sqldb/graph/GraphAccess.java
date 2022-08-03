@@ -60,7 +60,7 @@ public class GraphAccess implements AutoCloseable
             }
             Timestamp created=SqlUtils.now();
             this.eventId=this.accessor.executeUpdateAndReturnGeneratedKeys(parent,null
-                    ,"INSERT INTO s_event (created,creatorId,source) VALUES(?,?,?)"
+                    ,"INSERT INTO _event (created,creatorId,source) VALUES(?,?,?)"
                     ,created,this.creatorId,this.source
                     ).getAsLong(0);
         }
@@ -82,7 +82,7 @@ public class GraphAccess implements AutoCloseable
 
     public Node createNode(NodeEntity entity,NodeAttribute...attributes) throws Throwable
     {
-        long nodeId=Insert.table("s_node").value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+        long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Node node=new Node(this,nodeId);
         node.put(entity);
         node.put(attributes);
@@ -92,7 +92,7 @@ public class GraphAccess implements AutoCloseable
     public Node openNode(long nodeId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null
-                ,"SELECT id FROM s_node WHERE id=?"
+                ,"SELECT id FROM _node WHERE id=?"
                 ,nodeId);
         int size=rowSet.size();
         if (size==0)
@@ -120,9 +120,9 @@ public class GraphAccess implements AutoCloseable
         parameters[insertIndex++]=eventId;
         parameters[updateIndex++]=eventId;
 
-        insert.append("_nodeId,_createdEventId");
+        insert.append("_nodeId,_eventId");
         values.append("?,?");
-        update.append("_createdEventId=?");
+        update.append("_eventId=?");
         
         for (ColumnAccessor columnAccessor:columnAccessors)
         {
@@ -192,7 +192,7 @@ public class GraphAccess implements AutoCloseable
     {
         String tableName=this.graph.getMeta(type).getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent,null
-                ,"SELECT id,created,creatorId,source FROM "+tableName+" JOIN s_event ON s_event.id="+tableName+"._createdEventId_ WHERE "+tableName+"._nodeId_=?",nodeId);
+                ,"SELECT id,created,creatorId,source FROM "+tableName+" JOIN _event ON _event.id="+tableName+"._eventId WHERE "+tableName+"._nodeId_=?",nodeId);
         if (rowSet.size()==0)
         {
             return null;
@@ -217,7 +217,7 @@ public class GraphAccess implements AutoCloseable
     {
         try
         {
-            long id=Insert.table("s_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("createdEventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+            long id=Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
             return new Link(this,id,fromNodeId,toNodeId);
         }
         catch (Throwable t)
@@ -231,7 +231,7 @@ public class GraphAccess implements AutoCloseable
         Meta meta=this.graph.getMeta(toType);
         String table=meta.getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent, null
-                ,"SELECT s_link.id FROM s_link JOIN "+table+" ON "+table+"._nodeId=s_link.toNodeId WHERE fromNodeId=?"
+                ,"SELECT _link.id FROM _link JOIN "+table+" ON "+table+"._nodeId=_link.toNodeId WHERE fromNodeId=?"
                 ,fromNodeId);
         Object[][] parameters=new Object[rowSet.size()][];
         for (int i=0;i<parameters.length;i++)
@@ -240,7 +240,7 @@ public class GraphAccess implements AutoCloseable
             parameters[i][0]=rowSet.getRow(i).getBIGINT(0);
         }
         
-        int[] results=this.accessor.executeBatchUpdate(this.parent,null,parameters,"DELETE FROM s_link WHERE id=?");
+        int[] results=this.accessor.executeBatchUpdate(this.parent,null,parameters,"DELETE FROM _link WHERE id=?");
         int total=0;
         for (int i=0;i<results.length;i++)
         {
@@ -251,15 +251,15 @@ public class GraphAccess implements AutoCloseable
     }
     boolean deleteNode(long nodeId) throws Throwable
     {
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM s_link WHERE toNodeId=?",nodeId);
-        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM s_node WHERE id=?",nodeId);
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
+        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         return deleted>0;
     }
     
     public Link openLink(long linkId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null
-                ,"SELECT fromNodeId,toNodeId FROM s_link WHERE id=?"
+                ,"SELECT fromNodeId,toNodeId FROM _link WHERE id=?"
                 ,linkId);
         int size=rowSet.size();
         if (size==0)
@@ -276,7 +276,7 @@ public class GraphAccess implements AutoCloseable
     public Link openLink(long fromNodeId,long toNodeId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null
-                ,"SELECT id FROM s_link WHERE fromNodeId=? AND toNodeId=?"
+                ,"SELECT id FROM _link WHERE fromNodeId=? AND toNodeId=?"
                 ,fromNodeId,toNodeId);
         int size=rowSet.size();
         if (size==0)
