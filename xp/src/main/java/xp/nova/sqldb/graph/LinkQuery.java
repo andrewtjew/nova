@@ -46,6 +46,14 @@ public class LinkQuery
     {
         this.expression=expression;
         this.parameters=parameters;
+        for (int i=0;i<parameters.length;i++)
+        {
+            Object parameter=parameters[i];
+            if (parameter instanceof ShortEnummerable)
+            {
+                parameters[i]=((ShortEnummerable)parameter).getValue();
+            }
+        }
         return this;
     }    
     

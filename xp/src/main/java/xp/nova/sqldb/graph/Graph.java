@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -321,7 +322,11 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getTIME(getColumnName(typeName)).toLocalTime());
+                    Time value=row.getTIME(getColumnName(typeName));
+                    if (value!=null)
+                    {
+                        field.set(object,value.toLocalTime());
+                    }
                 }
 
                 @Override
@@ -342,6 +347,38 @@ public class Graph
                 }
             };
         }
+        else if (type == LocalDate.class)
+        {
+            accessor=new ColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    Date value=row.getDATE(getColumnName(typeName));
+                    if (value!=null)
+                    {
+                        field.set(object,value.toLocalDate());
+                    }
+                }
+
+                @Override
+                public String getSqlType() throws Throwable
+                {
+                    return "date NULL DEFAULT NULL";
+                }
+
+                @Override
+                public Object get(Object object) throws Throwable
+                {
+                    Object value=field.get(object);
+                    if (value==null)
+                    {
+                        return null;
+                    }
+                    return Date.valueOf((LocalDate)value);
+                }
+            };
+        }
         else if (type == LocalDateTime.class)
         {
             accessor=new ColumnAccessor(field)
@@ -349,7 +386,11 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getTIMESTAMP(getColumnName(typeName)).toLocalDateTime());
+                    Timestamp value=row.getTIMESTAMP(getColumnName(typeName));
+                    if (value!=null)
+                    {
+                        field.set(object,value.toLocalDateTime());
+                    }
                 }
 
                 @Override
