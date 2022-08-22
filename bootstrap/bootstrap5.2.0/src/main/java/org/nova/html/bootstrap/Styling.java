@@ -50,50 +50,6 @@ public interface Styling<ELEMENT>
     public ELEMENT addClass(Object class_,Object...fragments);
     public TagElement<?> getElement();
 
-//    public default ELEMENT color(StyleColor value,boolean outline)
-//    {
-//        TagElement<?> element=getElement();
-//        if (element instanceof StyleComponent<?>)
-//        {
-//            StyleComponent<?> component=(StyleComponent<?>)element;
-//            if (outline)
-//            {
-//                addClass(component.getComponentClass(),outline?"outline":null,value.toString());
-//            }
-//            else
-//            {
-//                addClass(component.getComponentClass(),value.toString());
-//            }
-//        }
-//        
-//        return (ELEMENT)this;
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public default ELEMENT color(StyleColor value)
-//    {
-//        return color(value,false);
-//    }
-
-//    public default ELEMENT addClass(Object class_,Object...fragments)
-//    {
-//        if (fragments!=null)
-//        {
-//            if (class_!=null)
-//            {
-//                StringBuilder sb=new StringBuilder(class_.toString());
-//                for (Object fragment:fragments)
-//                {
-//                    if (fragment!=null)
-//                    {
-//                        sb.append('-').append(fragment);
-//                    }
-//                }
-//                this.element.addClass(sb.toString());
-//            }
-//        }
-//        return this;
-//    }
 
     public default ELEMENT col(BreakPoint breakPoint,int columns)
     {

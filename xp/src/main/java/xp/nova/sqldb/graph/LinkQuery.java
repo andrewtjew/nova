@@ -352,6 +352,7 @@ public class LinkQuery
         }
         return combinedResults;
     }
+    //get linked node entities and attributes
     final public LinkResult[] getLinkResults(LinkResult[] fromResults,Class<? extends NodeEntity> entityType,Class<? extends NodeObject>...types) throws Throwable
     {
         if (fromResults.length==0)
@@ -368,6 +369,8 @@ public class LinkQuery
         return results;
     }
     @SafeVarargs
+    
+    //get linked nodes of type entityType and their linked nodes of type entityTypes
     final public LinkResult[] getMultiLinkSingleResults(long fromNodeId,Class<? extends NodeEntity> entityType,Class<? extends NodeEntity>...entityTypes) throws Throwable
     {
         LinkResult[] firstResults=_execute(new long[] {fromNodeId},entityType);
@@ -500,7 +503,7 @@ public class LinkQuery
         return entities;
     }
 
-    public <ENTITY extends NodeObject> ENTITY getEntity(long fromNodeId,Class<? extends NodeEntity> entityType) throws Throwable
+    public <ENTITY extends NodeObject> ENTITY getNodeEntity(long fromNodeId,Class<? extends NodeEntity> entityType) throws Throwable
     {
         LinkResult[] results=_execute(new long[] {fromNodeId},entityType);
         if (results.length==0)

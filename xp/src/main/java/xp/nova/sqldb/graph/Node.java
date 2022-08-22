@@ -28,6 +28,10 @@ public class Node
     {
         return this.access.link(this.id,toNodeId);
     }
+    public Link linkTo(Node node) throws Throwable
+    {
+        return this.access.link(this.id,node.getNodeId());
+    }
     public Link linkFrom(long fromNodeId) throws Throwable
     {
         return this.access.link(fromNodeId,this.id);
