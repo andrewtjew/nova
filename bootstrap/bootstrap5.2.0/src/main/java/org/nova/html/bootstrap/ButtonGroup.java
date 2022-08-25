@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Drop;
 
 public class ButtonGroup extends StyleComponent<ButtonGroup>
 {
@@ -34,28 +33,6 @@ public class ButtonGroup extends StyleComponent<ButtonGroup>
     public ButtonGroup vertical()
     {
         addClass("btn-group-vertical");
-        return this;
-    }
-    public ButtonGroup drop(Drop drop)
-    {
-        addClass(drop.toString());
-        return this;
-    }
-    public ButtonGroup dropend()
-    {
-        addClass("dropend");
-        return this;
-    }
-    
-    public ButtonGroup dropup()
-    {
-        addClass("dropup");
-        return this;
-    }
-    
-    public ButtonGroup dropstart()
-    {
-        addClass("dropstart");
         return this;
     }
     

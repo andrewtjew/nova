@@ -225,7 +225,7 @@ public class TypeUtils
             }
             else
             {
-                sb.append((char)(high-10+'a'));
+                sb.append((char)(high-10+'A'));
             }
 
             int low=value&0xf;
@@ -235,10 +235,42 @@ public class TypeUtils
             }
             else
             {
-                sb.append((char)(low-10+'a'));
+                sb.append((char)(low-10+'A'));
             }
         }
         return sb.toString();        
+    }
+    static int hexToInt(char c) throws Exception
+    {
+        if ((c>='a')&&(c<='f'))
+        {
+            return c-'a'+10;
+        }
+        else if ((c>='A')&&(c<='F'))
+        {
+            return c-'A'+10;
+        }
+        else if ((c>='0')&&(c<='9'))
+        {
+            return c-'0';
+        }
+        throw new Exception();
+    }
+    
+    static public byte[] bigEndianHexStringToByteArray(String string) throws Exception
+    {
+        if (string.length()%2!=0)
+        {
+            throw new Exception();
+        }
+        byte[] bytes=new byte[string.length()/2];
+        for (int i=0;i<string.length();i+=2)
+        {
+            int high=hexToInt(string.charAt(i));
+            int low=hexToInt(string.charAt(i+1));
+            bytes[i/2]=(byte)(high*16+low);
+        }
+        return bytes;
     }
     
     public static int bigEndianBytesToInt(byte[] bytes,int index) 

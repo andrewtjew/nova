@@ -505,6 +505,7 @@ public interface Styling<ELEMENT>
     {
         return addClass("btn-group");
     }
+    
 //    public default ELEMENT input_group_append()
 //    {
 //        return addClass("input-group-append");
@@ -520,6 +521,30 @@ public interface Styling<ELEMENT>
     public default ELEMENT align_items(AlignSelf value)
     {
         return addClass("align-items",value);
+    }
+    public default ELEMENT dropup(boolean center)
+    {
+        if (center)
+        {
+            return addClass("dropup-center");
+        }
+        return addClass("dropup");
+    }
+    public default ELEMENT dropdown(boolean center)
+    {
+        if (center)
+        {
+            return addClass("dropdown-center");
+        }
+        return addClass("dropdown");
+    }
+    public default ELEMENT dropstart()
+    {
+        return addClass("dropstart");
+    }
+    public default ELEMENT dropend()
+    {
+        return addClass("dropend");
     }
 //    public default ELEMENT flex_wrap()
 //    {

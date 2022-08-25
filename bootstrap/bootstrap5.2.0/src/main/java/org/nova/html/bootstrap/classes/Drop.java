@@ -21,23 +21,23 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.classes;
 
-public enum Drop
-{
-    left("dropleft"), 
-    right("dropright"), 
-    bottom("dropbottom"), 
-    top("droptop"),
-    ;
-    
-    private String value;
-
-    Drop(String value)
-    {
-        this.value = value;
-    }
-
-    public String toString()
-    {
-        return this.value;
-    }
-}
+//public enum Drop
+//{
+//    left("dropleft"), 
+//    right("dropright"), 
+//    bottom("dropbottom"), 
+//    top("droptop"),
+//    ;
+//    
+//    private String value;
+//
+//    Drop(String value)
+//    {
+//        this.value = value;
+//    }
+//
+//    public String toString()
+//    {
+//        return this.value;
+//    }
+//}
