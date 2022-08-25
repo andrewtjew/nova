@@ -80,12 +80,11 @@ public class GraphAccess implements AutoCloseable
         }
     }
 
-    public Node createNode(NodeEntity entity,NodeAttribute...attributes) throws Throwable
+    public Node createNode(NodeObject...objects) throws Throwable
     {
         long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Node node=new Node(this,nodeId);
-        node.put(entity);
-        node.put(attributes);
+        node.put(objects);
         return node;
     }
 
@@ -145,7 +144,7 @@ public class GraphAccess implements AutoCloseable
     }
 
     @SuppressWarnings("unchecked")
-    <ENTITY extends NodeAttribute> ENTITY get(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
+    <OBJECT extends NodeObject> OBJECT get(long nodeId,Class<? extends NodeObject> type) throws Throwable
     {
         Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
@@ -155,7 +154,7 @@ public class GraphAccess implements AutoCloseable
         {
             return null;
         }
-        ENTITY entity=(ENTITY) type.newInstance();
+        OBJECT entity=(OBJECT) type.newInstance();
         for (ColumnAccessor columnAccessor:meta.getColumnAccessors())
         {
             columnAccessor.set(entity, null, row);
@@ -188,7 +187,7 @@ public class GraphAccess implements AutoCloseable
         return this.accessor.beginTransaction("Graph");
     }
     
-    public Event getEntityEvent(long nodeId,Class<? extends NodeAttribute> type) throws Throwable
+    public Event getNodeObjectEvent(long nodeId,Class<? extends NodeObject> type) throws Throwable
     {
         String tableName=this.graph.getMeta(type).getTableName();
         RowSet rowSet=this.accessor.executeQuery(parent,null
@@ -226,7 +225,7 @@ public class GraphAccess implements AutoCloseable
         }
     }
     
-    int deleteLinks(long fromNodeId,Class<? extends NodeEntity> toType) throws Throwable
+    int deleteLinks(long fromNodeId,Class<? extends NodeObject> toType) throws Throwable
     {
         Meta meta=this.graph.getMeta(toType);
         String table=meta.getTableName();

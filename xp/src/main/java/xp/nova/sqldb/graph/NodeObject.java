@@ -1,5 +1,7 @@
 package xp.nova.sqldb.graph;
 
+import java.sql.Timestamp;
+
 public class NodeObject extends GraphObject
 {
     @GraphField
@@ -7,5 +9,5 @@ public class NodeObject extends GraphObject
     public Long getNodeId()
     {
         return this._nodeId;
-    }    
+    }        
 }

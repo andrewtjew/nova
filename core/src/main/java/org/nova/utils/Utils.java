@@ -269,6 +269,27 @@ public class Utils
         }
         return sb.toString();
     }
+    public static String combineSkipNullOrEmpty(String[] items,String seperator)
+    {
+        if (items==null)
+        {
+            return "";
+        }
+        StringBuilder sb=new StringBuilder();
+        for (String item:items)
+        {
+            if (TypeUtils.isNullOrEmpty(item))
+            {
+                continue;
+            }
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(item);
+        }
+        return sb.toString();
+    }
     
     public static String combine(Iterable<?> iterable,String seperator,String pre,String post)
     {

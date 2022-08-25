@@ -9,7 +9,7 @@ import org.nova.sqldb.Select;
 
 import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 
-public class LinkResult 
+public class ToNodeResult 
 {
     final long linkId;
     final long fromNodeId;
@@ -17,7 +17,7 @@ public class LinkResult
     final GraphObject[] objects;
     Map<String,Integer> map;
     
-    LinkResult(long linkId,long fromNodeId,long toNodeId,GraphObject[] objects)
+    ToNodeResult(long linkId,long fromNodeId,long toNodeId,GraphObject[] objects)
     {
         this.objects=objects;
         this.linkId=linkId;
@@ -31,14 +31,14 @@ public class LinkResult
     }
     
     @SuppressWarnings("unchecked")
-    public <ENTITY extends NodeObject> ENTITY get(Class<ENTITY> type) throws Exception
+    public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type) throws Exception
     {
         Integer index=this.map.get(type.getSimpleName());
         if (index==null)
         {
             return null;
         }
-        return (ENTITY) this.objects[index];
+        return (OBJECT) this.objects[index];
     }
 
     @SuppressWarnings("unchecked")

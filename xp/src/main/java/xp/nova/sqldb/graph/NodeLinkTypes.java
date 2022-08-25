@@ -2,13 +2,13 @@ package xp.nova.sqldb.graph;
 
 public class NodeLinkTypes
 {
-    Class<? extends NodeEntity> nodeEntityType;
-    Class<? extends NodeObject>[] attributeTypes; 
+    Class<? extends NodeObject> requiredType;
+    Class<? extends NodeObject>[] optionalObjectTypes; 
     
-    public NodeLinkTypes(Class<? extends NodeEntity> nodeEntityType,Class<? extends NodeObject>...attributeTypes)
+    public NodeLinkTypes(Class<? extends NodeObject> type,Class<? extends NodeObject>...types)
     {
-        this.nodeEntityType=nodeEntityType;
-        this.attributeTypes=attributeTypes;
+        this.requiredType=type;
+        this.optionalObjectTypes=types;
     }
 
 }

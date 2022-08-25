@@ -16,10 +16,10 @@ public class Node
         return this.id;
     }
 
-    public void put(NodeObject...entities) throws Throwable
+    public void put(NodeObject...objects) throws Throwable
     {
         long eventId=this.access.getEventId();
-        for (NodeObject entity:entities)
+        for (NodeObject entity:objects)
         {
             this.access.put(entity,this.id,eventId);
         }
@@ -36,7 +36,7 @@ public class Node
     {
         return this.access.link(fromNodeId,this.id);
     }
-    public int deleteLinks(Class<? extends NodeEntity> toType) throws Throwable
+    public int deleteLinks(Class<? extends NodeObject> toType) throws Throwable
     {
         return this.access.deleteLinks(this.id,toType);
     }

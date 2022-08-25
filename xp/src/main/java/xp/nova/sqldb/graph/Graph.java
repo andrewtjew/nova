@@ -630,22 +630,21 @@ public class Graph
         return accessor;
     }
     
-    enum EntityType
+    enum GraphObjectType
     {
-        NODE,
-        NODE_ATTRIBUTE,
-        LINK_ATTRIBUTE,
+        NODE_OBJECT,
+        LINK_OBJECT,
     }
     
     static class Meta
     {
         final private ColumnAccessor[] columnAccessors;
-        final private EntityType entityType;
+        final private GraphObjectType entityType;
         final private String tableAlias;
         final private String tableName;
         final private String typeName;
         
-        Meta(String typeName,EntityType entityType,ColumnAccessor[] columnnAccessors)
+        Meta(String typeName,GraphObjectType entityType,ColumnAccessor[] columnnAccessors)
         {
             this.entityType=entityType;
             this.columnAccessors=columnnAccessors;
@@ -662,7 +661,7 @@ public class Graph
         {
             return this.tableName;
         }
-        EntityType getEntityType()
+        GraphObjectType getObjectType()
         {
             return this.entityType;
         }
@@ -716,25 +715,21 @@ public class Graph
                     }
                 }
             }
-            EntityType entityType;
-            if (type.getSuperclass()==NodeAttribute.class)
+            GraphObjectType objectType;
+            if (type.getSuperclass()==NodeObject.class)
             {
-                entityType=EntityType.NODE_ATTRIBUTE;
+                objectType=GraphObjectType.NODE_OBJECT;
             }
-            else if (type.getSuperclass()==NodeEntity.class)
+            else if (type.getSuperclass()==LinkObject.class)
             {
-                entityType=EntityType.NODE;
-            }
-            else if (type.getSuperclass()==LinkAttribute.class)
-            {
-                entityType=EntityType.LINK_ATTRIBUTE;
+                objectType=GraphObjectType.LINK_OBJECT;
             }
             else
             {
                 throw new Exception(type.getName()+" needs extend from a subclass of GraphObject.");
             }
             
-            entityMeta = new Meta(typeName,entityType,map.values().toArray(new ColumnAccessor[map.size()]));
+            entityMeta = new Meta(typeName,objectType,map.values().toArray(new ColumnAccessor[map.size()]));
             synchronized (ENTITY_META_MAP)
             {
                 ENTITY_META_MAP.put(type.getName(), entityMeta);
@@ -801,7 +796,6 @@ public class Graph
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends NodeAttribute>> linkedMap=new HashMap<String, Class<? extends NodeAttribute>>();
     
     public Graph(Connector connector)
     {
