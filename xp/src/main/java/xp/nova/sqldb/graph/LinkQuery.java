@@ -349,7 +349,7 @@ public class LinkQuery
         return combinedResults;
     }
     //get linked node entities and attributes
-    final public ToNodeResult[] getNodesWithFirstObject(ToNodeResult[] fromResults,Class<? extends NodeObject> type,Class<? extends NodeObject>...types) throws Throwable
+    final public ToNodeResult[] getToNodesWithRequiredObjectAndToNodes(ToNodeResult[] fromResults,Class<? extends NodeObject> type,Class<? extends NodeObject>...types) throws Throwable
     {
         if (fromResults.length==0)
         {
