@@ -9,7 +9,7 @@ import org.nova.sqldb.Select;
 
 import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 
-public class ToNodeResult 
+public class LinkNodeResult 
 {
     final long linkId;
     final long fromNodeId;
@@ -17,7 +17,7 @@ public class ToNodeResult
     final GraphObject[] objects;
     Map<String,Integer> map;
     
-    ToNodeResult(long linkId,long fromNodeId,long toNodeId,GraphObject[] objects)
+    LinkNodeResult(long linkId,long fromNodeId,long toNodeId,GraphObject[] objects)
     {
         this.objects=objects;
         this.linkId=linkId;
