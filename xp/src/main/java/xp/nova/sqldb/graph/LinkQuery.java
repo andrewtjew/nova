@@ -367,21 +367,21 @@ public class LinkQuery
         return combinedResults;
     }
     //get linked node entities and attributes
-    final public LinkNodeResult[] getToNodesWithRequiredObjectAndToNodes(LinkNodeResult[] fromResults,Class<? extends NodeObject> type,Class<? extends NodeObject>...types) throws Throwable
-    {
-        if (fromResults.length==0)
-        {
-            return new LinkNodeResult[0];
-        }
-        long[] nodeIds=new long[fromResults.length];
-        for (int i=0;i<nodeIds.length;i++)
-        {
-            nodeIds[i]=fromResults[i].toNodeId;
-        }
-        LinkNodeResult[] results=_execute(nodeIds,null,type,types);
-        buildMap(results,type,types);
-        return results;
-    }
+//    final public LinkNodeResult[] getToNodesWithRequiredObjectAndToNodes(LinkNodeResult[] fromResults,Class<? extends NodeObject> type,Class<? extends NodeObject>...types) throws Throwable
+//    {
+//        if (fromResults.length==0)
+//        {
+//            return new LinkNodeResult[0];
+//        }
+//        long[] nodeIds=new long[fromResults.length];
+//        for (int i=0;i<nodeIds.length;i++)
+//        {
+//            nodeIds[i]=fromResults[i].toNodeId;
+//        }
+//        LinkNodeResult[] results=_execute(nodeIds,null,type,types);
+//        buildMap(results,type,types);
+//        return results;
+//    }
     
 //    final public ToNodeResult[] getFromNodesWithRequiredObjectAndToNodes(ToNodeResult[] fromResults,Class<? extends NodeObject> type,Class<? extends NodeObject>...types) throws Throwable
 //    {

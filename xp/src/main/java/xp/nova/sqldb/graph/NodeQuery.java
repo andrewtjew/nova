@@ -65,7 +65,6 @@ public class NodeQuery
             return __execute(nodeId,requriedObjectType,optionalObjectTypes);
         }
     }
-    
 
     NodeResult[] __execute(Long nodeId,Class<? extends NodeObject> requiredObjectType,Class<? extends NodeObject>[] optionalObjectTypes) throws Throwable
     {
@@ -284,6 +283,7 @@ public class NodeQuery
         return results;
     }
 
+
     @SafeVarargs   
     final public NodeResult[] getNodeObjects(Class<? extends NodeObject>...types) throws Throwable
     {
@@ -336,7 +336,7 @@ public class NodeQuery
     
     
     @SafeVarargs
-    final public NodeResult getNodesWithRequiredObject(long nodeId,Class<? extends NodeObject> requiredType,Class<? extends NodeObject>...optionalTypes) throws Throwable
+    final public NodeResult getNodeWithRequiredObject(long nodeId,Class<? extends NodeObject> requiredType,Class<? extends NodeObject>...optionalTypes) throws Throwable
     {
         NodeResult[] results=_execute(nodeId,requiredType,optionalTypes);
         if (results.length==0)
@@ -350,6 +350,7 @@ public class NodeQuery
         buildMap(results,requiredType,optionalTypes);
         return results[0];
     }
+
     
     public <OBJECT extends NodeObject> OBJECT[] getNodeObjects(Class<? extends NodeObject> type) throws Throwable
     {
