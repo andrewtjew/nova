@@ -19,6 +19,7 @@ import org.nova.sqldb.Transaction;
 import org.nova.sqldb.Update;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
+import org.nova.utils.Utils;
 
 import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 import xp.nova.sqldb.graph.Graph.Meta;
@@ -289,4 +290,112 @@ public class GraphAccess implements AutoCloseable
         Row row=rowSet.getRow(0);
         return new Link(this,row.getBIGINT(0),fromNodeId,toNodeId);
     }
+    
+    final RowSet getLinkNodes(long[] fromNodeIds,long[] toNodeIds,Class<? extends NodeObject>[] requiredObjectTypes,Class<? extends NodeObject>[] optionalObjectTypes,String orderBy,String expression,Object[] parameters) throws Throwable
+    {
+        Trace parent=this.parent;
+        StringBuilder select = new StringBuilder();
+        StringBuilder join = new StringBuilder();
+
+        Graph graph = this.graph;
+        String on=fromNodeIds!=null?" ON _link.toNodeId=":" ON _link.fromNodeId=";
+        for (Class<? extends GraphObject> type : requiredObjectTypes)
+        {
+            Meta meta=graph.getMeta(type);
+            String typeName = meta.getTypeName();
+            String table = meta.getTableName();
+            String alias= meta.getTableAlias();
+            switch (meta.getObjectType())
+            {
+            case LINK_OBJECT:
+                join.append(" JOIN " + table + "AS "+alias+on + alias+ "._linkId");
+                break;
+            case NODE_OBJECT:
+                join.append(" JOIN " + table + "AS "+alias+on+alias+ "._nodeId");
+                break;
+            default:
+                throw new Exception();
+            }
+
+            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+            {
+                String fieldColumnName = columnAccessor.getColumnName(typeName);
+                String tableColumnName = columnAccessor.getColumnName(alias);
+                select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
+            }
+        }
+        for (Class<? extends GraphObject> type : optionalObjectTypes)
+        {
+            Meta meta=graph.getMeta(type);
+            String typeName = meta.getTypeName();
+            String table = meta.getTableName();
+            String alias= meta.getTableAlias();
+            switch (meta.getObjectType())
+            {
+            case LINK_OBJECT:
+                join.append(" LEFT JOIN " + table + "AS "+alias+on + alias+ "._linkId");
+                break;
+            case NODE_OBJECT:
+                join.append(" LEFT JOIN " + table + "AS "+alias+on+alias+ "._nodeId");
+                break;
+            default:
+                throw new Exception();
+            }
+            for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+            {
+                String fieldColumnName = columnAccessor.getColumnName(typeName);
+                String tableColumnName = columnAccessor.getColumnName(alias);
+                select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+            }
+        }
+        StringBuilder query = new StringBuilder("SELECT _link.id AS '_link.id',_link.fromNodeId AS '_link.fromNodeId',_link.toNodeId AS '_link.toNodeId'" + select + "FROM _link" + join);
+        
+        query.append(" WHERE ");
+        if (fromNodeIds!=null)
+        {
+            if (fromNodeIds.length==1)
+            {
+                query.append("_link.fromNodeId="+fromNodeIds[0]);
+            }
+            else
+            {
+                query.append("_link.fromNodeId IN ("+Utils.combine(fromNodeIds,",")+")");
+            }
+        }
+        if (toNodeIds!=null)
+        {
+            if (toNodeIds.length==1)
+            {
+                query.append("_link.toNodeId="+toNodeIds[0]);
+            }
+            else
+            {
+                query.append("_link.toNodeId IN ("+Utils.combine(toNodeIds,",")+")");
+            }
+        }
+        if (expression!=null)
+        {
+            query.append(" AND "+expression);
+        }
+        if (orderBy != null)
+        {
+            query.append(" ORDER BY ");
+            query.append(orderBy);
+        }
+        System.out.println(query);
+        RowSet rowSet;
+        if (parameters!=null)
+        {
+            rowSet = getAccessor().executeQuery(parent, null,
+                    query.toString(), parameters);
+        }
+        else
+        {
+            rowSet = getAccessor().executeQuery(parent, null,
+                    query.toString());
+        }
+        System.out.println(query);
+        return rowSet;
+    }
+    
 }

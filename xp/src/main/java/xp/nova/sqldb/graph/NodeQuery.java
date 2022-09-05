@@ -391,5 +391,78 @@ public class NodeQuery
         }
         return results[0].get(0);
     }
+
+//    @SafeVarargs   
+//    final public NodeResult[] getNodesWithRequiredObjectAndToNodes(long nodeId,Class<? extends NodeObject> requiredObjectType,Class<? extends NodeObject>...optionalObjectTypes) throws Throwable
+//    {
+//        NodeResult[] firstResults=_execute(nodeId,requiredObjectType);
+//
+//        if (firstResults.length==0)
+//        {
+//            return firstResults;
+//        }
+//        HashMap<String,Integer> map=new HashMap<String, Integer>();
+//        this.expression=null;
+//        this.parameters=null;
+//        this.orderBy=null;
+//        map.put(requiredObjectType.getSimpleName(),0);
+//        
+//        long[] nodeIds=new long[firstResults.length];
+//        for (int i=0;i<nodeIds.length;i++)
+//        {
+//            nodeIds[i]=firstResults[i].toNodeId;
+//        }
+//
+//        LinkNodeResult[][] toLinkResults=new LinkNodeResult[optionalObjectTypes.length][];
+//        int toLinkResultsLength=0;
+//        int totalObjects=1; //from firstResults
+//        for (int i=0;i<optionalObjectTypes.length;i++)
+//        {
+//            Class<? extends NodeObject> type=optionalObjectTypes[i];
+//            LinkNodeResult[] results=_execute(nodeIds,null,type);
+//            if (results.length==0)
+//            {
+//                continue;
+//            }
+//            map.put(type.getSimpleName(),totalObjects);
+//            toLinkResults[toLinkResultsLength++]=results;
+//            totalObjects++;
+//        }
+//
+//        GraphObject[][] resultsObjects=new GraphObject[firstResults.length][];
+//        HashMap<Long,Integer> indexMap=new HashMap<Long, Integer>();
+//        
+//        int objectIndex=0;
+//        for (int i=0;i<firstResults.length;i++)
+//        {
+//            LinkNodeResult result=firstResults[i];
+//            GraphObject[] objects=new GraphObject[totalObjects];
+//            objects[objectIndex]=result.objects[0];
+//            resultsObjects[i]=objects;
+//            indexMap.put(result.toNodeId,i);
+//        }
+//        objectIndex++;
+//        
+//        for (int j=0;j<toLinkResultsLength;j++)
+//        {
+//            LinkNodeResult[] results=toLinkResults[j];
+//            for (int i=0;i<results.length;i++)
+//            {
+//                LinkNodeResult result=results[i];
+//                Integer index=indexMap.get(result.fromNodeId);
+//                GraphObject[] objects=resultsObjects[index];
+//                objects[objectIndex]=result.objects[0];
+//            }
+//            objectIndex++;
+//        }
+//        LinkNodeResult[] combinedResults=new LinkNodeResult[firstResults.length];
+//        for (int i=0;i<firstResults.length;i++)
+//        {
+//            LinkNodeResult result=firstResults[i];
+//            combinedResults[i]=new LinkNodeResult(result.linkId,result.fromNodeId,result.toNodeId,resultsObjects[i]);
+//            combinedResults[i].setMap(map);
+//        }
+//        return combinedResults;
+//    }
     
 }
