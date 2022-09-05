@@ -301,6 +301,10 @@ public class GraphAccess implements AutoCloseable
         String on=fromNodeIds!=null?" ON _link.toNodeId=":" ON _link.fromNodeId=";
         for (Class<? extends GraphObject> type : requiredObjectTypes)
         {
+            if (type==null)
+            {
+                throw new Exception();
+            }
             Meta meta=graph.getMeta(type);
             String typeName = meta.getTypeName();
             String table = meta.getTableName();
