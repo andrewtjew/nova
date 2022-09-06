@@ -776,4 +776,8 @@ public class Accessor extends Resource
 	{
 	    return this.connector;
 	}
+	public void setDataBase(String database) throws Throwable
+	{
+	    this.connection.setCatalog(database);
+	}
 }
