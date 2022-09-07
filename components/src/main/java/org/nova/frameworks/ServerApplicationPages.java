@@ -3352,6 +3352,9 @@ public class ServerApplicationPages
             case QUERY:
                 queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
                 break;
+            case SECURE_QUERY:
+                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
+                break;                
             }
         }
 

@@ -36,9 +36,10 @@ public class ObjectBox
     {
         this.value=value;
     }
-    public Object get()
+    @SuppressWarnings("unchecked")
+    public <OBJECT> OBJECT get()
     {
-        return this.value;
+        return (OBJECT)this.value;
     }
     
 }

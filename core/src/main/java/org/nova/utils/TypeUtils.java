@@ -685,7 +685,7 @@ public class TypeUtils
         }
         return a.toLowerCase().contains(b.toLowerCase());
     }
-    static public Object unbox(ObjectBox box)
+    static public <OBJECT> OBJECT unbox(ObjectBox box)
     {
     	if (box==null)
     	{

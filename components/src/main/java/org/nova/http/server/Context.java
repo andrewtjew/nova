@@ -50,7 +50,7 @@ public class Context
 	private ContentWriter<?> contentWriter;
 	private Object state;
 	private boolean captured=false;
-	
+	private ParamDecoding paramDecoding;
 	private String responseContentText;
 	private String requestContentText;
 	private DecoderContext decoderContext;
@@ -267,6 +267,15 @@ public class Context
         }
         return FileUtils.readBytes(inputStream, bufferSize);
     }
+    public void setParamDecoding(ParamDecoding paramDecoding)
+    {
+        this.paramDecoding=paramDecoding;
+    }
+    public ParamDecoding getParamDecoding()
+    {
+        return this.paramDecoding;
+    }
+    
     String getRequestContentText() throws Throwable
     {
         return this.requestContentText;
