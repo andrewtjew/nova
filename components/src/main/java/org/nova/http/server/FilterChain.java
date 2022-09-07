@@ -39,6 +39,7 @@ import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
 public class FilterChain
 {
@@ -526,7 +527,10 @@ public class FilterChain
                 {
                     if (paramDecoding!=null)
                     {
-                        parameter=paramDecoding.decodeQueryParam(parameter);
+                        if (TypeUtils.isNullOrEmpty(parameter)==false)
+                        {
+                            parameter=paramDecoding.decodePathParam(parameter);
+                        }
                         parameters[i]=buildParameter(parameterInfo,parameter);
                     }
                 }
@@ -554,7 +558,10 @@ public class FilterChain
                     ParamDecoding paramDecoding=context.getParamDecoding();
                     if (paramDecoding!=null)
                     {
-                        parameter=paramDecoding.decodeQueryParam(parameter);
+                        if (TypeUtils.isNullOrEmpty(parameter)==false)
+                        {
+                            parameter=paramDecoding.decodeQueryParam(parameter);
+                        }
                         parameters[i]=buildParameter(parameterInfo,parameter);
                     }
                 }
