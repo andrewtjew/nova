@@ -113,7 +113,7 @@ public class MySqlConnector extends Connector
 	    String password=this.passwordVault.get(this.passwordKey);
 	    String connectionString=this.buildConnectionString();
 	    //"jdbc:mysql://localhost:3306/YourDBName";
-        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName("com.mysql.cj.jdbc.Driver");
 		Connection connection=DriverManager.getConnection(connectionString,user,password);
 		this.openConnectionSuccesses.increment();
 		return connection;

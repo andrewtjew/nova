@@ -183,7 +183,7 @@ public abstract class FileDownloadHandler extends ServletHandler
         {
             response.setContentLength(bytes.length);
             response.getOutputStream().write(bytes);
-            System.out.println("Cache size:" + this.cache.getTotalContentSize() / 1024L+" KB");
+//            System.out.println("Cache size:" + this.cache.getTotalContentSize() / 1024L+" KB");
         }
     }
 

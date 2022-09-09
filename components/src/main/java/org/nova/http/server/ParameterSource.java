@@ -34,5 +34,7 @@ public enum ParameterSource
 	NAME,
 	QUERIES,
 	INTERNAL,
-	COOKIE_STATE
+	COOKIE_STATE,
+    SECURE_QUERY,
+    SECURE_PATH,
 }

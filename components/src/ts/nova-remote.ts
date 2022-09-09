@@ -185,6 +185,27 @@ namespace nova.remote
         }); 
     }
     
+    export function getStatic(pathAndQuery:string)
+    {
+        fetch(pathAndQuery,
+            {
+                method:"GET",
+                headers: {'Content-Type': 'application/json'},
+            }).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+                alert(response);
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+
+    }
+
     export function postStatic(pathAndQuery:string,data:string)
     {
         fetch(pathAndQuery,
@@ -207,48 +228,27 @@ namespace nova.remote
 
     }
 
-    export function getStatic(pathAndQuery:string)
-    {
-        fetch(pathAndQuery,
-            {
-                method:"GET",
-                headers: {'Content-Type': 'application/json'},
-            }).then(response=>
-            {
-                if (response.ok)
-                {
-                    return response.json();
-                }
-                alert(response);
-            })
-            .then((instructions:Instruction[])=>
-            {
-                run(instructions);
-            });
+    // export function postJSONString(pathAndQuery:string,data:string)
+    // {
+    //     fetch(pathAndQuery,
+    //         {
+    //             method:"POST",
+    //             headers: {'Content-Type': 'application/json'},
+    //             body: data
+    //         }).then(response=>
+    //         {
+    //             if (response.ok)
+    //             {
+    //                 return response.json();
+    //             }
+    //             alert(response);
+    //         })
+    //         .then((instructions:Instruction[])=>
+    //         {
+    //             run(instructions);
+    //         });
 
-    }
-
-    export function postJSONString(pathAndQuery:string,data:string)
-    {
-        fetch(pathAndQuery,
-            {
-                method:"POST",
-                headers: {'Content-Type': 'application/json'},
-                body: data
-            }).then(response=>
-            {
-                if (response.ok)
-                {
-                    return response.json();
-                }
-                alert(response);
-            })
-            .then((instructions:Instruction[])=>
-            {
-                run(instructions);
-            });
-
-    }
+    // }
 
     function run(instructions:Instruction[])
     {

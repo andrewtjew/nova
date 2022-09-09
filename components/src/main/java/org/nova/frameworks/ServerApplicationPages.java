@@ -989,7 +989,7 @@ public class ServerApplicationPages
             tracePanel.content().addInner(tree);
             Panel3 stackTracePanel=page.content().returnAddInner(new Panel3(page.head(),"Stack Trace"));
             StackTraceElement[] stackTrace = found.getThread().getStackTrace();
-            stackTracePanel.content().addInner(toString(stackTrace, 0));
+            stackTracePanel.content().addInner(toLiteralHtml(stackTrace, 0));
 
             Panel3 samplePanel=page.content().returnAddInner(new Panel3(page.head(),"Profile"));
             form_post form=samplePanel.content().returnAddInner(new form_post());
@@ -2577,14 +2577,14 @@ public class ServerApplicationPages
         page.content().addInner(new a().addInner("View settings.").href("/operator/tracing/settings")
     */
     
-    private String toString(StackTraceElement[] elements, int start)
+    private LiteralHtml toLiteralHtml(StackTraceElement[] elements, int start)
     {
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < elements.length; i++)
         {
             sb.append("at " + elements[i].toString() + "<br/>");
         }
-        return sb.toString();
+        return new LiteralHtml(sb.toString());
     }
 
 
@@ -3352,6 +3352,9 @@ public class ServerApplicationPages
             case QUERY:
                 queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
                 break;
+            case SECURE_QUERY:
+                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
+                break;                
             }
         }
 

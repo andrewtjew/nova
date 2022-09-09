@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import org.apache.commons.lang.LocaleUtils;
-import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
@@ -32,13 +31,12 @@ public class SqlStringHandleResolver extends StringHandleResolver
     public SqlStringHandleResolver(TraceManager traceManager,Connector connector)
     {
         this(traceManager,connector,"{{%s:%s:%s}}"
-                ,"SELECT format FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLanguages ON HandleLanguages.ID=LanguageID WHERE Language=? AND Enum=? AND Handle=?"
+                ,"SELECT format FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLocales ON HandleLocales.ID=LocaleID WHERE Locale=? AND Enum=? AND Handle=?"
                 );
     }
-    public void evict(LanguageCode languageCode,Class<?> enum_,String handle)
+    public void evict(String locale,Class<?> enum_,String handle)
     {
-        String language=languageCode.name();
-        String key=language+":"+enum_+":"+handle;
+        String key=locale+":"+enum_+":"+handle;
         synchronized(this)
         {
             this.formatMap.remove(key);
@@ -54,11 +52,10 @@ public class SqlStringHandleResolver extends StringHandleResolver
     }
     
     @Override
-    public String resolve(LanguageCode languageCode,Class<?> enum_,String handle,Object...parameters) throws Throwable
+    public String resolve(String locale,Class<?> enum_,String handle,Object...parameters) throws Throwable
     {
-        String language=languageCode.name();
         String enumName=enum_!=null?enum_.getName():"";
-        String key=language+":"+enum_+":"+handle;
+        String key=locale+":"+enum_+":"+handle;
         String format;
         synchronized(this)
         {
@@ -71,7 +68,7 @@ public class SqlStringHandleResolver extends StringHandleResolver
                 Row row;
                 try (Accessor accessor=this.connector.openAccessor(trace))
                 {
-                    row=SqlUtils.executeQueryOne(trace, null, accessor, this.selectFormat, language,enumName,handle);
+                    row=SqlUtils.executeQueryOne(trace, null, accessor, this.selectFormat, locale,enumName,handle);
                 }
                 if (row!=null)
                 {
@@ -85,8 +82,8 @@ public class SqlStringHandleResolver extends StringHandleResolver
         }
         if (format==null)
         {
-            return String.format(this.notFoundFormat, language,enumName,handle);
+            return String.format(this.notFoundFormat, locale,enumName,handle);
         }
-        return String.format(languageCode.getValue().locale,format,parameters);
+        return String.format(format,parameters);
     }
 }

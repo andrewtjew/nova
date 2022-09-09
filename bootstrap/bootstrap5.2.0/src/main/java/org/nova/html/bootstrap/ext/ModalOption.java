@@ -21,8 +21,9 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-public enum ModalOption
+public class ModalOption
 {
-    hide,
-    show,
+    public boolean backdrop;
+    public boolean keyboard;
+    public boolean focus;
 }

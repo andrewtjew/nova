@@ -13,10 +13,38 @@ namespace nova.ui.validation
 
 }
 
-namespace nova.ui
+namespace nova.ui.modal
+{
+    export function proceed(modalId:string,headerId:string,header:string,bodyId:string,body:string,buttonId:string,code:string)
+    {
+        var button=document.getElementById(buttonId) as HTMLButtonElement;
+    
+        if (headerId!=null)
+        {
+            document.getElementById(headerId).innerHTML=header;
+        }
+        if (bodyId!=null)
+        {
+            document.getElementById(bodyId).innerHTML=body;
+        }
+   
+        var modal=bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId));
+        button.onclick=(event:MouseEvent) =>
+        {
+            modal.hide();
+            if (code!=null)
+            {
+                eval(code);
+            }
+        };
+        modal.show();
+    }
+}
+
+namespace nova.ui.search
 {
     //To show results as you type and allows item to be selected.
-    export  class SearchPicker
+    export  class Picker
     {
         private readonly itemIdPrefix:string;
         private readonly focusClass:string;

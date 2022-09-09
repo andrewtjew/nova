@@ -36,6 +36,11 @@ public class ModalDialog extends StyleComponent<ModalDialog>
         addClass("modal-dialog","centered");
         return this;
     }
+    public ModalDialog scrollable()
+    {
+        addClass("modal-dialog","scrollable");
+        return this;
+    }
     public ModalDialog size(Size size)
     {
     	addClass("modal",size.toString());

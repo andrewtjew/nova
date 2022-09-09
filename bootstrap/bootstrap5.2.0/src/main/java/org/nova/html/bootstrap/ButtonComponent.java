@@ -95,6 +95,14 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         addClass("btn",value.toString());
         return (ELEMENT)this;
     }
+    public ELEMENT for_(String element_id)
+    {
+        return attr("for",element_id);
+    }
+    public ELEMENT for_(TagElement<?> element)
+    {
+        return attr("for",element.id());
+    }
 
     
     public ELEMENT dismissModal()

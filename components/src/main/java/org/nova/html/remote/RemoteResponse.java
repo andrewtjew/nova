@@ -85,6 +85,12 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,StringEscapeUtils.escapeHtml4(text)));
         return this;
     }
+    public RemoteResponse innerText(String id,Element element)
+    {
+        String text=element.getHtml();
+        this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
+        return this;
+    }
     public RemoteResponse script(String script)
     {
         this.instructions.add(new Instruction(this.trace,Command.script,script));
@@ -101,6 +107,10 @@ public class RemoteResponse
         return this;
     }
 
+    public RemoteResponse location(PathAndQuery pathAndQuery) throws UnsupportedEncodingException
+    {
+        return location(pathAndQuery.toString());
+    }
     public RemoteResponse location(String pathAndQuery) throws UnsupportedEncodingException
     {
         String code=HtmlUtils.js_location(pathAndQuery);
@@ -112,10 +122,6 @@ public class RemoteResponse
 //        QuotationMark mark=QuotationMark.SINGLE;
         String code="$('#"+id+"').prop('"+prop+"',"+value+");";
         return script(code);
-    }
-    public RemoteResponse location(PathAndQuery pathAndQuery) throws UnsupportedEncodingException
-    {
-        return location(pathAndQuery.toString());
     }
     public RemoteResponse showModal(String id)
     {

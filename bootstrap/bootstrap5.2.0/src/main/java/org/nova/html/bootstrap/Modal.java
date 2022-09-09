@@ -26,6 +26,7 @@ public class Modal extends StyleComponent<Modal>
     public Modal()
     {
         super("div","modal");
+        tabindex(-1);
     }
     
     public Modal fade()
@@ -76,4 +77,19 @@ public class Modal extends StyleComponent<Modal>
     {
         return focus(true);
     }
+
+    public String js_show()
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
+    }
+    public String js_hide()
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).hide();";
+    }
+    public String js_toggle()
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
+    }
+    
+    
 }

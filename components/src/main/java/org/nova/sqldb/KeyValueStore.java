@@ -98,7 +98,7 @@ public class KeyValueStore extends ContentCache<String,String>
         {
             throw new Exception("fullKey="+fullKey); 
         }
-        put(parent,key,new ValueSize<String>(value));
+        put(key,new ValueSize<String>(value));
     }    
 
     public void write(Trace parent,String key,Object value) throws Throwable

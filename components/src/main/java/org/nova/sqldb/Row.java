@@ -26,6 +26,9 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -287,11 +290,66 @@ public class Row
 	}
 	public Timestamp getTIMESTAMP(int columnIndex)
 	{
-		return (Timestamp)this.data[columnIndex];
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Timestamp)
+        {
+            return (Timestamp)object;
+        }
+        else if (object instanceof LocalDateTime )
+        {
+            return Timestamp.valueOf((LocalDateTime)object);
+        }
+        throw new RuntimeException();
 	}
     public Timestamp getTIMESTAMP(String columnName)
     {
         return getTIMESTAMP(this.mappings.get(columnName));
+    }
+    public LocalDateTime getLocalDateTime(int columnIndex)
+    {
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Timestamp)
+        {
+            return ((Timestamp)object).toLocalDateTime();
+        }
+        else if (object instanceof LocalDateTime )
+        {
+            return (LocalDateTime)object;
+        }
+        throw new RuntimeException();
+    }
+    public LocalTime getLocalTime(String columnName)
+    {
+        return getLocalTime(this.mappings.get(columnName));
+    }
+    public LocalTime getLocalTime(int columnIndex)
+    {
+        Object object=this.data[columnIndex];
+        if (object==null)
+        {
+            return null;
+        }
+        if (object instanceof Time)
+        {
+            return ((Time)object).toLocalTime();
+        }
+        else if (object instanceof LocalTime )
+        {
+            return (LocalTime)object;
+        }
+        throw new RuntimeException();
+    }
+    public LocalDateTime getLocalDateTime(String columnName)
+    {
+        return getLocalDateTime(this.mappings.get(columnName));
     }
     public boolean getBIT(int columnIndex)
     {

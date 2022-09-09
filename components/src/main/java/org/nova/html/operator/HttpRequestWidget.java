@@ -31,6 +31,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
 import org.nova.html.tags.ext.th_title;
@@ -123,10 +124,10 @@ public class HttpRequestWidget extends Element
         {
             rows=20;
         }
-        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
-        {
-            text=HtmlUtils.toHtmlText(text);
-        }
+//        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
+//        {
+//            text=HtmlUtils.toHtmlText(text);
+//        }
         textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;resize:vertical;").addInner(text).rows(rows));
     }
 

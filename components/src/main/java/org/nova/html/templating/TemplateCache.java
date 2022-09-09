@@ -23,9 +23,9 @@ public class TemplateCache
             this.generators.put(key, generator);
         }
     }
-    public Instance get(String key, LanguageCode languageCode) throws Throwable
+    public Instance get(String key, String locale) throws Throwable
     {
-        String k=languageCode.name()+":"+key;
+        String k=locale+":"+key;
         synchronized (this)
         {
             Template template=this.templates.get(k);
@@ -36,7 +36,7 @@ public class TemplateCache
                 {
                     throw new Exception("Not found:"+key);
                 }
-                template=generator.generate(languageCode);
+                template=generator.generate(locale);
                 this.templates.put(k, template);
             }
             return new Instance(template);

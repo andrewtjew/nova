@@ -112,7 +112,7 @@ abstract public class ContentCache<KEY,VALUE>
 	}
 	public VALUE get(Trace parent,KEY key) throws Throwable
 	{
-	    ValueSize<VALUE> valueSize=getFromCache(parent, key);
+	    ValueSize<VALUE> valueSize=getFromCache(key);
 	    if (valueSize!=null)
 	    {
 	        return valueSize.value;
@@ -122,7 +122,7 @@ abstract public class ContentCache<KEY,VALUE>
 
     public VALUE getValueFromCache(Trace parent,KEY key) throws Throwable
     {
-        ValueSize<VALUE> valueSize=getFromCache(parent, key);
+        ValueSize<VALUE> valueSize=getFromCache(key);
         if (valueSize!=null)
         {
             return valueSize.value;
@@ -130,7 +130,7 @@ abstract public class ContentCache<KEY,VALUE>
         return null;
     }
 
-	public ValueSize<VALUE> getFromCache(Trace parent,KEY key) throws Throwable
+	public ValueSize<VALUE> getFromCache(KEY key) throws Throwable
     {
         synchronized(this.nodeMap)
         {
@@ -171,12 +171,20 @@ abstract public class ContentCache<KEY,VALUE>
 		synchronized(this)
 		{
 			ValueSize<VALUE> valueSize=load(parent,key);
-			return put(parent,key,valueSize);
+			return put(key,valueSize);
 		}
 	}
-    public VALUE put(Trace parent,KEY key,VALUE value) throws Throwable
+    public  void update(KEY key,VALUE value) throws Throwable
     {
-        return put(parent,key,new ValueSize<VALUE>(value,0));
+        ValueSize<VALUE> valueSize=getFromCache(key);
+        if (valueSize!=null)
+        {
+            put(key,new ValueSize<VALUE>(value,0));
+        }
+    }
+    public void put(KEY key,VALUE value) throws Throwable
+    {
+        put(key,new ValueSize<VALUE>(value,0));
     }
     
     boolean needRemove(Node<KEY,VALUE> node)
@@ -210,7 +218,7 @@ abstract public class ContentCache<KEY,VALUE>
         return false;
     }
     
-	public VALUE put(Trace parent,KEY key,ValueSize<VALUE> valueSize) throws Throwable
+	public VALUE put(KEY key,ValueSize<VALUE> valueSize) throws Throwable
     {
 	    if (valueSize==null)
 	    {

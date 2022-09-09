@@ -89,7 +89,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     {
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-template",template);
+            this.toggler.attr("data-bs-template",template);
         }
         else
         {
@@ -107,7 +107,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     {
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-animation",animation);
+            this.toggler.attr("data-bs-animation",animation);
         }
         else
         {
@@ -120,7 +120,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     {
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-content",content);
+            this.toggler.attr("data-bs-content",content);
         }
         else
         {
@@ -135,9 +135,8 @@ public class TipComponent<TIP extends TipComponent<TIP>>
         String content=element.getHtml(new StringComposer(quotationMark));
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-html",true);
-            this.toggler.attr("data-content",content);
-            this.toggler.attr("data-content",content);
+            this.toggler.attr("data-bs-html",true);
+            this.toggler.attr("data-bs-content",content);
         }
         else
         {
@@ -156,7 +155,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     {
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-trigger",trigger.toString());
+            this.toggler.attr("data-bs-trigger",trigger.toString());
         }
         else
         {
@@ -169,7 +168,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     {
         if (this.toggler!=null)
         {
-            this.toggler.attr("data-placement",placement);
+            this.toggler.attr("data-bs-placement",placement);
         }
         else
         {
@@ -186,7 +185,7 @@ public class TipComponent<TIP extends TipComponent<TIP>>
         delay.hide=hide;
         try
         {
-            this.toggler.attr("data-delay",delay);
+            this.toggler.attr("data-bs-delay",delay);
         }
         catch (Throwable e)
         {
@@ -197,24 +196,24 @@ public class TipComponent<TIP extends TipComponent<TIP>>
     
     public TIP container(String container)
     {
-        this.toggler.attr("data-container",container);
+        this.toggler.attr("data-bs-container",container);
         return (TIP)this;
     }
     
     public TIP container(GlobalTagElement<?> element)
     {
-        this.toggler.attr("data-container","#"+element.id());
+        this.toggler.attr("data-bs-container","#"+element.id());
         return (TIP)this;
     }
     
     public TIP offset(int offsetX,int offsetY)
     {
-        this.toggler.attr("data-offset",offsetX+"px "+offsetY+"px");
+        this.toggler.attr("data-bs-offset",offsetX+"px "+offsetY+"px");
         return (TIP)this;
     }
     public TIP boundary(Boundary boundary)
     {
-    	this.toggler.attr("data-boundary",boundary);
+    	this.toggler.attr("data-bs-boundary",boundary);
         return (TIP)this;
     }
 }
