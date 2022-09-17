@@ -13,15 +13,16 @@ import xp.nova.sqldb.graph.Graph.Meta;
 public class Query
 {
     private Class<? extends NodeObject>[] nodeTypes;
-    private Class<? extends NodeObject>[] toNodeTypes;
-    private Class<? extends LinkObject>[] toLinkTypes;
-    private Class<? extends LinkObject>[] withLinkTypes;
+    private Class<? extends LinkObject>[] linkTypes;
+    
     private Long fromNodeId;
     private Long toNodeId;
     private Long nodeId;
+    
     private Object[] parameters;
     private String whereExpression;
     private String orderby;
+    private Path followPath;
     
     @SuppressWarnings("unchecked")
     public Query selectNodes(Class<? extends NodeObject>...nodeTypes)
@@ -29,37 +30,17 @@ public class Query
         this.nodeTypes=nodeTypes;
         return this;
     }
-    public Query selectToNodes(Class<? extends NodeObject>...nodeTypes)
+    @SuppressWarnings("unchecked")
+    public Query selectLinks(Class<? extends LinkObject>...linkTypes)
     {
-        this.toNodeTypes=nodeTypes;
+        this.linkTypes=linkTypes;
         return this;
-    }
-    public Query selectToLinks(Class<? extends LinkObject>...linkTypes)
+    }    
+    public Query follow(Path path)
     {
-        this.toLinkTypes=linkTypes;
+        this.followPath=path;;
         return this;
-    }
-    public Query selectWithLinks(Class<? extends LinkObject>...linkTypes)
-    {
-        this.withLinkTypes=linkTypes;
-        return this;
-    }
-    public Query withNodeId(long nodeId)
-    {
-        this.nodeId=nodeId;
-        return this;
-    }
-    public Query withLinksFrom(long fromNodeId)
-    {
-        this.fromNodeId=fromNodeId;
-        return this;
-    }
-    public Query withLinksTo(long toNodeId)
-    {
-        this.toNodeId=toNodeId;
-        return this;
-    }
-    public Query where(String expression,Object...parameters)
+    }      public Query where(String expression,Object...parameters)
     {
         return this;
     }

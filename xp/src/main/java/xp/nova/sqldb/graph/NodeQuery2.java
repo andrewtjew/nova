@@ -10,7 +10,7 @@ import org.nova.tracing.Trace;
 import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 import xp.nova.sqldb.graph.Graph.Meta;
 
-public class NodeQuery
+public class NodeQuery2
 {
 //    final private ;
     final private Graph graph;
@@ -20,25 +20,25 @@ public class NodeQuery
     private Object[] parameters;
     private String orderBy;
 
-    public NodeQuery(GraphAccess access)
+    public NodeQuery2(GraphAccess access)
     {
         this.access=access;
         this.graph=null;
         this.parent=null;
     }
-    public NodeQuery(Trace parent,Graph graph)
+    public NodeQuery2(Trace parent,Graph graph)
     {
         this.access=null;
         this.graph=graph;
         this.parent=parent;
     }
 
-    public NodeQuery orderBy(String orderBy)
+    public NodeQuery2 orderBy(String orderBy)
     {
         this.orderBy=orderBy;
         return this;
     }
-    public NodeQuery where(String expression,Object...parameters)
+    public NodeQuery2 where(String expression,Object...parameters)
     {
         this.expression=expression;
         this.parameters=parameters;
