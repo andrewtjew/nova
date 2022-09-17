@@ -15,14 +15,29 @@ public class Query
     private Class<? extends NodeObject>[] nodeTypes;
     private Class<? extends LinkObject>[] linkTypes;
     
-    private Long fromNodeId;
-    private Long toNodeId;
-    private Long nodeId;
+    final private Direction direction;
+    final private Long nodeId;
     
     private Object[] parameters;
     private String whereExpression;
     private String orderby;
-    private Path followPath;
+    private ArrayList<QueryPath> followPaths;
+    
+    public Query(long nodeId,Direction direction)
+    {
+    	this.direction=direction;
+    	this.nodeId=nodeId;
+    }
+    public Query(long nodeId)
+    {
+        this(nodeId,null);
+    }
+    public Query()
+    {
+        this.nodeId=null;
+        this.direction=null;
+    }
+    
     
     @SuppressWarnings("unchecked")
     public Query selectNodes(Class<? extends NodeObject>...nodeTypes)
@@ -36,11 +51,16 @@ public class Query
         this.linkTypes=linkTypes;
         return this;
     }    
-    public Query follow(Path path)
+    public Query follow(QueryPath path)
     {
-        this.followPath=path;;
+        if (this.followPaths==null)
+        {
+        	this.followPaths=new ArrayList<>();
+        }
+        this.followPaths.add(path);
         return this;
-    }      public Query where(String expression,Object...parameters)
+    }
+    public Query where(String expression,Object...parameters)
     {
         return this;
     }
@@ -49,41 +69,120 @@ public class Query
         this.orderby=orderBy;
         return this;
     }
+    
+    private Graph graph;
+    private StringBuilder sources;
+    private StringBuilder select;
+    private int totalResultObjects;
+    
+    void addPath(ArrayList<QueryPath> paths,String pathSource,int aliasIndex) throws Throwable
+    {
+    	if (paths==null)
+    	{
+    		return;
+    	}
+        for (QueryPath path:paths)
+        {
+        	String linkAlias="_link"+aliasIndex;
+        	String nodeAlias="_node"+aliasIndex;
+			switch (path.direction)
+			{
+			case FROM:
+	        	sources.append(" LEFT JOIN _link AS "+linkAlias+" ON "+pathSource+".id="+linkAlias+".fromNodeId");
+				break;
+			case TO:
+	        	sources.append(" LEFT JOIN _link AS "+linkAlias+" ON "+pathSource+".id="+linkAlias+".toNodeId");
+				break;
+			default: 
+				break;
+			}
+			if (path.nodeTypes!=null)
+			{
+				String on=null;
+				switch (path.direction)
+				{
+				case FROM:
+					on=" ON "+linkAlias+".toNodeId=";
+					break;
+				case TO:
+					on=" ON "+linkAlias+".fromNodeId=";
+					break;
+				default: 
+					break;
+				}
+				String namespace=path.namespace!=null?path.namespace+".":"";
+		          for (int i=0;i<path.nodeTypes.length;i++)
+		          {
+		        	  Class<? extends NodeObject> type=path.nodeTypes[i];
+		              Meta meta=graph.getMeta(type);
+		              String typeName = meta.getTypeName();
+		              String table = meta.getTableName();
+		              String alias= meta.getTableAlias();
+		                if (i>0)
+		                {
+		                	sources.append(" LEFT");
+		                }
+		              sources.append(" JOIN " + table + "AS "+alias+on+alias+ "._nodeId");
+
+		              for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+		              {
+		                  String fieldColumnName = namespace+columnAccessor.getColumnName(typeName);
+		                  String tableColumnName = columnAccessor.getColumnName(alias);
+		                  select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
+		              }
+		          }
+		          totalResultObjects+=this.nodeTypes.length;
+			}
+			addPath(path.followPaths,nodeAlias,aliasIndex++);
+    	}
+    }
+    
     public RowSet execute(Trace parent,Graph graph,Accessor accessor) throws Throwable
     {
-        StringBuilder select = new StringBuilder();
-        StringBuilder sources = new StringBuilder();
+    	this.graph=graph;    	
+        this.select = new StringBuilder();
+        this.sources = new StringBuilder();
         StringBuilder where=new StringBuilder();
-        String on=null;
-        if (this.fromNodeId!=null)
+        if (this.direction!=null)
         {
-            sources.append(" _link JOIN _node ON _link.toNodeId=_node.id ");
-            where.append(" _link.fromNodeId="+this.fromNodeId);
-        }
-        else if (this.toNodeId!=null)
-        {
-            sources.append(" _link JOIN _node ON _link.fromNodeId=_node.id ");
-            where.append(" _link.toNodeId="+this.toNodeId);
-        }
-        else if (this.nodeId!=null)
-        {
-            sources.append("_node ");
-            where.append(" _node.id="+this.nodeId);
+        	switch (this.direction)
+        	{
+			case FROM:
+	            sources.append(" _link JOIN _node ON _link.toNodeId=_node.id ");
+	            where.append(" _link.fromNodeId="+this.nodeId);
+				break;
+			case TO:
+	            sources.append(" _link JOIN _node ON _link.fromNodeId=_node.id ");
+	            where.append(" _link.toNodeId="+this.nodeId);
+				break;
+			default:
+				break;
+        	
+        	}
         }
         else
         {
             sources.append(" _node");
+            if (this.nodeId!=null)
+            {
+            	where.append(" _node.id="+this.nodeId);
+            }
         }
         select.append(" _node.id AS _nodeId");
         int totalResultObjects=0;
         if (this.nodeTypes!=null)
         {
-            for (Class<? extends NodeObject> type : this.nodeTypes)
-            {
+	        for (int i=0;i<this.nodeTypes.length;i++)
+	        {
+	        	Class<? extends NodeObject> type=this.nodeTypes[i];
                 Meta meta=graph.getMeta(type);
                 String typeName = meta.getTypeName();
                 String table = meta.getTableName();
                 String alias= meta.getTableAlias();
+                if (i>0)
+                {
+                	sources.append(" LEFT");
+                }
                 sources.append(" JOIN " + table + "AS "+alias+" ON _node.id="+alias+ "._nodeId");
                 for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                 {
@@ -94,34 +193,20 @@ public class Query
             }
             totalResultObjects+=this.nodeTypes.length;
         }
-        if (this.toNodeTypes!=null)
-        {
-            sources.append(" LEFT JOIN _link AS _toLink ON _node.id=_toLink.fromNodeId");
-
-            for (Class<? extends NodeObject> type : this.toNodeTypes)
-            {
-                Meta meta=graph.getMeta(type);
-                String typeName = meta.getTypeName();
-                String table = meta.getTableName();
-                String alias= meta.getTableAlias();
-                sources.append(" LEFT JOIN " + table + "AS "+alias+" ON _toLink.toNodeId="+alias+ "._nodeId");
-                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
-                {
-                    String fieldColumnName = columnAccessor.getColumnName(typeName);
-                    String tableColumnName = columnAccessor.getColumnName(alias);
-                    select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
-                }
-            }
-            totalResultObjects+=this.nodeTypes.length;
-        }
+        addPath(this.followPaths,"_node", 0);
         if (this.whereExpression!=null)
         {
-            where.append(" AND ("+this.whereExpression+")");
+        	if (where.length()>0)
+        	{
+        		where.append(" AND");
+        	}
+            where.append(" ("+this.whereExpression+")");
         }
         StringBuilder query = new StringBuilder("SELECT"+select+ " FROM" + sources);
-        if (this.whereExpression!=null)
+        
+    	if (where.length()>0)
         {
-            query.append(" WHERE"+this.whereExpression);
+            query.append(" WHERE"+where);
         }
         if (this.orderby != null)
         {
