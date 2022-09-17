@@ -29,6 +29,11 @@ public class Query
         this.nodeTypes=nodeTypes;
         return this;
     }
+    public Query selectToNodes(Class<? extends NodeObject>...nodeTypes)
+    {
+        this.toNodeTypes=nodeTypes;
+        return this;
+    }
     public Query selectToLinks(Class<? extends LinkObject>...linkTypes)
     {
         this.toLinkTypes=linkTypes;
@@ -89,6 +94,7 @@ public class Query
             sources.append(" _node");
         }
         select.append(" _node.id AS _nodeId");
+        int totalResultObjects=0;
         if (this.nodeTypes!=null)
         {
             for (Class<? extends NodeObject> type : this.nodeTypes)
@@ -105,6 +111,27 @@ public class Query
                     select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
                 }
             }
+            totalResultObjects+=this.nodeTypes.length;
+        }
+        if (this.toNodeTypes!=null)
+        {
+            sources.append(" LEFT JOIN _link AS _toLink ON _node.id=_toLink.fromNodeId");
+
+            for (Class<? extends NodeObject> type : this.toNodeTypes)
+            {
+                Meta meta=graph.getMeta(type);
+                String typeName = meta.getTypeName();
+                String table = meta.getTableName();
+                String alias= meta.getTableAlias();
+                sources.append(" LEFT JOIN " + table + "AS "+alias+" ON _toLink.toNodeId="+alias+ "._nodeId");
+                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                {
+                    String fieldColumnName = columnAccessor.getColumnName(typeName);
+                    String tableColumnName = columnAccessor.getColumnName(alias);
+                    select.append(','+tableColumnName + " AS '" + fieldColumnName + '\'');
+                }
+            }
+            totalResultObjects+=this.nodeTypes.length;
         }
         if (this.whereExpression!=null)
         {
@@ -132,7 +159,8 @@ public class Query
             rowSet = accessor.executeQuery(parent, null,
                     query.toString());
         }
-        System.out.println(query);
+        
+        
         return rowSet;
     }
 }
