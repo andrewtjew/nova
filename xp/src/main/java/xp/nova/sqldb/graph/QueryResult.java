@@ -2,47 +2,47 @@ package xp.nova.sqldb.graph;
 
 import java.util.Map;
 
+import org.nova.sqldb.Row;
+
+import xp.nova.sqldb.graph.Graph.ColumnAccessor;
+import xp.nova.sqldb.graph.Graph.Meta;
+
 public class QueryResult
 {
-    final private Long fromNodeId;
-    final private Long toNodeId;
-   
-    final private GraphObject[] objects;
-    private Map<String,Integer> map;
+    final private Row row;
+    final Map<String,Meta> map;
     
-    QueryResult(Long fromNodeId,Long toNodeId,GraphObject[] objects,Map<String,Integer> map)
+    QueryResult(Row row,Map<String,Meta> map)
     {
-        this.fromNodeId=fromNodeId;
-        this.toNodeId=toNodeId;
-        this.objects=objects;
         this.map=map;
+        this.row=row;
     }
-    public Long getFromNodeId()
+    
+    public <OBJECT extends GraphObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
     {
-        return this.fromNodeId;
-    }
-    public Long getToNodeId()
-    {
-        return this.toNodeId;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <OBJECT extends GraphObject> OBJECT get(Class<OBJECT> type) throws Exception
-    {
-        Integer index=this.map.get(type.getSimpleName());
-        if (index==null)
+        String typeName=namespace!=null?namespace+"."+type.getSimpleName():type.getSimpleName();
+        Meta meta=this.map.get(typeName);
+        if (meta==null)
         {
-            throw new Exception();
+            return null;
         }
-        return (OBJECT) this.objects[index];
+
+        Long nodeId = row.getNullableBIGINT(typeName + "._nodeId");
+        if (nodeId==null)
+        {
+            return null;
+        }
+        NodeObject nodeObject = (NodeObject) type.newInstance();
+        for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+        {
+            columnAccessor.set(nodeObject, typeName, row);
+        }
+        return (OBJECT)nodeObject;
     }
 
-    @SuppressWarnings("unchecked")
-    public <OBJECT extends GraphObject> OBJECT get(int index) throws Exception
+    public <OBJECT extends GraphObject> OBJECT get(Class<OBJECT> type) throws Throwable
     {
-        return (OBJECT) this.objects[index];
+        return get(null,type);
     }
-
-
 }
 

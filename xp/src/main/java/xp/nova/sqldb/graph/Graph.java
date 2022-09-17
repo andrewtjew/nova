@@ -67,7 +67,6 @@ public class Graph
         }
         
     }
-
     static abstract public class DefaultGetColumnAccessor extends ColumnAccessor
     {
         public DefaultGetColumnAccessor(Field field)
@@ -643,9 +642,10 @@ public class Graph
         final private String tableAlias;
         final private String tableName;
         final private String typeName;
-        
-        Meta(String typeName,GraphObjectType entityType,ColumnAccessor[] columnnAccessors)
+        final private Class<? extends GraphObject> type;
+        Meta(String typeName,Class<? extends GraphObject> type,GraphObjectType entityType,ColumnAccessor[] columnnAccessors)
         {
+            this.type=type;
             this.entityType=entityType;
             this.columnAccessors=columnnAccessors;
             this.typeName=typeName;
@@ -653,6 +653,10 @@ public class Graph
             this.tableName='`'+typeName+'`';
         }
 
+        Class<? extends GraphObject> getType()
+        {
+            return this.type;
+        }
         String getTableAlias()
         {
             return this.tableAlias;
@@ -676,15 +680,15 @@ public class Graph
     }
     
     
-    Meta getMeta(Class<?> type) throws Exception
+    Meta getMeta(Class<? extends GraphObject> type) throws Exception
     {
-        Meta entityMeta=null;
+        Meta meta=null;
         String typeName=type.getSimpleName();
         synchronized (ENTITY_META_MAP)
         {
-            entityMeta= ENTITY_META_MAP.get(typeName);
+            meta= ENTITY_META_MAP.get(typeName);
         }
-        if (entityMeta==null)
+        if (meta==null)
         {
             HashMap<String, ColumnAccessor> map = new HashMap<String, ColumnAccessor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
@@ -729,69 +733,14 @@ public class Graph
                 throw new Exception(type.getName()+" needs extend from a subclass of GraphObject.");
             }
             
-            entityMeta = new Meta(typeName,objectType,map.values().toArray(new ColumnAccessor[map.size()]));
+            meta = new Meta(typeName,type,objectType,map.values().toArray(new ColumnAccessor[map.size()]));
             synchronized (ENTITY_META_MAP)
             {
-                ENTITY_META_MAP.put(type.getName(), entityMeta);
+                ENTITY_META_MAP.put(type.getName(), meta);
             }
         }
-        return entityMeta;
+        return meta;
     }
-
-    static class NodeObjectKey
-    {
-        final String typeName;
-        final long nodeId;
-        
-        NodeObjectKey(String typeName,long nodeId)
-        {
-            this.typeName=typeName;
-            this.nodeId=nodeId;
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if ((other instanceof NodeObjectKey)==false)
-            {
-                return false;
-            }
-            if (other==this)
-            {
-                return true;
-            }
-            NodeObjectKey otherKey=(NodeObjectKey)other;
-            return (this.nodeId==otherKey.nodeId)&&(this.typeName.equals(otherKey.typeName));
-        }
-    }
-    
-//    static class Cache<VALUE> extends ContentCache<NodeObjectKey,VALUE>
-//    {
-//        final Graph graph;
-//        
-//        Cache(Graph graph)
-//        {
-//            this.graph=graph;
-//        }
-//
-//        @Override
-//        protected ValueSize<VALUE> load(Trace parent, NodeObjectKey key) throws Throwable
-//        {
-//            return null;
-//        }
-//    }
-//    static class NodeObjectCache extends Cache<NodeAttribute>
-//    {
-//        NodeObjectCache(Graph graph)
-//        {
-//            super(graph);
-//            // TODO Auto-generated constructor stub
-//        }
-//
-//
-//    }
-//
-//    final private NodeObjectCache cache;
     
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
@@ -800,7 +749,6 @@ public class Graph
     public Graph(Connector connector)
     {
         this.connector=connector;
-//        this.cache=new NodeObjectCache(this);
     }
     public Connector getConnector()
     {
@@ -811,12 +759,7 @@ public class Graph
     {
         return new GraphAccess(parent,this,category,creatorId,beginTransaction);
     }
-
-//    void evict(String typeName,long nodeId)
-//    {
-//        this.cache.evict(new NodeObjectKey(typeName,nodeId));
-//    }
-    public void createTable(Trace parent,Class<?> type) throws Throwable
+    public void createTable(Trace parent,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         
