@@ -7,8 +7,6 @@ import java.util.Map;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.Select;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-
 public class NodeResult
 {
     final private long nodeId;

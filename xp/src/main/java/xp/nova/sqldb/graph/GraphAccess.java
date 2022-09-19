@@ -21,20 +21,17 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-import xp.nova.sqldb.graph.Graph.Meta;
-
 public class GraphAccess implements AutoCloseable
 {
     final private Long creatorId;
     final private String source;
-    final Graph graph;
+    final Graph2 graph;
     final Trace parent;
     final private Accessor accessor;
     final private Transaction transaction;
     private Long eventId;
     
-    GraphAccess(Trace parent,Graph graph,String source,Long creatorId,boolean beginTransaction) throws Throwable
+    GraphAccess(Trace parent,Graph2 graph,String source,Long creatorId,boolean beginTransaction) throws Throwable
     {
         this.graph=graph;
         this.source=source;
@@ -278,7 +275,7 @@ public class GraphAccess implements AutoCloseable
         StringBuilder select = new StringBuilder();
         StringBuilder join = new StringBuilder();
 
-        Graph graph = this.graph;
+        Graph2 graph = this.graph;
         String on=fromNodeIds!=null?" ON _link.toNodeId=":" ON _link.fromNodeId=";
         for (Class<? extends GraphObject> type : requiredObjectTypes)
         {

@@ -9,13 +9,9 @@ import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-import xp.nova.sqldb.graph.Graph.GraphObjectType;
-import xp.nova.sqldb.graph.Graph.Meta;
-
 public class LinkQuery
 {
-    final private Graph graph;
+    final private Graph2 graph;
     final private Trace parent;
     
     private GraphAccess access;
@@ -30,7 +26,7 @@ public class LinkQuery
         this.access=access;
         this.graph=null;
     }
-    public LinkQuery(Trace parent,Graph graph)
+    public LinkQuery(Trace parent,Graph2 graph)
     {
         this.parent=parent;
         this.graph=graph;
@@ -103,7 +99,7 @@ public class LinkQuery
         RowSet rowSet=access.getLinkNodes(fromNodeIds, toNodeIds, requiredObjectTypes, optionalObjectTypes, orderBy, expression, parameters);
 
         LinkNodeResult[] results = new LinkNodeResult[rowSet.size()];
-        Graph graph=this.access.graph;
+        Graph2 graph=this.access.graph;
 
         for (int i = 0; i < rowSet.size();i++)
         {

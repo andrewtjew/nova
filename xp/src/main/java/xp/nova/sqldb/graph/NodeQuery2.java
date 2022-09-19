@@ -7,13 +7,10 @@ import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-import xp.nova.sqldb.graph.Graph.Meta;
-
 public class NodeQuery2
 {
 //    final private ;
-    final private Graph graph;
+    final private Graph2 graph;
     final private Trace parent;
     private GraphAccess access;
     private String expression;
@@ -26,7 +23,7 @@ public class NodeQuery2
         this.graph=null;
         this.parent=null;
     }
-    public NodeQuery2(Trace parent,Graph graph)
+    public NodeQuery2(Trace parent,Graph2 graph)
     {
         this.access=null;
         this.graph=graph;
@@ -72,7 +69,7 @@ public class NodeQuery2
         StringBuilder select = new StringBuilder();
         StringBuilder join = new StringBuilder();
 
-        Graph graph = access.graph;
+        Graph2 graph = access.graph;
         int totalResultTypes=0;
         if (requiredObjectType!=null)
         {
@@ -207,7 +204,7 @@ public class NodeQuery2
     {
         Trace parent=this.access.parent;
 
-        Graph graph = access.graph;
+        Graph2 graph = access.graph;
         Meta meta=graph.getMeta(type);
         String table = meta.getTableName();
         StringBuilder query = new StringBuilder("SELECT _node.id FROM _node JOIN " + table+" ON _node.id=" +table+ "._nodeId WHERE "+this.expression);

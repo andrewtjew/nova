@@ -1,4 +1,4 @@
- package xp.nova.sqldb.graph;
+package xp.nova.sqldb.graph;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -20,9 +20,10 @@ import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.tracing.Trace;
 
-public class Graph
+public class Graph2
 {
     private int defaultVARCHARLength=45;
+    private String database="graph";
     
     ColumnAccessor getColumnAccessor(Field field) throws Exception
     {
@@ -637,29 +638,21 @@ public class Graph
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends Relation>> relationTypes=new HashMap<String, Class<? extends Relation>>();
     
-    public Graph(Connector connector)
+    public Graph2(Connector connector)
     {
         this.connector=connector;
     }
-    
-    public GraphAccessor openGraphAcessor(Trace parent,String catalog) throws Throwable
+    public Connector getConnector()
     {
-        return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
+        return this.connector;
     }
     
-//    public GraphAccess openAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
-//    {
-//        return new GraphAccess(parent,this,category,creatorId,beginTransaction);
-//    }
-    
-    public void createRelation(Class<? extends Relation> type)
+    public GraphAccess openAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
     {
-        this.relationTypes.put(type.getSimpleName(), type);
+        return new GraphAccess(parent,this,category,creatorId,beginTransaction);
     }
-
-    public void createTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
+    public void createTable(Trace parent,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         
@@ -679,47 +672,13 @@ public class Graph
         sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
         
         
-        Accessor accessor=graphAccessor.accessor;
-        if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
-        {
-            accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
-        }
-    }
-
-    public void createCatalog(Trace parent,String catalog) throws Throwable
-    {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
-            if (accessor.executeQuery(parent,"existCatalog:"+catalog,"SELECT count(*) FROM information_schema.schemata WHERE SCHEMA_NAME=?",catalog).getRow(0).getBIGINT(0)==0)
+            if (accessor.executeQuery(parent,"createTable","SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,this.database).getRow(0).getBIGINT(0)==0)
             {
-                accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE "+catalog);
-            }
-        }
-        try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))
-        {
-            if (accessor.executeQuery(parent,"existTable:_event"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_event",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                accessor.executeUpdate(parent, "createTable:_event"
-                        ,"CREATE TABLE `_event` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(256) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=547 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
-            }
-
-            if (accessor.executeQuery(parent,"existTable:_link"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`id` bigint NOT NULL AUTO_INCREMENT, `fromNodeId` bigint NOT NULL, `toNodeId` bigint NOT NULL, `eventId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) NOT NULL,PRIMARY KEY (`id`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
-            }
-
-            if (accessor.executeQuery(parent,"existTable:_node"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                accessor.executeUpdate(parent, "createTable:_node"
-                        ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
+                accessor.executeUpdate(parent, "createTable", sql.toString());
             }
         }
     }
+    
 }

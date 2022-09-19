@@ -8,9 +8,6 @@ import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-import xp.nova.sqldb.graph.Graph.Meta;
-
 public class Query
 {
     private Class<? extends NodeObject>[] nodeTypes;
@@ -22,7 +19,7 @@ public class Query
     private Object[] parameters;
     private String whereExpression;
     private String orderby;
-    private ArrayList<QueryPath> followPaths;
+    private ArrayList<Predicate> predicates;
 
     public Query(long nodeId, Direction direction)
     {
@@ -41,32 +38,34 @@ public class Query
         this.direction = null;
     }
 
-    @SuppressWarnings("unchecked")
-    public Query selectNodes(Class<? extends NodeObject>... nodeTypes)
+    @SafeVarargs
+    final public Query selectNodeObjects(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public Query selectLinks(Class<? extends LinkObject>... linkTypes)
+    @SafeVarargs
+    final public Query selectLinkObjects(Class<? extends LinkObject>... linkTypes)
     {
         this.linkTypes = linkTypes;
         return this;
     }
 
-    public Query follow(QueryPath path)
+    public Query with(Predicate predictate)
     {
-        if (this.followPaths == null)
+        if (this.predicates == null)
         {
-            this.followPaths = new ArrayList<>();
+            this.predicates = new ArrayList<>();
         }
-        this.followPaths.add(path);
+        this.predicates.add(predictate);
         return this;
     }
 
     public Query where(String expression, Object... parameters)
     {
+        this.parameters=parameters;
+        this.whereExpression=expression;
         return this;
     }
 
@@ -76,13 +75,13 @@ public class Query
         return this;
     }
 
-    private void addPath(ArrayList<QueryPath> paths, String pathSource, int aliasIndex) throws Throwable
+    private void addPredicate(ArrayList<Predicate> paths, String pathSource, int aliasIndex) throws Throwable
     {
         if (paths == null)
         {
             return;
         }
-        for (QueryPath path : paths)
+        for (Predicate path : paths)
         {
             String linkAlias = "_link" + aliasIndex;
             String nodeAlias = "_node" + aliasIndex;
@@ -99,6 +98,12 @@ public class Query
             default:
                 break;
             }
+            if (path.relation!=null)
+            {
+                String typeName=path.relation.getClass().getSimpleName();
+                sources.append(" AND "+linkAlias+".type='"+typeName+"' AND "+linkAlias+".relation="+path.relation.getValue());
+            }
+
             if (path.nodeTypes != null)
             {
                 String on = null;
@@ -126,8 +131,7 @@ public class Query
                     {
                         sources.append(" LEFT");
                     }
-                    sources.append(" JOIN " + table + "AS " + alias + on + alias + "._nodeId");
-
+                    sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
@@ -135,23 +139,22 @@ public class Query
                         select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
                     }
                 }
-                totalResultObjects += this.nodeTypes.length;
             }
-            addPath(path.followPaths, nodeAlias, aliasIndex++);
+            addPredicate(path.predicates, nodeAlias, aliasIndex++);
         }
     }
 
     private Graph graph;
     private StringBuilder sources;
     private StringBuilder select;
-    private int totalResultObjects;
     
     private HashMap<String,Meta> map;
     
     
-    public QueryResult[] execute(Trace parent, Graph graph, Accessor accessor) throws Throwable
+    public QueryResult[] execute(Trace parent, GraphAccessor graphAccessor) throws Throwable
     {
-        this.graph = graph;
+        this.graph = graphAccessor.graph;
+        Accessor accessor=graphAccessor.accessor;
         this.map=new HashMap<String, Meta>();
         this.select = new StringBuilder();
         this.sources = new StringBuilder();
@@ -182,7 +185,6 @@ public class Query
             }
         }
         select.append(" _node.id AS _nodeId");
-        int totalResultObjects = 0;
         if (this.nodeTypes != null)
         {
             for (int i = 0; i < this.nodeTypes.length; i++)
@@ -205,9 +207,8 @@ public class Query
                     select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
                 }
             }
-            totalResultObjects += this.nodeTypes.length;
         }
-        addPath(this.followPaths, "_node", 0);
+        addPredicate(this.predicates, "_node", 0);
         if (this.whereExpression != null)
         {
             if (where.length() > 0)
@@ -245,17 +246,17 @@ public class Query
         return results;
     }
 
-    public QueryResult[] execute(Trace parent, Graph graph) throws Throwable
+    public QueryResult[] execute(Trace parent, Graph graph,String catalog) throws Throwable
     {
-        try (Accessor accessor=graph.getConnector().openAccessor(parent))
+        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
         {
-            return execute(parent,graph,accessor);
+            return execute(parent,accessor);
         }
     }
 
-    public QueryResult executeOne(Trace parent, Graph graph,Accessor accessor) throws Throwable
+    public QueryResult executeOne(Trace parent, GraphAccessor graphAccessor) throws Throwable
     {
-        QueryResult[] results=execute(parent,graph,accessor);
+        QueryResult[] results=execute(parent,graphAccessor);
         if (results.length==0)
         {
             return null;
@@ -266,20 +267,32 @@ public class Query
         }
         return results[0];
     }
-    public QueryResult executeOne(Trace parent, Graph graph) throws Throwable
+    public QueryResult executeOne(Trace parent, Graph graph,String catalog) throws Throwable
     {
-        try (Accessor accessor=graph.getConnector().openAccessor(parent))
+        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
         {
-            return executeOne(parent,graph,accessor);
+            return executeOne(parent,accessor);
         }
     }
 
-    public long getCount(Trace parent,Graph graph,Accessor accessor,Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, GraphAccessor graphAccessor,Class<OBJECT> type) throws Throwable
     {
-        Meta meta=this.graph.getMeta(type);
-        String table=meta.getTableName();
-        return accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
+        selectNodeObjects(type);
+        QueryResult result=executeOne(parent,graphAccessor);
+        if (result==null)
+        {
+            return null;
+        }
+        return result.get(type);
     }
-    
+
+    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, Graph graph,String catalog,Class<OBJECT> type) throws Throwable
+    {
+        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
+        {
+            return executeOne(parent,accessor,type);
+        }
+    }
+
     
 }

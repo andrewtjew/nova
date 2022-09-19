@@ -50,14 +50,25 @@ public class Accessor extends Resource
 	private Transaction transaction;
     private Transaction retireTransaction;
     private StackTraceElement[] retireStackTrace;
-
-	Accessor(Pool<Accessor> pool, Connector connector, long connectionIdleTimeoutMs)
+    private String connectionCatalog;
+	
+    Accessor(Pool<Accessor> pool, Connector connector, long connectionIdleTimeoutMs)
 	{
 		super(pool);
 		this.connectionIdleTimeoutMs = connectionIdleTimeoutMs;
 		this.connector = connector;
 		this.retireTransaction=null;
 	}
+	
+    void setCatalog(String catalog) throws Throwable
+    {
+        if (catalog!=null)
+        {
+            this.connectionCatalog=this.connection.getCatalog();
+            this.connection.setCatalog(catalog);
+        }
+    }
+	
 
 	public Transaction beginTransaction(String traceCategory) throws Throwable
 	{
@@ -193,6 +204,10 @@ public class Accessor extends Resource
                         throw new Exception(t);
                     }
                 }
+            }
+            if (this.connectionCatalog!=null)
+            {
+                this.connection.setCatalog(this.connectionCatalog);
             }
         }
 	}
@@ -775,9 +790,5 @@ public class Accessor extends Resource
 	public Connector getConnector()
 	{
 	    return this.connector;
-	}
-	public void setDataBase(String database) throws Throwable
-	{
-	    this.connection.setCatalog(database);
 	}
 }

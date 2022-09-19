@@ -10,6 +10,8 @@ public class Node
         this.id=id;
         this.access=access;
     }
+    
+    
 
     public long getNodeId()
     {
