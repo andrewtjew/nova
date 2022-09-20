@@ -1,5 +1,6 @@
 package xp.nova.sqldb.graph;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,34 +11,43 @@ import org.nova.utils.Utils;
 
 public class Query
 {
+    final private Graph graph;
+    final private GraphAccessor graphAccessor;
+
     private Class<? extends NodeObject>[] nodeTypes;
     private Class<? extends LinkObject>[] linkTypes;
 
-    final private Direction direction;
-    final private Long nodeId;
+    private Direction direction;
+    private Long nodeId;
 
     private Object[] parameters;
     private String whereExpression;
     private String orderby;
     private ArrayList<Predicate> predicates;
 
-    public Query(long nodeId, Direction direction)
+    public Query(GraphAccessor graphAccessor)
     {
-        this.direction = direction;
-        this.nodeId = nodeId;
+        this.graphAccessor=graphAccessor;
+        this.graph=graphAccessor.graph;
+    }
+    public Query(GraphTransaction graphTransaction)
+    {
+        this(graphTransaction.getGraphAccessor());
     }
 
-    public Query(long nodeId)
+    public Query start(long nodeId,Direction direction)
     {
-        this(nodeId, null);
+        this.nodeId=nodeId;
+        this.direction=direction;
+        return this;
     }
 
-    public Query()
+    public Query start(long nodeId)
     {
-        this.nodeId = null;
-        this.direction = null;
+        this.nodeId=nodeId;
+        return this;
     }
-
+    
     @SafeVarargs
     final public Query selectNodeObjects(Class<? extends NodeObject>... nodeTypes)
     {
@@ -127,11 +137,11 @@ public class Query
                     String typeName = meta.getTypeName();
                     String table = meta.getTableName();
                     String alias = meta.getTableAlias();
-                    if (i > 0)
-                    {
-                        sources.append(" LEFT");
-                    }
-                    sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
+//                    if (i > 0)
+//                    {
+//                        sources.append(" LEFT");
+//                    }
+                    sources.append(" JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
@@ -144,16 +154,14 @@ public class Query
         }
     }
 
-    private Graph graph;
     private StringBuilder sources;
     private StringBuilder select;
     
     private HashMap<String,Meta> map;
     
     
-    public QueryResult[] execute(Trace parent, GraphAccessor graphAccessor) throws Throwable
+    public QueryResult[] execute(Trace parent) throws Throwable
     {
-        this.graph = graphAccessor.graph;
         Accessor accessor=graphAccessor.accessor;
         this.map=new HashMap<String, Meta>();
         this.select = new StringBuilder();
@@ -195,7 +203,7 @@ public class Query
                 String typeName = meta.getTypeName();
                 String table = meta.getTableName();
                 String alias = meta.getTableAlias();
-                if (i > 0)
+                if ((i > 0)||(this.nodeId!=null))
                 {
                     sources.append(" LEFT");
                 }
@@ -246,17 +254,17 @@ public class Query
         return results;
     }
 
-    public QueryResult[] execute(Trace parent, Graph graph,String catalog) throws Throwable
-    {
-        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
-        {
-            return execute(parent,accessor);
-        }
-    }
+//    public QueryResult[] execute(Trace parent, Graph graph,String catalog) throws Throwable
+//    {
+//        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
+//        {
+//            return execute(parent,accessor);
+//        }
+//    }
 
-    public QueryResult executeOne(Trace parent, GraphAccessor graphAccessor) throws Throwable
+    public QueryResult executeOne(Trace parent) throws Throwable
     {
-        QueryResult[] results=execute(parent,graphAccessor);
+        QueryResult[] results=execute(parent);
         if (results.length==0)
         {
             return null;
@@ -267,18 +275,31 @@ public class Query
         }
         return results[0];
     }
-    public QueryResult executeOne(Trace parent, Graph graph,String catalog) throws Throwable
-    {
-        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
-        {
-            return executeOne(parent,accessor);
-        }
-    }
 
-    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, GraphAccessor graphAccessor,Class<OBJECT> type) throws Throwable
+//    public QueryResult executeOne(Trace parent, Graph graph,String catalog) throws Throwable
+//    {
+//        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
+//        {
+//            return executeOne(parent,accessor);
+//        }
+//    }
+
+    public <OBJECT extends NodeObject> OBJECT[] execute(Trace parent, Class<OBJECT> type) throws Throwable
     {
         selectNodeObjects(type);
-        QueryResult result=executeOne(parent,graphAccessor);
+        QueryResult[] results=execute(parent);
+        Object array=Array.newInstance(type, results.length);
+        for (int i=0;i<results.length;i++)
+        {
+            Array.set(array, i, results[i].get(type));
+        }
+        return (OBJECT[]) array;
+    }
+
+    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, Class<OBJECT> type) throws Throwable
+    {
+        selectNodeObjects(type);
+        QueryResult result=executeOne(parent);
         if (result==null)
         {
             return null;
@@ -286,13 +307,13 @@ public class Query
         return result.get(type);
     }
 
-    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, Graph graph,String catalog,Class<OBJECT> type) throws Throwable
-    {
-        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
-        {
-            return executeOne(parent,accessor,type);
-        }
-    }
+//    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, Graph graph,String catalog,Class<OBJECT> type) throws Throwable
+//    {
+//        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
+//        {
+//            return executeOne(parent,accessor,type);
+//        }
+//    }
 
     
 }

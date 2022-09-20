@@ -29,7 +29,7 @@ public class GraphAccessor implements AutoCloseable
         return beginTransaction(parent,source,creatorId,false);
     }
     
-    public long getCount(Trace parent,Graph2 graph,Accessor accessor,Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
+    public long getCount(Trace parent,Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
     {
         Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();

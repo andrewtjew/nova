@@ -177,31 +177,24 @@ public class GraphTransaction implements AutoCloseable
         }
     }
     
-//    int deleteLinks(long fromNodeId,Class<? extends NodeObject> toType) throws Throwable
-//    {
-//        Meta meta=this.graph.getMeta(toType);
-//        String table=meta.getTableName();
-//        RowSet rowSet=this.accessor.executeQuery(parent, null
-//                ,"SELECT _link.id FROM _link JOIN "+table+" ON "+table+"._nodeId=_link.toNodeId WHERE fromNodeId=?"
-//                ,fromNodeId);
-//        Object[][] parameters=new Object[rowSet.size()][];
-//        for (int i=0;i<parameters.length;i++)
-//        {
-//            parameters[i]=new Object[1];
-//            parameters[i][0]=rowSet.getRow(i).getBIGINT(0);
-//        }
-//        
-//        int[] results=this.accessor.executeBatchUpdate(this.parent,null,parameters,"DELETE FROM _link WHERE id=?");
-//        int total=0;
-//        for (int i=0;i<results.length;i++)
-//        {
-//            total+=results[i];
-//        }
-//        return total;
-//        
-//    }
+    public int deleteLinks(long fromNodeId) throws Throwable
+    {
+        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",fromNodeId);
+    }
 
-    void deleteNode(long nodeId) throws Throwable
+    public int deleteLinks(long fromNodeId,Relation relation) throws Throwable
+    {
+        String typeName=relation.getClass().getSimpleName();
+        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=? AND relation=?",fromNodeId,typeName,relation.getValue());
+    }
+
+    public int deleteLinks(long fromNodeId,Class<? extends Relation> type) throws Throwable
+    {
+        String typeName=type.getSimpleName();
+        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=?",fromNodeId,typeName);
+    }
+
+    public void deleteNode(long nodeId) throws Throwable
     {
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
