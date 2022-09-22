@@ -692,7 +692,7 @@ public class Graph
         {
             if (accessor.executeQuery(parent,"existCatalog:"+catalog,"SELECT count(*) FROM information_schema.schemata WHERE SCHEMA_NAME=?",catalog).getRow(0).getBIGINT(0)==0)
             {
-                accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE "+catalog);
+                accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE `"+catalog+'`');
             }
         }
         try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))

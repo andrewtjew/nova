@@ -11,35 +11,30 @@ import org.nova.utils.Utils;
 
 public class Query
 {
-    final private Graph graph;
-    final private GraphAccessor graphAccessor;
+    private Graph graph;
 
     private Class<? extends NodeObject>[] nodeTypes;
     private Class<? extends LinkObject>[] linkTypes;
 
     private Direction direction;
     private Long nodeId;
+    private Relation relation;
 
     private Object[] parameters;
     private String whereExpression;
     private String orderby;
     private ArrayList<Predicate> predicates;
 
-    public Query(GraphAccessor graphAccessor)
-    {
-        this.graphAccessor=graphAccessor;
-        this.graph=graphAccessor.graph;
-    }
-    public Query(GraphTransaction graphTransaction)
-    {
-        this(graphTransaction.getGraphAccessor());
-    }
-
-    public Query start(long nodeId,Direction direction)
+    public Query start(long nodeId,Direction direction,Relation relation)
     {
         this.nodeId=nodeId;
         this.direction=direction;
+        this.relation=relation;
         return this;
+    }
+    public Query start(long nodeId,Direction direction)
+    {
+        return start(nodeId,direction,null);
     }
 
     public Query start(long nodeId)
@@ -72,8 +67,27 @@ public class Query
         return this;
     }
 
+    static void translateParameters(Object[] parameters)
+    {
+        for (Object parameter:parameters)
+        {
+            if (parameters!=null)
+            {
+                if (parameter instanceof ShortEnummerable)
+                {
+                    parameter=((ShortEnummerable)parameter).getValue();
+                }
+                else if (parameter instanceof IntegerEnummerable)
+                {
+                    parameter=((IntegerEnummerable)parameter).getValue();
+                }
+            }
+        }
+    }
+    
     public Query where(String expression, Object... parameters)
     {
+        translateParameters(parameters);
         this.parameters=parameters;
         this.whereExpression=expression;
         return this;
@@ -141,7 +155,7 @@ public class Query
 //                    {
 //                        sources.append(" LEFT");
 //                    }
-                    sources.append(" JOIN " + table + "AS " + alias + on + alias + "._nodeId");
+                    sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
@@ -160,8 +174,9 @@ public class Query
     private HashMap<String,Meta> map;
     
     
-    public QueryResult[] execute(Trace parent) throws Throwable
+    public QueryResult[] execute(Trace parent,GraphAccessor graphAccessor) throws Throwable
     {
+        this.graph=graphAccessor.graph;
         Accessor accessor=graphAccessor.accessor;
         this.map=new HashMap<String, Meta>();
         this.select = new StringBuilder();
@@ -181,7 +196,11 @@ public class Query
                 break;
             default:
                 break;
-
+            }
+            if (this.relation!=null)
+            {
+                String typeName=relation.getClass().getSimpleName();
+                sources.append(" AND _link.type='"+typeName+"' AND _link.relation="+relation.getValue());
             }
         }
         else
@@ -254,17 +273,9 @@ public class Query
         return results;
     }
 
-//    public QueryResult[] execute(Trace parent, Graph graph,String catalog) throws Throwable
-//    {
-//        try (GraphAccessor accessor=graph.openGraphAcessor(parent, catalog))
-//        {
-//            return execute(parent,accessor);
-//        }
-//    }
-
-    public QueryResult executeOne(Trace parent) throws Throwable
+    public QueryResult executeOne(Trace parent,GraphAccessor graphAccessor) throws Throwable
     {
-        QueryResult[] results=execute(parent);
+        QueryResult[] results=execute(parent,graphAccessor);
         if (results.length==0)
         {
             return null;
@@ -284,10 +295,10 @@ public class Query
 //        }
 //    }
 
-    public <OBJECT extends NodeObject> OBJECT[] execute(Trace parent, Class<OBJECT> type) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT[] execute(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
     {
         selectNodeObjects(type);
-        QueryResult[] results=execute(parent);
+        QueryResult[] results=execute(parent,graphAccessor);
         Object array=Array.newInstance(type, results.length);
         for (int i=0;i<results.length;i++)
         {
@@ -296,10 +307,10 @@ public class Query
         return (OBJECT[]) array;
     }
 
-    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent, Class<OBJECT> type) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
     {
         selectNodeObjects(type);
-        QueryResult result=executeOne(parent);
+        QueryResult result=executeOne(parent,graphAccessor);
         if (result==null)
         {
             return null;
