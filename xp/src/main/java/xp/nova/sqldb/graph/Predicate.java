@@ -14,6 +14,11 @@ public class Predicate
     {
         this.direction=direction;
     }
+    public Predicate(Direction direction,Relation relation)
+    {
+        this.direction=direction;
+        this.relation=relation;
+    }
     public Predicate namespace(String namespace)
     {
     	this.namespace=namespace;
@@ -33,11 +38,6 @@ public class Predicate
         return this;
     }
 
-    public Predicate relation(Relation relation)
-    {
-        this.relation=relation;
-        return this;
-    }
     public Predicate with(Predicate predicate)
     {
         if (this.predicates==null)
