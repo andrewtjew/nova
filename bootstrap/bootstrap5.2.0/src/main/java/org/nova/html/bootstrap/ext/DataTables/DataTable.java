@@ -46,16 +46,11 @@ import org.nova.html.tags.tbody;
 import org.nova.html.tags.tr;
 import org.nova.utils.TypeUtils;
 
-//!!! Requires jquery
-
 public class DataTable  extends StyleComponent<DataTable>
 {
     final private TableHeader header;
     final private TableBody body;
     final private TableFooter footer;
-//    final private DataTableOptions options;
-   // public static String CSS="<link rel='stylesheet' type='text/css' href='https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.css'/>";
- //   public static String SCRIPT="<script type='text/javascript' src='https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.js'></script>";
     
     public static script SCRIPT=new script().src("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.js");
     public static link CSS=new link().rel(link_rel.stylesheet).type("text/css").href("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.css");

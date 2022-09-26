@@ -3,45 +3,55 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.Container;
 import org.nova.html.bootstrap.Row;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
 
-public class CenteredCol extends Col
+public class CenteredCol extends StyleComponent<CenteredCol>
 {
     final private Integer sideCol;
     final private BreakPoint breakPoint;
     public CenteredCol(BreakPoint breakPoint,int sideCol)
     {
-        super(breakPoint);
+        super("div","col");
+        addClass("col",breakPoint);
         this.sideCol=sideCol;
         this.breakPoint=breakPoint;
 
     }
     public CenteredCol(int sideCol)
     {
-        super();
+        super("div","col");
         this.sideCol=sideCol;
         this.breakPoint=null;
     }
     public CenteredCol(BreakPoint breakPoint)
     {
-        super(breakPoint);
+        super("div","col");
+        addClass("col",breakPoint);
         this.sideCol=1;
         this.breakPoint=breakPoint;
     }
     public CenteredCol()
     {
-        super();
+        super("div","col");
         this.sideCol=1;
         this.breakPoint=null;
     }
     
+    boolean composed=false;
     
     @Override
     public void compose(Composer composer) throws Throwable
     {
+        if (composed)
+        {
+            super.compose(composer);
+            return;
+        }
+        composed=true;
         Container container=new Container(true);
         Row row=container.returnAddInner(new Row());
         if (this.breakPoint!=null)
@@ -56,6 +66,7 @@ public class CenteredCol extends Col
             row.addInner(this);
             row.addInner(new Col(this.sideCol));
         }
+        composer.compose(container);
         
     }
 

@@ -156,13 +156,12 @@ public class SessionFilter extends Filter
         Method method=context.getRequestHandler().getMethod();
         if (method.getAnnotation(AllowNoSession.class)!=null)
         {
-            if (session!=null)
+            if (session==null)
             {
-                context.setState(session);
+                return context.next(parent);
             }
-            return context.next(parent);
         }
-        if (session==null)
+        else if (session==null)
         {
             if (this.debugSession==null)
             {
