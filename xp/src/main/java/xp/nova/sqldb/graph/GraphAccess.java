@@ -144,25 +144,6 @@ public class GraphAccess implements AutoCloseable
         accessor.executeUpdate(parent,null,sql,parameters);
     }
 
-//    @SuppressWarnings("unchecked")
-//    <OBJECT extends NodeObject> OBJECT get(long nodeId,Class<? extends NodeObject> type) throws Throwable
-//    {
-//        Meta meta=this.graph.getMeta(type);
-//        String table=meta.getTableName();
-//
-//        Row row=Select.source(table).executeOne(parent, this.accessor, "_nodeId_=?",nodeId);
-//        if (row==null)
-//        {
-//            return null;
-//        }
-//        OBJECT entity=(OBJECT) type.newInstance();
-//        for (ColumnAccessor columnAccessor:meta.getColumnAccessors())
-//        {
-//            columnAccessor.set(entity, null, row);
-//        }        
-//        return entity;
-//    }
-
     public long getCount(Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
     {
         Meta meta=this.graph.getMeta(type);
