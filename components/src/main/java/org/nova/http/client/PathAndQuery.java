@@ -23,7 +23,6 @@ package org.nova.http.client;
 
 import java.net.URLEncoder;
 
-import org.nova.http.server.ParamSecurity;
 import org.nova.json.ObjectMapper;
 
 public class PathAndQuery

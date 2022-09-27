@@ -1,8 +1,6 @@
 package org.nova.localization;
 
 import java.util.HashMap;
-import java.util.Locale;
-
 import org.nova.html.ext.Language_ISO_639_1;
 
 public enum LanguageCode

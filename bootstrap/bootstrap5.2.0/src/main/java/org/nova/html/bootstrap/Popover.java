@@ -21,21 +21,10 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.annotations.Description;
-import org.nova.html.bootstrap.classes.Boundary;
-import org.nova.html.bootstrap.classes.Placement;
-import org.nova.html.bootstrap.classes.Trigger;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.NodeElement;
-import org.nova.html.elements.QuotationMark;
-import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
-import org.nova.json.ObjectMapper;
-import org.nova.utils.Utils;
 
 public class Popover extends TipComponent<Popover> 
 {

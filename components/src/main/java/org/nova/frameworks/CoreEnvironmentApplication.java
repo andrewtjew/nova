@@ -30,7 +30,6 @@ import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.metrics.MeterStore;
 import org.nova.metrics.SourceEventBoard;
-import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 public abstract class CoreEnvironmentApplication

@@ -1,7 +1,5 @@
 package org.nova.http.server;
 
-import org.nova.utils.TypeUtils;
-
 public interface ParamSecurity
 {
     public String decodeQueryParam(String cypherText) throws Throwable;

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 
 public abstract class ContentReader<CONTENT>

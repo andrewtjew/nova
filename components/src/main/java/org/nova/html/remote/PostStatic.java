@@ -1,7 +1,6 @@
 package org.nova.html.remote;
 
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.JsObject;
 import org.nova.json.ObjectMap;
 import org.nova.json.ObjectMapper;
 

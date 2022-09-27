@@ -33,10 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
-import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
-import org.nova.http.server.annotations.QueryParam;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;

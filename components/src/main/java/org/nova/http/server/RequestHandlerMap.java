@@ -65,8 +65,6 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-import com.jcraft.jsch.Buffer;
-
 //TODO!!! Resolve Consumes and ContentReaders just like produces and contentwriters
 
 class RequestHandlerMap

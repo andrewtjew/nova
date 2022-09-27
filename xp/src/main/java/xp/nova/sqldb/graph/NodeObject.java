@@ -1,7 +1,5 @@
 package xp.nova.sqldb.graph;
 
-import java.sql.Timestamp;
-
 public class NodeObject extends GraphObject
 {
     @GraphField

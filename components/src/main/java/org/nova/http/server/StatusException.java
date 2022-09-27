@@ -25,7 +25,6 @@ import java.util.ArrayList;
 
 import javax.servlet.http.Cookie;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.Header;
 
 public class StatusException extends Exception

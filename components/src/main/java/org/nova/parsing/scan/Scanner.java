@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.parsing.scan;
 
-import org.nova.parsing.scan.Lexeme;
-
 public class Scanner
 {
     protected final Source source;

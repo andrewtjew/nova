@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
 import org.nova.html.enums.autocomplete;
-import org.nova.html.tags.input_password;
 
 
 public class InputPassword extends InputComponent<InputPassword>

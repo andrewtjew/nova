@@ -1,17 +1,9 @@
 package org.nova.html.help;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import org.nova.core.NameValue;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.div;
-import org.nova.json.ObjectMapper;
 
 public class Document extends div
 {

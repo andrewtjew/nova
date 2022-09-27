@@ -1,10 +1,5 @@
 package org.nova.localization;
 
-import java.util.Locale;
-
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-
 public class StringHandle
 {
     final private String handle;

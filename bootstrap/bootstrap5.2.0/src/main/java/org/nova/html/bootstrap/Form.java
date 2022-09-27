@@ -24,7 +24,6 @@ package org.nova.html.bootstrap;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.enums.method;
-import org.nova.html.tags.script;
 
 public class Form extends FormElement<Form> implements Styling<Form>
 {

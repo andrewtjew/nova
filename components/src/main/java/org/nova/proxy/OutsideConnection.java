@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
 

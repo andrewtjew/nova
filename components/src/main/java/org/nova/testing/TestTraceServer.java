@@ -24,7 +24,6 @@ package org.nova.testing;
 import java.util.LinkedList;
 
 import org.nova.http.server.JettyServerFactory;
-import org.eclipse.jetty.server.HttpConfiguration;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.HtmlContentWriter;
 import org.nova.http.server.HttpServer;

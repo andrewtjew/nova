@@ -5,7 +5,6 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.nova.collections.ContentCache;
-import org.nova.collections.ContentCache.ValueSize;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 

@@ -21,11 +21,6 @@
  ******************************************************************************/
 package org.nova.metrics;
 
-import org.nova.metrics.CountMeter;
-import org.nova.metrics.LevelMeter;
-import org.nova.metrics.LongValueMeter;
-import org.nova.metrics.RateMeter;
-import org.nova.metrics.RecentSourceEventMeter;
 import org.nova.pathStore.AttributeValue;
 import org.nova.pathStore.Store;
 

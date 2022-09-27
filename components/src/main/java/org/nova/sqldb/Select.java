@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.sqldb;
 
-import java.util.ArrayList;
-
 import org.nova.tracing.Trace;
 
 public class Select 

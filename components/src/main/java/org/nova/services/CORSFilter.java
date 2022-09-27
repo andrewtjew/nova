@@ -21,21 +21,9 @@
  ******************************************************************************/
 package org.nova.services;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-
-import org.nova.concurrent.Lock;
 import org.nova.http.Header;
-import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
-import org.nova.http.server.FilterChain;
-import org.nova.http.server.Response;
 import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.Path;
-import org.nova.http.server.annotations.PathParam;
 import org.nova.tracing.Trace;
 
 

@@ -24,9 +24,6 @@ package org.nova.html.deprecated;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import org.nova.html.deprecated.InsertSection;
-import org.nova.html.deprecated.Section;
-import org.nova.html.deprecated.StaticSection;
 import org.nova.parsing.scan.Lexeme;
 import org.nova.parsing.scan.Scanner;
 import org.nova.parsing.scan.TextSource;

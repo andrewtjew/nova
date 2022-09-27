@@ -22,15 +22,10 @@
 package org.nova.http.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-
 import org.nova.json.ObjectExample;
 import org.nova.json.ObjectMapper;
 import org.nova.json.SchemaWriter;
-import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
 
 public class JSONContentReader extends ContentReader<Object>
 {

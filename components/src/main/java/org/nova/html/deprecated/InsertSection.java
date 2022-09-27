@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.deprecated.ElementMap;
-import org.nova.html.deprecated.Section;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 

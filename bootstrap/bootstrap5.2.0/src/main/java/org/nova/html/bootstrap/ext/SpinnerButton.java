@@ -5,7 +5,6 @@ import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.ext.HtmlUtils;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>

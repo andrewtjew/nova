@@ -24,11 +24,7 @@ package org.nova.services;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
-import org.nova.http.server.Context;
-import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
-import org.nova.http.server.Response;
-import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
 public abstract class SessionServerApplication<SESSION extends Session> extends ServerApplication

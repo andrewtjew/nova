@@ -21,11 +21,6 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.nova.tracing.Trace;
-
 //public class ServletHandlerLogEntry
 //{
 //	final String requestHeaders;

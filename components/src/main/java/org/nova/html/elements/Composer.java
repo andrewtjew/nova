@@ -23,8 +23,6 @@ package org.nova.html.elements;
 
 import java.util.Stack;
 
-import com.amazonaws.services.mturk.model.QualificationStatus;
-
 public abstract class Composer
 {
     private QuotationMark quotationMark;

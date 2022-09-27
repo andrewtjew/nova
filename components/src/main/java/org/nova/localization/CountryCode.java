@@ -2,8 +2,6 @@ package org.nova.localization;
 
 import java.util.HashMap;
 
-import org.nova.html.ext.Language_ISO_639_1;
-
 public enum CountryCode
 {
     Afghanistan(new Country_ISO_3166_1("Afghanistan","AF","AFG","004","🇦🇫")),

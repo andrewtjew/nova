@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-
 public class NavbarCollapse extends StyleComponent<NavbarCollapse>
 {
     public NavbarCollapse(ButtonComponent<?> toggleButton)

@@ -23,7 +23,6 @@ package org.nova.html.templating;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.TagElement;
 
 public class ReplaceMarker extends TagElement<ReplaceMarker>

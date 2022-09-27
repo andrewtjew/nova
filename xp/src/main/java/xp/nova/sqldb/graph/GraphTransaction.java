@@ -1,26 +1,13 @@
 package xp.nova.sqldb.graph;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.HashMap;
-
 import org.nova.sqldb.Accessor;
-import org.nova.sqldb.Connector;
-import org.nova.sqldb.Delete;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
-import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
-import org.nova.sqldb.Update;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
-import org.nova.utils.Utils;
 
 public class GraphTransaction implements AutoCloseable
 {

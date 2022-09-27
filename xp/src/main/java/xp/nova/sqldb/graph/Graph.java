@@ -2,8 +2,6 @@
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -12,9 +10,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
-import org.nova.collections.ContentCache;
-import org.nova.html.tags.col;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
@@ -648,11 +643,6 @@ public class Graph
     {
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
     }
-    
-//    public GraphAccess openAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
-//    {
-//        return new GraphAccess(parent,this,category,creatorId,beginTransaction);
-//    }
     
     public void createRelation(Class<? extends Relation> type)
     {

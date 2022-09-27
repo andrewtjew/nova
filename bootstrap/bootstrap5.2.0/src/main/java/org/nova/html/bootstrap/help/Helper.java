@@ -8,12 +8,7 @@ import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.localization.UIHandle;
-import org.nova.html.elements.Composer;
 import org.nova.html.help.HelperElement;
-import org.nova.html.tags.div;
-import org.nova.localization.LanguageCode;
-import org.nova.localization.StringHandle;
 
 public class Helper extends HelperElement
 {

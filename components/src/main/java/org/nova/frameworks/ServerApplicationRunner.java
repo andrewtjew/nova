@@ -23,8 +23,6 @@ package org.nova.frameworks;
 
 import java.io.PrintStream;
 
-import javax.servlet.http.HttpServletResponse;
-
 //11:47
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.configuration.Configuration;
@@ -46,7 +44,6 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.logging.Level;
 import org.nova.logging.Logger;
-import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.utils.FileUtils;
 import org.nova.utils.Utils;

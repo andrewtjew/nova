@@ -7,7 +7,6 @@ import java.util.HashMap;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
-import org.nova.utils.Utils;
 
 public class Query
 {
