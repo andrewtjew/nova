@@ -61,7 +61,6 @@ import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
 import org.nova.operations.OperatorVariable;
-import org.nova.test.Testing;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.utils.Utils;

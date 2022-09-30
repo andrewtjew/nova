@@ -35,7 +35,6 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.json.ObjectMapper;
 import org.nova.logging.Logger;
-import org.nova.test.Testing;
 import org.nova.tracing.Trace;
 import org.nova.utils.DateTimeUtils;
 import org.nova.utils.NetUtils;

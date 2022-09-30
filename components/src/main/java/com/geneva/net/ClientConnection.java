@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import org.nova.concurrent.Synchronization;
-import org.nova.test.Testing;
+import org.nova.testing.Testing;
 import org.nova.testing.TestTraceClient;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
@@ -119,6 +119,8 @@ public class ClientConnection
 		return bytes;
 	}
 	
+	final static boolean TESTING=false;
+	
 	void main() 
 	{
 		byte[] header=new byte[16];
@@ -130,9 +132,9 @@ public class ClientConnection
 				{
 					try
 					{
-						if ((Testing.ENABLED)&&(TRACE))
+						if (TESTING)
 						{
-							TestTraceClient.clientLog("host="+this.socket.getInetAddress().getHostName()+", waiting");
+							Testing.log("host="+this.socket.getInetAddress().getHostName()+", waiting");
 						}
 						readRequestHeader(header);
 						trace.endWait();
@@ -142,9 +144,9 @@ public class ClientConnection
 						byte[] content=read(size);
 						this.server.bytesReceivedMeter.update(size+header.length);
 						Trace processingTrace=new Trace(this.server.traceManager,trace, this.processCategory,true);
-						if ((Testing.ENABLED)&&(TRACE))
+						if (TESTING)
 						{
-							TestTraceClient.clientLog("host="+this.socket.getInetAddress().getHostName()+", id="+id);
+						    Testing.log("host="+this.socket.getInetAddress().getHostName()+", id="+id);
 							
 						}
 						this.server.schedule(new Context(processingTrace,this,id,type,content));
@@ -187,9 +189,9 @@ public class ClientConnection
 	
 	public void close() throws IOException
 	{
-		if ((Testing.ENABLED)&&(TRACE))
+		if (TESTING)
 		{
-			TestTraceClient.clientLog("host="+this.socket.getInetAddress().getHostName());
+		    Testing.log("host="+this.socket.getInetAddress().getHostName());
 		}
 		synchronized(this)
 		{

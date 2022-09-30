@@ -47,7 +47,7 @@ import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
 import org.nova.operations.OperatorVariable;
-import org.nova.test.Testing;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.utils.TypeUtils;
@@ -288,6 +288,8 @@ public class HttpServer
 		return this.identityContentEncoder;
 	}
 
+    final static boolean TESTING=false;
+    
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
 	{
 		try (Trace trace = new Trace(this.traceManager, "HttpServer.handle"))
@@ -329,10 +331,9 @@ public class HttpServer
     				}
     				if (after==false)
     				{
-    					if (Testing.ENABLED)
+    					if (TESTING)
     					{
-    						System.out.println(method+" "+URI+": No Handler");
-    						servletResponse.getWriter().println("404 - NOT FOUND: "+URI);
+    						Testing.log(method+" "+URI+": No Handler");
     					}
     					servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
     					synchronized (this.lastRequestHandlerNotFoundLogEntries)
@@ -510,9 +511,9 @@ public class HttpServer
 						}
 						else if (response.getContent() != null)
 						{
-							if (Testing.ENABLED)
+							if (TESTING)
 							{
-								System.out.println("NO_WRITER: Accept="+servletRequest.getHeader("Accept"));
+								Testing.log("NO_WRITER: Accept="+servletRequest.getHeader("Accept"));
 							}
 							throw new AbnormalException(Abnormal.NO_WRITER);
 						}
