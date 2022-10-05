@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.security;
 
-import java.io.FileOutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,17 +28,12 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
-import java.util.Random;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.lang.CharSet;
-import org.nova.html.ext.Redirect;
-import org.nova.http.client.PathAndQuery;
 import org.nova.utils.TypeUtils;
 
 public class SecurityUtils

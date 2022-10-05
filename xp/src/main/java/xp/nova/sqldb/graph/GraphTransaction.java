@@ -133,11 +133,11 @@ public class GraphTransaction implements AutoCloseable
     }
 
 
-    public void link(long fromNodeId,long toNodeId,Relation relation) throws Throwable
+    public void link(long fromNodeId,Relation relation,long toNodeId) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         int value=relation.getValue();
-        if (deleteLink(fromNodeId,toNodeId,relation)>1)
+        if (deleteLink(fromNodeId,relation,toNodeId)>1)
         {
             throw new Exception();
         }
@@ -145,16 +145,16 @@ public class GraphTransaction implements AutoCloseable
                 .value("type", typeName).value("relation", value)
                 .executeAndReturnLongKey(parent, this.accessor);
     }
-    public void link(long fromNodeId,long toNodeId) throws Throwable
-    {
-        if (this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type IS NULL AND relation=0",fromNodeId,toNodeId)>1)
-        {
-            throw new Exception();
-        }
-        Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
-                .value("relation", 0)
-                .executeAndReturnLongKey(parent, this.accessor);
-    }
+//    public void link(long fromNodeId,long toNodeId) throws Throwable
+//    {
+//        if (this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type IS NULL AND relation=0",fromNodeId,toNodeId)>1)
+//        {
+//            throw new Exception();
+//        }
+//        Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
+//                .value("relation", 0)
+//                .executeAndReturnLongKey(parent, this.accessor);
+//    }
     
     public int deleteLinks(Direction direction,long nodeId) throws Throwable
     {
@@ -168,14 +168,32 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public int deleteLinks(Direction direction,long nodeId,Class<? extends NodeObject> type) throws Throwable
+//    public int deleteLinks(Direction direction,long nodeId,Class<? extends NodeObject> type) throws Throwable
+//    {
+//        String on=direction==Direction.FROM?" ON _link.fromNodeId=":" ON _link.toNodeId=";
+//        Meta meta=this.graph.getMeta(type);
+//        String table=meta.getTableName();
+//        
+//        RowSet rowSet=this.accessor.executeQuery(parent, null,
+//                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId");
+//        int deleted=0;
+//        for (Row row:rowSet.rows())
+//        {
+//            deleted+=this.accessor.executeUpdate(this.parent,null
+//                ,"DELETE FROM _link where id="+row.getBIGINT(0));
+//        }
+//        return deleted;
+//    }
+
+    public int deleteLinks(long nodeId,Direction direction,Relation relation,Class<? extends NodeObject> type) throws Throwable
     {
+        String relationTypeName=relation.getClass().getSimpleName();
         String on=direction==Direction.FROM?" ON _link.fromNodeId=":" ON _link.toNodeId=";
         Meta meta=this.graph.getMeta(type);
         String table=meta.getTableName();
         
         RowSet rowSet=this.accessor.executeQuery(parent, null,
-                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId");
+                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId WHERE _link.type=? AND _link.relation=?",relationTypeName,relation.getValue());
         int deleted=0;
         for (Row row:rowSet.rows())
         {
@@ -185,35 +203,13 @@ public class GraphTransaction implements AutoCloseable
         return deleted;
     }
 
-    public int deleteLinks(Class<? extends Relation> relationType,Direction direction,long nodeId,Class<? extends NodeObject> type) throws Throwable
+    public int deleteLinks(long fromNodeId,Relation relation) throws Throwable
     {
-        String relationTypeName=relationType.getSimpleName();
-        String on=direction==Direction.FROM?" ON _link.fromNodeId=":" ON _link.toNodeId=";
-        Meta meta=this.graph.getMeta(type);
-        String table=meta.getTableName();
-        
-        RowSet rowSet=this.accessor.executeQuery(parent, null,
-                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId WHERE _link.type=?",relationTypeName);
-        int deleted=0;
-        for (Row row:rowSet.rows())
-        {
-            deleted+=this.accessor.executeUpdate(this.parent,null
-                ,"DELETE FROM _link where id="+row.getBIGINT(0));
-        }
-        return deleted;
+        String typeName=relation.getClass().getSimpleName();
+        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=? and relation=?",fromNodeId,typeName,relation.getValue());
     }
 
-    public int deleteLinks(Class<? extends Relation> type,Direction direction,long nodeId) throws Throwable
-    {
-        String typeName=type.getSimpleName();
-        if (direction==Direction.FROM)
-        {
-            return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=?",nodeId,typeName);
-        }
-        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=? AND type=?",nodeId,typeName);
-    }
-    
-    public int deleteLink(long fromNodeId,long toNodeId,Relation relation) throws Throwable
+    public int deleteLink(long fromNodeId,Relation relation,long toNodeId) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type=? and relation=?",fromNodeId,toNodeId,typeName,relation.getValue());

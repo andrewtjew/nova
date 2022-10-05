@@ -632,7 +632,7 @@ public class Graph
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
-    final private HashMap<String,Class<? extends Relation>> relationTypes=new HashMap<String, Class<? extends Relation>>();
+//    final private HashMap<String,Class<? extends Relation>> relationTypes=new HashMap<String, Class<? extends Relation>>();
     
     public Graph(Connector connector)
     {
@@ -644,10 +644,10 @@ public class Graph
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
     }
     
-    public void createRelation(Class<? extends Relation> type)
-    {
-        this.relationTypes.put(type.getSimpleName(), type);
-    }
+//    public void createRelation(Class<? extends Relation> type)
+//    {
+//        this.relationTypes.put(type.getSimpleName(), type);
+//    }
 
     public void createTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
     {
