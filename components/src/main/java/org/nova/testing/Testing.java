@@ -19,38 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.aws;
+package org.nova.testing;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNSClient;
-import com.amazonaws.services.sns.model.MessageAttributeValue;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
-
-public class SMSSender
+public abstract class Testing
 {
-    final private AmazonSNSClient client;
+    abstract public void _log(LogLevel logLevel,Object object);
 
-    public SMSSender(String accessKey, String secretKey)
+    public static Testing LOGGER=new SimpleTesting();
+
+    public static void log(Object object)
     {
-        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-        this.client = new AmazonSNSClient(awsCredentials);
-        client.setRegion(Region.getRegion(Regions.DEFAULT_REGION));
+        LOGGER._log(LogLevel.INFO,object);
     }
-
-    public void sendSMSMessage(String phoneNumber, String message)
+    public static void log(LogLevel logLevel,Object object)
     {
-        Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
-
-        PublishResult result = this.client.publish(new PublishRequest().withMessage(message).withPhoneNumber(phoneNumber).withMessageAttributes(smsAttributes));
-        
-        System.out.println("messaggeId="+result.getMessageId());
-        
+        LOGGER._log(logLevel,object);
     }
 }

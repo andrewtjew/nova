@@ -46,7 +46,7 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
-import org.nova.test.Testing;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
@@ -70,7 +70,7 @@ public class ResourceController
     private final String pathPrefixFind;
     private final String pathPrefixReplace;
     
-    public final static boolean TEST=true;
+    public final static boolean TESTING=true;
 
     public ResourceController(ServerApplication serverApplication) throws Throwable
     {
@@ -180,7 +180,7 @@ public class ResourceController
                     this.cache.evict(file);
                 }
                 bytes = this.cache.get(parent, file);
-                if (TEST)
+                if (TESTING)
                 {
 //                    Testing.printf("Resource:"+file);
                 }
@@ -206,9 +206,9 @@ public class ResourceController
                     
                 }
                 trace.close(t);
-                if (TEST)
+                if (TESTING)
                 {
-                    Testing.printf("Resource: "+file + " not found\r\n");
+                    Testing.log("Resource: "+file + " not found\r\n");
                 }
                 response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
                 response.setStatus(HttpStatus.NOT_FOUND_404);

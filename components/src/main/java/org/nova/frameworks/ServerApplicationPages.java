@@ -206,8 +206,8 @@ import org.nova.operations.Status;
 import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
-import org.nova.test.Testing;
 import org.nova.testing.TestTraceClient;
+import org.nova.testing.Testing;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -4920,6 +4920,9 @@ public class ServerApplicationPages
         }
         return page;
     }
+    
+    final static boolean TESTING=false;
+    
     @GET
     @Path("/content/{+}")
     public void content(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
@@ -4929,9 +4932,9 @@ public class ServerApplicationPages
         context.setCaptured(true);
         if (bytes == null)
         {
-            if (Testing.ENABLED)
+            if (TESTING)
             {
-                TestTraceClient.clientLog(file + " not found");
+                Testing.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
@@ -4960,9 +4963,9 @@ public class ServerApplicationPages
         }
         catch (Throwable t)
         {
-            if (Testing.ENABLED)
+            if (TESTING)
             {
-                TestTraceClient.clientLog(file + " not found");
+                Testing.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
