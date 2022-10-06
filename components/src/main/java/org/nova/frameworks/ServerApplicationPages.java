@@ -206,7 +206,6 @@ import org.nova.operations.Status;
 import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
-import org.nova.testing.TestTraceClient;
 import org.nova.testing.Testing;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;

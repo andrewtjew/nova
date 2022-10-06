@@ -1,6 +1,5 @@
 package xp.nova.sqldb.graph;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -272,19 +271,19 @@ public class Query2
         return results;
     }
 
-    public QueryResult executeOne(Trace parent,GraphAccessor graphAccessor) throws Throwable
-    {
-        QueryResult[] results=execute(parent,graphAccessor);
-        if (results.length==0)
-        {
-            return null;
-        }
-        if (results.length>1)
-        {
-            throw new Exception("Expected one result. Actual="+results.length);
-        }
-        return results[0];
-    }
+//    public QueryResult executeOne(Trace parent,GraphAccessor graphAccessor) throws Throwable
+//    {
+//        QueryResult[] results=execute(parent,graphAccessor);
+//        if (results.length==0)
+//        {
+//            return null;
+//        }
+//        if (results.length>1)
+//        {
+//            throw new Exception("Expected one result. Actual="+results.length);
+//        }
+//        return results[0];
+//    }
 
 //    public QueryResult executeOne(Trace parent, Graph graph,String catalog) throws Throwable
 //    {
@@ -294,28 +293,28 @@ public class Query2
 //        }
 //    }
 
-    public <OBJECT extends NodeObject> OBJECT[] execute(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
-    {
-        selectNodeObjects(type);
-        QueryResult[] results=execute(parent,graphAccessor);
-        Object array=Array.newInstance(type, results.length);
-        for (int i=0;i<results.length;i++)
-        {
-            Array.set(array, i, results[i].get(type));
-        }
-        return (OBJECT[]) array;
-    }
+//    public <OBJECT extends NodeObject> OBJECT[] execute(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
+//    {
+//        selectNodeObjects(type);
+//        QueryResult[] results=execute(parent,graphAccessor);
+//        Object array=Array.newInstance(type, results.length);
+//        for (int i=0;i<results.length;i++)
+//        {
+//            Array.set(array, i, results[i].get(type));
+//        }
+//        return (OBJECT[]) array;
+//    }
 
-    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
-    {
-        selectNodeObjects(type);
-        QueryResult result=executeOne(parent,graphAccessor);
-        if (result==null)
-        {
-            return null;
-        }
-        return result.get(type);
-    }
+//    public <OBJECT extends NodeObject> OBJECT executeOne(Trace parent,GraphAccessor graphAccessor, Class<OBJECT> type) throws Throwable
+//    {
+//        selectNodeObjects(type);
+//        QueryResult result=executeOne(parent,graphAccessor);
+//        if (result==null)
+//        {
+//            return null;
+//        }
+//        return result.get(type);
+//    }
 
     
 }

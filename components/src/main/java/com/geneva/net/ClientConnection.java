@@ -28,7 +28,6 @@ import java.net.Socket;
 
 import org.nova.concurrent.Synchronization;
 import org.nova.testing.Testing;
-import org.nova.testing.TestTraceClient;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 

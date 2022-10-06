@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.testing;
 
-import java.util.LinkedList;
-
 import javax.ws.rs.POST;
 
 import org.nova.http.server.JettyServerFactory;
@@ -35,7 +33,6 @@ import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.Transformers;
 import org.nova.http.server.annotations.ContentParam;
-import org.nova.http.server.annotations.PUT;
 import org.nova.http.server.annotations.Path;
 import org.nova.logging.LogUtils;
 import org.nova.tracing.TraceManager;

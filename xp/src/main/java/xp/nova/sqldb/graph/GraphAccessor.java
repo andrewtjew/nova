@@ -39,7 +39,7 @@ public class GraphAccessor implements AutoCloseable
         return accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
     }
     
-    static final private boolean TEST=false;
+    static final private boolean TEST=true;
     
     static void translateParameters(Object[] parameters)
     {
@@ -58,43 +58,57 @@ public class GraphAccessor implements AutoCloseable
             }
         }
     }
-    public QueryResultSet execute(Trace parent,String orderBy,Long startNodeId,Query query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,Object[] parameters,String orderBy,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
-        if (parameters.length>0)
+        if (query.parameters!=null)
         {
-            if (preparedQuery.parameters!=null)
+            if (parameters.length!=0)
             {
                 throw new Exception();
             }
+            parameters=query.parameters;
         }
         else
         {
-            parameters=preparedQuery.parameters;
+            translateParameters(parameters);
+        }
+        String sql;
+        if (startNodeId!=null)
+        {
+            sql=preparedQuery.sql+preparedQuery.start+startNodeId;
+        }
+        else
+        {
+            sql=preparedQuery.sql;
         }
         RowSet rowSet;
         if (TEST)
         {
-            System.out.println(preparedQuery.sql);
+            System.out.println(sql);
         }
         if (parameters != null)
         {
-            rowSet = accessor.executeQuery(parent, null, preparedQuery.sql, parameters);
+            rowSet = accessor.executeQuery(parent, null,parameters, sql);
         }
         else
         {
-            rowSet = accessor.executeQuery(parent, null, preparedQuery.sql);
+            rowSet = accessor.executeQuery(parent, null, sql);
         }
         
-        return new QueryResultSet(rowSet, preparedQuery.map);
+        return new QueryResultSet(rowSet,preparedQuery.one,preparedQuery.map);
+    }
+    public QueryResultSet execute(Trace parent,String orderBy,Long startNodeId,Query query,Object...parameters) throws Throwable
+    {
+        return execute(parent,parameters,orderBy,startNodeId,query);
     }
     public QueryResultSet execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,null,startNodeId,query,parameters);
+        return execute(parent,parameters,null,startNodeId,query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,null,null,query,parameters);
+        return execute(parent,parameters,null,null,query);
     }
     
 }

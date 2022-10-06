@@ -8,22 +8,24 @@ import org.nova.sqldb.RowSet;
 public class QueryResultSet
 {
     final QueryResult[] results;
+    final Class<? extends GraphObject> one;
     
-    QueryResultSet(RowSet rowSet,Map<String,Meta> map)
+    QueryResultSet(RowSet rowSet,Class<? extends GraphObject> one,Map<String,Meta> map)
     {
         this.results=new QueryResult[rowSet.size()];
         for (int i=0;i<results.length;i++)
         {
             results[i]=new QueryResult(rowSet.getRow(i), map);
         }
+        this.one=one;
     }
     
-    public QueryResult[] get()
+    public QueryResult[] getResults()
     {
         return this.results;
     }
 
-    public QueryResult getOne() throws Throwable
+    public QueryResult getResult() throws Throwable
     {
         if (this.results.length==0)
         {
@@ -38,16 +40,16 @@ public class QueryResultSet
 
 
     @SuppressWarnings("unchecked")
-    public <OBJECT extends NodeObject> OBJECT[] get(Class<OBJECT> type) throws Throwable
+    public <OBJECT extends GraphObject> OBJECT[] getObjects() throws Throwable
     {
-        Object array=Array.newInstance(type, this.results.length);
+        Object array=Array.newInstance(this.one, this.results.length);
         for (int i=0;i<this.results.length;i++)
         {
-            Array.set(array, i, this.results[i].get(type));
+            Array.set(array, i, this.results[i].get(this.one));
         }
         return (OBJECT[]) array;
     }
-    public <OBJECT extends NodeObject> OBJECT getOne(Class<OBJECT> type) throws Throwable
+    public <OBJECT extends GraphObject> OBJECT getObject() throws Throwable
     {
         if (this.results.length==0)
         {
@@ -57,7 +59,7 @@ public class QueryResultSet
         {
             throw new Exception("Size:"+this.results);
         }
-        return this.results[0].get(type);
+        return this.results[0].get((Class<OBJECT>)this.one);
     }
 
     
