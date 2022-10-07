@@ -146,7 +146,11 @@ public class Query
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
-                        state.select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                        if (state.select.length()>0)
+                        {
+                            state.select.append(',');
+                        }
+                        state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
                     }
                 }
             }
@@ -165,9 +169,9 @@ public class Query
                     break;
                 }
                 String namespace = linkQuery.namespace != null ? linkQuery.namespace + "." : "";
-                for (int i = 0; i < linkQuery.nodeTypes.length; i++)
+                for (int i = 0; i < linkQuery.optionalNodeTypes.length; i++)
                 {
-                    Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
+                    Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
                     Meta meta = state.graph.getMeta(type);
                     state.map.put(namespace+meta.getTypeName(), meta);
                     String typeName = meta.getTypeName();
@@ -178,7 +182,11 @@ public class Query
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
-                        state.select.append(',' + tableColumnName + " AS '" + fieldColumnName + '\'');
+                        if (state.select.length()>0)
+                        {
+                            state.select.append(',');
+                        }
+                        state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
                     }
                 }
             }
@@ -261,6 +269,7 @@ public class Query
                 preparedQuery.start=" AND _node.id=";
             }
             on=" ON _node.id=";
+            sources.append(" _node");
         }
         if (this.optionalNodeTypes != null)
         {
