@@ -73,6 +73,7 @@ public class Query
         final ArrayList<Object> parameters;
         
         public Class<? extends GraphObject> one;
+        int aliasIndex=0;
         
         public State(Graph graph,HashMap<String,Meta> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
         {
@@ -84,7 +85,7 @@ public class Query
         }
     }    
     
-    private void addLinkQueries(State state,ArrayList<LinkQuery> linkQueries, String source, int aliasIndex) throws Throwable
+    private void addLinkQueries(State state,ArrayList<LinkQuery> linkQueries, String source) throws Throwable
     {
         if (linkQueries == null)
         {
@@ -97,15 +98,18 @@ public class Query
                 state.one=linkQuery.one;
             }
             TypeUtils.addToList(state.parameters,linkQuery.parameters);
-            String linkAlias = "_link" + aliasIndex;
-            String nodeAlias = "_node" + aliasIndex;
+            String linkAlias = "_link" + state.aliasIndex;
+//            String nodeAlias = "_node" + state.aliasIndex;
+            String nodeAlias=null;
             switch (linkQuery.direction)
             {
             case FROM:
+                nodeAlias = " ON _link" + state.aliasIndex+".toNodeId=";
                 state.sources.append(
                         " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
                 break;
             case TO:
+                nodeAlias = " ON _link" + state.aliasIndex+".fromNodeId=";
                 state.sources.append(
                         " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".toNodeId");
                 break;
@@ -190,7 +194,8 @@ public class Query
                     }
                 }
             }
-            addLinkQueries(state,linkQuery.linkQueries, " ON "+nodeAlias+".nodeId=", aliasIndex++);
+            state.aliasIndex++;
+            addLinkQueries(state,linkQuery.linkQueries, nodeAlias);
         }
     }
 
@@ -298,7 +303,7 @@ public class Query
         TypeUtils.addToList(list, this.parameters);
         State state=new State(graph,preparedQuery.map,sources,select,list);
         state.one=this.one;
-        addLinkQueries(state,this.linkQueries, on, 0);
+        addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
 
         if (this.expression!=null)
