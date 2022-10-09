@@ -73,15 +73,16 @@ public class GraphAccessor implements AutoCloseable
         {
             translateParameters(parameters);
         }
-        String sql;
+        StringBuilder sb=new StringBuilder(preparedQuery.sql);
         if (startNodeId!=null)
         {
-            sql=preparedQuery.sql+preparedQuery.start+startNodeId;
+            sb.append(preparedQuery.start+startNodeId);
         }
-        else
+        if (preparedQuery.orderBy!=null)
         {
-            sql=preparedQuery.sql;
+            sb.append(preparedQuery.orderBy);
         }
+        String sql=sb.toString();
         RowSet rowSet;
         if (TEST)
         {

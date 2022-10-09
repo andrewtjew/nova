@@ -10,9 +10,10 @@ public class Query
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
     Class<? extends GraphObject> one;
-    
+
     String expression;
     Object[] parameters;
+    String orderBy;
     
     private ArrayList<LinkQuery> linkQueries;
 
@@ -22,6 +23,11 @@ public class Query
     public Query where(String expression)
     {
         this.expression=expression;
+        return this;
+    }
+    public Query orderBy(String orderBy)
+    {
+        this.orderBy=orderBy;
         return this;
     }
 
@@ -206,6 +212,7 @@ public class Query
         String start;
         Object[] parameters;
         HashMap<String,Meta> map;
+        String orderBy; 
     }
     
     PreparedQuery preparedQuery=null;
@@ -316,6 +323,7 @@ public class Query
         }
         preparedQuery.sql=query.toString();
         preparedQuery.one=state.one;
+        preparedQuery.orderBy=this.orderBy;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }
