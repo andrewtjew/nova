@@ -38,6 +38,7 @@ public class ModalDocument extends Modal
     
     public ModalDocument(boolean centered)
     {
+        id();
         this.dialog=returnAddInner(new ModalDialog());
         
         this.content=this.dialog.returnAddInner(new ModalContent());

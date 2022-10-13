@@ -14,7 +14,6 @@ public class MessageModal extends ModalDocument
     final private ButtonComponent<?> proceedButton;
     public MessageModal(String title,String message,ButtonComponent<?> proceedButton) throws Throwable
     {
-        id();
         this.proceedButton=proceedButton;
         this.proceedButton.id();
         this.header().id();
@@ -49,9 +48,9 @@ public class MessageModal extends ModalDocument
     public String js_show(String header,String body)
     {
         body=StringEscapeUtils.escapeHtml4(body);
-        body=StringEscapeUtils.escapeHtml4(body);
+//        body=StringEscapeUtils.escapeHtml4(body);
         header=StringEscapeUtils.escapeHtml4(header);
-        header=StringEscapeUtils.escapeHtml4(header);
+//        header=StringEscapeUtils.escapeHtml4(header);
         return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),null);
      }
 }

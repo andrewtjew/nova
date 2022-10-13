@@ -323,7 +323,7 @@ public class Query
         }
         preparedQuery.sql=query.toString();
         preparedQuery.one=state.one;
-        preparedQuery.orderBy=this.orderBy;
+        preparedQuery.orderBy=" ORDER BY "+this.orderBy;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }

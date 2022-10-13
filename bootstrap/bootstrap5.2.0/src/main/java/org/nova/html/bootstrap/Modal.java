@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.ext.HtmlUtils;
+
 public class Modal extends StyleComponent<Modal>
 {
     public Modal()
@@ -80,7 +82,9 @@ public class Modal extends StyleComponent<Modal>
 
     public String js_show()
     {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
+        return HtmlUtils.js_call("nova.ui.modal.show", this.id());
+        
+//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
     }
     public String js_hide()
     {
