@@ -7,6 +7,7 @@ import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 
 public class GraphTransaction implements AutoCloseable
@@ -121,14 +122,18 @@ public class GraphTransaction implements AutoCloseable
             String name=columnAccessor.getName();
             Object value=columnAccessor.get(object);
             insert.append(',');
-            insert.append(name);
+            insert.append('`'+name+'`');
             values.append(",?");
-            update.append(','+name+"=?");
+            update.append(",`"+name+"`=?");
             parameters[insertIndex++]=value;
             parameters[updateIndex++]=value;
         }
         
         String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
+        if (Graph.TEST)
+        {
+            Testing.log(sql);
+        }
         accessor.executeUpdate(parent,null,sql,parameters);
     }
 

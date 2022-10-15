@@ -9,14 +9,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
+import org.nova.sqldb.RowSet;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 
 public class Graph
 {
+    static final boolean TEST=true;
+    
     private int defaultVARCHARLength=45;
     
     ColumnAccessor getColumnAccessor(Field field) throws Exception
@@ -68,7 +73,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "bit(1) DEFAULT NULL";
+                    return "bit DEFAULT NULL";
                 }
             };
         }
@@ -86,7 +91,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "bit(1) NOT NULL";
+                    return "bit NOT NULL";
                 }
             };
         }
@@ -176,7 +181,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real NOT NULL";
+                    return "float NOT NULL";
                 }
             };
         }
@@ -194,7 +199,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real DEFAULT NULL";
+                    return "float DEFAULT NULL";
                 }
             };
         }
@@ -212,7 +217,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "float NOT NULL";
+                    return "double NOT NULL";
                 }
             };
         }
@@ -230,7 +235,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real DEFAULT NULL";
+                    return "double DEFAULT NULL"; //Using mysql native convention. 
                 }
             };
         }
@@ -269,7 +274,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "time NULL DEFAULT NULL";
+                    return "time DEFAULT NULL";
                 }
 
                 @Override
@@ -301,7 +306,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "date NULL DEFAULT NULL";
+                    return "date DEFAULT NULL";
                 }
 
                 @Override
@@ -333,7 +338,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "timestamp NULL DEFAULT NULL";
+                    return "timestamp DEFAULT NULL";
                 }
 
                 @Override
@@ -362,7 +367,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "timestamp NULL DEFAULT NULL";
+                    return "timestamp DEFAULT NULL";
                 }
             };
         }
@@ -380,7 +385,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "date NULL DEFAULT NULL";
+                    return "date DEFAULT NULL";
                 }
             };
         }
@@ -398,7 +403,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "time NULL DEFAULT NULL";
+                    return "time DEFAULT NULL";
                 }
             };
         }
@@ -652,27 +657,101 @@ public class Graph
     public void createTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
-        
-        StringBuilder sql=new StringBuilder();
-        sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
         Meta meta=this.getMeta(type);
-        for (ColumnAccessor columnAccessor:meta.columnAccessors)
-        {
-            if (columnAccessor.isGraphfield())
-            {
-                continue;
-            }
-            sql.append("`"+columnAccessor.getName()+"` ");
-            sql.append(columnAccessor.getSqlType());
-            sql.append(",");
-        }
-        sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-        
         
         Accessor accessor=graphAccessor.accessor;
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
+            StringBuilder sql=new StringBuilder();
+            sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            for (ColumnAccessor columnAccessor:meta.columnAccessors)
+            {
+                if (columnAccessor.isGraphfield())
+                {
+                    continue;
+                }
+                sql.append("`"+columnAccessor.getName()+"` ");
+                sql.append(columnAccessor.getSqlType());
+                sql.append(",");
+            }
+            sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            if (TEST)
+            {
+                Testing.log(sql);
+            }
             accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
+        }
+        else
+        {
+            RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
+
+            int index=1;
+            String after="_eventId";
+            Stack<String> alter=new Stack<String>();
+
+            if (Graph.TEST)
+            {
+                if (type.getSimpleName().equals("AppointmentStatus"))
+                {
+                    Testing.log("Catalog="+catalog+", type="+type.getSimpleName());
+                }
+            }
+            for (ColumnAccessor columnAccessor:meta.columnAccessors)
+            {
+                if (columnAccessor.isGraphfield())
+                {
+                    index++;
+                    continue;
+                }
+                String fieldName=columnAccessor.getName();
+                String fieldSqlType=columnAccessor.getSqlType();
+                if (index<rowSet.size())
+                {
+                    Row row=rowSet.getRow(index);
+                    String name=row.getVARCHAR("COLUMN_NAME");
+                    if (fieldName.equals(name))
+                    {
+                        String sqlType=row.getVARCHAR("DATA_TYPE");
+                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                        if (length!=null)
+                        {
+                            sqlType=sqlType+"("+length+")";
+                        }
+                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+                        {
+                            sqlType=sqlType+" DEFAULT NULL";
+                        }
+                        else
+                        {
+                            sqlType=sqlType+" NOT NULL";
+                        }
+                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
+                        {
+                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
+                        }
+                        after=name;
+                        index++;
+                        continue;
+                    }
+                }
+                alter.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType+" AFTER `"+after+'`');
+            }
+            if (alter.size()>0)
+            {
+                StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+meta.getTableName());
+                sql.append(alter.pop());
+                while (alter.size()>0)
+                {
+                    sql.append(','+alter.pop());
+                    
+                }
+                sql.append(';');
+                if (TEST)
+                {
+                    Testing.log(sql);
+                }
+                accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
+            }
         }
     }
 

@@ -1,5 +1,8 @@
 package xp.nova.sqldb.graph;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 class Meta
 {
     final ColumnAccessor[] columnAccessors;
@@ -12,6 +15,15 @@ class Meta
     {
         this.type=type;
         this.entityType=entityType;
+        
+        Arrays.sort(columnnAccessors,new Comparator<ColumnAccessor>()
+        {
+            @Override
+            public int compare(ColumnAccessor o1, ColumnAccessor o2)
+            {
+                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+            }
+        });
         this.columnAccessors=columnnAccessors;
         this.typeName=typeName;
         this.tableAlias='`'+typeName+'`';
