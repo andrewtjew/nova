@@ -654,7 +654,7 @@ public class Graph
 //        this.relationTypes.put(type.getSimpleName(), type);
 //    }
 
-    public void createTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         Meta meta=this.getMeta(type);

@@ -82,9 +82,7 @@ public class Modal extends StyleComponent<Modal>
 
     public String js_show()
     {
-        return HtmlUtils.js_call("nova.ui.modal.show", this.id());
-        
-//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
     }
     public String js_hide()
     {
@@ -93,6 +91,18 @@ public class Modal extends StyleComponent<Modal>
     public String js_toggle()
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
+    }
+    public static String js_show(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
+    }
+    public static String js_hide(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).hide();";
+    }
+    public static String js_toggle(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
     }
     
     

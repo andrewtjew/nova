@@ -15,6 +15,7 @@ public class MessageModal extends ModalDocument
     public MessageModal(String title,String message,ButtonComponent<?> proceedButton) throws Throwable
     {
         this.proceedButton=proceedButton;
+        this.id();
         this.proceedButton.id();
         this.header().id();
         this.body().id();

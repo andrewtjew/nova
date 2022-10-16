@@ -19,6 +19,7 @@ public class ProceedModal extends ModalDocument
     {
         this.proceedButton=proceedButton;
   //      this.cancelButton=cancelButton;
+        this.id();
         this.proceedButton.id();
         this.header().id();
         this.body().id();
