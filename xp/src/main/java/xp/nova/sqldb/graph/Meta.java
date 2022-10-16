@@ -38,6 +38,10 @@ class Meta
     {
         return this.tableAlias;
     }
+    String getTableAlias(String namespace)
+    {
+        return '`'+getTypeName(namespace)+'`';
+    }
     String getTableName()
     {
         return this.tableName;
@@ -52,6 +56,14 @@ class Meta
     }
     String getTypeName()
     {
+        return this.typeName;
+    }
+    String getTypeName(String namespace)
+    {
+        if (namespace!=null)
+        {
+            return namespace+'.'+this.typeName;
+        }
         return this.typeName;
     }
 }

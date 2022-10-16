@@ -183,10 +183,10 @@ public class Query
                 {
                     Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
                     Meta meta = state.graph.getMeta(type);
-                    state.map.put(namespace+meta.getTypeName(), meta);
+                    state.map.put(meta.getTypeName(linkQuery.namespace), meta);
                     String typeName = meta.getTypeName();
                     String table = meta.getTableName();
-                    String alias = meta.getTableAlias();
+                    String alias = meta.getTableAlias(linkQuery.namespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
                     {
@@ -229,6 +229,19 @@ public class Query
         StringBuilder sources = new StringBuilder();
 
         String on=null;
+//        if (on==null)
+        {
+            if (this.expression==null)
+            {
+                preparedQuery.start=" WHERE _node.id=";
+            }
+            else
+            {
+                preparedQuery.start=" AND _node.id=";
+            }
+            on=" ON _node.id=";
+            sources.append(" _node");
+        }
         
         if (this.nodeTypes != null)
         {
@@ -240,21 +253,21 @@ public class Query
                 String typeName = meta.getTypeName();
                 String table = meta.getTableName();
                 String alias = meta.getTableAlias();
-                if (sources.length()==0)
-                {
-                    sources.append(" "+table);
-                    if (this.expression==null)
-                    {
-                        preparedQuery.start=" WHERE "+table+"._nodeId=";
-                    }
-                    else
-                    {
-                        preparedQuery.start=" AND "+table+"._nodeId=";
-                    }
-
-                    on=" ON "+table+"._nodeId=";
-                }
-                else
+//                if (sources.length()==0)
+//                {
+//                    sources.append(" "+table);
+//                    if (this.expression==null)
+//                    {
+//                        preparedQuery.start=" WHERE "+table+"._nodeId=";
+//                    }
+//                    else
+//                    {
+//                        preparedQuery.start=" AND "+table+"._nodeId=";
+//                    }
+//
+//                    on=" ON "+table+"._nodeId=";
+//                }
+//                else
                 {
                     sources.append(" JOIN " + table + " AS " + alias + on + alias + "._nodeId");
                 }
@@ -270,19 +283,19 @@ public class Query
                 }
             }
         }
-        if (on==null)
-        {
-            if (this.expression==null)
-            {
-                preparedQuery.start=" WHERE _node.id=";
-            }
-            else
-            {
-                preparedQuery.start=" AND _node.id=";
-            }
-            on=" ON _node.id=";
-            sources.append(" _node");
-        }
+//        if (on==null)
+//        {
+//            if (this.expression==null)
+//            {
+//                preparedQuery.start=" WHERE _node.id=";
+//            }
+//            else
+//            {
+//                preparedQuery.start=" AND _node.id=";
+//            }
+//            on=" ON _node.id=";
+//            sources.append(" _node");
+//        }
         if (this.optionalNodeTypes != null)
         {
             for (int i = 0; i < this.optionalNodeTypes.length; i++)

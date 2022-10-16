@@ -227,60 +227,19 @@ public class GraphTransaction implements AutoCloseable
 
     public void deleteNode(long nodeId) throws Throwable
     {
+        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
     }
     
     public void commit() throws Throwable
     {
-        if (this.eventId!=null)
-        {
-            this.transaction.commit();
-        }
+        this.transaction.commit();
     }
     public void rollback() throws Throwable
     {
-        if (this.eventId!=null)
-        {
-            this.transaction.rollback();
-        }
+        this.transaction.rollback();
     }
-    
-//    public Link openLink(long linkId) throws Throwable
-//    {
-//        RowSet rowSet=this.accessor.executeQuery(parent, null
-//                ,"SELECT fromNodeId,toNodeId FROM _link WHERE id=?"
-//                ,linkId);
-//        int size=rowSet.size();
-//        if (size==0)
-//        {
-//            return null;
-//        }
-//        else if (size>1)
-//        {
-//            throw new Exception();
-//        }
-//        Row row=rowSet.getRow(0);
-//        return new Link(this,linkId,row.getBIGINT(0),row.getBIGINT(1));
-//    }
-//    public Link openLink(long fromNodeId,long toNodeId) throws Throwable
-//    {
-//        RowSet rowSet=this.accessor.executeQuery(parent, null
-//                ,"SELECT id FROM _link WHERE fromNodeId=? AND toNodeId=?"
-//                ,fromNodeId,toNodeId);
-//        int size=rowSet.size();
-//        if (size==0)
-//        {
-//            return null;
-//        }
-//        else if (size>1)
-//        {
-//            throw new Exception();
-//        }
-//        Row row=rowSet.getRow(0);
-//        return new Link(this,row.getBIGINT(0),fromNodeId,toNodeId);
-//    }
     
     
 }
