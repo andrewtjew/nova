@@ -56,17 +56,17 @@ public class ProceedModal extends ModalDocument
     {
         proceedButton.onclick(inputs.js_post(action));
     }
-    public String js_showAndOnProceed(String code) throws Throwable
+    public String js_showAndOnProceed(String script) throws Throwable
     {
-        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),null,null,null,null,this.proceedButton.id(),code);
+        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),null,null,null,null,this.proceedButton.id(),script);
     }
-    public String js_showAndOnProceed(String header,String body,String code)
+    public String js_showAndOnProceed(String header,String body,String script)
     {
         body=StringEscapeUtils.escapeHtml4(body);
 //        body=StringEscapeUtils.escapeHtml4(body);
         header=StringEscapeUtils.escapeHtml4(header); 
 //        header=StringEscapeUtils.escapeHtml4(header);
-        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),code);
+        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),script);
     }
 
 }

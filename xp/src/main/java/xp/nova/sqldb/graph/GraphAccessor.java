@@ -43,17 +43,18 @@ public class GraphAccessor implements AutoCloseable
     
     static void translateParameters(Object[] parameters)
     {
-        for (Object parameter:parameters)
+        for (int i=0;i<parameters.length;i++)
         {
-            if (parameters!=null)
+            Object parameter=parameters[i];
+            if (parameter!=null)
             {
                 if (parameter instanceof ShortEnummerable)
                 {
-                    parameter=((ShortEnummerable)parameter).getValue();
+                    parameters[i]=((ShortEnummerable)parameter).getValue();
                 }
                 else if (parameter instanceof IntegerEnummerable)
                 {
-                    parameter=((IntegerEnummerable)parameter).getValue();
+                    parameters[i]=((IntegerEnummerable)parameter).getValue();
                 }
             }
         }

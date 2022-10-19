@@ -201,6 +201,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("rounded",rounded,value);
     }
+    public default ELEMENT rounded(Rounded rounded)
+    {
+        return addClass("rounded",rounded);
+    }
     public default ELEMENT border()
     {
         return addClass("border");
