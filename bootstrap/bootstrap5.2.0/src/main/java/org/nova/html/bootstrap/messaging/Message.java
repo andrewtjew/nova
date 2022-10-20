@@ -9,11 +9,9 @@ public class Message
     final private String title;
     final private String content;
     final private Priority priority;
-    final Long id;
     
-    public Message(Long id,Priority priority,Level level,Presentation presentation,String title,Element content)
+    public Message(Manager manager,Priority priority,Level level,Presentation presentation,String title,Element content)
     {
-        this.id=id;
         this.level=level;
         this.displayMethod=presentation;
         this.title=title;
