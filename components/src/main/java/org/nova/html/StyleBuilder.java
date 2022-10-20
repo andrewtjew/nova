@@ -1,9 +1,6 @@
 package org.nova.html;
 
 import org.nova.html.attributes.Style;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.tags.style;
 
 public class StyleBuilder 
 {

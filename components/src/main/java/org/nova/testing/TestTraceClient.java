@@ -23,7 +23,6 @@ package org.nova.testing;
 
 import org.nova.http.client.JSONClient;
 import org.nova.tracing.TraceManager;
-import org.nova.utils.Utils;
 
 public class TestTraceClient
 {

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.bootstrap.classes.Align;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
@@ -41,7 +40,6 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.TagElement;
 
 public interface Styling<ELEMENT>
@@ -202,6 +200,10 @@ public interface Styling<ELEMENT>
     public default ELEMENT rounded(Rounded rounded,int value)
     {
         return addClass("rounded",rounded,value);
+    }
+    public default ELEMENT rounded(Rounded rounded)
+    {
+        return addClass("rounded",rounded);
     }
     public default ELEMENT border()
     {

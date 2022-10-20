@@ -6,7 +6,6 @@ import org.nova.html.bootstrap.Row;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 
 
 public class CenteredCol extends StyleComponent<CenteredCol>

@@ -3,8 +3,6 @@ package org.nova.html.templating;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nova.localization.LanguageCode;
-
 public class TemplateCache
 {
     

@@ -24,8 +24,6 @@ package org.nova.metrics;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nova.metrics.RecentSourceEventMeter;
-
 public class SourceEventBoard
 {
     final private HashMap<String,RecentSourceEventMeter> map;

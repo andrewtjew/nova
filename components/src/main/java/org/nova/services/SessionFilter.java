@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.nova.concurrent.Lock;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.FilterChain;
 import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
 

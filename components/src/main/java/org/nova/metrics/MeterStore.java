@@ -27,11 +27,6 @@ import java.util.List;
 import org.nova.annotations.Alias;
 import org.nova.annotations.Description;
 import org.nova.annotations.Metrics;
-import org.nova.metrics.CountMeter;
-import org.nova.metrics.LevelMeter;
-import org.nova.metrics.LongValueMeter;
-import org.nova.metrics.RateMeter;
-import org.nova.metrics.RecentSourceEventMeter;
 import org.nova.pathStore.Store;
 
 public class MeterStore

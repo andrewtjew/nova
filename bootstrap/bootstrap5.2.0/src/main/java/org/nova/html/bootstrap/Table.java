@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.ext.TableRow;
-import org.nova.html.tags.div;
-import org.nova.html.tags.tbody;
-
 public class Table extends StyleComponent<Table>
 {
     public Table(TableHeader heading)

@@ -22,9 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Fixed;
 import org.nova.html.bootstrap.classes.NavbarPlacement;
-import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.ThemeColor;
 
 public class Navbar extends StyleComponent<Navbar>

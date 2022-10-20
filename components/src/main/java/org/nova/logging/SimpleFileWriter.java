@@ -23,9 +23,6 @@ package org.nova.logging;
 
 import java.io.OutputStream;
 
-import org.nova.logging.Formatter;
-import org.nova.logging.LogDirectoryManager;
-
 public class SimpleFileWriter extends OutputStreamWriter
 {
     final private LogDirectoryManager logDirectoryManager;

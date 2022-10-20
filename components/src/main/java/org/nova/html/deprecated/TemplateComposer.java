@@ -24,11 +24,6 @@ package org.nova.html.deprecated;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.nova.html.deprecated.InsertKey;
-import org.nova.html.deprecated.InsertSection;
-import org.nova.html.deprecated.Section;
-import org.nova.html.deprecated.StaticSection;
-import org.nova.html.deprecated.Template;
 import org.nova.html.deprecated.TemplateComposer;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;

@@ -24,7 +24,7 @@ package org.nova.sqldb;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-
+@Deprecated
 public class FieldMaps
 {
     private static HashMap<String, ConstructorFieldMap> maps = new HashMap<>();

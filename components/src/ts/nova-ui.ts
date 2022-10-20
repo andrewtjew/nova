@@ -39,6 +39,12 @@ namespace nova.ui.modal
         };
         modal.show();
     }
+
+    export function show(modalId:string)
+    {
+        var modal=bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId));
+        modal.show();
+    }
 }
 
 namespace nova.ui.search

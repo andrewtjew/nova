@@ -4,9 +4,6 @@ import java.util.Map;
 
 import org.nova.sqldb.Row;
 
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
-import xp.nova.sqldb.graph.Graph.Meta;
-
 public class QueryResult
 {
     final private Row row;

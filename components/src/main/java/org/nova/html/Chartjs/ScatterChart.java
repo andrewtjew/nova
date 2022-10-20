@@ -23,7 +23,6 @@ package org.nova.html.Chartjs;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.ext.Head;
 import org.nova.html.tags.canvas;
 import org.nova.html.tags.script;
 import org.nova.json.ObjectMapper;

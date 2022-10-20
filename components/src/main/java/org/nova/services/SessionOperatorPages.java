@@ -29,7 +29,6 @@ import org.nova.frameworks.ServerApplicationPages.OperatorTable;
 import org.nova.html.deprecated.NameValueList;
 import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
-import org.nova.html.operator.AjaxQueryResultWriter;
 import org.nova.html.operator.MoreButton;
 import org.nova.html.tags.hr;
 import org.nova.html.elements.HtmlElementWriter;

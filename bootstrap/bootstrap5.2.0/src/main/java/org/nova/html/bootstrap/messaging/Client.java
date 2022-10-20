@@ -1,6 +1,5 @@
 package org.nova.html.bootstrap.messaging;
 
-import java.util.Deque;
 import java.util.LinkedList;
 
 public class Client

@@ -23,7 +23,6 @@ package org.nova.html.ext;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.NodeElement;
 import org.nova.json.ObjectMapper;
 
 public class Data extends Element

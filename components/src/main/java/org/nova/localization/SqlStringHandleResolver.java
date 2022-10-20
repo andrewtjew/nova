@@ -1,10 +1,6 @@
 package org.nova.localization;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-
-import org.apache.commons.lang.LocaleUtils;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;

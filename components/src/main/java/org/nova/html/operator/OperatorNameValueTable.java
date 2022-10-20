@@ -22,14 +22,9 @@
 package org.nova.html.operator;
 
 
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.text_align;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.table;
 import org.nova.html.tags.tbody;
-import org.nova.html.tags.td;
 
 public class OperatorNameValueTable extends table
 {

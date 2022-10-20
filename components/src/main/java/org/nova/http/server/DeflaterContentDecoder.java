@@ -24,8 +24,6 @@ package org.nova.http.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.DeflaterInputStream;
-import java.util.zip.GZIPInputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

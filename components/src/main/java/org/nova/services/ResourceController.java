@@ -33,7 +33,6 @@ import org.nova.collections.FileCache;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.http.client.BinaryResponse;
-import org.nova.http.client.HttpClientFactory;
 import org.nova.http.client.JSONClient;
 import org.nova.http.server.Context;
 import org.nova.http.server.GzipContentDecoder;

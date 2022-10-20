@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.security;
 
-import java.io.FileOutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,17 +28,13 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
-import java.util.Random;
-
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.lang.CharSet;
-import org.nova.html.ext.Redirect;
-import org.nova.http.client.PathAndQuery;
 import org.nova.utils.TypeUtils;
 
 public class SecurityUtils
@@ -48,6 +42,14 @@ public class SecurityUtils
     public static final int ITERATIONS = 10000;
     public static final int KEY_LENGTH = 256;
 
+    public static byte[] computeHashHMACSHA512(SecretKey key,byte[] data) throws Throwable
+    {
+        Mac mac=Mac.getInstance("HmacSHA512");
+        mac.init(key);
+        return mac.doFinal(data);
+    }
+
+    
     public static byte[] computeHashSHA256(byte[] data) throws Throwable
     {
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
@@ -146,7 +148,7 @@ public class SecurityUtils
             secretKey.destroy();
         }
     }
-
+    
     final static String CODE_ALPHABET = "QWERTYUPASFGHJKLZXCVNM235679";
 
     public static String generateVerificationCode(int length)

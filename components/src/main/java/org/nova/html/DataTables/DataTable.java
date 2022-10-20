@@ -21,22 +21,11 @@
  ******************************************************************************/
 package org.nova.html.DataTables;
 
-import java.util.ArrayList;
-
-import org.nova.html.ext.TableRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.enums.link_rel;
-import org.nova.html.ext.Head;
-import org.nova.html.ext.TableFooter;
-import org.nova.html.ext.TableHeader;
-import org.nova.html.tags.link;
 import org.nova.html.tags.script;
 import org.nova.html.tags.table;
-import org.nova.html.tags.tbody;
-import org.nova.html.tags.tr;
-import org.nova.utils.TypeUtils;
 
 //!!! Requires jquery
 

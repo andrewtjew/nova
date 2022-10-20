@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.deprecated.TemplateComposer;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 

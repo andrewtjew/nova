@@ -21,14 +21,11 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +36,6 @@ import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
 
 public class Context
 {
@@ -50,7 +46,7 @@ public class Context
 	private ContentWriter<?> contentWriter;
 	private Object state;
 	private boolean captured=false;
-	private ParamDecoding paramDecoding;
+	private ParamSecurity paramDecoding;
 	private String responseContentText;
 	private String requestContentText;
 	private DecoderContext decoderContext;
@@ -267,11 +263,11 @@ public class Context
         }
         return FileUtils.readBytes(inputStream, bufferSize);
     }
-    public void setParamDecoding(ParamDecoding paramDecoding)
+    public void setParamDecoding(ParamSecurity paramDecoding)
     {
         this.paramDecoding=paramDecoding;
     }
-    public ParamDecoding getParamDecoding()
+    public ParamSecurity getParamDecoding()
     {
         return this.paramDecoding;
     }

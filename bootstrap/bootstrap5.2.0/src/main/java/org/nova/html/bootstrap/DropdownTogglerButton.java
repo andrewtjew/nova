@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.tags.span;
-
 public class DropdownTogglerButton extends ButtonComponent<DropdownTogglerButton>
 {
 

@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
-import org.nova.html.elements.GlobalEventTagElement;
-
 import org.nova.html.enums.crossorigin;
 
 public class LinkElement <ELEMENT extends LinkElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>

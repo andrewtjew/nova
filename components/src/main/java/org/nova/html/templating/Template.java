@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.templating;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.nova.html.elements.Element;

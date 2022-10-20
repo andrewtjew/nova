@@ -33,7 +33,6 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.tags.input_checkbox;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
-import org.nova.html.tags.input_radio;
 import org.nova.html.tags.input_text;
 import org.nova.html.tags.script;
 import org.nova.html.tags.select;

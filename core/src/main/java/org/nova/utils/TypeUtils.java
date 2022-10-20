@@ -206,6 +206,10 @@ public class TypeUtils
     }
     public static <T> void addToList(List<T> list,T[] array)
     {
+        if (array==null)
+        {
+            return;
+        }
         for (T item:array)
         {
             list.add(item);

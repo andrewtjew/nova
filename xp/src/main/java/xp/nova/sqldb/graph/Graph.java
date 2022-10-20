@@ -1,9 +1,7 @@
-package xp.nova.sqldb.graph;
+ package xp.nova.sqldb.graph;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -11,75 +9,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.Stack;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
-import org.nova.collections.ContentCache;
-import org.nova.html.tags.col;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
+import org.nova.sqldb.RowSet;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
-
-import xp.nova.sqldb.graph.Graph.ColumnAccessor;
 
 public class Graph
 {
-    private int defaultVARCHARLength=45;
-    private String database="graph";
+    static final boolean TEST=true;
     
-    static abstract public class ColumnAccessor
-    {
-        final Field field;
-        final boolean graphField;
-        
-        public ColumnAccessor(Field field)
-        {
-            this.field = field;
-            this.graphField=field.getAnnotation(GraphField.class)!=null;
-        }
-        
-        public abstract void set(Object object,String typeName,Row row) throws Throwable;        
-        public void set(Object object,Object value) throws Throwable
-        {
-            this.field.set(object, value);
-        }
-        public boolean isGraphfield()
-        {
-            return this.graphField;
-        }
-
-        public abstract Object get(Object object) throws Throwable;
-        public abstract String getSqlType() throws Throwable;
-
-        
-        public String getName()
-        {
-            return this.field.getName();
-        }
-        
-        protected String getColumnName(String typeName)
-        {
-            if (typeName!=null)
-            {
-                return typeName+'.'+this.field.getName();
-            }
-            return this.field.getName();
-        }
-        
-    }
-    static abstract public class DefaultGetColumnAccessor extends ColumnAccessor
-    {
-        public DefaultGetColumnAccessor(Field field)
-        {
-            super(field);
-          }
-
-        @Override
-        public Object get(Object object) throws Throwable
-        {
-            return field.get(object);
-        }
-    }
+    private int defaultVARCHARLength=45;
     
     ColumnAccessor getColumnAccessor(Field field) throws Exception
     {
@@ -95,7 +38,7 @@ public class Graph
         Class<?> type=field.getType();
         if (type == String.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -119,7 +62,7 @@ public class Graph
         }
         else if (type == Boolean.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -130,13 +73,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "bit(1) DEFAULT NULL";
+                    return "bit DEFAULT NULL";
                 }
             };
         }
         else if (type == boolean.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -148,13 +91,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "bit(1) NOT NULL";
+                    return "bit NOT NULL";
                 }
             };
         }
         else if (type == int.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -172,7 +115,7 @@ public class Graph
         }
         else if (type == Integer.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -190,7 +133,7 @@ public class Graph
         }
         else if (type == long.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -208,7 +151,7 @@ public class Graph
         }
         else if (type == Long.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -226,7 +169,7 @@ public class Graph
         }
         else if (type == float.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -238,13 +181,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real NOT NULL";
+                    return "float NOT NULL";
                 }
             };
         }
         else if (type == Float.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -256,13 +199,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real DEFAULT NULL";
+                    return "float DEFAULT NULL";
                 }
             };
         }
         else if (type == double.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -274,13 +217,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "float NOT NULL";
+                    return "double NOT NULL";
                 }
             };
         }
         else if (type == Double.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -292,13 +235,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "real DEFAULT NULL";
+                    return "double DEFAULT NULL"; //Using mysql native convention. 
                 }
             };
         }
         else if (type == short.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -331,7 +274,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "time NULL DEFAULT NULL";
+                    return "time DEFAULT NULL";
                 }
 
                 @Override
@@ -363,7 +306,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "date NULL DEFAULT NULL";
+                    return "date DEFAULT NULL";
                 }
 
                 @Override
@@ -395,7 +338,7 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "timestamp NULL DEFAULT NULL";
+                    return "timestamp DEFAULT NULL";
                 }
 
                 @Override
@@ -412,7 +355,7 @@ public class Graph
         }
         else if (type == Timestamp.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -424,13 +367,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "timestamp NULL DEFAULT NULL";
+                    return "timestamp DEFAULT NULL";
                 }
             };
         }
         else if (type == Date.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -442,13 +385,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "date NULL DEFAULT NULL";
+                    return "date DEFAULT NULL";
                 }
             };
         }
         else if (type == Time.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -460,13 +403,13 @@ public class Graph
                 @Override
                 public String getSqlType() throws Throwable
                 {
-                    return "time NULL DEFAULT NULL";
+                    return "time DEFAULT NULL";
                 }
             };
         }
         else if (type == byte[].class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -490,7 +433,7 @@ public class Graph
         }
         else if (type == Short.class)
         {
-            accessor=new DefaultGetColumnAccessor(field)
+            accessor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -629,57 +572,6 @@ public class Graph
         return accessor;
     }
     
-    enum GraphObjectType
-    {
-        NODE_OBJECT,
-        LINK_OBJECT,
-    }
-    
-    static class Meta
-    {
-        final private ColumnAccessor[] columnAccessors;
-        final private GraphObjectType entityType;
-        final private String tableAlias;
-        final private String tableName;
-        final private String typeName;
-        final private Class<? extends GraphObject> type;
-        Meta(String typeName,Class<? extends GraphObject> type,GraphObjectType entityType,ColumnAccessor[] columnnAccessors)
-        {
-            this.type=type;
-            this.entityType=entityType;
-            this.columnAccessors=columnnAccessors;
-            this.typeName=typeName;
-            this.tableAlias='`'+typeName+'`';
-            this.tableName='`'+typeName+'`';
-        }
-
-        Class<? extends GraphObject> getType()
-        {
-            return this.type;
-        }
-        String getTableAlias()
-        {
-            return this.tableAlias;
-        }
-        String getTableName()
-        {
-            return this.tableName;
-        }
-        GraphObjectType getObjectType()
-        {
-            return this.entityType;
-        }
-        ColumnAccessor[] getColumnAccessors()
-        {
-            return this.columnAccessors;
-        }
-        String getTypeName()
-        {
-            return this.typeName;
-        }
-    }
-    
-    
     Meta getMeta(Class<? extends GraphObject> type) throws Exception
     {
         Meta meta=null;
@@ -745,47 +637,158 @@ public class Graph
     final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
     final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
     final private Connector connector;
+//    final private HashMap<String,Class<? extends Relation>> relationTypes=new HashMap<String, Class<? extends Relation>>();
     
     public Graph(Connector connector)
     {
         this.connector=connector;
     }
-    public Connector getConnector()
+    
+    public GraphAccessor openGraphAcessor(Trace parent,String catalog) throws Throwable
     {
-        return this.connector;
+        return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
     }
     
-    public GraphAccess openAccess(Trace parent,String category,Long creatorId,boolean beginTransaction) throws Throwable
-    {
-        return new GraphAccess(parent,this,category,creatorId,beginTransaction);
-    }
-    public void createTable(Trace parent,Class<? extends GraphObject> type) throws Throwable
+//    public void createRelation(Class<? extends Relation> type)
+//    {
+//        this.relationTypes.put(type.getSimpleName(), type);
+//    }
+
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
-        
-        StringBuilder sql=new StringBuilder();
-        sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
         Meta meta=this.getMeta(type);
-        for (ColumnAccessor columnAccessor:meta.columnAccessors)
+        
+        Accessor accessor=graphAccessor.accessor;
+        if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
-            if (columnAccessor.isGraphfield())
+            StringBuilder sql=new StringBuilder();
+            sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            for (ColumnAccessor columnAccessor:meta.columnAccessors)
             {
-                continue;
+                if (columnAccessor.isGraphfield())
+                {
+                    continue;
+                }
+                sql.append("`"+columnAccessor.getName()+"` ");
+                sql.append(columnAccessor.getSqlType());
+                sql.append(",");
             }
-            sql.append("`"+columnAccessor.getName()+"` ");
-            sql.append(columnAccessor.getSqlType());
-            sql.append(",");
-        }
-        sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-        
-        
-        try (Accessor accessor=this.connector.openAccessor(parent))
-        {
-            if (accessor.executeQuery(parent,"createTable","SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,this.database).getRow(0).getBIGINT(0)==0)
+            sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            if (TEST)
             {
-                accessor.executeUpdate(parent, "createTable", sql.toString());
+                Testing.log(sql);
+            }
+            accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
+        }
+        else
+        {
+            RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
+
+            int index=1;
+            String after="_eventId";
+            Stack<String> alter=new Stack<String>();
+
+            if (Graph.TEST)
+            {
+                if (type.getSimpleName().equals("AppointmentStatus"))
+                {
+                    Testing.log("Catalog="+catalog+", type="+type.getSimpleName());
+                }
+            }
+            for (ColumnAccessor columnAccessor:meta.columnAccessors)
+            {
+                if (columnAccessor.isGraphfield())
+                {
+                    index++;
+                    continue;
+                }
+                String fieldName=columnAccessor.getName();
+                String fieldSqlType=columnAccessor.getSqlType();
+                if (index<rowSet.size())
+                {
+                    Row row=rowSet.getRow(index);
+                    String name=row.getVARCHAR("COLUMN_NAME");
+                    if (fieldName.equals(name))
+                    {
+                        String sqlType=row.getVARCHAR("DATA_TYPE");
+                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                        if (length!=null)
+                        {
+                            sqlType=sqlType+"("+length+")";
+                        }
+                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+                        {
+                            sqlType=sqlType+" DEFAULT NULL";
+                        }
+                        else
+                        {
+                            sqlType=sqlType+" NOT NULL";
+                        }
+                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
+                        {
+                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
+                        }
+                        after=name;
+                        index++;
+                        continue;
+                    }
+                }
+                alter.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType+" AFTER `"+after+'`');
+            }
+            if (alter.size()>0)
+            {
+                StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+meta.getTableName());
+                sql.append(alter.pop());
+                while (alter.size()>0)
+                {
+                    sql.append(','+alter.pop());
+                    
+                }
+                sql.append(';');
+                if (TEST)
+                {
+                    Testing.log(sql);
+                }
+                accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
             }
         }
     }
-    
+
+    public void createCatalog(Trace parent,String catalog) throws Throwable
+    {
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            if (accessor.executeQuery(parent,"existCatalog:"+catalog,"SELECT count(*) FROM information_schema.schemata WHERE SCHEMA_NAME=?",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE `"+catalog+'`');
+            }
+        }
+        try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))
+        {
+            if (accessor.executeQuery(parent,"existTable:_event"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_event",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable:_event"
+                        ,"CREATE TABLE `_event` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(256) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=547 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        );
+            }
+
+            if (accessor.executeQuery(parent,"existTable:_link"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable:_link"
+                        ,"CREATE TABLE `_link` (`id` bigint NOT NULL AUTO_INCREMENT, `fromNodeId` bigint NOT NULL, `toNodeId` bigint NOT NULL, `eventId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`id`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        );
+            }
+
+            if (accessor.executeQuery(parent,"existTable:_node"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable:_node"
+                        ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        );
+            }
+        }
+    }
 }

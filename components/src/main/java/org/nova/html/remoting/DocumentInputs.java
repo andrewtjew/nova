@@ -4,18 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
-import org.nova.core.NameObject;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.FormElement;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.form;
-import org.nova.http.client.PathAndQuery;
 
 public class DocumentInputs
 {

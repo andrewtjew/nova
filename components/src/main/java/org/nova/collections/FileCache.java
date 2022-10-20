@@ -24,7 +24,6 @@ package org.nova.collections;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.nova.collections.ContentCache;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 

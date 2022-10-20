@@ -1,7 +1,6 @@
 package org.nova.html.remote;
 
 import org.nova.html.elements.InputElement;
-import org.nova.json.ObjectMapper;
 
 public class Input
 {

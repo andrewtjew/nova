@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.tags.img;
-
 public class NavbarBrand extends StyleComponent<NavbarBrand>
 {
     public NavbarBrand(String label,String href)

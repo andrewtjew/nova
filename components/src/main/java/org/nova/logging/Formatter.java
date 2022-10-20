@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.logging;
 
-import org.nova.logging.LogEntry;
-
 public abstract class Formatter
 {
 	abstract public String beginDocument() throws Throwable;

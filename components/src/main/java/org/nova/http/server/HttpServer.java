@@ -21,28 +21,18 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.http.Header;
-import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
