@@ -149,7 +149,7 @@ public class SecurityUtils
         }
     }
     
-    final static String CODE_ALPHABET = "QWERTYUPASFGHJKLZXCVNM235679";
+    final static String CODE_ALPHABET = "ACDEFGHJKMNPQRTUVWYZ23679";
 
     public static String generateVerificationCode(int length)
     {

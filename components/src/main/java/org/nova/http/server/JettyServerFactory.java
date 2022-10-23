@@ -24,6 +24,7 @@ package org.nova.http.server;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.MultiPartFormDataCompliance;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -40,7 +41,8 @@ public class JettyServerFactory
         Server server = new Server(threadPool);
         HttpConfiguration config = new HttpConfiguration();
         config.setOutputBufferSize(65536);
-//        config.setOutputBufferSize(8192);
+        config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+
         ServerConnector connector = new ServerConnector(server,new HttpConnectionFactory(config));
         connector.setIdleTimeout(30*60*1000);
         connector.setPort(port);
@@ -60,6 +62,8 @@ public class JettyServerFactory
         config.setRequestHeaderSize(8192);
         config.setResponseHeaderSize(8192);
         config.setSecurePort(port);
+        
+        config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
         return createHttpsServer(new ExecutorThreadPool(threads, threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
     }
     

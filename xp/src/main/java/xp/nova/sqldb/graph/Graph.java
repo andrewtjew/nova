@@ -685,7 +685,6 @@ public class Graph
         {
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
-            int index=1;
             String after="_eventId";
             Stack<String> alter=new Stack<String>();
 
@@ -696,41 +695,60 @@ public class Graph
                     Testing.log("Catalog="+catalog+", type="+type.getSimpleName());
                 }
             }
-            for (ColumnAccessor columnAccessor:meta.columnAccessors)
+            int rowIndex=2;
+            int fieldIndex=0;
+            while (fieldIndex<meta.columnAccessors.length)
             {
+                ColumnAccessor columnAccessor=meta.columnAccessors[fieldIndex];
                 if (columnAccessor.isGraphfield())
                 {
-                    index++;
+                    fieldIndex++;
                     continue;
                 }
                 String fieldName=columnAccessor.getName();
                 String fieldSqlType=columnAccessor.getSqlType();
-                if (index<rowSet.size())
+                Row row=rowSet.getRow(rowIndex);
+                String columnName=row.getVARCHAR("COLUMN_NAME");
+                int compareResult=fieldName.compareTo(columnName);
+                if (compareResult==0)
                 {
-                    Row row=rowSet.getRow(index);
-                    String name=row.getVARCHAR("COLUMN_NAME");
-                    if (fieldName.equals(name))
+                    String sqlType=row.getVARCHAR("DATA_TYPE");
+                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                    if (length!=null)
                     {
-                        String sqlType=row.getVARCHAR("DATA_TYPE");
-                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                        if (length!=null)
+                        sqlType=sqlType+"("+length+")";
+                    }
+                    if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+                    {
+                        sqlType=sqlType+" DEFAULT NULL";
+                    }
+                    else
+                    {
+                        sqlType=sqlType+" NOT NULL";
+                    }
+                    if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
+                    {
+                        throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
+                    }
+                    after=columnName;
+                    fieldIndex++;
+                    rowIndex++;
+                    continue;
+                }
+                else if (compareResult<0)
+                {
+                    fieldIndex++;
+                }
+                else
+                {
+                    after=columnName;
+                    if (rowIndex<rowSet.size()-1)
+                    {
+                        rowIndex++;
+                        if (TEST)
                         {
-                            sqlType=sqlType+"("+length+")";
+                            Testing.log("Unused column: columnName="+columnName+", table="+table);
                         }
-                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
-                        {
-                            sqlType=sqlType+" DEFAULT NULL";
-                        }
-                        else
-                        {
-                            sqlType=sqlType+" NOT NULL";
-                        }
-                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
-                        {
-                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
-                        }
-                        after=name;
-                        index++;
                         continue;
                     }
                 }
