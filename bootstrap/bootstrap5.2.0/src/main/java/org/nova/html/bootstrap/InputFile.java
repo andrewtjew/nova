@@ -21,48 +21,47 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.elements.Composer;
+import org.nova.html.elements.InputType;
+import org.nova.html.enums.autocomplete;
+import org.nova.html.tags.input_file;
 
-public class CarouselItem extends StyleComponent<CarouselItem>
+public class InputFile extends InputComponent<InputFile>
 {
-    private CarouselCaption caption;
-    boolean active;
-
-    public CarouselItem()
+    public InputFile()
     {
-        this(null,null);
+        super(InputType.file);
     }
-    
-    public CarouselItem(String src)
+    public InputFile max(double number)
     {
-        this(src,null);
+        return attr("max",number);
     }
-    public CarouselItem(String src,String alt)
+    public InputFile accept(String value) //file
     {
-        super("div","carousel-item");
-        if (src!=null)
+        return attr("accept",value);
+    }
+    public InputFile multiple() //file
+    {
+        return attr("multiple");
+    }
+    public InputFile multiple(boolean multiple) //file, email
+    {
+        if (multiple)
         {
-            returnAddInner(new Image(src,alt)).w(100).d(Display.block);
+            attr("multiple");
         }
-    }
-    public CarouselItem caption(CarouselCaption caption)
-    {
-        this.addInner(caption);
         return this;
     }
-    public CarouselItem active()
+    public InputFile required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
     {
-        this.active=true;
-        addClass("active");
+        return attr("required");
+    }
+    public InputFile required(boolean required)
+    {
+        if (required)
+        {
+            attr("required");
+        }
         return this;
     }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        super.compose(composer);
-    }
-    
-    
 }
+

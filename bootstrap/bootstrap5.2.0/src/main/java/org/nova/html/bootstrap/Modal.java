@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.ext.HtmlUtils;
-
 public class Modal extends StyleComponent<Modal>
 {
     public Modal()

@@ -1,4 +1,4 @@
-package org.nova.html.ext;
+package org.nova.localization;
 
 import java.util.Locale;
 

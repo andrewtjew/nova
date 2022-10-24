@@ -128,46 +128,46 @@ public class RowSet
         }
         return item;
     }
-    public <TYPE> TYPE[] mapHack(Class<TYPE> type) throws Throwable
-    {
-        ArrayList<TYPE> list = new ArrayList<>();
-        int columns = getColumns();
-        
-        ConstructorFieldMap constructorFieldMap=FieldMaps.get(type);
-        HashMap<String,Field> map=constructorFieldMap.map;
-        Field[] fields=new Field[columns];
-        for (int columnIndex = 0; columnIndex < columns; columnIndex++)
-        {
-            String name = getColumnName(columnIndex);
-            Field field=map.get(name);
-            fields[columnIndex]=field;
-        }       
-
-        for (Row row:rows())
-        {
-            TYPE item = (TYPE)constructorFieldMap.newInstance();
-            list.add(item);
-            for (int columnIndex = 0; columnIndex < columns; columnIndex++)
-            {
-                Field field = fields[columnIndex];
-                if (field != null)
-                {
-                    try
-                    {
-                        field.set(item, row.get(columnIndex));
-                    }
-                    catch (Throwable t)
-                    {
-                        if (field.getType()==String.class)
-                        {
-                            field.set(item, row.get(columnIndex).toString());
-                        }
-                    }
-                }
-            }
-        }
-        return list.toArray((TYPE[]) Array.newInstance(type, list.size()));
-    }
+//    public <TYPE> TYPE[] mapHack(Class<TYPE> type) throws Throwable
+//    {
+//        ArrayList<TYPE> list = new ArrayList<>();
+//        int columns = getColumns();
+//        
+//        ConstructorFieldMap constructorFieldMap=FieldMaps.get(type);
+//        HashMap<String,Field> map=constructorFieldMap.map;
+//        Field[] fields=new Field[columns];
+//        for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+//        {
+//            String name = getColumnName(columnIndex);
+//            Field field=map.get(name);
+//            fields[columnIndex]=field;
+//        }       
+//
+//        for (Row row:rows())
+//        {
+//            TYPE item = (TYPE)constructorFieldMap.newInstance();
+//            list.add(item);
+//            for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+//            {
+//                Field field = fields[columnIndex];
+//                if (field != null)
+//                {
+//                    try
+//                    {
+//                        field.set(item, row.get(columnIndex));
+//                    }
+//                    catch (Throwable t)
+//                    {
+//                        if (field.getType()==String.class)
+//                        {
+//                            field.set(item, row.get(columnIndex).toString());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return list.toArray((TYPE[]) Array.newInstance(type, list.size()));
+//    }
     public <TYPE> TYPE[] map(Class<TYPE> type) throws Throwable
     {
         ArrayList<TYPE> list = new ArrayList<>();

@@ -1,5 +1,7 @@
 package org.nova.http.server;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +71,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
             return new DownloadResponse(true);
         }
 
-        String URI = request.getRequestURI();
+        String URI = URLDecoder.decode(request.getRequestURI(),StandardCharsets.UTF_8);
         String filePath=null;
         if (URI.endsWith("/"))
         {
