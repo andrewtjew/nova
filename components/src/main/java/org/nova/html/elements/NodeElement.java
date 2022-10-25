@@ -44,6 +44,14 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         this.inners.add(element);
         return (ELEMENT)this;
     }
+
+    public ELEMENT copyToAndClearInners(NodeElement<?> target)
+    {
+        target.inners=this.inners;
+        this.inners=null;
+        return (ELEMENT)this;
+    }
+    
     public ELEMENT setInner(Element element)
     {
         this.inners=new ArrayList<>();
