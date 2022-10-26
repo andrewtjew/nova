@@ -27,7 +27,6 @@ import org.nova.html.elements.Composer;
 public class CarouselItem extends StyleComponent<CarouselItem>
 {
     private CarouselCaption caption;
-    boolean active;
 
     public CarouselItem()
     {
@@ -53,16 +52,13 @@ public class CarouselItem extends StyleComponent<CarouselItem>
     }
     public CarouselItem active()
     {
-        this.active=true;
         addClass("active");
         return this;
     }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
+    public CarouselItem interval(int value)
     {
-        super.compose(composer);
+        attr("data-bs-interval",value);
+        return this;
     }
-    
     
 }

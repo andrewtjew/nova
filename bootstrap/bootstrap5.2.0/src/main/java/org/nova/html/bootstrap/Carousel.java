@@ -22,7 +22,9 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
+import org.nova.html.elements.Element;
 import org.nova.html.ext.Content;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.a;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;
@@ -35,6 +37,8 @@ public class Carousel extends StyleComponent<Carousel>
 {
     private div inner;
     private int count;
+    private boolean indicators;
+    private boolean controls;
     
     public Carousel()
     {
@@ -46,6 +50,16 @@ public class Carousel extends StyleComponent<Carousel>
     public Carousel slide()
     {
         addClass("slide");
+        return this;
+    }
+    public Carousel fade()
+    {
+        addClass("carousel-fade");
+        return this;
+    }
+    public Carousel indicators()
+    {
+        this.indicators=true;
         return this;
     }
     
@@ -60,38 +74,43 @@ public class Carousel extends StyleComponent<Carousel>
         return this;
     }
     
-    //This sets a fixed caption for all Items.
-    public Carousel set(CarouselCaption caption)
-    {
-        this.addInner(caption);
-        return this;
-    }
+//    //This sets a fixed caption for all Items.
+//    public Carousel set(CarouselCaption caption)
+//    {
+//        this.addInner(caption);
+//        return this;
+//    }
     
     public Carousel controls()
     {
+        this.controls=true;
         return this;
     }
     
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        id();
-        if (this.count>0)
+        if (this.indicators)
         {
-//            if (this.enableIndicators)
-//            {
-//                ul ul=returnAddInner(new ul()).addClass("carousel-indicators");
-//                ul.attr("data-target","#"+id());
-//                ul.returnAddInner(this.indicators);
-//            }
-//            div inner=returnAddInner(new div()).addClass("carousel-inner");
-//            inner.addInner(this.inner);
-
-            button_button prev=new button_button().addClass("carousel-control-prev").attr("data-bs-target","#"+id());
+            div div=new div().addClass("carousel-indicators");
+            for (int i=0;i<this.inner.getInners().size();i++)
+            {
+                button_button button=div.returnAddInner(new button_button()).attr("data-bs-target","#"+id()).attr("data-bs-slide-to",i);
+                if (i==0)
+                {
+                    button.addClass("active");
+                }
+            }
+            this.getInners().add(0,div);
+            
+        }
+        if (this.controls)
+        {
+            button_button prev=new button_button().addClass("carousel-control-prev").attr("data-bs-target","#"+id()).attr("data-bs-slide","prev");
             prev.returnAddInner(new span()).addClass("carousel-control-prev-icon");
             prev.returnAddInner(new span()).addClass("visually-hidden").addInner("Previous");
 
-            button_button next=new button_button().addClass("carousel-control-next").attr("data-bs-target","#"+id());
+            button_button next=new button_button().addClass("carousel-control-next").attr("data-bs-target","#"+id()).attr("data-bs-slide","next");
             next.returnAddInner(new span()).addClass("carousel-control-next-icon");
             next.returnAddInner(new span()).addClass("visually-hidden").addInner("Next");
             
@@ -99,12 +118,10 @@ public class Carousel extends StyleComponent<Carousel>
             addInner(next);
         }
         super.compose(composer);
-//        composer.compose(this.caption);
-    }
-    
+    }    
     public org.nova.html.tags.script script()
     {
-        return new script().addInner("$(document).ready(function(){$('.carousel').carousel();});");
+        return new script().addInner(HtmlUtils.js_call("new bootstrap.Carousel","#"+id()));
     }
     
     
