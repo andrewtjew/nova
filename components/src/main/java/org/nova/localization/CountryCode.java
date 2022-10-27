@@ -257,9 +257,9 @@ public enum CountryCode
     
     private Country_ISO_3166_1 value;
     
-    static private HashMap<String,CountryCode> NAME_MAP=constructNameMap();
+    static private HashMap<String,CountryCode> NAME_MAP=constructMap();
     
-    static private HashMap<String,CountryCode> constructNameMap()
+    static private HashMap<String,CountryCode> constructMap()
     {
     	HashMap<String,CountryCode> map=new HashMap<String, CountryCode>();
     	for (CountryCode value:CountryCode.values())
