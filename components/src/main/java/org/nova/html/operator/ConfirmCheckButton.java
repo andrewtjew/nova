@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
 import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
@@ -28,11 +28,11 @@ import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;
 import org.nova.html.tags.input_checkbox;
 
-public class ConfirmButton extends Element
+public class ConfirmCheckButton extends Element
 {
     final private div content;
 
-    public ConfirmButton(String location,String label,String title)
+    public ConfirmCheckButton(String location,String label,String title)
     {
         input_checkbox check=new input_checkbox();
         check.id();
@@ -47,17 +47,17 @@ public class ConfirmButton extends Element
 
     }
 
-    public ConfirmButton(String location,String label)
+    public ConfirmCheckButton(String location,String label)
     {
         this(location,label,null);
     }
-    public ConfirmButton style(String style)
+    public ConfirmCheckButton style(String style)
     {
         this.content.style(style);
         return this;
     }
 
-    public ConfirmButton style(Style style)
+    public ConfirmCheckButton style(Style style)
     {
         this.content.style(style);
         return this;

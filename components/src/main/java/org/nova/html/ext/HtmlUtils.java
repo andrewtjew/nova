@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,6 +40,13 @@ import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 public class HtmlUtils
 {
@@ -714,7 +724,13 @@ public class HtmlUtils
     }
     public static String js_copyToClipboard(TagElement<?> element)
     {
-        return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
+//        return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
+        return "var copyText=getElementById('"+element.id()+"');copyText.select();navigator.clipboard.writeText(copyText.value);";
+//        return "getElementById('"+element.id()+"').select();document.execCommand('Copy');";
+    }
+    public static String js_copyToClipboard(String text)
+    {
+        return "navigator.clipboard.writeText('"+text+"');";
 //        return "getElementById('"+element.id()+"').select();document.execCommand('Copy');";
     }
     public static String js_scollIntoView(String id)
@@ -735,6 +751,18 @@ public class HtmlUtils
         return "return !(window.event && window.event.keyCode == 13);";
     }
     */
+
+    public static void writeQRCode(String text,OutputStream outputStream) throws Throwable
+    {
+		String charset = "UTF-8";  
+		Map<EncodeHintType, ErrorCorrectionLevel> hashMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();  
+		//generates QR code with Low level(L) error correction capability  
+		hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);  
+		BitMatrix matrix = new MultiFormatWriter().encode(new String(text.getBytes(charset), charset), BarcodeFormat.QR_CODE, 200, 200);  
+		MatrixToImageWriter.writeToStream(matrix, "png",outputStream);
+    }
+    
+    
     public final static LiteralHtml STATE_AND_CODE_OPTIONS=new LiteralHtml("<option value='AL'>Alabama</option><option value='AK'>Alaska</option><option value='AZ'>Arizona</option><option value='AR'>Arkansas</option><option value='CA'>California</option><option value='CO'>Colorado</option><option value='CT'>Connecticut</option><option value='DE'>Delaware</option><option value='DC'>District Of Columbia</option><option value='FL'>Florida</option><option value='GA'>Georgia</option><option value='HI'>Hawaii</option><option value='ID'>Idaho</option><option value='IL'>Illinois</option><option value='IN'>Indiana</option><option value='IA'>Iowa</option><option value='KS'>Kansas</option><option value='KY'>Kentucky</option><option value='LA'>Louisiana</option><option value='ME'>Maine</option><option value='MD'>Maryland</option><option value='MA'>Massachusetts</option><option value='MI'>Michigan</option><option value='MN'>Minnesota</option><option value='MS'>Mississippi</option><option value='MO'>Missouri</option><option value='MT'>Montana</option><option value='NE'>Nebraska</option><option value='NV'>Nevada</option><option value='NH'>New Hampshire</option><option value='NJ'>New Jersey</option><option value='NM'>New Mexico</option><option value='NY'>New York</option><option value='NC'>North Carolina</option><option value='ND'>North Dakota</option><option value='OH'>Ohio</option><option value='OK'>Oklahoma</option><option value='OR'>Oregon</option><option value='PA'>Pennsylvania</option><option value='RI'>Rhode Island</option><option value='SC'>South Carolina</option><option value='SD'>South Dakota</option><option value='TN'>Tennessee</option><option value='TX'>Texas</option><option value='UT'>Utah</option><option value='VT'>Vermont</option><option value='VA'>Virginia</option><option value='WA'>Washington</option><option value='WV'>West Virginia</option><option value='WI'>Wisconsin</option><option value='WY'>Wyoming</option>");
     public final static LiteralHtml STATE_CODE_OPTIONS=new LiteralHtml("<option value='AL'></option><option value='AK'></option><option value='AZ'></option><option value='AR'></option><option value='CA'></option><option value='CO'></option><option value='CT'></option><option value='DE'></option><option value='DC'></option><option value='FL'></option><option value='GA'></option><option value='HI'></option><option value='ID'></option><option value='IL'></option><option value='IN'></option><option value='IA'></option><option value='KS'></option><option value='KY'></option><option value='LA'></option><option value='ME'></option><option value='MD'></option><option value='MA'></option><option value='MI'></option><option value='MN'></option><option value='MS'></option><option value='MO'></option><option value='MT'></option><option value='NE'></option><option value='NV'></option><option value='NH'></option><option value='NJ'> Jersey</option><option value='NM'></option><option value='NY'></option><option value='NC'></option><option value='ND'></option><option value='OH'></option><option value='OK'></option><option value='OR'></option><option value='PA'></option><option value='RI'></option><option value='SC'></option><option value='SD'></option><option value='TN'></option><option value='TX'></option><option value='UT'></option><option value='VT'></option><option value='VA'></option><option value='WA'></option><option value='WV'></option><option value='WI'></option><option value='WY'></option>");
     public final static LiteralHtml STATE_OPTIONS=new LiteralHtml("<option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>District Of Columbia</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>");

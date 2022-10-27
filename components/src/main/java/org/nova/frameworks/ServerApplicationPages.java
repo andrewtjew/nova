@@ -118,7 +118,6 @@ import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
 import org.nova.html.attributes.unit;
 import org.nova.html.deprecated.Accordion;
-import org.nova.html.deprecated.ConfirmButton;
 import org.nova.html.deprecated.DisableElementToggler;
 import org.nova.html.deprecated.NameInputValueList;
 import org.nova.html.deprecated.NameValueList;
@@ -148,6 +147,7 @@ import org.nova.html.operator.AjaxButton;
 import org.nova.html.operator.AjaxQueryResult;
 import org.nova.html.operator.AjaxQueryResultWriter;
 import org.nova.html.operator.ClearTimeout;
+import org.nova.html.operator.ConfirmCheckButton;
 import org.nova.html.operator.HttpRequestWidget;
 import org.nova.html.operator.MenuBar;
 import org.nova.html.operator.MoreButton;
@@ -615,7 +615,7 @@ public class ServerApplicationPages
             String type=state!=null?state.getClass().getSimpleName():"";
 
             row.add(entry.getKey());
-            row.add(new TitleText(state!=null?state.toString():"",80));
+            row.add(new TitleText(state!=null?state.toString():null));
             row.add(type,DateTimeUtils.toSystemDateTimeString(event.getInstantMs()),event.getStackTrace()[event.getStackTraceStartIndex()].toString(),sample.getCount());
             table.addRow(row);
         }
@@ -869,8 +869,8 @@ public class ServerApplicationPages
     {
         TableRow row=new TableRow().
         add(family,trace.getNumber()).
-        add(new TitleText(trace.getCategory(),80)).
-        add(new TitleText(trace.getDetails(),80)).
+        add(new TitleText(trace.getCategory())).
+        add(new TitleText(trace.getDetails())).
         add(
         DateTimeUtils.toSystemDateTimeString(trace.getCreatedMs()),
         formatNsToMs(trace.getActiveNs()),
@@ -1411,7 +1411,7 @@ public class ServerApplicationPages
         for (CategorySample sample:samples)
         {
             TableRow row=new TableRow();
-            row.add(new TitleText(sample.getCategory(),80));
+            row.add(new TitleText(sample.getCategory()));
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("/operator/tracing/sampleCurrent/category").addQuery("category", sample.getCategory()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1426,21 +1426,40 @@ public class ServerApplicationPages
     @Path("/operator/tracing/sampleLast")
     public Element sampleLast() throws Throwable
     {
-        return showSamples("Sample Last Traces",this.serverApplication.getTraceManager().sampleLastCategories());
+    	String action=new PathAndQuery("/operator/tracing/sampleLast/reset").toString();
+        return showSamples("Sample Last Traces",this.serverApplication.getTraceManager().sampleLastCategories(),action);
     }
 
+    @GET
+    @Path("/operator/tracing/sampleLast/reset")
+    public Element clearSampleLast() throws Throwable
+    {
+    	this.serverApplication.getTraceManager().sampleAndResetLastCategories();
+        return new Redirect("/operator/tracing/sampleLast");
+    }
+    
+    
     @GET
     @Path("/operator/tracing/sampleLastSecondary")
     public Element sampleSecondaryLast() throws Throwable
     {
-        return showSamples("Sample Last Secondary Traces",this.serverApplication.getTraceManager().sampleLastSecondaryCategories());
+        return showSamples("Sample Last Secondary Traces",this.serverApplication.getTraceManager().sampleLastSecondaryCategories(),null);
     }
 
-    private Element showSamples(String title,CategorySample[] samples) throws Throwable
+    private Element showSamples(String title,CategorySample[] samples,String action) throws Throwable
     {
         OperatorPage page=this.serverApplication.buildOperatorPage(title);
+        if (action!=null)
+        {
+            ConfirmCheckButton confirm=new ConfirmCheckButton(action, "Clear").style("float:right;");
+            page.content().addInner(confirm);
+            page.content().addInner(new br());
+            page.content().addInner(new hr());
+        }
+        
+        
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
-
+//
         TableHeader header=new TableHeader();
         addTraceSampleColumns(header);
         header.add("");
@@ -1455,8 +1474,10 @@ public class ServerApplicationPages
         for (CategorySample sample:samples)
         {
             TableRow row=new TableRow();
-   //         row.add("&#128462;");
-            row.add(new TitleText(sample.getCategory(),80));
+            TitleText tt=new TitleText(sample.getCategory());
+            td td=new td().addClass("tdFirst").addInner(tt);
+            td.onclick(HtmlUtils.js_copyToClipboard(sample.getCategory())+";alert('copied');");
+            row.add(td);
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1470,28 +1491,28 @@ public class ServerApplicationPages
     @Path("/operator/tracing/sampleAndResetLast")
     public Element sampleAndResetLast() throws Throwable
     {
-        return showSamples("Sample and Reset Last Traces",this.serverApplication.getTraceManager().sampleAndResetLastCategories());
+        return showSamples("Sample and Reset Last Traces",this.serverApplication.getTraceManager().sampleAndResetLastCategories(),null);
     }
 
     @GET
     @Path("/operator/tracing/sampleAndResetLastSecondary")
     public Element sampleAndResetLastSecondary() throws Throwable
     {
-        return showSamples("Sample and Reset Last Traces",this.serverApplication.getTraceManager().sampleAndResetLastSecondaryCategories());
+        return showSamples("Sample and Reset Last Traces",this.serverApplication.getTraceManager().sampleAndResetLastSecondaryCategories(),null);
     }
 
     @GET
     @Path("/operator/tracing/sampleLastTraceBuffer")
     public Element sampleLastTraceBuffer() throws Throwable
     {
-        return showSamples("Sample Last Trace Buffer",this.serverApplication.getTraceManager().sampleLastTraces());
+        return showSamples("Sample Last Trace Buffer",this.serverApplication.getTraceManager().sampleLastTraces(),null);
     }
     
     @GET
     @Path("/operator/tracing/sampleLastSecondaryTraceBuffer")
     public Element sampleLastSecondaryTraceBuffer() throws Throwable
     {
-        return showSamples("Sample Last Trace Buffer",this.serverApplication.getTraceManager().sampleLastTraces());
+        return showSamples("Sample Last Trace Buffer",this.serverApplication.getTraceManager().sampleLastTraces(),null);
     }
 
     void buildCategories(HashMap<String,Boolean> categories, Entry<String, TraceNode> entry)
@@ -1595,7 +1616,7 @@ public class ServerApplicationPages
             TraceSample sample=entry.getValue();
             TableRow row=new TableRow();
             row.add(new input_checkbox().checked(secondaryCategories.contains(entry.getKey())).name("~"+entry.getKey()));
-            row.add(new TitleText(entry.getKey(),80));
+            row.add(new TitleText(entry.getKey()));
             writeTraceSample(detector,row,sample);
             String location=new PathAndQuery("/operator/tracing/sampleAll/category").addQuery("category", entry.getKey()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1656,7 +1677,7 @@ public class ServerApplicationPages
             TraceSample sample=entry.getValue();
             TableRow row=new TableRow();
             row.add(new input_checkbox().checked(watches.contains(entry.getKey())).name("~"+entry.getKey()));
-            row.add(new TitleText(entry.getKey(),80));
+            row.add(new TitleText(entry.getKey()));
             writeTraceSample(detector,row,sample);
             String location=new PathAndQuery("/operator/tracing/sampleAll/category").addQuery("category", entry.getKey()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -2228,7 +2249,7 @@ public class ServerApplicationPages
             for (CategorySample sample:samples)
             {
                 TableRow row=new TableRow();
-                row.add(new TitleText(sample.getCategory(),80));
+                row.add(new TitleText(sample.getCategory()));
                 writeTraceSample(detector,row,sample.getSample());
                 String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
                 row.add(new RightMoreLink(page.head(),location));
@@ -2269,7 +2290,8 @@ public class ServerApplicationPages
             for (CategorySample sample:samples)
             {
                 TableRow row=new TableRow();
-                row.add(new TitleText(sample.getCategory(),80));
+//                row.add(new TitleText(sample.getCategory()));
+                row.add(new TitleText(sample.getCategory()));
                 writeTraceSample(detector,row,sample.getSample());
                 String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
                 row.add(new RightMoreLink(page.head(),location));
@@ -2310,7 +2332,7 @@ public class ServerApplicationPages
             for (CategorySample sample:samples)
             {
                 TableRow row=new TableRow();
-                row.add(new TitleText(sample.getCategory(),80));
+                row.add(new TitleText(sample.getCategory()));
                 writeTraceSample(detector,row,sample.getSample());
                 String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
                 row.add(new RightMoreLink(page.head(),location));
@@ -2644,7 +2666,7 @@ public class ServerApplicationPages
     {
         if ((action!=null)&&(traces.length>0))
         {
-            ConfirmButton confirm=new ConfirmButton(action, "Clear").style("float:right;");
+            ConfirmCheckButton confirm=new ConfirmCheckButton(action, "Clear").style("float:right;");
             page.content().addInner(confirm);
             page.content().addInner(new br());
             page.content().addInner(new hr());
@@ -2901,7 +2923,7 @@ public class ServerApplicationPages
     private void writeTraceRow(TableRow row,Trace trace)
     {
         row.add(trace.getNumber());
-        row.add(new TitleText(trace.getCategory(),60));
+        row.add(new TitleText(trace.getCategory()));
         row.add(Utils.millisToLocalDateTime(trace.getCreatedMs()));
 //                    .add(new TitleText(trace.getDetails(),60))
         row.add(formatNsToMs(trace.getActiveNs()));
@@ -3513,7 +3535,7 @@ public class ServerApplicationPages
         if (clear!=null)
         {
             String action="/operator/httpServer/clearLastRequests/"+server+"/"+clear;
-            ConfirmButton confirm=new ConfirmButton(action, "Clear").style("float:right;");
+            ConfirmCheckButton confirm=new ConfirmCheckButton(action, "Clear").style("float:right;");
             page.content().addInner(confirm);
             page.content().addInner(new br());
             page.content().addInner(new hr());

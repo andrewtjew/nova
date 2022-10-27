@@ -77,6 +77,7 @@ public class OperatorPage extends Instance
         +" .heading-banner-center{width:100%;height:"+bannerHeight+"px;}"
         +" .heading-banner-right{background-color:#eee;height:"+bannerHeight+"px;}"
         +" .heading-p{margin:2px;white-space:nowrap;padding-left:8px;padding-right:8px;}"
+        +".tdFirst{max-width:40rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}"
         +" .body-content{padding:8px;}"));
         
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/ServerApplication/style.css"));
