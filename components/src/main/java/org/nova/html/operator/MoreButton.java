@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.deprecated.LinkButton;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.LiteralHtml;
 

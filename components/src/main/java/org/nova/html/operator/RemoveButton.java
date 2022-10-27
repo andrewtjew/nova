@@ -19,55 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.tags.th;
-import org.nova.html.tags.thead;
-import org.nova.html.tags.tr;
+import org.nova.html.tags.button_button;
 
-public class TableHeader extends Element
+public class RemoveButton extends button_button
 {
-    final private thead thead;
-    final private tr tr;
-    public TableHeader()
+    public RemoveButton(String script)
     {
-        this.thead=new thead();
-        this.tr=this.thead.returnAddInner(new tr());
-    }
-    public thead thead()
-    {
-        return this.thead;
-    }
-    public tr tr()
-    {
-        return this.tr;
-    }
-    public TableHeader add(Object...items)
-    {
-        for (Object item:items)
-        {
-            if (item==null)
-            {
-                tr.addInner(new th());
-            }
-            else if (item instanceof th)
-            {
-                tr.addInner(item);
-            }
-            else
-            {
-                tr.addInner(new th().addInner(item));
-            }
-        }
-        return this;
-    }
-    
-
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        composer.compose(this.thead);
+        style("cursor:pointer;float:right;");
+        addInner("&#10060;");
+        onclick(script);        
     }
 }

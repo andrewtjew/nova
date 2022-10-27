@@ -19,43 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.tags.form_post;
 import org.nova.html.tags.input_checkbox;
+import org.nova.html.tags.input_submit;
 
-public class DisableElementToggler extends Element
+public class CheckActionPostForm extends Element
 {
-    final private input_checkbox checkbox;
+    final private form_post form;
+    public CheckActionPostForm(String action,String checkName,String buttonLabel)
+    {
+        this.form=new form_post().action(action);
+        this.form.returnAddInner(new input_checkbox().name(checkName));
+        this.form.returnAddInner(new input_submit().value(buttonLabel));
+    }
     
-    public DisableElementToggler(String name,boolean checked,String targetId,String id) throws Exception
+    public CheckActionPostForm add(Element element)
     {
-        if (targetId==null)
-        {
-            throw new Exception("targetId is null");
-        }
-        this.checkbox=new input_checkbox();
-        if (name!=null)
-        {
-            this.checkbox.name(name);
-        }
-        if (id!=null)
-        {
-            this.checkbox.id(id);
-        }
-        this.checkbox.checked(checked);
-        this.checkbox.onclick("document.getElementById('"+targetId+"').disabled=this.checked;");
+        this.form.addInner(element);
+        return this;
     }
-
-    public DisableElementToggler(String name,boolean checked,String targetId) throws Exception
-    {
-        this(name,checked,targetId,null);
-    }
-
+    
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        composer.compose(this.checkbox);
+        composer.compose(this.form);
     }
 }

@@ -1,4 +1,3 @@
-package org.nova.html.deprecated;
 /*******************************************************************************
  * Copyright (C) 2017-2019 Kat Fung Tjew
  * 
@@ -20,41 +19,48 @@ package org.nova.html.deprecated;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-//package org.nova.html.deprecated;
-//
-//import org.nova.html.enums.link_rel;
-//import org.nova.html.ext.Head;
-//import org.nova.html.tags.a;
-//import org.nova.html.tags.div;
-//import org.nova.html.tags.link;
-//
-//public class TopNavigationMenu extends div
-//{
-//    public TopNavigationMenu(Head head,String id,String sourcePath,String cssFile)
-//    {
-//        if (id==null)
-//        {
-//            id=Integer.toString(this.hashCode());
-//        }
-//
-//        id(id).addClass("topnav");
-//        if (head!=null)
-//        {
-//            head.add(TopNavigationMenu.class.getCanonicalName(),new link().rel(link_rel.stylesheet).type("text/css").href(sourcePath+cssFile));
-//        }
-//    }
-//    public TopNavigationMenu(Head head,String id)
-//    {
-//        this(head,id, "/resources/html","/w3c/TopNavigationMenu/topnav.css");
-//    }
-//    public TopNavigationMenu(Head head)
-//    {
-//        this(head,null);
-//    }
-//    
-//    public TopNavigationMenu addMenuItem(String name,String href)
-//    {
-//        this.addInner(new a().href(href).addInner(name));
-//        return this;
-//    }
-//}
+package org.nova.html.operator;
+
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.Element;
+import org.nova.html.tags.td;
+import org.nova.html.tags.tr;
+
+public class TableRow extends Element
+{
+    final private tr tr;
+    public TableRow()
+    {
+        this.tr=new tr();
+    }
+    
+    public tr tr()
+    {
+        return this.tr;
+    }
+    public TableRow add(Object...items)
+    {
+        for (Object item:items)
+        {
+            if (item==null)
+            {
+                tr.addInner(new td());
+            }
+            else if (item instanceof td)
+            {
+                tr.addInner(item);
+            }
+            else
+            {
+                tr.addInner(new td().addInner(item));
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        composer.compose(this.tr);
+    }
+}

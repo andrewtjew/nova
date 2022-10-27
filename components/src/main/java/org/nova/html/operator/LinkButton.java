@@ -19,55 +19,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
+import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.tags.th;
-import org.nova.html.tags.td;
-import org.nova.html.tags.tfoot;
-import org.nova.html.tags.tr;
+import org.nova.html.enums.link_rel;
+import org.nova.html.ext.Head;
+import org.nova.html.ext.Text;
+import org.nova.html.tags.a;
+import org.nova.html.tags.link;
 
-public class TableFooter extends Element
+public class LinkButton extends Element
 {
-    final private tfoot tfoot;
-    final private tr tr;
-    public TableFooter()
+    final private a a;
+    public LinkButton(Head head,String href,Element label,String title,String cssPath)
     {
-        this.tfoot=new tfoot();
-        this.tr=this.tfoot.returnAddInner(new tr());
+        this.a=new a().href(href);
+        String class_="MoreLink";
+        this.a.addClass(class_);
+        link link=new link().rel(link_rel.stylesheet).type("text/css").href(cssPath);
+        head.add(class_,link);
+        this.a.addInner(label);
+        this.a.title(title);
     }
-    public tfoot tfoot()
+    public LinkButton(Head head,String href,Element label,String title)
     {
-        return this.tfoot;
+        this(head,href,label,title,"/resources/html/widgets/LinkButton/style.css");
     }
-    public tr tr()
+    public LinkButton(Head head,String href,Element label)
     {
-        return this.tr;
+        this(head,href,label,null);
     }
-    public TableFooter add(Object...items)
+    public LinkButton(Head head,String href,String label)
     {
-        for (Object item:items)
-        {
-            if (item==null)
-            {
-                tr.addInner(new td());
-            }
-            else if (item instanceof td)
-            {
-                tr.addInner(item);
-            }
-            else
-            {
-                tr.addInner(new th().addInner(item));
-            }
-        }
+        this(head,href,new Text(label),null);
+    }
+    
+    public LinkButton style(String style)
+    {
+        a.style(style);
+        return this;
+    }
+
+    public LinkButton style(Style style)
+    {
+        a.style(style);
         return this;
     }
 
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        composer.compose(this.tfoot);
+        composer.compose(this.a);
     }
+
 }

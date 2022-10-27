@@ -48,7 +48,6 @@ import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.html.ext.TableRow;
 import org.nova.html.remote.Inputs;
 import org.nova.html.remote.RemoteResponse;
@@ -83,6 +82,7 @@ import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.localization.LanguageCode;
+import org.nova.localization.Language_ISO_639_1;
 import org.nova.localization.SqlStringHandleResolver;
 import org.nova.localization.StringHandle;
 import org.nova.services.AllowGroups;
@@ -183,10 +183,10 @@ public class StringHandleEditor
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
-            addLanguage(parent, accessor, LanguageCode.English);
-            addLanguage(parent, accessor, LanguageCode.French);
-            addLanguage(parent, accessor, LanguageCode.Malay);
-            addLanguage(parent, accessor, LanguageCode.Chinese);
+            addLanguage(parent, accessor, LanguageCode.en);
+            addLanguage(parent, accessor, LanguageCode.fr);
+            addLanguage(parent, accessor, LanguageCode.my);
+            addLanguage(parent, accessor, LanguageCode.zh);
         }
     }
     CardDocument createInputCard()

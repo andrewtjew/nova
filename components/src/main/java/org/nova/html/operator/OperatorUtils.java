@@ -21,11 +21,6 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.deprecated.Accordion;
-import org.nova.html.deprecated.NameValueList;
-import org.nova.html.deprecated.Table;
-import org.nova.html.deprecated.TableHeader;
-import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;

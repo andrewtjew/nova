@@ -19,54 +19,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.tags.button_button;
-import org.nova.html.tags.div;
-import org.nova.html.tags.input_checkbox;
+import org.nova.html.tags.th;
+import org.nova.html.tags.thead;
+import org.nova.html.tags.tr;
 
-public class ConfirmButton extends Element
+public class TableHeader extends Element
 {
-    final private div content;
-
-    public ConfirmButton(String location,String label,String title)
+    final private thead thead;
+    final private tr tr;
+    public TableHeader()
     {
-        input_checkbox check=new input_checkbox();
-        check.id();
-        button_button button=new button_button();
-        button.addInner(label);
-        if (title!=null)
+        this.thead=new thead();
+        this.tr=this.thead.returnAddInner(new tr());
+    }
+    public thead thead()
+    {
+        return this.thead;
+    }
+    public tr tr()
+    {
+        return this.tr;
+    }
+    public TableHeader add(Object...items)
+    {
+        for (Object item:items)
         {
-            button.title(title);
+            if (item==null)
+            {
+                tr.addInner(new th());
+            }
+            else if (item instanceof th)
+            {
+                tr.addInner(item);
+            }
+            else
+            {
+                tr.addInner(new th().addInner(item));
+            }
         }
-        button.onclick("if (document.getElementById('"+check.id()+"').checked==true) {window.location='"+location+"';}");
-        this.content=new div().addInner(check).addInner(button);
-
-    }
-
-    public ConfirmButton(String location,String label)
-    {
-        this(location,label,null);
-    }
-    public ConfirmButton style(String style)
-    {
-        this.content.style(style);
         return this;
     }
-
-    public ConfirmButton style(Style style)
-    {
-        this.content.style(style);
-        return this;
-    }
-
     
+
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        composer.compose(this.content);
+        composer.compose(this.thead);
     }
 }

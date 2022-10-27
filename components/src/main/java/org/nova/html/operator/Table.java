@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
 import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;

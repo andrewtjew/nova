@@ -52,11 +52,11 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         return (ELEMENT)this;
     }
     
-    public ELEMENT setInner(Element element)
-    {
-        this.inners=new ArrayList<>();
-        return addInner(element);
-    }
+//    public ELEMENT setInner(Element element)
+//    {
+//        this.inners=new ArrayList<>();
+//        return addInner(element);
+//    }
     @SuppressWarnings("unchecked")
     public ELEMENT addInners(Element...elements)
     {

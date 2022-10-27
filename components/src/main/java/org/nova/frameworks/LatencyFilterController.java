@@ -21,16 +21,16 @@
  ******************************************************************************/
 package org.nova.frameworks;
 
-import org.nova.html.deprecated.LinkButton;
-import org.nova.html.deprecated.NameValueList;
-import org.nova.html.deprecated.OperatorDataTable;
-import org.nova.html.deprecated.TableHeader;
-import org.nova.html.deprecated.TableRow;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.ext.LiteralHtml;
+import org.nova.html.operator.LinkButton;
 import org.nova.html.operator.MoreButton;
+import org.nova.html.operator.NameValueList;
+import org.nova.html.operator.OperatorDataTable;
 import org.nova.html.operator.Panel3;
+import org.nova.html.operator.TableHeader;
+import org.nova.html.operator.TableRow;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.input_checkbox;
 import org.nova.html.tags.input_hidden;

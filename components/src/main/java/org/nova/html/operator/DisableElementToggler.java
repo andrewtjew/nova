@@ -19,59 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.deprecated;
+package org.nova.html.operator;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.enums.link_rel;
-import org.nova.html.ext.Head;
-import org.nova.html.ext.Text;
-import org.nova.html.tags.a;
-import org.nova.html.tags.link;
+import org.nova.html.tags.input_checkbox;
 
-public class LinkButton extends Element
+public class DisableElementToggler extends Element
 {
-    final private a a;
-    public LinkButton(Head head,String href,Element label,String title,String cssPath)
-    {
-        this.a=new a().href(href);
-        String class_="MoreLink";
-        this.a.addClass(class_);
-        link link=new link().rel(link_rel.stylesheet).type("text/css").href(cssPath);
-        head.add(class_,link);
-        this.a.addInner(label);
-        this.a.title(title);
-    }
-    public LinkButton(Head head,String href,Element label,String title)
-    {
-        this(head,href,label,title,"/resources/html/widgets/LinkButton/style.css");
-    }
-    public LinkButton(Head head,String href,Element label)
-    {
-        this(head,href,label,null);
-    }
-    public LinkButton(Head head,String href,String label)
-    {
-        this(head,href,new Text(label),null);
-    }
+    final private input_checkbox checkbox;
     
-    public LinkButton style(String style)
+    public DisableElementToggler(String name,boolean checked,String targetId,String id) throws Exception
     {
-        a.style(style);
-        return this;
+        if (targetId==null)
+        {
+            throw new Exception("targetId is null");
+        }
+        this.checkbox=new input_checkbox();
+        if (name!=null)
+        {
+            this.checkbox.name(name);
+        }
+        if (id!=null)
+        {
+            this.checkbox.id(id);
+        }
+        this.checkbox.checked(checked);
+        this.checkbox.onclick("document.getElementById('"+targetId+"').disabled=this.checked;");
     }
 
-    public LinkButton style(Style style)
+    public DisableElementToggler(String name,boolean checked,String targetId) throws Exception
     {
-        a.style(style);
-        return this;
+        this(name,checked,targetId,null);
     }
 
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        composer.compose(this.a);
+        composer.compose(this.checkbox);
     }
-
 }
