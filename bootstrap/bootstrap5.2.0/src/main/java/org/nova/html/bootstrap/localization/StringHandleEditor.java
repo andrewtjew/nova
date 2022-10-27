@@ -14,7 +14,6 @@ import org.nova.html.bootstrap.Form;
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.LinkButton;
-import org.nova.html.bootstrap.Select;
 import org.nova.html.bootstrap.Styler;
 import org.nova.html.bootstrap.SubmitButton;
 import org.nova.html.bootstrap.Table;
@@ -33,12 +32,10 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.Language_ISO_639_1;
 import org.nova.html.ext.TableRow;
 import org.nova.html.remote.Inputs;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.tags.option;
 import org.nova.html.tags.textarea;
 import org.nova.html.templating.ReplaceMarker;
 import org.nova.http.server.GzipContentDecoder;
@@ -59,7 +56,6 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
-import org.nova.localization.LanguageCode;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Insert;
@@ -88,23 +84,23 @@ public class StringHandleEditor
     }
     
     
-    public void addLanguage(Trace parent,LanguageCode languageCode) throws Exception, Throwable
-    {
-        try (Accessor accessor=this.connector.openAccessor(parent))
-        {
-            addLanguage(parent, accessor, languageCode);
-        }        
-    }
+//    public void addLocale(Trace parent,String locale) throws Exception, Throwable
+//    {
+//        try (Accessor accessor=this.connector.openAccessor(parent))
+//        {
+//            addLocale(parent, accessor, locale);
+//        }        
+//    }
     
     
-    private void addLanguage(Trace parent,Accessor accessor,LanguageCode languageCode) throws Throwable
+    private void addLocale(Trace parent,Accessor accessor,String locale) throws Throwable
     {
         Row row=SqlUtils.executeQueryOne(parent, null, accessor
-                , "SELECT * FROM HandleLanguages WHERE Language=?"
-                ,languageCode.name());
+                , "SELECT * FROM HandleLocales WHERE Locale=?"
+                ,locale);
         if (row==null)
         {
-            long id=Insert.table("HandleLanguages").value("Language", languageCode.name()).value("Description",languageCode.getValue().description).value("Active", true)
+            long id=Insert.table("HandleLocales").value("Locale", locale).value("Active", true)
             .executeAndReturnLongKey(parent, accessor);
             
             RowSet enumSet=accessor.executeQuery(parent, null
@@ -122,11 +118,11 @@ public class StringHandleEditor
                         Enum<?> e=(Enum<?>)value;
                         String name=e.name();
                         Row existing=SqlUtils.executeQueryOne(parent, null, accessor
-                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
+                                , "SELECT * FROM HandleFormats WHERE LocaleID=? AND EnumID=? AND Handle=?"
                                 ,id,enumID,name);
                         if (existing==null)
                         {
-                            Insert.table("HandleFormats").value("Handle",name).value("LanguageID", id).value("EnumID", enumID).execute(parent, accessor);
+                            Insert.table("HandleFormats").value("Handle",name).value("LocaleID", id).value("EnumID", enumID).execute(parent, accessor);
                         }
                     }
                 }
@@ -139,11 +135,11 @@ public class StringHandleEditor
                     {
                         String name=stringHandleRow.getVARCHAR("Handle");
                         Row existing=SqlUtils.executeQueryOne(parent, null, accessor
-                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
+                                , "SELECT * FROM HandleFormats WHERE LocaleID=? AND EnumID=? AND Handle=?"
                                 ,id,enumID,name);
                         if (existing==null)
                         {
-                            Insert.table("HandleFormats").value("Handle",name).value("LanguageID", id).value("EnumID", enumID).execute(parent, accessor);
+                            Insert.table("HandleFormats").value("Handle",name).value("LocaleID", id).value("EnumID", enumID).execute(parent, accessor);
                         }
                     }
                     
@@ -157,10 +153,9 @@ public class StringHandleEditor
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
-            addLanguage(parent, accessor, LanguageCode.English);
-            addLanguage(parent, accessor, LanguageCode.French);
-            addLanguage(parent, accessor, LanguageCode.Malay);
-            addLanguage(parent, accessor, LanguageCode.Chinese);
+            addLocale(parent, accessor, "en");
+            addLocale(parent, accessor, "ms");
+            addLocale(parent, accessor, "zh");
         }
     }
     CardDocument createInputCard()
@@ -190,7 +185,7 @@ public class StringHandleEditor
         Item item=form.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.center);
         CardDocument card=createInputCard();
         card.header().addInner("Enter handle name");
-        card.body().returnAddInner(new InputText().w(100).name("name"));
+        card.body().returnAddInner(new InputText().w(100).name("locale"));
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
 
         item.addInner(card);
@@ -207,14 +202,14 @@ public class StringHandleEditor
         Item item=form.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.center);
         CardDocument card=createInputCard();
         card.header().addInner("Enter handle name");
-        card.body().returnAddInner(new InputText().w(100).name("name"));
+        card.body().returnAddInner(new InputText().w(100).name("locale"));
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
 
         item.addInner(card);
         return page;
     }
     @POST
-    public Element addHandle(Trace parent,@QueryParam("name") String name) throws Throwable
+    public Element addHandle(Trace parent,@QueryParam("locale") String name) throws Throwable
     {
         Page page=new Page();
         Item item=page.content().returnAddInner(new Item()).m(2);
@@ -257,19 +252,19 @@ public class StringHandleEditor
                 }
             }
             RowSet rowSet=accessor.executeQuery(parent, null
-                    , "SELECT * FROM HandleLanguages");
+                    , "SELECT * FROM HandleLocales");
                     
-            for (Row languageRow:rowSet.rows())
+            for (Row localeRow:rowSet.rows())
             {
-                long languageID=languageRow.getBIGINT("ID");
+                long localeID=localeRow.getBIGINT("ID");
                 
                 Row row=SqlUtils.executeQueryOne(parent, null, accessor
-                        , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
-                        ,languageID,enumID,name);
+                        , "SELECT * FROM HandleFormats WHERE LocaleID=? AND EnumID=? AND Handle=?"
+                        ,localeID,enumID,name);
                 
                 if (row==null)
                 {
-                    Insert.table("HandleFormats").value("Handle",name).value("LanguageID", languageID).value("EnumID", enumID).execute(parent, accessor);
+                    Insert.table("HandleFormats").value("Handle",name).value("LocaleID", localeID).value("EnumID", enumID).execute(parent, accessor);
                 }
             }
         }
@@ -277,7 +272,7 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element addLanguage() throws Throwable
+    public Element addLocale() throws Throwable
     {
         Page page=new Page();
         
@@ -285,29 +280,23 @@ public class StringHandleEditor
         form.action("#");
         Item item=form.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.center);
         CardDocument card=createInputCard();
-        card.header().addInner("Select language");
-        Select select=card.body().returnAddInner(new Select().w(100).name("name"));
-        for (LanguageCode languageCode:LanguageCode.values())
-        {
-            Language_ISO_639_1 locale=languageCode.getValue();
-            String text=locale.description+" ("+locale.code+")";
-            select.returnAddInner(new option()).addInner(text).value(languageCode);
-        }
+        card.header().addInner("Enter Locale");
+        InputText inputText=card.body().returnAddInner(new InputText().w(100).name("locale"));
         card.footer().returnAddInner(new SubmitButton("Add")).color(StyleColor.primary).w(100);
 
         item.addInner(card);
         return page;
     }
     @POST
-    public Element addLanguage(Trace parent,@QueryParam("name") String name) throws Throwable
+    public Element addLocale(Trace parent,@QueryParam("locale") String locale) throws Throwable
     {
         Page page=new Page();
         Item item=page.content().returnAddInner(new Item()).m(2);
-        LanguageCode languageCode=LanguageCode.fromName(name);
-        Language_ISO_639_1 locale=languageCode.getValue();
-        String text=locale.description+" ("+locale.code+")";
-        item.returnAddInner(new Alert()).addInner("Added: "+text).color(StyleColor.success);
-        addLanguage(parent, languageCode);
+        item.returnAddInner(new Alert()).addInner("Added: "+locale).color(StyleColor.success);
+        try (Accessor accessor=this.connector.openAccessor(parent))
+        {
+            addLocale(parent, accessor, locale);
+        }        
         return page;
     }
 
@@ -394,22 +383,22 @@ public class StringHandleEditor
                 	item.addInner(table);
                 }
                 RowSet rowSet=accessor.executeQuery(parent, null
-                        , "SELECT * FROM HandleLanguages");
+                        , "SELECT * FROM HandleLocales");
                 for (Object value:type.getEnumConstants())
                 {
                     Enum<?> e=(Enum<?>)value;
                     String handle=e.name();
                     staleHandles.remove(handle);
-                    for (Row languageRow:rowSet.rows())
+                    for (Row localeRow:rowSet.rows())
                     {
-                        long languageID=languageRow.getBIGINT("ID");
+                        long localeID=localeRow.getBIGINT("ID");
                         
                         Row row=SqlUtils.executeQueryOne(parent, null, accessor
-                                , "SELECT * FROM HandleFormats WHERE LanguageID=? AND EnumID=? AND Handle=?"
-                                ,languageID,enumID,handle);
+                                , "SELECT * FROM HandleFormats WHERE LocaleID=? AND EnumID=? AND Handle=?"
+                                ,localeID,enumID,handle);
                         if (row==null)
                         {
-                            Insert.table("HandleFormats").value("Handle",handle).value("LanguageID", languageID).value("EnumID", enumID).execute(parent, accessor);
+                            Insert.table("HandleFormats").value("Handle",handle).value("LocaleID", localeID).value("EnumID", enumID).execute(parent, accessor);
                         }
                     }
                     TableRow tr=new TableRow();
@@ -441,12 +430,12 @@ public class StringHandleEditor
     static class UserState
     {
         public Long enumID;
-        public Long languageID;
+        public Long localeID;
         public String handle;
     }
     
     @GET
-    public Element viewByLanguages(Trace parent,@CookieStateParam("X-Nova-UserState") UserState userState,@QueryParam("languageID") Long languageID,@QueryParam("enumID") Long enumID)  throws Throwable
+    public Element viewByLocales(Trace parent,@CookieStateParam("X-Nova-UserState") UserState userState,@QueryParam("localeID") Long localeID,@QueryParam("enumID") Long enumID)  throws Throwable
     {
         
         
@@ -456,27 +445,9 @@ public class StringHandleEditor
         
         Item bar=main.returnAddInner(new Item()).d(Display.flex).mb(2).border(Edge.bottom).pb(1);
         
-//        {
-//            DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup("Format Specifiers"));
-//            group.me(2);
-//            group.button().color(StyleColor.secondary).size(Size.sm);
-//
-//            DropdownMenuItem dropDownItem=group.menu().returnAddInner(new DropdownMenuItem());
-//            DropdownItem item=dropDownItem.returnAddInner(new DropdownItem());
-//            Table table=dropDownItem.returnAddInner(new Table());i
-//            TableHeader heading=table.returnAddInner(new TableHeader());
-//            heading.addRow("Specifier","Description");
-//            TableBody body=table.returnAddInner(new TableBody());
-//            body.addRow("%b","test");
-//            body.addRow("%b","test");
-//            body.addRow("%b","test");
-//            body.addRow("%b","test");
-//            
-//        }
-        
-        if (languageID==null)
+        if (localeID==null)
         {
-            languageID=userState.languageID;
+            localeID=userState.localeID;
         }
         if (enumID==null)
         {
@@ -532,36 +503,36 @@ public class StringHandleEditor
                 group.button().addInner(groupEnum);
                 
             }
-            //Build language dropdown
+            //Build Locale dropdown
             {
-                bar.returnAddInner(new Item()).addInner("Language:").me(1).mt(1);
+                bar.returnAddInner(new Item()).addInner("Locale:").me(1).mt(1);
                 DropdownButtonMenuGroup group=bar.returnAddInner(new DropdownButtonMenuGroup());
                 group.button().color(StyleColor.primary).size(Size.sm);
                 RowSet rowSet=accessor.executeQuery(parent, null
-                        , "SELECT * FROM HandleLanguages WHERE Active=?",true);
+                        , "SELECT * FROM HandleLocales WHERE Active=?",true);
                 boolean found=false;
-                String groupLanguage=null;
+                String groupLocale=null;
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
-                    String description=row.getVARCHAR("Description");
+                    String locale=row.getVARCHAR("Locale");
                     
-                    if (languageID==null)
+                    if (localeID==null)
                     {
-                        userState.languageID=id;
-                        languageID=id;
+                        userState.localeID=id;
+                        localeID=id;
                     }
-                    if (id==languageID)
+                    if (id==localeID)
                     {
-                        groupLanguage=description;
+                        groupLocale=locale;
                         found=true;
                     }
                     if (found==false)
                     {
-                        groupLanguage=description;
+                        groupLocale=locale;
                     }
     
-                    DropdownMenuItem dropDownItem=new DropdownMenuItem(description,"?languageID="+id);
+                    DropdownMenuItem dropDownItem=new DropdownMenuItem(locale,"?localeID="+id);
                     dropDownItem.d(Display.flex).justify_content(Justify.between);
                     
 //                    FormCheck formCheck=dropDownItem.returnAddInner(new FormCheck()).switch_().mt(1);
@@ -570,19 +541,19 @@ public class StringHandleEditor
                 }
                 if (found)
                 {
-                    userState.languageID=languageID;
+                    userState.localeID=localeID;
                 }
                 else
                 {
-                    languageID=userState.languageID;
+                    localeID=userState.localeID;
                 }
-                group.button().addInner(groupLanguage);
+                group.button().addInner(groupLocale);
             }
             
             
             
             RowSet handleRowSet=accessor.executeQuery(parent, null
-                    , "SELECT * FROM HandleFormats WHERE LanguageID=? AND enumID=?",languageID,enumID);
+                    , "SELECT * FROM HandleFormats WHERE LocaleID=? AND enumID=?",localeID,enumID);
             
             DataTableOptions options=new DataTableOptions();
             options.lengthMenu=new int[]{25,100,1000};
@@ -603,15 +574,15 @@ public class StringHandleEditor
             {
                 String handle=handleRow.getVARCHAR("Handle");
                 String format=handleRow.getVARCHAR("Format");
-                String key=handle+"-"+languageID+"-"+enumID;
+                String key=handle+"-"+localeID+"-"+enumID;
 
 //                form_post post=table.body().returnAddInner(new form_post()).action(new PathAndQuery("/StringHandleEditor/save").addQuery("handle", handle).toString());
 //                TableRow tr=post.returnAddInner(new TableRow());
                 Item handleCell=new Item().d(Display.flex).justify_content(Justify.between);
                 handleCell.addInner(handle);
                 Item ui=handleCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
-                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LANGUAGE)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by language").pt(0).px(1);
-                languageButton.href(new PathAndQuery("/StringHandleEditor/viewByHandles").addQuery("enumID", enumID).addQuery("handle",handle).toString());
+                LinkButton localeButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.LOCALE)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by Locale").pt(0).px(1);
+                localeButton.href(new PathAndQuery("/StringHandleEditor/viewByHandles").addQuery("enumID", enumID).addQuery("handle",handle).toString());
                 Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).size(Size.sm).color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
@@ -632,7 +603,7 @@ public class StringHandleEditor
                 inputs.add(ta);
                 String action=new PathAndQuery("/StringHandleEditor/save")
                         .addQuery("handle", handle)
-                        .addQuery("languageID", languageID)
+                        .addQuery("localeID", localeID)
                         .addQuery("enumID", enumID)
                         .toString();
                 String saveScript=inputs.js_post(action);
@@ -744,7 +715,7 @@ public class StringHandleEditor
             }
             
             RowSet handleRowSet=accessor.executeQuery(parent, null
-                    , "SELECT Format,LanguageID,Language,Description FROM HandleFormats JOIN HandleLanguages ON HandleFormats.LanguageID=HandleLanguages.ID WHERE EnumID=? AND Handle=? AND HandleLanguages.Active=? ORDER BY LanguageID"
+                    , "SELECT Format,LocaleID,Locale FROM HandleFormats JOIN HandleLocales ON HandleFormats.LocaleID=HandleLocales.ID WHERE EnumID=? AND Handle=? AND HandleLocales.Active=? ORDER BY LocaleID"
                     ,enumID,handle,true);
             
             DataTableOptions options=new DataTableOptions();
@@ -761,18 +732,18 @@ public class StringHandleEditor
 //            table.w_auto();
             Styler.style(table).w(100);
             main.addInner(table);
-            table.header().addRow("Language","Format");
+            table.header().addRow("Locale","Format");
             for (Row handleRow:handleRowSet.rows())
             {
-                String description=handleRow.getVARCHAR("Description");
+                String locale=handleRow.getVARCHAR("Locale");
                 String format=handleRow.getVARCHAR("Format");
-                long languageID=handleRow.getBIGINT("LanguageID");
-                String key=handle+"-"+languageID+"-"+enumID;
-                Item languageCell=new Item().d(Display.flex).justify_content(Justify.between);
-                languageCell.addInner(description);
-                Item ui=languageCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
-                LinkButton languageButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
-                languageButton.href(new PathAndQuery("/StringHandleEditor/viewByLanguages").addQuery("enumID", enumID).addQuery("languageID",languageID).toString());
+                long localeID=handleRow.getBIGINT("LocaleID");
+                String key=handle+"-"+localeID+"-"+enumID;
+                Item localeCell=new Item().d(Display.flex).justify_content(Justify.between);
+                localeCell.addInner(locale);
+                Item ui=localeCell.returnAddInner(new Item()).d(Display.flex);//.justify_content(Justify.end);
+                LinkButton localeButton=ui.returnAddInner(new LinkButton()).tabindex(-1).addInner(new Icon(Icons.HANDLES)).size(Size.sm).color(StyleColor.dark).ms(1).title("View by handle").pt(0).px(1);
+                localeButton.href(new PathAndQuery("/StringHandleEditor/viewByLocales").addQuery("enumID", enumID).addQuery("localeID",localeID).toString());
                 Button saveButton=ui.returnAddInner(new Button()).tabindex(-1).id("button-save-"+key).addInner(new Icon(Icons.SAVE)).size(Size.sm).color(StyleColor.primary).ms(1).title("Save changes").pt(0).px(1);
                 
                 Item formatCell=new Item();
@@ -786,14 +757,14 @@ public class StringHandleEditor
                 }
                 ta.placeholder("Undefined");
                 saveButton.disabled();
-                table.body().addRow(languageCell,formatCell);
+                table.body().addRow(localeCell,formatCell);
 
                 Inputs inputs=new Inputs();
                 inputs.trace();
                 inputs.add(ta);
                 String action=new PathAndQuery("/StringHandleEditor/save")
                         .addQuery("handle", handle)
-                        .addQuery("languageID", languageID)
+                        .addQuery("localeID", localeID)
                         .addQuery("enumID", enumID)
                         .toString();
                 String saveScript=inputs.js_post(action);
@@ -806,9 +777,9 @@ public class StringHandleEditor
     }
     
     @POST
-    public RemoteResponse save(Trace parent,@QueryParam("handle") String handle,@QueryParam("languageID") long languageID,@QueryParam("enumID") long enumID,Context context) throws Throwable, Throwable
+    public RemoteResponse save(Trace parent,@QueryParam("handle") String handle,@QueryParam("localeID") long localeID,@QueryParam("enumID") long enumID,Context context) throws Throwable, Throwable
     {
-        String key=handle+"-"+languageID+"-"+enumID;
+        String key=handle+"-"+localeID+"-"+enumID;
         RemoteResponse response=new RemoteResponse();
         response.trace();
         String value=context.getHttpServletRequest().getParameter("textarea-"+key);
@@ -822,8 +793,8 @@ public class StringHandleEditor
         {
             
                 int updated=accessor.executeUpdate(parent, null
-                        , "UPDATE HandleFormats SET Format=? WHERE Handle=? AND LanguageID=? AND EnumID=?"
-                        ,value,handle,languageID,enumID);
+                        , "UPDATE HandleFormats SET Format=? WHERE Handle=? AND LocaleID=? AND EnumID=?"
+                        ,value,handle,localeID,enumID);
         }
         response.script(HtmlUtils.js_call("nova.handle.disableSaveButton", key,undefined)+";");
         return response;
@@ -844,13 +815,13 @@ public class StringHandleEditor
             if (this.connector instanceof SqlServerConnector)
             {
                 row=SqlUtils.executeQueryOne(parent, null, accessor
-                    ,"SELECT TOP(1) * FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLanguages ON HandleLanguages.ID=LanguageID WHERE Format IS NULL AND HandleEnums.Active=? AND HandleLanguages.Active=?"
+                    ,"SELECT TOP(1) * FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLocales ON HandleLocales.ID=LocaleID WHERE Format IS NULL AND HandleEnums.Active=? AND HandleLocales.Active=?"
                     ,true,true);
             }
             else
             {
                 row=SqlUtils.executeQueryOne(parent, null, accessor
-                        ,"SELECT * FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLanguages ON HandleLanguages.ID=LanguageID WHERE Format IS NULL AND HandleEnums.Active=? AND HandleLanguages.Active=? LIMIT 1"
+                        ,"SELECT * FROM HandleFormats JOIN HandleEnums ON HandleEnums.ID=EnumID JOIN HandleLocales ON HandleLocales.ID=LocaleID WHERE Format IS NULL AND HandleEnums.Active=? AND HandleLocales.Active=? LIMIT 1"
                         ,true,true);
             }
             if (row!=null)
@@ -883,26 +854,26 @@ public class StringHandleEditor
             { 
                
                 CardDocument card=main.returnAddInner(this.createSettingsCard());
-                card.header().addInner("Languages");
+                card.header().addInner("Locales");
                 RowSet rowSet=accessor.executeQuery(parent, null
-                        , "SELECT * FROM HandleLanguages ORDER BY Language");
+                        , "SELECT * FROM HandleLocales ORDER BY Locale");
                 for (Row row:rowSet.rows())
                 {
                     long id=row.getBIGINT("ID");
-                    String description=row.getVARCHAR("Description");
+                    String locale=row.getVARCHAR("Locale");
                     boolean active=row.getBIT("Active");
                     Item item=card.body().returnAddInner(new Item());
                     item.d(Display.flex).justify_content(Justify.between);
                     item.border(Edge.bottom).py(1);
-                    item.addInner(description);
-                    String name="name_"+id;
+                    item.addInner(locale);
+                    String localeId="locale_"+id;
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
-                    Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setLanguage?ID="+id));
+                    Switch s=ui.returnAddInner(new Switch(localeId,active,"/StringHandleEditor/setLocale?ID="+id));
                     s.pt(1);
-                    ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required","Delete "+description+"?"
+                    ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required","Delete "+locale+"?"
                             ));
                     dialog.onProceed(new Inputs()
-                            ,new PathAndQuery("/StringHandleEditor/deleteLanguage").addQuery("ID", id).toString());
+                            ,new PathAndQuery("/StringHandleEditor/deleteLocale").addQuery("ID", id).toString());
                     ui.returnAddInner(new Button()).addInner("X").size(Size.sm).color(StyleColor.danger).onclick(dialog.js_show());
                 }
             }
@@ -956,17 +927,17 @@ public class StringHandleEditor
     }
 
     @POST
-    public RemoteResponse deleteLanguage(Trace parent,@QueryParam("ID") long ID) throws Throwable, Throwable
+    public RemoteResponse deleteLocale(Trace parent,@QueryParam("ID") long ID) throws Throwable, Throwable
     {
         RemoteResponse response=new RemoteResponse();
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
             accessor.executeUpdate(parent, null
-                    , "DELETE HandleFormats WHERE LanguageID=?"
+                    , "DELETE HandleFormats WHERE LocaleID=?"
                     ,ID);
 
             accessor.executeUpdate(parent, null
-                    , "DELETE HandleLanguages WHERE ID=?"
+                    , "DELETE HandleLocales WHERE ID=?"
                     ,ID);
             
             response.location("/StringHandleEditor/settings");
@@ -992,15 +963,15 @@ public class StringHandleEditor
         return response;
     }
     @POST
-    public RemoteResponse setLanguage(Trace parent,@QueryParam("ID") long ID,Context context) throws Throwable, Throwable
+    public RemoteResponse setLocale(Trace parent,@QueryParam("ID") long ID,Context context) throws Throwable, Throwable
     {
         RemoteResponse response=new RemoteResponse();
-        String value=context.getHttpServletRequest().getParameter("name_"+ID);
+        String value=context.getHttpServletRequest().getParameter("locale_"+ID);
         boolean checked="true".equalsIgnoreCase(value);
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
             int updated=accessor.executeUpdate(parent, null
-                    , "UPDATE HandleLanguages SET Active=? WHERE ID=?"
+                    , "UPDATE HandleLocales SET Active=? WHERE ID=?"
                     ,checked,ID);
         }
         return response;

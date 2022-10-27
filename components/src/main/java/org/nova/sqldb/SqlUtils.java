@@ -21,19 +21,9 @@
  ******************************************************************************/
 package org.nova.sqldb;
 
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.nova.annotations.Alias;
-import org.nova.core.NameObject;
-import org.nova.sqldb.FieldMaps.ConstructorFieldMap;
 import org.nova.tracing.Trace;
 
 public class SqlUtils

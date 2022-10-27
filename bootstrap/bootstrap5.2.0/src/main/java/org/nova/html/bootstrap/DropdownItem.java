@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.ext.Icon;
-
 public class DropdownItem extends StyleComponent<DropdownItem>
 {
     public DropdownItem(String label,String URL)

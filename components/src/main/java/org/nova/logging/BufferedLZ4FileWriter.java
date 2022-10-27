@@ -24,8 +24,6 @@ package org.nova.logging;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import org.nova.logging.Formatter;
-import org.nova.logging.LogDirectoryManager;
 import org.nova.metrics.RateMeter;
 
 import net.jpountz.lz4.LZ4BlockOutputStream;

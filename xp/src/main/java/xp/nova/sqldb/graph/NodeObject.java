@@ -7,5 +7,5 @@ public class NodeObject extends GraphObject
     public Long getNodeId()
     {
         return this._nodeId;
-    }    
+    }        
 }

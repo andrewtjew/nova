@@ -21,16 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.TextAlign;
-import org.nova.html.elements.Composer;
-import org.nova.html.ext.Content;
-import org.nova.html.tags.a;
-import org.nova.html.tags.div;
-import org.nova.html.tags.li;
-import org.nova.html.tags.script;
-import org.nova.html.tags.span;
-import org.nova.html.tags.ul;
-
 public class Accordion extends StyleComponent<Accordion>
 {
     public Accordion()

@@ -49,5 +49,8 @@ public class SMSSender
         Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
 
         PublishResult result = this.client.publish(new PublishRequest().withMessage(message).withPhoneNumber(phoneNumber).withMessageAttributes(smsAttributes));
+        
+        System.out.println("messaggeId="+result.getMessageId());
+        
     }
 }

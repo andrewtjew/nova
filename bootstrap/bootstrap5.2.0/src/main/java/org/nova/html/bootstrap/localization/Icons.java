@@ -1,7 +1,5 @@
 package org.nova.html.bootstrap.localization;
 
-import org.nova.html.bootstrap.ext.Icon;
-
 public class Icons
 {
 //    static Icon LANGUAGE=new Icon("people");
@@ -11,7 +9,7 @@ public class Icons
 //    static Icon ADD=new Icon("plus-circle-fill");    
 //    static Icon UNDEFINED=new Icon("question-diamond-fill");    
 
-    static String LANGUAGE="people";
+    static String LOCALE="people";
     static String SAVE="save";
     static String PREVIEW="eye";
     static String HANDLES="list-ul";    

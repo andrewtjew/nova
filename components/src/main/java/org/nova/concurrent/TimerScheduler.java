@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.nova.logging.Logger;
 import org.nova.tracing.TraceManager;
-import org.nova.utils.Utils;
 
 public class TimerScheduler
 {

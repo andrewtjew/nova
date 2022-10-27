@@ -33,7 +33,6 @@ import org.nova.html.attributes.unit;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Text;
 import org.nova.html.tags.div;
 

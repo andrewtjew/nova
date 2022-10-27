@@ -45,6 +45,8 @@ import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.DELETE;
 import org.nova.http.server.annotations.DefaultValue;
+import org.nova.http.server.annotations.SecurePathParam;
+import org.nova.http.server.annotations.SecureQueryParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.HEAD;
@@ -62,8 +64,6 @@ import org.nova.http.server.annotations.Test;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
-
-import com.jcraft.jsch.Buffer;
 
 //TODO!!! Resolve Consumes and ContentReaders just like produces and contentwriters
 
@@ -507,6 +507,8 @@ class RequestHandlerMap
 			CookieStateParam cookieStateParam = null;
 			HeaderParam headerParam = null;
 			PathParam pathParam = null;
+			SecureQueryParam secureQueryParam=null;
+			SecurePathParam securePathParam=null;
 			QueryParam queryParam = null;
 			StateParam stateParam = null;
 			ParamName paramName=null;
@@ -543,10 +545,18 @@ class RequestHandlerMap
 				{
 					pathParam = (PathParam) annotation;
 				}
+                else if (type == SecurePathParam.class)
+                {
+                    securePathParam = (SecurePathParam) annotation;
+                }
 				else if (type == QueryParam.class)
 				{
 					queryParam = (QueryParam) annotation;
 				}
+                else if (type == SecureQueryParam.class)
+                {
+                    secureQueryParam = (SecureQueryParam) annotation;
+                }
                 else if (type == StateParam.class)
                 {
                     stateParam = (StateParam) annotation;
@@ -575,6 +585,10 @@ class RequestHandlerMap
 			{
 				params.add(pathParam);
 			}
+            if (securePathParam != null)
+            {
+                params.add(securePathParam);
+            }
 			if (headerParam != null)
 			{
 				params.add(headerParam);
@@ -583,6 +597,10 @@ class RequestHandlerMap
 			{
 				params.add(queryParam);
 			}
+            if (secureQueryParam != null)
+            {
+                params.add(secureQueryParam);
+            }
 			if (stateParam != null)
 			{
 				params.add(stateParam);
@@ -670,17 +688,25 @@ class RequestHandlerMap
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType)));
 			}
+            else if (securePathParam != null)
+            {
+                if (isSimpleParameterType(parameterType) == false)
+                {
+                    throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+                }
+                parameterInfos.add(new ParameterInfo(ParameterSource.PATH, securePathParam, securePathParam.value(), parameterIndex, parameterType,
+                        getDefaultValue(method, defaultValue, parameterType)));
+            }
 			else if (queryParam != null)
 			{
-			    /*
-				if (isSimpleParameterType(parameterType) == false)
-				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + method.getName());
-				}
-				*/
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType)));
 			}
+            else if (secureQueryParam != null)
+            {
+                parameterInfos.add(new ParameterInfo(ParameterSource.SECURE_QUERY, secureQueryParam, secureQueryParam.value(), parameterIndex, parameterType,
+                        getDefaultValue(method, defaultValue, parameterType)));
+            }
 			else if (headerParam != null)
 			{
 				if (isSimpleParameterType(parameterType) == false)

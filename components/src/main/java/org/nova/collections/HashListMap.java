@@ -22,4 +22,14 @@ public class HashListMap<K,V> extends HashMap<K,List<V>>
         }
         list.add(value);
     }
+    
+    public int getSize(K key)
+    {
+        List<V> list=get(key);
+        if (list==null)
+        {
+            return 0;
+        }
+        return list.size();
+    }
 }

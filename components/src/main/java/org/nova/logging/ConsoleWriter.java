@@ -23,7 +23,6 @@ package org.nova.logging;
 
 import java.io.OutputStream;
 
-import org.nova.logging.Formatter;
 import org.nova.utils.Utils;
 
 public class ConsoleWriter extends OutputStreamWriter

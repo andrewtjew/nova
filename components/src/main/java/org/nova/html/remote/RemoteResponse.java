@@ -1,8 +1,6 @@
 package org.nova.html.remote;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -11,8 +9,6 @@ import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
 import org.nova.json.ObjectMapper;
-
-import com.amazonaws.services.devicefarm.model.Run;
 
 public class RemoteResponse
 {

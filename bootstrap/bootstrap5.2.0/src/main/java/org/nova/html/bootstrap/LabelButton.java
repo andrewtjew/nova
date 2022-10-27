@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.TagElement;
-import org.nova.html.tags.label;
 
 public class LabelButton extends ButtonComponent<LabelButton>
 {

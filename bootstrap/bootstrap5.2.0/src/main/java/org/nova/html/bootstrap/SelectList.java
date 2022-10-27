@@ -21,11 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.TagElement;
-import org.nova.html.tags.div;
 import org.nova.html.tags.label;
 import org.nova.html.tags.option;
 import org.nova.html.tags.select;

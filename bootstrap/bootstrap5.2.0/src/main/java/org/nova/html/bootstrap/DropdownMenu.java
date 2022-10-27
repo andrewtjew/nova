@@ -23,10 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.ThemeColor;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
@@ -67,7 +64,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     
     public DropdownMenu static_()
     {
-        this.toggler.attr("data-display","static");
+        this.toggler.attr("data-bs-display","static");
         return this;
     }
     
@@ -94,51 +91,68 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
 
     public DropdownMenu reference_toggle()
     {
-        this.toggler.attr("data-reference","toggle");
+        this.toggler.attr("data-bs-reference","toggle");
         return this;
     }
  
     public DropdownMenu reference_parent()
     {
-        this.toggler.attr("data-reference","parent");
+        this.toggler.attr("data-bs-reference","parent");
         return this;
     }
- 
     public DropdownMenu reference(GlobalTagElement<?> element)
     {
-        this.toggler.attr("data-reference","#"+element.id());
+        this.toggler.attr("data-bs-reference","#"+element.id());
         return this;
     }
  
     public DropdownMenu reference_toggle(StyleComponent<?> button)
     {
-        this.toggler.attr("data-reference","toggle");
+        this.toggler.attr("data-bs-reference","toggle");
         return this;
     }
  
 
     public DropdownMenu flip(boolean value)
     {
-        this.toggler.attr("data-flip",value);
+        this.toggler.attr("data-bs-flip",value);
         return this;
     }
-    public DropdownMenu boundary_window()
+    public DropdownMenu rootBoundary_window()
     {
-        this.toggler.attr("data-boundary","window");
-        attr("data-boundary","window");
+        this.toggler.attr("data-bs-root-boundary","window");
+//        attr("data-bs-boundary","window");
         return this;
     }
-    public DropdownMenu boundary_viewport()
+    public DropdownMenu rootBoundary_viewport()
     {
-        this.toggler.attr("data-boundary","viewport");
-        attr("data-boundary","viewport");
+        this.toggler.attr("data-bs-root-boundary","viewport");
+//        attr("data-bs-boundary","viewport");
         return this;
     }
     public DropdownMenu boundary(TagElement<?> element)
     {
-        this.toggler.attr("data-boundary","#"+element.id());
+        this.toggler.attr("data-bs-boundary","#"+element.id());
         return this;
     }
+
+    public DropdownMenu autoClose(boolean value)
+    {
+        this.toggler.attr("data-bs-auto-close",value);
+        return this;
+    }
+ 
+    public DropdownMenu autoClose_inside()
+    {
+        this.toggler.attr("data-bs-auto-close","inside");
+        return this;
+    }
+    public DropdownMenu autoClose_outside()
+    {
+        this.toggler.attr("data-bs-auto-close","outside");
+        return this;
+    }
+    
     public DropdownMenu color(ThemeColor value)
     {
         addClass("dropdown-menu",value.toString());
@@ -146,7 +160,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     } 
     public DropdownMenu reference(StyleComponent<?> button,GlobalTagElement<?> element)
     {
-        this.toggler.attr("data-reference","#"+element.id());
+        this.toggler.attr("data-bs-reference","#"+element.id());
         return this;
     }
  

@@ -29,15 +29,12 @@ import java.util.concurrent.Executors;
 
 import org.nova.logging.Logger;
 import org.nova.metrics.LongValueMeter;
-import org.nova.test.Testing;
-import org.nova.testing.TestTraceClient;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 public class TcpServer
 {
-	private static boolean TRACE=false;
-	
 	final private int port;
 	final private ExecutorService executorService;
 
@@ -181,6 +178,8 @@ public class TcpServer
 		}
 		return true;
 	}
+    private static boolean TESTING=false;
+    
 	
 	private void acceptThread() 
 	{
@@ -192,9 +191,9 @@ public class TcpServer
 				try (Trace trace=new Trace(this.traceManager, this.categoryPrefix+".accept",true))
 				{
 					Socket clientSocket=this.acceptSocket.accept();
-					if ((Testing.ENABLED)&&(TRACE))
+					if (TESTING)
 					{
-						TestTraceClient.clientLog("host="+clientSocket.getInetAddress().getHostName());
+						Testing.log("host="+clientSocket.getInetAddress().getHostName());
 					}
 					trace.endWait();
 					try

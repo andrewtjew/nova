@@ -4,7 +4,7 @@ public class LiteralStringHandleResolver extends StringHandleResolver
 {
 
     @Override
-    public String resolve(LanguageCode languageCode,Class<?> type,String handle,Object...parameters) throws Throwable
+    public String resolve(String locale,Class<?> type,String handle,Object...parameters) throws Throwable
     {
         if (handle==null)
         {

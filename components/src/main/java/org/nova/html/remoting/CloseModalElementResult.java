@@ -22,9 +22,7 @@
 package org.nova.html.remoting;
 
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.StringComposer;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.Text;
 
 public class CloseModalElementResult extends Result

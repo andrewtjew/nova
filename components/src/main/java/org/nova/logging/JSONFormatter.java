@@ -24,8 +24,6 @@ package org.nova.logging;
 import java.io.IOException;
 
 import org.nova.json.ObjectMapper;
-import org.nova.logging.Item;
-import org.nova.logging.LogEntry;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 

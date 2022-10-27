@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.sqldb;
 
-import java.util.ArrayList;
-
 import org.nova.tracing.Trace;
 
 public class Select 
@@ -115,6 +113,8 @@ public class Select
         {
             sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
         }
+        if (where!=null)
+            
         if (this.orderBy!=null)
         {
             sql=sql+" ORDER BY "+this.orderBy;

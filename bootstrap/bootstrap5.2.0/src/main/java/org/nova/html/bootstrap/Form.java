@@ -23,8 +23,9 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.enums.enctype;
 import org.nova.html.enums.method;
-import org.nova.html.tags.script;
+import org.nova.html.tags.form;
 
 public class Form extends FormElement<Form> implements Styling<Form>
 {
@@ -36,6 +37,10 @@ public class Form extends FormElement<Form> implements Styling<Form>
     public Form(method method)
     {
         super(method);
+    }
+    public Form enctype(enctype enctype) 
+    {
+        return attr("enctype",enctype);
     }
     
     public Form needs_validation()

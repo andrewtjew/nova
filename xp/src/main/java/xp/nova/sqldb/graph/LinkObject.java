@@ -1,8 +1,6 @@
 package xp.nova.sqldb.graph;
 
-import java.sql.Timestamp;
-
-public class LinkAttribute extends GraphObject
+public class LinkObject extends GraphObject
 {
     Long _linkId;    
     public long getLinkId()

@@ -21,13 +21,9 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
-import org.nova.html.tags.tfoot;
 import org.nova.html.tags.th;
-import org.nova.html.tags.thead;
 import org.nova.html.tags.tr;
 
 public class TableHeader extends GlobalEventTagElement<TableHeader>

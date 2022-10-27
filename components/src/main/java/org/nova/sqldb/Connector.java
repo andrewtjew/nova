@@ -96,13 +96,23 @@ public abstract class Connector
 	abstract protected Connection createConnection() throws Throwable;
 	abstract public String getName();
 	
-	public Accessor openAccessor(Trace parent,String traceCategoryOverride,long timeoutMs) throws Throwable
+	public Accessor openAccessor(Trace parent,String traceCategoryOverride,String catalog,long timeoutMs) throws Throwable
 	{
 		if (traceCategoryOverride==null)
 		{
 			traceCategoryOverride="Connector."+getName()+".openAccessor";
 		}
-		return this.pool.waitForAvailable(parent, traceCategoryOverride, timeoutMs);
+		Accessor accessor=this.pool.waitForAvailable(parent, traceCategoryOverride, timeoutMs);
+		try
+		{
+		    accessor.setCatalog(catalog);
+		}
+		catch (Throwable t)
+		{
+		    accessor.close();
+		    throw new Exception(t);
+		}
+		return accessor;
 	}
 	public Accessor openAccessor(Trace parent,String traceCategoryOverride) throws Throwable
 	{
@@ -112,14 +122,34 @@ public abstract class Connector
 		}
 		return this.pool.waitForAvailable(parent, traceCategoryOverride);
 	}
+    public Accessor openAccessor(Trace parent,String traceCategoryOverride,String catalog) throws Throwable
+    {
+        if (traceCategoryOverride==null)
+        {
+            traceCategoryOverride="Connector."+getName()+".openAccessor";
+        }
+        Accessor accessor=this.pool.waitForAvailable(parent, traceCategoryOverride);
+        try
+        {
+            accessor.setCatalog(catalog);
+        }
+        catch (Throwable t)
+        {
+            accessor.close();
+            throw new Exception(t);
+        }
+        return accessor;
+    }
     public Accessor openAccessor(Trace parent) throws Throwable
     {
         return openAccessor(parent,null);
     }
     public Accessor openAccessor(Trace parent,long timeoutMs) throws Throwable
     {
-        return openAccessor(parent,null,timeoutMs);
+        return openAccessor(parent,null,null,timeoutMs);
     }
+    
+    
 	
     public RowSet executeQuery(Trace parent, String traceCategoryOverride, String sql, Object... parameters) throws Throwable
     {

@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-
 public class Container extends StyleComponent<Container>
 {
 	public Container(boolean fluid)

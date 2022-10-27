@@ -21,10 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.tags.span;
-
 public class NavbarTogglerButton extends ButtonComponent<NavbarTogglerButton>
 {
     public NavbarTogglerButton()

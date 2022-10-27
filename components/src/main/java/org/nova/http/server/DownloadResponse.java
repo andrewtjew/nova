@@ -1,7 +1,5 @@
 package org.nova.http.server;
 
-import java.io.File;
-
 public class DownloadResponse
 {
     final private String filePath;

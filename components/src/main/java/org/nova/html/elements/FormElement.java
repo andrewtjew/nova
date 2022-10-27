@@ -93,18 +93,18 @@ public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEve
         return addClass("form-inline");
     }
     
-    public String[] getAllInputIds()
-    {
-        List<Element> elements=this.getAllInners();
-        ArrayList<String> list=new ArrayList<String>();
-        for (Element element:elements)
-        {
-            if (element instanceof InputElement<?>)
-            {
-                list.add(((InputElement<?>)element).id());
-            }
-        }
-        return list.toArray(new String[list.size()]);
-    }
+//    public String[] getAllInputIds()
+//    {
+//        List<Element> elements=this.getAllInners();
+//        ArrayList<String> list=new ArrayList<String>();
+//        for (Element element:elements)
+//        {
+//            if (element instanceof InputElement<?>)
+//            {
+//                list.add(((InputElement<?>)element).id());
+//            }
+//        }
+//        return list.toArray(new String[list.size()]);
+//    }
     
 }

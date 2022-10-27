@@ -22,35 +22,15 @@
 package org.nova.http.server;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.nova.annotations.Description;
-import org.nova.collections.RingBuffer;
-import org.nova.http.Header;
-import org.nova.logging.Item;
-import org.nova.logging.Logger;
-import org.nova.metrics.RateMeter;
-import org.nova.operations.OperatorVariable;
-import org.nova.test.Testing;
-import org.nova.tracing.Trace;
-import org.nova.tracing.TraceManager;
 import org.nova.utils.Utils;
-
-import com.google.common.base.Strings;
 
 public class HttpTransport 
 {
@@ -81,6 +61,7 @@ public class HttpTransport
 
 	public void start() throws Exception
 	{
+	    
 	    try
 	    {
     		for (Server server:this.servers)

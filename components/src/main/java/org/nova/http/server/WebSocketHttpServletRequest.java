@@ -31,8 +31,6 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMap;
 import org.nova.json.ObjectMapper;
 import org.nova.json.ValueString;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
 
 class WebSocketHttpServletRequest implements HttpServletRequest
 {

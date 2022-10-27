@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.Chartjs;
 
-import org.nova.html.attributes.Color;
-
 public class LineDataset extends Dataset
 {
     public double[] data;

@@ -21,10 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.bootstrap.Button;
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.tags.h5;
-
 //public class ConfirmDialog extends ModalDocument 
 //{ 
 //    public ConfirmDialog(boolean center,String title,String message,String cancelButtonText,String confirmButtonText,String confirmButtonSCript)

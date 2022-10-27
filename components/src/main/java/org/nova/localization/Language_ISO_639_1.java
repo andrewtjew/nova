@@ -1,8 +1,6 @@
-package org.nova.html.ext;
+package org.nova.localization;
 
 import java.util.Locale;
-
-import org.apache.commons.lang.LocaleUtils;
 
 public class Language_ISO_639_1
 {

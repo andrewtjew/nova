@@ -23,7 +23,6 @@ package org.nova.logging;
 
 import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
-import org.nova.logging.LogEntry;
 
 public class LogUtils
 {

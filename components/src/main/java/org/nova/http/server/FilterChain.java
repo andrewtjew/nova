@@ -33,11 +33,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
-import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
 public class FilterChain
 {
@@ -476,25 +476,61 @@ public class FilterChain
                 break;
             case PATH:
             {
-                String name=null;
+                String parameter=null;
                 try
                 {
-                    name=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()],StandardCharsets.UTF_8);
+                    parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()],StandardCharsets.UTF_8);
                 }
                 catch (Throwable t)
                 {
                     try
                     {
-                        name=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()]);
+                        parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()]);
                     }
                     catch (Throwable tt)
                     {
-                        name=request.getParameter(parameterInfo.getName());
+                        parameter=request.getParameter(parameterInfo.getName());
                     }
                 }
                 try
                 {
-                    parameters[i]=buildParameter(parameterInfo,name);
+                    parameters[i]=buildParameter(parameterInfo,parameter);
+                }
+                catch (Throwable t)
+                {
+                    throw new AbnormalException(Abnormal.BAD_PATH,t);
+                }
+                break;
+            }
+            case SECURE_PATH:
+            {
+                String parameter=null;
+                try
+                {
+                    parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()],StandardCharsets.UTF_8);
+                }
+                catch (Throwable t)
+                {
+                    try
+                    {
+                        parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()]);
+                    }
+                    catch (Throwable tt)
+                    {
+                        parameter=request.getParameter(parameterInfo.getName());
+                    }
+                }
+                ParamSecurity paramDecoding=context.getParamDecoding();
+                try
+                {
+                    if (paramDecoding!=null)
+                    {
+                        if (TypeUtils.isNullOrEmpty(parameter)==false)
+                        {
+                            parameter=paramDecoding.decodePathParam(parameter);
+                        }
+                        parameters[i]=buildParameter(parameterInfo,parameter);
+                    }
                 }
                 catch (Throwable t)
                 {
@@ -505,7 +541,27 @@ public class FilterChain
             case QUERY:
                 try
                 {
-                    parameters[i]=buildParameter(parameterInfo,request.getParameter(parameterInfo.getName()));
+                    String parameter=request.getParameter(parameterInfo.getName());
+                    parameters[i]=buildParameter(parameterInfo,parameter);
+                }
+                catch (Throwable t)
+                {
+                    throw new AbnormalException(Abnormal.BAD_QUERY,t);
+                }
+                break;
+            case SECURE_QUERY:
+                try
+                {
+                    String parameter=request.getParameter(parameterInfo.getName());
+                    ParamSecurity paramDecoding=context.getParamDecoding();
+                    if (paramDecoding!=null)
+                    {
+                        if (TypeUtils.isNullOrEmpty(parameter)==false)
+                        {
+                            parameter=paramDecoding.decodeQueryParam(parameter);
+                        }
+                        parameters[i]=buildParameter(parameterInfo,parameter);
+                    }
                 }
                 catch (Throwable t)
                 {

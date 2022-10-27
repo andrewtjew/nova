@@ -23,22 +23,12 @@ package org.nova.html.bootstrap.ext;
 
 
 import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.text_align;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
-import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.StyleTemplate;
-import org.nova.html.bootstrap.Table;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
-import org.nova.html.ext.TableRow;
-import org.nova.html.tags.tbody;
-import org.nova.html.tags.td;
 
 public class NameValueList extends Item
 {

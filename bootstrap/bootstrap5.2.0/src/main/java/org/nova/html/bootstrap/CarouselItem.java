@@ -21,12 +21,17 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.elements.Composer;
 
 public class CarouselItem extends StyleComponent<CarouselItem>
 {
     private CarouselCaption caption;
-    boolean active;
+
+    public CarouselItem()
+    {
+        this(null,null);
+    }
     
     public CarouselItem(String src)
     {
@@ -35,30 +40,25 @@ public class CarouselItem extends StyleComponent<CarouselItem>
     public CarouselItem(String src,String alt)
     {
         super("div","carousel-item");
-        Styler.style(returnAddInner(new Image(src,alt))).w(100);
+        if (src!=null)
+        {
+            returnAddInner(new Image(src,alt)).w(100).d(Display.block);
+        }
     }
-    public CarouselItem(Image image)
-    {
-        super("div","carousel-item");
-        returnAddInner(image);
-    }
-    public CarouselItem set(CarouselCaption caption)
+    public CarouselItem caption(CarouselCaption caption)
     {
         this.addInner(caption);
         return this;
     }
     public CarouselItem active()
     {
-        this.active=true;
         addClass("active");
         return this;
     }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
+    public CarouselItem interval(int value)
     {
-        super.compose(composer);
+        attr("data-bs-interval",value);
+        return this;
     }
-    
     
 }

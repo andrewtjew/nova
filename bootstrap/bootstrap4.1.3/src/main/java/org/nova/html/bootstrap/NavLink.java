@@ -43,4 +43,9 @@ public class NavLink extends ToggleComponent<NavLink>
         addClass("disabled");
         return this;
     }
+    public NavLink href(String href)
+    {
+        attr("href",href);
+        return this;
+    }
 }

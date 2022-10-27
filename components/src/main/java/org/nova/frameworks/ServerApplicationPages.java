@@ -55,7 +55,6 @@ import org.nova.concurrent.TimerTask;
 import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
 import org.nova.flow.Tapper;
-import org.nova.frameworks.ServerApplicationPages.WideTable;
 import org.nova.html.tags.a;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
@@ -64,7 +63,6 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.fieldset;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
-import org.nova.html.tags.h2;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
 import org.nova.html.tags.input_checkbox;
@@ -169,14 +167,12 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.DefaultValue;
-import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
-import org.nova.http.server.annotations.StateParam;
 import org.nova.http.server.annotations.Test;
 import org.nova.logging.Item;
 import org.nova.logging.HighPerformanceLogger;
@@ -209,11 +205,8 @@ import org.nova.operations.OperatorVariable;
 import org.nova.operations.Status;
 import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
-import org.nova.operator.OperatorPages;
 import org.nova.security.Vault;
-import org.nova.services.SessionFilter;
-import org.nova.test.Testing;
-import org.nova.testing.TestTraceClient;
+import org.nova.testing.Testing;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -3374,6 +3367,9 @@ public class ServerApplicationPages
             case QUERY:
                 queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
                 break;
+            case SECURE_QUERY:
+                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
+                break;                
             }
         }
 
@@ -4945,6 +4941,9 @@ public class ServerApplicationPages
         }
         return page;
     }
+    
+    final static boolean TESTING=false;
+    
     @GET
     @Path("/content/{+}")
     public void content(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
@@ -4954,9 +4953,9 @@ public class ServerApplicationPages
         context.setCaptured(true);
         if (bytes == null)
         {
-            if (Testing.ENABLED)
+            if (TESTING)
             {
-                TestTraceClient.clientLog(file + " not found");
+                Testing.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
@@ -4985,9 +4984,9 @@ public class ServerApplicationPages
         }
         catch (Throwable t)
         {
-            if (Testing.ENABLED)
+            if (TESTING)
             {
-                TestTraceClient.clientLog(file + " not found");
+                Testing.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;

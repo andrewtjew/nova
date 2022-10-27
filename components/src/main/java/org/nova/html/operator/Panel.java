@@ -54,7 +54,7 @@ public class Panel extends Element
         this.leftHeaderElements=new Content();
     }
     
-    public NodeElement<?> content()
+    public div content()
     {
         return this.content;
     }

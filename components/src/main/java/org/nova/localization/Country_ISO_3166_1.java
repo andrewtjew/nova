@@ -1,7 +1,5 @@
 package org.nova.localization;
 
-import java.util.Locale;
-
 public class Country_ISO_3166_1
 {
     final public String name;

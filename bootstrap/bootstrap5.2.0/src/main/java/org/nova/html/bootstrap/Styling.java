@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.bootstrap.classes.Align;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
@@ -41,7 +40,6 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.TagElement;
 
 public interface Styling<ELEMENT>
@@ -50,50 +48,6 @@ public interface Styling<ELEMENT>
     public ELEMENT addClass(Object class_,Object...fragments);
     public TagElement<?> getElement();
 
-//    public default ELEMENT color(StyleColor value,boolean outline)
-//    {
-//        TagElement<?> element=getElement();
-//        if (element instanceof StyleComponent<?>)
-//        {
-//            StyleComponent<?> component=(StyleComponent<?>)element;
-//            if (outline)
-//            {
-//                addClass(component.getComponentClass(),outline?"outline":null,value.toString());
-//            }
-//            else
-//            {
-//                addClass(component.getComponentClass(),value.toString());
-//            }
-//        }
-//        
-//        return (ELEMENT)this;
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public default ELEMENT color(StyleColor value)
-//    {
-//        return color(value,false);
-//    }
-
-//    public default ELEMENT addClass(Object class_,Object...fragments)
-//    {
-//        if (fragments!=null)
-//        {
-//            if (class_!=null)
-//            {
-//                StringBuilder sb=new StringBuilder(class_.toString());
-//                for (Object fragment:fragments)
-//                {
-//                    if (fragment!=null)
-//                    {
-//                        sb.append('-').append(fragment);
-//                    }
-//                }
-//                this.element.addClass(sb.toString());
-//            }
-//        }
-//        return this;
-//    }
 
     public default ELEMENT col(BreakPoint breakPoint,int columns)
     {
@@ -246,6 +200,10 @@ public interface Styling<ELEMENT>
     public default ELEMENT rounded(Rounded rounded,int value)
     {
         return addClass("rounded",rounded,value);
+    }
+    public default ELEMENT rounded(Rounded rounded)
+    {
+        return addClass("rounded",rounded);
     }
     public default ELEMENT border()
     {
@@ -549,6 +507,7 @@ public interface Styling<ELEMENT>
     {
         return addClass("btn-group");
     }
+    
 //    public default ELEMENT input_group_append()
 //    {
 //        return addClass("input-group-append");
@@ -564,6 +523,30 @@ public interface Styling<ELEMENT>
     public default ELEMENT align_items(AlignSelf value)
     {
         return addClass("align-items",value);
+    }
+    public default ELEMENT dropup(boolean center)
+    {
+        if (center)
+        {
+            return addClass("dropup-center");
+        }
+        return addClass("dropup");
+    }
+    public default ELEMENT dropdown(boolean center)
+    {
+        if (center)
+        {
+            return addClass("dropdown-center");
+        }
+        return addClass("dropdown");
+    }
+    public default ELEMENT dropstart()
+    {
+        return addClass("dropstart");
+    }
+    public default ELEMENT dropend()
+    {
+        return addClass("dropend");
     }
 //    public default ELEMENT flex_wrap()
 //    {
