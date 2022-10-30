@@ -36,7 +36,6 @@ import org.nova.html.tags.ul;
 public class Carousel extends StyleComponent<Carousel>
 {
     private div inner;
-    private int count;
     private boolean indicators;
     private boolean controls;
     
@@ -66,13 +65,9 @@ public class Carousel extends StyleComponent<Carousel>
     public Carousel add(CarouselItem item)
     {
         this.inner.addInner(item);
-        if (count==0)
-        {
-            item.active();
-        }
-        count++;
         return this;
     }
+    
     
 //    //This sets a fixed caption for all Items.
 //    public Carousel set(CarouselCaption caption)

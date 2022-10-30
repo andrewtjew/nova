@@ -572,6 +572,11 @@ public class Graph
         return accessor;
     }
     
+    protected Connector getConnector()
+    {
+        return this.connector;
+    }
+    
     Meta getMeta(Class<? extends GraphObject> type) throws Exception
     {
         Meta meta=null;

@@ -27,7 +27,7 @@ public class ProceedModal extends ModalDocument
         this.header().addInner(title);
         this.body().addInner(message);
         this.footer().d(Display.flex).justify_content(Justify.between);
-        this.footer().addInner(cancelButton).addInner(proceedButton);
+        this.footer().addInner(proceedButton).addInner(cancelButton);
         cancelButton.onclick(this.js_hide());
 
     }
