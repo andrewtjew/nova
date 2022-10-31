@@ -26,6 +26,7 @@ import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.Table;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.tbody;
+import org.nova.html.tags.td;
 
 public class NameValueTable extends Table
 {
@@ -46,6 +47,15 @@ public class NameValueTable extends Table
 
     public NameValueTable add(StyleTemplate nameTemplate,Object name,StyleTemplate valueTemplate,Object value)
     {
+        if ((nameTemplate!=null)&&(name instanceof td==false))
+        {
+            name=new td().addInner(name);
+        }
+        if ((valueTemplate!=null)&&(value instanceof td==false))
+        {
+            value=new td().addInner(value);
+        }
+        
 //        tr.addClass("table-striped");
         TableRow tr=this.body.returnAddInner(new TableRow());
         tr.add(StyleTemplate.apply(nameTemplate,name));
