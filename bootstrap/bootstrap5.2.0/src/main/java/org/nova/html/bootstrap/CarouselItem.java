@@ -55,6 +55,14 @@ public class CarouselItem extends StyleComponent<CarouselItem>
         addClass("active");
         return this;
     }
+    public CarouselItem active(boolean value)
+    {
+        if (value)
+        {
+            addClass("active");
+        }
+        return this;
+    }
     public CarouselItem interval(int value)
     {
         attr("data-bs-interval",value);

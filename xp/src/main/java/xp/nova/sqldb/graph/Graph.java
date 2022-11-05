@@ -712,50 +712,57 @@ public class Graph
                 }
                 String fieldName=columnAccessor.getName();
                 String fieldSqlType=columnAccessor.getSqlType();
-                Row row=rowSet.getRow(rowIndex);
-                String columnName=row.getVARCHAR("COLUMN_NAME");
-                int compareResult=fieldName.compareTo(columnName);
-                if (compareResult==0)
+                if (rowIndex<rowSet.size())
                 {
-                    String sqlType=row.getVARCHAR("DATA_TYPE");
-                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                    if (length!=null)
+                    Row row=rowSet.getRow(rowIndex);
+                    String columnName=row.getVARCHAR("COLUMN_NAME");
+                    int compareResult=fieldName.compareTo(columnName);
+                    if (compareResult==0)
                     {
-                        sqlType=sqlType+"("+length+")";
+                        String sqlType=row.getVARCHAR("DATA_TYPE");
+                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                        if (length!=null)
+                        {
+                            sqlType=sqlType+"("+length+")";
+                        }
+                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+                        {
+                            sqlType=sqlType+" DEFAULT NULL";
+                        }
+                        else
+                        {
+                            sqlType=sqlType+" NOT NULL";
+                        }
+                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
+                        {
+                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
+                        }
+                        after=columnName;
+                        fieldIndex++;
+                        rowIndex++;
+                        continue;
                     }
-                    if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+                    else if (compareResult<0)
                     {
-                        sqlType=sqlType+" DEFAULT NULL";
+                        fieldIndex++;
                     }
                     else
                     {
-                        sqlType=sqlType+" NOT NULL";
+                        after=columnName;
+                        if (rowIndex<rowSet.size()-1)
+                        {
+                            rowIndex++;
+                            if (TEST)
+                            {
+                                Testing.log("Unused column: columnName="+columnName+", table="+table);
+                            }
+                            continue;
+                        }
                     }
-                    if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
-                    {
-                        throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
-                    }
-                    after=columnName;
-                    fieldIndex++;
-                    rowIndex++;
-                    continue;
-                }
-                else if (compareResult<0)
-                {
-                    fieldIndex++;
                 }
                 else
                 {
-                    after=columnName;
-                    if (rowIndex<rowSet.size()-1)
-                    {
-                        rowIndex++;
-                        if (TEST)
-                        {
-                            Testing.log("Unused column: columnName="+columnName+", table="+table);
-                        }
-                        continue;
-                    }
+                    fieldIndex++;
                 }
                 alter.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType+" AFTER `"+after+'`');
             }

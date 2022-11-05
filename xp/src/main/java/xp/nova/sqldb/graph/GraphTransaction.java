@@ -190,23 +190,24 @@ public class GraphTransaction implements AutoCloseable
 //        return deleted;
 //    }
 
-    public int deleteLinks(long nodeId,Direction direction,Relation relation,Class<? extends NodeObject> type) throws Throwable
-    {
-        String relationTypeName=relation.getClass().getSimpleName();
-        String on=direction==Direction.FROM?" ON _link.fromNodeId=":" ON _link.toNodeId=";
-        Meta meta=this.graph.getMeta(type);
-        String table=meta.getTableName();
-        
-        RowSet rowSet=this.accessor.executeQuery(parent, null,
-                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId WHERE _link.type=? AND _link.relation=?",relationTypeName,relation.getValue());
-        int deleted=0;
-        for (Row row:rowSet.rows())
-        {
-            deleted+=this.accessor.executeUpdate(this.parent,null
-                ,"DELETE FROM _link where id="+row.getBIGINT(0));
-        }
-        return deleted;
-    }
+//    public int deleteLinks(long nodeId,Direction direction,Relation relation,Class<? extends NodeObject> type) throws Throwable
+//    {
+//        //!! I think there is a bug here. If this method is needed, fix bug first
+//        String relationTypeName=relation.getClass().getSimpleName();
+//        String on=direction==Direction.FROM?" ON _link.fromNodeId=":" ON _link.toNodeId=";
+//        Meta meta=this.graph.getMeta(type);
+//        String table=meta.getTableName();
+//        
+//        RowSet rowSet=this.accessor.executeQuery(parent, null,
+//                "SELECT _link.id FROM _link JOIN "+table+on+table+"._nodeId WHERE _link.type=? AND _link.relation=?",relationTypeName,relation.getValue());
+//        int deleted=0;
+//        for (Row row:rowSet.rows())
+//        {
+//            deleted+=this.accessor.executeUpdate(this.parent,null
+//                ,"DELETE FROM _link where id="+row.getBIGINT(0));
+//        }
+//        return deleted;
+//    }
 
     public int deleteLinks(long fromNodeId,Relation relation) throws Throwable
     {

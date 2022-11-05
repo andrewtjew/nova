@@ -183,6 +183,7 @@ public class JSONClient
        {
            return new JSONResponse<TYPE>(statusCode, null,response);
        }
+       System.out.println(json);
        return new JSONResponse<TYPE>(statusCode,ObjectMapper.readObject(json, responseContentType),response);
     }
     
