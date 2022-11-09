@@ -113,20 +113,20 @@ public class Inputs
         return this.data;
     }
     
-    public String js_call(boolean async) throws Throwable
+    public String js_call() throws Throwable
     {
         if (form.method()==method.get)
         {
-            return js_get(this.form.id(),this.form.action(),async);
+            return js_get(this.form.id(),this.form.action());
         }
         else
         {
-            return js_post(this.form.id(),this.form.action(),async);
+            return js_post(this.form.id(),this.form.action());
         }
     }
-    public String js_post(String formID,String action,boolean async) throws Throwable
+    public String js_post(String formID,String action) throws Throwable
     {
-        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),async,this.trace);
+        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),this.trace);
     }
 
 //    public String escapeString(String string)
@@ -272,18 +272,18 @@ public class Inputs
 //        return sb.toString();
 //    }
     
-    public String js_get(String formID,String action,boolean async) throws Throwable
+    public String js_get(String formID,String action) throws Throwable
     {
         if (this.data==null)
         {
             this.data=ObjectMapper.writeObjectToString(this.inputs.toArray(new Input[this.inputs.size()]));
         }
-        return HtmlUtils.js_call(this.mark,"nova.remote.get",formID,action,getContent(),async,trace);
+        return HtmlUtils.js_call(this.mark,"nova.remote.get",formID,action,getContent(),trace);
     }
-    public String js_post(String action,boolean async) throws Throwable
+    public String js_post(String action) throws Throwable
     {
         String formID=this.form!=null?this.form.id():null;
-        return js_post(formID,action,async);
+        return js_post(formID,action);
     }
 
     public String js_action() throws Throwable
@@ -297,23 +297,18 @@ public class Inputs
             return js_post(this.form.action());
         }
     }
-    public String js_post(String action) throws Throwable
-    {
-        String formID=this.form!=null?this.form.id():null;
-        return js_post(formID,action,true);
-    }
     public String js_get(String action) throws Throwable
     {
         String formID=this.form!=null?this.form.id():null;
-        return js_get(formID,action,true);
+        return js_get(formID,action);
     }
     public String js_post() throws Throwable
     {
-        return js_post(this.form.id(),this.form.action(),true);
+        return js_post(this.form.id(),this.form.action());
     }
     public String js_get() throws Throwable
     {
-        return js_get(this.form.id(),this.form.action(),true);
+        return js_get(this.form.id(),this.form.action());
     }
 
     

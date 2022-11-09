@@ -17,7 +17,7 @@ public class Switch extends StyleComponent<Switch>
       this.inputCheckBox=returnAddInner(new InputCheckbox()).checked(checked).name(name).form_check_input();
       this.inputs=new Inputs();
       this.inputs.add(inputCheckBox);
-      String script=this.inputs.js_post(action,true);
+      String script=this.inputs.js_post(action);
       inputCheckBox.onchange(script);
     }
     

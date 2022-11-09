@@ -5129,7 +5129,7 @@ public class ServerApplicationPages
                     row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
                 }
                 button_button button=new button_button().addInner("Update");
-                button.onclick(inputs.js_post("/operator/variable",true));
+                button.onclick(inputs.js_post("/operator/variable"));
                 row.add(button);
                 row.add(new div().id(resultElementId));
                 table.addRow(row);
