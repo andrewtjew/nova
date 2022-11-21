@@ -89,7 +89,10 @@ public class RemoteResponse
     }
     public RemoteResponse script(String script)
     {
-        this.instructions.add(new Instruction(this.trace,Command.script,script));
+        if (script!=null)
+        {
+            this.instructions.add(new Instruction(this.trace,Command.script,script));
+        }
         return this;
     }
     public RemoteResponse alert(Object value)

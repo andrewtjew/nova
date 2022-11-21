@@ -229,7 +229,7 @@ public class Query
         StringBuilder sources = new StringBuilder();
 
         String on=null;
-//        if (on==null)
+        if (on==null)
         {
             if (this.expression==null)
             {

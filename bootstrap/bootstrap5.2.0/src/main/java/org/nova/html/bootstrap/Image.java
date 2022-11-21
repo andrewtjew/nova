@@ -31,6 +31,13 @@ public class Image extends StyleComponent<Image>
         attr("width",width);
         attr("height",height);
     }
+    public Image(String src,String alt,int height)
+    {
+        super("img",null,true);
+        attr("src",src);
+        attr("alt",alt);
+        attr("height",height);
+    }
     public Image(String src,String alt)
     {
         super("img",null,true);
