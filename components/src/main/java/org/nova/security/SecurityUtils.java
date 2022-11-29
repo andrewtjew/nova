@@ -154,6 +154,20 @@ public class SecurityUtils
     public static String generateVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
+        bytes[0] = (byte) (RANDOM.nextInt(26) + 'A');
+        for (int i = 1; i < length; i++)
+        {
+            do
+            {
+                bytes[i] = (byte) (RANDOM.nextInt(26) + 'A');
+            }
+            while (bytes[i] == bytes[i - 1]);
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
+    }
+    public static String generateAlphaNummericVerificationCode(int length)
+    {
+        byte[] bytes = new byte[length];
         bytes[0] = (byte) (CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
         for (int i = 1; i < length; i++)
         {
