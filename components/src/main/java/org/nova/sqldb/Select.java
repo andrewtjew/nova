@@ -120,7 +120,7 @@ public class Select
             sql=sql+" ORDER BY "+this.orderBy;
         }
    
-        System.out.println(sql);
+//        System.out.println(sql);
         return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
     }
 

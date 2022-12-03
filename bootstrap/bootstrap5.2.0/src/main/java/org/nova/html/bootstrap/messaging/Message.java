@@ -1,27 +1,33 @@
 package org.nova.html.bootstrap.messaging;
 
 import org.nova.html.elements.Element;
+import org.nova.html.ext.Text;
 
 public class Message
 {
     final private Level level;
-    final private Presentation displayMethod;
-    final private String title;
-    final private String content;
-    final private Priority priority;
+    final private Presentation presentation;
+    final private Element content;
+    final private boolean highPriority;
     
-    public Message(Manager manager,Priority priority,Level level,Presentation presentation,String title,Element content)
+    public Message(boolean highPriority,Long expire,Level level,Presentation presentation,Element content)
     {
         this.level=level;
-        this.displayMethod=presentation;
-        this.title=title;
-        this.content="test";
-        this.priority=priority;
+        this.presentation=presentation;
+        this.highPriority=highPriority;
+        this.content=content;
     }
-    
-    public Priority getPriority()
+    public Message(Level level,Presentation presentation,Element content)
     {
-        return this.priority;
+        this(false,null,Level.INFO,presentation,content);
+    }    
+    public Message(Level level,Presentation presentation,String text)
+    {
+        this(level,presentation,new Text(text));
+    }    
+    public boolean isHighPriority()
+    {
+        return this.highPriority;
     }
     public Level getLevel()
     {
@@ -30,18 +36,13 @@ public class Message
 
     public Presentation getPresentation()
     {
-        return displayMethod;
+        return presentation;
     }
 
-    public String getTitle()
+    public Element getContent()
     {
-        return title;
+        return this.content;
     }
 
-    public String getContent()
-    {
-        return content;
-    }
-    
     
 }

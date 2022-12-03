@@ -53,8 +53,6 @@ import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.http.client.PathAndQuery;
 
-import com.amazonaws.services.kinesisanalytics.model.Input;
-
 public class RemoteEditBox extends StyleComponent<RemoteEditBox>   
 {
     final private QuotationMark mark;

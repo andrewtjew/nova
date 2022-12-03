@@ -56,7 +56,6 @@ import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.http.client.PathAndQuery;
 
-import com.amazonaws.services.xray.model.BackendConnectionErrors;
 import com.sun.jna.platform.win32.AccCtrl;
 
 public class RemoteDialogPopover

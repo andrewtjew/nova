@@ -4,55 +4,44 @@ import java.util.LinkedList;
 
 public class Client
 {
-    LinkedList<Message> high;
-    LinkedList<Message> normal;
-    LinkedList<Message> low;
+    final LinkedList<Message> messages;
     Message message;
     public Client()
     {
-        this.low=new LinkedList<Message>();
-        this.normal=new LinkedList<Message>();
-        this.high=new LinkedList<Message>();
+        this.messages=new LinkedList<Message>();
     }
     
     synchronized public void queue(Message message)
     {
-        switch (message.getPriority())
+        if (message.isHighPriority())
         {
-            case HIGH:
-                high.add(message);
-            case LOW:
-                low.add(message);
-                break;
-            case NORMAL:
-                normal.add(message);
-                break;
-            default:
-                break;
-            
+            if (this.messages.get(0).isHighPriority())
+            {
+                for (int i=1;i<this.messages.size();i++)
+                {
+                    if (this.messages.get(i).isHighPriority()==false)
+                    {
+                        this.messages.add(i,message);
+                        return;
+                    }
+                }
+                this.messages.add(message);
+            }
+            this.messages.addFirst(message);
+        }
+        else
+        {
+            this.messages.add(message);
         }
     }
     
-    synchronized public Message getNextMessage()
+    synchronized public Message getMessage()
     {
-        if (this.message!=null)
+        if (this.messages.size()>0)
         {
-            return this.message;
+            return this.messages.remove();
         }
-
-        if (this.high.size()>0)
-        {
-            message=this.high.remove();
-        }
-        if (this.normal.size()>0)
-        {
-            message=this.normal.remove();
-        }
-        if (this.low.size()>0)
-        {
-            message=this.low.remove();
-        }
-        return message;
+        return null;
     }
     synchronized public void retireMessage()
     {

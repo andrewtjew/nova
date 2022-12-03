@@ -14,7 +14,7 @@ public class Switch extends FormCheck
       InputCheckbox checkbox=addInputCheckbox(null).checked(checked).name(name);
       this.inputs=new Inputs();
       this.inputs.add(checkbox);
-      String script=this.inputs.js_post(action,true);
+      String script=this.inputs.js_post(action);
       checkbox.onchange(script);
     }
     
