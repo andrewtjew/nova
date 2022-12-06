@@ -221,13 +221,11 @@ public interface Styling<ELEMENT>
         }
         return addClass("border",edge);
     }
-    public default ELEMENT border(boolean subtract)
+
+    public default ELEMENT border(int width)
     {
-        if (subtract)
-        {
-            return addClass("border",0);
-        }
-        return addClass("border");
+        addClass("border");
+        return addClass("border",width);
     }
     public default ELEMENT border(StyleColor color)
     {

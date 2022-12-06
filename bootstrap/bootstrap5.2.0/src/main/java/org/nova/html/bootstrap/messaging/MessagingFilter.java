@@ -5,7 +5,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
 
-public class PresentationFilter extends Filter
+public class MessagingFilter extends Filter
 {
 
     @Override

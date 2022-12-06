@@ -5,33 +5,27 @@ import org.nova.html.ext.Text;
 
 public class Message
 {
-    final private Level level;
     final private Presentation presentation;
     final private Element content;
     final private boolean highPriority;
     
-    public Message(boolean highPriority,Long expire,Level level,Presentation presentation,Element content)
+    public Message(boolean highPriority,Long expire,Presentation presentation,Element content)
     {
-        this.level=level;
         this.presentation=presentation;
         this.highPriority=highPriority;
         this.content=content;
     }
-    public Message(Level level,Presentation presentation,Element content)
+    public Message(Presentation presentation,Element content)
     {
-        this(false,null,Level.INFO,presentation,content);
+        this(false,null,presentation,content);
     }    
-    public Message(Level level,Presentation presentation,String text)
+    public Message(Presentation presentation,String text)
     {
-        this(level,presentation,new Text(text));
+        this(presentation,new Text(text));
     }    
     public boolean isHighPriority()
     {
         return this.highPriority;
-    }
-    public Level getLevel()
-    {
-        return level;
     }
 
     public Presentation getPresentation()
