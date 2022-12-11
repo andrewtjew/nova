@@ -10,7 +10,7 @@ public class QueryResultSet
     final QueryResult[] results;
     final Class<? extends GraphObject> one;
     
-    QueryResultSet(RowSet rowSet,Class<? extends GraphObject> one,Map<String,Meta> map)
+    QueryResultSet(RowSet rowSet,Class<? extends GraphObject> one,Map<String,GraphObjectDescriptor> map)
     {
         this.results=new QueryResult[rowSet.size()];
         for (int i=0;i<results.length;i++)

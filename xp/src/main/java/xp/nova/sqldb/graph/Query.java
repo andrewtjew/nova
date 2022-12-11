@@ -73,7 +73,7 @@ public class Query
     static class State
     {
         final Graph graph;
-        final HashMap<String,Meta> map;
+        final HashMap<String,GraphObjectDescriptor> map;
         final StringBuilder sources;
         final StringBuilder select;
         final ArrayList<Object> parameters;
@@ -81,7 +81,7 @@ public class Query
         public Class<? extends GraphObject> one;
         int aliasIndex=0;
         
-        public State(Graph graph,HashMap<String,Meta> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
+        public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
         {
             this.graph=graph;
             this.map=map;
@@ -146,16 +146,15 @@ public class Query
                 for (int i = 0; i < linkQuery.nodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
-                    Meta meta = state.graph.getMeta(type);
-                    state.map.put(namespace+meta.getTypeName(), meta);
-                    String typeName = meta.getTypeName();
-                    String table = meta.getTableName();
-                    String alias = meta.getTableAlias();
-                    state.sources.append(" JOIN " + table + "AS " + alias + on + alias + "._nodeId");
-                    for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    state.map.put(namespace+descriptor.getTypeName(), descriptor);
+                    String typeName = descriptor.getTypeName();
+                    String table = descriptor.getTableName();
+                    state.sources.append(" JOIN " + table + " " + on + table + "._nodeId");
+                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
-                        String tableColumnName = columnAccessor.getColumnName(alias);
+                        String tableColumnName = columnAccessor.getColumnName(table);
                         if (state.select.length()>0)
                         {
                             state.select.append(',');
@@ -182,13 +181,13 @@ public class Query
                 for (int i = 0; i < linkQuery.optionalNodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
-                    Meta meta = state.graph.getMeta(type);
-                    state.map.put(meta.getTypeName(linkQuery.namespace), meta);
-                    String typeName = meta.getTypeName();
-                    String table = meta.getTableName();
-                    String alias = meta.getTableAlias(linkQuery.namespace);
+                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    state.map.put(descriptor.getNamespaceTypeName(linkQuery.namespace), descriptor);
+                    String typeName = descriptor.getTypeName();
+                    String table = descriptor.getTableName();
+                    String alias = descriptor.getTableAlias(linkQuery.namespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
-                    for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -211,7 +210,7 @@ public class Query
         String sql;
         String start;
         Object[] parameters;
-        HashMap<String,Meta> map;
+        HashMap<String,GraphObjectDescriptor> map;
         String orderBy; 
     }
     
@@ -224,7 +223,7 @@ public class Query
             return this.preparedQuery;
         }
         PreparedQuery preparedQuery=new PreparedQuery();
-        preparedQuery.map=new HashMap<String, Meta>();
+        preparedQuery.map=new HashMap<String, GraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
 
@@ -248,38 +247,22 @@ public class Query
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
-                Meta meta = graph.getMeta(type);
-                preparedQuery.map.put(meta.getTypeName(), meta);
-                String typeName = meta.getTypeName();
-                String table = meta.getTableName();
-                String alias = meta.getTableAlias();
-//                if (sources.length()==0)
-//                {
-//                    sources.append(" "+table);
-//                    if (this.expression==null)
-//                    {
-//                        preparedQuery.start=" WHERE "+table+"._nodeId=";
-//                    }
-//                    else
-//                    {
-//                        preparedQuery.start=" AND "+table+"._nodeId=";
-//                    }
-//
-//                    on=" ON "+table+"._nodeId=";
-//                }
-//                else
+                GraphObjectDescriptor descriptor = graph.register(type);
+                preparedQuery.map.put(descriptor.getTypeName(), descriptor);
+                String typeName = descriptor.getTypeName();
+                String table = descriptor.getTableName();
                 {
-                    sources.append(" JOIN " + table + " AS " + alias + on + alias + "._nodeId");
+                    sources.append(" JOIN " + table + " AS " + table + on + table + "._nodeId");
                 }
-                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
-                    String tableColumnName = columnAccessor.getColumnName(alias);
+//                    String tableColumnName = columnAccessor.getColumnName(alias);
                     if (select.length()>0)
                     {
                         select.append(',');
                     }
-                    select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
+                    select.append(fieldColumnName + " AS '" + fieldColumnName + '\'');
                 }
             }
         }
@@ -301,21 +284,19 @@ public class Query
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
             {
                 Class<? extends NodeObject> type = this.optionalNodeTypes[i];
-                Meta meta = graph.getMeta(type);
-                preparedQuery.map.put(meta.getTypeName(), meta);
-                String typeName = meta.getTypeName();
-                String table = meta.getTableName();
-                String alias = meta.getTableAlias();
-                sources.append(" LEFT JOIN " + table + " AS " + alias + on + alias + "._nodeId");
-                for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+                GraphObjectDescriptor descriptor = graph.register(type);
+                preparedQuery.map.put(descriptor.getTypeName(), descriptor);
+                String typeName = descriptor.getTypeName();
+                String table = descriptor.getTableName();
+                sources.append(" LEFT JOIN " + table + " " + on + table + "._nodeId");
+                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
-                    String tableColumnName = columnAccessor.getColumnName(alias);
                     if (select.length()>0)
                     {
                         select.append(',');
                     }
-                    select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
+                    select.append(fieldColumnName + " AS '" + fieldColumnName + '\'');
                 }
             }
         }

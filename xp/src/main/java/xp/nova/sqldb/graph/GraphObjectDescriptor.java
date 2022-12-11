@@ -3,44 +3,48 @@ package xp.nova.sqldb.graph;
 import java.util.Arrays;
 import java.util.Comparator;
 
-class Meta
+public class GraphObjectDescriptor
 {
-    final ColumnAccessor[] columnAccessors;
+    final FieldDescriptor[] columnAccessors;
     final private GraphObjectType entityType;
-    final private String tableAlias;
     final private String tableName;
     final private String typeName;
     final private Class<? extends GraphObject> type;
-    Meta(String typeName,Class<? extends GraphObject> type,GraphObjectType entityType,ColumnAccessor[] columnnAccessors)
+    
+    GraphObjectDescriptor(String typeName,Class<? extends GraphObject> type,GraphObjectType entityType,FieldDescriptor[] columnnAccessors)
     {
         this.type=type;
         this.entityType=entityType;
         
-        Arrays.sort(columnnAccessors,new Comparator<ColumnAccessor>()
+        Arrays.sort(columnnAccessors,new Comparator<FieldDescriptor>()
         {
             @Override
-            public int compare(ColumnAccessor o1, ColumnAccessor o2)
+            public int compare(FieldDescriptor o1, FieldDescriptor o2)
             {
                 return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
             }
         });
         this.columnAccessors=columnnAccessors;
         this.typeName=typeName;
-        this.tableAlias='`'+typeName+'`';
+//        this.tableAlias='`'+typeName+'`';
         this.tableName='`'+typeName+'`';
     }
 
-    Class<? extends GraphObject> getType()
+    public Class<? extends GraphObject> getType()
     {
         return this.type;
     }
-    String getTableAlias()
+    public FieldDescriptor[] getColumnAccessors()
     {
-        return this.tableAlias;
+        return this.columnAccessors;
     }
+//    String getTableAlias()
+//    {
+//        return this.tableAlias;
+//    }
     String getTableAlias(String namespace)
     {
-        return '`'+getTypeName(namespace)+'`';
+        return '`'+getNamespaceTypeName(namespace)+'`';
     }
     String getTableName()
     {
@@ -50,15 +54,11 @@ class Meta
     {
         return this.entityType;
     }
-    ColumnAccessor[] getColumnAccessors()
-    {
-        return this.columnAccessors;
-    }
     String getTypeName()
     {
         return this.typeName;
     }
-    String getTypeName(String namespace)
+    String getNamespaceTypeName(String namespace)
     {
         if (namespace!=null)
         {

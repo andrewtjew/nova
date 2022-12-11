@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import org.nova.sqldb.Accessor;
@@ -24,12 +25,12 @@ public class Graph
     
     private int defaultVARCHARLength=45;
     
-    ColumnAccessor getColumnAccessor(Field field) throws Exception
+    FieldDescriptor getColumnAccessor(Field field) throws Exception
     {
-        ColumnAccessor accessor=null;
-        synchronized(COLUMN_ACCESSOR_MAP)
+        FieldDescriptor accessor=null;
+        synchronized(columnAccessorMap)
         {
-            accessor=COLUMN_ACCESSOR_MAP.get(field.getName());
+            accessor=columnAccessorMap.get(field.getName());
         }
         if (accessor!=null)
         {
@@ -259,7 +260,7 @@ public class Graph
         }
         else if (type == LocalTime.class)
         {
-            accessor=new ColumnAccessor(field)
+            accessor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -291,7 +292,7 @@ public class Graph
         }
         else if (type == LocalDate.class)
         {
-            accessor=new ColumnAccessor(field)
+            accessor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -323,7 +324,7 @@ public class Graph
         }
         else if (type == LocalDateTime.class)
         {
-            accessor=new ColumnAccessor(field)
+            accessor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -455,7 +456,7 @@ public class Graph
             {
                 if (ShortEnummerable.class==interfaceType)
                 {
-                    accessor=new ColumnAccessor(field)
+                    accessor=new FieldDescriptor(field)
                     {
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
@@ -497,7 +498,7 @@ public class Graph
                 }
                 else if (IntegerEnummerable.class==interfaceType)
                 {
-                    accessor=new ColumnAccessor(field)
+                    accessor=new FieldDescriptor(field)
                     {
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
@@ -565,9 +566,9 @@ public class Graph
         {
             throw new Exception();
         }
-        synchronized(COLUMN_ACCESSOR_MAP)
+        synchronized(columnAccessorMap)
         {
-            COLUMN_ACCESSOR_MAP.put(type.getName(), accessor);
+            columnAccessorMap.put(type.getName(), accessor);
         }
         return accessor;
     }
@@ -576,18 +577,20 @@ public class Graph
     {
         return this.connector;
     }
+
     
-    Meta getMeta(Class<? extends GraphObject> type) throws Exception
+    
+    protected GraphObjectDescriptor register(Class<? extends GraphObject> type) throws Exception
     {
-        Meta meta=null;
-        String typeName=type.getSimpleName();
-        synchronized (ENTITY_META_MAP)
+        GraphObjectDescriptor descriptor=null;
+        String simpleTypeName=type.getSimpleName();
+        synchronized (descriptorMap)
         {
-            meta= ENTITY_META_MAP.get(typeName);
+            descriptor= descriptorMap.get(simpleTypeName);
         }
-        if (meta==null)
+        if (descriptor==null)
         {
-            HashMap<String, ColumnAccessor> map = new HashMap<String, ColumnAccessor>();
+            HashMap<String, FieldDescriptor> map = new HashMap<String, FieldDescriptor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
             {
                 for (Field field : c.getDeclaredFields())
@@ -611,7 +614,7 @@ public class Graph
                         {
                             continue;
                         }
-                        ColumnAccessor accessor=getColumnAccessor(field);
+                        FieldDescriptor accessor=getColumnAccessor(field);
                         map.put(field.getName(), accessor);
                     }
                 }
@@ -619,34 +622,38 @@ public class Graph
             GraphObjectType objectType;
             if (type.getSuperclass()==NodeObject.class)
             {
-                objectType=GraphObjectType.NODE_OBJECT;
+                objectType=GraphObjectType.NODE;
             }
             else if (type.getSuperclass()==LinkObject.class)
             {
-                objectType=GraphObjectType.LINK_OBJECT;
+                objectType=GraphObjectType.LINK;
             }
             else
             {
-                throw new Exception(type.getName()+" needs extend from a subclass of GraphObject.");
+                throw new Exception(type.getName()+" needs to extend from a subclass of GraphObject.");
             }
             
-            meta = new Meta(typeName,type,objectType,map.values().toArray(new ColumnAccessor[map.size()]));
-            synchronized (ENTITY_META_MAP)
+            descriptor = new GraphObjectDescriptor(simpleTypeName,type,objectType,map.values().toArray(new FieldDescriptor[map.size()]));
+            synchronized (descriptorMap)
             {
-                ENTITY_META_MAP.put(type.getName(), meta);
+                descriptorMap.put(simpleTypeName, descriptor);
             }
         }
-        return meta;
+        return descriptor;
     }
     
-    final private HashMap<String,Meta> ENTITY_META_MAP=new HashMap<String, Meta>();
-    final private HashMap<String, ColumnAccessor> COLUMN_ACCESSOR_MAP=new HashMap<>();
+    final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
+    final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
-//    final private HashMap<String,Class<? extends Relation>> relationTypes=new HashMap<String, Class<? extends Relation>>();
     
     public Graph(Connector connector)
     {
         this.connector=connector;
+    }
+    
+    public Map<String,GraphObjectDescriptor> getGraphObjectDescriptorMap()
+    {
+        return this.descriptorMap;
     }
     
     public GraphAccessor openGraphAcessor(Trace parent,String catalog) throws Throwable
@@ -654,22 +661,18 @@ public class Graph
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
     }
     
-//    public void createRelation(Class<? extends Relation> type)
-//    {
-//        this.relationTypes.put(type.getSimpleName(), type);
-//    }
 
     public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
     {
         String table=type.getSimpleName();
-        Meta meta=this.getMeta(type);
+        GraphObjectDescriptor descriptor=this.register(type);
         
         Accessor accessor=graphAccessor.accessor;
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
             sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
-            for (ColumnAccessor columnAccessor:meta.columnAccessors)
+            for (FieldDescriptor columnAccessor:descriptor.columnAccessors)
             {
                 if (columnAccessor.isGraphfield())
                 {
@@ -702,9 +705,9 @@ public class Graph
             }
             int rowIndex=2;
             int fieldIndex=0;
-            while (fieldIndex<meta.columnAccessors.length)
+            while (fieldIndex<descriptor.columnAccessors.length)
             {
-                ColumnAccessor columnAccessor=meta.columnAccessors[fieldIndex];
+                FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
                 if (columnAccessor.isGraphfield())
                 {
                     fieldIndex++;
@@ -768,7 +771,7 @@ public class Graph
             }
             if (alter.size()>0)
             {
-                StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+meta.getTableName());
+                StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+descriptor.getTableName());
                 sql.append(alter.pop());
                 while (alter.size()>0)
                 {

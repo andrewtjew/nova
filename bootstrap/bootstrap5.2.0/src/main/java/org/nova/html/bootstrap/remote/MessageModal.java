@@ -49,9 +49,7 @@ public class MessageModal extends ModalDocument
     public String js_show(String header,String body)
     {
         body=StringEscapeUtils.escapeHtml4(body);
-//        body=StringEscapeUtils.escapeHtml4(body);
         header=StringEscapeUtils.escapeHtml4(header);
-//        header=StringEscapeUtils.escapeHtml4(header);
         return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),null);
      }
 }

@@ -94,9 +94,9 @@ public class GraphTransaction implements AutoCloseable
     {
         object._nodeId=nodeId;
         Class<? extends NodeObject> type=object.getClass();
-        Meta meta=this.graph.getMeta(type);
+        GraphObjectDescriptor meta=this.graph.register(type);
         String table=meta.getTableName();
-        ColumnAccessor[] columnAccessors=meta.getColumnAccessors();
+        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
 
         StringBuilder insert=new StringBuilder();
         StringBuilder update=new StringBuilder();
@@ -113,7 +113,7 @@ public class GraphTransaction implements AutoCloseable
         values.append("?,?");
         update.append("_eventId=?");
         
-        for (ColumnAccessor columnAccessor:columnAccessors)
+        for (FieldDescriptor columnAccessor:columnAccessors)
         {
             if (columnAccessor.isGraphfield())
             {

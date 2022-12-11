@@ -4,15 +4,15 @@ import java.lang.reflect.Field;
 
 import org.nova.sqldb.Row;
 
-abstract class ColumnAccessor
+abstract public class FieldDescriptor
 {
     final Field field;
     final boolean graphField;
     
-    public ColumnAccessor(Field field)
+    public FieldDescriptor(Field field)
     {
         this.field = field;
-        this.graphField=field.getAnnotation(GraphField.class)!=null;
+        this.graphField=field.getAnnotation(InternalField.class)!=null;
     }
     
     public abstract void set(Object object,String typeName,Row row) throws Throwable;        
@@ -32,6 +32,10 @@ abstract class ColumnAccessor
     public String getName()
     {
         return this.field.getName();
+    }
+    public Field getField()
+    {
+        return this.field;
     }
     
     protected String getColumnName(String typeName)

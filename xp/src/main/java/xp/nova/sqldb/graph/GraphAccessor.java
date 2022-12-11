@@ -34,8 +34,9 @@ public class GraphAccessor implements AutoCloseable
     
     public long getCount(Trace parent,Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
     {
-        Meta meta=this.graph.getMeta(type);
-        String table=meta.getTableName();
+//        GraphObjectDescriptor descriptor=this.graph.register(type);
+        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptorMap().get(type.getSimpleName());
+        String table=descriptor.getTableName();
         return accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
     }
     
@@ -111,6 +112,10 @@ public class GraphAccessor implements AutoCloseable
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
     {
         return execute(parent,parameters,null,null,query);
+    }
+    public Accessor getAccessor()
+    {
+        return this.accessor;
     }
     
 }

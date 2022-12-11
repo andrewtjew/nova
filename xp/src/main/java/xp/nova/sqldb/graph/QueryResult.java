@@ -7,9 +7,9 @@ import org.nova.sqldb.Row;
 public class QueryResult
 {
     final private Row row;
-    final Map<String,Meta> map;
+    final Map<String,GraphObjectDescriptor> map;
     
-    QueryResult(Row row,Map<String,Meta> map)
+    QueryResult(Row row,Map<String,GraphObjectDescriptor> map)
     {
         this.map=map;
         this.row=row;
@@ -18,7 +18,7 @@ public class QueryResult
     public <OBJECT extends GraphObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
     {
         String typeName=namespace!=null?namespace+"."+type.getSimpleName():type.getSimpleName();
-        Meta meta=this.map.get(typeName);
+        GraphObjectDescriptor meta=this.map.get(typeName);
         if (meta==null)
         {
             return null;
@@ -30,7 +30,7 @@ public class QueryResult
             return null;
         }
         NodeObject nodeObject = (NodeObject) type.newInstance();
-        for (ColumnAccessor columnAccessor : meta.getColumnAccessors())
+        for (FieldDescriptor columnAccessor : meta.getColumnAccessors())
         {
             columnAccessor.set(nodeObject, typeName, row);
         }

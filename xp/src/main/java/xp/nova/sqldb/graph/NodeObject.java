@@ -2,7 +2,7 @@ package xp.nova.sqldb.graph;
 
 public class NodeObject extends GraphObject
 {
-    @GraphField
+    @InternalField
     protected Long _nodeId;
     public Long getNodeId()
     {

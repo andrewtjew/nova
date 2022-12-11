@@ -14,11 +14,9 @@ import org.nova.html.remote.Inputs;
 public class ProceedModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;
-//    final private ButtonComponent<?> cancelButton;
     public ProceedModal(String title,String message,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
     {
         this.proceedButton=proceedButton;
-  //      this.cancelButton=cancelButton;
         this.id();
         this.proceedButton.id();
         this.header().id();
@@ -63,9 +61,7 @@ public class ProceedModal extends ModalDocument
     public String js_showAndOnProceed(String header,String body,String script)
     {
         body=StringEscapeUtils.escapeHtml4(body);
-//        body=StringEscapeUtils.escapeHtml4(body);
         header=StringEscapeUtils.escapeHtml4(header); 
-//        header=StringEscapeUtils.escapeHtml4(header);
         return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),script);
     }
 
