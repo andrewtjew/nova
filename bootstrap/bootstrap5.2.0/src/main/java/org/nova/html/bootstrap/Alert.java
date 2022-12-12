@@ -34,7 +34,7 @@ public class Alert extends StyleComponent<Alert>
     public Alert dismissible()
     {
         addClass("alert-dismissible");
-        addInner(new button_button().addClass("close").attr("data-dismiss","alert").addInner("&times;"));
+        addInner(new button_button().addClass("btn-close").attr("data-bs-dismiss","alert"));
         return this;
     }
     public Alert color(StyleColor value)

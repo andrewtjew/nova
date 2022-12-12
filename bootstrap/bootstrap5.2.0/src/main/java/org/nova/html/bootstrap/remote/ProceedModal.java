@@ -54,6 +54,10 @@ public class ProceedModal extends ModalDocument
     {
         proceedButton.onclick(inputs.js_post(action));
     }
+    public void onProceed(Inputs inputs) throws Throwable
+    {
+        proceedButton.onclick(inputs.js_post());
+    }
     public String js_showAndOnProceed(String script) throws Throwable
     {
         return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),null,null,null,null,this.proceedButton.id(),script);
