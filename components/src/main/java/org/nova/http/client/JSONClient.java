@@ -32,8 +32,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.RequestContent;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.concurrent.TimeBase;
 import org.nova.concurrent.TimerScheduler;
@@ -175,6 +177,21 @@ public class JSONClient
         return get(parent,traceCategoryOverride,pathAndQuery,responseContentType,null);
     }
     */	
+    private String processResponse(HttpResponse response,DisruptorTraceContext context) throws Throwable
+    {
+        context.addLogItem(new Item("statusCode",response.getStatusLine().getStatusCode()));
+        for (org.apache.http.Header header:response.getAllHeaders())
+        {
+            context.addLogItem(new Item("responseHeader:"+header.getName(),header.getValue()));
+        }
+        String responseContent=FileUtils.readString(response.getEntity().getContent());
+        if (responseContent.length()>0)
+        {
+            context.addLogItem(new Item("response",responseContent));
+        }
+        return responseContent;
+    }
+    
     private <TYPE> JSONResponse<TYPE> processResponse(HttpResponse response,DisruptorTraceContext context,Class<TYPE> responseContentType) throws Throwable
     {
        String json=processResponse(response, context);
@@ -183,7 +200,6 @@ public class JSONClient
        {
            return new JSONResponse<TYPE>(statusCode, null,response);
        }
-       System.out.println(json);
        return new JSONResponse<TYPE>(statusCode,ObjectMapper.readObject(json, responseContentType),response);
     }
     
@@ -209,17 +225,7 @@ public class JSONClient
             get.setHeader("Accept",this.contentType);
             logHeaders(context,get.getAllHeaders());
 
-            context.beginWait();
-            HttpResponse response=this.client.execute(get);
-            context.endWait();
-            try
-            {
-                return processResponse(response, context,responseContentType);
-            }
-            finally
-            {
-                response.getEntity().getContent().close();
-            }
+            return executeAndProcess(context,get,responseContentType);
         }
     }
 	
@@ -252,18 +258,7 @@ public class JSONClient
                 get.setHeader("Accept",this.contentType);
                 logHeaders(context,get.getAllHeaders());
     
-                context.beginWait();
-                HttpResponse response=this.client.execute(get);
-                context.endWait();
-                try
-                {
-                    processResponse(response, context);
-                    return response.getStatusLine().getStatusCode();
-                }
-                finally
-                {
-                    response.getEntity().getContent().close();
-                }
+                return executeAndProcess(context,get).getStatusLine().getStatusCode();
             }       
             catch (Throwable t)
             {
@@ -271,6 +266,55 @@ public class JSONClient
             }
         }
     }
+    
+        
+    private <TYPE> JSONResponse<TYPE>  executeAndProcess(DisruptorTraceContext context,HttpUriRequest request,Class<TYPE> responseContentType) throws Throwable
+    {
+        HttpResponse response=execute(context, request);
+        try
+        {
+            return processResponse(response, context,responseContentType);
+        }
+        finally
+        {
+            response.getEntity().getContent().close();
+        }
+    }
+    
+    private HttpResponse executeAndProcess(DisruptorTraceContext context,HttpUriRequest request) throws Throwable
+    {
+        HttpResponse response=execute(context, request);
+        try
+        {
+            processResponse(response, context);
+            return response;
+        }
+        finally
+        {
+            response.getEntity().getContent().close();
+        }
+        
+    }
+    private HttpResponse execute(DisruptorTraceContext context,HttpUriRequest request) throws Throwable
+    {
+        context.beginWait();
+        try
+        {
+            try
+            {
+                return this.client.execute(request);
+            }
+            finally
+            {
+                context.endWait();
+            }
+        }
+        catch (Throwable t)
+        {
+            throw new Exception("Execute failed: endPoint="+this.endPoint+", request="+request.getMethod()+" "+request.getURI(),t);
+        }
+    }
+    
     public int delete(Trace parent,String traceCategoryOverride,String pathAndQuery) throws Throwable
     {
         return delete(parent,traceCategoryOverride,pathAndQuery,new Header[0]);
@@ -298,18 +342,7 @@ public class JSONClient
                 }
                 logHeaders(context,delete.getAllHeaders());
                 
-                context.beginWait();
-                HttpResponse response=this.client.execute(delete);
-                context.endWait();
-    			try
-    			{
-    			    processResponse(response, context);
-    				return response.getStatusLine().getStatusCode();
-    			}
-    			finally
-    			{
-    				response.getEntity().getContent().close();
-    			}
+                return executeAndProcess(context,delete).getStatusLine().getStatusCode();
     		}		
             catch (Throwable t)
             {
@@ -352,19 +385,8 @@ public class JSONClient
                 put.setHeader("Accept",this.contentType);
                 put.setHeader("Content-Type",this.contentType);
                 logHeaders(context,put.getAllHeaders());
-    
-                context.beginWait();
-                HttpResponse response=this.client.execute(put);
-                context.endWait();
-    			try
-    			{
-                    processResponse(response, context);
-                    return response.getStatusLine().getStatusCode();
-    			}
-    			finally
-    			{
-    				response.getEntity().getContent().close();
-    			}
+
+                return executeAndProcess(context,put).getStatusLine().getStatusCode();
     		}		
             catch (Throwable t)
             {
@@ -408,19 +430,7 @@ public class JSONClient
             patch.setHeader("Content-Type",this.patchType);
             logHeaders(context,patch.getAllHeaders());
             
-            context.beginWait();
-            HttpResponse response=this.client.execute(patch);
-            context.endWait();
-            try
-            {
-                processResponse(response, context);
-                int statusCode=response.getStatusLine().getStatusCode();
-                return statusCode;
-            }
-            finally
-            {
-                response.getEntity().getContent().close();
-            }
+            return executeAndProcess(context,patch).getStatusLine().getStatusCode();
         }
 	}
 	public <TYPE> JSONResponse<TYPE> postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object content,Class<TYPE> responseContentType,Header...headers) throws Throwable
@@ -452,17 +462,8 @@ public class JSONClient
 			post.setHeader("Accept",this.contentType);
 			post.setHeader("Content-Type",this.contentType);
             logHeaders(context,post.getAllHeaders());
-            context.beginWait();
-			HttpResponse response=this.client.execute(post);
-			context.endWait();
-			try
-			{
-                return processResponse(response,context,responseContentType);
-			}
-			finally
-			{
-	            response.getEntity().getContent().close();
-			}
+
+            return executeAndProcess(context,post,responseContentType);
         }
 	}
     public <TYPE> JSONResponse<TYPE> postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object content,Class<TYPE> responseContentType) throws Throwable
@@ -510,37 +511,11 @@ public class JSONClient
             post.setHeader("Accept",this.contentType);
             post.setHeader("Content-Type",this.contentType);
             logHeaders(context,post.getAllHeaders());
-            context.beginWait();
-            HttpResponse response=this.client.execute(post);
-            context.endWait();
-            try
-            {
-                processResponse(response,context);
-                return response.getStatusLine().getStatusCode();
-            }
-            finally
-            {
-                response.getEntity().getContent().close();
-            }
+
+            return executeAndProcess(context,post).getStatusLine().getStatusCode();
         }
     }
     
-	private String processResponse(HttpResponse response,DisruptorTraceContext context) throws Throwable
-	{
-        context.addLogItem(new Item("statusCode",response.getStatusLine().getStatusCode()));
-        for (org.apache.http.Header header:response.getAllHeaders())
-        {
-            context.addLogItem(new Item("responseHeader:"+header.getName(),header.getValue()));
-        }
-        String responseContent=FileUtils.readString(response.getEntity().getContent());
-//        System.out.println(responseContent);
-        if (responseContent.length()>0)
-        {
-            context.addLogItem(new Item("response",responseContent));
-        }
-        return responseContent;
-	}
-	
 	public String getEndPoint()
 	{
 	    return this.endPoint;
@@ -585,9 +560,7 @@ public class JSONClient
             get.setHeader("Accept",this.contentType);
             logHeaders(context,get.getAllHeaders());
 
-            context.beginWait();
-            HttpResponse response=this.client.execute(get);
-            context.endWait();
+            HttpResponse response=executeAndProcess(context,get);
             try
             {
                 IOUtils.copy(response.getEntity().getContent(), outputStream);
@@ -603,7 +576,7 @@ public class JSONClient
     }
 	
 	
-    public TextResponse getText(Trace parent,String traceCategoryOverride,String pathAndQuery,Header...headers) throws Exception
+    public TextResponse getText(Trace parent,String traceCategoryOverride,String pathAndQuery,Header...headers) throws Throwable
     {
         try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
         {
@@ -619,7 +592,9 @@ public class JSONClient
             {
                 get.setHeader(header.getName(),header.getValue());
             }
-            HttpResponse response=this.client.execute(get);
+            HttpResponse response=execute(context,get);
+            
+            
             try
             {
                 int statusCode=response.getStatusLine().getStatusCode();
@@ -640,7 +615,7 @@ public class JSONClient
         }       
     }
     
-    public TextResponse postText(Trace parent,String traceCategoryOverride,String pathAndQuery,String content,Header...headers) throws Exception
+    public TextResponse postText(Trace parent,String traceCategoryOverride,String pathAndQuery,String content,Header...headers) throws Throwable
     {
         try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
         {
@@ -661,7 +636,7 @@ public class JSONClient
             {
                 post.setHeader(header.getName(),header.getValue());
             }
-            HttpResponse response=this.client.execute(post);
+            HttpResponse response=execute(context,post);
             try
             {
                 int statusCode=response.getStatusLine().getStatusCode();
@@ -680,7 +655,7 @@ public class JSONClient
         }       
     }
 
-    public BinaryResponse getBinary(Trace parent,String traceCategoryOverride,String pathAndQuery,Header...headers) throws Exception
+    public BinaryResponse getBinary(Trace parent,String traceCategoryOverride,String pathAndQuery,Header...headers) throws Throwable
     {
         try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
         {
@@ -696,7 +671,7 @@ public class JSONClient
             {
                 get.setHeader(header.getName(),header.getValue());
             }
-            HttpResponse response=this.client.execute(get);
+            HttpResponse response=execute(context,get);
             try
             {
                 int statusCode=response.getStatusLine().getStatusCode();
@@ -726,7 +701,7 @@ public class JSONClient
         }       
     }
     
-    public BinaryResponse postBinary(Trace parent,String traceCategoryOverride,String pathAndQuery,String content,Header...headers) throws Exception
+    public BinaryResponse postBinary(Trace parent,String traceCategoryOverride,String pathAndQuery,String content,Header...headers) throws Throwable
     {
         try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
         {
@@ -747,7 +722,7 @@ public class JSONClient
             {
                 post.setHeader(header.getName(),header.getValue());
             }
-            HttpResponse response=this.client.execute(post);
+            HttpResponse response=execute(context,post);
             try
             {
                 int statusCode=response.getStatusLine().getStatusCode();
@@ -812,9 +787,7 @@ public class JSONClient
             }
             logHeaders(context,get.getAllHeaders());
 
-            context.beginWait();
-            HttpResponse response=this.client.execute(get);
-            context.endWait();
+            HttpResponse response=execute(context,get);
             try
             {
                 IOUtils.copy(response.getEntity().getContent(), outputStream);
