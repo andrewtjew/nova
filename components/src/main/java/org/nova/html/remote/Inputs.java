@@ -128,6 +128,18 @@ public class Inputs
     {
         return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),this.trace);
     }
+    
+    public void setFormSubmit() throws Throwable
+    {
+        if (this.form.method()==method.get)
+        {
+            this.form.onsubmit(js_get()+";return false;");
+        }
+        else if (this.form.method()==method.post)
+        {
+            this.form.onsubmit(js_post()+";return false;");
+        }
+    }
 
 //    public String escapeString(String string)
 //    {

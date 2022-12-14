@@ -211,7 +211,8 @@ public class Query
         String start;
         Object[] parameters;
         HashMap<String,GraphObjectDescriptor> map;
-        String orderBy; 
+        String orderBy;
+        String countSql;
     }
     
     PreparedQuery preparedQuery=null;
@@ -257,7 +258,6 @@ public class Query
                 for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
-//                    String tableColumnName = columnAccessor.getColumnName(alias);
                     if (select.length()>0)
                     {
                         select.append(',');
@@ -266,19 +266,6 @@ public class Query
                 }
             }
         }
-//        if (on==null)
-//        {
-//            if (this.expression==null)
-//            {
-//                preparedQuery.start=" WHERE _node.id=";
-//            }
-//            else
-//            {
-//                preparedQuery.start=" AND _node.id=";
-//            }
-//            on=" ON _node.id=";
-//            sources.append(" _node");
-//        }
         if (this.optionalNodeTypes != null)
         {
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
@@ -306,6 +293,7 @@ public class Query
         state.one=this.one;
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
+        preparedQuery.countSql="SELECT count(*) FROM" + sources;
 
         if (this.expression!=null)
         {

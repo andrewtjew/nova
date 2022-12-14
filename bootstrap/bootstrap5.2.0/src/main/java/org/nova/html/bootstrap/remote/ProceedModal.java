@@ -14,10 +14,17 @@ import org.nova.html.remote.Inputs;
 public class ProceedModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;
-    public ProceedModal(String title,String message,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
+    public ProceedModal(String id,String title,String message,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
     {
         this.proceedButton=proceedButton;
-        this.id();
+        if (id!=null)
+        {
+            this.id(id);
+        }
+        else
+        {
+            this.id();
+        }
         this.proceedButton.id();
         this.header().id();
         this.body().id();
@@ -30,25 +37,37 @@ public class ProceedModal extends ModalDocument
 
     }
 
-    public ProceedModal(String title,String message,String cancel,String proceed) throws Throwable
+    public ProceedModal(String id,String title,String message,String cancel,String proceed) throws Throwable
     {
-        this(
+        this(id,
                 title,message
                 ,new Button(cancel).color(StyleColor.warning).w(25)
                 ,new SpinnerButton(proceed).color(StyleColor.success).w(25)
                 );
     }
+    public ProceedModal(String title,String message,String cancel,String proceed) throws Throwable
+    {
+        this(null,title,message,cancel,proceed);
+    }
+    public ProceedModal(String id,String title,String message) throws Throwable
+    {
+        this(id,title,message,"Cancel","Proceed");
+    }
     public ProceedModal(String title,String message) throws Throwable
     {
-        this(title,message,"Cancel","Proceed");
+        this(null,title,message,"Cancel","Proceed");
     }
     public ProceedModal() throws Throwable
     {
         this(null,null,"Cancel","Proceed");
     }
-    public ProceedModal(ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
+//    public ProceedModal(ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
+//    {
+//        this(null,null,null,cancelButton,proceedButton);
+//    }
+    public void onProceed(String script)
     {
-        this(null,null,cancelButton,proceedButton);
+        proceedButton.onclick(script);
     }
     public void onProceed(Inputs inputs,String action) throws Throwable
     {
