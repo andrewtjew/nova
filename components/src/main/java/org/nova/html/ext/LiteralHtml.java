@@ -24,6 +24,7 @@ package org.nova.html.ext;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
+//The literal html text is added. No translations, eg tags in text appear as html elements 
 public class LiteralHtml extends Element
 {
     final private String html;

@@ -30,10 +30,9 @@ public class NavbarList extends StyleComponent<NavbarList>
         super("ul",null);
         addClass("navbar-nav");
     }
-    public NavbarList addItem(Element element)
+    public NavItem addItem(Element element)
     {
-        returnAddInner(new NavItem()).addInner(element);
-        return this;
+        return returnAddInner(new NavItem()).addInner(element);
     }
 
     public NavbarList tabs()
