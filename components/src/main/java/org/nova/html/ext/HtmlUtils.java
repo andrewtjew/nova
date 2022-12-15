@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+
+import org.eclipse.jetty.server.Request;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
@@ -37,6 +43,11 @@ import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;
+import org.nova.tracing.Trace;
+import org.nova.utils.FileUtils;
+
+import com.mira.data.FileLocation;
+import com.mira.platform.UserSession;
 
 public class HtmlUtils
 {
@@ -729,6 +740,19 @@ public class HtmlUtils
         return "var c=document.getElementById('"+toggler.id()+"').checked;var t=document.getElementById('"+target.id()+"');t.disabled=!c;if (c==true) {t.classList.remove('disabled');} else {t.classList.add('disabled');}";
     }
 
+    public static void writeUploadedFile(Trace parent,Context context,String directory,String overrideFileName) throws Throwable
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+        Part part=request.getPart("file");
+        if (overrideFileName==null)
+        {
+            overrideFileName=part.getSubmittedFileName();
+        }
+        part.write(overrideFileName);
+    }
+    
+    
     /*
     public static String disableSubmitFunction()
     {
