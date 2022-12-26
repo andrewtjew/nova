@@ -7,12 +7,14 @@ import org.nova.sqldb.Row;
 abstract public class FieldDescriptor
 {
     final Field field;
-    final boolean graphField;
+    final boolean internal;
+    final boolean identity;
     
     public FieldDescriptor(Field field)
     {
         this.field = field;
-        this.graphField=field.getAnnotation(InternalField.class)!=null;
+        this.internal=field.getAnnotation(Internal.class)!=null;
+        this.identity=field.getAnnotation(Identity.class)!=null;
     }
     
     public abstract void set(Object object,String typeName,Row row) throws Throwable;        
@@ -20,10 +22,11 @@ abstract public class FieldDescriptor
     {
         this.field.set(object, value);
     }
-    public boolean isGraphfield()
+    public boolean isInternal()
     {
-        return this.graphField;
+        return this.internal;
     }
+    
 
     public abstract Object get(Object object) throws Throwable;
     public abstract String getSqlType() throws Throwable;

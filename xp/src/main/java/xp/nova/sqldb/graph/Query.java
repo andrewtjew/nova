@@ -30,6 +30,18 @@ public class Query
         this.orderBy=orderBy;
         return this;
     }
+    public Query orderBy(String orderBy,boolean descending)
+    {
+        if (descending)
+        {
+            this.orderBy=orderBy+" DESC";
+        }
+        else
+        {
+            this.orderBy=orderBy;
+        }
+        return this;
+    }
 
     public Query where(String expression, Object... parameters)
     {

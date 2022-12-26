@@ -642,6 +642,13 @@ public class Graph
         return descriptor;
     }
     
+    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends GraphObject> type) throws Exception
+    {
+        String simpleTypeName=type.getSimpleName();
+        return descriptorMap.get(simpleTypeName);
+    }
+    
+    
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
@@ -674,7 +681,7 @@ public class Graph
             sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
             for (FieldDescriptor columnAccessor:descriptor.columnAccessors)
             {
-                if (columnAccessor.isGraphfield())
+                if (columnAccessor.isInternal())
                 {
                     continue;
                 }
@@ -708,7 +715,7 @@ public class Graph
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
-                if (columnAccessor.isGraphfield())
+                if (columnAccessor.isInternal())
                 {
                     fieldIndex++;
                     continue;

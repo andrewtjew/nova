@@ -46,9 +46,6 @@ import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
-import com.mira.data.FileLocation;
-import com.mira.platform.UserSession;
-
 public class HtmlUtils
 {
     @Deprecated

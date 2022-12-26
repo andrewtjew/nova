@@ -115,7 +115,7 @@ public class GraphTransaction implements AutoCloseable
         
         for (FieldDescriptor columnAccessor:columnAccessors)
         {
-            if (columnAccessor.isGraphfield())
+            if (columnAccessor.isInternal())
             {
                 continue;
             }
@@ -137,6 +137,50 @@ public class GraphTransaction implements AutoCloseable
         accessor.executeUpdate(parent,null,sql,parameters);
     }
 
+    public void update(NodeObject object) throws Throwable
+    {
+        Class<? extends NodeObject> type=object.getClass();
+        GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
+        String table=meta.getTableName();
+        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
+
+        StringBuilder insert=new StringBuilder();
+        StringBuilder update=new StringBuilder();
+        StringBuilder values=new StringBuilder();
+
+        Object[] parameters=new Object[columnAccessors.length*2+1];
+        int insertIndex=0;
+        int updateIndex=columnAccessors.length+1;
+        parameters[insertIndex++]=eventId;
+        parameters[updateIndex++]=eventId;
+
+        insert.append("_nodeId,_eventId");
+        values.append("?,?");
+        update.append("_eventId=?");
+        
+        for (FieldDescriptor columnAccessor:columnAccessors)
+        {
+            if (columnAccessor.isInternal())
+            {
+                continue;
+            }
+            String name=columnAccessor.getName();
+            Object value=columnAccessor.get(object);
+            insert.append(',');
+            insert.append('`'+name+'`');
+            values.append(",?");
+            update.append(",`"+name+"`=?");
+            parameters[insertIndex++]=value;
+            parameters[updateIndex++]=value;
+        }
+        
+        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
+        if (Graph.TEST)
+        {
+            Testing.log(sql);
+        }
+        accessor.executeUpdate(parent,null,sql,parameters);
+    }
 
     public void link(long fromNodeId,Relation relation,long toNodeId) throws Throwable
     {
