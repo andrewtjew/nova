@@ -32,6 +32,8 @@ public class SqlUtils
     {
         return new Timestamp(System.currentTimeMillis());
     }
+    
+    
     static public Timestamp daysBeforeNow(int days)
     {
         return new Timestamp(System.currentTimeMillis()-days*3600L*1000L);
