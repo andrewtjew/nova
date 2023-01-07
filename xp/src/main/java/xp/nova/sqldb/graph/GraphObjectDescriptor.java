@@ -6,15 +6,15 @@ import java.util.Comparator;
 public class GraphObjectDescriptor
 {
     final FieldDescriptor[] columnAccessors;
-    final private GraphObjectType entityType;
+    final private GraphObjectType graphObjectType;
     final private String tableName;
     final private String typeName;
     final private Class<? extends GraphObject> type;
     
-    GraphObjectDescriptor(String typeName,Class<? extends GraphObject> type,GraphObjectType entityType,FieldDescriptor[] columnnAccessors)
+    GraphObjectDescriptor(String typeName,Class<? extends GraphObject> type,GraphObjectType graphObjectType,FieldDescriptor[] columnnAccessors)
     {
         this.type=type;
-        this.entityType=entityType;
+        this.graphObjectType=graphObjectType;
         
         Arrays.sort(columnnAccessors,new Comparator<FieldDescriptor>()
         {
@@ -26,7 +26,6 @@ public class GraphObjectDescriptor
         });
         this.columnAccessors=columnnAccessors;
         this.typeName=typeName;
-//        this.tableAlias='`'+typeName+'`';
         this.tableName='`'+typeName+'`';
     }
 
@@ -52,7 +51,7 @@ public class GraphObjectDescriptor
     }
     GraphObjectType getObjectType()
     {
-        return this.entityType;
+        return this.graphObjectType;
     }
     String getTypeName()
     {

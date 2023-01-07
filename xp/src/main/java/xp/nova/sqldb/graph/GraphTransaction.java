@@ -102,21 +102,30 @@ public class GraphTransaction implements AutoCloseable
         StringBuilder update=new StringBuilder();
         StringBuilder values=new StringBuilder();
 
-        Object[] parameters=new Object[columnAccessors.length*2+1];
+        int length=columnAccessors.length;
+        if (meta.getObjectType()==GraphObjectType.NODE)
+        {
+            length++; 
+        }
+        
+        Object[] insertParameters=new Object[length];
         int insertIndex=0;
-        int updateIndex=columnAccessors.length+1;
-        parameters[insertIndex++]=nodeId;
-        parameters[insertIndex++]=eventId;
-        parameters[updateIndex++]=eventId;
-
+        insertParameters[insertIndex++]=nodeId;
+        insertParameters[insertIndex++]=eventId;
         insert.append("_nodeId,_eventId");
         values.append("?,?");
+        
+        Object[] updateParameters=new Object[length];
+        int updateIndex=0;
         update.append("_eventId=?");
+        updateParameters[updateIndex++]=eventId;
         
         for (FieldDescriptor columnAccessor:columnAccessors)
         {
             if (columnAccessor.isInternal())
             {
+                String name=columnAccessor.getName();
+                System.out.println("column skipped="+name);
                 continue;
             }
             String name=columnAccessor.getName();
@@ -125,16 +134,35 @@ public class GraphTransaction implements AutoCloseable
             insert.append('`'+name+'`');
             values.append(",?");
             update.append(",`"+name+"`=?");
-            parameters[insertIndex++]=value;
-            parameters[updateIndex++]=value;
+            insertParameters[insertIndex++]=value;
+            updateParameters[updateIndex++]=value;
         }
-        
-        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
-        if (Graph.TEST)
+        updateParameters[updateIndex++]=nodeId;
+
+        String selectSql="SELECT * FROM "+table+" WHERE _nodeId=?";
+        RowSet rowSet=accessor.executeQuery(parent, null, selectSql,nodeId);
+        if (rowSet.size()==0)
         {
-            Testing.log(sql);
+            String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
+            if (Graph.TEST)
+            {
+                Testing.log(sql);
+            }
+            accessor.executeUpdate(parent, null, sql, insertParameters);
         }
-        accessor.executeUpdate(parent,null,sql,parameters);
+        else if (rowSet.size()==1)
+        {
+            String sql="UPDATE "+table+" SET "+update+" WHERE _nodeId=?";
+            accessor.executeUpdate(parent, null, sql, updateParameters);
+            if (Graph.TEST)
+            {
+                Testing.log(sql);
+            }
+        }
+        else
+        {
+            throw new Exception("size="+rowSet.size());
+        }
     }
 
     public void update(NodeObject object) throws Throwable

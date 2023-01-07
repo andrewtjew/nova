@@ -24,6 +24,7 @@ package org.nova.html.remote;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;
@@ -43,10 +44,13 @@ public class RemoteResponseWriter extends ContentWriter<RemoteResponse>
 	@Override
 	public void write(Context context, RemoteResponse program) throws Throwable
 	{
-        context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
-        Instruction[] instructions=program.getInstructions();
-        String text=ObjectMapper.writeObjectToString(instructions);
-        context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+	    if (program!=null)
+	    {
+            context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
+            Instruction[] instructions=program.getInstructions();
+            String text=ObjectMapper.writeObjectToString(instructions);
+            context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+	    }
 	}
 
 	@Override

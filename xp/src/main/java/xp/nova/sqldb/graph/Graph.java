@@ -627,7 +627,7 @@ public class Graph
             }
             else if (type.getSuperclass()==IdentityNodeObject.class)
             {
-                objectType=GraphObjectType.NODE;
+                objectType=GraphObjectType.IDENTITY_NODE;
             }
             else if (type.getSuperclass()==LinkObject.class)
             {

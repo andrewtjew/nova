@@ -23,6 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 
 public class Tooltip extends TipComponent<Tooltip>
@@ -44,6 +45,6 @@ public class Tooltip extends TipComponent<Tooltip>
     
     public static script script_ready()
     {
-        return new script().addInner("$(document).ready(function(){$('[data-toggle=\"tooltip\"]').tooltip();});");
+        return new script().addInner(new LiteralHtml("$(document).ready(function(){$('[data-toggle=\"tooltip\"]').tooltip();});"));
     }
 }
