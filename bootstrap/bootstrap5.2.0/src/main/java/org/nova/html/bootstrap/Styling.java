@@ -147,7 +147,8 @@ public interface Styling<ELEMENT>
     }
     public default ELEMENT bg_gradient(StyleColor value)
     {
-        return addClass("bg","gradient",value);
+        addClass("bg-gradient");
+        return addClass("bg",value);
     }
     public default ELEMENT text(StyleColor value)
     {

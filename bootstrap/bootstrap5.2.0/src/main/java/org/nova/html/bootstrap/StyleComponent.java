@@ -29,6 +29,10 @@ public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> ex
 {
     final private String componentClass;
 
+    public StyleComponent(String tag)
+    {
+        this(tag, null);
+    }
     public StyleComponent(String tag, String componentClass)
     {
         this(tag, componentClass, false, false);

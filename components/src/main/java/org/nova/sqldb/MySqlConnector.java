@@ -116,7 +116,7 @@ public class MySqlConnector extends Connector
 	    String connectionString=this.buildConnectionString();
 	    if (TEST)
 	    {
-	    	Testing.LOGGER.log(null, connectionString);
+	    	Testing.log(null, connectionString);
 	    }
 	    	
 	    //"jdbc:mysql://localhost:3306/YourDBName";
