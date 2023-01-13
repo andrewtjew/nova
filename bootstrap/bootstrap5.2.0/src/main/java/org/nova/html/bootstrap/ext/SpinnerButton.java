@@ -1,12 +1,16 @@
 package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.ButtonComponent;
+import org.nova.html.bootstrap.Form;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
+import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.tags.form;
+import org.nova.html.tags.form_post;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {
@@ -37,5 +41,12 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
         return this;
     }    
 
+    public SpinnerButton submit(FormElement<?> form)
+    {
+        this.onclick(HtmlUtils.js_submit(form));
+        form.onsubmit(                HtmlUtils.js_setElementProperty(this.spinner.id(), "style.display","inline-block")+";"+
+                HtmlUtils.js_setElementProperty(this.labelSpan.id(), "style.display","none")+";");
+        return this;
+    }
     
 }

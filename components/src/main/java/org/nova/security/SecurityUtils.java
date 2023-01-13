@@ -251,7 +251,38 @@ public class SecurityUtils
         }
         return new String(bytes, StandardCharsets.ISO_8859_1);
     }
-    public static String generateAlphaNummericVerificationCode(int length)
+    
+    public static String generateUserFixedUnique(long number,int length) throws Exception
+    {
+        StringBuilder sb=new StringBuilder();
+        int index=0;
+        int codes=CODE_ALPHABET.length()-1;
+        while (number!=0)
+        {
+            sb.append(CODE_ALPHABET.charAt((int)(number%codes)));
+            number=number/codes;
+            index++;
+            if (index>length-1)
+            {
+                break;
+            }
+        }
+        if (number>0)
+        {
+            throw new Exception();
+        }
+        sb.append(CODE_ALPHABET.charAt(codes));
+        index++;
+        while (index<length)
+        {
+            sb.append(CODE_ALPHABET.charAt(RANDOM.nextInt()%codes));
+            index++;
+        }
+        return sb.toString();
+    }
+
+    
+    public static String generateUserVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
         bytes[0] = (byte) (CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
