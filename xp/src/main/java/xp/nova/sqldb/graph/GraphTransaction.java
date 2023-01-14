@@ -210,7 +210,7 @@ public class GraphTransaction implements AutoCloseable
         accessor.executeUpdate(parent,null,sql,parameters);
     }
 
-    public void link(long fromNodeId,Relation relation,long toNodeId) throws Throwable
+    public void link(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         int value=relation.getValue();
@@ -281,13 +281,13 @@ public class GraphTransaction implements AutoCloseable
 //        return deleted;
 //    }
 
-    public int deleteLinks(long fromNodeId,Relation relation) throws Throwable
+    public int deleteLinks(long fromNodeId,Relation_ relation) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=? and relation=?",fromNodeId,typeName,relation.getValue());
     }
 
-    public int deleteLink(long fromNodeId,Relation relation,long toNodeId) throws Throwable
+    public int deleteLink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type=? and relation=?",fromNodeId,toNodeId,typeName,relation.getValue());
