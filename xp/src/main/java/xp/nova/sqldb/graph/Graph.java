@@ -18,6 +18,7 @@ import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
 public class Graph
 {
@@ -27,19 +28,19 @@ public class Graph
     
     FieldDescriptor getColumnAccessor(Field field) throws Exception
     {
-        FieldDescriptor accessor=null;
+        FieldDescriptor descriptor=null;
         synchronized(columnAccessorMap)
         {
-            accessor=columnAccessorMap.get(field.getName());
+            descriptor=columnAccessorMap.get(field.getName());
         }
-        if (accessor!=null)
+        if (descriptor!=null)
         {
-            return accessor;
+            return descriptor;
         }
         Class<?> type=field.getType();
         if (type == String.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -63,7 +64,7 @@ public class Graph
         }
         else if (type == Boolean.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -80,7 +81,7 @@ public class Graph
         }
         else if (type == boolean.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -98,7 +99,7 @@ public class Graph
         }
         else if (type == int.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -116,7 +117,7 @@ public class Graph
         }
         else if (type == Integer.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -134,7 +135,7 @@ public class Graph
         }
         else if (type == long.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -152,7 +153,7 @@ public class Graph
         }
         else if (type == Long.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -170,7 +171,7 @@ public class Graph
         }
         else if (type == float.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -188,7 +189,7 @@ public class Graph
         }
         else if (type == Float.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -206,7 +207,7 @@ public class Graph
         }
         else if (type == double.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -224,7 +225,7 @@ public class Graph
         }
         else if (type == Double.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -242,7 +243,7 @@ public class Graph
         }
         else if (type == short.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -260,7 +261,7 @@ public class Graph
         }
         else if (type == LocalTime.class)
         {
-            accessor=new FieldDescriptor(field)
+            descriptor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -292,7 +293,7 @@ public class Graph
         }
         else if (type == LocalDate.class)
         {
-            accessor=new FieldDescriptor(field)
+            descriptor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -324,7 +325,7 @@ public class Graph
         }
         else if (type == LocalDateTime.class)
         {
-            accessor=new FieldDescriptor(field)
+            descriptor=new FieldDescriptor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -356,7 +357,7 @@ public class Graph
         }
         else if (type == Timestamp.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -374,7 +375,7 @@ public class Graph
         }
         else if (type == Date.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -392,7 +393,7 @@ public class Graph
         }
         else if (type == Time.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -410,7 +411,7 @@ public class Graph
         }
         else if (type == byte[].class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -434,7 +435,7 @@ public class Graph
         }
         else if (type == Short.class)
         {
-            accessor=new GetColumnAccessor(field)
+            descriptor=new GetColumnAccessor(field)
             {
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
@@ -456,7 +457,7 @@ public class Graph
             {
                 if (ShortEnummerable.class==interfaceType)
                 {
-                    accessor=new FieldDescriptor(field)
+                    descriptor=new FieldDescriptor(field)
                     {
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
@@ -498,7 +499,7 @@ public class Graph
                 }
                 else if (IntegerEnummerable.class==interfaceType)
                 {
-                    accessor=new FieldDescriptor(field)
+                    descriptor=new FieldDescriptor(field)
                     {
                         @Override
                         public void set(Object object, String typeName, Row row) throws Throwable
@@ -539,7 +540,7 @@ public class Graph
                     };
                 }
             }
-            if (accessor==null)
+            if (descriptor==null)
             {
                 throw new Exception(type.getName()+" must include an Enumerable interface");
             }
@@ -568,9 +569,9 @@ public class Graph
         }
         synchronized(columnAccessorMap)
         {
-            columnAccessorMap.put(type.getName(), accessor);
+            columnAccessorMap.put(type.getName(), descriptor);
         }
-        return accessor;
+        return descriptor;
     }
     
     protected Connector getConnector()
@@ -624,6 +625,10 @@ public class Graph
             {
                 objectType=GraphObjectType.NODE;
             }
+            else if (type.getSuperclass()==IdentityNodeObject.class)
+            {
+                objectType=GraphObjectType.IDENTITY_NODE;
+            }
             else if (type.getSuperclass()==LinkObject.class)
             {
                 objectType=GraphObjectType.LINK;
@@ -641,6 +646,13 @@ public class Graph
         }
         return descriptor;
     }
+    
+    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends GraphObject> type) throws Exception
+    {
+        String simpleTypeName=type.getSimpleName();
+        return descriptorMap.get(simpleTypeName);
+    }
+    
     
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
@@ -671,10 +683,17 @@ public class Graph
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
-            sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            {
+            	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            }
+            else
+            {
+            	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            }
             for (FieldDescriptor columnAccessor:descriptor.columnAccessors)
             {
-                if (columnAccessor.isGraphfield())
+                if (columnAccessor.isInternal())
                 {
                     continue;
                 }
@@ -682,7 +701,14 @@ public class Graph
                 sql.append(columnAccessor.getSqlType());
                 sql.append(",");
             }
-            sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            {
+                sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            }
+            else
+            {
+                sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            }
             if (TEST)
             {
                 Testing.log(sql);
@@ -708,7 +734,7 @@ public class Graph
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
-                if (columnAccessor.isGraphfield())
+                if (columnAccessor.isInternal())
                 {
                     fieldIndex++;
                     continue;

@@ -129,7 +129,7 @@ public class Inputs
         return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),this.trace);
     }
     
-    public void setFormSubmit() throws Throwable
+    public void buildFormSubmit() throws Throwable
     {
         if (this.form.method()==method.get)
         {

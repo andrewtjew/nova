@@ -117,8 +117,6 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 
     public script js_on(String onName,int delay)
     {
-//        return new script().addInner(onName+"=function(){"+js_show()+";}");
-//      return new script().addInner(onName+"=setTimeout(function(){"+js_show()+";},"+delay+")");
       return new script().addInner(onName+"=function(){setTimeout(function(){"+js_show()+";},"+delay+");}");
     }
     public script js_onbeforeunload(int delay)

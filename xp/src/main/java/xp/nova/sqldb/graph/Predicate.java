@@ -9,12 +9,12 @@ public class Predicate
     Class<? extends LinkObject>[] linkTypes;
     ArrayList<Predicate> predicates;
     String namespace;
-    Relation relation;
+    Relation_ relation;
     public Predicate(Direction direction)
     {
         this.direction=direction;
     }
-    public Predicate(Direction direction,Relation relation)
+    public Predicate(Direction direction,Relation_ relation)
     {
         this.direction=direction;
         this.relation=relation;

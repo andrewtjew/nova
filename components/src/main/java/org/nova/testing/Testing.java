@@ -25,14 +25,19 @@ public abstract class Testing
 {
     abstract public void _log(LogLevel logLevel,Object object);
 
-    public static Testing LOGGER=new SimpleTesting();
+    private static Testing TESTING=new SimpleTesting();
 
+    public static void set(Testing testing)
+    {
+        TESTING=testing;
+    }
+    
     public static void log(Object object)
     {
-        LOGGER._log(LogLevel.INFO,object);
+        TESTING._log(LogLevel.INFO,object);
     }
     public static void log(LogLevel logLevel,Object object)
     {
-        LOGGER._log(logLevel,object);
+        TESTING._log(logLevel,object);
     }
 }

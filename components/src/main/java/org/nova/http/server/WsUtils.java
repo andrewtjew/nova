@@ -23,6 +23,7 @@ package org.nova.http.server;
 
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 public class WsUtils
@@ -56,6 +57,7 @@ public class WsUtils
 	}
     public static String getRequestParameters(HttpServletRequest request)
     {
+        HttpServletRequestWrapper wrapper;
         StringBuilder sb=new StringBuilder();
         Enumeration<String> names=request.getParameterNames();
         while (names.hasMoreElements())

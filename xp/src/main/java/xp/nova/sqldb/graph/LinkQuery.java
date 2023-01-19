@@ -10,13 +10,13 @@ public class LinkQuery
     Class<? extends GraphObject> one;
     Direction direction;
     String namespace;
-    Relation relation;
+    Relation_ relation;
     
     String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
-    public LinkQuery(Direction direction,Relation relation)
+    public LinkQuery(Direction direction,Relation_ relation)
     {
         this.direction=direction;
         this.relation=relation;

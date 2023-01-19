@@ -22,6 +22,7 @@
 package org.nova.security;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -30,8 +31,11 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -78,16 +82,9 @@ public class SecurityUtils
     public static final byte[] encrypt(String password, String salt, byte[] data) throws Exception
     {
         SecretKey secretKey = buildKey(password, salt);
-        try
-        {
-            Cipher AesCipher = Cipher.getInstance("AES");
-            AesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            return AesCipher.doFinal(data);
-        }
-        finally
-        {
-            secretKey.destroy();
-        }
+        Cipher AesCipher = Cipher.getInstance("AES");
+        AesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        return AesCipher.doFinal(data);
     }
 
     public static final byte[] encrypt(SecretKey secretKey, byte[] data) throws Exception
@@ -117,6 +114,87 @@ public class SecurityUtils
         Cipher AesCipher = Cipher.getInstance("AES");
         AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
         return AesCipher.doFinal(bytes);
+    }
+
+    static public String encrypt(SecretKey key,byte[] initializationVector,long businessId,long id,int random) throws Throwable
+    {
+        if ((businessId<0)||(id<0))
+        {
+            throw new Exception();
+        }
+        if ((id>>>32)>0)
+        {
+            throw new Exception();
+        }
+        if ((businessId>>>32)>0)
+        {
+            throw new Exception();
+        }
+        long value=(businessId<<32)+id;
+        byte[] bytes=TypeUtils.bigEndianLongToBytes(value);
+        Cipher cipher = Cipher.getInstance("TripleDES/CBC/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(initializationVector));
+        byte[] encryptedBytes=cipher.doFinal(bytes);
+        long encrypted=TypeUtils.bigEndianBytesToLong(encryptedBytes);
+        int length=15;
+        int digits=CODE_ALPHABET.length();
+        StringBuilder sb=new StringBuilder();
+        for (int i=0;i<length;i++)
+        {
+            long index=Long.remainderUnsigned(encrypted, digits);
+            sb.append(CODE_ALPHABET.charAt((int)index));
+            encrypted=Long.divideUnsigned(encrypted, digits);
+        }
+        sb.append(CODE_ALPHABET.charAt(random%length));
+        return sb.toString();
+    }
+    static public Long decrypt(SecretKey key,byte[] initializationVector,long businessId,String code) throws Throwable
+    {
+        int digits=CODE_ALPHABET.length();
+        if (businessId<0)
+        {
+            throw new Exception();
+        }
+        if ((businessId>>>32)>0)
+        {
+            throw new Exception();
+        }
+        long encrypted=0;
+        for (int i=code.length()-2;i>=0;i--)
+        {
+            char c=code.charAt(i);
+            int index=CODE_ALPHABET.indexOf(c);
+            if (index<0)
+            {
+                return null;
+            }
+            encrypted=encrypted*digits+index;
+        }
+        
+        byte[] encryptedBytes=TypeUtils.bigEndianLongToBytes(encrypted);
+        
+        
+        Cipher cipher = Cipher.getInstance("TripleDES/CBC/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(initializationVector));
+        byte[] bytes=cipher.doFinal(encryptedBytes);
+        long value=TypeUtils.bigEndianBytesToLong(bytes);
+        long decrypedBusinessId=value>>>32;
+        if (decrypedBusinessId!=businessId)
+        {
+            return null;
+        }
+        long id=value&0xffffffffL;
+        return id;
+    }
+
+    
+    
+    static public SecretKey buildKey3DES(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+    {
+//        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+//        DESKeySpec spec = new DESKeySpec(key);
+////        return factory.generateSecret(spec);
+        return new SecretKeySpec(key, "TripleDES");
     }
 
     static public SecretKey buildKey(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -149,8 +227,16 @@ public class SecurityUtils
         }
     }
     
-    final static String CODE_ALPHABET = "ACDEFGHJKMNPQRTUVWYZ23679";
+    final static String CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
 
+    public static byte[] generateKey(int length)
+    {
+        byte[] bytes=new byte[length];
+        RANDOM.nextBytes(bytes);
+        return bytes;
+    }
+    
+    
     public static String generateVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
@@ -165,7 +251,38 @@ public class SecurityUtils
         }
         return new String(bytes, StandardCharsets.ISO_8859_1);
     }
-    public static String generateAlphaNummericVerificationCode(int length)
+    
+    public static String generateUserFixedUnique(long number,int length) throws Exception
+    {
+        StringBuilder sb=new StringBuilder();
+        int index=0;
+        int codes=CODE_ALPHABET.length()-1;
+        while (number!=0)
+        {
+            sb.append(CODE_ALPHABET.charAt((int)(number%codes)));
+            number=number/codes;
+            index++;
+            if (index>length-1)
+            {
+                break;
+            }
+        }
+        if (number>0)
+        {
+            throw new Exception();
+        }
+        sb.append(CODE_ALPHABET.charAt(codes));
+        index++;
+        while (index<length)
+        {
+            sb.append(CODE_ALPHABET.charAt(RANDOM.nextInt()%codes));
+            index++;
+        }
+        return sb.toString();
+    }
+
+    
+    public static String generateUserVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
         bytes[0] = (byte) (CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));

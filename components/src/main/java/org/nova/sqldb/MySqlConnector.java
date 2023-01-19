@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
+import org.nova.testing.Testing;
 import org.nova.tracing.TraceManager;
 
 import com.nova.disrupt.Disruptor;
@@ -48,7 +49,7 @@ public class MySqlConnector extends Connector
     private String buildConnectionString()
     {
 //        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?rewriteBatchedStatements=true";
-        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false";
+        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
     }
     
     private static Vault buildUnsecuredVault(String password)
@@ -107,11 +108,17 @@ public class MySqlConnector extends Connector
 		this.pool.initialize(accessors);
 	}
 
+	final static private boolean TEST=true; 
 	@Override
 	protected Connection createConnection() throws Throwable
 	{
 	    String password=this.passwordVault.get(this.passwordKey);
 	    String connectionString=this.buildConnectionString();
+	    if (TEST)
+	    {
+	    	Testing.log(null, connectionString);
+	    }
+	    	
 	    //"jdbc:mysql://localhost:3306/YourDBName";
         Class.forName("com.mysql.cj.jdbc.Driver");
 		Connection connection=DriverManager.getConnection(connectionString,user,password);

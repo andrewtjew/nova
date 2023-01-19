@@ -64,8 +64,12 @@ public class HttpServer
 //  final private Server[] servers;
 //  final private int [] ports;
 	
-	@OperatorVariable()
-	private boolean test;
+    @OperatorVariable()
+    private boolean test;
+    
+    @OperatorVariable()
+    private boolean onlyLogRequestsWithContentWriters=true;
+    
 	
 	public HttpServer(TraceManager traceManager, Logger logger,boolean test,HttpServerConfiguration configuration) throws Exception
 	{
@@ -361,17 +365,20 @@ public class HttpServer
                 }
             }
             RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
-            if (handler.isLogLastRequestsInMemory())
+            if (this.onlyLogRequestsWithContentWriters==false)
             {
-                synchronized (this.lastRequestsLogEntries)
+                if (handler.isLogLastRequestsInMemory())
                 {
-                    this.lastRequestsLogEntries.add(entry);
-                }
-                if (trace.getThrowable()!=null)
-                {
-                    synchronized (this.lastExceptionRequestsLogEntries)
+                    synchronized (this.lastRequestsLogEntries)
                     {
-                        this.lastExceptionRequestsLogEntries.add(entry);
+                        this.lastRequestsLogEntries.add(entry);
+                    }
+                    if (trace.getThrowable()!=null)
+                    {
+                        synchronized (this.lastExceptionRequestsLogEntries)
+                        {
+                            this.lastExceptionRequestsLogEntries.add(entry);
+                        }
                     }
                 }
             }
@@ -446,19 +453,6 @@ public class HttpServer
                 servletResponse=context.getHttpServletResponse();
                 if (context.isCaptured()==false)
                 {
-                    
-//                    if (context.getRequestHandler().cookieParamCount>0)
-//                    {
-//                    	ParameterInfo
-//                    	for (Object object:context.get)
-//                        for (CookieState cookieState:cookieStates.values())
-//                        {
-//                            String value=ObjectMapper.writeObjectToString(cookieState.parameter);
-//                            value=URLEncoder.encode(value,StandardCharsets.UTF_8);
-//                            Cookie cookie=new Cookie(cookieState.cookieStateParam.value(), value);
-//                            servletResponse.addCookie(cookie);
-//                        }
-//                    }
 					if (response != null)
 					{
 						if (response.headers != null)
@@ -543,6 +537,10 @@ public class HttpServer
 					requestCompressedContentSize=decoderContext.getCompressedContentSize();
 					decoderContext.close();
 				}
+
+				//For logging 
+                servletRequest=context.getHttpServletRequest();
+                servletResponse=context.getHttpServletResponse();
 			}
 		}
 		catch (Throwable e)

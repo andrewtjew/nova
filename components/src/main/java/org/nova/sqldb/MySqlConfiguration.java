@@ -49,6 +49,6 @@ public class MySqlConfiguration
 	int port=3306;
 	String schema;
 	int poolSize=2;
-	long connectionKeepAlive=10000;
+	long connectionKeepAlive=100000;
 	long maximumRecentlyUsedCount=1000000;
 }
