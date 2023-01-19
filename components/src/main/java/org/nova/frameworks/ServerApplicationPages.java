@@ -628,7 +628,7 @@ public class ServerApplicationPages
         input_checkbox checkBox=label.returnAddInner(new input_checkbox());
         checkBox.name("overwrite");
         label.addInner("Overwrite");
-        form.addInner("Buffer capacity:&nbsp;");
+        form.addInner(new LiteralHtml("Buffer capacity:&nbsp;"));
         input_number capacityInput=form.returnAddInner(new input_number());
         capacityInput.name("capacity");
         capacityInput.min(1).max(1000).value(capacity);
@@ -667,7 +667,7 @@ public class ServerApplicationPages
             td td=new td();
             String name=file.getName();
             input_checkbox checkbox=td.returnAddInner(new input_checkbox().name("file_"+name));
-            td.addInner(new label().addInner("&nbsp;"+name).for_(checkbox));
+            td.addInner(new label().addInner(new LiteralHtml("&nbsp;"+name)).for_(checkbox));
             row.add(td);
             
             if (index==4)
@@ -703,7 +703,7 @@ public class ServerApplicationPages
             {
                 SourceQueueLogger sourceQueueLogger=(SourceQueueLogger)item;
                 div div=new div();
-                div.addInner(sourceQueueLogger.isActive()+"&nbsp;");
+                div.addInner(new LiteralHtml(sourceQueueLogger.isActive()+"&nbsp;"));
                 if (sourceQueueLogger.isActive())
                 {
                     div.addInner(new button_button()
@@ -1596,7 +1596,7 @@ public class ServerApplicationPages
         }
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner("&nbsp;").addInner(new input_submit().value("Set")).addInner("&nbsp;&nbsp;&nbsp;").addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 
         return page;
     }
@@ -1657,14 +1657,14 @@ public class ServerApplicationPages
         }
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner("&nbsp;").addInner(new input_submit().value("Set")).addInner("&nbsp;&nbsp;&nbsp;").addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 
         if (traceManager.isEnableLastTraceWatching())
         {
             form_post disableForm=page.content().returnAddInner(new form_post()).action("/operator/tracing/watchList/disable");
             fieldset disableFieldset=disableForm.returnAddInner(new fieldset());
             disableFieldset.addInner(new legend().addInner("Disable trace watching"));
-            disableFieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner("&nbsp;").addInner(new input_submit().value("Disable"));
+            disableFieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Disable"));
         }        
         return page;
     }
@@ -2130,12 +2130,12 @@ public class ServerApplicationPages
         }
         form.addInner(new hr());
         form.returnAddInner(new input_checkbox()).name("checkSelected");
-        form.addInner("&nbsp;");
+        form.addInner(new LiteralHtml("&nbsp;"));
         form.returnAddInner(new input_submit()).value("Reset Selected Meters").name("resetSelected");
-        form.addInner("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        form.addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 
         form.returnAddInner(new input_checkbox()).name("checkAll");
-        form.addInner("&nbsp;");
+        form.addInner(new LiteralHtml("&nbsp;"));
         form.returnAddInner(new input_submit()).value("Reset All Meters").name("resetAll");
         
         
@@ -2504,7 +2504,7 @@ public class ServerApplicationPages
         addInner(" ms. Performance overhead depends on number of traces logged and ranges from minimal to high.");
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new input_submit().value("Change")).addInner("&nbsp;&nbsp;&nbsp;").addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new input_submit().value("Change")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 //        fieldset.returnAddInner(new p()).addInner(new input_checkbox().checked(traceManager.isEnableWatchListLastTraces()).name("isEnableWatchListLastTraces").addInner(("Enable watch list of last traces. Performance overhead: Low")));
         return page;
     }
@@ -3597,7 +3597,12 @@ public class ServerApplicationPages
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
-            return info.getSource() == filter;
+            ParameterSource source=info.getSource();
+            if (source==ParameterSource.SECURE_QUERY)
+            {
+                source=ParameterSource.QUERY;
+            }
+            return source == filter;
         }).count() == 0)
         {
             return;
@@ -3610,7 +3615,12 @@ public class ServerApplicationPages
         table.setHeader("Name","Type","Description","Default");
         for (ParameterInfo info : handler.getParameterInfos())
         {
-            if (info.getSource() == filter)
+            ParameterSource source=info.getSource();
+            if (source==ParameterSource.SECURE_QUERY)
+            {
+                source=ParameterSource.QUERY;
+            }
+            if (source == filter)
             {
                 Parameter parameter = method.getParameters()[info.getIndex()];
                 table.addRow(new TableRow().add(info.getName(),parameter.getType().getName(),getDescription(parameter),info.getDefaultValue()));
@@ -4358,9 +4368,21 @@ public class ServerApplicationPages
             }
             page.content().addInner(new p());
         }
+        if (requestHandler.getTopFilters().length > 0)
+        {
+            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Top Filters"));
+            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+            TableRow row=new TableRow();
+            for (Filter filter : requestHandler.getTopFilters())
+            {
+                row.add(filter.getClass().getName());
+            }
+            table.addRow(row);
+            page.content().addInner(new p());
+        }
         if (requestHandler.getBottomFilters().length > 0)
         {
-            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Filters"));
+            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Bottom Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
             for (Filter filter : requestHandler.getBottomFilters())

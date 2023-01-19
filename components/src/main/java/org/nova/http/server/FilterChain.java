@@ -31,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
 import org.nova.http.server.annotations.CookieStateParam;
@@ -338,7 +339,6 @@ public class FilterChain
         ParameterInfo[] parameterInfos=requestHandler.getParameterInfos();
         this.parameters=new Object[parameterInfos.length];
         HttpServletRequest request=context.getHttpServletRequest();
-        
         ContentReader<?> reader=null;
         Object content=null;
         for (int i=0;i<parameterInfos.length;i++)
@@ -504,39 +504,7 @@ public class FilterChain
             }
             case SECURE_PATH:
             {
-                String parameter=null;
-                try
-                {
-                    parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()],StandardCharsets.UTF_8);
-                }
-                catch (Throwable t)
-                {
-                    try
-                    {
-                        parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()]);
-                    }
-                    catch (Throwable tt)
-                    {
-                        parameter=request.getParameter(parameterInfo.getName());
-                    }
-                }
-                ParamSecurity paramDecoding=context.getParamDecoding();
-                try
-                {
-                    if (paramDecoding!=null)
-                    {
-                        if (TypeUtils.isNullOrEmpty(parameter)==false)
-                        {
-                            parameter=paramDecoding.decodePathParam(parameter);
-                        }
-                        parameters[i]=buildParameter(parameterInfo,parameter);
-                    }
-                }
-                catch (Throwable t)
-                {
-                    throw new AbnormalException(Abnormal.BAD_PATH,t);
-                }
-                break;
+                throw new NotImplementedException();
             }
             case QUERY:
                 try
@@ -552,16 +520,11 @@ public class FilterChain
             case SECURE_QUERY:
                 try
                 {
-                    String parameter=request.getParameter(parameterInfo.getName());
-                    ParamSecurity paramDecoding=context.getParamDecoding();
-                    if (paramDecoding!=null)
-                    {
-                        if (TypeUtils.isNullOrEmpty(parameter)==false)
-                        {
-                            parameter=paramDecoding.decodeQueryParam(parameter);
-                        }
-                        parameters[i]=buildParameter(parameterInfo,parameter);
-                    }
+                    DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
+                    String parameter=decodingHttpServletRequest.decodeQueryParameter(parameterInfo.getName());
+                    decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
+                    parameters[i]=buildParameter(parameterInfo,parameter);
+                    
                 }
                 catch (Throwable t)
                 {
