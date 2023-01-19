@@ -28,7 +28,7 @@ public class video extends GlobalEventTagElement<video>
 {
     public video()
     {
-        super("audio");
+        super("video");
     }
     
     public video autoplay()
@@ -55,7 +55,7 @@ public class video extends GlobalEventTagElement<video>
         }
         return this;
     }
-    public video height(String pixels)
+    public video height(int pixels)
     {
         return attr("height",pixels);
     }
@@ -95,7 +95,7 @@ public class video extends GlobalEventTagElement<video>
     {
         return attr("src",URL);
     }
-    public video width(String pixels)
+    public video width(int pixels)
     {
         return attr("width",pixels);
     }
