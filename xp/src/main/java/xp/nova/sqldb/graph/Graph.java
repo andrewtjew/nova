@@ -50,15 +50,15 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    int value=defaultVARCHARLength;
+                    long value=defaultVARCHARLength;
                     Length length=this.field.getDeclaredAnnotation(Length.class);
                     if (length!=null)
                     {
                         value=length.value();
                     }
-                    return "varchar("+value+") DEFAULT NULL";
+                    return new SqlType("VARCHAR",true,value);
                 }
             };
         }
@@ -73,9 +73,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "bit DEFAULT NULL";
+                    return new SqlType("BIT",true);
                 }
             };
         }
@@ -91,9 +91,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "bit NOT NULL";
+                    return new SqlType("BIT",false);
                 }
             };
         }
@@ -109,9 +109,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "int NOT NULL";
+                    return new SqlType("INT",false);
                 }
             };
         }
@@ -127,9 +127,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "int DEFAULT NULL";
+                    return new SqlType("INT",true);
                 }
             };
         }
@@ -145,9 +145,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "bigint NOT NULL";
+                    return new SqlType("BIGINT",false);
                 }
             };
         }
@@ -163,9 +163,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "bigint DEFAULT NULL";
+                    return new SqlType("BIGINT",true);
                 }
             };
         }
@@ -181,9 +181,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "float NOT NULL";
+                    return new SqlType("FLOAT",false);
                 }
             };
         }
@@ -199,9 +199,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "float DEFAULT NULL";
+                    return new SqlType("FLOAT",true);
                 }
             };
         }
@@ -217,9 +217,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "double NOT NULL";
+                    return new SqlType("DOUBLE",false);
                 }
             };
         }
@@ -235,9 +235,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "double DEFAULT NULL"; //Using mysql native convention. 
+                    return new SqlType("DOUBLE",true);
                 }
             };
         }
@@ -253,9 +253,27 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "smallint NOT NULL";
+                    return new SqlType("SMALLINT",false);
+                }
+            };
+        }
+        else if (type == Short.class)
+        {
+            descriptor=new GetColumnAccessor(field)
+            {
+                @Override
+                public void set(Object object, String typeName, Row row) throws Throwable
+                {
+                    field.set(object,row.getSMALLINT(getColumnName(typeName)));
+                    
+                }
+
+                @Override
+                public SqlType getSqlType() throws Throwable
+                {
+                    return new SqlType("SMALLINT",true);
                 }
             };
         }
@@ -274,9 +292,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "time DEFAULT NULL";
+                    return new SqlType("TIME",true);
                 }
 
                 @Override
@@ -306,9 +324,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "date DEFAULT NULL";
+                    return new SqlType("DATE",true);
                 }
 
                 @Override
@@ -338,9 +356,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "timestamp DEFAULT NULL";
+                    return new SqlType("TIMESTAMP",true);
                 }
 
                 @Override
@@ -367,9 +385,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "timestamp DEFAULT NULL";
+                    return new SqlType("TIMESTAMP",true);
                 }
             };
         }
@@ -385,9 +403,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "date DEFAULT NULL";
+                    return new SqlType("DATE",true);
                 }
             };
         }
@@ -403,9 +421,9 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    return "time DEFAULT NULL";
+                    return new SqlType("TIME",true);
                 }
             };
         }
@@ -421,33 +439,15 @@ public class Graph
                 }
 
                 @Override
-                public String getSqlType() throws Throwable
+                public SqlType getSqlType() throws Throwable
                 {
-                    int value=defaultVARCHARLength;
+                    long value=defaultVARCHARLength;
                     Length length=this.field.getDeclaredAnnotation(Length.class);
                     if (length!=null)
                     {
                         value=length.value();
                     }
-                    return "varbinary("+value+") DEFAULT NULL";
-                }
-            };
-        }
-        else if (type == Short.class)
-        {
-            descriptor=new GetColumnAccessor(field)
-            {
-                @Override
-                public void set(Object object, String typeName, Row row) throws Throwable
-                {
-                    field.set(object,row.getNullableSMALLINT(getColumnName(typeName)));
-                    
-                }
-
-                @Override
-                public String getSqlType() throws Throwable
-                {
-                    return "smallint DEFAULT NULL";
+                    return new SqlType("VARBINARY",true,value);
                 }
             };
         }
@@ -491,9 +491,9 @@ public class Graph
                         }
 
                         @Override
-                        public String getSqlType() throws Throwable
+                        public SqlType getSqlType() throws Throwable
                         {
-                            return "smallint DEFAULT NULL";
+                            return new SqlType("SMALLINT",true);
                         }
                     };
                 }
@@ -533,9 +533,9 @@ public class Graph
                         }
 
                         @Override
-                        public String getSqlType() throws Throwable
+                        public SqlType getSqlType() throws Throwable
                         {
-                            return "int DEFAULT NULL";
+                            return new SqlType("INT",true);
                         }
                     };
                 }
@@ -698,7 +698,7 @@ public class Graph
                     continue;
                 }
                 sql.append("`"+columnAccessor.getName()+"` ");
-                sql.append(columnAccessor.getSqlType());
+                sql.append(columnAccessor.getSqlType().getSql());
                 sql.append(",");
             }
             if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
@@ -740,7 +740,7 @@ public class Graph
                     continue;
                 }
                 String fieldName=columnAccessor.getName();
-                String fieldSqlType=columnAccessor.getSqlType();
+                SqlType fieldSqlType=columnAccessor.getSqlType();
                 if (rowIndex<rowSet.size())
                 {
                     Row row=rowSet.getRow(rowIndex);
@@ -748,24 +748,39 @@ public class Graph
                     int compareResult=fieldName.compareTo(columnName);
                     if (compareResult==0)
                     {
-                        String sqlType=row.getVARCHAR("DATA_TYPE");
+                        String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
                         Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                        if (length!=null)
+                        boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+//                        if (length!=null)
+//                        {
+//                            sqlType=sqlType+"("+length+")";
+//                        }
+//                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
+//                        {
+//                            sqlType=sqlType+" DEFAULT NULL";
+//                        }
+//                        else
+//                        {
+//                            sqlType=sqlType+" NOT NULL";
+//                        }
+//                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
+//                        {
+//                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
+//                        }
+                         if (length==null)
+                         {
+                             
+                         }
+                        if (fieldSqlType.isEqual(dataType, nullable, length)==false)
                         {
-                            sqlType=sqlType+"("+length+")";
+                            if (fieldSqlType.isLengthGreater(length)==false)
+                            {
+                                throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+dataType);
+                                
+                            }
+                            alter.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
                         }
-                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
-                        {
-                            sqlType=sqlType+" DEFAULT NULL";
-                        }
-                        else
-                        {
-                            sqlType=sqlType+" NOT NULL";
-                        }
-                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
-                        {
-                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
-                        }
+ 
                         after=columnName;
                         fieldIndex++;
                         rowIndex++;

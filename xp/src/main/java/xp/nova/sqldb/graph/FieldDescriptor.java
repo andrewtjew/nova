@@ -27,10 +27,8 @@ abstract public class FieldDescriptor
         return this.internal;
     }
     
-    
-
     public abstract Object get(Object object) throws Throwable;
-    public abstract String getSqlType() throws Throwable;
+    public abstract SqlType getSqlType() throws Throwable;
 
     
     public String getName()
