@@ -1,3 +1,60 @@
+namespace nova.ui.media
+{
+    export class Camera
+    {
+        videoElement:HTMLMediaElement;
+        canvasElement:HTMLCanvasElement;
+        constructor(cameraElementId:string,canvasElementId:string)
+        {
+            this.videoElement=document.getElementById(cameraElementId) as HTMLMediaElement;
+            this.canvasElement=document.getElementById(canvasElementId) as HTMLCanvasElement;
+        }
+        async videoOn()
+        {
+            this.videoElement.srcObject=await navigator.mediaDevices.getUserMedia({video:true});
+            this.videoElement.onloadedmetadata = () => 
+            {
+                console.log("playing4...");
+                this.videoElement.play();
+            };
+        }
+    
+        postSnapshot(url:string)
+        {
+            this.canvasElement.getContext('2d').drawImage(this.videoElement as HTMLElement as HTMLImageElement,0,0,this.canvasElement.width,this.canvasElement.height);
+            var dataURL=this.canvasElement.toDataURL();
+            nova.remote.postStatic(url,JSON.stringify({dataURL:dataURL}));
+
+        }
+
+
+        interval:number;
+
+        startPostSnapshot(url:string,interval:number)
+        {
+            this.interval=setInterval(()=>
+            {
+                this.canvasElement.getContext('2d').drawImage(this.videoElement as HTMLElement as HTMLImageElement,0,0,this.canvasElement.width,this.canvasElement.height);
+                var dataURL=this.canvasElement.toDataURL();
+                nova.remote.postStatic(url,JSON.stringify({dataURL:dataURL}));
+            }
+            ,interval);
+
+        }
+        stopPostSnapshot()
+        {
+            this.videoElement.pause();
+            clearInterval(this.interval);
+        }
+
+    
+    }
+
+    
+}
+
+
+
 namespace nova.ui.validation
 {
     export function provideFeedback(event:Event)

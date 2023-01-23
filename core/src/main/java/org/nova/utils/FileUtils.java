@@ -75,7 +75,10 @@ public class FileUtils
             return bytes;
         }
     }
-
+    public static byte[] readBytes(InputStream stream) throws IOException
+    {
+        return readBytes(stream,4096);
+    }
     public static byte[] readBytes(InputStream stream, int bufferSize) throws IOException
     {
         int count = 0;

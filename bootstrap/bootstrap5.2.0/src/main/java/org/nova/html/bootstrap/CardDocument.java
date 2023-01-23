@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
-@Deprecated
 public class CardDocument extends Card 
 {
     private CardHeader header;
