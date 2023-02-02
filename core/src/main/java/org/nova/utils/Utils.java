@@ -366,7 +366,7 @@ public class Utils
 		return millisToLocalDateTimeString(dateTime);
 	}
 
-    static public DateTimeFormatter LOCALDATETIME_FILENAME_FORMATTER=DateTimeFormatter.ofPattern("yyyy_MM_ddTHH_mm_ss_SSS"); 
+    static public DateTimeFormatter LOCALDATETIME_FILENAME_FORMATTER=DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS"); 
     static public DateTimeFormatter SHORT_LOCALDATETIME_FILENAME_FORMATTER=DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"); 
 
     public static String millisToLocalDateTimeFileName(long millis)
