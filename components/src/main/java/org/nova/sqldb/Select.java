@@ -46,11 +46,16 @@ public class Select
         this.source=source;
     }
     
-    public Select maximumRows(Long maximumRows)
+    public Select limit(long maximumRows)
     {
         this.maximumRows=maximumRows;
         return this;
                 
+    }
+    public Select limit(Long maximumRows)
+    {
+        this.maximumRows=maximumRows;
+        return this;
     }
     
     public Select columns(String...columnNames) throws Exception
