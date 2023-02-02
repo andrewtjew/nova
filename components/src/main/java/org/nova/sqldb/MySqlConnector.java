@@ -90,7 +90,8 @@ public class MySqlConnector extends Connector
 		Accessor[] accessors=new Accessor[poolSize];
 		for (int i=0;i<poolSize;i++)
 		{
-			Accessor accessor=new Accessor(this.pool, this, connectionKeepAlive);
+			@SuppressWarnings("resource")
+            Accessor accessor=new Accessor(this.pool, this, connectionKeepAlive);
 			if (connect)
 			{
 				try

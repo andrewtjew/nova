@@ -183,8 +183,10 @@ public class Pool<RESOURCE extends Resource>
 		{
             if (this.InUseResources.remove(resource.getIdentifier())!=null)
             {
-    		    if (resource.canAddLast(this.maximumRecentlyUsedCount))
+    		    if ((this.maximumRecentlyUsedCount>0)&&(resource.canAddLast(this.maximumRecentlyUsedCount)))
     		    {
+    		        //To take advantage of caches, we typically want to reuse most recently used resources.
+    		        //But this can lead to resources timing out unexpectedly, so occasionally we want to use the less recent resources.
     		        container.addLast((RESOURCE)resource);
     		    }
     		    else

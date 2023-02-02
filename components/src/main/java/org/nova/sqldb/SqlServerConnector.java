@@ -88,7 +88,7 @@ public class SqlServerConnector extends Connector
         this.database=configuration.database;
         this.name = configuration.database+"@"+configuration.host;
         int poolSize = configuration.poolSize;
-        long connectionKeepAliveMs = configuration.connectionKeepAliveMs;
+        long connectionKeepAliveMs = configuration.connectionKeepAlive;
         
         Accessor[] accessors=new Accessor[poolSize];
         for (int i = 0; i < poolSize; i++)

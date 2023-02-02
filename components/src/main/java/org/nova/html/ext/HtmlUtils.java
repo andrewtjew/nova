@@ -504,6 +504,14 @@ public class HtmlUtils
         return "var "+instanceName+"=new "+js_call(className,parameters)+";";
     }    
     
+    // eg js_callIfElementProperty("e1","checked==true","alert","hello");
+    public static String js_callIfElementProperty(String id,String expression,String function,Object...parameters)
+    {
+        return "if (document.getElementById('"+id+"')."+expression+"){"
+                +js_call(QuotationMark.SINGLE,function,parameters)
+                +";}";
+    }
+    
     public static String js_call(String function,Object...parameters)
     {
         return js_call(QuotationMark.SINGLE,function,parameters);

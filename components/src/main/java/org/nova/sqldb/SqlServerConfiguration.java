@@ -23,13 +23,19 @@ package org.nova.sqldb;
 
 public class SqlServerConfiguration
 {
+    String default_host="localhost";
+    static int default_port=1433;
+    static int default_poolSize=10;
+    static long default_connectionKeepAlive=3600*1000;
+    static long default_maximumRecentlyUsedCount=1000;
+
 	public SqlServerConfiguration(String host,int port,String database,int poolSize,long connectionKeepAliveMs,long maximumLeastRecentlyUsedCount)
 	{
 		this.host=host;
 		this.port=port;
 		this.database=database;
 		this.poolSize=poolSize;
-		this.connectionKeepAliveMs=connectionKeepAliveMs;
+		this.connectionKeepAlive=connectionKeepAliveMs;
 		this.maximumLeastRecentlyUsedCount=maximumLeastRecentlyUsedCount;
 	}
 	public SqlServerConfiguration(String host,String database)
@@ -37,11 +43,18 @@ public class SqlServerConfiguration
 		this(host,1433,database,10,10000,1000000);
 	}
 
-	public boolean connectImmediately=true;
-	public String host;
-    public String database;
-	public int port=1433;
-	public int poolSize=10;
-	public long connectionKeepAliveMs=10000;
-	public long maximumLeastRecentlyUsedCount=1000000;
+	String database;
+	boolean connectImmediately=true;
+//	public String host;
+//	public int port=1433;
+//	public int poolSize=10;
+//	public long connectionKeepAliveMs=10000;
+//	public long maximumLeastRecentlyUsedCount=1000000;
+	
+    String host=default_host;
+    int port=default_port;
+    int poolSize=default_poolSize;
+    long connectionKeepAlive=default_connectionKeepAlive;
+    long maximumLeastRecentlyUsedCount=default_maximumRecentlyUsedCount;	
+	
 }
