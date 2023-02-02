@@ -74,5 +74,8 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         addClass("btn-block");
         return (ELEMENT)this;
     }
-    
+    public ELEMENT dismissModal()
+    {
+        return attr("data-dismiss","modal");
+    }    
 }

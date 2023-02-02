@@ -37,6 +37,7 @@ public class Image extends StyleComponent<Image>
         attr("src",src);
         attr("alt",alt);
     }
+    
 
     public Image(String src)
     {
@@ -46,6 +47,17 @@ public class Image extends StyleComponent<Image>
     public Image img_thumbnail()
     {
         addClass("img-thumbnail");
+        return this;
+    }
+
+    public Image height(int height)
+    {
+        attr("height",height);
+        return this;
+    }
+    public Image width(int width)
+    {
+        attr("width",width);
         return this;
     }
 

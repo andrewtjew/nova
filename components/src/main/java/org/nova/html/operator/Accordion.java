@@ -46,7 +46,7 @@ public class Accordion extends Content
         if (opened==false)
         {
             this.button=returnAddInner(new button_button()).addClass("accordion");
-            this.button.onclick("this.classList.toggle('active');var panel=this.nextElementSibling;if (panel.style.maxHeight){panel.style.maxHeight=null;}else{panel.style.maxHeight=panel.scrollHeight+'px';}");
+            this.button.onclick("this.classList.toggle('active');var panel=this.nextElementSibling;if (panel.style.maxHeight){panel.style.maxHeight=null;}else{panel.style.maxHeight=10*panel.scrollHeight+'px';}");
 //            this.button.onclick("openAccordions();");
             this.content=returnAddInner(new div()).addClass("accordion-content").id(id);
         }

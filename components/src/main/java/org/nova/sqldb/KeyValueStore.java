@@ -98,7 +98,7 @@ public class KeyValueStore extends ContentCache<String,String>
         {
             throw new Exception("fullKey="+fullKey); 
         }
-        put(key,new ValueSize<String>(value));
+        put(parent,key,new ValueSize<String>(value));
     }    
 
     public void write(Trace parent,String key,Object value) throws Throwable
@@ -222,5 +222,11 @@ public class KeyValueStore extends ContentCache<String,String>
     public void refresh(Trace parent,String key) throws Throwable
     {
         this.fill(parent, getFullKey(key));
+    }
+    @Override
+    protected void onEvict(Trace parent, String key, String value) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        
     }
 }

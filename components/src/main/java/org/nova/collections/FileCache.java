@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
+import org.w3c.dom.Document;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
@@ -123,4 +124,11 @@ public class FileCache extends ContentCache<String,byte[]>
 	{
 		return this.localDirectory;
 	}
+
+    @Override
+    protected void onEvict(Trace parent, String key, byte[] value) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

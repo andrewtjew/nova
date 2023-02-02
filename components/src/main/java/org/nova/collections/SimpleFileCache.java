@@ -75,4 +75,11 @@ public class SimpleFileCache extends ContentCache<String,byte[]>
         }
         throw new Exception("Invalid file: "+filePath);
 	}
+
+    @Override
+    protected void onEvict(Trace parent, String key, byte[] value) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

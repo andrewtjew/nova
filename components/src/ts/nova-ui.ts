@@ -24,7 +24,6 @@ namespace nova.ui.media
             this.canvasElement.getContext('2d').drawImage(this.videoElement as HTMLElement as HTMLImageElement,0,0,this.canvasElement.width,this.canvasElement.height);
             var dataURL=this.canvasElement.toDataURL();
             nova.remote.postStatic(url,JSON.stringify({dataURL:dataURL}));
-
         }
 
 

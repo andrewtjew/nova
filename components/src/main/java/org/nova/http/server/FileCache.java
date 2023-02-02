@@ -86,4 +86,11 @@ public class FileCache extends ContentCache<String,byte[]>
         }
         return new ValueSize<byte[]>(bytes,bytes.length);
     }
+
+    @Override
+    protected void onEvict(Trace parent, String key, byte[] value) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

@@ -33,10 +33,12 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.http.Header;
+import org.nova.http.server.annotations.Test;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
 import org.nova.operations.OperatorVariable;
+import org.nova.services.AllowNoSession;
 import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -64,11 +66,10 @@ public class HttpServer
 //  final private Server[] servers;
 //  final private int [] ports;
 	
-    @OperatorVariable()
-    private boolean test;
+    final private boolean test;
     
     @OperatorVariable()
-    private boolean onlyLogRequestsWithContentWriters=true;
+    private boolean logRequestHandlersOnly=true;
     
 	
 	public HttpServer(TraceManager traceManager, Logger logger,boolean test,HttpServerConfiguration configuration) throws Exception
@@ -365,7 +366,7 @@ public class HttpServer
                 }
             }
             RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
-            if (this.onlyLogRequestsWithContentWriters==false)
+            if (this.logRequestHandlersOnly==false)
             {
                 if (handler.isLogLastRequestsInMemory())
                 {
@@ -410,10 +411,7 @@ public class HttpServer
 	
 	private void handle(Trace parent, HttpServletRequest servletRequest, HttpServletResponse servletResponse, RequestHandlerWithParameters requestHandlerWithParameters) throws Throwable
 	{
-        if (requestHandlerWithParameters.requestHandler.isPublic()==false)
-        {
-            //TODO: prevent access
-        }
+
 		long responseUncompressedContentSize=0;
 		long requestUncompressedContentSize=0;
 		long responseCompressedContentSize=0;
@@ -424,124 +422,130 @@ public class HttpServer
 		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ handler.getKey());
 		try
 		{
-
-            DecoderContext decoderContext = null;
-            if ("application/x-www-form-urlencoded".equalsIgnoreCase(servletRequest.getParameter("Content-Type"))==false)
-            {
-                decoderContext = getContentDecoder(servletRequest.getHeader("Content-Encoding"), handler).open(servletRequest, servletResponse);
-            }
-            else 
-            {
-                decoderContext=this.identityContentDecoder.open(servletRequest, servletResponse);
-            }
-            //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
-            ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
-            if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
-            {
-                servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
-            }
-            EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
-			
-            FilterChain chain = new FilterChain(requestHandlerWithParameters);
-            Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
-            try 
-			{
-				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
-				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
-
-				Response<?> response = chain.next(trace, context);
-                servletResponse=context.getHttpServletResponse();
-                if (context.isCaptured()==false)
+		    if (handler.isTest())
+		    {
+		        servletResponse.setStatus(HttpStatus.FORBIDDEN_403);
+		    }
+		    else
+		    {
+                DecoderContext decoderContext = null;
+                if ("application/x-www-form-urlencoded".equalsIgnoreCase(servletRequest.getParameter("Content-Type"))==false)
                 {
-					if (response != null)
-					{
-						if (response.headers != null)
-						{
-							for (Header header : response.headers)
-							{
-								servletResponse.setHeader(header.getName(), header.getValue());
-							}
-						}
-						if (response.cookies!=null)
-						{
-						    for (Cookie cookie:response.cookies)
-						    {
-						        javax.servlet.http.Cookie httpCookie=new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue());
-						        httpCookie.setPath("/");
-						        servletResponse.addCookie(httpCookie);
-						    }
-						}
-						servletResponse.setStatus(response.getStatusCode());
-						ContentWriter<?> writer = context.getContentWriter();
-						if (writer != null)
-						{
-                            if (servletResponse.getContentType()==null)
-                            {
-                                servletResponse.setContentType(writer.getMediaType());
-                            }
-							try 
-							{
-								Method write = writer.getClass().getMethod("write", Context.class, Object.class);
-								Object content = response.getContent();
-								write.invoke(writer, context, content);
-							}
-							finally
-							{
-								encoderContext.close();
-								responseUncompressedContentSize=encoderContext.getUncompressedContentSize();
-								responseCompressedContentSize=encoderContext.getCompressedContentSize();
-							}
-							
-						}
-						else if (response.getContent() != null)
-						{
-							if (TESTING)
-							{
-								Testing.log("NO_WRITER: Accept="+servletRequest.getHeader("Accept"));
-							}
-							throw new AbnormalException(Abnormal.NO_WRITER);
-						}
-					}
-				}
-			}
-			catch (StatusException e)
-			{
-                if (e.headers != null)
-                {
-                    for (Header header : e.headers)
-                    {
-                        servletResponse.setHeader(header.getName(), header.getValue());
-                    }
+                    decoderContext = getContentDecoder(servletRequest.getHeader("Content-Encoding"), handler).open(servletRequest, servletResponse);
                 }
-                if (e.cookies!=null)
+                else 
                 {
-                    for (Cookie cookie:e.cookies)
-                    {
-                        servletResponse.addCookie(new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue()));
-                    }
+                    decoderContext=this.identityContentDecoder.open(servletRequest, servletResponse);
                 }
-                servletResponse.setStatus(e.statusCode);
-			}
-            catch (Throwable e)
-            {
-                String key=requestHandlerWithParameters.requestHandler.getKey();
-                throw new Exception(key,e);
-            }
-			finally
-			{
-			    requestContentText=context.getRequestContentText();
-			    responseContentText=context.getResponseContentText();
-				if (decoderContext!=null)
-				{
-					requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
-					requestCompressedContentSize=decoderContext.getCompressedContentSize();
-					decoderContext.close();
-				}
-
-				//For logging 
-                servletRequest=context.getHttpServletRequest();
-                servletResponse=context.getHttpServletResponse();
-			}
+                //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
+                ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
+                if (Strings.isNullOrEmpty(contentEncoder.getCoding())==false)
+                {
+                    servletResponse.setHeader("Content-Encoding", contentEncoder.getCoding());
+                }
+                EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse);
+    			
+                FilterChain chain = new FilterChain(requestHandlerWithParameters);
+                Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+                try 
+    			{
+    				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
+    				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
+    
+    				Response<?> response = chain.next(trace, context);
+                    servletResponse=context.getHttpServletResponse();
+                    if (context.isCaptured()==false)
+                    {
+    					if (response != null)
+    					{
+    						if (response.headers != null)
+    						{
+    							for (Header header : response.headers)
+    							{
+    								servletResponse.setHeader(header.getName(), header.getValue());
+    							}
+    						}
+    						if (response.cookies!=null)
+    						{
+    						    for (Cookie cookie:response.cookies)
+    						    {
+    						        javax.servlet.http.Cookie httpCookie=new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue());
+    						        httpCookie.setPath("/");
+    						        servletResponse.addCookie(httpCookie);
+    						    }
+    						}
+    						servletResponse.setStatus(response.getStatusCode());
+    						ContentWriter<?> writer = context.getContentWriter();
+    						if (writer != null)
+    						{
+                                if (servletResponse.getContentType()==null)
+                                {
+                                    servletResponse.setContentType(writer.getMediaType());
+                                }
+    							try 
+    							{
+    								Method write = writer.getClass().getMethod("write", Context.class, Object.class);
+    								Object content = response.getContent();
+    								write.invoke(writer, context, content);
+    							}
+    							finally
+    							{
+    								encoderContext.close();
+    								responseUncompressedContentSize=encoderContext.getUncompressedContentSize();
+    								responseCompressedContentSize=encoderContext.getCompressedContentSize();
+    							}
+    							
+    						}
+    						else if (response.getContent() != null)
+    						{
+    							if (TESTING)
+    							{
+    								Testing.log("NO_WRITER: Accept="+servletRequest.getHeader("Accept"));
+    							}
+    							throw new AbnormalException(Abnormal.NO_WRITER);
+    						}
+    					}
+    				}
+    			}
+    			catch (StatusException e)
+    			{
+                    if (e.headers != null)
+                    {
+                        for (Header header : e.headers)
+                        {
+                            servletResponse.setHeader(header.getName(), header.getValue());
+                        }
+                    }
+                    if (e.cookies!=null)
+                    {
+                        for (Cookie cookie:e.cookies)
+                        {
+                            servletResponse.addCookie(new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue()));
+                        }
+                    }
+                    servletResponse.setStatus(e.statusCode);
+    			}
+                catch (Throwable e)
+                {
+                    String key=requestHandlerWithParameters.requestHandler.getKey();
+                    throw new Exception(key,e);
+                }
+    			finally
+    			{
+    			    requestContentText=context.getRequestContentText();
+    			    responseContentText=context.getResponseContentText();
+    				if (decoderContext!=null)
+    				{
+    					requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
+    					requestCompressedContentSize=decoderContext.getCompressedContentSize();
+    					decoderContext.close();
+    				}
+    
+    				//For logging 
+                    servletRequest=context.getHttpServletRequest();
+                    servletResponse=context.getHttpServletResponse();
+    			}
+		    }
 		}
 		catch (Throwable e)
 		{

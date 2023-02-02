@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map.Entry;
 
 import org.nova.annotations.Description;
@@ -60,6 +61,8 @@ public class LogDirectoryManager
 	final CountMeter directorySizeDeleteMeter; 
 	@Description("File delete attempts due to reserve space exceeded")
 	final CountMeter reserveSpaceDeleteMeter; 
+
+	static public DateTimeFormatter OLD_LOCALDATETIME_FILENAME_FORMATTER=DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS"); 
 	
 	public LogDirectoryManager(String directory,int maximumMakeSpaceAttemps,long maximumFiles,long maximumSize,long reserveSpace) throws Exception
 	{
@@ -101,7 +104,15 @@ public class LogDirectoryManager
 				}
 				catch(Throwable t)
 				{
-					return false;
+	                try
+	                {
+	                    LocalDateTime dateTime=LocalDateTime.parse(zoneDateTime,OLD_LOCALDATETIME_FILENAME_FORMATTER);
+	                    return true;
+	                }
+	                catch(Throwable tt)
+	                {
+	                    return false;
+	                }
 				}
 			}
 		});

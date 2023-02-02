@@ -3110,41 +3110,41 @@ public class ServerApplicationPages
             rows=20;
         }
 //      textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;").addInner(text).rows(rows));
-        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
-        {
-            text=HtmlUtils.toHtmlText(text);
-        }
-        textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;").addInner(text).rows(rows));
+//        if ((contentType!=null)&&(contentType.toLowerCase().contains("/html")))
+//        {
+//            text=HtmlUtils.toHtmlText(text);
+//        }
+        textAccodion.content().addInner(new textarea().readonly().style("width:100%;").addInner(new LiteralHtml(text)).rows(rows));
     }
     
-    private void writeRequest(OperatorDataTable dataTable,OperatorPage page,RequestLogEntry entry) throws Exception
-    {
-        Head head=page.head();
-        String title;
-        if (entry.getQueryString()!=null)
-        {
-            title=entry.getStatusCode()+" | "+entry.getRemoteEndPoint()+" | "+entry.getRequest()+"?"+entry.getQueryString();
-        }
-        else
-        {
-            title=entry.getStatusCode()+" | "+entry.getRemoteEndPoint()+" | "+entry.getRequest();
-        }
-        Panel panel=new Panel3(page.head(),title);
-        panel.style("width:100%;");
-
-        tr tr=dataTable.tbody().returnAddInner(new tr());
-        tr.addInner(new td().addInner(new Text(entry.getTrace().getNumber())));
-        tr.addInner(new td().style("height:100%").addInner(panel));
-
-        writeTrace(head,panel.content(),entry.getTrace(),false);
-        
-        writeHeaders(head,"Request Headers",panel.content(),entry.getRequestHeaders());
-        writeHeaders(head,"Request Parameters",panel.content(),entry.getRequestParameters());
-        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),null);
-
-        writeHeaders(head,"Response Headers",panel.content(),entry.getResponseHeaders());
-        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
-    }    
+//    private void writeRequest(OperatorDataTable dataTable,OperatorPage page,RequestLogEntry entry) throws Exception
+//    {
+//        Head head=page.head();
+//        String title;
+//        if (entry.getQueryString()!=null)
+//        {
+//            title=entry.getStatusCode()+" | "+entry.getRemoteEndPoint()+" | "+entry.getRequest()+"?"+entry.getQueryString();
+//        }
+//        else
+//        {
+//            title=entry.getStatusCode()+" | "+entry.getRemoteEndPoint()+" | "+entry.getRequest();
+//        }
+//        Panel panel=new Panel3(page.head(),title);
+//        panel.style("width:100%;");
+//
+//        tr tr=dataTable.tbody().returnAddInner(new tr());
+//        tr.addInner(new td().addInner(new Text(entry.getTrace().getNumber())));
+//        tr.addInner(new td().style("height:100%").addInner(panel));
+//
+//        writeTrace(head,panel.content(),entry.getTrace(),false);
+//        
+//        writeHeaders(head,"Request Headers",panel.content(),entry.getRequestHeaders());
+//        writeHeaders(head,"Request Parameters",panel.content(),entry.getRequestParameters());
+//        writeContent(head,"Request Content",panel.content(),entry.getRequestContentText(),null);
+//
+//        writeHeaders(head,"Response Headers",panel.content(),entry.getResponseHeaders());
+//        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
+//    }    
     private Element writeRequestLogEntries(Head head, RequestLogEntry[] entries) throws Throwable
     {
         OperatorDataTable dataTable=new OperatorDataTable(head);

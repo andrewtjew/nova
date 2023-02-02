@@ -50,7 +50,6 @@ public class RequestHandler
 	final private Map<String,ContentDecoder> contentDecoders;
 	final private String key;
 	final private String httpMethod;
-	final private boolean public_;
     final private boolean log;
     final private boolean logRequestHeaders;
     final private boolean logRequestParameters;
@@ -69,8 +68,9 @@ public class RequestHandler
 //    final private Attributes attributes;
     final private HashSet<String> attributes;
     final private boolean stateParam;
+    final private boolean test;
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,boolean public_,int bufferSize,int cookieParamCount,Attributes attributes)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter<?>> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations)
 	{
 	    boolean stateParam=false;
 	    for (ParameterInfo info:parameterInfos)
@@ -95,7 +95,6 @@ public class RequestHandler
 		this.contentDecoders=contentDecoders;
 		this.httpMethod=httpMethod;
 		this.key=httpMethod+" "+path;
-		this.public_=public_;
 		this.meters=new HashMap<>();
 		this.requestUncompressedContentSizeMeter=new LongValueMeter();
 		this.responseUncompressedContentSizeMeter=new LongValueMeter();
@@ -110,10 +109,10 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
-        if (attributes!=null)
+        if (annotations.attributes!=null)
         {
             this.attributes=new HashSet<String>();
-            for (String value:attributes.value())
+            for (String value:annotations.attributes.value())
             {
                 this.attributes.add(value);
             }
@@ -122,6 +121,7 @@ public class RequestHandler
         {
             this.attributes=null;
         }
+        this.test=annotations.test!=null;
    }
 	
 	public Object getObject()
@@ -196,11 +196,6 @@ public class RequestHandler
 		return contentDecoders;
 	}
 
-	public boolean isPublic()
-	{
-		return this.public_;
-	}
-	
 	public void update(int statusCode,long duration,long requestUncompressedContentSize,long responseUncompressedContentSize,long requestCompressedContentSize,long responseCompressedContentSize)
 	{
 		synchronized (this)
@@ -317,5 +312,8 @@ public class RequestHandler
     {
         return this.stateParam;
     }
-	
+	public boolean isTest()
+	{
+	    return this.test;
+	}
 }

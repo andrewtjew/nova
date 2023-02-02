@@ -21,8 +21,8 @@ public class SMSClient
     public SMSClient(Logger logger,String accessKeyId,String secretKey,long maximumPrice,boolean transactional)
     {
         this.logger=logger;
-        System.setProperty("aws.accessKeyId", "AKIA2DIFL6NR73FZQXX2");
-        System.setProperty("aws.secretKey", "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");
+        System.setProperty("aws.accessKeyId", accessKeyId);
+        System.setProperty("aws.secretKey", secretKey);
         this.attributes =new HashMap<String, MessageAttributeValue>();
         String price=String.format("%.2f", maximumPrice*0.01);
         this.attributes.put("AWS.SNS.SMS.MaxPrice", new MessageAttributeValue().withStringValue(price).withDataType("Number"));
@@ -31,7 +31,7 @@ public class SMSClient
         this.client= new AmazonSNSClient();
     }    
     
-    public String publish(Trace parent,String phoneNumber,String message)
+    public String send(Trace parent,String phoneNumber,String message)
     {
         try (Trace trace=new Trace(parent,"SMSClient.publish"))
         {

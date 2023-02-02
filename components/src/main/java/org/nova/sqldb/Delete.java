@@ -27,9 +27,9 @@ import org.nova.tracing.Trace;
 
 public class Delete 
 {
-    final private StringBuilder columns;
-    final ArrayList<Object> parameters;
     final private String table;
+    private String whereExpression;
+    private Object[] whereParameters;
     private String categoryOverride;
     
     public static Delete table(String table)
@@ -39,8 +39,6 @@ public class Delete
     
     public Delete(String table)
     {
-        this.columns=new StringBuilder();
-        this.parameters=new ArrayList<Object>();
         this.table=table;
     }
     
@@ -49,28 +47,32 @@ public class Delete
         this.categoryOverride=categoryOverride;
         return this;
     }
-    
-    public int execute(Trace parent,Accessor accessor,String where,Object...parameters) throws Throwable
+    public Delete where(String whereExpression,Object...whereParameters)
     {
-        StringBuilder sql=new StringBuilder("DELETE "+this.table +" WHERE "+where);
-        
-        for (Object parameter:parameters)
+        this.whereExpression=whereExpression;
+        this.whereParameters=whereParameters;
+        return this;
+    }
+    
+    public int execute(Trace parent,Accessor accessor) throws Throwable
+    {
+        if (this.whereExpression==null)
         {
-            this.parameters.add(parameter);
+            throw new Exception("Do not use without WHERE");
         }
-        return accessor.executeUpdate(parent, this.categoryOverride, this.parameters, sql.toString());
+        StringBuilder sql=new StringBuilder("DELETE "+this.table+" WHERE "+this.whereExpression);
+        if (this.whereParameters!=null)
+        {
+            return accessor.executeUpdate(parent, this.categoryOverride, this.whereParameters, sql.toString());
+        }
+        return accessor.executeUpdate(parent, this.categoryOverride, sql.toString());
     }
 
-    public int execute(Trace parent,Connector connector,String where,Object...parameters) throws Throwable
+    public int execute(Trace parent,Connector connector) throws Throwable
     {
         try (Accessor accessor=connector.openAccessor(parent))
         {
-            return execute(parent, accessor,where,parameters);
+            return execute(parent, accessor);
         }
     }
-    public int getNumberOfColumns()
-    {
-        return this.parameters.size();
-    }
-
 }

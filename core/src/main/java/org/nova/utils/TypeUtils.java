@@ -361,11 +361,19 @@ public class TypeUtils
         }
         return value;
     }
-    static public boolean isNullOrFalse(Boolean value)
+    static public boolean isFalse(Boolean value)
     {
         if (value==null)
         {
             return false;
+        }
+        return value==false;
+    }
+    static public boolean isNullOrFalse(Boolean value)
+    {
+        if (value==null)
+        {
+            return true;
         }
         return !value;
     }

@@ -31,7 +31,8 @@ public class Update
     final ArrayList<Object> parameters;
     final private String table;
     private String categoryOverride;
-    
+    private String whereExpression;
+    private Object[] whereParameters;
     public static Update table(String table)
     {
         return new Update(table);
@@ -42,6 +43,13 @@ public class Update
         this.columns=new StringBuilder();
         this.parameters=new ArrayList<Object>();
         this.table=table;
+    }
+    
+    public Update where(String whereExpression,Object...whereParameters)
+    {
+        this.whereExpression=whereExpression;
+        this.whereParameters=whereParameters;
+        return this;
     }
     
     public Update set(String columnName,Object value)
@@ -61,27 +69,31 @@ public class Update
         return this;
     }
     
-    public int execute(Trace parent,Accessor accessor,String where,Object...parameters) throws Throwable
+    public int execute(Trace parent,Accessor accessor) throws Throwable
     {
-        StringBuilder sql=new StringBuilder("UPDATE "+this.table+" SET "+this.columns.toString()+" WHERE "+where);
+        StringBuilder sql=new StringBuilder("UPDATE "+this.table+" SET "+this.columns.toString());
+        if (this.whereExpression!=null)
+        {
+            sql.append(" WHERE ");
+            sql.append(this.whereExpression);
+        }
         
-        for (Object parameter:parameters)
+        for (Object parameter:this.whereParameters)
         {
             this.parameters.add(parameter);
         }
-        return accessor.executeUpdate(parent, this.categoryOverride, this.parameters, sql.toString());
+        if (this.parameters!=null)
+        {
+            return accessor.executeUpdate(parent, this.categoryOverride, this.parameters, sql.toString());
+        }
+        return accessor.executeUpdate(parent, this.categoryOverride, sql.toString());
     }
 
-    public int execute(Trace parent,Connector connector,String where,Object...parameters) throws Throwable
+    public int execute(Trace parent,Connector connector) throws Throwable
     {
         try (Accessor accessor=connector.openAccessor(parent))
         {
-            return execute(parent, accessor,where,parameters);
+            return execute(parent, accessor);
         }
     }
-    public int getNumberOfColumns()
-    {
-        return this.parameters.size();
-    }
-
 }
