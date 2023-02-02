@@ -868,6 +868,7 @@ class RequestHandlerMap
         boolean logResponseHeaders=true;
         boolean logResponseContent=true;
         boolean logRequestParameters=true;
+        boolean test=handlerAnnotations.test!=null;
         
         PathAndQuery path=new PathAndQuery();
         if (root!=null)
@@ -925,7 +926,7 @@ class RequestHandlerMap
         RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters,
                 parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap, contentEncoderMap, contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
-                true,this.bufferSize,cookieStateParamCount,handlerAnnotations.attributes);
+                this.bufferSize,cookieStateParamCount,handlerAnnotations);
         add(httpMethod, fullPath, requestHandler);
         
         for (Filter filter:bottomFilters)

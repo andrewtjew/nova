@@ -29,6 +29,8 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
+import java.util.HashSet;
+
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
@@ -388,7 +390,7 @@ public class SecurityUtils
     
     public static boolean isGoodNummericCode(String password, int minimumLength,int maximumLength)
     {
-        if (password.length() > minimumLength)
+        if (password.length() > maximumLength)
         {
             return false;
         }
@@ -422,4 +424,17 @@ public class SecurityUtils
         return true;
     }
    
+    public static int getUniqueCharacters(String text)
+    {
+        if (text==null)
+        {
+            return 0;
+        }
+        HashSet<Character> set=new HashSet();
+        for (int i=0;i<text.length();i++)
+        {
+            set.add(text.charAt(i));
+        }
+        return set.size();
+    }
 }

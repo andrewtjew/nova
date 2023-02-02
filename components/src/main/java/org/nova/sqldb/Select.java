@@ -21,15 +21,20 @@
  ******************************************************************************/
 package org.nova.sqldb;
 
+import java.util.ArrayList;
+
 import org.nova.tracing.Trace;
+import org.nova.utils.Utils;
 
 public class Select 
 {
-    final private StringBuilder columns;
     final private String source; //Table with optional JOINs
     private String categoryOverride;
-    private int numberOfColumns;
     private String orderBy;
+    private String whereExpression;
+    private Object[] whereParameters;
+    private Long maximumRows;
+    private String[] columns;
     
     public static Select source(String source)
     {
@@ -38,28 +43,24 @@ public class Select
     
     public Select(String source)
     {
-        this.columns=new StringBuilder();
         this.source=source;
-        this.numberOfColumns=0;
     }
     
-    public Select columns(String...columnNames)
+    public Select maximumRows(Long maximumRows)
     {
-        for (String columnName:columnNames)
-        {
-            if (this.columns.length()>0)
-            {
-                this.columns.append(',');
-            }
-            this.columns.append(columnName);
-        }
-        this.numberOfColumns+=columnNames.length;
+        this.maximumRows=maximumRows;
         return this;
+                
     }
     
-    public int getNumberOfColumns()
+    public Select columns(String...columnNames) throws Exception
     {
-        return this.numberOfColumns;
+        if (this.columns!=null)
+        {
+            throw new Exception();
+        }
+        this.columns=columnNames;
+        return this;
     }
     
     public Select categoryOverride(String categoryOverride)
@@ -67,87 +68,174 @@ public class Select
         this.categoryOverride=categoryOverride;
         return this;
     }
-    
+
+    public Select where(String whereExpression,Object...whereParameters)
+    {
+        this.whereExpression=whereExpression;
+        this.whereParameters=whereParameters;
+        return this;
+    }
     public Select orderBy(String orderBy)
     {
         this.orderBy=orderBy;
         return this;
     }
     
-    public RowSet execute(Trace parent,Accessor accessor,Integer max,String where,Object...parameters) throws Throwable
+//    @Deprecated
+//    public RowSet execute(Trace parent,Accessor accessor,Integer max,String where,Object...parameters) throws Throwable
+//    {
+//        String sql=null;
+//        if (this.columns.length()==0)
+//        {
+//            this.columns.append("*");
+//        }
+//        if (max!=null)
+//        {
+//            Connector connector=accessor.getConnector();
+//            Object[] old=parameters;
+//            parameters=new Object[old.length+1];
+//            if (where!=null)
+//            {
+//                if (connector instanceof SqlServerConnector)
+//                {
+//                    sql="SELECT TOP(?) "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
+//                    parameters[0]=max;
+//                    for (int i=0;i<old.length;i++)
+//                    {
+//                        parameters[i+1]=old[i];
+//                    }
+//                }
+//                else if (connector instanceof MySqlConnector)
+//                {
+//                    sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where+" LIMIT ?";
+//                    for (int i=0;i<old.length;i++)
+//                    {
+//                        parameters[i]=old[i];
+//                    }
+//                    parameters[old.length]=max;
+//                }
+//                else
+//                {
+//                    throw new RuntimeException();
+//                }
+//            }
+//            else
+//            {
+//                if (connector instanceof SqlServerConnector)
+//                {
+//                    sql="SELECT TOP(?) "+this.columns.toString()+" FROM "+this.source;
+//                    parameters[0]=max;
+//                    for (int i=0;i<old.length;i++)
+//                    {
+//                        parameters[i+1]=old[i];
+//                    }
+//                }
+//                else if (connector instanceof MySqlConnector)
+//                {
+//                    sql="SELECT "+this.columns.toString()+" FROM "+this.source+" LIMIT ?";
+//                    for (int i=0;i<old.length;i++)
+//                    {
+//                        parameters[i]=old[i];
+//                    }
+//                    parameters[old.length]=max;
+//                }
+//                else
+//                {
+//                    throw new RuntimeException();
+//                }
+//            }  
+//        }
+//        else
+//        {
+//            if (where!=null)
+//            {
+//                sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
+//            }
+//            else
+//            {
+//                sql="SELECT "+this.columns.toString()+" FROM "+this.source;
+//            }
+//        }
+//        if (this.orderBy!=null)
+//        {
+//            sql=sql+" ORDER BY "+this.orderBy;
+//        }
+//   
+////        System.out.println(sql);
+//        return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
+//    }
+
+    public RowSet execute(Trace parent,Accessor accessor) throws Throwable
     {
-        String sql=null;
-        if (this.columns.length()==0)
+        Connector connector=accessor.getConnector();
+
+        StringBuilder sb=new StringBuilder("SELECT");
+        if (this.maximumRows!=null)
         {
-            this.columns.append("*");
-        }
-        if (max!=null)
-        {
-            Connector connector=accessor.getConnector();
-            Object[] old=parameters;
-            parameters=new Object[old.length+1];
             if (connector instanceof SqlServerConnector)
             {
-                sql="SELECT TOP(?) "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
-                parameters[0]=max;
-                for (int i=0;i<old.length;i++)
-                {
-                    parameters[i+1]=old[i];
-                }
+                sb.append(" TOP("+this.maximumRows+")");
             }
-            else if (connector instanceof MySqlConnector)
-            {
-                sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where+" LIMIT ?";
-                for (int i=0;i<old.length;i++)
-                {
-                    parameters[i]=old[i];
-                }
-                parameters[old.length]=max;
-            }
-            else
-            {
-                throw new RuntimeException();
-            }
+        }
+        if ((this.columns==null)||(this.columns.length==0))
+        {
+            sb.append(" *");
         }
         else
         {
-            sql="SELECT "+this.columns.toString()+" FROM "+this.source+" WHERE "+where;
+            sb.append(" ");
+            sb.append(Utils.combine(this.columns, ","));
         }
-        if (where!=null)
-            
+        sb.append(" FROM ");
+        sb.append(this.source);
+        if (this.whereExpression!=null)
+        {
+            sb.append(" WHERE ");
+            sb.append(this.whereExpression);
+        }
         if (this.orderBy!=null)
         {
-            sql=sql+" ORDER BY "+this.orderBy;
+            sb.append(" ORDER BY ");
+            sb.append(this.orderBy);
         }
-   
-//        System.out.println(sql);
-        return accessor.executeQuery(parent, this.categoryOverride, parameters, sql);
+        if (this.maximumRows!=null)
+        {
+            if (connector instanceof MySqlConnector)
+            {
+                sb.append(" LMIT ");
+                sb.append(this.maximumRows);
+            }
+        }
+        String sql=sb.toString();
+        try
+        {
+            if (this.whereParameters!=null)
+            {
+                return accessor.executeQuery(parent, this.categoryOverride, this.whereParameters, sql);
+            }
+            else
+            {
+                return accessor.executeQuery(parent, this.categoryOverride,sql);
+            }
+        }
+        catch (Throwable t)
+        {
+            throw new Exception(sql,t);
+        }
     }
-
-    public RowSet execute(Trace parent,Connector connector,Integer max,String where,Object...parameters) throws Throwable
+    
+    
+    public RowSet execute(Trace parent,Connector connector) throws Throwable
     {
         try (Accessor accessor=connector.openAccessor(parent))
         {
-            return execute(parent, accessor,max,where,parameters);
+            return execute(parent, accessor);
         }
     }
 
-    public RowSet execute(Trace parent,Accessor accessor,String where,Object...parameters) throws Throwable
+    public Row executeOne(Trace parent,Accessor accessor) throws Throwable
     {
-        return execute(parent,accessor,null,where,parameters);
-    }
-
-    public RowSet execute(Trace parent,Connector connector,String where,Object...parameters) throws Throwable
-    {
-        try (Accessor accessor=connector.openAccessor(parent))
-        {
-            return execute(parent, accessor,where,parameters);
-        }
-    }
-
-    public Row executeOne(Trace parent,Accessor accessor,String where,Object...parameters) throws Throwable
-    {
-        RowSet rowSet=execute(parent,accessor,1,where,parameters);
+        RowSet rowSet=execute(parent,accessor);
         if (rowSet.size()==1)
         {
             return rowSet.getRow(0);
@@ -159,11 +247,11 @@ public class Select
         throw new Exception("rows="+rowSet.size());
     }
 
-    public Row executeOne(Trace parent,Connector connector,String where,Object...parameters) throws Throwable
+    public Row executeOne(Trace parent,Connector connector) throws Throwable
     {
         try (Accessor accessor=connector.openAccessor(parent))
         {
-            return executeOne(parent, accessor,where,parameters);
+            return executeOne(parent, accessor);
         }
     }
 

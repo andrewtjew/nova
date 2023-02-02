@@ -121,7 +121,7 @@ public class HttpRequestWidget extends Element
 //        {
 //            text=HtmlUtils.toHtmlText(text);
 //        }
-        textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:none;resize:vertical;").addInner(text).rows(rows));
+        textAccodion.content().addInner(new textarea().readonly().style("width:100%;resize:vertical;").addInner(text).rows(rows));
     }
 
     private void writeHeaders(Head head,String heading,NodeElement<?> content,String headers)

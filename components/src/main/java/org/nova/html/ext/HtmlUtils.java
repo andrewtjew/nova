@@ -686,6 +686,42 @@ public class HtmlUtils
         sb.append(")");
         return sb.toString();
     }
+    
+    //Not complete.
+    public static String toImageSubType(String fileName)
+    {
+        int index=fileName.lastIndexOf('.');
+        if (index<0)
+        {
+            return null;
+        }
+        String extension=fileName.substring(index+1).toLowerCase();
+        switch (extension)
+        {
+            case "png":
+            case "x-png":
+            return "png";
+                
+            case "bmp":
+            case "fif":
+            case "gif":
+            return extension;
+            
+            case "tif":
+            case "tiff":
+            return "tiff";
+                
+            case "jfif":
+            case "jpe":
+            case "jpeg":
+            case "jpg":
+            return "jpeg";
+            
+            default:
+                return null;
+        }
+    }
+    
     public static String toHtmlText(String text)
     {
         StringBuilder sb=new StringBuilder();

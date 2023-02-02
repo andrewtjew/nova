@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.collections;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.nova.annotations.Description;
@@ -34,20 +35,28 @@ abstract public class ContentCache<KEY,VALUE>
 	private long totalContentSize;
 	private long freeMemoryCapacity;
 	
-	static class Node<KEY,VALUE>
+	public static class Entry<KEY,VALUE>
 	{
 		final KEY key;
 		final ValueSize<VALUE> valueSize;
-		Node<KEY,VALUE> previous;
-		Node<KEY,VALUE> next;
+		Entry<KEY,VALUE> previous;
+		Entry<KEY,VALUE> next;
 		
         long accessed;
         long created;
-		public Node(KEY key,ValueSize<VALUE> valueSize)
+		public Entry(KEY key,ValueSize<VALUE> valueSize)
 		{
 			this.valueSize=valueSize;
 			this.key=key;
 			this.created=this.accessed=System.currentTimeMillis();
+		}
+		public KEY getKey()
+		{
+		    return this.key;
+		}
+		public VALUE getValue()
+		{
+		    return valueSize.value;
 		}
 	}
 	
@@ -71,6 +80,11 @@ abstract public class ContentCache<KEY,VALUE>
     {
 	    this(0,0,0,1024L*1024L*64L);
     }
+
+	public ContentCache(int capacity)
+    {
+        this(capacity,0,0,1024L*1024L*64L);
+    }
 	
 	public ContentCache(int capacity,long maxAgeMs,long contentCapacity,long freeMemoryCapacity)
 	{
@@ -78,7 +92,7 @@ abstract public class ContentCache<KEY,VALUE>
 		this.misses=new CountMeter();
 		this.ageMisses=new CountMeter();
 		this.sizeEvicts=new CountMeter();
-		this.nodeMap=new HashMap<>();
+		this.entries=new HashMap<>();
 		this.first=null;
 		this.capacity=capacity;
 		this.maxAgeMs=maxAgeMs;
@@ -87,7 +101,7 @@ abstract public class ContentCache<KEY,VALUE>
 		        
 	}
 	
-	final private HashMap<KEY,Node<KEY,VALUE>> nodeMap;
+	final private HashMap<KEY,Entry<KEY,VALUE>> entries;
 	
 	@Description("Cache hits.")
 	final private CountMeter hits;
@@ -102,8 +116,8 @@ abstract public class ContentCache<KEY,VALUE>
 	final private CountMeter sizeEvicts;
 	
 	final private int capacity;
-	private Node<KEY,VALUE> first;
-	private Node<KEY,VALUE> last;
+	private Entry<KEY,VALUE> first;
+	private Entry<KEY,VALUE> last;
 	
 
 	public VALUE get(KEY key) throws Throwable
@@ -132,34 +146,34 @@ abstract public class ContentCache<KEY,VALUE>
 
 	public ValueSize<VALUE> getFromCache(KEY key) throws Throwable
     {
-        synchronized(this.nodeMap)
+        synchronized(this.entries)
         {
-            Node<KEY,VALUE> node=this.nodeMap.get(key);
-            if (node!=null)
+            Entry<KEY,VALUE> entry=this.entries.get(key);
+            if (entry!=null)
             {
                 long now=System.currentTimeMillis();
-                if ((this.maxAgeMs<=0)||(now-node.created<this.maxAgeMs))
+                if ((this.maxAgeMs<=0)||(now-entry.created<this.maxAgeMs))
                 {
-                    if (node.previous!=null)
+                    if (entry.previous!=null)
                     {
-                        node.previous.next=node.next;
-                        if (node.next!=null)
+                        entry.previous.next=entry.next;
+                        if (entry.next!=null)
                         {
-                            node.next.previous=node.previous;
+                            entry.next.previous=entry.previous;
                         }
                         else
                         {
-                            this.last=node.previous;
+                            this.last=entry.previous;
                         }
-                        node.previous=null;
-                        node.next=this.first;
-                        this.first=node;
+                        entry.previous=null;
+                        entry.next=this.first;
+                        this.first=entry;
                     }
-                    node.accessed=now;
+                    entry.accessed=now;
                     this.hits.increment();
-                    return node.valueSize;
+                    return entry.valueSize;
                 }
-                evict(key);
+                remove(key);
             }
         }
         this.misses.increment();
@@ -171,33 +185,33 @@ abstract public class ContentCache<KEY,VALUE>
 		synchronized(this)
 		{
 			ValueSize<VALUE> valueSize=load(parent,key);
-			return put(key,valueSize);
+			return put(parent,key,valueSize);
 		}
 	}
-    public  void update(KEY key,VALUE value) throws Throwable
+//    public  void update(KEY key,VALUE value) throws Throwable
+//    {
+//        ValueSize<VALUE> valueSize=getFromCache(key);
+//        if (valueSize!=null)
+//        {
+//            put(key,new ValueSize<VALUE>(value,0));
+//        }
+//    }
+    public void put(Trace parent,KEY key,VALUE value) throws Throwable
     {
-        ValueSize<VALUE> valueSize=getFromCache(key);
-        if (valueSize!=null)
-        {
-            put(key,new ValueSize<VALUE>(value,0));
-        }
-    }
-    public void put(KEY key,VALUE value) throws Throwable
-    {
-        put(key,new ValueSize<VALUE>(value,0));
+        put(parent,key,new ValueSize<VALUE>(value,0));
     }
     
-    boolean needRemove(Node<KEY,VALUE> node)
+    boolean needEvicting(Entry<KEY,VALUE> entry)
     {
-        if (this.nodeMap.size()==0)
+        if (this.entries.size()==0)
         {
             return false;
         }
-        if ((this.contentCapacity>0)&&(this.totalContentSize+node.valueSize.size>this.contentCapacity))
+        if ((this.contentCapacity>0)&&(this.totalContentSize+entry.valueSize.size>this.contentCapacity))
         {
             return true;
         }
-        if ((this.capacity>0)&&(this.nodeMap.size()==this.capacity))
+        if ((this.capacity>0)&&(this.entries.size()==this.capacity))
         {
             return true;
         }
@@ -218,7 +232,7 @@ abstract public class ContentCache<KEY,VALUE>
         return false;
     }
     
-	public VALUE put(KEY key,ValueSize<VALUE> valueSize) throws Throwable
+	public VALUE put(Trace parent,KEY key,ValueSize<VALUE> valueSize) throws Throwable
     {
 	    if (valueSize==null)
 	    {
@@ -226,12 +240,13 @@ abstract public class ContentCache<KEY,VALUE>
 	    }
         synchronized(this)
         {
-            Node<KEY,VALUE> node=new Node<KEY,VALUE>(key,valueSize);
-            synchronized(this.nodeMap)
+            Entry<KEY,VALUE> entry=new Entry<KEY,VALUE>(key,valueSize);
+            synchronized(this.entries)
             {
-                while (needRemove(node))
+                while (needEvicting(entry))
                 {
-                    this.nodeMap.remove(this.last.key);
+                    Entry<KEY,VALUE> removed=this.entries.remove(this.last.key);
+                    this.onEvict(parent,removed.key,removed.valueSize.value);
                     this.totalContentSize-=this.last.valueSize.size;
                     this.sizeEvicts.increment();
                     this.last=last.previous;
@@ -245,28 +260,28 @@ abstract public class ContentCache<KEY,VALUE>
                         break;
                     }
                 }
-                this.nodeMap.put(key, node);
-                this.totalContentSize+=node.valueSize.size;
-                node.next=this.first;
+                this.entries.put(key, entry);
+                this.totalContentSize+=entry.valueSize.size;
+                entry.next=this.first;
                 if (this.first!=null)
                 {
-                    this.first.previous=node;
+                    this.first.previous=entry;
                 }
-                this.first=node;
+                this.first=entry;
                 if (this.last==null)
                 {
-                    this.last=node;
+                    this.last=entry;
                 }
             }
             return valueSize.value;
         }
     }
 	
-	public VALUE evict(KEY key)
+	public VALUE remove(KEY key)
 	{
-		synchronized(this.nodeMap)
+		synchronized(this.entries)
 		{
-			Node<KEY,VALUE> node=this.nodeMap.remove(key);
+			Entry<KEY,VALUE> node=this.entries.remove(key);
 			if (node==null)
 			{
 				return null;
@@ -292,11 +307,11 @@ abstract public class ContentCache<KEY,VALUE>
 		}
 	}
 	
-	public void evictAll()
+	public void removeAll()
 	{
-		synchronized(this.nodeMap)
+		synchronized(this.entries)
 		{
-			this.nodeMap.clear();
+			this.entries.clear();
 			this.last=this.first=null;
 			this.totalContentSize=0;
 		}		
@@ -311,14 +326,14 @@ abstract public class ContentCache<KEY,VALUE>
 	
 	public int size()
 	{
-		synchronized(this.nodeMap)
+		synchronized(this.entries)
 		{
-			return this.nodeMap.size();
+			return this.entries.size();
 		}
 	}
 	public long getTotalContentSize()
 	{
-		synchronized(this.nodeMap)
+		synchronized(this.entries)
 		{
 			return this.totalContentSize;
 		}
@@ -341,6 +356,12 @@ abstract public class ContentCache<KEY,VALUE>
 	{
 		return this.sizeEvicts;
 	}
+	public Collection<Entry<KEY, VALUE>> getAllFromCache()
+	{
+	    return this.entries.values();
+	}
 	
-	abstract protected ValueSize<VALUE> load(Trace parent,KEY key) throws Throwable; //Don't return null. return new ValueSize(null) instead. 
+	
+    abstract protected ValueSize<VALUE> load(Trace parent,KEY key) throws Throwable; //Don't return null. return new ValueSize(null) instead. 
+    abstract protected void onEvict(Trace parent,KEY key,VALUE value) throws Throwable;  
 }
