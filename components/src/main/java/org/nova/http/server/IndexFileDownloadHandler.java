@@ -39,26 +39,26 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     }
     
     //cacheControlMaxAge in seconds, maxAge in ms
-    public IndexFileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,boolean active) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,boolean active) throws Throwable
     {
-        super(rootDirectory,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,active);
+        super(rootDirectory,enableLocalCaching,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,active);
         this.mappings=mappings;
         this.doNotCompressFileExtensions=doNotCompressExtensions;
         this.noBrowserCachingPaths=noBrowserCachingPaths;
         this.indexFile=indexFile;
     }
 
-    public IndexFileDownloadHandler(String rootDirectory,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
-        this(rootDirectory,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),true);
+        this(rootDirectory,enableLocalCaching,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),true);
     }
-    public IndexFileDownloadHandler(String rootDirectory,String cacheControl) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,String cacheControl) throws Throwable
     {
-      this(rootDirectory,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
+      this(rootDirectory,enableLocalCaching,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
     }
-    public IndexFileDownloadHandler(String rootDirectory) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching) throws Throwable
     {
-        this(rootDirectory,null);
+        this(rootDirectory,enableLocalCaching,null);
     }
     
     @Override
