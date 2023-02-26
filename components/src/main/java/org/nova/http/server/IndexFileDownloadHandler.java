@@ -21,6 +21,8 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     final private HashSet<String> doNotCompressFileExtensions;
     final private HashSet<String> noBrowserCachingPaths;
     final private String indexFile;
+    final private String preCompressionExtension;
+    final private String preCompressionEncoding;
 
     public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
@@ -39,18 +41,25 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     }
     
     //cacheControlMaxAge in seconds, maxAge in ms
-    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,boolean active) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,boolean active,String preCompressionExtension,String preCompressionEncoding) throws Throwable
     {
         super(rootDirectory,enableLocalCaching,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,active);
         this.mappings=mappings;
         this.doNotCompressFileExtensions=doNotCompressExtensions;
         this.noBrowserCachingPaths=noBrowserCachingPaths;
+        this.preCompressionExtension=preCompressionExtension;
+        this.preCompressionEncoding=preCompressionEncoding;
         this.indexFile=indexFile;
+    }
+    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths
+            ,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory,String indexFile,ExtensionToContentTypeMappings mappings,HashSet<String> doNotCompressExtensions,boolean active) throws Throwable
+    {
+        this(rootDirectory,enableLocalCaching,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,indexFile,mappings,doNotCompressExtensions,active,null,null);
     }
 
     public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,HashSet<String> noBrowserCachingPaths,String cacheControl,long cacheControlMaxAge,long maxAge,long maxSize,long freeMemory) throws Throwable
     {
-        this(rootDirectory,enableLocalCaching,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),true);
+        this(rootDirectory,enableLocalCaching,noBrowserCachingPaths,cacheControl,cacheControlMaxAge,maxAge,maxSize,freeMemory,"index.html",ExtensionToContentTypeMappings.fromDefault(),defaultDoNotCompressFileExtensions(),true,"gz","gzip");
     }
     public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,String cacheControl) throws Throwable
     {
@@ -86,6 +95,6 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
         String extension=Files.getFileExtension(filePath).toLowerCase();
         boolean allowCompression=this.doNotCompressFileExtensions==null?true:this.doNotCompressFileExtensions.contains(extension)==false;
         
-        return new DownloadResponse(filePath, contentType, allowBrowserCaching, allowCompression);
+        return new DownloadResponse(filePath, contentType, allowBrowserCaching, allowCompression,this.preCompressionExtension,this.preCompressionEncoding);
     }
 }

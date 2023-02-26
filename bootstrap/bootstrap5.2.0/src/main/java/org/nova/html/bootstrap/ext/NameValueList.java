@@ -54,13 +54,13 @@ public class NameValueList extends Item
         if (name instanceof TagElement)
         {
             GlobalEventTagElement<?> tagElement=(GlobalEventTagElement<?>)name;
-            tagElement.style("width:"+this.nameSize.toString()+";");
+            tagElement.style("width:"+this.nameSize.toString()+";white-space:nowrap;");
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
         }
         else
         {
         	Label tagElement=new Label().addInner(name);
-            tagElement.style("width:"+this.nameSize.toString()+";");
+            tagElement.style("width:"+this.nameSize.toString()+";white-space:nowrap;");
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
         }
         if (value instanceof TagElement)

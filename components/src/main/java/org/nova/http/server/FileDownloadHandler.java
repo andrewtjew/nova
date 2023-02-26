@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.testing.Testing;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
@@ -63,7 +64,7 @@ public abstract class FileDownloadHandler extends ServletHandler
     {
         this.cache.removeAll();
     }
-
+    final private boolean TESTING=true;
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
@@ -77,16 +78,32 @@ public abstract class FileDownloadHandler extends ServletHandler
             return downloadResponse.getHandled();
         }
 
-        String rootFilePath = FileUtils.toNativePath(this.rootDirectory + downloadResponse.getFilePath());
+        String filePath=downloadResponse.getFilePath();
+        String rootFilePath = FileUtils.toNativePath(this.rootDirectory + filePath);
         File file = new File(rootFilePath);
         if (file.isDirectory())
         {
             response.setStatus(HttpStatus.FORBIDDEN_403);
             return true;
         }
+        boolean preCompressed=false;
         if (file.exists() == false)
         {
-            return false;
+            String preCompressionExtension=downloadResponse.getPreCompressionExtension();
+            if (preCompressionExtension!=null)
+            {
+                rootFilePath=FileUtils.toNativePath(this.rootDirectory + filePath)+"."+preCompressionExtension;
+                file=new File(rootFilePath);
+                if (file.exists()==false)
+                {
+                    if (TESTING)
+                    {
+                        Testing.log("FileDownload: not found: "+rootFilePath);
+                    }
+                    return false;
+                }
+                preCompressed=true;
+            }
         }
         if (file.getCanonicalPath().contains(this.rootDirectory) == false)
         {
@@ -136,17 +153,21 @@ public abstract class FileDownloadHandler extends ServletHandler
         }
 
         response.setContentType(downloadResponse.getContentType());
-        send(parent, request, response, rootFilePath, downloadResponse.isAllowCompression());
+        send(parent, request, response, rootFilePath, preCompressed, downloadResponse);
         response.setStatus(HttpStatus.OK_200);
         return true;
     }
 
-    private void send(Trace parent, HttpServletRequest request, HttpServletResponse response, String localFile,
-            boolean allowCompression) throws Throwable
+    private void send(Trace parent, HttpServletRequest request, HttpServletResponse response, String localFile,boolean preCompressed
+            ,DownloadResponse downloadResponse) throws Throwable
     {
         HashSet<String> set = new HashSet<String>();
         String encoding = "none";
-        if (allowCompression)
+        if (preCompressed)
+        {
+            response.setHeader("Content-Encoding", downloadResponse.getPreCompressionEncoding());
+        }
+        else if (downloadResponse.isAllowCompression())
         {
             String accepts = request.getHeader("Accept-Encoding");
             List<ValueQ> values = ValueQ.sort(accepts);
@@ -167,13 +188,15 @@ public abstract class FileDownloadHandler extends ServletHandler
         }
         
         String key=encoding + "|" + localFile;
-        this.cache.remove(key);
+        if (this.enableLocalCaching==false)
+        {
+            this.cache.remove(key);
+        }
         byte[] bytes = this.cache.get(parent, key);
         if (bytes != null)
         {
             response.setContentLength(bytes.length);
             response.getOutputStream().write(bytes);
-//            System.out.println("Cache size:" + this.cache.getTotalContentSize() / 1024L+" KB");
         }
     }
 
