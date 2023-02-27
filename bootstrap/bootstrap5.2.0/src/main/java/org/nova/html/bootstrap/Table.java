@@ -67,9 +67,9 @@ public class Table extends StyleComponent<Table>
 //        addClass("table-responsive");
 //        return this;
 //    }
-//    public Table responsive(BreakPoint breakPoint)
-//    {
-//        addClass("table-responsive",breakPoint);
-//        return this;
-//    }
+    public Table sm()
+    {
+        addClass("table-sm");
+        return this;
+    }
 }

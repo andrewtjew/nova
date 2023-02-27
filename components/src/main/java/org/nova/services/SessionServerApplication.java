@@ -24,6 +24,7 @@ package org.nova.services;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
+import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.HttpTransport;
 import org.nova.utils.Utils;
 
@@ -55,6 +56,7 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
 
         this.getMenuBar().add("/operator/sessions","Sessions","View All");
         this.getPublicServer().addFilters(this.sessionFilter);
+        
         SessionOperatorPages<SESSION> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);
     }

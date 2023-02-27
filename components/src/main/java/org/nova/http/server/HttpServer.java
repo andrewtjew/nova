@@ -346,7 +346,10 @@ public class HttpServer
         Trace trace = new Trace(traceManager,parent,this.categoryPrefix+key);
         try
         {
-            return handler.handle(trace, request, response);
+            if (handler.handle(trace, request, response)==false)
+            {
+                return false;
+            }
         }
         catch (Throwable e)
         {
@@ -357,6 +360,8 @@ public class HttpServer
         finally
         {
             trace.close();
+        }
+            /*
             int status=response.getStatus();
             if ((status>=400)&&(status<500))
             {
@@ -365,48 +370,49 @@ public class HttpServer
                     this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,request));
                 }
             }
-            RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
-            if (this.logRequestHandlersOnly==false)
+            */
+        RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
+        if (this.logRequestHandlersOnly==false)
+        {
+            if (handler.isLogLastRequestsInMemory())
             {
-                if (handler.isLogLastRequestsInMemory())
+                synchronized (this.lastRequestsLogEntries)
                 {
-                    synchronized (this.lastRequestsLogEntries)
+                    this.lastRequestsLogEntries.add(entry);
+                }
+                if (trace.getThrowable()!=null)
+                {
+                    synchronized (this.lastExceptionRequestsLogEntries)
                     {
-                        this.lastRequestsLogEntries.add(entry);
-                    }
-                    if (trace.getThrowable()!=null)
-                    {
-                        synchronized (this.lastExceptionRequestsLogEntries)
-                        {
-                            this.lastExceptionRequestsLogEntries.add(entry);
-                        }
+                        this.lastExceptionRequestsLogEntries.add(entry);
                     }
                 }
             }
-            ArrayList<Item> items=new ArrayList<>();
-            if (handler.isLog())
-            {
-                items.add(new Item("remoteEndPoint",entry.getRemoteEndPoint()));
-                items.add(new Item("queryString",entry.getQueryString()));
-                items.add(new Item("statusCode",entry.statusCode));
-                items.add(new Item("contentType",entry.getContentType()));
-            }
-            if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
-            {
-                if (entry.requestHeaders!=null)
-                {
-                    items.add(new Item("requestHeaders",entry.getRequestHeaders()));
-                }
-            }
-            if (handler.isLogResponseHeaders())
-            {
-                if (entry.responseHeaders!=null)
-                {
-                    items.add(new Item("responseHeaders",entry.getResponseHeaders()));
-                }
-            }
-            this.logger.log(parent,key,Logger.toArray(items));
         }
+        ArrayList<Item> items=new ArrayList<>();
+        if (handler.isLog())
+        {
+            items.add(new Item("remoteEndPoint",entry.getRemoteEndPoint()));
+            items.add(new Item("queryString",entry.getQueryString()));
+            items.add(new Item("statusCode",entry.statusCode));
+            items.add(new Item("contentType",entry.getContentType()));
+        }
+        if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
+        {
+            if (entry.requestHeaders!=null)
+            {
+                items.add(new Item("requestHeaders",entry.getRequestHeaders()));
+            }
+        }
+        if (handler.isLogResponseHeaders())
+        {
+            if (entry.responseHeaders!=null)
+            {
+                items.add(new Item("responseHeaders",entry.getResponseHeaders()));
+            }
+        }
+        this.logger.log(parent,key,Logger.toArray(items));
+        return true;
     }
 	
 	private void handle(Trace parent, HttpServletRequest servletRequest, HttpServletResponse servletResponse, RequestHandlerWithParameters requestHandlerWithParameters) throws Throwable

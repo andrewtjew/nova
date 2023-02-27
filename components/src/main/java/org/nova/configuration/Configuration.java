@@ -100,7 +100,7 @@ public class Configuration
 			ConfigurationItem item=this.map.get(name);
 			if (item==null)
 			{
-				item=new ConfigurationItem(name,defaultValue, ConfigurationSource.DEFAULT, getSource(Thread.currentThread().getStackTrace()[3]),null);
+				item=new ConfigurationItem(name,defaultValue, ConfigurationSource.DEFAULT, getSource(Thread.currentThread().getStackTrace()[4]),null);
 				{
 					this.map.put(name, item);
 				}
