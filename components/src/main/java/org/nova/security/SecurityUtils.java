@@ -118,7 +118,7 @@ public class SecurityUtils
         return AesCipher.doFinal(bytes);
     }
 
-    static public String encrypt(SecretKey key,byte[] initializationVector,long businessId,long id,int random) throws Throwable
+    static public String encrypt(SecretKey key,byte[] initializationVector,long businessId,long id) throws Throwable
     {
         if ((businessId<0)||(id<0))
         {
@@ -147,7 +147,7 @@ public class SecurityUtils
             sb.append(CODE_ALPHABET.charAt((int)index));
             encrypted=Long.divideUnsigned(encrypted, digits);
         }
-        sb.append(CODE_ALPHABET.charAt(random%length));
+ //       sb.append(CODE_ALPHABET.charAt(random%length));
         return sb.toString();
     }
     static public Long decrypt(SecretKey key,byte[] initializationVector,long businessId,String code) throws Throwable
@@ -162,7 +162,7 @@ public class SecurityUtils
             throw new Exception();
         }
         long encrypted=0;
-        for (int i=code.length()-2;i>=0;i--)
+        for (int i=code.length()-1;i>=0;i--)
         {
             char c=code.charAt(i);
             int index=CODE_ALPHABET.indexOf(c);
@@ -231,7 +231,7 @@ public class SecurityUtils
     
     final static String CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
 
-    public static byte[] generateKey(int length)
+    public static byte[] generateRandomBytes(int length)
     {
         byte[] bytes=new byte[length];
         RANDOM.nextBytes(bytes);
