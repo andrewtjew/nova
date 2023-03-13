@@ -3,17 +3,13 @@ package org.nova.html.bootstrap.remote;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.ButtonComponent;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.ModalDocument;
 import org.nova.html.bootstrap.ext.ModalOption;
 import org.nova.html.bootstrap.ext.SpinnerButton;
-import org.nova.html.bootstrap.localization.UIHandle;
 import org.nova.html.remote.Inputs;
-import org.nova.localization.LanguageCode;
-import org.nova.localization.StringHandle;
 
 public class ProceedModalDialog extends ModalDocument
 {

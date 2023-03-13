@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.sqldb;
 
-import java.util.ArrayList;
-
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -31,6 +29,7 @@ public class Select
     final private String source; //Table with optional JOINs
     private String categoryOverride;
     private String orderBy;
+    private String groupBy;
     private String whereExpression;
     private Object[] whereParameters;
     private Long maximumRows;
@@ -46,7 +45,7 @@ public class Select
         this.source=source;
     }
     
-    public Select maximumRows(Long maximumRows)
+    public Select maximumRows(long maximumRows)
     {
         this.maximumRows=maximumRows;
         return this;
@@ -78,6 +77,11 @@ public class Select
     public Select orderBy(String orderBy)
     {
         this.orderBy=orderBy;
+        return this;
+    }
+    public Select groupBy(String groupBy)
+    {
+        this.groupBy=groupBy;
         return this;
     }
     
@@ -197,6 +201,11 @@ public class Select
         {
             sb.append(" ORDER BY ");
             sb.append(this.orderBy);
+        }
+        if (this.groupBy!=null)
+        {
+            sb.append(" GROUP BY ");
+            sb.append(this.groupBy);
         }
         if (this.maximumRows!=null)
         {

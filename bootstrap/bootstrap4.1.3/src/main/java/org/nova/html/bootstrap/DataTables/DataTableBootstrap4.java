@@ -24,17 +24,13 @@ package org.nova.html.bootstrap.DataTables;
 import java.util.ArrayList;
 
 import org.nova.html.DataTables.ColumnDef;
-import org.nova.html.DataTables.DataTableColumnOrder;
 import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.TableRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
-import org.nova.html.enums.link_rel;
-import org.nova.html.ext.Head;
 import org.nova.html.operator.TableFooter;
 import org.nova.html.operator.TableHeader;
-import org.nova.html.tags.link;
 import org.nova.html.tags.script;
 import org.nova.html.tags.tbody;
 import org.nova.html.tags.tr;

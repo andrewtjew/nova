@@ -4,20 +4,10 @@
 package org.nova.html.bootstrap.localization;
 
 import org.nova.html.bootstrap.BootStrapPage;
-import org.nova.html.bootstrap.Button;
-import org.nova.html.bootstrap.Collapse;
-import org.nova.html.bootstrap.Styler;
 import org.nova.html.bootstrap.NavbarTogglerButton;
 import org.nova.html.bootstrap.StyleComponent;
-import org.nova.html.bootstrap.Container;
-import org.nova.html.bootstrap.DropdownMenuItem;
-import org.nova.html.bootstrap.DropdownMenu;
-import org.nova.html.bootstrap.Footer;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.LinkButton;
-import org.nova.html.bootstrap.NavItem;
 import org.nova.html.bootstrap.NavItemLink;
-import org.nova.html.bootstrap.NavLink;
 import org.nova.html.bootstrap.Navbar;
 import org.nova.html.bootstrap.NavbarBrand;
 import org.nova.html.bootstrap.NavbarCollapse;
@@ -26,22 +16,13 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.FW;
 import org.nova.html.bootstrap.classes.Justify;
-import org.nova.html.bootstrap.classes.NavbarPlacement;
 import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.ext.Icon;
-import org.nova.html.bootstrap.ext.Span;
 import org.nova.html.enums.link_rel;
 import org.nova.html.enums.target;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.a;
-import org.nova.html.tags.div;
-import org.nova.html.tags.i;
-import org.nova.html.tags.li;
 import org.nova.html.tags.link;
-import org.nova.html.tags.p;
 import org.nova.html.tags.script;
-import org.nova.html.tags.title;
 
 
 public class Page extends BootStrapPage

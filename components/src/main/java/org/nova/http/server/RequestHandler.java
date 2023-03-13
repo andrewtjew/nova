@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.nova.collections.RingBuffer;
-import org.nova.http.server.annotations.Attributes;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
 

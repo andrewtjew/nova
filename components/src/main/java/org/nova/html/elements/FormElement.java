@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.nova.html.enums.autocomplete;
 import org.nova.html.enums.method;
 import org.nova.html.enums.target;

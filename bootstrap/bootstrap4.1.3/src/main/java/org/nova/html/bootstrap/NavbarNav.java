@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Element;
-import org.nova.html.tags.li;
 
 public class NavbarNav extends StyleComponent<NavbarNav>
 {

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
 
 public class InputGroup extends StyleComponent<InputGroup>

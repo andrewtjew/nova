@@ -2,7 +2,6 @@ package org.nova.html.bootstrap.remote;
 
 import org.nova.html.bootstrap.FormCheck;
 import org.nova.html.bootstrap.InputCheckbox;
-import org.nova.html.ext.Content;
 import org.nova.html.remote.Inputs;
 
 public class Switch extends FormCheck

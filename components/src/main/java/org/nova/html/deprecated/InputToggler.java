@@ -21,10 +21,6 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.tags.input_checkbox;
-
 //public class InputToggler extends Element
 //{
 //    final private input_checkbox checkbox;

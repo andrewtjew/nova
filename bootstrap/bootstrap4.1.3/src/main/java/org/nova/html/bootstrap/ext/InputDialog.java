@@ -23,16 +23,9 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.InputComponent;
 import org.nova.html.bootstrap.InputGroup;
-import org.nova.html.bootstrap.Modal;
-import org.nova.html.bootstrap.ModalBody;
 import org.nova.html.bootstrap.ModalCancelButton;
-import org.nova.html.bootstrap.ModalContent;
-import org.nova.html.bootstrap.ModalDialog;
-import org.nova.html.bootstrap.ModalFooter;
-import org.nova.html.bootstrap.ModalHeader;
 import org.nova.html.bootstrap.SubmitButton;
 import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.Composer;
 import org.nova.html.tags.form_post;
 
 public class InputDialog extends ModalDocument

@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.target;
-import org.nova.html.tags.a;
 
 public class NavItemLink extends ToggleComponent<NavItemLink>
 {

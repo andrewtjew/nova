@@ -24,7 +24,6 @@ package org.nova.services;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
-import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.HttpTransport;
 import org.nova.utils.Utils;
 

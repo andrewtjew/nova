@@ -28,7 +28,6 @@ import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.ModalFooter;
 import org.nova.html.bootstrap.ModalHeader;
 import org.nova.html.bootstrap.classes.DeviceClass;
-import org.nova.html.elements.Composer;
 import org.nova.html.remoting.ModalOption;
 
 public class ModalDocument extends Modal

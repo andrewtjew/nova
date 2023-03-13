@@ -3,7 +3,6 @@ package xp.nova.sqldb.graph;
 import java.sql.Timestamp;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Insert;
-import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;

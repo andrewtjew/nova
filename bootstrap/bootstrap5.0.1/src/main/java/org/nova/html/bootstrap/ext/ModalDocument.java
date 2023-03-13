@@ -29,8 +29,6 @@ import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.ModalFooter;
 import org.nova.html.bootstrap.ModalHeader;
 import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.elements.Composer;
-import org.nova.html.ext.HtmlUtils;
 
 public class ModalDocument extends Modal
 {

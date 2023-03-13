@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.elements.TagElement;
-
 public class FormText extends StyleComponent<FormText>
 {
     public FormText()

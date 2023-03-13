@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.enums.target;
-import org.nova.html.tags.a;
 
 public class LinkButton extends ButtonComponent<LinkButton>
 {

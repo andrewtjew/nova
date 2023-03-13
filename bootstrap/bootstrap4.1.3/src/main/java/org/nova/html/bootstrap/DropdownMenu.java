@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
 

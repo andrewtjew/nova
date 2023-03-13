@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-
 public class InputGroupAppend extends StyleComponent<InputGroupAppend>
 {
 

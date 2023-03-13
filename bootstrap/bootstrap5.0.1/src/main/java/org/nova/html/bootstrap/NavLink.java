@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-
 public class NavLink extends ToggleComponent<NavLink>
 {
     public NavLink()

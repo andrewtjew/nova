@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.DeviceClass;
-import org.nova.html.bootstrap.classes.Float_;
 import org.nova.html.elements.GlobalEventTagElement;
 
 public abstract class Component<ELEMENT extends Component<ELEMENT>> extends GlobalEventTagElement<ELEMENT> 

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.TagElement;
 
 public class FormCheckLabel extends StyleComponent<FormCheckLabel>

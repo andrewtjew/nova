@@ -24,7 +24,6 @@ package org.nova.html.remote;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;

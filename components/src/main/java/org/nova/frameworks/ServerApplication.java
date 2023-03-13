@@ -231,6 +231,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.publicServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
 
+                this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
+                this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
+                this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+                this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
                 //Testing
                 if (websocket)
                 {

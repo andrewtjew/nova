@@ -114,6 +114,7 @@ public class Utils
 		fragments[index]=string.substring(begin,string.length());
 		return fragments;
 	}
+    
     public static String[] splitLn(String string)
     {
         int count=1;
@@ -139,53 +140,53 @@ public class Utils
         return fragments;
     }
     
-    public static String[] splitUsingCommaDeprecated(String string,boolean doNotSplitIfNextCharacterIsSpace)
-    {
-        int count=1;
-        for (int i=0;i<string.length();i++)
-        {
-            if (string.charAt(i)==',')
-            {
-                if (doNotSplitIfNextCharacterIsSpace)
-                {
-                    if (i+1<string.length())
-                    {
-                        if (string.charAt(i+1)!=' ')
-                        {
-                            count++;
-                        }
-                    }
-                }
-                else
-                {
-                    count++;
-                }
-            }
-        }
-        String[] fragments=new String[count];
-        int begin=0;
-        int index=0;
-        for (int i=0;i<string.length();i++)
-        {
-            if (string.charAt(i)==',')
-            {
-                if (doNotSplitIfNextCharacterIsSpace)
-                {
-                    if (i+1<string.length())
-                    {
-                        if (string.charAt(i+1)==' ')
-                        {
-                            continue;
-                        }
-                    }
-                }
-                fragments[index++]=string.substring(begin,i);
-                begin=i+1;
-            }
-        }
-        fragments[index]=string.substring(begin,string.length());
-        return fragments;
-    }
+//    public static String[] splitUsingCommaDeprecated(String string,boolean doNotSplitIfNextCharacterIsSpace)
+//    {
+//        int count=1;
+//        for (int i=0;i<string.length();i++)
+//        {
+//            if (string.charAt(i)==',')
+//            {
+//                if (doNotSplitIfNextCharacterIsSpace)
+//                {
+//                    if (i+1<string.length())
+//                    {
+//                        if (string.charAt(i+1)!=' ')
+//                        {
+//                            count++;
+//                        }
+//                    }
+//                }
+//                else
+//                {
+//                    count++;
+//                }
+//            }
+//        }
+//        String[] fragments=new String[count];
+//        int begin=0;
+//        int index=0;
+//        for (int i=0;i<string.length();i++)
+//        {
+//            if (string.charAt(i)==',')
+//            {
+//                if (doNotSplitIfNextCharacterIsSpace)
+//                {
+//                    if (i+1<string.length())
+//                    {
+//                        if (string.charAt(i+1)==' ')
+//                        {
+//                            continue;
+//                        }
+//                    }
+//                }
+//                fragments[index++]=string.substring(begin,i);
+//                begin=i+1;
+//            }
+//        }
+//        fragments[index]=string.substring(begin,string.length());
+//        return fragments;
+//    }
     public static String combine(Iterable<?> iterable,String seperator)
     {
         StringBuilder sb=new StringBuilder();

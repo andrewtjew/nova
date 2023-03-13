@@ -1,16 +1,12 @@
 package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.ButtonComponent;
-import org.nova.html.bootstrap.Form;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.form;
-import org.nova.html.tags.form_post;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {

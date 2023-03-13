@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.ext;
 
-import java.io.File;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -275,6 +274,74 @@ public class HtmlUtils
                 if (name!=null)
                 {
                     map.put(Long.parseLong(name), Long.parseLong(values[0]));
+                }
+                
+            }
+        }
+        return map;
+    }
+    public static Map<Long,String> getSelectionLongStringMap(Context context,String prefix)
+    {
+        if (context==null)
+        {
+            return null;
+        }
+        HashMap<Long,String> map=new HashMap<>();
+        for (Entry<String, String[]> entry:context.getHttpServletRequest().getParameterMap().entrySet())
+        {
+            String[] values=entry.getValue();
+            if (values.length==1)
+            {
+                String name=null;
+                if (prefix==null)
+                {
+                    name=entry.getKey();
+                }
+                else
+                {
+                    String key=entry.getKey();
+                    if (key.startsWith(prefix))
+                    {
+                        name=key.substring(prefix.length());
+                    }
+                }
+                if (name!=null)
+                {
+                    map.put(Long.parseLong(name), values[0]);
+                }
+                
+            }
+        }
+        return map;
+    }
+    public static Map<String,String> getSelectionStringStringMap(Context context,String prefix)
+    {
+        if (context==null)
+        {
+            return null;
+        }
+        HashMap<String,String> map=new HashMap<>();
+        for (Entry<String, String[]> entry:context.getHttpServletRequest().getParameterMap().entrySet())
+        {
+            String[] values=entry.getValue();
+            if (values.length==1)
+            {
+                String name=null;
+                if (prefix==null)
+                {
+                    name=entry.getKey();
+                }
+                else
+                {
+                    String key=entry.getKey();
+                    if (key.startsWith(prefix))
+                    {
+                        name=key.substring(prefix.length());
+                    }
+                }
+                if (name!=null)
+                {
+                    map.put(name, values[0]);
                 }
                 
             }

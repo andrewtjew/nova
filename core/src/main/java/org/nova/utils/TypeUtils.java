@@ -411,6 +411,80 @@ public class TypeUtils
         return Long.parseLong(value);
     }
     
+    public static int parseInt(String value,int defaultValue)
+    {
+        if (value==null)
+        {
+            return defaultValue;
+        }
+        return Integer.parseInt(value);
+    }
+    public static long[] parseLongs(String[] values,long defaultValue)
+    {
+        long[] results=new long[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=parseLong(values[i],defaultValue);
+        }
+        return results;
+    }
+    public static long[] parseLongs(String[] values)
+    {
+        long[] results=new long[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=Long.parseLong(values[i]);
+        }
+        return results;
+    }
+
+    public static int[] parseInts(String[] values,int defaultValue)
+    {
+        int[] results=new int[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=parseInt(values[i],defaultValue);
+        }
+        return results;
+    }
+    public static int[] parseInts(String[] values)
+    {
+        int[] results=new int[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=Integer.parseInt(values[i]);
+        }
+        return results;
+    }
+
+    public static short parseShort(String value,short defaultValue)
+    {
+        if (value==null)
+        {
+            return defaultValue;
+        }
+        return Short.parseShort(value);
+    }
+
+    public static short[] parseShorts(String[] values,short defaultValue)
+    {
+        short[] results=new short[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=parseShort(values[i],defaultValue);
+        }
+        return results;
+    }
+    public static short[] parseShorts(String[] values)
+    {
+        short[] results=new short[values.length];
+        for (int i=0;i<results.length;i++)
+        {
+            results[i]=Short.parseShort(values[i]);
+        }
+        return results;
+    }
+    
   //enums are not included as they can be represented as ints, longs, shorts, strings, etc.
     public static boolean isSingleRepresentationValueType(Class<?> type) 
     {

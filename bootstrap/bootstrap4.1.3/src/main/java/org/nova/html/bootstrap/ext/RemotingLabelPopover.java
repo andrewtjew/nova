@@ -21,36 +21,20 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Popover;
-import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.TipOption;
-import org.nova.html.bootstrap.classes.Align;
 import org.nova.html.bootstrap.classes.AlignSelf;
-import org.nova.html.bootstrap.classes.Flex;
-import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.Placement;
 import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.classes.TextStyle;
-import org.nova.html.bootstrap.classes.Trigger;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
-import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
-import org.nova.http.client.PathAndQuery;
 
 public class RemotingLabelPopover extends Popover    
 {

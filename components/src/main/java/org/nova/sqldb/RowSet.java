@@ -53,6 +53,24 @@ public class RowSet
 			this.rows[i]=new Row(this.mappings,list.get(i));
 		}
 	}
+    public RowSet(String[] columnNames,Object[][] arrays)
+    {
+        this.columnNames=columnNames;
+        this.mappings=new HashMap<>();
+        for (int i=0;i<columnNames.length;i++)
+        {
+            Integer old=this.mappings.put(columnNames[i], i);
+            if (old!=null)
+            {
+                this.mappings.put(columnNames[i], old);
+            }
+        }
+        this.rows=new Row[arrays.length];
+        for (int i=0;i<this.rows.length;i++)
+        {
+            this.rows[i]=new Row(this.mappings,arrays[i]);
+        }
+    }
 	public Map<String,Integer> getMappings()
 	{
 		return this.mappings;

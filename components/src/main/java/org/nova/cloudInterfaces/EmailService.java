@@ -19,25 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.cloudInterfaces;
 
-import org.nova.html.tags.span;
+import java.util.Properties;
 
-public class NavbarToggler extends StyleComponent<NavbarToggler>
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+
+import org.nova.logging.Item;
+import org.nova.logging.Logger;
+import org.nova.tracing.Trace;
+
+public abstract class EmailService
 {
-    public NavbarToggler()
-    {
-        super("button",null);
-        addClass("navbar-toggler");
-        attr("data-toggle", "collapse");
-        addInner(new span().addClass("navbar-toggler-icon"));
-    }
-
-    public NavbarToggler toggleCollapse(NavbarCollapse collapse)
-    {
-        attr("data-toggle","collapse");
-        attr("data-target","#"+collapse.id());
-        return this;
-    }
-   
+    public abstract void send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable;
+    public abstract void send(Trace parent,String to,String subject,String content,String mediaType,String filename,byte[] attachment) throws Throwable;
 }

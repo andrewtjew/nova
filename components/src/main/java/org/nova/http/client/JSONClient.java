@@ -35,7 +35,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.RequestContent;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.concurrent.TimeBase;
 import org.nova.concurrent.TimerScheduler;

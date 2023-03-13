@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
-import org.w3c.dom.Document;
 
 public class FileCache extends ContentCache<String,byte[]>
 {

@@ -130,7 +130,6 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.Refresher;
 import org.nova.html.ext.SelectEnums;
-import org.nova.html.ext.Text;
 import org.nova.html.jsTree.TreeNode;
 import org.nova.html.jsTree.Tree;
 import org.nova.html.operator.Accordion;

@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.tags.label;
-import org.nova.html.tags.small;
-
 public class FormCheck extends StyleComponent<FormCheck>
 {
     public FormCheck()

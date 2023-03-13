@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-
 public class Nav extends StyleComponent<Nav>
 {
     public Nav(String tag)

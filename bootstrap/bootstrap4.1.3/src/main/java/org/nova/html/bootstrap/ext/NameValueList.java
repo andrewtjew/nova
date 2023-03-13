@@ -23,27 +23,12 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.text_align;
-import org.nova.html.bootstrap.Col;
-import org.nova.html.bootstrap.Component;
-import org.nova.html.bootstrap.Container;
-import org.nova.html.bootstrap.FormLabel;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Row;
 import org.nova.html.bootstrap.StyleComponent;
-import org.nova.html.bootstrap.Table;
-import org.nova.html.bootstrap.TableRow;
-import org.nova.html.bootstrap.classes.DeviceClass;
-import org.nova.html.bootstrap.classes.Edge;
-import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.bootstrap.classes.Font;
 import org.nova.html.bootstrap.classes.Justify;
-import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
 import org.nova.html.tags.b;
-import org.nova.html.tags.hr;
-import org.nova.html.tags.td;
 
 
 public class NameValueList extends StyleComponent<NameValueList>

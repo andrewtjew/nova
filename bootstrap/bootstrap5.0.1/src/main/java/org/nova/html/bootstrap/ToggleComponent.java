@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-
 public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> extends StyleComponent<ELEMENT> 
 {
     public ToggleComponent(String tag, String componentClass)

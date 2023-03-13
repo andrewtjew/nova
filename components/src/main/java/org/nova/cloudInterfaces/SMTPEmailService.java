@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.aws;
+package org.nova.cloudInterfaces;
 
 import java.util.Properties;
 
@@ -40,7 +40,7 @@ import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.tracing.Trace;
 
-public class Emailer
+public class SMTPEmailService extends EmailService
 {
     final private String username;
     final private String password;
@@ -49,7 +49,7 @@ public class Emailer
     final int port;
     final Session session; 
     final Logger logger;
-    public Emailer(String from,String username,String password,String host,int port,int timeout,Logger logger)
+    public SMTPEmailService(String from,String username,String password,String host,int port,int timeout,Logger logger)
     {
         this.username=username;
         this.password=password;
@@ -78,12 +78,9 @@ public class Emailer
     {
         send(parent,this.from,to,subject,content,mediaType);
     }    
-    public void send(Trace parent,String from,String to,String subject,String content,String mediaType) throws Throwable
+    private void send(Trace parent,String from,String to,String subject,String content,String mediaType) throws Throwable
     {
-        // Create a message with the specified information. 
-
-        
-        try (Trace trace=new Trace(parent,"Emailer.send"))
+        try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
             trace.setDetails("from:"+from+",to:"+to+",subject:"+subject);
             MimeMessage msg = new MimeMessage(this.session);
@@ -94,11 +91,11 @@ public class Emailer
                 
             // Create a transport.        
             Transport transport = this.session.getTransport();
-            this.logger.log("Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
             try
             {
                 transport.connect(this.host, this.username, this.password);
                 transport.sendMessage(msg, msg.getAllRecipients());
+                this.logger.log("Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
             }
             catch (Throwable t) 
             {
@@ -111,20 +108,13 @@ public class Emailer
             }
         }
     }
-    public void send(Trace parent,String to,String subject,String content,String mediaType,String filename,String attachment) throws Throwable
+    public void send(Trace parent,String to,String subject,String content,String mediaType,String filename,byte[] attachment) throws Throwable
     {
-        send(parent,this.from,to,subject,content,mediaType,mediaType,filename,attachment.getBytes());
+        send(parent,this.from,to,subject,content,mediaType,mediaType,filename,attachment);
     }
-    public String getFrom()
+    private void send(Trace parent,String from,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
     {
-        return this.from;
-    }
-    public void send(Trace parent,String from,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
-    {
-        // Create a message with the specified information. 
-
-        
-        try (Trace trace=new Trace(parent,"Emailer.send"))
+        try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
             trace.setDetails("from:"+from+",to:"+to+",subject:"+subject);
             MimeMessage msg = new MimeMessage(this.session);
@@ -148,16 +138,16 @@ public class Emailer
             
             // Create a transport.        
             Transport transport = this.session.getTransport();
-            this.logger.log("Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
             try
             {
                 transport.connect(this.host, this.username, this.password);
                 transport.sendMessage(msg, msg.getAllRecipients());
+                this.logger.log(trace,"Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
             }
             catch (Throwable t) 
             {
-                this.logger.log(t);
                 trace.close(t);
+                this.logger.log(trace,"Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
             }
             finally
             {

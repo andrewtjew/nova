@@ -21,21 +21,10 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Edge;
-import org.nova.html.bootstrap.classes.Flex;
-import org.nova.html.bootstrap.classes.Float_;
-import org.nova.html.bootstrap.classes.Font;
-import org.nova.html.bootstrap.classes.Position;
-import org.nova.html.bootstrap.classes.Rounded;
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.InputType;
 import org.nova.html.elements.TagElement;
 import org.nova.html.enums.autocomplete;
-import org.nova.html.tags.input_text;
 
 public class InputComponent<ELEMENT extends InputComponent<ELEMENT>> extends InputElement<ELEMENT> implements Styling<ELEMENT>
 {

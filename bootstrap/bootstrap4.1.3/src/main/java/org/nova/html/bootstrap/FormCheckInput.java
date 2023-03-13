@@ -22,8 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
-import org.nova.html.enums.autocomplete;
-import org.nova.html.tags.input_checkbox;
 
 public class FormCheckInput extends InputComponent<FormCheckInput>
 {

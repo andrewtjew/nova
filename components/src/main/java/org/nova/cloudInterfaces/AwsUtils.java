@@ -1,3 +1,4 @@
+package org.nova.cloudInterfaces;
 /*******************************************************************************
  * Copyright (C) 2017-2019 Kat Fung Tjew
  * 
@@ -19,25 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
-
-import org.nova.html.tags.span;
-
-public class NavbarToggler extends StyleComponent<NavbarToggler>
-{
-    public NavbarToggler()
-    {
-        super("button",null);
-        addClass("navbar-toggler");
-        attr("data-toggle", "collapse");
-        addInner(new span().addClass("navbar-toggler-icon"));
-    }
-
-    public NavbarToggler toggleCollapse(NavbarCollapse collapse)
-    {
-        attr("data-toggle","collapse");
-        attr("data-target","#"+collapse.id());
-        return this;
-    }
-   
-}
+//package org.nova.aws;
+//
+//public class AwsUtils
+//{
+//
+//}

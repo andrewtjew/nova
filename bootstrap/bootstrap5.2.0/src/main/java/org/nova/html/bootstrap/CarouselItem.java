@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.elements.Composer;
 
 public class CarouselItem extends StyleComponent<CarouselItem>
 {

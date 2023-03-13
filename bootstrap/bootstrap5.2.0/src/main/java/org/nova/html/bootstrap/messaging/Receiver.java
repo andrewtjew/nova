@@ -2,8 +2,6 @@ package org.nova.html.bootstrap.messaging;
 
 import java.util.LinkedList;
 
-import org.nova.html.tags.pre;
-
 public class Receiver
 {
     final LinkedList<Message> pageMessages;

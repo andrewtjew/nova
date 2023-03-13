@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.bootstrap.CustomControl;
 import org.nova.html.bootstrap.CustomLabel;
 import org.nova.html.bootstrap.CustomRadio;
 import org.nova.html.bootstrap.StyleComponent;

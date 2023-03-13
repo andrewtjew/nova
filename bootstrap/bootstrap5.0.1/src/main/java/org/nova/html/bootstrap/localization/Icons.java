@@ -1,7 +1,5 @@
 package org.nova.html.bootstrap.localization;
 
-import org.nova.html.bootstrap.ext.Icon;
-
 public class Icons
 {
 //    static Icon LANGUAGE=new Icon("people");

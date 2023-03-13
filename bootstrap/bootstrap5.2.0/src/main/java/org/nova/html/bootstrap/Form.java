@@ -25,7 +25,6 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.enums.enctype;
 import org.nova.html.enums.method;
-import org.nova.html.tags.form;
 
 public class Form extends FormElement<Form> implements Styling<Form>
 {

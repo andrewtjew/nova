@@ -23,11 +23,7 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.ButtonComponent;
-import org.nova.html.bootstrap.Container;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
-import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.tags.a;

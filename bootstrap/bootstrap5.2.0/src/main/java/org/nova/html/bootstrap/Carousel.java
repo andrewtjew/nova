@@ -22,16 +22,11 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.ext.Content;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.a;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;
-import org.nova.html.tags.li;
 import org.nova.html.tags.script;
 import org.nova.html.tags.span;
-import org.nova.html.tags.ul;
 
 public class Carousel extends StyleComponent<Carousel>
 {

@@ -21,12 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.DeviceClass;
 import org.nova.html.elements.FormElement;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.enums.method;
-import org.nova.html.tags.form_get;
 
 public class Form extends FormElement<Form>
 {

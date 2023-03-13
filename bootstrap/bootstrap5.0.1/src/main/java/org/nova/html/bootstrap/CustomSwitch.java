@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
-import org.nova.html.tags.input_radio;
 
 public class CustomSwitch extends InputComponent<CustomSwitch>
 {

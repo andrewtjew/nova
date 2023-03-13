@@ -105,6 +105,7 @@ public class DateTimeUtils
         return formatEpochMillis(System.currentTimeMillis(),UTC_TIME_ZONE,FILE_LOG_FORMATTER);
     }
 
+
     /*
     static enum TimeBase
     {
@@ -117,6 +118,11 @@ public class DateTimeUtils
     }
     */
 
+    static public long toUTC(long millis,ZoneOffset offset)
+    {
+        return millis-offset.getTotalSeconds()*1000;
+    }
+    
     static public ZonedDateTime align(TimeBase timeBase,ZonedDateTime zdt)
     {
         switch (timeBase)
@@ -148,9 +154,9 @@ public class DateTimeUtils
        
     }
     
-    static public long getDayInstantBeforeNow(long days)
-    {
-    	return System.currentTimeMillis()-24L*3600L*1000L;
-    }
+//    static public long getDayInstantBeforeNow(long days)
+//    {
+//    	return System.currentTimeMillis()-24L*3600L*1000L;
+//    }
     
 }

@@ -27,7 +27,6 @@ import org.nova.html.bootstrap.NavLink;
 import org.nova.html.bootstrap.TabContent;
 import org.nova.html.bootstrap.TabPane;
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 
 public class TabDocument extends TabContent
 {

@@ -1,9 +1,7 @@
 package org.nova.html.bootstrap.help;
 
 import org.nova.html.bootstrap.CardBody;
-import org.nova.html.bootstrap.CardFooter;
 import org.nova.html.bootstrap.CardHeader;
-import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.StyleComponent;
 
 public class Topic extends StyleComponent<Topic> 

@@ -38,7 +38,6 @@ import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
 
 public class FilterChain
 {
