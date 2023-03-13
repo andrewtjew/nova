@@ -68,9 +68,9 @@ public abstract class Resource implements AutoCloseable
 	    return this.identifier;
 	}
 	
-	boolean canAddLast(long recentActivateMaximumCount)
+	boolean canAddLast(long maximumRecentlyUsedCount)
 	{
-	    if (++this.recentlyUsedCount>=recentActivateMaximumCount)
+	    if (++this.recentlyUsedCount>=maximumRecentlyUsedCount)
 	    {
 	        this.recentlyUsedCount=0;
 	        return true;

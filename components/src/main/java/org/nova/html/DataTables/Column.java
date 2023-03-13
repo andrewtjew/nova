@@ -34,7 +34,7 @@ public class Column
     public String name;
     public Boolean orderable;
     private String width;
-    public Boolean visiable;
+    public Boolean visible;
     
     public Column searchable(boolean searchable)
     {

@@ -197,7 +197,6 @@ namespace nova.remote
                 {
                     return response.json();
                 }
-                alert(response);
             })
             .then((instructions:Instruction[])=>
             {
@@ -219,7 +218,6 @@ namespace nova.remote
                 {
                     return response.json();
                 }
-                alert(response);
             })
             .then((instructions:Instruction[])=>
             {

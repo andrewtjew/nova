@@ -46,7 +46,7 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     @SuppressWarnings("unchecked")
     public ELEMENT disabled()
     {
-        attr("disabled");
+        addClass("disabled");
         return (ELEMENT)this;
     }
 

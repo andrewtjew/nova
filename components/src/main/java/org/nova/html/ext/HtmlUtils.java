@@ -413,6 +413,32 @@ public class HtmlUtils
     {
         return js_setElementProperty(element.id(), property, value);
     }  
+    public static String js_setAttribute(TagElement<?> element,String attribute,String value)
+    {
+        return js_setAttribute(element.id(), attribute, value);
+    }  
+    public static String js_setAttribute(String id,String attribute,String value)
+    {
+        return "document.getElementById('"+id+"').setAttribute('"+attribute+"','"+value+"')";
+    }  
+    public static String js_removeAttribute(TagElement<?> element,String attribute)
+    {
+        return js_removeAttribute(element.id(), attribute);
+    }  
+    public static String js_removeAttribute(String id,String attribute)
+    {
+        return "document.getElementById('"+id+"').removeAttribute('"+attribute+"')";
+    }  
+
+    public static String js_getAttribute(TagElement<?> element,String attribute)
+    {
+        return js_getAttribute(element.id(), attribute);
+    }  
+    public static String js_getAttribute(String id,String attribute)
+    {
+        return "document.getElementById('"+id+"').getAttribute('"+attribute+"')";
+    }  
+    
     public static String js_elementCall(String id,String function,Object...parameters)
     {
         return js_call("document.getElementById('"+id+"')."+function,parameters);
@@ -570,6 +596,14 @@ public class HtmlUtils
     {
         return "var "+instanceName+"=new "+js_call(className,parameters)+";";
     }    
+    
+    // eg js_callIfElementProperty("e1","checked==true","alert","hello");
+    public static String js_callIfElementProperty(String id,String expression,String function,Object...parameters)
+    {
+        return "if (document.getElementById('"+id+"')."+expression+"){"
+                +js_call(QuotationMark.SINGLE,function,parameters)
+                +";}";
+    }
     
     public static String js_call(String function,Object...parameters)
     {

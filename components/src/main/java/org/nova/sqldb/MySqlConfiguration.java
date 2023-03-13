@@ -23,7 +23,13 @@ package org.nova.sqldb;
 
 public class MySqlConfiguration
 {
-	public MySqlConfiguration(String host,int port,String schema,int poolSize,long connectionKeepAlive,long maximumRecentlyUsedCount)
+    String default_host="localhost";
+    static int default_port=3306;
+    static int default_poolSize=2;
+    static long default_connectionKeepAlive=3600*1000;
+    static long default_maximumRecentlyUsedCount=1000;
+
+    public MySqlConfiguration(String host,int port,String schema,int poolSize,long connectionKeepAlive,long maximumRecentlyUsedCount)
 	{
 		this.host=host;
 		this.port=port;
@@ -34,21 +40,23 @@ public class MySqlConfiguration
 	}
     public MySqlConfiguration(String host,int port,String schema,int poolSize,long connectionKeepAlive)
     {
-        this(host,port,schema,poolSize,10000,1000000);
+        this(host,port,schema,poolSize,connectionKeepAlive,default_maximumRecentlyUsedCount);
     }
 	public MySqlConfiguration(String host,String schema)
 	{
-		this(host,3306,schema,10,10000,1000000);
+		this(host,default_port,schema,default_poolSize,default_connectionKeepAlive,default_maximumRecentlyUsedCount);
 	}
     public MySqlConfiguration(String schema)
     {
         this("localhost",schema);
     }
 	
-	String host="localhost";
-	int port=3306;
-	String schema;
-	int poolSize=2;
-	long connectionKeepAlive=100000;
-	long maximumRecentlyUsedCount=1000000;
+    String schema;
+	String host=default_host;
+	int port=default_port;
+	int poolSize=default_poolSize;
+	long connectionKeepAlive=default_connectionKeepAlive;
+	long maximumRecentlyUsedCount=default_maximumRecentlyUsedCount;
+	
+	
 }
