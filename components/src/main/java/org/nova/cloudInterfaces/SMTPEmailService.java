@@ -76,10 +76,6 @@ public class SMTPEmailService extends EmailService
     }
     public void send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable
     {
-        send(parent,this.from,to,subject,content,mediaType);
-    }    
-    private void send(Trace parent,String from,String to,String subject,String content,String mediaType) throws Throwable
-    {
         try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
             trace.setDetails("from:"+from+",to:"+to+",subject:"+subject);
@@ -108,11 +104,7 @@ public class SMTPEmailService extends EmailService
             }
         }
     }
-    public void send(Trace parent,String to,String subject,String content,String mediaType,String filename,byte[] attachment) throws Throwable
-    {
-        send(parent,this.from,to,subject,content,mediaType,mediaType,filename,attachment);
-    }
-    private void send(Trace parent,String from,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
+    public void send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
     {
         try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
@@ -121,7 +113,7 @@ public class SMTPEmailService extends EmailService
             msg.setFrom(new InternetAddress(from));
             msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
             msg.setSubject(subject);
-            //msg.setContent(content,mediaType);
+            msg.setContent(content,mediaType);
             MimeBodyPart contentBodyPart=new MimeBodyPart();
             contentBodyPart.setContent(content,mediaType);
 

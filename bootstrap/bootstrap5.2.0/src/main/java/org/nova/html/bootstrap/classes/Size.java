@@ -23,6 +23,7 @@ package org.nova.html.bootstrap.classes;
 
 public enum Size
 {
+    none,
     sm, 
     md, 
     lg,

@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.cloudInterfaces;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.tracing.Trace;
@@ -30,7 +33,16 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 
@@ -39,13 +51,13 @@ public class AWSSMSService extends SMSService
     final private AmazonSNS sns;
     final private Logger logger;
     
-    public AWSSMSService(Logger logger,String accessKey, String secretKey)
+    public AWSSMSService(Logger logger,String accessKey, String secretKey, Regions regions)
     {
         this.logger=logger;
         this.sns=AmazonSNSClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-                .withRegion(Regions.DEFAULT_REGION)
+                .withRegion(regions)
                 .build();
     }
 
@@ -55,9 +67,17 @@ public class AWSSMSService extends SMSService
         {
             try
             {
+//                Map<String, MessageAttributeValue> messageAttributes = new HashMap<String, MessageAttributeValue>();
+//                MessageAttributeValue value=new MessageAttributeValue();
+//                value.setDataType("String");
+//                value.setStringValue("+18885988137");
+//                messageAttributes.put("AWS.MM.SMS.OriginationNumber", value);
+                              
+                
                 PublishResult result = this.sns.publish(new PublishRequest().withMessage(message).withPhoneNumber(phoneNumber));
                 String id=result.getMessageId();
                 this.logger.log(trace,new Item("phoneNumber",phoneNumber),new Item("message",message),new Item("id",id));
+                System.out.println("sent to "+phoneNumber);
                 return id;
             }
             catch (Throwable t)

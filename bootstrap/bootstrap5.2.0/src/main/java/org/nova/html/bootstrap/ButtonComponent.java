@@ -113,5 +113,9 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     {
         return addClass("btn-close");
     }
+    public ELEMENT block()
+    {
+        return addClass("btn-block");
+    }
     
 }
