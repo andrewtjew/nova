@@ -53,6 +53,8 @@ public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> ex
         }
     }
     
+    
+    
     public TagElement<?> getElement()
     {
         return this;

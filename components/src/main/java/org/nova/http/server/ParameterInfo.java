@@ -32,7 +32,8 @@ public class ParameterInfo
 	final private int pathIndex;
 	final private String name;
 	final private Annotation annotation;
-	public ParameterInfo(ParameterSource source,Annotation annotation,String name,int index,Class<?> type,Object defaultValue)
+	final private boolean required;
+	public ParameterInfo(ParameterSource source,Annotation annotation,String name,int index,Class<?> type,Object defaultValue,boolean required)
 	{
 		this.source=source;
         this.annotation=annotation;
@@ -41,6 +42,7 @@ public class ParameterInfo
 		this.type=type;
 		this.defaultValue=defaultValue;
 		this.pathIndex=0;
+		this.required=required;
 	}
 	public ParameterInfo(ParameterInfo info,int pathIndex)
 	{
@@ -49,12 +51,18 @@ public class ParameterInfo
 		this.name=info.name;
 		this.index=info.index;
 		this.type=info.type;
+        this.required=info.required;
 		this.defaultValue=info.defaultValue;
 		this.pathIndex=pathIndex;
+		
 	}
 	public ParameterSource getSource()
 	{
 		return source;
+	}
+	public boolean isRequired()
+	{
+	    return this.required;
 	}
 	public int getIndex()
 	{

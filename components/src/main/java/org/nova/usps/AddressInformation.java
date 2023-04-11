@@ -145,7 +145,7 @@ public class AddressInformation
                 String zipText=zipElement.getTextContent();
                 if (zip.equals(zipText)==false)
                 {
-                    return false;
+                    return true;
                 }
                 return true;
             }

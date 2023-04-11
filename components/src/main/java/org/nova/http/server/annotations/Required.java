@@ -19,30 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.http.server.annotations;
 
-public class TableHeader extends StyleComponent<TableHeader>
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Required
 {
-    public TableHeader()
-    {
-        super("thead",null);
-    }
-    public TableHeader(Object...objects)
-    {
-        super("thead",null);
-        returnAddInner(new TableHeaderRow()).add(objects);
-    }
-    
-    public TableHeader addRowWithStyle(StyleTemplate template,Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).addWithStyle(template, objects);
-        return this;
-    }
-
-    public TableHeader addRow(Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).add(objects);
-        return this;
-    }
-
 }

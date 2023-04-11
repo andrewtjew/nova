@@ -62,6 +62,19 @@ public class Update
         this.parameters.add(value);
         return this;
     }
+    public Update modify(String expression,Object...values)
+    {
+        if (this.parameters.size()>0)
+        {
+            this.columns.append(',');
+        }
+        this.columns.append(expression);
+        for (Object value:values)
+        {
+            this.parameters.add(value);
+        }
+        return this;
+    }
     
     public Update categoryOverride(String categoryOverride)
     {
