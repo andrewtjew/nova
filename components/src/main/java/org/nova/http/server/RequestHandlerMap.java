@@ -24,6 +24,7 @@ package org.nova.http.server;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -58,6 +59,7 @@ import org.nova.http.server.annotations.PUT;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
+import org.nova.http.server.annotations.Required;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.http.server.annotations.TRACE;
 import org.nova.http.server.annotations.Test;
@@ -353,6 +355,21 @@ class RequestHandlerMap
 	        writers.put(mediaType,new DistanceContentWriter(distance, writer));
 	    }
 	}
+
+	private void rejectDefaultValueAndRequired(Object object,Method method,Parameter parameter,DefaultValue defaultValue,Required required) throws Exception
+	{
+        if (defaultValue != null)
+        {
+            throw new Exception("@DefaultValue not allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+                    + method.getName());
+        }
+        if (required != null)
+        {
+            throw new Exception("@Required not allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+                    + method.getName());
+        }
+	    
+	}
 	
 	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Exception
 	{
@@ -487,21 +504,18 @@ class RequestHandlerMap
 		// parameters
 		ArrayList<ParameterInfo> parameterInfos = new ArrayList<ParameterInfo>();
 		Class<?>[] parameterTypes = method.getParameterTypes();
+		Parameter[] parameters=method.getParameters();
 		Annotation[][] annotations = method.getParameterAnnotations();
 		int cookieStateParamCount=0;
 		for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++)
 		{
 			Class<?> parameterType = parameterTypes[parameterIndex];
-			if (parameterType == Trace.class)
-			{
-				parameterInfos.add(new ParameterInfo(ParameterSource.TRACE, null,null, parameterIndex, parameterType, null));
-				continue;
-			}
-
+			Parameter parameter=parameters[parameterIndex];
 			// Process parameter annotations
 			Annotation[] parameterAnnotations = annotations[parameterIndex];
 
 			DefaultValue defaultValue = null;
+			Required required=null;
 			ContentParam contentParam = null;
 			CookieParam cookieParam = null;
 			CookieStateParam cookieStateParam = null;
@@ -520,11 +534,15 @@ class RequestHandlerMap
 				{
 					defaultValue = (DefaultValue) annotation;
 				}
+				else if (type == Required.class)
+                {
+                    required = (Required) annotation;
+                }
 				else if (type == ContentParam.class)
 				{
 					if (handlerAnnotations.contentReaders == null)
 					{
-						throw new Exception("Need @ContentReaders for @ContentParam." + object.getClass().getCanonicalName() + "." + method.getName());
+						throw new Exception("Need @ContentReaders for @ContentParam "+parameter.getName()+" for method " + object.getClass().getCanonicalName() + "." + method.getName());
 					}
 					contentParam = (ContentParam) annotation;
 				}
@@ -622,62 +640,44 @@ class RequestHandlerMap
 //			}
 
 			// No multiple param annotations. Check each and add.
+			
+            if (parameterType == Trace.class)
+            {
+                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                parameterInfos.add(new ParameterInfo(ParameterSource.TRACE, null,parameter.getName(), parameterIndex, parameterType, null,true));
+                continue;
+            }
+
 			if (parameterType == Context.class)
 			{
-				if (defaultValue != null)
-				{
-					throw new Exception("@DefaultValue annotation not allowed for Context parameter. Site=" + object.getClass().getCanonicalName() + "."
-							+ method.getName());
-				}
-				parameterInfos.add(new ParameterInfo(ParameterSource.CONTEXT, null, null, parameterIndex, parameterType, null));
+                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+				parameterInfos.add(new ParameterInfo(ParameterSource.CONTEXT, null, parameter.getName(), parameterIndex, parameterType, null,true));
 			}
             else if (parameterType==Queries.class)
             {
-                if (defaultValue != null)
-                {
-                    throw new Exception("@DefaultValue annotation not allowed with @QueryParams annotation. Site=" + object.getClass().getCanonicalName() + "."
-                            + method.getName());
-                }
-                parameterInfos.add(new ParameterInfo(ParameterSource.QUERIES, null, null, parameterIndex, parameterType, null));
+                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                parameterInfos.add(new ParameterInfo(ParameterSource.QUERIES, null, parameter.getName(), parameterIndex, parameterType, null, true));
             }
 			else if (contentParam != null)
 			{
-				if (defaultValue != null)
-				{
-					throw new Exception("@DefaultValue annotation not allowed with @ContentParam annnotation. Site=" + method.getName());
-				}
-				parameterInfos.add(new ParameterInfo(ParameterSource.CONTENT, contentParam, null, parameterIndex, parameterType,null));
+                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+				parameterInfos.add(new ParameterInfo(ParameterSource.CONTENT, contentParam, parameter.getName(), parameterIndex, parameterType,null,true));
 			}
 			else if (stateParam != null)
 			{
-				if (defaultValue != null)
-				{
-					throw new Exception("@DefaultValue annotation not allowed with @StateParam annotation. Site=" + method.getName());
-				}
-				parameterInfos.add(new ParameterInfo(ParameterSource.STATE, stateParam, null, parameterIndex, parameterType, null));
+                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+				parameterInfos.add(new ParameterInfo(ParameterSource.STATE, stateParam, parameter.getName(), parameterIndex, parameterType, null,true));
 			}
 			else if (cookieParam != null)
 			{
-				if (parameterType == Cookie.class)
-				{
-					if (defaultValue != null)
-					{
-						throw new Exception("@DefaultValue annotation not allowed with @CookieParam parameter with type Cookie. Site="
-								+ object.getClass().getCanonicalName() + "." + method.getName());
-					}
-				}
-//				else if (isSimpleParameterType(parameterType) == false)
-//				{
-//					throw new Exception("Only simple types allowed for parameter. Site=" + method.getName());
-//				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE, cookieParam, cookieParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType)));
+						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (cookieStateParam != null)
 			{
 				cookieStateParamCount++;
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE_STATE, cookieStateParam, cookieStateParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType)));
+						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (pathParam != null)
 			{
@@ -686,7 +686,7 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType)));
+						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
             else if (securePathParam != null)
             {
@@ -695,17 +695,17 @@ class RequestHandlerMap
                     throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
                 }
                 parameterInfos.add(new ParameterInfo(ParameterSource.PATH, securePathParam, securePathParam.value(), parameterIndex, parameterType,
-                        getDefaultValue(method, defaultValue, parameterType)));
+                        getDefaultValue(method, defaultValue, parameterType),required!=null));
             }
 			else if (queryParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType)));
+						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
             else if (secureQueryParam != null)
             {
                 parameterInfos.add(new ParameterInfo(ParameterSource.SECURE_QUERY, secureQueryParam, secureQueryParam.value(), parameterIndex, parameterType,
-                        getDefaultValue(method, defaultValue, parameterType)));
+                        getDefaultValue(method, defaultValue, parameterType),required!=null));
             }
 			else if (headerParam != null)
 			{
@@ -714,34 +714,31 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.HEADER, headerParam, headerParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType)));
+						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (paramName!=null)
 			{
                 if (paramName.startsWith())
                 {
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
-                            getDefaultValue(method, defaultValue, parameterType)));
+                            getDefaultValue(method, defaultValue, parameterType),required!=null));
                 }
                 else
                 {
-                    if (defaultValue != null)
-                    {
-                        throw new Exception("@DefaultValue annotation not allowed for ParamName with startsWith=false. Site=" + object.getClass().getCanonicalName() + "."
-                                + method.getName());
-                    }
+                    rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
     			    if (parameterType!=boolean.class)
     			    {
-                        throw new Exception("Only the boolean type is allowed for ParamName when the startsWith field is false. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+    		            throw new Exception("When the startsWith field is false for Param name only the boolean type is allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+    		                    + method.getName());
     			    }
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
-                            null));
+                            null,true));
                 }
 			}
 			else
 			{
-                parameterInfos.add(new ParameterInfo(ParameterSource.INTERNAL, null, null, parameterIndex, parameterType,
-                        null));
+                parameterInfos.add(new ParameterInfo(ParameterSource.INTERNAL, null, parameter.getName(), parameterIndex, parameterType,
+                        null,required!=null));
 			}
 		}
 

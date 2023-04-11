@@ -61,15 +61,19 @@ public class FilterChain
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object buildParameter(ParameterInfo parameterInfo,String value) throws Exception 
 	{
+        if (value==null)
+        {
+            if (parameterInfo.getDefaultValue()!=null)
+            {
+                return parameterInfo.getDefaultValue();
+            }
+            if (parameterInfo.isRequired())
+            {
+                throw new Exception("Request does not provide required value for parameter "+parameterInfo.getName());
+            }
+        }
 	    try
 	    {
-    		if (value==null)
-    		{
-    			if (parameterInfo.getDefaultValue()!=null)
-    			{
-    				return parameterInfo.getDefaultValue();
-    			}
-    		}
     		Class<?> type=parameterInfo.getType();
     		if (type==String.class)
     		{
@@ -79,7 +83,7 @@ public class FilterChain
     		{
     		    if (value==null)
     		    {
-    		        return 0;
+    		        return 0;//
     		    }
                 value=value.trim();
                 if (value.length()==0)
