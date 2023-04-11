@@ -35,5 +35,5 @@ public abstract class DecodingHttpServletRequest extends HttpServletRequestWrapp
     {
         parameters.put(name, value);
     }
-    abstract public String decodeQueryParameter(String name) throws Throwable;
+    abstract public String decodeParameter(String name) throws Throwable;
 }

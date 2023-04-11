@@ -8,13 +8,11 @@ abstract public class FieldDescriptor
 {
     final Field field;
     final boolean internal;
-    final boolean identity;
     
     public FieldDescriptor(Field field)
     {
         this.field = field;
         this.internal=field.getAnnotation(Internal.class)!=null;
-        this.identity=field.getAnnotation(Identity.class)!=null;
     }
     
     public abstract void set(Object object,String typeName,Row row) throws Throwable;        

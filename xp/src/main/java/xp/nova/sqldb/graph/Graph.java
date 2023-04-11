@@ -8,6 +8,8 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -720,7 +722,7 @@ public class Graph
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
             String after="_eventId";
-            Stack<String> alter=new Stack<String>();
+            Stack<String> alters=new Stack<String>();
 
             if (Graph.TEST)
             {
@@ -729,22 +731,36 @@ public class Graph
                     Testing.log("Catalog="+catalog+", type="+type.getSimpleName());
                 }
             }
-            int rowIndex=2;
+            int rowIndex=0;
             int fieldIndex=0;
+            Row[] orderedRows=new Row[rowSet.size()];
+            for (int i=0;i<rowSet.size();i++)
+            {
+                Row row=rowSet.getRow(i);
+                int position=(int)row.getBIGINT("ORDINAL_POSITION");
+                orderedRows[position-1]=row;
+            }
+            
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
                 if (columnAccessor.isInternal())
                 {
                     fieldIndex++;
+                    rowIndex++;
                     continue;
                 }
                 String fieldName=columnAccessor.getName();
                 SqlType fieldSqlType=columnAccessor.getSqlType();
                 if (rowIndex<rowSet.size())
                 {
-                    Row row=rowSet.getRow(rowIndex);
+                    Row row=orderedRows[rowIndex];
                     String columnName=row.getVARCHAR("COLUMN_NAME");
+                    if (columnName.equals("_eventId"))
+                    {
+                        rowIndex++;
+                        continue;
+                    }
                     int compareResult=fieldName.compareTo(columnName);
                     if (compareResult==0)
                     {
@@ -773,12 +789,11 @@ public class Graph
                          }
                         if (fieldSqlType.isEqual(dataType, nullable, length)==false)
                         {
-                            if (fieldSqlType.isLengthGreater(length)==false)
+                            if (fieldSqlType.isLengthAcceptable(length)==false)
                             {
                                 throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+dataType);
-                                
                             }
-                            alter.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
+                            alters.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
                         }
  
                         after=columnName;
@@ -808,15 +823,15 @@ public class Graph
                 {
                     fieldIndex++;
                 }
-                alter.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType+" AFTER `"+after+'`');
+                alters.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+after+'`');
             }
-            if (alter.size()>0)
+            if (alters.size()>0)
             {
                 StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+descriptor.getTableName());
-                sql.append(alter.pop());
-                while (alter.size()>0)
+                sql.append(alters.pop());
+                while (alters.size()>0)
                 {
-                    sql.append(','+alter.pop());
+                    sql.append(','+alters.pop());
                     
                 }
                 sql.append(';');

@@ -89,13 +89,6 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
     {
        int width=(int)(this.longest*0.7f+1);
        Size size=this.leftWidth!=null?this.leftWidth:new Size(width,unit.em);
-
-       Style style=new Style()
-       .width(size)
-       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
-       .margin_right(new Size(0.25,unit.em))
-       .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em));
-
        Style valueStyle=new Style()
        .text_align(text_align.left)
        .width(new Size(100,unit.percent))

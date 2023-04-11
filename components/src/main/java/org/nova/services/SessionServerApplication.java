@@ -54,7 +54,7 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
         this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
 
         this.getMenuBar().add("/operator/sessions","Sessions","View All");
-        this.getPublicServer().addFilters(this.sessionFilter);
+        this.getPublicServer().addBottomFilters(this.sessionFilter);
         
         SessionOperatorPages<SESSION> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);

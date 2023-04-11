@@ -19,21 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server;
+package org.nova.html.ext;
 
-public enum ParameterSource
+import org.nova.html.tags.input_hidden;
+import org.nova.html.tags.script;;
+
+public class InputNow extends input_hidden
 {
-	CONTENT,
-	COOKIE,
-	HEADER,
-	PATH,
-	QUERY,
-	STATE,
-	CONTEXT,
-	TRACE,
-	NAME,
-	QUERIES,
-	INTERNAL,
-	COOKIE_STATE,
-    SECURE_QUERY,
+    public InputNow(String name)
+    {
+        name(name);
+        returnAddInner(new script().addInner(HtmlUtils.js_inputTimeZone(this)));
+    }
+//    @Override
+//    public void compose(Composer composer) throws Throwable
+//    {
+//        id();
+//        super.compose(composer);
+//        script.compose(composer);
+//    }    
 }
