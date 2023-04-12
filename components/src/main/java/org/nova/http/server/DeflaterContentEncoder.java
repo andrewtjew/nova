@@ -22,6 +22,7 @@
 package org.nova.http.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.DeflaterOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class DeflaterContentEncoder extends ContentEncoder
 		final private SizeOutputStream uncompressedOutputStream;
 		final private SizeOutputStream compressedOutputStream;
 		final private DeflaterOutputStream compressingOutputStream;		
+		
 		Context(OutputStream outputStream) throws IOException
 		{
 			this.compressedOutputStream=new SizeOutputStream(outputStream);
@@ -50,15 +52,14 @@ public class DeflaterContentEncoder extends ContentEncoder
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws Throwable
+		public long getUncompressedContentSize() throws Throwable
 		{
-			return this.uncompressedOutputStream;
-		}
-		
-		@Override
-		public long getUncompressedContentSize()
-		{
-			return this.uncompressedOutputStream.getBytesStreamed();
+            long size=this.uncompressedOutputStream.getBytesStreamed();
+            if (size==0)
+            {
+                size=getCompressedContentSize();
+            }
+            return size;
 		}
 
 		@Override
@@ -66,6 +67,28 @@ public class DeflaterContentEncoder extends ContentEncoder
 		{
 			return this.compressedOutputStream.getBytesStreamed();
 		}
+
+        @Override
+        public OutputStream getOutputStream(HttpServletResponse response) throws Throwable
+        {
+            response.setHeader("Content-Encoding", "deflate");
+            return this.uncompressedOutputStream;
+        }
+
+        @Override
+        public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws IOException
+        {
+            if (length>100)
+            {
+                response.setHeader("Content-Encoding", "deflate");
+                this.uncompressedOutputStream.write(content,offset,length);
+            }
+            else
+            {
+                this.compressedOutputStream.write(content,offset,length);
+            }
+        }
+
 	}
 	@Override
 	public String getCoding()
@@ -76,7 +99,6 @@ public class DeflaterContentEncoder extends ContentEncoder
 	@Override
 	public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
 	{
-		response.setHeader("Content-Encoding", getCoding());
 		return new Context(response.getOutputStream());
 	}
 

@@ -36,6 +36,7 @@ public class SizeOutputStream extends OutputStream
 	@Override
 	public void write(int b) throws IOException
 	{
+        this.bytesStreamed++;
 		this.outputStream.write(b);
 	}
 

@@ -45,7 +45,7 @@ public class HtmlRemotingWriter extends ContentWriter
 	    Result script=(Result)content;
         context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
         String text=script.serialize();
-        context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+        context.writeContent(text, StandardCharsets.UTF_8);
 	}
 
 	@Override
@@ -57,5 +57,13 @@ public class HtmlRemotingWriter extends ContentWriter
 	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
 	}
+
+    @Override
+    public Class<?> getContentType()
+    {
+        return Result.class;
+    }
+    
+	
 }
 

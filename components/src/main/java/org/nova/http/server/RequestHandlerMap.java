@@ -778,12 +778,9 @@ class RequestHandlerMap
     				{
                         throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ object.getClass().getCanonicalName() + "." + method.getName());
     				}
-				    ParameterizedType writerType=(ParameterizedType)writer.getClass().getGenericSuperclass();
-				    Type writerContentType=writerType.getActualTypeArguments()[0];
-
 				    try
 				    {
-    				    int distance=TypeUtils.getAncestorDistance((Class<?>)returnType, (Class<?>)writerContentType);
+    				    int distance=TypeUtils.getAncestorDistance((Class<?>)returnType, writer.getContentType());
     				    if (distance>=0)
     				    {
         				    String mediaType=writer.getMediaType().toLowerCase();

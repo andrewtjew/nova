@@ -49,7 +49,7 @@ public class HtmlElementWriter extends ContentWriter
 		    StringComposer composer=new StringComposer(element.getQuotationMark());
             element.compose(composer);
             String text=composer.getStringBuilder().toString();
-            context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+            context.writeContent(text, StandardCharsets.UTF_8);
 		}
 	}
 
@@ -62,5 +62,11 @@ public class HtmlElementWriter extends ContentWriter
 	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
 	}
+    @Override
+    public Class<?> getContentType()
+    {
+        return Element.class;
+    }
+	
 }
 

@@ -21,11 +21,17 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+
+import javax.servlet.http.HttpServletResponse;
 
 public abstract class EncoderContext implements AutoCloseable
 {
-	public abstract OutputStream getOutputStream() throws Throwable;
+//    public abstract String getContentEncoding();
+	public abstract OutputStream getOutputStream(HttpServletResponse response) throws Throwable;
 	public abstract long getUncompressedContentSize() throws Throwable;
-	public abstract long getCompressedContentSize() throws Throwable;
+    public abstract long getCompressedContentSize() throws Throwable;
+    public abstract void encode(HttpServletResponse response,byte[] content,int offset,int length) throws Throwable;
 }

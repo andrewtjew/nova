@@ -116,7 +116,7 @@ public class AjaxQueryResultWriter extends ContentWriter
 			}
 		}
 		sb.append('}');
-		context.writeContentTextUsingAcceptedEncoding(sb.toString(), StandardCharsets.UTF_8);
+		context.writeContent(sb.toString(), StandardCharsets.UTF_8);
 	}
 
 	@Override
@@ -132,5 +132,11 @@ public class AjaxQueryResultWriter extends ContentWriter
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public Class<?> getContentType()
+    {
+        return AjaxQueryResult.class;
+    }
 
 }

@@ -4998,7 +4998,8 @@ public class ServerApplicationPages
         response.setHeader("Cache-Control",
                 (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
         response.setStatus(HttpStatus.OK_200);
-        response.getOutputStream().write(bytes);
+        context.writeContent(bytes);
+//        response.getOutputStream().write(bytes);
     }
 
     @Test

@@ -32,7 +32,7 @@ public class ValueQ
 		@Override
 		public int compare(ValueQ arg0, ValueQ arg1)
 		{
-			return arg0.q<=arg1.q?1:-1;
+			return arg0.q<arg1.q?1:-1;
 		}
 	}
 	
@@ -49,11 +49,9 @@ public class ValueQ
 	{
 		String[] parts=org.nova.utils.Utils.split(accept.trim(), ',');
 		ArrayList<ValueQ> list=new ArrayList<>();
-		double defaultQ=1;
 		for (String item:parts)
 		{
-			double q=defaultQ;
-			defaultQ-=1.0f;
+			double q=1.0f;
 			String[] mediaTypeParameter=org.nova.utils.Utils.split(item.trim(), ';');
 			if (mediaTypeParameter.length>1)
 			{

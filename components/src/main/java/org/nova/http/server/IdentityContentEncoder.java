@@ -22,6 +22,7 @@
 package org.nova.http.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,11 +40,7 @@ public class IdentityContentEncoder extends ContentEncoder
 		{
 			this.outputStream=new SizeOutputStream(outputStream);
 		}
-		@Override
-		public OutputStream getOutputStream() throws Throwable
-		{
-			return this.outputStream;
-		}
+
 
 		@Override
 		public void close() throws Exception
@@ -60,7 +57,19 @@ public class IdentityContentEncoder extends ContentEncoder
 		{
 			return outputStream.getBytesStreamed();
 		}
-		
+        @Override
+        public OutputStream getOutputStream(HttpServletResponse response) throws Throwable
+        {
+            return this.outputStream;
+        }
+
+
+        @Override
+        public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws Throwable
+        {
+            this.outputStream.write(content,offset,length);
+        }
+
 	}
 	
 	@Override

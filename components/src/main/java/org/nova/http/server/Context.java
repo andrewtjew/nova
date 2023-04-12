@@ -205,14 +205,12 @@ public class Context
 //	}
 	private boolean requestContentTextValid=false;
 	
-	public void writeContentTextUsingAcceptedEncoding(String text) throws Throwable
+	public void writeContent(String text) throws Throwable
 	{
-	    writeContentTextUsingAcceptedEncoding(text,StandardCharsets.UTF_8);
+	    writeContent(text,StandardCharsets.UTF_8);
 	}
-	public void writeContentTextUsingAcceptedEncoding(String text,Charset charset) throws Throwable
+	public void writeContent(String text,Charset charset) throws Throwable
 	{
-        OutputStream outputStream=this.encoderContext.getOutputStream();
-        outputStream.write(text.getBytes(charset));
 	    if (this.responseContentText==null)
 	    {
 	        this.responseContentText=text;
@@ -221,17 +219,23 @@ public class Context
 	    {
 	        this.responseContentText+=text;
 	    }
+        writeContent(text.getBytes(charset));
 	}
-
-    public void writeResponseContentUsingAcceptedEncoding(byte[] content) throws Throwable
+    public OutputStream getOutputStream() throws Throwable
     {
-        OutputStream outputStream=this.encoderContext.getOutputStream();
-        outputStream.write(content);
+        return this.encoderContext.getOutputStream(this.httpServletResponse);
     }
-    public void writeEncodedResponseContent(byte[] content,int offset,int length) throws Throwable
+
+    public void writeContent(byte[] content) throws Throwable
     {
-        OutputStream outputStream=this.encoderContext.getOutputStream();
-        outputStream.write(content,offset,length);
+        if (content!=null)
+        {
+            writeContent(content,0,content.length);
+        }
+    }
+    public void writeContent(byte[] content,int offset,int length) throws Throwable
+    {
+        this.encoderContext.encode(this.httpServletResponse, content,offset,length);
     }
 	
 //    public String readDecodedRequestContentText() throws Throwable

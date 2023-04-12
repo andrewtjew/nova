@@ -22,6 +22,7 @@
 package org.nova.http.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,19 +48,25 @@ public class GzipContentEncoder extends ContentEncoder
 		@Override
 		public void close() throws Exception
 		{
-			this.uncompressedOutputStream.close();
+			this.compressingOutputStream.close();
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws Throwable
-		{
+        public OutputStream getOutputStream(HttpServletResponse response) throws Throwable
+        {
+            response.setHeader("Content-Encoding", "gzip");
 			return this.uncompressedOutputStream;
 		}
 		
 		@Override
-		public long getUncompressedContentSize()
+		public long getUncompressedContentSize() throws Throwable
 		{
-			return this.uncompressedOutputStream.getBytesStreamed();
+			long size=this.uncompressedOutputStream.getBytesStreamed();
+			if (size==0)
+			{
+			    size=getCompressedContentSize();
+			}
+			return size;
 		}
 
 		@Override
@@ -67,6 +74,22 @@ public class GzipContentEncoder extends ContentEncoder
 		{
 			return this.compressedOutputStream.getBytesStreamed();
 		}
+
+        @Override
+        public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws Throwable
+        {
+            if (length>100)
+            {
+                response.setHeader("Content-Encoding", "gzip");
+                this.uncompressedOutputStream.write(content,offset,length);
+            }
+            else
+            {
+                this.compressedOutputStream.write(content,offset,length);
+            }
+        }
+
+
 	}
 	@Override
 	public String getCoding()
@@ -77,7 +100,6 @@ public class GzipContentEncoder extends ContentEncoder
 	@Override
 	public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
 	{
-		response.setHeader("Content-Encoding", getCoding());
 		return new Context(response.getOutputStream());
 	}
 

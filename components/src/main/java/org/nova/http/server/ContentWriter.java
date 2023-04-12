@@ -25,7 +25,8 @@ import java.io.OutputStream;
 
 public abstract class ContentWriter
 {
-	abstract public String getMediaType();
+    abstract public String getMediaType();
+    abstract public Class<?> getContentType();
 	abstract public void write(Context context,Object content) throws Throwable;
 	abstract public void writeSchema(OutputStream outputStream,Class<?> contentType) throws Throwable;;
 	abstract public void writeExample(OutputStream outputStream,Class<?> contentType) throws Throwable;;

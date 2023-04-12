@@ -40,7 +40,7 @@ public class JSONContentWriter extends ContentWriter
 	public void write(Context context, Object content) throws Throwable
 	{
 		String contentText=ObjectMapper.writeObjectToString(content);
-		context.writeContentTextUsingAcceptedEncoding(contentText, StandardCharsets.UTF_8);
+		context.writeContent(contentText, StandardCharsets.UTF_8);
 	}
 
 	@Override
@@ -54,5 +54,11 @@ public class JSONContentWriter extends ContentWriter
 	{
 		ObjectExample.write(outputStream, contentType);
 	}
+
+    @Override
+    public Class<?> getContentType()
+    {
+        return Object.class;
+    }
 
 }
