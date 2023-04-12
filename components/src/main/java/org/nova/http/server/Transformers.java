@@ -28,7 +28,7 @@ public class Transformers
 {
 
     final ArrayList<ContentReader<?>> contentReaders;
-    final ArrayList<ContentWriter<?>> contentWriters;
+    final ArrayList<ContentWriter> contentWriters;
     final ArrayList<ContentEncoder> contentEncoders;
     final ArrayList<ContentDecoder> contentDecoders;
     final ArrayList<Filter> bottomFilters;
@@ -54,9 +54,9 @@ public class Transformers
             }
         }
     }
-    public void add(ContentWriter<?>...contentWriters)
+    public void add(ContentWriter...contentWriters)
     {
-        for (ContentWriter<?> contentWriter:contentWriters)
+        for (ContentWriter contentWriter:contentWriters)
         {
             if (this.getContentWriter(contentWriter.getClass())==null)
             {
@@ -167,9 +167,9 @@ public class Transformers
         return null;
     }
 
-    public ContentWriter<?> getContentWriter(Type type)
+    public ContentWriter getContentWriter(Type type)
     {
-        for (ContentWriter<?> item:this.contentWriters)
+        for (ContentWriter item:this.contentWriters)
         {
             if (item.getClass()==type)
             {

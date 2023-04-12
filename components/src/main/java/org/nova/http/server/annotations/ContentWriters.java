@@ -32,5 +32,5 @@ import org.nova.http.server.ContentWriter;
 @Target({ElementType.METHOD,ElementType.TYPE})
 public @interface ContentWriters
 {
-	Class<? extends ContentWriter<?>>[] value();
+	Class<? extends ContentWriter>[] value();
 }

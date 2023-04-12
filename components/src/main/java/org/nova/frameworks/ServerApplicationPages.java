@@ -3393,7 +3393,7 @@ public class ServerApplicationPages
             if (requestHandler.getContentWriters().size() > 0)
             {
                 HashMap<String, ContentWriterList> lists = new HashMap<>();
-                for (Entry<String, ContentWriter<?>> entry : requestHandler.getContentWriters().entrySet())
+                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
                 {
                     ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
@@ -4061,10 +4061,10 @@ public class ServerApplicationPages
 
     static class ContentWriterList
     {
-        ContentWriter<?> contentWriter;
+        ContentWriter contentWriter;
         ArrayList<String> types;
 
-        public ContentWriterList(ContentWriter<?> contentWriter)
+        public ContentWriterList(ContentWriter contentWriter)
         {
             this.contentWriter = contentWriter;
             this.types = new ArrayList<>();
@@ -4099,7 +4099,7 @@ public class ServerApplicationPages
             Type innerReturnType = null;
             if (returnType != void.class)
             {
-                for (ContentWriter<?> writer:requestHandler.getContentWriters().values())
+                for (ContentWriter writer:requestHandler.getContentWriters().values())
                 {
                     if (writer instanceof JSONContentWriter)
                     {
@@ -4295,7 +4295,7 @@ public class ServerApplicationPages
             if (requestHandler.getContentWriters().size() > 0)
             {
                 HashMap<String, ContentWriterList> lists = new HashMap<>();
-                for (Entry<String, ContentWriter<?>> entry : requestHandler.getContentWriters().entrySet())
+                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
                 {
                     ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
@@ -4462,11 +4462,11 @@ public class ServerApplicationPages
                     button.val("contentType", "contentType");
                 }
             }
-            Collection<ContentWriter<?>> writers = requestHandler.getContentWriters().values();
+            Collection<ContentWriter> writers = requestHandler.getContentWriters().values();
             if (writers.size() > 0)
             {
                 HashSet<String> set=new HashSet<>();
-                for (ContentWriter<?> contentWriter : writers)
+                for (ContentWriter contentWriter : writers)
                 {
                     set.add(contentWriter.getMediaType());
                 }

@@ -28,7 +28,7 @@ import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;
 
-public class RemoteResponseWriter extends ContentWriter<RemoteResponse>
+public class RemoteResponseWriter extends ContentWriter
 {
 	public RemoteResponseWriter() throws Exception
 	{
@@ -41,10 +41,11 @@ public class RemoteResponseWriter extends ContentWriter<RemoteResponse>
 	}
 	
 	@Override
-	public void write(Context context, RemoteResponse program) throws Throwable
+	public void write(Context context,Object content) throws Throwable
 	{
-	    if (program!=null)
+	    if (content!=null)
 	    {
+	        RemoteResponse program=(RemoteResponse)content;
             context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
             Instruction[] instructions=program.getInstructions();
             String text=ObjectMapper.writeObjectToString(instructions);

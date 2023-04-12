@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 
-public class AjaxQueryResultWriter extends ContentWriter<AjaxQueryResult>
+public class AjaxQueryResultWriter extends ContentWriter
 {
 
 	@Override
@@ -38,12 +38,13 @@ public class AjaxQueryResultWriter extends ContentWriter<AjaxQueryResult>
 	}
 
 	@Override
-	public void write(Context context, AjaxQueryResult content) throws Throwable
+	public void write(Context context, Object content) throws Throwable
 	{
+	    AjaxQueryResult result=(AjaxQueryResult)content;
 		StringBuilder sb=new StringBuilder();
 		sb.append('{');
 		boolean commaNeeded=false;
-		for (Entry<String, String> entry:content.entrySet())
+		for (Entry<String, String> entry:result.entrySet())
 		{
 			if (commaNeeded==false)
 			{

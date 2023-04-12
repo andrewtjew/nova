@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 
-public class HtmlRemotingWriter extends ContentWriter<Result>
+public class HtmlRemotingWriter extends ContentWriter
 {
 	public HtmlRemotingWriter() throws Exception
 	{
@@ -40,8 +40,9 @@ public class HtmlRemotingWriter extends ContentWriter<Result>
 	}
 	
 	@Override
-	public void write(Context context, Result script) throws Throwable
+	public void write(Context context, Object content) throws Throwable
 	{
+	    Result script=(Result)content;
         context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
         String text=script.serialize();
         context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);

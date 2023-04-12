@@ -38,13 +38,16 @@ public class SizeInputStream extends InputStream
 	public int read() throws IOException
 	{
 		int read=this.inputStream.read();
-		this.bytesStreamed++;
+		if (read>=0)
+		{
+		    this.bytesStreamed++;
+		}
 		return read;
 	}
     @Override
     public int read(byte b[], int off, int len) throws IOException {
 		int read=this.inputStream.read(b,off,len);
-		if (read>0)
+		if (read>=0)
 		{
 		    this.bytesStreamed+=read;
 		}

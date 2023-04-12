@@ -28,7 +28,7 @@ import org.nova.json.ObjectExample;
 import org.nova.json.ObjectMapper;
 import org.nova.json.SchemaWriter;
 
-public class JSONContentWriter extends ContentWriter<Object>
+public class JSONContentWriter extends ContentWriter
 {
 	@Override
 	public String getMediaType()

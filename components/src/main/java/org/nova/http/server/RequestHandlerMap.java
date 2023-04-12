@@ -340,14 +340,14 @@ class RequestHandlerMap
 	static class DistanceContentWriter
 	{
 	    int distance;
-	    ContentWriter<?> contentWriter;
-	    DistanceContentWriter(int distance,ContentWriter<?> contentWriter)
+	    ContentWriter contentWriter;
+	    DistanceContentWriter(int distance,ContentWriter contentWriter)
 	    {
 	        this.distance=distance;
 	        this.contentWriter=contentWriter;
 	    }
 	}
-	private void storeClosestDistanceWriter(HashMap<String,DistanceContentWriter> writers,String mediaType,int distance,ContentWriter<?> writer)
+	private void storeClosestDistanceWriter(HashMap<String,DistanceContentWriter> writers,String mediaType,int distance,ContentWriter writer)
 	{
 	    DistanceContentWriter closest=writers.get(mediaType);
 	    if ((closest==null)||(closest.distance>distance))
@@ -743,7 +743,7 @@ class RequestHandlerMap
 		}
 
 		// ContentReaders and writers
-		HashMap<String, ContentWriter<?>> contentWriterMap = new HashMap<>();
+		HashMap<String, ContentWriter> contentWriterMap = new HashMap<>();
 		Type returnType=method.getReturnType();
 		if (handlerAnnotations.contentWriters == null)
 		{
@@ -771,9 +771,9 @@ class RequestHandlerMap
 		    if ((returnType!=void.class)&&(returnType!=Void.class))
 		    {
 		        HashMap<String,DistanceContentWriter> closestDistanceWriters=new HashMap<>();
-    			for (Class<? extends ContentWriter<?>> type : handlerAnnotations.contentWriters.value())
+    			for (Class<? extends ContentWriter> type : handlerAnnotations.contentWriters.value())
     			{
-    				ContentWriter<?> writer=transformers.getContentWriter(type);
+    				ContentWriter writer=transformers.getContentWriter(type);
     				if (writer==null)
     				{
                         throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ object.getClass().getCanonicalName() + "." + method.getName());
@@ -838,7 +838,7 @@ class RequestHandlerMap
 							"No ContentEncoder of type "+type.getName()+" is supplied. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 					
 				}
-				contentDecoderMap.put(type.getName(),decoder);
+				contentDecoderMap.put(decoder.getCoding(),decoder);
 			}
 		}
 
@@ -854,7 +854,7 @@ class RequestHandlerMap
 							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 					
 				}
-                contentEncoderMap.put(type.getName(),encoder);
+                contentEncoderMap.put(encoder.getCoding(),encoder);
 			}
 		}
 

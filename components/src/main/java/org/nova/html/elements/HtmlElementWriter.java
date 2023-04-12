@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 
-public class HtmlElementWriter extends ContentWriter<Element>
+public class HtmlElementWriter extends ContentWriter
 {
 	public HtmlElementWriter() throws Exception
 	{
@@ -40,11 +40,12 @@ public class HtmlElementWriter extends ContentWriter<Element>
 	}
 	
 	@Override
-	public void write(Context context, Element element) throws Throwable
+	public void write(Context context, Object content) throws Throwable
 	{
         context.getHttpServletResponse().setContentType("text/html;charset=utf-8");
-		if (element!=null)
+		if (content!=null)
 		{
+	        Element element=(Element)content;
 		    StringComposer composer=new StringComposer(element.getQuotationMark());
             element.compose(composer);
             String text=composer.getStringBuilder().toString();

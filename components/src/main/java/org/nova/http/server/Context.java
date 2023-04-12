@@ -43,7 +43,7 @@ public class Context
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	private ContentReader<?> contentReader;
-	private ContentWriter<?> contentWriter;
+	private ContentWriter contentWriter;
 	private Object state;
 	private boolean captured=false;
 	private String responseContentText;
@@ -112,11 +112,11 @@ public class Context
 	{
 		this.contentReader = contentReader;
 	}
-	public ContentWriter<?> getContentWriter()
+	public ContentWriter getContentWriter()
 	{
 		return contentWriter;
 	}
-	public void setContentWriter(ContentWriter<?> contentWriter)
+	public void setContentWriter(ContentWriter contentWriter)
 	{
 		this.contentWriter = contentWriter;
 	}

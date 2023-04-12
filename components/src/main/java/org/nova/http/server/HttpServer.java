@@ -127,7 +127,7 @@ public class HttpServer
     {
 	    this.transformers.add(contentReaders);
     }
-    public void addContentWriters(ContentWriter<?>...contentWriters)
+    public void addContentWriters(ContentWriter...contentWriters)
     {
         this.transformers.add(contentWriters);
     }
@@ -224,16 +224,16 @@ public class HttpServer
 		return handler.getContentReaders().get("*/*");
 	}
 
-	private ContentWriter<?> findContentWriter(String accept, RequestHandler handler)
+	private ContentWriter findContentWriter(String accept, RequestHandler handler)
 	{
-		Map<String, ContentWriter<?>> map = handler.getContentWriters();
+		Map<String, ContentWriter> map = handler.getContentWriters();
 		if (accept != null)
 		{
 		    accept=accept.toLowerCase();
 			List<ValueQ> list = ValueQ.sort(accept);
 			for (ValueQ item : list)
 			{
-				ContentWriter<?> writer = map.get(item.value);
+				ContentWriter writer = map.get(item.value);
 				if (writer != null)
 				{
 					return writer;
@@ -242,7 +242,7 @@ public class HttpServer
 			for (ValueQ item : list)
 			{
 				String anySubMediaType=WsUtils.toAnySubMediaType(item.value);
-				ContentWriter<?> writer = map.get(anySubMediaType);
+				ContentWriter writer = map.get(anySubMediaType);
 				if (writer != null)
 				{
 					return writer;
@@ -486,7 +486,7 @@ public class HttpServer
     						    }
     						}
     						servletResponse.setStatus(response.getStatusCode());
-    						ContentWriter<?> writer = context.getContentWriter();
+    						ContentWriter writer = context.getContentWriter();
     						if (writer != null)
     						{
                                 if (servletResponse.getContentType()==null)
