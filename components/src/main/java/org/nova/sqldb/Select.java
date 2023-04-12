@@ -45,12 +45,6 @@ public class Select
         this.source=source;
     }
     
-//    public Select maximumRows(long maximumRows)
-//    {
-//        this.maximumRows=maximumRows;
-//        return this;
-//                
-//    }
     public Select limit(Long maximumRows)
     {
         this.maximumRows=maximumRows;

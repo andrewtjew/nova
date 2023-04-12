@@ -505,10 +505,6 @@ public class FilterChain
                 }
                 break;
             }
-            case SECURE_PATH:
-            {
-                throw new NotImplementedException();
-            }
             case QUERY:
                 try
                 {
@@ -524,7 +520,7 @@ public class FilterChain
                 try
                 {
                     DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
-                    String parameter=decodingHttpServletRequest.decodeQueryParameter(parameterInfo.getName());
+                    String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
                     decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
                     parameters[i]=buildParameter(parameterInfo,parameter);
                     

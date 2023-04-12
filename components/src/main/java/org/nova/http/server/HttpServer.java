@@ -139,6 +139,13 @@ public class HttpServer
     {
         this.transformers.add(contentDecoders);
     }
+    public void addBottomFilters(Filter...filters)
+    {
+        this.transformers.addBottomFilters(filters);
+    }
+    
+    @Deprecated
+    //Use addBottomFilters instead
     public void addFilters(Filter...filters)
     {
         this.transformers.addBottomFilters(filters);

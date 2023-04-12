@@ -174,10 +174,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("lead");
     }
-//    public default ELEMENT small()
-//    {
-//        return addClass("small");
-//    }
+    public default ELEMENT small()
+    {
+        return addClass("small");
+    }
     public default ELEMENT float_(Float_ value)
     {
         return addClass("float",value);

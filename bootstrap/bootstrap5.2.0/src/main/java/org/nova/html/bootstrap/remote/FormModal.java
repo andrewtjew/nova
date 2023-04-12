@@ -11,10 +11,11 @@ import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.Inputs;
 
-public class ProceedModal extends ModalDocument
+public class FormModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;
-    public ProceedModal(String id,String title,String message,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
+
+    public FormModal(String id,String title,ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
     {
         this.proceedButton=proceedButton;
         if (id!=null)
@@ -30,53 +31,37 @@ public class ProceedModal extends ModalDocument
         this.body().id();
         
         this.header().addInner(title);
-        if (message!=null)
-        {
-            this.body().addInner(message);
-        }
-        this.footer().d(Display.flex).justify_content(Justify.between);
-        this.footer().addInner(proceedButton).addInner(cancelButton);
+        this.footer().d(Display.flex).justify_content(Justify.end);
+        this.footer().addInner(cancelButton);
+        this.footer().addInner(proceedButton);
         cancelButton.onclick(this.js_hide());
-
     }
 
-    public ProceedModal(String id,String title,String message,String cancel,String proceed) throws Throwable
+    public FormModal(String id,String title,String cancel,String proceed) throws Throwable
     {
         this(id,
-                title,message
-                ,new Button(cancel).color(StyleColor.warning).w(25)
-                ,new SpinnerButton(proceed).color(StyleColor.success).w(25)
+                title
+                ,new Button(cancel).color(StyleColor.secondary)
+                ,new SpinnerButton(proceed).color(StyleColor.primary)
                 );
     }
-    public ProceedModal(String title,String message,String cancel,String proceed) throws Throwable
+    public FormModal(String title,String cancel,String proceed) throws Throwable
     {
-        this(null,title,message,cancel,proceed);
+        this(null,title,cancel,proceed);
     }
-    public ProceedModal(String id,String title,String message) throws Throwable
+    public FormModal(String id,String title) throws Throwable
     {
-        this(id,title,message,"Cancel","Proceed");
+        this(id,title,"Cancel","Proceed");
     }
-    public ProceedModal(String title,String message) throws Throwable
+    public FormModal(String title) throws Throwable
     {
-        this(null,title,message,"Cancel","Proceed");
+        this(null,title);
     }
-    public ProceedModal(String title) throws Throwable
+    public FormModal() throws Throwable
     {
-        this(null,title,null,"Cancel","Proceed");
+        this(null);
     }
-    public ProceedModal() throws Throwable
-    {
-        this(null,null,"Cancel","Proceed");
-    }
-//    public ProceedModal(ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
-//    {
-//        this(null,null,null,cancelButton,proceedButton);
-//    }
-    public void onProceed(String script)
-    {
-        proceedButton.onclick(script);
-    }
-    public void onProceed(Inputs inputs,String action) throws Throwable
+    public void onSubmit(Inputs inputs,String action) throws Throwable
     {
         proceedButton.onclick(inputs.js_post(action));
     }

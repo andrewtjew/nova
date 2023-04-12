@@ -47,7 +47,7 @@ public class HttpRequestWidget extends Element
             title=entry.getRequest();
         }
         this.panel=new Panel2(head, title);
-        panel.style("width:100%;");
+//        panel.style("width:100%;");
         Table table=this.panel.content().returnAddInner(new Table(head));
         table.table().style("width:100%;");
         TableHeader header=new TableHeader();
@@ -56,12 +56,13 @@ public class HttpRequestWidget extends Element
         String medium="width:12em;";
         String large="width:16em;";
         header.add(new th_title("Status","Http Status Code").style(tiny));
-        header.add(new th_title("Remote","Remote end point").style(large));
+        header.add(new th_title("Remote","Remote end point").style(medium));
         header.add(new th_title("Created","When the thread was created").style(medium));
-        header.add(new th_title("Active (ms)","Amount of time execution is active (milliseconds)").style(small));
-        header.add(new th_title("Wait (ms)","Amount of time waiting (milliseconds)").style(small));
-        header.add(new th_title("Duration (ms)","Active and wait time (milliseconds)").style(small));
-        header.add(new TitleText("Thread id and name shown as id:name","Thread"));
+        header.add(new th_title("Active (ms)","Amount of time execution is active (ms)").style(small));
+        header.add(new th_title("Wait (ms)","Amount of time waiting (ms)").style(small));
+        header.add(new th_title("Duration (ms)","Active and wait time (ms)").style(small));
+        header.add(new th_title("Thread","Thread id and name shown as id:name").style(small));
+//        header.add(new TitleText("Thread id and name shown as id:name","Thread"));
         table.setHeader(header);
 
 

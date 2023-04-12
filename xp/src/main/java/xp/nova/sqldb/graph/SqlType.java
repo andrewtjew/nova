@@ -48,16 +48,16 @@ public class SqlType
         return sb.toString();
         
     }
-    public boolean isLengthGreater(Long length)
+    public boolean isLengthAcceptable(Long length)
     {
         if (this.length==null)
         {
-            return false;
+            return true;
         }
         if (length==null)
         {
             return false;
         }
-        return this.length>length;
+        return length>this.length;
     }
 }
