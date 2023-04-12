@@ -48,7 +48,7 @@ public class RemoteResponseWriter extends ContentWriter<RemoteResponse>
             context.getHttpServletResponse().setContentType("application/json;charset=utf-8");
             Instruction[] instructions=program.getInstructions();
             String text=ObjectMapper.writeObjectToString(instructions);
-            context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+            context.writeContent(text, StandardCharsets.UTF_8);
 	    }
 	}
 

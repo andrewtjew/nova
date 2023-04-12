@@ -47,7 +47,7 @@ public class TextContentWriter extends ContentWriter<String>
 	@Override
 	public void write(Context context, String content) throws Throwable
 	{
-        context.writeContentTextUsingAcceptedEncoding(content, StandardCharsets.UTF_8);
+        context.writeContent(content, StandardCharsets.UTF_8);
 	}
 
 	@Override

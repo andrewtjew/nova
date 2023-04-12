@@ -34,38 +34,41 @@ public class GzipContentEncoder extends ContentEncoder
 {
 	static class Context extends EncoderContext
 	{
-		final private SizeOutputStream uncompressedOutputStream;
-		final private SizeOutputStream compressedOutputStream;
+//		final private SizeOutputStream uncompressedOutputStream;
+//		final private SizeOutputStream compressedOutputStream;
 		final private GZIPOutputStream compressingOutputStream;		
 		Context(OutputStream outputStream) throws IOException
 		{
-			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.compressingOutputStream=new GZIPOutputStream(this.compressedOutputStream);
-			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
+		    this.compressingOutputStream=new GZIPOutputStream(outputStream);
+//			this.compressedOutputStream=new SizeOutputStream(outputStream);
+//			this.compressingOutputStream=new GZIPOutputStream(this.compressedOutputStream);
+//			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
 		}
 
 		@Override
 		public void close() throws Exception
 		{
-			this.uncompressedOutputStream.close();
+			this.compressingOutputStream.close();
 		}
 
 		@Override
 		public OutputStream getOutputStream() throws Throwable
 		{
-			return this.uncompressedOutputStream;
+			return this.compressingOutputStream;
 		}
 		
 		@Override
 		public long getUncompressedContentSize()
 		{
-			return this.uncompressedOutputStream.getBytesStreamed();
+		    return 0;
+//			return this.uncompressedOutputStream.getBytesStreamed();
 		}
 
 		@Override
 		public long getCompressedContentSize() throws Throwable
 		{
-			return this.compressedOutputStream.getBytesStreamed();
+		    return 0;
+//			return this.compressedOutputStream.getBytesStreamed();
 		}
 	}
 	@Override

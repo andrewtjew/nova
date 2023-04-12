@@ -115,7 +115,7 @@ public class AjaxQueryResultWriter extends ContentWriter<AjaxQueryResult>
 			}
 		}
 		sb.append('}');
-		context.writeContentTextUsingAcceptedEncoding(sb.toString(), StandardCharsets.UTF_8);
+		context.writeContent(sb.toString(), StandardCharsets.UTF_8);
 	}
 
 	@Override

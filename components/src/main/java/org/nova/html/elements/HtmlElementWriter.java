@@ -48,7 +48,7 @@ public class HtmlElementWriter extends ContentWriter<Element>
 		    StringComposer composer=new StringComposer(element.getQuotationMark());
             element.compose(composer);
             String text=composer.getStringBuilder().toString();
-            context.writeContentTextUsingAcceptedEncoding(text, StandardCharsets.UTF_8);
+            context.writeContent(text, StandardCharsets.UTF_8);
 		}
 	}
 

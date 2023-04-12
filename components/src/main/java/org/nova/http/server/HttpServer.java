@@ -502,11 +502,11 @@ public class HttpServer
     						}
     						else if (response.getContent() != null)
     						{
-    							if (TESTING)
+    							Class<?> returnType=requestHandlerWithParameters.requestHandler.getMethod().getReturnType();
+    							if (returnType!=void.class)
     							{
-    								Testing.log("NO_WRITER: Accept="+servletRequest.getHeader("Accept"));
+    							    throw new AbnormalException(Abnormal.NO_WRITER);
     							}
-    							throw new AbnormalException(Abnormal.NO_WRITER);
     						}
     					}
     				}
