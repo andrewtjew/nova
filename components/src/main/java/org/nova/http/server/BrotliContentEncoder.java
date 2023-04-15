@@ -30,18 +30,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nova.io.SizeOutputStream;
 
-public class DeflaterContentEncoder extends ContentEncoder
+import com.nixxcode.jvmbrotli.enc.BrotliOutputStream;
+
+
+public class BrotliContentEncoder extends ContentEncoder
 {
 	static class Context extends EncoderContext
 	{
 		final private SizeOutputStream uncompressedOutputStream;
 		final private SizeOutputStream compressedOutputStream;
-		final private DeflaterOutputStream compressingOutputStream;		
+		final private BrotliOutputStream compressingOutputStream;		
 		
 		Context(OutputStream outputStream) throws IOException
 		{
 			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream);
+			this.compressingOutputStream=new BrotliOutputStream(this.compressedOutputStream);
 			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
 		}
 
@@ -71,16 +74,16 @@ public class DeflaterContentEncoder extends ContentEncoder
         @Override
         public OutputStream getOutputStream(HttpServletResponse response) throws Throwable
         {
-            response.setHeader("Content-Encoding", "deflate");
+            response.setHeader("Content-Encoding", "br");
             return this.uncompressedOutputStream;
         }
 
         @Override
         public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws IOException
         {
-            if (length>256) //magic
+            if (length>128) //magic
             {
-                response.setHeader("Content-Encoding", "deflate");
+                response.setHeader("Content-Encoding", "br");
                 this.uncompressedOutputStream.write(content,offset,length);
             }
             else
@@ -93,7 +96,7 @@ public class DeflaterContentEncoder extends ContentEncoder
 	@Override
 	public String getCoding()
 	{
-		return "deflate";
+		return "br";
 	}
 
 	@Override

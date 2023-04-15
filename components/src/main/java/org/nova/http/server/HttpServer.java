@@ -451,11 +451,10 @@ public class HttpServer
 		    else
 		    {
                 ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
-		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, handler))
-		        {
-                    //for "application/x-www-form-urlencoded" we cannot read the content, otherwise the request parameters will not be created.
-                    try (EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse))
-                    {
+                try (EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse))
+                {
+    		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, handler))
+    		        {
                         FilterChain chain = new FilterChain(requestHandlerWithParameters);
                         Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
                         try 
@@ -528,34 +527,44 @@ public class HttpServer
             			}
                         finally
                         {
-                            encoderContext.close();
                             requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
                             requestCompressedContentSize=decoderContext.getCompressedContentSize();
-                            responseUncompressedContentSize=encoderContext.getUncompressedContentSize();
-                            responseCompressedContentSize=encoderContext.getCompressedContentSize();
                             requestContentText=context.getRequestContentText();
                             responseContentText=context.getResponseContentText();
                             servletRequest=context.getHttpServletRequest();
                             servletResponse=context.getHttpServletResponse();
                         }
                     }
-                }
-		        
-                catch (Throwable e)
-                {
-                    String key=requestHandlerWithParameters.requestHandler.getKey();
-                    throw new Exception(key,e);
+    		        catch (Throwable e)
+    		        {
+    		            if (this.test)
+    		            {
+    		                servletResponse.setHeader("Content-Type","text/html");
+    		                byte[] content=Utils.toString(e).getBytes();
+    		                encoderContext.encode(servletResponse, content, 0, content.length);
+    		            }
+    		            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                        String key=requestHandlerWithParameters.requestHandler.getKey();
+                        trace.close(new Exception(key,e));
+    		        }
+                    finally
+                    {
+                        encoderContext.close();
+                        responseUncompressedContentSize=encoderContext.getUncompressedContentSize();
+                        responseCompressedContentSize=encoderContext.getCompressedContentSize();
+                    }
                 }
 		    }
 		}
 		catch (Throwable e)
 		{
-			trace.close(e);
-            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            trace.close(e);
             if (this.test)
             {
+                servletResponse.setHeader("Content-Type","text/html");
                 servletResponse.getOutputStream().print(Utils.toString(e));
             }
+            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
 		}
 		finally
 		{

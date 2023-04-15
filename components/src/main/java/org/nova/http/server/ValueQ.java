@@ -32,7 +32,7 @@ public class ValueQ
 		@Override
 		public int compare(ValueQ arg0, ValueQ arg1)
 		{
-			return arg0.q<arg1.q?1:-1;
+			return arg0.q<=arg1.q?1:-1;
 		}
 	}
 	

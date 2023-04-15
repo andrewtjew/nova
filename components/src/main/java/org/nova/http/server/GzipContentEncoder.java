@@ -78,7 +78,7 @@ public class GzipContentEncoder extends ContentEncoder
         @Override
         public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws Throwable
         {
-            if (length>100)
+            if (length>256) //Just a magic number
             {
                 response.setHeader("Content-Encoding", "gzip");
                 this.uncompressedOutputStream.write(content,offset,length);

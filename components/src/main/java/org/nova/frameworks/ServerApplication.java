@@ -36,6 +36,7 @@ import org.nova.html.remoting.HtmlRemotingWriter;
 import org.nova.html.templating.Template;
 import org.nova.http.server.JettyServerFactory;
 import org.nova.http.server.WebSocketTransport;
+import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentDecoder;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentDecoder;
@@ -53,6 +54,7 @@ import org.nova.security.Vault;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
+import com.nixxcode.jvmbrotli.common.BrotliLoader;
 import com.nova.disrupt.DisruptorManager;
 
 public abstract class ServerApplication extends CoreEnvironmentApplication
@@ -81,7 +83,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable 
 	{
 	    super(name,coreEnvironment);
-
+	    
 	    this.hostName=Utils.getLocalHostName();
 		this.operatorTransport=operatorTransport;
 		
@@ -233,6 +235,14 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
+                
+                if (BrotliLoader.isBrotliAvailable())
+                {
+                    this.publicServer.addContentEncoders(new BrotliContentEncoder());
+                    this.privateServer.addContentEncoders(new BrotliContentEncoder());
+                }
+
+                
                 this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
                 //Testing

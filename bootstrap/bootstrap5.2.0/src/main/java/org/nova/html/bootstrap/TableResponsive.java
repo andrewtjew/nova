@@ -21,50 +21,18 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-public class Table extends StyleComponent<Table>
-{
-    public Table(TableHeader heading)
-    {
-       super("table","table");
-       if (heading!=null)
-       {
-           addInner(heading);
-       }
-    }
+import org.nova.html.bootstrap.classes.BreakPoint;
 
-    public Table()
+public class TableResponsive extends StyleComponent<TableResponsive> 
+{
+    public TableResponsive(BreakPoint breakPoint)
+    {
+        super("div",null);
+        addClass("table-response",breakPoint);
+    }
+    public TableResponsive()
     {
         this(null);
     }
-
-    public Table w_auto()
-    {
-        addClass("w-auto");
-        return this;
-    }
-    public Table hover()
-    {
-        addClass("table-hover");
-        return this;
-    }
-    public Table striped()
-    {
-        addClass("table-striped");
-        return this;
-    }
-    public Table bordered()
-    {
-        addClass("table-bordered");
-        return this;
-    }
-    public Table borderless()
-    {
-        addClass("table-borderless");
-        return this;
-    }
-    public Table sm()
-    {
-        addClass("table-sm");
-        return this;
-    }
+    
 }

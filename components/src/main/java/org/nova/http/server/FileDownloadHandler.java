@@ -22,7 +22,6 @@ public abstract class FileDownloadHandler extends ServletHandler
     final private long cacheControlMaxAge;
     final private FileCache cache;
     final private boolean enableLocalCaching;
-//    final private String[] preferredEncodings=new String[] {"br","deflate","gzip","raw"};
 
     final private HashSet<String> supportedEncodings;
     private boolean active;
@@ -30,7 +29,6 @@ public abstract class FileDownloadHandler extends ServletHandler
     public abstract DownloadResponse getDownloadResponse(Trace parent, HttpServletRequest request,
             HttpServletResponse response, String rootDirectory) throws Throwable;
 
-    // cacheControlMaxAge in seconds, maxAge in ms
     public FileDownloadHandler(String rootDirectory, boolean enableLocalCaching, String cacheControl, long cacheControlMaxAge, long maxAge,
             long maxSize, long freeMemory, boolean active) throws Throwable
     {
@@ -41,7 +39,7 @@ public abstract class FileDownloadHandler extends ServletHandler
         this.cacheControl = cacheControl;
         this.active = active;
         this.enableLocalCaching=enableLocalCaching;
-        this.supportedEncodings = new HashSet();
+        this.supportedEncodings = new HashSet<String>();
         this.supportedEncodings.add("deflate");
         this.supportedEncodings.add("gzip");
         this.supportedEncodings.add("br");
@@ -161,7 +159,6 @@ public abstract class FileDownloadHandler extends ServletHandler
     private void send(Trace parent, HttpServletRequest request, HttpServletResponse response, String localFile,boolean preCompressed
             ,DownloadResponse downloadResponse) throws Throwable
     {
-        HashSet<String> set = new HashSet<String>();
         String encoding = "none";
         if (preCompressed)
         {

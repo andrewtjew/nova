@@ -34,7 +34,10 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.http.client.BinaryResponse;
 import org.nova.http.client.JSONClient;
+import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
+import org.nova.http.server.DeflaterContentDecoder;
+import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
@@ -51,8 +54,8 @@ import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
 @Description("Handlers for server operator pages")
-@ContentDecoders(GzipContentDecoder.class)
-@ContentEncoders(GzipContentEncoder.class)
+@ContentDecoders({GzipContentDecoder.class,DeflaterContentDecoder.class})
+@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class,BrotliContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 
 @Deprecated
@@ -253,7 +256,8 @@ public class ResourceController
             }
             
             response.setStatus(HttpStatus.OK_200);
-            response.getOutputStream().write(bytes);
+            context.writeContent(bytes);
+//            response.getOutputStream().write(bytes);
         }
     }
 }
