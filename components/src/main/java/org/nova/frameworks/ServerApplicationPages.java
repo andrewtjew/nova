@@ -4356,14 +4356,14 @@ public class ServerApplicationPages
             }
             page.content().addInner(new p());
      }
-        if (requestHandler.getContentEncoders().size() > 0)
+         if (requestHandler.getContentEncoders().length> 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Encoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (Entry<String, ContentEncoder> entry : requestHandler.getContentEncoders().entrySet())
+            for (ContentEncoder encoder:requestHandler.getContentEncoders())
             {
-                table.addRow(new TableRow().add(entry.getValue().getClass().getName(),entry.getValue().getCoding(),entry.getKey()));
+                table.addRow(new TableRow().add(encoder.getClass().getName(),encoder,encoder.getCoding()));
             }
             page.content().addInner(new p());
         }

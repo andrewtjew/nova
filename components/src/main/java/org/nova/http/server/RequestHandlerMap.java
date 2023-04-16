@@ -839,7 +839,7 @@ class RequestHandlerMap
 			}
 		}
 
-		HashMap<String, ContentEncoder> contentEncoderMap = new HashMap<>();
+		ArrayList<ContentEncoder> contentEncoderList = new ArrayList<>();
 		if (handlerAnnotations.contentEncoders!= null)
 		{
 			for (Class<? extends ContentEncoder> type: handlerAnnotations.contentEncoders.value())
@@ -851,7 +851,7 @@ class RequestHandlerMap
 							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
 					
 				}
-                contentEncoderMap.put(encoder.getCoding(),encoder);
+                contentEncoderList.add(encoder);
 			}
 		}
 
@@ -917,8 +917,9 @@ class RequestHandlerMap
 	    Filter[] bottomFilters=bottomHandlerFilters.toArray(new Filter[bottomHandlerFilters.size()]);
 	    Filter[] topFilters=topHandlerFilters.toArray(new Filter[topHandlerFilters.size()]);
 	    
-        RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters,
-                parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap, contentEncoderMap, contentReaderMap, contentWriterMap,
+        RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters
+                ,parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap
+                ,contentEncoderList.toArray(new ContentEncoder[contentEncoderList.size()]), contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
                 this.bufferSize,cookieStateParamCount,handlerAnnotations);
         add(httpMethod, fullPath, requestHandler);

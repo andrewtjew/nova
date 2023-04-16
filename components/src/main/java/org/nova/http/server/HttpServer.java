@@ -230,7 +230,7 @@ public class HttpServer
 		if (accept != null)
 		{
 		    accept=accept.toLowerCase();
-			List<ValueQ> list = ValueQ.sort(accept);
+			List<ValueQ> list = ValueQ.sortDescending(accept);
 			for (ValueQ item : list)
 			{
 				ContentWriter writer = map.get(item.value);
@@ -276,16 +276,31 @@ public class HttpServer
 		{
 			return this.identityContentEncoder;
 		}
-		List<ValueQ> list = ValueQ.sort(acceptEncoding);
-		for (ValueQ item : list)
-		{
-			ContentEncoder encoder = handler.getContentEncoders().get(item.value);
-			if (encoder != null)
-			{
-				return encoder;
-			}
-		}
-		return this.identityContentEncoder;
+		List<ValueQ> list = ValueQ.sortDescending(acceptEncoding);
+        ContentEncoder[] encoders = handler.getContentEncoders();
+        ContentEncoder bestEncoder=null;
+        double bestQ=Double.MIN_VALUE;
+        for (ContentEncoder encoder:encoders)
+        {
+            for (ValueQ value:list)
+            {
+                if ((bestEncoder!=null)&&(bestQ>=value.q))
+                {
+                    break;
+                }
+                if (encoder.getCoding().equalsIgnoreCase(value.value))
+                {
+                    bestEncoder=encoder;
+                    bestQ=value.q;
+                    break;
+                }
+            }
+        }
+        if (bestEncoder==null)
+        {
+            bestEncoder=this.identityContentEncoder;
+        }
+		return bestEncoder;
 	}
 
     final static boolean TESTING=false;

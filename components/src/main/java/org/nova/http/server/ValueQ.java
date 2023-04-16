@@ -45,7 +45,7 @@ public class ValueQ
 	}
 	final static ValueQ.ValueQComparator COMPARATOR=new ValueQComparator();
 	
-	public static List<ValueQ> sort(String accept)
+	public static List<ValueQ> sortDescending(String accept)
 	{
 		String[] parts=org.nova.utils.Utils.split(accept.trim(), ',');
 		ArrayList<ValueQ> list=new ArrayList<>();

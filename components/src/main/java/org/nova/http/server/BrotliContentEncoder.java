@@ -81,7 +81,7 @@ public class BrotliContentEncoder extends ContentEncoder
         @Override
         public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws IOException
         {
-            if (length>128) //magic
+            if ((length>128)||(true)) //magic
             {
                 response.setHeader("Content-Encoding", "br");
                 this.uncompressedOutputStream.write(content,offset,length);

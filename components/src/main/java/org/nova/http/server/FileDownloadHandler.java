@@ -167,7 +167,7 @@ public abstract class FileDownloadHandler extends ServletHandler
         else if (downloadResponse.isAllowCompression())
         {
             String accepts = request.getHeader("Accept-Encoding");
-            List<ValueQ> values = ValueQ.sort(accepts);
+            List<ValueQ> values = ValueQ.sortDescending(accepts);
             for (ValueQ value : values)
             {
                 if (value.value != null)
