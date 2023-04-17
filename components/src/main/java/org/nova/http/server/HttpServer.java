@@ -527,10 +527,13 @@ public class HttpServer
             			}
                         finally
                         {
-                            requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
-                            requestCompressedContentSize=decoderContext.getCompressedContentSize();
-                            requestContentText=context.getRequestContentText();
-                            responseContentText=context.getResponseContentText();
+                            if (context.isCaptured()==false)
+                            {
+                                requestUncompressedContentSize=decoderContext.getUncompressedContentSize();
+                                requestCompressedContentSize=decoderContext.getCompressedContentSize();
+                                requestContentText=context.getRequestContentText();
+                                responseContentText=context.getResponseContentText();
+                            }
                             servletRequest=context.getHttpServletRequest();
                             servletResponse=context.getHttpServletResponse();
                         }
@@ -563,6 +566,7 @@ public class HttpServer
             {
                 servletResponse.setHeader("Content-Type","text/html");
                 servletResponse.getOutputStream().print(Utils.toString(e));
+                e.printStackTrace();
             }
             servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
 		}

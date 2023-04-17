@@ -27,10 +27,12 @@ import java.io.OutputStream;
 public class SizeOutputStream extends OutputStream
 {
 	final private OutputStream outputStream;
+	final boolean closeInnerOutputStream;
 	private long bytesStreamed;
-	public SizeOutputStream(OutputStream outputStream)
+	public SizeOutputStream(OutputStream outputStream,boolean closeInnerOutputStream)
 	{
 		this.outputStream=outputStream;
+		this.closeInnerOutputStream=closeInnerOutputStream;
 	}
 
 	@Override
@@ -56,7 +58,10 @@ public class SizeOutputStream extends OutputStream
 	@Override
     public void close() throws IOException
 	{
-		this.outputStream.close();
+	    if (this.closeInnerOutputStream)
+	    {
+	        this.outputStream.close();
+	    }
 	}
 	public long getBytesStreamed()
 	{

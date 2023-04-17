@@ -24,82 +24,134 @@ package org.nova.http.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
+import java.util.zip.DeflaterOutputStream;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nova.http.server.DeflaterContentEncoder.Context;
 import org.nova.io.SizeOutputStream;
 
 public class DeflaterContentEncoder extends ContentEncoder
 {
-	static class Context extends EncoderContext
-	{
-		final private SizeOutputStream uncompressedOutputStream;
-		final private SizeOutputStream compressedOutputStream;
-		final private DeflaterOutputStream compressingOutputStream;		
-		
-		Context(OutputStream outputStream) throws IOException
-		{
-			this.compressedOutputStream=new SizeOutputStream(outputStream);
-			this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream);
-			this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream);
-		}
+    static class Context extends EncoderContext
+    {
+        private SizeOutputStream uncompressedOutputStream;
+        private SizeOutputStream compressedOutputStream;
+        private OutputStream compressingOutputStream;
+        final private OutputStream outputStream;
+        final private int bufferSize;
+        final private int minimumCompressionSize;
+        
+        Context(OutputStream outputStream,int minimumCompressionSize,int bufferSize) throws IOException
+        {
+            this.bufferSize=bufferSize;
+            this.minimumCompressionSize=minimumCompressionSize;
+            this.outputStream=outputStream;
+        }
 
-		@Override
-		public void close() throws Exception
-		{
-			this.uncompressedOutputStream.close();
-		}
-
-		@Override
-		public long getUncompressedContentSize() throws Throwable
-		{
-            long size=this.uncompressedOutputStream.getBytesStreamed();
-            if (size==0)
+        @Override
+        public void close() throws Exception
+        {
+            if (this.compressingOutputStream!=null)
             {
-                size=getCompressedContentSize();
+                this.compressingOutputStream.close();
             }
-            return size;
-		}
-
-		@Override
-		public long getCompressedContentSize() throws Throwable
-		{
-			return this.compressedOutputStream.getBytesStreamed();
-		}
+        }
 
         @Override
         public OutputStream getOutputStream(HttpServletResponse response) throws Throwable
         {
-            response.setHeader("Content-Encoding", "deflate");
+            if (this.uncompressedOutputStream==null)
+            {
+                compress(response);
+            }
             return this.uncompressedOutputStream;
+        }
+        
+        @Override
+        public long getUncompressedContentSize() throws Throwable
+        {
+            if (this.uncompressedOutputStream!=null)
+            {
+                return this.uncompressedOutputStream.getBytesStreamed();
+            }
+            return 0;
         }
 
         @Override
-        public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws IOException
+        public long getCompressedContentSize() throws Throwable
         {
-            if (length>256) //magic
+            if (this.compressedOutputStream==null)
             {
-                response.setHeader("Content-Encoding", "deflate");
-                this.uncompressedOutputStream.write(content,offset,length);
+                return getUncompressedContentSize();
+            }
+            return this.compressedOutputStream.getBytesStreamed();
+        }
+        
+        @Override
+        public void encode(HttpServletResponse response, byte[] content, int offset, int length) throws Throwable
+        {
+            if (this.uncompressedOutputStream==null)
+            {
+                if (length>=this.minimumCompressionSize) //Just a magic number
+                {
+                    compress(response);
+                }
+                else
+                {
+                    this.uncompressedOutputStream=new SizeOutputStream(this.outputStream,false);
+                }
+            }
+            this.uncompressedOutputStream.write(content,offset,length);
+        }
+
+        private void compress(HttpServletResponse response) throws IOException
+        {
+            response.setHeader("Content-Encoding", ENCODING);
+            this.compressedOutputStream=new SizeOutputStream(this.outputStream,false);
+            if (this.bufferSize<=0)
+            {
+                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream);
             }
             else
             {
-                this.compressedOutputStream.write(content,offset,length);
+                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream,new Deflater(),this.bufferSize,false);
             }
+            this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream,false);
         }
 
-	}
-	@Override
-	public String getCoding()
-	{
-		return "deflate";
-	}
+    }
+    
+    static final String ENCODING="deflate";
+    final private int bufferSize;
+    final private int minimumCompressionSize;
+    
+    @Override
+    public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
+    {
+        return new Context(response.getOutputStream(),this.minimumCompressionSize,this.bufferSize);
+    }
 
-	@Override
-	public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
-	{
-		return new Context(response.getOutputStream());
-	}
+    @Override
+    public String getCoding()
+    {
+        return ENCODING;
+    }
 
+    public DeflaterContentEncoder(int minimumCompressionSize,int bufferSize)
+    {
+        this.bufferSize=bufferSize;
+        this.minimumCompressionSize=minimumCompressionSize;
+    }
+    public DeflaterContentEncoder(int minimumCompressionSize)
+    {
+        this(minimumCompressionSize,0);
+    }
+    public DeflaterContentEncoder()
+    {
+        this(400);
+    }
 }

@@ -257,7 +257,6 @@ public class ResourceController
             
             response.setStatus(HttpStatus.OK_200);
             context.writeContent(bytes);
-//            response.getOutputStream().write(bytes);
         }
     }
 }
