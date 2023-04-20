@@ -30,6 +30,7 @@ import org.nova.configuration.ConfigurationReader;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.operator.AjaxQueryResultWriter;
 import org.nova.http.server.Context;
+import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.HtmlContentWriter;
@@ -74,7 +75,7 @@ public class ServerApplicationRunner //
         HttpServer operatorServer=new HttpServer(traceManager,logger, test,new HttpServerConfiguration());
         
         operatorServer.addContentDecoders(new GzipContentDecoder());
-        operatorServer.addContentEncoders(new GzipContentEncoder());
+        operatorServer.addContentEncoders(new DeflaterContentEncoder(),new GzipContentEncoder());
         operatorServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
         operatorServer.addContentWriters(new HtmlContentWriter(),new HtmlElementWriter(),new JSONContentWriter(),new AjaxQueryResultWriter());
         HttpTransport operatorTransport=new HttpTransport(operatorServer, JettyServerFactory.createServer(threads, operatorPort));

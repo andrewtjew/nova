@@ -662,7 +662,7 @@ public class TypeUtils
     {
         if (string==null)
         {
-            return string;
+            return null;
         }
         return string.trim();
     }

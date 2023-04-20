@@ -81,14 +81,24 @@ public class Update
         this.categoryOverride=categoryOverride;
         return this;
     }
-    
     public int execute(Trace parent,Accessor accessor) throws Throwable
     {
+        return execute(parent,accessor,false);
+    }    
+    public int execute(Trace parent,Accessor accessor,boolean whereNotNeeded) throws Throwable
+    {
         StringBuilder sql=new StringBuilder("UPDATE "+this.table+" SET "+this.columns.toString());
-        if (this.whereExpression!=null)
+        if (whereNotNeeded==false)
         {
-            sql.append(" WHERE ");
-            sql.append(this.whereExpression);
+            if (this.whereExpression!=null)
+            {
+                sql.append(" WHERE ");
+                sql.append(this.whereExpression);
+            }
+            else
+            {
+                throw new Exception("Missing where");
+            }
         }
         
         for (Object parameter:this.whereParameters)

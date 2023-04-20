@@ -45,7 +45,7 @@ public class RequestHandler
 	final private String path;
 	final private Map<String,ContentReader<?>> contentReaders;
 	final private Map<String,ContentWriter> contentWriters;
-	final private Map<String,ContentEncoder> contentEncoders;
+	final private ContentEncoder[] contentEncoders;
 	final private Map<String,ContentDecoder> contentDecoders;
 	final private String key;
 	final private String httpMethod;
@@ -69,7 +69,7 @@ public class RequestHandler
     final private boolean stateParam;
     final private boolean test;
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,Map<String,ContentEncoder> contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader<?>> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations)
 	{
 	    boolean stateParam=false;
 	    for (ParameterInfo info:parameterInfos)
@@ -185,7 +185,7 @@ public class RequestHandler
 		return contentWriters;
 	}
 
-	public Map<String, ContentEncoder> getContentEncoders()
+	public ContentEncoder[] getContentEncoders()
 	{
 		return contentEncoders;
 	}

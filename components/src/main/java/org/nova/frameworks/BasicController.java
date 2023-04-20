@@ -20,8 +20,8 @@ import org.nova.http.server.annotations.Filters;
 @ContentDecoders({DeflaterContentDecoder.class,GzipContentDecoder.class})
 @ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({JSONContentReader.class, JSONPatchContentReader.class})
-@ContentWriters({JSONContentWriter.class, HtmlElementWriter.class, HtmlRemotingWriter.class, RemoteResponseWriter.class})
-public class LegacyController
+@ContentWriters({JSONContentWriter.class, HtmlElementWriter.class, RemoteResponseWriter.class})
+public class BasicController
 {
 
 }

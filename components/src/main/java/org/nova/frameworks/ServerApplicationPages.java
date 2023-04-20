@@ -89,12 +89,14 @@ import org.nova.http.client.HttpClientFactory;
 import org.nova.http.client.JSONClient;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.TextResponse;
+import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.CSharpClassWriter;
 import org.nova.http.server.ContentDecoder;
 import org.nova.http.server.ContentEncoder;
 import org.nova.http.server.ContentReader;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
+import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.Filter;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -219,7 +221,7 @@ import com.google.common.base.Strings;
 
 @Description("Handlers for server operator pages")
 @ContentDecoders(GzipContentDecoder.class)
-@ContentEncoders(GzipContentEncoder.class)
+@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 @ContentWriters({HtmlContentWriter.class, HtmlElementWriter.class,RemoteResponseWriter.class})
 public class ServerApplicationPages
@@ -4356,14 +4358,14 @@ public class ServerApplicationPages
             }
             page.content().addInner(new p());
      }
-        if (requestHandler.getContentEncoders().size() > 0)
+         if (requestHandler.getContentEncoders().length> 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Encoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (Entry<String, ContentEncoder> entry : requestHandler.getContentEncoders().entrySet())
+            for (ContentEncoder encoder:requestHandler.getContentEncoders())
             {
-                table.addRow(new TableRow().add(entry.getValue().getClass().getName(),entry.getValue().getCoding(),entry.getKey()));
+                table.addRow(new TableRow().add(encoder.getClass().getName(),encoder,encoder.getCoding()));
             }
             page.content().addInner(new p());
         }
