@@ -19,23 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.html.deprecated;
 
-public class TableFooter extends StyleComponent<TableFooter>
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.Style;
+import org.nova.html.attributes.position;
+import org.nova.html.attributes.unit;
+import org.nova.html.elements.GlobalEventTagElement;
+
+public class div_center extends GlobalEventTagElement<div_center>
 {
-    public TableFooter()
+    public div_center(Size width)
     {
-        super("tfoot",null);
+        super("div");
+        style(new Style().position(position.relative).left(new Size(50,unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
     }
-
-    public TableFooter addRowWithStyle(StyleTemplate template,Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).addWithStyle(template, objects);
-        return this;
-    }
-
-    public TableFooter addRow(Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).add(objects);
-        return this;
-    }}
+    
+}

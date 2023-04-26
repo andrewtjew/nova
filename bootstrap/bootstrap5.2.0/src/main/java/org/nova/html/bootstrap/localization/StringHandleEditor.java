@@ -17,7 +17,7 @@ import org.nova.html.bootstrap.LinkButton;
 import org.nova.html.bootstrap.Styler;
 import org.nova.html.bootstrap.SubmitButton;
 import org.nova.html.bootstrap.Table;
-import org.nova.html.bootstrap.TableHeader;
+import org.nova.html.bootstrap.TableHead;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Justify;
@@ -375,7 +375,7 @@ public class StringHandleEditor
             
 
             {
-                TableHeader header=new TableHeader();
+                TableHead header=new TableHead();
                 header.addRow("Handles");
                 Table table=new Table(header);
                 if (item!=null)
@@ -407,7 +407,7 @@ public class StringHandleEditor
                 }
             }
             
-            TableHeader header=new TableHeader();
+            TableHead header=new TableHead();
             header.addRow("Removed: "+staleHandles.size());
             Table table=new Table(header);
             if (item!=null)

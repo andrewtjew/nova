@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
+import org.nova.html.deprecated.th_title;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
-import org.nova.html.tags.ext.th_title;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 

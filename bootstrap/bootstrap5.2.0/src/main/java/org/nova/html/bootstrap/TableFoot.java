@@ -21,51 +21,21 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.td;
-
-public class TableDataRow extends StyleComponent<TableDataRow>
+public class TableFoot extends StyleComponent<TableFoot>
 {
-    public TableDataRow()
+    public TableFoot()
     {
-        super("tr","table",false,true);
+        super("tfoot",null);
     }
-    
-    public TableDataRow addWithStyle(StyleTemplate template,Object...objects)
+
+    public TableFoot addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                template.applyTo(tagElement);
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
+        returnAddInner(new TableRow()).addWithStyle(template, objects);
         return this;
     }
 
-    public TableDataRow add(Object...objects)
+    public TableFoot addRow(Object...objects)
     {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
+        returnAddInner(new TableRow()).add(objects);
         return this;
-    }
-
-}
+    }}

@@ -19,20 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags.ext;
+package org.nova.html.deprecated;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
-import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.tags.th;
 
-public class div_center extends GlobalEventTagElement<div_center>
+public class th_title extends th
 {
-    public div_center(Size width)
+    public th_title(Object inner,String title)
     {
-        super("div");
-        style(new Style().position(position.relative).left(new Size(50,unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
+        addInner(inner);
+        title(title);
     }
     
 }

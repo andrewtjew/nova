@@ -24,8 +24,8 @@ package org.nova.html.bootstrap.ext.DataTables;
 import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.TableBody;
-import org.nova.html.bootstrap.TableFooter;
-import org.nova.html.bootstrap.TableHeader;
+import org.nova.html.bootstrap.TableFoot;
+import org.nova.html.bootstrap.TableHead;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
@@ -36,9 +36,9 @@ import org.nova.html.tags.script;
 
 public class DataTable  extends StyleComponent<DataTable>
 {
-    final private TableHeader header;
+    final private TableHead header;
     final private TableBody body;
-    final private TableFooter footer;
+    final private TableFoot footer;
     
     public static script SCRIPT=new script().src("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.js");
     public static link CSS=new link().rel(link_rel.stylesheet).type("text/css").href("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.css");
@@ -53,17 +53,17 @@ public class DataTable  extends StyleComponent<DataTable>
             options=new DataTableOptions();
         }
         this.options=options;
-        this.header=returnAddInner(new TableHeader());
+        this.header=returnAddInner(new TableHead());
         this.body=returnAddInner(new TableBody());
-        this.footer=returnAddInner(new TableFooter());
+        this.footer=returnAddInner(new TableFoot());
     }    
 
-    public TableHeader header()
+    public TableHead header()
     {
         return this.header;
     }
     
-    public TableFooter footer()
+    public TableFoot footer()
     {
         return this.footer;
     }

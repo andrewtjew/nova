@@ -30,6 +30,7 @@ import org.nova.html.bootstrap.classes.Font;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
+import org.nova.html.ext.LiteralHtml;
 
 public class NameValueContainer extends Container
 {
@@ -86,7 +87,7 @@ public class NameValueContainer extends Container
 
     public NameValueContainer addSpace()
     {
-        Row row = returnAddInner(new Row()).my(1).addInner("&nbsp;");
+        Row row = returnAddInner(new Row()).my(1).addInner(new LiteralHtml("&nbsp;"));
         return this;
     }
 

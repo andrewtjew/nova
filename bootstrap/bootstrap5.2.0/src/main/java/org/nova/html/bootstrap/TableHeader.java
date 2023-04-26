@@ -21,28 +21,50 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.td;
+
 public class TableHeader extends StyleComponent<TableHeader>
 {
     public TableHeader()
     {
-        super("thead",null);
+        super("th",null);
     }
-    public TableHeader(Object...objects)
+    public TableHeader addWithStyle(StyleTemplate template,Object...objects)
     {
-        super("thead",null);
-        returnAddInner(new TableHeaderRow()).add(objects);
+        for (Object object:objects)
+        {
+            if (object instanceof TagElement<?>)
+            {
+                TagElement<?> tagElement=(TagElement<?>)object;
+                template.applyTo(tagElement);
+                if (tagElement.getTag().equals("td"))
+                {
+                    addInner(tagElement);
+                    continue;
+                }
+            }
+            addInner(new td().addInner(object));
+        }
+        return this;
+    }
+
+    public TableHeader add(Object...objects)
+    {
+        for (Object object:objects)
+        {
+            if (object instanceof TagElement<?>)
+            {
+                TagElement<?> tagElement=(TagElement<?>)object;
+                if (tagElement.getTag().equals("td"))
+                {
+                    addInner(tagElement);
+                    continue;
+                }
+            }
+            addInner(new td().addInner(object));
+        }
+        return this;
     }
     
-    public TableHeader addRowWithStyle(StyleTemplate template,Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).addWithStyle(template, objects);
-        return this;
-    }
-
-    public TableHeader addRow(Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).add(objects);
-        return this;
-    }
-
 }

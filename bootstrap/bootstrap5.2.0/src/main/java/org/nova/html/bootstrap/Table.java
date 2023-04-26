@@ -23,7 +23,7 @@ package org.nova.html.bootstrap;
 
 public class Table extends StyleComponent<Table>
 {
-    public Table(TableHeader heading)
+    public Table(TableHead heading)
     {
        super("table","table");
        if (heading!=null)
