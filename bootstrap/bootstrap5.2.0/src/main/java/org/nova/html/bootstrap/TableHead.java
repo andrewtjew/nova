@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.ThemeColor;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.td;
 
@@ -33,18 +34,24 @@ public class TableHead extends StyleComponent<TableHead>
     public TableHead(Object...objects)
     {
         super("thead",null);
-        returnAddInner(new TableHeader()).add(objects);
+        returnAddInner(new TableHeadRow()).add(objects);
     }
     
     public TableHead addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        returnAddInner(new TableHeader()).addWithStyle(template, objects);
+        returnAddInner(new TableHeadRow()).addWithStyle(template, objects);
         return this;
     }
 
     public TableHead addRow(Object...objects)
     {
-        returnAddInner(new TableHeader()).add(objects);
+        returnAddInner(new TableHeadRow()).add(objects);
+        return this;
+    }
+    
+    public TableHead color(ThemeColor color)
+    {
+        addClass("table",color);
         return this;
     }
 

@@ -22,50 +22,24 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.TagElement;
-import org.nova.html.tags.th;
+import org.nova.html.tags.td;
 
-//public class TableHeaderRow extends StyleComponent<TableHeaderRow>
-//{
-//    public TableHeaderRow()
-//    {
-//        super("tr","table",false,true);
-//    }
-//    
-//    public TableHeaderRow addWithStyle(StyleTemplate template,Object...objects)
-//    {
-//        for (Object object:objects)
-//        {
-//            if (object instanceof TagElement<?>)
-//            {
-//                TagElement<?> tagElement=(TagElement<?>)object;
-//                template.applyTo(tagElement);
-//                if (tagElement.getTag().equals("th"))
-//                {
-//                    addInner(tagElement);
-//                    continue;
-//                }
-//            }
-//            addInner(new th().addInner(object));
-//        }
-//        return this;
-//    }
-//
-//    public TableHeaderRow add(Object...objects)
-//    {
-//        for (Object object:objects)
-//        {
-//            if (object instanceof TagElement<?>)
-//            {
-//                TagElement<?> tagElement=(TagElement<?>)object;
-//                if (tagElement.getTag().equals("th"))
-//                {
-//                    addInner(tagElement);
-//                    continue;
-//                }
-//            }
-//            addInner(new th().addInner(object));
-//        }
-//        return this;
-//    }
-//
-//}
+public class TableData extends StyleComponent<TableData>
+{
+    public TableData()
+    {
+        super("td",null);
+    }
+    public TableData colspan(int number)
+    {
+        return attr("colspan",number);
+    }
+    public TableData headers(String header_id)
+    {
+        return attr("header_id",header_id);
+    }
+    public TableData rowspan(int number)
+    {
+        return attr("rowspan",number);
+    }
+}

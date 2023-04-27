@@ -21,11 +21,14 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-public class Table extends StyleComponent<Table>
+import org.nova.html.elements.GlobalEventTagElement;
+
+public class Table extends GlobalEventTagElement<Table>
 {
     public Table(TableHead heading)
     {
-       super("table","table");
+       super("table");
+       addClass("table");
        if (heading!=null)
        {
            addInner(heading);

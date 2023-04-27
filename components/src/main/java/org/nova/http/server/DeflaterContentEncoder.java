@@ -44,11 +44,13 @@ public class DeflaterContentEncoder extends ContentEncoder
         final private OutputStream outputStream;
         final private int bufferSize;
         final private int minimumCompressionSize;
+        final private int level;
         
-        Context(OutputStream outputStream,int minimumCompressionSize,int bufferSize) throws IOException
+        Context(OutputStream outputStream,int minimumCompressionSize,int level,int bufferSize) throws IOException
         {
             this.bufferSize=bufferSize;
             this.minimumCompressionSize=minimumCompressionSize;
+            this.level=level;
             this.outputStream=outputStream;
         }
 
@@ -96,7 +98,7 @@ public class DeflaterContentEncoder extends ContentEncoder
         {
             if (this.uncompressedOutputStream==null)
             {
-                if (length>=this.minimumCompressionSize) //Just a magic number
+                if (length>=this.minimumCompressionSize) 
                 {
                     compress(response);
                 }
@@ -112,13 +114,18 @@ public class DeflaterContentEncoder extends ContentEncoder
         {
             response.setHeader("Content-Encoding", ENCODING);
             this.compressedOutputStream=new SizeOutputStream(this.outputStream,false);
+            Deflater deflater=new Deflater();
+            if ((this.level>=0)&&(this.level<=9))
+            {
+                deflater.setLevel(this.level);
+            }
             if (this.bufferSize<=0)
             {
-                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream);
+                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream,deflater);
             }
             else
             {
-                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream,new Deflater(),this.bufferSize,false);
+                this.compressingOutputStream=new DeflaterOutputStream(this.compressedOutputStream,deflater,this.bufferSize,false);
             }
             this.uncompressedOutputStream=new SizeOutputStream(this.compressingOutputStream,false);
         }
@@ -127,12 +134,13 @@ public class DeflaterContentEncoder extends ContentEncoder
     
     static final String ENCODING="deflate";
     final private int bufferSize;
+    final private int level;
     final private int minimumCompressionSize;
     
     @Override
     public EncoderContext open(HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        return new Context(response.getOutputStream(),this.minimumCompressionSize,this.bufferSize);
+        return new Context(response.getOutputStream(),this.minimumCompressionSize,this.level,this.bufferSize);
     }
 
     @Override
@@ -141,14 +149,15 @@ public class DeflaterContentEncoder extends ContentEncoder
         return ENCODING;
     }
 
-    public DeflaterContentEncoder(int minimumCompressionSize,int bufferSize)
+    public DeflaterContentEncoder(int minimumCompressionSize,int level,int bufferSize)
     {
         this.bufferSize=bufferSize;
+        this.level=level;
         this.minimumCompressionSize=minimumCompressionSize;
     }
     public DeflaterContentEncoder(int minimumCompressionSize)
     {
-        this(minimumCompressionSize,0);
+        this(minimumCompressionSize,-1,-1);
     }
     public DeflaterContentEncoder()
     {

@@ -145,7 +145,7 @@ public class GzipContentEncoder extends ContentEncoder
     }
     public GzipContentEncoder(int minimumCompressionSize)
     {
-        this(minimumCompressionSize,0);
+        this(minimumCompressionSize,-1);
     }
     public GzipContentEncoder()
     {

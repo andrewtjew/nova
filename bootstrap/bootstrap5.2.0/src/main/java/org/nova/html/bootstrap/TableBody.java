@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.ThemeColor;
+
 public class TableBody extends StyleComponent<TableBody>
 {
     public TableBody()
@@ -40,4 +42,9 @@ public class TableBody extends StyleComponent<TableBody>
         return this;
     }
 
+    public TableBody color(ThemeColor color)
+    {
+        addClass("table",color);
+        return this;
+    }
 }

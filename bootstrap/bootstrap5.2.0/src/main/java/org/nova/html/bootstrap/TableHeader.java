@@ -30,41 +30,5 @@ public class TableHeader extends StyleComponent<TableHeader>
     {
         super("th",null);
     }
-    public TableHeader addWithStyle(StyleTemplate template,Object...objects)
-    {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                template.applyTo(tagElement);
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
-        return this;
-    }
 
-    public TableHeader add(Object...objects)
-    {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
-        return this;
-    }
-    
 }
