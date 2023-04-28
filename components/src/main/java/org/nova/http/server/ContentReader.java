@@ -23,10 +23,10 @@ package org.nova.http.server;
 
 import java.io.OutputStream;
 
-public abstract class ContentReader<CONTENT>
+public abstract class ContentReader
 {
 	abstract public String getMediaType();
-	abstract public CONTENT read(Context context,Class<?> contentType) throws Throwable;
+	abstract public Object read(Context context,Class<?> contentType) throws Throwable;
 	abstract public void writeSchema(OutputStream outputStream,Class<?> contentType) throws Throwable;;
 	abstract public void writeExample(OutputStream outputStream,Class<?> contentType) throws Throwable;;
 }

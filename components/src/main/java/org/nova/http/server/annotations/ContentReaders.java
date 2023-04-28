@@ -32,5 +32,5 @@ import org.nova.http.server.ContentReader;
 @Target({ElementType.METHOD,ElementType.TYPE})
 public @interface ContentReaders
 {
-	Class<? extends ContentReader<?>>[] value();
+	Class<? extends ContentReader>[] value();
 }

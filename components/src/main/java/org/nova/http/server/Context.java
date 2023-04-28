@@ -42,7 +42,7 @@ public class Context
 	private RequestHandler requestHandler;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
-	private ContentReader<?> contentReader;
+	private ContentReader contentReader;
 	private ContentWriter contentWriter;
 	private Object state;
 	private boolean captured=false;
@@ -104,11 +104,11 @@ public class Context
 	{
 		this.httpServletResponse = httpServletResponse;
 	}
-	public ContentReader<?> getContentReader()
+	public ContentReader getContentReader()
 	{
 		return contentReader;
 	}
-	public void setContentReader(ContentReader<?> contentReader)
+	public void setContentReader(ContentReader contentReader)
 	{
 		this.contentReader = contentReader;
 	}

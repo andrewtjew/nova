@@ -342,7 +342,7 @@ public class FilterChain
         ParameterInfo[] parameterInfos=requestHandler.getParameterInfos();
         this.parameters=new Object[parameterInfos.length];
         HttpServletRequest request=context.getHttpServletRequest();
-        ContentReader<?> reader=null;
+        ContentReader reader=null;
         Object content=null;
         for (int i=0;i<parameterInfos.length;i++)
         {

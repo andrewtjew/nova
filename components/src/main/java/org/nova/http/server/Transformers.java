@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class Transformers
 {
 
-    final ArrayList<ContentReader<?>> contentReaders;
+    final ArrayList<ContentReader> contentReaders;
     final ArrayList<ContentWriter> contentWriters;
     final ArrayList<ContentEncoder> contentEncoders;
     final ArrayList<ContentDecoder> contentDecoders;
@@ -44,9 +44,9 @@ public class Transformers
         this.topFilters=new ArrayList<>();
     }
 
-    public void add(ContentReader<?>...contentReaders)
+    public void add(ContentReader...contentReaders)
     {
-        for (ContentReader<?> contentReader:contentReaders)
+        for (ContentReader contentReader:contentReaders)
         {
             if (this.getContentReader(contentReader.getClass())==null)
             {
@@ -155,9 +155,9 @@ public class Transformers
         return null;
     }
     
-    public ContentReader<?> getContentReader(Type type)
+    public ContentReader getContentReader(Type type)
     {
-        for (ContentReader<?> item:this.contentReaders)
+        for (ContentReader item:this.contentReaders)
         {
             if (item.getClass()==type)
             {

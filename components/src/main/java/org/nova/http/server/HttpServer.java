@@ -123,7 +123,7 @@ public class HttpServer
 	    this.transformers=transformers;
 	}
 
-	public void addContentReaders(ContentReader<?>...contentReaders)
+	public void addContentReaders(ContentReader...contentReaders)
     {
 	    this.transformers.add(contentReaders);
     }
@@ -202,7 +202,7 @@ public class HttpServer
 		return this.requestHandlerMap.getRequestHandler(key);
 	}
 
-	private ContentReader<?> findContentReader(String contentType, RequestHandler handler)
+	private ContentReader findContentReader(String contentType, RequestHandler handler)
 	{
 		if ((contentType == null) || (contentType.length() == 0))
 		{
@@ -211,7 +211,7 @@ public class HttpServer
 		contentType=contentType.toLowerCase();
 		contentType = org.nova.utils.Utils.split(contentType, ';')[0];
 
-		ContentReader<?> reader = handler.getContentReaders().get(contentType);
+		ContentReader reader = handler.getContentReaders().get(contentType);
 		if (reader != null)
 		{
 			return reader;

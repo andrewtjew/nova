@@ -3356,7 +3356,7 @@ public class ServerApplicationPages
             Parameter contentParameter = method.getParameters()[contentParameterInfo.getIndex()];
             if (requestHandler.getContentReaders().size() > 0)
             {
-                for (ContentReader<?> contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestHandler.getContentReaders().values())
                 {
                     ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
                     contentReader.writeSchema(byteOutputStream, contentParameter.getType());
@@ -4084,7 +4084,7 @@ public class ServerApplicationPages
 
             if (contentParameterInfo!=null)
             {
-                for (ContentReader<?> reader:requestHandler.getContentReaders().values())
+                for (ContentReader reader:requestHandler.getContentReaders().values())
                 {
                     if (reader instanceof JSONContentReader)
                     {
@@ -4229,7 +4229,7 @@ public class ServerApplicationPages
             {
                 requestPanel.content().addInner(new p());
                 Panel3 contentReaderPanel=requestPanel.content().returnAddInner(new Panel3(page.head(),"Content Readers"));
-                for (ContentReader<?> contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestHandler.getContentReaders().values())
                 {
                     WideTable table=contentReaderPanel.content().returnAddInner(new WideTable(page.head()));
                     table.setHeader("Class","Media Type");
@@ -4423,7 +4423,7 @@ public class ServerApplicationPages
                 {
                     if (info.getSource()==ParameterSource.CONTENT)
                     {
-                        Collection<ContentReader<?>> readers = requestHandler.getContentReaders().values();
+                        Collection<ContentReader> readers = requestHandler.getContentReaders().values();
                         if (readers.size() > 0)
                         {
                             fieldset field=form.returnAddInner(new fieldset());
@@ -4444,11 +4444,11 @@ public class ServerApplicationPages
             NameInputValueList list=new NameInputValueList();
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod))
             {
-                Collection<ContentReader<?>> readers = requestHandler.getContentReaders().values();
+                Collection<ContentReader> readers = requestHandler.getContentReaders().values();
                 if (readers.size() > 0)
                 {
                     HashSet<String> set=new HashSet<>();
-                    for (ContentReader<?> reader : readers)
+                    for (ContentReader reader : readers)
                     {
                         set.add(reader.getMediaType());
                     }

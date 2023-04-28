@@ -810,12 +810,12 @@ class RequestHandlerMap
 		    }
 		}
 
-		HashMap<String, ContentReader<?>> contentReaderMap = new HashMap<>();
+		HashMap<String, ContentReader> contentReaderMap = new HashMap<>();
 		if (handlerAnnotations.contentReaders!=null) 
 		{
-			for (Class<? extends ContentReader<?>> type : handlerAnnotations.contentReaders.value())
+			for (Class<? extends ContentReader> type : handlerAnnotations.contentReaders.value())
 			{
-				ContentReader<?> reader=transformers.getContentReader(type);
+				ContentReader reader=transformers.getContentReader(type);
 				if (reader!=null)
 				{
 					contentReaderMap.put(reader.getMediaType().toLowerCase(), reader);

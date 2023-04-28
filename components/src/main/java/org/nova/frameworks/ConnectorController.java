@@ -72,7 +72,7 @@ import org.nova.utils.Utils;
 @Description("Handlers for server operator pages")
 @ContentDecoders(GzipContentDecoder.class)
 @ContentEncoders(GzipContentEncoder.class)
-@ContentReaders({ JSONContentReader.class})
+@ContentReaders({JSONContentReader.class})
 @ContentWriters({HtmlElementWriter.class})
 public class ConnectorController
 {
