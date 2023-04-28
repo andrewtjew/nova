@@ -19,16 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags.ext;
+package org.nova.html.bootstrap;
 
-import org.nova.html.tags.th;
-
-public class th_title extends th
+public class TableFoot extends StyleComponent<TableFoot>
 {
-    public th_title(Object inner,String title)
+    public TableFoot()
     {
-        addInner(inner);
-        title(title);
+        super("tfoot",null);
     }
-    
-}
+
+    public TableFoot addRowWithStyle(StyleTemplate template,Object...objects)
+    {
+        returnAddInner(new TableRow()).addWithStyle(template, objects);
+        return this;
+    }
+
+    public TableFoot addRow(Object...objects)
+    {
+        returnAddInner(new TableRow()).add(objects);
+        return this;
+    }}

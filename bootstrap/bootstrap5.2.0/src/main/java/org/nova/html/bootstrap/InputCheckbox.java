@@ -41,6 +41,11 @@ public class InputCheckbox extends InputComponent<InputCheckbox>
         }
         return this;
     }
+    public InputCheckbox required()
+    {
+        attr("required");
+        return this;
+    }
     public InputCheckbox value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
         return attr("value",text);

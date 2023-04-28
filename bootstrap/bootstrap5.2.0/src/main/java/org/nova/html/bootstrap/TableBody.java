@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.ThemeColor;
+
 public class TableBody extends StyleComponent<TableBody>
 {
     public TableBody()
@@ -30,14 +32,19 @@ public class TableBody extends StyleComponent<TableBody>
     
     public TableBody addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        returnAddInner(new TableDataRow()).addWithStyle(template, objects);
+        returnAddInner(new TableRow()).addWithStyle(template, objects);
         return this;
     }
 
     public TableBody addRow(Object...objects)
     {
-        returnAddInner(new TableDataRow()).add(objects);
+        returnAddInner(new TableRow()).add(objects);
         return this;
     }
 
+    public TableBody color(ThemeColor color)
+    {
+        addClass("table",color);
+        return this;
+    }
 }

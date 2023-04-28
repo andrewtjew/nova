@@ -76,8 +76,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	final private MenuBar menuBar;
 	final private String hostName;
 	private Template template;
-	@OperatorVariable
-	boolean test;
+	final boolean test;
 	final private String localHostName;
 	
 	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable 

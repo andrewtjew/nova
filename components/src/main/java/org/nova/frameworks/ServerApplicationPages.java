@@ -82,19 +82,20 @@ import org.nova.html.tags.td;
 import org.nova.html.tags.textarea;
 import org.nova.html.tags.th;
 import org.nova.html.tags.tr;
-import org.nova.html.tags.ext.th_title;
 import org.nova.http.Header;
 import org.nova.http.client.HttpClientConfiguration;
 import org.nova.http.client.HttpClientFactory;
 import org.nova.http.client.JSONClient;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.TextResponse;
+import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.CSharpClassWriter;
 import org.nova.http.server.ContentDecoder;
 import org.nova.http.server.ContentEncoder;
 import org.nova.http.server.ContentReader;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
+import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.Filter;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -115,6 +116,7 @@ import org.nova.html.attributes.Color;
 import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
 import org.nova.html.attributes.unit;
+import org.nova.html.deprecated.th_title;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
@@ -219,7 +221,7 @@ import com.google.common.base.Strings;
 
 @Description("Handlers for server operator pages")
 @ContentDecoders(GzipContentDecoder.class)
-@ContentEncoders(GzipContentEncoder.class)
+@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 @ContentWriters({HtmlContentWriter.class, HtmlElementWriter.class,RemoteResponseWriter.class})
 public class ServerApplicationPages
@@ -4974,8 +4976,6 @@ public class ServerApplicationPages
     public void cache(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
     {
         HttpServletResponse response = context.getHttpServletResponse();
-        context.setCaptured(true);
-
         byte[] bytes;
         try
         {
@@ -4999,7 +4999,6 @@ public class ServerApplicationPages
                 (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
         response.setStatus(HttpStatus.OK_200);
         context.writeContent(bytes);
-//        response.getOutputStream().write(bytes);
     }
 
     @Test

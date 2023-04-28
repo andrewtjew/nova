@@ -67,17 +67,18 @@ public class AWSSMSService extends SMSService
         {
             try
             {
-//                Map<String, MessageAttributeValue> messageAttributes = new HashMap<String, MessageAttributeValue>();
-//                MessageAttributeValue value=new MessageAttributeValue();
-//                value.setDataType("String");
-//                value.setStringValue("+18885988137");
-//                messageAttributes.put("AWS.MM.SMS.OriginationNumber", value);
+                Map<String, MessageAttributeValue> messageAttributes = new HashMap<String, MessageAttributeValue>();
+                MessageAttributeValue value=new MessageAttributeValue();
+                value.setDataType("String");
+                value.setStringValue("+18885988137");
+                messageAttributes.put("AWS.MM.SMS.OriginationNumber", value);
                               
                 
-                PublishResult result = this.sns.publish(new PublishRequest().withMessage(message).withPhoneNumber(phoneNumber));
+                PublishResult result = this.sns.publish(new PublishRequest().withMessageAttributes(messageAttributes).withMessage(message).withPhoneNumber(phoneNumber));
+                
                 String id=result.getMessageId();
                 this.logger.log(trace,new Item("phoneNumber",phoneNumber),new Item("message",message),new Item("id",id));
-                System.out.println("sent to "+phoneNumber);
+                System.out.println("sent to "+phoneNumber+", result="+result.toString()+",message="+message);
                 return id;
             }
             catch (Throwable t)

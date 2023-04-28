@@ -28,7 +28,7 @@ public class TableResponsive extends StyleComponent<TableResponsive>
     public TableResponsive(BreakPoint breakPoint)
     {
         super("div",null);
-        addClass("table-response",breakPoint);
+        addClass("table-responsive",breakPoint);
     }
     public TableResponsive()
     {

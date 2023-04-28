@@ -19,53 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.io;
+package org.nova.html.deprecated;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.Style;
+import org.nova.html.attributes.position;
+import org.nova.html.attributes.unit;
+import org.nova.html.elements.GlobalEventTagElement;
 
-public class SizeOutputStream extends OutputStream
+public class div_center extends GlobalEventTagElement<div_center>
 {
-	final private OutputStream outputStream;
-	final boolean closeInnerOutputStream;
-	private long bytesStreamed;
-	public SizeOutputStream(OutputStream outputStream,boolean closeInnerOutputStream)
-	{
-		this.outputStream=outputStream;
-		this.closeInnerOutputStream=closeInnerOutputStream;
-	}
-
-	@Override
-	public void write(int b) throws IOException
-	{
-        this.bytesStreamed++;
-		this.outputStream.write(b);
-	}
-
-	@Override
-    public void write(byte b[], int off, int len) throws IOException 
-	{
-		this.bytesStreamed+=len;
-		this.outputStream.write(b, off, len);
-	}
-	
-	@Override
-    public void flush() throws IOException
-	{
-		this.outputStream.flush();
-	}
-
-	@Override
-    public void close() throws IOException
-	{
-	    if (this.closeInnerOutputStream)
-	    {
-	        this.outputStream.close();
-	    }
-	}
-	public long getBytesStreamed()
-	{
-		return this.bytesStreamed;
-	}
-
+    public div_center(Size width)
+    {
+        super("div");
+        style(new Style().position(position.relative).left(new Size(50,unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
+    }
+    
 }

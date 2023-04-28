@@ -21,21 +21,25 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-public class TableFooter extends StyleComponent<TableFooter>
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.td;
+
+public class TableData extends StyleComponent<TableData>
 {
-    public TableFooter()
+    public TableData()
     {
-        super("tfoot",null);
+        super("td",null);
     }
-
-    public TableFooter addRowWithStyle(StyleTemplate template,Object...objects)
+    public TableData colspan(int number)
     {
-        returnAddInner(new TableHeaderRow()).addWithStyle(template, objects);
-        return this;
+        return attr("colspan",number);
     }
-
-    public TableFooter addRow(Object...objects)
+    public TableData headers(String header_id)
     {
-        returnAddInner(new TableHeaderRow()).add(objects);
-        return this;
-    }}
+        return attr("header_id",header_id);
+    }
+    public TableData rowspan(int number)
+    {
+        return attr("rowspan",number);
+    }
+}

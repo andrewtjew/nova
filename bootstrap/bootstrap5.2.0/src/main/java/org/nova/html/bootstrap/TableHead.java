@@ -21,50 +21,37 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.ThemeColor;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.td;
 
-public class TableDataRow extends StyleComponent<TableDataRow>
+public class TableHead extends StyleComponent<TableHead>
 {
-    public TableDataRow()
+    public TableHead()
     {
-        super("tr","table",false,true);
+        super("thead",null);
+    }
+    public TableHead(Object...objects)
+    {
+        super("thead",null);
+        returnAddInner(new TableHeadRow()).add(objects);
     }
     
-    public TableDataRow addWithStyle(StyleTemplate template,Object...objects)
+    public TableHead addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                template.applyTo(tagElement);
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
+        returnAddInner(new TableHeadRow()).addWithStyle(template, objects);
         return this;
     }
 
-    public TableDataRow add(Object...objects)
+    public TableHead addRow(Object...objects)
     {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
+        returnAddInner(new TableHeadRow()).add(objects);
+        return this;
+    }
+    
+    public TableHead color(ThemeColor color)
+    {
+        addClass("table",color);
         return this;
     }
 

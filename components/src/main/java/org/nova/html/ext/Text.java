@@ -52,7 +52,7 @@ public class Text extends Element
         return this.text;
     }
     
-    public static boolean SAFE_ESCAPE=false;
+    public static boolean SAFE_ESCAPE=true;
     
     @Override
     public void compose(Composer composer) throws Throwable

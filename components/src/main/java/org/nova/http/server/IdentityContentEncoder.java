@@ -38,14 +38,13 @@ public class IdentityContentEncoder extends ContentEncoder
 		
 		Context(OutputStream outputStream)
 		{
-			this.outputStream=new SizeOutputStream(outputStream);
+			this.outputStream=new SizeOutputStream(outputStream,false);
 		}
 
 
 		@Override
 		public void close() throws Exception
 		{
-			this.outputStream.close();
 		}
 		@Override
 		public long getUncompressedContentSize() throws Throwable

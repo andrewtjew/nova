@@ -21,28 +21,14 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.td;
+
 public class TableHeader extends StyleComponent<TableHeader>
 {
     public TableHeader()
     {
-        super("thead",null);
-    }
-    public TableHeader(Object...objects)
-    {
-        super("thead",null);
-        returnAddInner(new TableHeaderRow()).add(objects);
-    }
-    
-    public TableHeader addRowWithStyle(StyleTemplate template,Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).addWithStyle(template, objects);
-        return this;
-    }
-
-    public TableHeader addRow(Object...objects)
-    {
-        returnAddInner(new TableHeaderRow()).add(objects);
-        return this;
+        super("th",null);
     }
 
 }

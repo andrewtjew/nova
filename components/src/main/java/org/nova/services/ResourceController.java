@@ -55,7 +55,7 @@ import org.nova.utils.FileUtils;
 
 @Description("Handlers for server operator pages")
 @ContentDecoders({GzipContentDecoder.class,DeflaterContentDecoder.class})
-@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class,BrotliContentEncoder.class})
+@ContentEncoders({BrotliContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 
 @Deprecated
@@ -257,7 +257,6 @@ public class ResourceController
             
             response.setStatus(HttpStatus.OK_200);
             context.writeContent(bytes);
-//            response.getOutputStream().write(bytes);
         }
     }
 }
