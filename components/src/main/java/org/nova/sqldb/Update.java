@@ -62,7 +62,7 @@ public class Update
         this.parameters.add(value);
         return this;
     }
-    public Update modify(String expression,Object...values)
+    public Update set(String expression,Object...values)
     {
         if (this.parameters.size()>0)
         {
