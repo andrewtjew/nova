@@ -65,9 +65,9 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     {
       this(rootDirectory,enableLocalCaching,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
     }
-    public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching) throws Throwable
+    public IndexFileDownloadHandler(String rootDirectory,boolean caching) throws Throwable
     {
-        this(rootDirectory,enableLocalCaching,null);
+        this(rootDirectory,caching,caching?"public":null);
     }
     
     @Override

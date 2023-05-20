@@ -47,7 +47,6 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
         this.sessionManager=new SessionManager<SESSION>(this.getTraceManager(),this.getLogger("SessionService"),this.getTimerScheduler(), lockTimeoutMs,timeoutMs, generations);
         this.tokenGenerator=new TokenGenerator();
 
-        String directoryServiceEndPoint=this.getConfiguration().getValue("SessionServerApplication.directoryServiceEndPoint", "http://"+Utils.getLocalHostName()+":"+this.getPublicTransport().getPorts()[0]);
         String headerTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.header", "X-Token");
         String queryTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.query", "token");
         String cookieTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.cookie", headerTokenKey);

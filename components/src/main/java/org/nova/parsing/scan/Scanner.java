@@ -299,12 +299,12 @@ public class Scanner
     
     public Lexeme produceNumber(boolean fraction) throws Throwable
     {
-        boolean base=!fraction;
+        boolean number=false;
         for (char c=this.source.next();c!=0;c=this.source.next())
         {
             if (Character.isDigit(c))
             {
-                base=true;
+                number=true;
                 continue;
             }
             if ((c=='.')&&(fraction==false))
@@ -333,7 +333,7 @@ public class Scanner
             }
             break;
         }
-        if (base==false)
+        if (number==false)
         {
             return new Lexeme(Token.ERROR, "Invalid number.", this.source.endAndGetSnippet(1));
         }
@@ -597,8 +597,12 @@ public class Scanner
         {
             if (Character.isWhitespace(c)==false)
             {
-                this.source.end(1);
-                return;
+                if (c!=65279) //BOM or zero width space
+                {
+                    this.source.end(1);
+                    this.source.begin(0);
+                    return;
+                }
             }
         }
     }
@@ -640,6 +644,10 @@ public class Scanner
     public void revert()
     {
         this.source.revert();
+    }
+    public void revert(Lexeme lexeme)
+    {
+        this.source.reset(lexeme.getSnippet().getTarget().length());
     }
     public char read() throws Throwable
     {

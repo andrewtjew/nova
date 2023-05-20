@@ -226,27 +226,29 @@ namespace nova.remote
 
     }
 
-    // export function postJSONString(pathAndQuery:string,data:string)
-    // {
-    //     fetch(pathAndQuery,
-    //         {
-    //             method:"POST",
-    //             headers: {'Content-Type': 'application/json'},
-    //             body: data
-    //         }).then(response=>
-    //         {
-    //             if (response.ok)
-    //             {
-    //                 return response.json();
-    //             }
-    //             alert(response);
-    //         })
-    //         .then((instructions:Instruction[])=>
-    //         {
-    //             run(instructions);
-    //         });
-
-    // }
+    export function postForNative(pathAndQuery:string,data:string):string
+    {
+        var returnResult:string;
+        var returnSuccess=false;
+        $.ajax(
+            {url:pathAndQuery,
+            type:"POST",
+            contentType:"application/json",
+            async:false,
+            dataType:"json",
+            cache: false,
+            data:data,
+            success:function(result:string,status,xhr)
+            {
+                returnResult=result;
+                returnSuccess=true;
+            },
+            error:function(xhr)
+            {
+            }
+        }); 
+        return JSON.stringify({success:returnSuccess,result:returnResult});
+    }
 
     function run(instructions:Instruction[])
     {

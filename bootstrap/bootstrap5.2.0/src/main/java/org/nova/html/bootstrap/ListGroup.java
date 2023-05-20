@@ -23,14 +23,23 @@ package org.nova.html.bootstrap;
 
 public class ListGroup extends StyleComponent<ListGroup>
 {
-    public ListGroup()
+    public ListGroup(boolean numbered)
     {
-        super("ul","list-group");
+        super(numbered?"ol":"ul","list-group");
+        if (numbered)
+        {
+            addClass("list-group-numbered");
+        }
     }
 
-    public ListGroup flush()
+    public ListGroup()
     {
-        addClass(this.getComponentClass(),"flush");
-        return this;
+        this(false);
     }
+
+//    public ListGroup flush()
+//    {
+//        addClass(this.getComponentClass(),"flush");
+//        return this;
+//    }
 }

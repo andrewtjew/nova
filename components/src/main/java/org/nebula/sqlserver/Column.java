@@ -25,13 +25,13 @@ public class Column
 {
     private final String name;
     private final String type;
-    private final int size;
+    private final String size;
     private final boolean identity;
     private final long identityStart;
     private final long identityIncrement;
     private final boolean nullAllowed;
     
-    public Column(String name,String type,int size,boolean identity,long identityStart,long identityIncrement,boolean nullAllowed)
+    public Column(String name,String type,String size,boolean identity,long identityStart,long identityIncrement,boolean nullAllowed)
     {
         this.name=name;
         this.type=type;
@@ -52,7 +52,7 @@ public class Column
         return type;
     }
 
-    public int getSize()
+    public String getSize()
     {
         return size;
     }

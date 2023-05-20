@@ -68,6 +68,11 @@ public class SessionManager<SESSION extends Session>
         this.removeSessionMeter=new CountMeter();
         this.timeoutSessionMeter=new CountMeter();
     }
+    public SessionManager(TraceManager traceManager,Logger logger,TimerScheduler timerScheduler,long sessionTimeoutMs) throws Exception
+    {
+        this(traceManager,logger,timerScheduler,10*1000,sessionTimeoutMs,2);
+        enableExpiration();
+    }
     
     public void enableExpiration() throws Exception
     {

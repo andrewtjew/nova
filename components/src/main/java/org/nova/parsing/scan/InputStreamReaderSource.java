@@ -161,6 +161,13 @@ public class InputStreamReaderSource extends Source
     }
 
     @Override
+    public void reset(int revert)
+    {
+        this.textBufferBeginIndex-=revert;
+        this.textBufferIndex=this.textBufferBeginIndex;
+    }
+
+    @Override
     public String endContext()
     {
         this.position+=this.textBufferIndex;

@@ -23,6 +23,7 @@ package org.nova.parsing.scan;
 
 public abstract class Source
 {
+    public abstract void reset(int revert);
     public abstract char next() throws Throwable;
     public abstract void begin(int revert);
     public abstract void revert();
