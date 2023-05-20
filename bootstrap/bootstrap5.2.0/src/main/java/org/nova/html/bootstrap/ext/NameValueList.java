@@ -29,6 +29,8 @@ import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.LiteralHtml;
+import org.nova.html.tags.hr;
 
 public class NameValueList extends Item
 {
@@ -60,7 +62,7 @@ public class NameValueList extends Item
         else
         {
         	Label tagElement=new Label().addInner(name);
-            tagElement.style("width:"+this.nameSize.toString()+";white-space:nowrap;");
+            tagElement.style("width:"+this.nameSize.toString()+"!important;white-space:nowrap;");
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
         }
         if (value instanceof TagElement)
@@ -68,15 +70,31 @@ public class NameValueList extends Item
             GlobalEventTagElement<?> tagElement=(GlobalEventTagElement<?>)value;
             row.addInner(StyleTemplate.apply(valueTemplate,tagElement));
         }
+//        else if (value instanceof String)
+//        {
+//            
+//        }
         else
         {
         	Label tagElement=new Label().addInner(value);
-            tagElement.style("width:"+this.nameSize.toString()+";");
+//            tagElement.style("width:"+this.nameSize.toString()+";");
             row.addInner(StyleTemplate.apply(valueTemplate,tagElement));
         }
             
         return this;
     }
+    
+    public NameValueList addDivider()
+    {
+        this.addInner(new hr());
+        return this;
+    }
+    public NameValueList addLineSpace()
+    {
+        add(null,new LiteralHtml("#&nbsp;"),null," ");
+        return this;
+    }
+    
     public NameValueList add(Object name,Object value)
     {
         return add(this.nameTemplate,name,this.valueTemplate,value);

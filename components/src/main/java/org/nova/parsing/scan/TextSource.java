@@ -94,6 +94,14 @@ public class TextSource extends Source
     }
 
     @Override
+    public void reset(int revert)
+    {
+        this.beginIndex-=revert;
+        this.index=this.beginIndex;
+    }
+
+
+    @Override
     public String endContext()
     {
         return this.text;

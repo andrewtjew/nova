@@ -20,6 +20,7 @@ public class RedirectHandler extends ServletHandler
     	redirect.compose(composer);
     	String content=composer.getStringBuilder().toString();
     	this.content=content.getBytes(StandardCharsets.UTF_8);
+    	redirect.toString();
     }
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable

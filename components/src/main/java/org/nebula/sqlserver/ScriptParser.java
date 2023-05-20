@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.nova.parsing.scan.Lexeme;
 import org.nova.parsing.scan.ScanException;
+import org.nova.parsing.scan.Snippet;
 import org.nova.parsing.scan.TextSource;
 
 public class ScriptParser
@@ -63,43 +64,79 @@ public class ScriptParser
         {
             TextSource source=new TextSource(block);
             SqlServerLexer lexer=new SqlServerLexer(source);
-            lexer.skipComments();
-            if (lexer.begin()==0)
+            try
             {
-                continue;
+                lexer.skipComments();
+                if (lexer.begin()==0)
+                {
+                    continue;
+                }
+                lexer.end(1);
+                Lexeme lexeme=lexer.expectWord();
+                if (lexeme.isError())
+                {
+                    throw new ScanException("Block verb expected", lexeme);
+                }
+                if (lexeme.isCaseInsenstiveWord("USE"))
+                {
+                    continue;
+                }
+                if (lexeme.isCaseInsenstiveWord("ALTER"))
+                {
+                    continue;
+                }
+                if (lexeme.isCaseInsenstiveWord("IF"))
+                {
+                    continue;
+                }
+                if (lexeme.isCaseInsenstiveWord("SET"))
+                {
+                    continue;
+                }
+                if (lexeme.isCaseInsenstiveWord("ENABLE"))
+                {
+                    continue;
+                }
+                if (lexeme.isCaseInsenstiveWord("CREATE"))
+                {
+                    parse_CREATE(lexer,block);
+                    continue;
+                }
+                System.out.println("ScriptParser: Cannot process: "+lexeme.getValue());
             }
-            lexer.end(1);
-            Lexeme lexeme=lexer.expectWord();
-            if (lexeme.isError())
+            catch (ScanException ex)
             {
-                throw new ScanException("Block verb expected", lexeme);
+                Lexeme lexeme=ex.getLexeme();
+                Snippet snippet=lexeme.getSnippet();
+                int bufferSize=80;
+                int start=snippet.getTargetAbsolutePosition()-bufferSize;
+                int end=start+2*bufferSize;
+                int errorPosition=bufferSize;
+                if (start<0)
+                {
+                    errorPosition+=start;
+                    start=0;
+                }
+                if (end>block.length())
+                {
+                    end=block.length();
+                }
+                String errorText=block.substring(start,end);
+                for (int i=0;i<errorText.length();i++)
+                {
+                    if (i==errorPosition)
+                    {
+                        System.out.print("<<"+ex.getMessage()+":"+snippet.getTarget()+">>");
+                        i+=snippet.getTarget().length()-1;
+                    }
+                    else
+                    {
+                        System.out.print(errorText.charAt(i));
+                    }
+                    
+                }
+                throw ex;
             }
-            if (lexeme.isCaseInsenstiveWord("USE"))
-            {
-                continue;
-            }
-            if (lexeme.isCaseInsenstiveWord("ALTER"))
-            {
-                continue;
-            }
-            if (lexeme.isCaseInsenstiveWord("IF"))
-            {
-                continue;
-            }
-            if (lexeme.isCaseInsenstiveWord("SET"))
-            {
-                continue;
-            }
-            if (lexeme.isCaseInsenstiveWord("ENABLE"))
-            {
-                continue;
-            }
-            if (lexeme.isCaseInsenstiveWord("CREATE"))
-            {
-                parse_CREATE(lexer,block);
-                continue;
-            }
-            System.out.println("ScriptParser: Cannot process: "+lexeme.getValue());
         }
     }
     
@@ -206,10 +243,15 @@ public class ScriptParser
             {
                 lexer.skipWhiteSpaceAndBegin();
                 size=lexer.produceNumber(false);
+                if (size.isError())
+                {
+//                    lexer.revert(size);
+                    size=lexer.produceJavaIdentifier();
+                }
                 Lexeme lexeme=lexer.expectPunctuator(')');
                 if (lexeme.isError())
                 {
-                    throw new ScanException("type size expected", lexeme);
+                    throw new ScanException("type size or max expected", lexeme);
                 }
                 c=lexer.skipWhiteSpaceAndBegin();
             }
@@ -227,29 +269,29 @@ public class ScriptParser
                     {
                         throw new ScanException("( expected", lexeme);
                     }
-                    lexer.skipWhiteSpaceAndBegin();
+                    lexer.skipWhiteSpace();
                     identityStart=lexer.produceNumber(false);
                     if (identityStart.isError())
                     {
-                        throw new ScanException("number expected", lexeme);
+                        throw new ScanException("number expected", identityStart);
                     }
                     lexeme=lexer.expectPunctuator(',');
                     if (identityStart.isError())
                     {
                         throw new ScanException(", expected", lexeme);
                     }
-                    lexer.skipWhiteSpaceAndBegin();
+                    lexer.skipWhiteSpace();
                     identityIncrement=lexer.produceNumber(false);
                     if (identityIncrement.isError())
                     {
-                        throw new ScanException("number expected", lexeme);
+                        throw new ScanException("number expected", identityIncrement);
                     }
                     lexeme=lexer.expectPunctuator(')');
                     if (lexeme.isError())
                     {
                         throw new ScanException(") expected", lexeme);
                     }
-                    lexer.skipWhiteSpaceAndBegin();
+                    lexer.skipWhiteSpace();
                     lexeme=lexer.produceJavaIdentifier();
                     if (lexeme.isError())
                     {
@@ -259,7 +301,7 @@ public class ScriptParser
                 if (lexeme.isCaseInsenstiveWord("NOT"))
                 {
                     nullAllowed=false;
-                    lexer.skipWhiteSpaceAndBegin();
+                    lexer.skipWhiteSpace();
                     lexeme=lexer.produceJavaIdentifier();
                 }
                 if (lexeme.isCaseInsenstiveWord("NULL")==false)
@@ -269,7 +311,7 @@ public class ScriptParser
                 c=lexer.skipWhiteSpaceAndBegin();
             }
 //            System.out.println("Type="+type.getValue());
-            Column column=new Column(name.getValue(), type.getValue(), size==null?0:Integer.parseInt(size.getValue()), identity,identityStart==null?0:Long.parseLong(identityStart.getValue()), identityIncrement==null?0:Long.parseLong(identityIncrement.getValue()), nullAllowed);
+            Column column=new Column(name.getValue(), type.getValue(), size==null?null:size.getValue(), identity,identityStart==null?0:Long.parseLong(identityStart.getValue()), identityIncrement==null?0:Long.parseLong(identityIncrement.getValue()), nullAllowed);
             columns.add(column);
             if (c==',')
             {

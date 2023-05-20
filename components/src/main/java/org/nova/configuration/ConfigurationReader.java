@@ -56,7 +56,7 @@ public class ConfigurationReader
 	    String text=FileUtils.readTextFile(this.fileName);
 	    TextSource source=new TextSource(text);
 	    Scanner scanner=new Scanner(source);
-	    scanner.skipWhiteSpace();
+//	    scanner.skipWhiteSpace();
 	    String description=null;
 		for (;;)
 		{

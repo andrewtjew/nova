@@ -183,7 +183,7 @@ public class DatabaseUpdater
                     }
                     commaNeeded=true;
                     sb.append(" ["+column.getName()+"] "+column.getType());
-                    if (column.getSize()>0)
+                    if (column.getSize()!=null)
                     {
                         sb.append("("+column.getSize()+")");
                     }

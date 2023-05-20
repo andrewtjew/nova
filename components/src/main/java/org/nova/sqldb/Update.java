@@ -52,7 +52,7 @@ public class Update
         return this;
     }
     
-    public Update setValue(String columnName,Object value)
+    public Update value(String columnName,Object value)
     {
         if (this.parameters.size()>0)
         {
