@@ -53,6 +53,12 @@ public class SecurityUtils
         return mac.doFinal(data);
     }
 
+    public static byte[] computeHashHMACSHA256(SecretKey key,byte[] data) throws Throwable
+    {
+        Mac mac=Mac.getInstance("HmacSHA256");
+        mac.init(key);
+        return mac.doFinal(data);
+    }
     
     public static byte[] computeHashSHA256(byte[] data) throws Throwable
     {

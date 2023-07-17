@@ -154,7 +154,12 @@ public class Query
                 default:
                     break;
                 }
-                String namespace = linkQuery.namespace != null ? linkQuery.namespace + "." : "";
+                String namespace = "";
+                if (linkQuery.namespace!=null)
+                {
+                    namespace = linkQuery.namespace + ".";
+                }
+                    
                 for (int i = 0; i < linkQuery.nodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
@@ -162,11 +167,20 @@ public class Query
                     state.map.put(namespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
-                    state.sources.append(" JOIN " + table + " " + on + table + "._nodeId");
+
+                    String as=" ";
+                    String alias=table;
+                    if (linkQuery.namespace!=null)
+                    {
+                        alias="`"+linkQuery.namespace+"_"+typeName+"`";
+                        as=" AS "+alias+" ";
+                    }
+
+                    state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
                     for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                     {
                         String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
-                        String tableColumnName = columnAccessor.getColumnName(table);
+                        String tableColumnName = columnAccessor.getColumnName(alias);
                         if (state.select.length()>0)
                         {
                             state.select.append(',');
