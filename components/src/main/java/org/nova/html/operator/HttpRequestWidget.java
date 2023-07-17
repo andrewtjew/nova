@@ -132,7 +132,8 @@ public class HttpRequestWidget extends Element
         {
             return;
         }
-        String[] array=Utils.split(headers, '\r');
+//        String[] array=Utils.split(headers, '\r');
+        String[] array=headers.split("\r\n");
         NameValueList list=new NameValueList();
         int lines=0;
         for (String item:array)
@@ -140,6 +141,7 @@ public class HttpRequestWidget extends Element
             int index=item.indexOf(':');
             if (index<0)
             {
+                list.add(item+"*","");
                 continue;
             }
             String name=item.substring(0, index);

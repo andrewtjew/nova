@@ -35,6 +35,7 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -187,15 +188,42 @@ public class SecurityUtils
         return id;
     }
 
-    
-    
-    static public SecretKey buildKey3DES(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+    static public long decryptDES(SecretKey secretKey,long encrypted) throws Throwable
     {
-//        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
-//        DESKeySpec spec = new DESKeySpec(key);
-////        return factory.generateSecret(spec);
-        return new SecretKeySpec(key, "TripleDES");
+        byte[] encryptedBytes=TypeUtils.bigEndianLongToBytes(encrypted);
+        Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes=cipher.doFinal(encryptedBytes);
+        if (decryptedBytes.length>8)
+        {
+            throw new Exception();
+        }
+        return TypeUtils.bigEndianBytesToLong(decryptedBytes);
     }
+//    SecretKey secretKey = buildKey(password, salt);
+    static public long encryptDES(SecretKey secretKey,long value) throws Throwable
+    {
+        byte[] bytes=TypeUtils.bigEndianLongToBytes(value);
+        Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes=cipher.doFinal(bytes);
+        if (encryptedBytes.length>8)
+        {
+            throw new Exception();
+        }
+   
+        long encrypted=TypeUtils.bigEndianBytesToLong(encryptedBytes);
+        return encrypted;
+    }
+    
+    
+//    static public SecretKey buildKey3DES(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+//    {
+////        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+////        DESKeySpec spec = new DESKeySpec(key);
+//////        return factory.generateSecret(spec);
+//        return new SecretKeySpec(key, "TripleDES");
+//    }
 
     static public SecretKey buildKey(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
@@ -203,6 +231,14 @@ public class SecurityUtils
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), ITERATIONS, KEY_LENGTH);
         SecretKey secretKey = factory.generateSecret(spec);
         return new SecretKeySpec(secretKey.getEncoded(), "AES");
+    }
+
+    static public SecretKey buildKeyDES(String password) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+    {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+        DESKeySpec spec = new DESKeySpec(password.getBytes());
+        SecretKey secretKey = factory.generateSecret(spec);
+        return secretKey;
     }
 
     public static boolean compareHash(String password, String salt, byte[] encryptedPassword) throws Throwable
@@ -300,6 +336,17 @@ public class SecurityUtils
     static private SecureRandom RANDOM=new SecureRandom();
     
     public static String generateNummericVerificationCode(int length)
+    {
+        byte[] bytes = new byte[length];
+        bytes[0] = (byte) (RANDOM.nextInt(9) + '1');
+        for (int i = 1; i < length; i++)
+        {
+            bytes[i] = (byte) (RANDOM.nextInt(10) + '0');
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
+    }
+
+    public static String generateNummericReferenceCode(int length)
     {
         byte[] bytes = new byte[length];
         bytes[0] = (byte) (RANDOM.nextInt(9) + '1');

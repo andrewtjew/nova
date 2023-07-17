@@ -41,7 +41,7 @@ public class RequestLogEntry
 	final String request;
 	final String contentType;
 
-	public RequestLogEntry(Trace trace,String requestContentText,String responseContentText,HttpServletRequest request,HttpServletResponse response) throws Throwable
+	public RequestLogEntry(Trace trace,RequestHandler requestHandler,String requestContentText,String responseContentText,HttpServletRequest request,HttpServletResponse response) throws Throwable
 	{
 		this.trace=trace;
 		this.requestContentText=requestContentText;
@@ -51,9 +51,9 @@ public class RequestLogEntry
 		this.statusCode=response.getStatus();
 		this.request=request.getMethod()+" "+request.getRequestURI();
 		this.remoteEndPoint=request.getRemoteHost()+":"+request.getRemotePort();
-        this.requestHeaders=WsUtils.getRequestHeaders(request);
+        this.requestHeaders=WsUtils.getRequestHeaders(request,requestHandler);
         this.responseHeaders=WsUtils.getResponseHeaders(response);
-        this.requestParameters=WsUtils.getRequestParameters(request);
+        this.requestParameters=WsUtils.getRequestParameters(request,requestHandler);
 	}
 
 	public Trace getTrace()

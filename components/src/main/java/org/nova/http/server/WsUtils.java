@@ -22,21 +22,24 @@
 package org.nova.http.server;
 
 import java.util.Enumeration;
+import java.util.HashSet;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 public class WsUtils
 {
-	public static String getRequestHeaders(HttpServletRequest request)
+	public static String getRequestHeaders(HttpServletRequest request,RequestHandler requestHandler)
 	{
 		StringBuilder sb=new StringBuilder();
 		Enumeration<String> names=request.getHeaderNames();
 		while (names.hasMoreElements())
 		{
 			String header=names.nextElement();
-			sb.append(header).append(":");
+            sb.append(header).append(":");
 			Enumeration<String> values=request.getHeaders(header);
+			
 			boolean needSeperator=false;
 			while (values.hasMoreElements())
 			{
@@ -55,14 +58,23 @@ public class WsUtils
 		}
 		return sb.toString();
 	}
-    public static String getRequestParameters(HttpServletRequest request)
+    public static String getRequestParameters(HttpServletRequest request,RequestHandler requestHandler)
     {
         HttpServletRequestWrapper wrapper;
         StringBuilder sb=new StringBuilder();
         Enumeration<String> names=request.getParameterNames();
+        HashSet<String> hiddenParameters=requestHandler!=null?requestHandler.getHiddenParameters():null;
         while (names.hasMoreElements())
         {
             String name=names.nextElement();
+            if (hiddenParameters!=null)
+            {
+                if (hiddenParameters.contains(name))
+                {
+                    sb.append(name).append("\r\n");
+                    continue;
+                }
+            }
             sb.append(name).append(":");
             boolean needSeperator=false;
             for (String value:request.getParameterValues(name))

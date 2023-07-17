@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
@@ -111,26 +112,26 @@ public class SessionFilter extends Filter
         
     }
     
-    public Session getSession(Context context)
+    public Session getSession(HttpServletRequest request)
     {
-        String token=getToken(context);
+        String token=getToken(request);
         return this.sessionManager.getSessionByToken(token);
     }
 
-    private String getToken(Context context)
+    private String getToken(HttpServletRequest request)
     {
         String token=null;
         if (this.headerTokenKey!=null)
         {
-            token=context.getHttpServletRequest().getHeader(this.headerTokenKey);
+            token=request.getHeader(this.headerTokenKey);
         }
         if ((token==null)&&(this.queryTokenKey!=null))
         {
-            token=context.getHttpServletRequest().getParameter(this.queryTokenKey);
+            token=request.getParameter(this.queryTokenKey);
         }
         if ((token==null)&&(this.cookieTokenKey!=null))
         {
-            Cookie[] cookies=context.getHttpServletRequest().getCookies();
+            Cookie[] cookies=request.getCookies();
             if (cookies!=null)
             {
                 for (Cookie cookie:cookies)
@@ -149,7 +150,7 @@ public class SessionFilter extends Filter
     @Override
     public Response<?> executeNext(Trace parent, Context context) throws Throwable
     {
-        String token=getToken(context);
+        String token=getToken(context.getHttpServletRequest());
         Session session=this.sessionManager.getSessionByToken(token);
 
         Method method=context.getRequestHandler().getMethod();

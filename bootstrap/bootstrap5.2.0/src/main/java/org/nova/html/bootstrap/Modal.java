@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.tags.script;
+
 public class Modal extends StyleComponent<Modal>
 {
     public Modal()
@@ -59,15 +61,6 @@ public class Modal extends StyleComponent<Modal>
         return keyboard(true);
     }
 
-    public Modal show(boolean value)
-    {
-        attr("data-bs-show",value);
-        return this;
-    }
-    public Modal show()
-    {
-        return show(true);
-    }
     public Modal focus(boolean value)
     {
         attr("data-bs-focus",value);
@@ -76,6 +69,11 @@ public class Modal extends StyleComponent<Modal>
     public Modal focus()
     {
         return focus(true);
+    }
+    public Modal show()
+    {
+        this.returnAddInner(new script()).addInner(js_show());
+        return this;
     }
 
     public String js_show()
@@ -90,18 +88,18 @@ public class Modal extends StyleComponent<Modal>
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
     }
-    public static String js_show(String id)
-    {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
-    }
-    public static String js_hide(String id)
-    {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).hide();";
-    }
-    public static String js_toggle(String id)
-    {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
-    }
+//    public static String js_show(String id)
+//    {
+//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
+//    }
+//    public static String js_hide(String id)
+//    {
+//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).hide();";
+//    }
+//    public static String js_toggle(String id)
+//    {
+//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
+//    }
     
     
 }

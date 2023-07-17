@@ -71,7 +71,10 @@ namespace nova.remote
                         var element=getInputElement(parent,input);
                         if (element!=null)
                         {
-                            data[input.name]=element.checked
+                            if (element.checked)
+                            {
+                                data[input.name]="on";
+                            }
                         }
                     }
                     break;
@@ -134,7 +137,10 @@ namespace nova.remote
                         var element=getInputElement(parent,input);
                         if (element!=null)
                         {
-                            action+=seperator+input.name+"="+encodeURIComponent(element.checked);
+                            if (element.checked)
+                            {
+                                action+=seperator+input.name+"=on";
+                            }
                         }
                     }
                 break;
@@ -185,9 +191,9 @@ namespace nova.remote
         }); 
     }
     
-    export function getStatic(pathAndQuery:string)
+    export async function getStatic(pathAndQuery:string)
     {
-        fetch(pathAndQuery,
+        await fetch(pathAndQuery,
             {
                 method:"GET",
                 headers: {'Content-Type': 'application/json'},

@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.html.elements.StringComposer;
 import org.nova.html.ext.Redirect;
+import org.nova.services.Session;
+import org.nova.services.SessionFilter;
+import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -16,12 +19,14 @@ public class AccessHandler extends ServletHandler
     final private byte[] offlineRedirect;
     private boolean online;
     final private String offlineLocation;
-    public AccessHandler(String offlineLocation) throws Throwable 
+    final private SessionFilter sessionFilter;
+    public AccessHandler(String offlineLocation,SessionFilter sessionFilter) throws Throwable 
     {
     	Redirect redirect=new Redirect(offlineLocation);
     	this.offlineRedirect=redirect.toString().getBytes(StandardCharsets.UTF_8);
     	this.offlineLocation=offlineLocation;
     	this.online=true;
+    	this.sessionFilter=sessionFilter;
     }
     synchronized public void setOnline(boolean online)
     {
@@ -37,6 +42,14 @@ public class AccessHandler extends ServletHandler
     {
         if (this.online==false)
         {
+            if (this.sessionFilter!=null)
+            {
+                Session session=this.sessionFilter.getSession(request);
+                if (session!=null)
+                {
+                    return false;
+                }
+            }
             String URI=request.getRequestURI();
             if (this.offlineLocation.equals(URI)==false)
             {

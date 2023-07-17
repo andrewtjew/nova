@@ -24,6 +24,7 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
+import org.nova.services.SessionFilter;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Update;
 import org.nova.tracing.Trace;
@@ -34,9 +35,9 @@ import org.nova.tracing.Trace;
 public class AccessHandlerController extends AccessHandler
 {
     ServerApplication service;
-    public AccessHandlerController(ServerApplication service,String location) throws Throwable
+    public AccessHandlerController(ServerApplication service,String location,SessionFilter sessionFilter) throws Throwable
     {
-        super(location);
+        super(location,sessionFilter);
         this.service=service;
         this.service.getPublicServer().registerBeforeServletHandlers(this);
         this.service.getOperatorServer().registerHandlers(this);

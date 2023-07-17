@@ -68,8 +68,9 @@ public class RequestHandler
     final private HashSet<String> attributes;
     final private boolean stateParam;
     final private boolean test;
+    final private HashSet<String> hiddenParameters; 
     
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations)
+	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
 	    boolean stateParam=false;
 	    for (ParameterInfo info:parameterInfos)
@@ -99,6 +100,7 @@ public class RequestHandler
 		this.responseUncompressedContentSizeMeter=new LongValueMeter();
 		this.requestCompressedContentSizeMeter=new LongValueMeter();
 		this.responseCompressedContentSizeMeter=new LongValueMeter();
+		this.hiddenParameters=hiddenParameters;
 		
 		this.log=log;
 		this.logRequestHeaders=logRequestHeaders;
@@ -108,6 +110,7 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
+        
         if (annotations.attributes!=null)
         {
             this.attributes=new HashSet<String>();
@@ -133,6 +136,10 @@ public class RequestHandler
 		return method;
 	}
 	
+	public HashSet<String> getHiddenParameters()
+	{
+	    return this.hiddenParameters;
+	}
 	public String getHttpMethod()
 	{
 		return this.httpMethod;

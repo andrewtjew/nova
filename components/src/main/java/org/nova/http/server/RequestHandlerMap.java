@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import javax.servlet.http.Cookie;
@@ -507,6 +508,7 @@ class RequestHandlerMap
 		Parameter[] parameters=method.getParameters();
 		Annotation[][] annotations = method.getParameterAnnotations();
 		int cookieStateParamCount=0;
+		HashSet<String> hiddenParameters=new HashSet<String>();
 		for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++)
 		{
 			Class<?> parameterType = parameterTypes[parameterIndex];
@@ -570,10 +572,18 @@ class RequestHandlerMap
 				else if (type == QueryParam.class)
 				{
 					queryParam = (QueryParam) annotation;
+					if (queryParam.hideParameterValue())
+					{
+					    hiddenParameters.add(queryParam.value());
+					}
 				}
                 else if (type == SecureQueryParam.class)
                 {
                     secureQueryParam = (SecureQueryParam) annotation;
+                    if (secureQueryParam.hideParameterValue())
+                    {
+                        hiddenParameters.add(secureQueryParam.value());
+                    }
                 }
                 else if (type == StateParam.class)
                 {
@@ -921,7 +931,7 @@ class RequestHandlerMap
                 ,parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap
                 ,contentEncoderList.toArray(new ContentEncoder[contentEncoderList.size()]), contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
-                this.bufferSize,cookieStateParamCount,handlerAnnotations);
+                this.bufferSize,cookieStateParamCount,handlerAnnotations,hiddenParameters.size()==0?null:hiddenParameters);
         add(httpMethod, fullPath, requestHandler);
         
         for (Filter filter:bottomFilters)

@@ -176,7 +176,7 @@ public class SqlUtils
             return executeQueryOne(parent,traceCategoryOverride,accessor,sql,parameters);
         }
     }
-    public static boolean isTrue(Row row,String columnName)
+    public static boolean isTrue(Row row,String columnName) throws Exception
     {
         if (row==null)
         {
@@ -240,7 +240,7 @@ public class SqlUtils
 //    }
 
     
-      public static Boolean getBIT(Row row,String columnName)
+      public static Boolean getBIT(Row row,String columnName) throws Exception
 	  {
 	      if (row==null)
 	      {
@@ -253,7 +253,7 @@ public class SqlUtils
 	      }
 	      return row.getNullableBIT(columnIndex);
 	  }
-      public static Time getTIME(Row row,String columnName)
+      public static Time getTIME(Row row,String columnName) throws Exception
 	  {
 	      if (row==null)
 	      {

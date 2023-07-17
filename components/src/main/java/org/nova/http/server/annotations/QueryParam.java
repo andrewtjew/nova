@@ -31,4 +31,5 @@ import java.lang.annotation.Target;
 public @interface QueryParam
 {
 	String value();
+    boolean hideParameterValue() default false;
 }

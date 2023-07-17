@@ -391,7 +391,7 @@ public class HttpServer
                 }
             }
             */
-        RequestLogEntry entry=new RequestLogEntry(trace,null,null,request,response);
+        RequestLogEntry entry=new RequestLogEntry(trace,null,null,null,request,response);
         if (this.logRequestHandlersOnly==false)
         {
             if (handler.isLogLastRequestsInMemory())
@@ -455,27 +455,27 @@ public class HttpServer
 		long requestCompressedContentSize=0;
 		String requestContentText=null;
 		String responseContentText=null;
-		RequestHandler handler = requestHandlerWithParameters.requestHandler;
-		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ handler.getKey());
+		RequestHandler requesthandler = requestHandlerWithParameters.requestHandler;
+		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ requesthandler.getKey());
 		try
 		{
-		    if (handler.isTest())
+		    if (requesthandler.isTest())
 		    {
 		        servletResponse.setStatus(HttpStatus.FORBIDDEN_403);
 		    }
 		    else
 		    {
-                ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), handler);
+                ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), requesthandler);
                 try (EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse))
                 {
-    		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, handler))
+    		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, requesthandler))
     		        {
                         FilterChain chain = new FilterChain(requestHandlerWithParameters);
                         Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
                         try 
             			{
-            				context.setContentReader(findContentReader(servletRequest.getContentType(), handler));
-            				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), handler));
+            				context.setContentReader(findContentReader(servletRequest.getContentType(), requesthandler));
+            				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), requesthandler));
             
             				Response<?> response = chain.next(trace, context);
                             servletResponse=context.getHttpServletResponse();
@@ -588,11 +588,11 @@ public class HttpServer
 		finally
 		{
 			trace.close();
-			handler.update(servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
-			RequestLogEntry entry=new RequestLogEntry(trace,requestContentText,responseContentText,servletRequest,servletResponse);
-			if (handler.isLogLastRequestsInMemory())
+			requesthandler.update(servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
+			RequestLogEntry entry=new RequestLogEntry(trace,requesthandler,requestContentText,responseContentText,servletRequest,servletResponse);
+			if (requesthandler.isLogLastRequestsInMemory())
 			{
-			    handler.log(entry);
+			    requesthandler.log(entry);
                 synchronized (this.lastRequestsLogEntries)
                 {
                     this.lastRequestsLogEntries.add(entry);
@@ -606,7 +606,7 @@ public class HttpServer
     			}
 			}
             ArrayList<Item> items=new ArrayList<>();
-            if (handler.isLog())
+            if (requesthandler.isLog())
             {
                 items.add(new Item("remoteEndPoint",entry.remoteEndPoint));
                 items.add(new Item("request",entry.request));
@@ -614,35 +614,35 @@ public class HttpServer
                 items.add(new Item("queryString",entry.getQueryString()));
                 items.add(new Item("contentType",entry.getContentType()));
             }
-            if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
+            if ((requesthandler.isLogRequestHeaders()&&entry.requestHeaders!=null))
             {
                 if (entry.requestHeaders!=null)
                 {
                     items.add(new Item("requestHeaders",entry.requestHeaders));
                 }
             }
-            if (handler.isLogRequestContent())
+            if (requesthandler.isLogRequestContent())
             {                
                 if (entry.requestContentText!=null)
                 {
                     items.add(new Item("requestContent",entry.requestContentText));
                 }
             }
-            if (handler.isLogResponseHeaders())
+            if (requesthandler.isLogResponseHeaders())
             {
                 if (entry.responseHeaders!=null)
                 {
                     items.add(new Item("responseHeaders",entry.responseHeaders));
                 }
             }
-            if (handler.isLogResponseContent())
+            if (requesthandler.isLogResponseContent())
             {
                 if (entry.responseContentText!=null)
                 {
                     items.add(new Item("responseContent",entry.responseContentText));
                 }
             }
-            this.logger.log(trace,handler.getKey(),Logger.toArray(items));
+            this.logger.log(trace,requesthandler.getKey(),Logger.toArray(items));
 		}
 	}
 

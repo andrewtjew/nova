@@ -32,374 +32,824 @@ import java.util.Map;
 
 public class Row
 {
-	final protected Map<String,Integer> mappings;
-	final protected Object[] data;
-	public Row(Map<String,Integer> mappings,Object[] data)
-	{
-		this.mappings=mappings;
-		this.data=data;
-	}
+    final protected Map<String, Integer> mappings;
+    final protected Object[] data;
 
-	public Integer getColumnIndex(String columnName)
-	{
-		return this.mappings.get(columnName);
-	}
-	
-	//get using SQL types
-	public String getCHAR(int columnIndex)
-	{
-		return (String)this.data[columnIndex];
-	}
-	public String getCHAR(String columnName)
-	{
-		return getCHAR(this.mappings.get(columnName));
-	}
-	public String getVARCHAR(int columnIndex)
-	{
-		return (String)this.data[columnIndex];
-	}
-	public String getVARCHAR(String columnName)
-	{
-		return getVARCHAR(this.mappings.get(columnName));
-	}
-	public String getLONGVARCHAR(int columnIndex)
-	{
-		return (String)this.data[columnIndex];
-	}
-	public String getLONGVARCHAR(String columnName)
-	{
-		return getLONGVARCHAR(this.mappings.get(columnName));
-	}
-	public BigDecimal getNUMERIC(int columnIndex)
-	{
-		return (BigDecimal)this.data[columnIndex];
-	}
-	public BigDecimal getNUMERIC(String columnName)
-	{
-		return getNUMERIC(this.mappings.get(columnName));
-	}
-	public BigDecimal getDECIMAL(int columnIndex)
-	{
-		return (BigDecimal)this.data[columnIndex];
-	}
-	public BigDecimal getDECIMAL(String columnName)
-	{
-		return getDECIMAL(this.mappings.get(columnName));
-	}
-    public BigInteger getBigInteger(int columnIndex)
+    public Row(Map<String, Integer> mappings, Object[] data)
     {
-        return (BigInteger)this.data[columnIndex];
+        this.mappings = mappings;
+        this.data = data;
     }
-    public BigInteger getBigInteger(String columnName)
+
+    public Integer getColumnIndex(String columnName) throws Exception
     {
-        return getBigInteger(this.mappings.get(columnName));
+        try
+        {
+            return this.mappings.get(columnName);
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public short getTINYINT(int columnIndex)
-	{
-		return (short)this.data[columnIndex];
-	}
-	public short getTINYINT(String columnName)
-	{
-		return getTINYINT(this.mappings.get(columnName));
-	}
-    public Short getNullableTINYINT(int columnIndex)
+
+    // get using SQL types
+    public String getCHAR(int columnIndex)
     {
-        return (Short)this.data[columnIndex];
+        return (String) this.data[columnIndex];
     }
-    public Short getNullableTINYINT(String columnName)
+
+    public String getCHAR(String columnName) throws Exception
     {
-        return getNullableTINYINT(this.mappings.get(columnName));
+        try
+        {
+            return getCHAR(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public short getSMALLINT(int columnIndex)
-	{
-	    Object object=this.data[columnIndex];
-	    if (object instanceof Short)
-	    {
-	        return (short)object;
-	    }
-	    else if (object instanceof Integer)
-	    {
-	        Integer value=(Integer)object;
-	        return value.shortValue();
-	    }
-	    throw new RuntimeException();
-	}
-	public short getSMALLINT(String columnName)
-	{
-		return getSMALLINT(this.mappings.get(columnName));
-	}
+
+    public String getVARCHAR(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (String) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public String getVARCHAR(String columnName) throws Exception
+    {
+        try
+        {
+            return getVARCHAR(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public String getLONGVARCHAR(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (String) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public String getLONGVARCHAR(String columnName) throws Exception
+    {
+        try
+        {
+            return getLONGVARCHAR(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public BigDecimal getNUMERIC(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (BigDecimal) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public BigDecimal getNUMERIC(String columnName) throws Exception
+    {
+        try
+        {
+            return getNUMERIC(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public BigDecimal getDECIMAL(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (BigDecimal) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public BigDecimal getDECIMAL(String columnName) throws Exception
+    {
+        try
+        {
+            return getDECIMAL(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public BigInteger getBigInteger(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (BigInteger) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public BigInteger getBigInteger(String columnName) throws Exception
+    {
+        try
+        {
+            return getBigInteger(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public short getTINYINT(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (short) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public short getTINYINT(String columnName) throws Exception
+    {
+        try
+        {
+            return getTINYINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Short getNullableTINYINT(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Short) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Short getNullableTINYINT(String columnName) throws Exception
+    {
+        try
+        {
+            return getNullableTINYINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public short getSMALLINT(int columnIndex)
+    {
+        Object object = this.data[columnIndex];
+        if (object instanceof Short)
+        {
+            return (short) object;
+        }
+        else if (object instanceof Integer)
+        {
+            Integer value = (Integer) object;
+            return value.shortValue();
+        }
+        throw new RuntimeException();
+    }
+
+    public short getSMALLINT(String columnName) throws Exception
+    {
+        try
+        {
+            return getSMALLINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
     public Short getNullableSMALLINT(int columnIndex)
     {
-        Object object=this.data[columnIndex];
-        if (object==null)
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Short)
         {
-            return (Short)object;
+            return (Short) object;
         }
         else if (object instanceof Integer)
         {
-            Integer value=(Integer)object;
+            Integer value = (Integer) object;
             return value.shortValue();
         }
         throw new RuntimeException();
 
-        //return (Short)this.data[columnIndex];
+        // return (Short)this.data[columnIndex];
     }
-    public Short getNullableSMALLINT(String columnName)
+
+    public Short getNullableSMALLINT(String columnName) throws Exception
     {
-        return getNullableSMALLINT(this.mappings.get(columnName));
+        try
+        {
+            return getNullableSMALLINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public int getINTEGER(int columnIndex)
-	{
-		return (int)this.data[columnIndex];
-	}
-	public int getINTEGER(String columnName)
-	{
-		return getINTEGER(this.mappings.get(columnName));
-	}
-    public Integer getNullableINTEGER(int columnIndex)
+
+    public int getINTEGER(int columnIndex) throws Exception
     {
-        return (Integer)this.data[columnIndex];
+        try
+        {
+            return (int) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
     }
-    public Integer getNullableINTEGER(String columnName)
+
+    public int getINTEGER(String columnName) throws Exception
     {
-        return getNullableINTEGER(this.mappings.get(columnName));
+        try
+        {
+            return getINTEGER(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public long getBIGINT(int columnIndex)
-	{
-		return (long)this.data[columnIndex];
-	}
-	public long getBIGINT(String columnName)
-	{
-		return getBIGINT(this.mappings.get(columnName));
-	}
-    public Long getNullableBIGINT(int columnIndex)
+
+    public Integer getNullableINTEGER(int columnIndex) throws Exception
     {
-        return (Long)this.data[columnIndex];
+        try
+        {
+            return (Integer) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
     }
-    public Long getNullableBIGINT(String columnName)
+
+    public Integer getNullableINTEGER(String columnName) throws Exception
     {
-        return getNullableBIGINT(this.mappings.get(columnName));
+        try
+        {
+            return getNullableINTEGER(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public float getREAL(int columnIndex)
-	{
-		return (float)this.data[columnIndex];
-	}
-	public float getREAL(String columnName)
-	{
-		return getREAL(this.mappings.get(columnName));
-	}
-    public Float getNullableREAL(int columnIndex)
+
+    public long getBIGINT(int columnIndex) throws Exception
     {
-        return (Float)this.data[columnIndex];
+        try
+        {
+            return (long) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
     }
-    public Float getNullableREAL(String columnName)
+
+    public long getBIGINT(String columnName) throws Exception
     {
-        return getNullableREAL(this.mappings.get(columnName));
+        try
+        {
+            return getBIGINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public double getFLOAT(int columnIndex)
-	{
-		return (double)this.data[columnIndex];
-	}
-	public double getFLOAT(String columnName)
-	{
-		return getFLOAT(this.mappings.get(columnName));
-	}
+
+    public Long getNullableBIGINT(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Long) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Long getNullableBIGINT(String columnName) throws Exception
+    {
+        try
+        {
+            return getNullableBIGINT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public float getREAL(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (float) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public float getREAL(String columnName) throws Exception
+    {
+        try
+        {
+            return getREAL(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Float getNullableREAL(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Float) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Float getNullableREAL(String columnName) throws Exception
+    {
+        try
+        {
+            return getNullableREAL(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public double getFLOAT(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (double) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public double getFLOAT(String columnName) throws Exception
+    {
+        try
+        {
+            return getFLOAT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
     public Double getNullableFLOAT(int columnIndex)
     {
-        Object object=this.data[columnIndex];
-        if (object==null)
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Double)
         {
-            return (Double)object;
+            return (Double) object;
         }
         else if (object instanceof Float)
         {
-            Float value=(Float)object;
+            Float value = (Float) object;
             return value.doubleValue();
         }
         throw new RuntimeException();
     }
-    public Double getNullableFLOAT(String columnName)
+
+    public Double getNullableFLOAT(String columnName) throws Exception
     {
-        return getNullableFLOAT(this.mappings.get(columnName));
+        try
+        {
+            return getNullableFLOAT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public double getDOUBLE(int columnIndex)
-	{
-		return (double)this.data[columnIndex];
-	}
-	public double getDOUBLE(String columnName)
-	{
-		return getDOUBLE(this.mappings.get(columnName));
-	}
-    public Double getNullableDOUBLE(int columnIndex)
+
+    public double getDOUBLE(int columnIndex) throws Exception
     {
-        return (Double)this.data[columnIndex];
+        try
+        {
+            return (double) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
     }
-    public Double getNullableDOUBLE(String columnName)
+
+    public double getDOUBLE(String columnName) throws Exception
     {
-        return getNullableDOUBLE(this.mappings.get(columnName));
+        try
+        {
+            return getDOUBLE(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
-	public byte[] getBINARY(int columnIndex)
-	{
-		return (byte[])this.data[columnIndex];
-	}
-	public byte[] getBINARY(String columnName)
-	{
-		return getBINARY(this.mappings.get(columnName));
-	}
-	public byte[] getVARBINARY(int columnIndex)
-	{
-		return (byte[])this.data[columnIndex];
-	}
-	public byte[] getVARBINARY(String columnName)
-	{
-		return getVARBINARY(this.mappings.get(columnName));
-	}
-	public byte[] getLONGVARBINARY(int columnIndex)
-	{
-		return (byte[])this.data[columnIndex];
-	}
-	public byte[] getLONGVARBINARY(String columnName)
-	{
-		return getLONGVARBINARY(this.mappings.get(columnName));
-	}
-	public Date getDATE(int columnIndex)
-	{
-		return (Date)this.data[columnIndex];
-	}
-	public Date getDATE(String columnName)
-	{
-		return getDATE(this.mappings.get(columnName));
-	}
-	public Time getTIME(int columnIndex)
-	{
-		return (Time)this.data[columnIndex];
-	}
-	public Time getTIME(String columnName)
-	{
-		return getTIME(this.mappings.get(columnName));
-	}
-	public Timestamp getTIMESTAMP(int columnIndex)
-	{
-        Object object=this.data[columnIndex];
-        if (object==null)
+
+    public Double getNullableDOUBLE(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Double) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Double getNullableDOUBLE(String columnName) throws Exception
+    {
+        try
+        {
+            return getNullableDOUBLE(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public byte[] getBINARY(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (byte[]) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public byte[] getBINARY(String columnName) throws Exception
+    {
+        try
+        {
+            return getBINARY(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public byte[] getVARBINARY(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (byte[]) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public byte[] getVARBINARY(String columnName) throws Exception
+    {
+        try
+        {
+            return getVARBINARY(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public byte[] getLONGVARBINARY(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (byte[]) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public byte[] getLONGVARBINARY(String columnName) throws Exception
+    {
+        try
+        {
+            return getLONGVARBINARY(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Date getDATE(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Date) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Date getDATE(String columnName) throws Exception
+    {
+        try
+        {
+            return getDATE(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Time getTIME(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (Time) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public Time getTIME(String columnName) throws Exception
+    {
+        try
+        {
+            return getTIME(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Timestamp getTIMESTAMP(int columnIndex)
+    {
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Timestamp)
         {
-            return (Timestamp)object;
+            return (Timestamp) object;
         }
-        else if (object instanceof LocalDateTime )
+        else if (object instanceof LocalDateTime)
         {
-            return Timestamp.valueOf((LocalDateTime)object);
+            return Timestamp.valueOf((LocalDateTime) object);
         }
         throw new RuntimeException();
-	}
-    public Timestamp getTIMESTAMP(String columnName)
-    {
-        return getTIMESTAMP(this.mappings.get(columnName));
     }
+
+    public Timestamp getTIMESTAMP(String columnName) throws Exception
+    {
+        try
+        {
+            return getTIMESTAMP(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
     public LocalDateTime getLocalDateTime(int columnIndex)
     {
-        Object object=this.data[columnIndex];
-        if (object==null)
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Timestamp)
         {
-            return ((Timestamp)object).toLocalDateTime();
+            return ((Timestamp) object).toLocalDateTime();
         }
-        else if (object instanceof LocalDateTime )
+        else if (object instanceof LocalDateTime)
         {
-            return (LocalDateTime)object;
+            return (LocalDateTime) object;
         }
         throw new RuntimeException();
     }
-    public LocalTime getLocalTime(String columnName)
+
+    public LocalTime getLocalTime(String columnName) throws Exception
     {
-        return getLocalTime(this.mappings.get(columnName));
+        try
+        {
+            return getLocalTime(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+
     }
+
     public LocalTime getLocalTime(int columnIndex)
     {
-        Object object=this.data[columnIndex];
-        if (object==null)
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Time)
         {
-            return ((Time)object).toLocalTime();
+            return ((Time) object).toLocalTime();
         }
-        else if (object instanceof LocalTime )
+        else if (object instanceof LocalTime)
         {
-            return (LocalTime)object;
+            return (LocalTime) object;
         }
         throw new RuntimeException();
     }
-    public LocalDateTime getLocalDateTime(String columnName)
+
+    public LocalDateTime getLocalDateTime(String columnName) throws Exception
     {
-        return getLocalDateTime(this.mappings.get(columnName));
+        try
+        {
+            return getLocalDateTime(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+
     }
-    public boolean getBIT(int columnIndex)
+
+    public boolean getBIT(int columnIndex) throws Exception
     {
-        return (boolean)this.data[columnIndex];
+        try
+        {
+            return (boolean) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
     }
-    public boolean getBIT(String columnName)
+
+    public boolean getBIT(String columnName) throws Exception
     {
-        return getBIT(this.mappings.get(columnName));
+        try
+        {
+            return getBIT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
+
     public Boolean getNullableBIT(int columnIndex)
     {
-        Object object=this.data[columnIndex];
-        if (object==null)
+        Object object = this.data[columnIndex];
+        if (object == null)
         {
             return null;
         }
         if (object instanceof Boolean)
         {
-            return (Boolean)object;
+            return (Boolean) object;
         }
         else if (object instanceof Integer)
         {
-            Integer value=(Integer)object;
-            return value==1;
+            Integer value = (Integer) object;
+            return value == 1;
         }
         throw new RuntimeException();
     }
-    public Boolean getNullableBIT(String columnName)
+
+    public Boolean getNullableBIT(String columnName) throws Exception
     {
-        return getNullableBIT(this.mappings.get(columnName));
+        try
+        {
+            return getNullableBIT(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
     }
 
-	@SuppressWarnings("unchecked")
-	public <TYPE> TYPE get(int columnIndex)
-	{
-		return (TYPE)this.data[columnIndex];
-	}
-	public <TYPE> TYPE get(String columnName)
-	{
-		return get(this.mappings.get(columnName));
-	}
-	public Object[] getObjects()
-	{
-	    return this.data;
-	}
-	public int getColumns()
-	{
-	    if (this.data==null)
-	    {
-	        return 0;
-	    }
-	    return this.data.length;
-	}
-	
+    @SuppressWarnings("unchecked")
+    public <TYPE> TYPE get(int columnIndex) throws Exception
+    {
+        try
+        {
+            return (TYPE) this.data[columnIndex];
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnIndex=" + columnIndex, ex);
+        }
+    }
+
+    public <TYPE> TYPE get(String columnName) throws Exception
+    {
+        try
+        {
+            return get(this.mappings.get(columnName));
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("columnName=" + columnName, ex);
+        }
+    }
+
+    public Object[] getObjects()
+    {
+        return this.data;
+    }
+
+    public int getColumns()
+    {
+        if (this.data == null)
+        {
+            return 0;
+        }
+        return this.data.length;
+    }
+
 }
