@@ -23,9 +23,9 @@ public class GraphAccessor implements AutoCloseable
         this.accessor.close();
     }
     
-    public GraphTransaction beginTransaction(Trace parent,String source,long creatorId,boolean autoCloseGraphAccesoor) throws Throwable
+    public GraphTransaction beginTransaction(Trace parent,String source,long creatorId,boolean autoCloseGraphAccessor) throws Throwable
     {
-        return new GraphTransaction(parent, this, source, creatorId,autoCloseGraphAccesoor);
+        return new GraphTransaction(parent, this, source, creatorId,autoCloseGraphAccessor);
     }
     public GraphTransaction beginTransaction(Trace parent,String source,Long creatorId) throws Throwable
     {
