@@ -3,6 +3,8 @@ package org.nova.http.server;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,7 +65,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     }
     public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,String cacheControl) throws Throwable
     {
-      this(rootDirectory,enableLocalCaching,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,(long)(0.5*Runtime.getRuntime().maxMemory()),(long)(0.9*Runtime.getRuntime().maxMemory()));
+      this(rootDirectory,enableLocalCaching,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,0,(long)(0.1*Runtime.getRuntime().freeMemory()));
     }
     public IndexFileDownloadHandler(String rootDirectory,boolean caching) throws Throwable
     {
@@ -79,8 +81,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
             response.setStatus(HttpStatus.METHOD_NOT_ALLOWED_405);
             return new DownloadResponse(true);
         }
-
-        String URI = URLDecoder.decode(request.getRequestURI(),StandardCharsets.UTF_8);
+        String URI = request.getRequestURI();
         String filePath=null;
         if (URI.endsWith("/"))
         {
@@ -94,7 +95,28 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
         String contentType=this.mappings.getContentType(filePath);
         String extension=Files.getFileExtension(filePath).toLowerCase();
         boolean allowCompression=this.doNotCompressFileExtensions==null?true:this.doNotCompressFileExtensions.contains(extension)==false;
+
+        String encoding = null;
+        if (allowCompression)
+        {
+            String accepts = request.getHeader("Accept-Encoding");
+            List<ValueQ> values = ValueQ.sortDescending(accepts);
+            for (ValueQ value : values)
+            {
+                if (value.value != null)
+                {
+                    String accept = value.value.toLowerCase();
+
+                    if (this.getSupportedEncodings().contains(accept))
+                    {
+                        response.setHeader("Content-Encoding", value.value);
+                        encoding = accept;
+                        break;
+                    }
+                }
+            }
+        }
         
-        return new DownloadResponse(filePath, contentType, allowBrowserCaching, allowCompression,this.preCompressionExtension,this.preCompressionEncoding);
+        return new DownloadResponse(encoding,this.getRootDirectory(),filePath, contentType, allowBrowserCaching, allowCompression,this.preCompressionExtension,this.preCompressionEncoding);
     }
 }

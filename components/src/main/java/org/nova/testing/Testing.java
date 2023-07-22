@@ -25,7 +25,7 @@ public abstract class Testing
 {
     abstract public void _log(LogLevel logLevel,Object object);
 
-    private static Testing TESTING=new SimpleTesting();
+    private static Testing TESTING=new ConsoleOutTesting();
 
     public static void set(Testing testing)
     {

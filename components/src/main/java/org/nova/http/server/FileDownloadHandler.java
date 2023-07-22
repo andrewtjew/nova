@@ -40,9 +40,9 @@ public abstract class FileDownloadHandler extends ServletHandler
         this.active = active;
         this.enableLocalCaching=enableLocalCaching;
         this.supportedEncodings = new HashSet<String>();
-        this.supportedEncodings.add("deflate");
-        this.supportedEncodings.add("gzip");
-        this.supportedEncodings.add("br");
+        this.getSupportedEncodings().add("deflate");
+        this.getSupportedEncodings().add("gzip");
+        this.getSupportedEncodings().add("br");
     }
 
     public boolean isActive()
@@ -70,45 +70,12 @@ public abstract class FileDownloadHandler extends ServletHandler
         {
             return false;
         }
-        DownloadResponse downloadResponse = getDownloadResponse(parent, request, response, this.rootDirectory);
+        DownloadResponse downloadResponse = getDownloadResponse(parent, request, response, this.getRootDirectory());
         if (downloadResponse.getHandled() != null)
         {
             return downloadResponse.getHandled();
         }
-
         String filePath=downloadResponse.getFilePath();
-        String rootFilePath = FileUtils.toNativePath(this.rootDirectory + filePath);
-        File file = new File(rootFilePath);
-        if (file.isDirectory())
-        {
-            response.setStatus(HttpStatus.FORBIDDEN_403);
-            return true;
-        }
-        boolean preCompressed=false;
-        if (file.exists() == false)
-        {
-            String preCompressionExtension=downloadResponse.getPreCompressionExtension();
-            if (preCompressionExtension!=null)
-            {
-                rootFilePath=FileUtils.toNativePath(this.rootDirectory + filePath)+"."+preCompressionExtension;
-                file=new File(rootFilePath);
-                if (file.exists()==false)
-                {
-                    if (TESTING)
-                    {
-                        Testing.log("FileDownload: not found: "+rootFilePath);
-                    }
-                    return false;
-                }
-                preCompressed=true;
-            }
-        }
-        if (file.getCanonicalPath().contains(this.rootDirectory) == false)
-        {
-            response.setStatus(HttpStatus.FORBIDDEN_403);
-            return true;
-        }
-
         boolean browserCachingEnabled = this.cacheControl == null ? false : downloadResponse.isAllowBrowserCaching();
 
         String cacheControlValue = request.getHeader("Cache-Control");
@@ -149,52 +116,90 @@ public abstract class FileDownloadHandler extends ServletHandler
             }
             response.setHeader("Expires", "0");
         }
-
         response.setContentType(downloadResponse.getContentType());
+        byte[] bytes=this.cache.getValueFromCache(parent, downloadResponse.getKey());
+        if (bytes!=null)
+        {
+            if (TESTING)
+            {
+                Testing.log("download using cache:"+filePath);
+            }
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            return true;
+        }
+        if (TESTING)
+        {
+            Testing.log("download:"+filePath);
+        }
+        
+        
+        String rootFilePath = downloadResponse.getLocalFilePath();
+        File file = new File(rootFilePath);
+        if (file.isDirectory())
+        {
+            response.setStatus(HttpStatus.FORBIDDEN_403);
+            return true;
+        }
+        boolean preCompressed=false;
+        if (file.exists() == false)
+        {
+            String preCompressionExtension=downloadResponse.getPreCompressionExtension();
+            if (preCompressionExtension!=null)
+            {
+                rootFilePath=FileUtils.toNativePath(this.getRootDirectory() + filePath)+"."+preCompressionExtension;
+                file=new File(rootFilePath);
+                if (file.exists()==false)
+                {
+                    if (TESTING)
+                    {
+                        Testing.log("FileDownload: not found: "+rootFilePath);
+                    }
+                    return false;
+                }
+                preCompressed=true;
+            }
+        }
+        if (file.getCanonicalPath().contains(this.getRootDirectory()) == false)
+        {
+            response.setStatus(HttpStatus.FORBIDDEN_403);
+            return true;
+        }
+
         send(parent, request, response, rootFilePath, preCompressed, downloadResponse);
         response.setStatus(HttpStatus.OK_200);
         return true;
     }
 
+        
     private void send(Trace parent, HttpServletRequest request, HttpServletResponse response, String localFile,boolean preCompressed
             ,DownloadResponse downloadResponse) throws Throwable
     {
-        String encoding = "none";
         if (preCompressed)
         {
             response.setHeader("Content-Encoding", downloadResponse.getPreCompressionEncoding());
         }
-        else if (downloadResponse.isAllowCompression())
-        {
-            String accepts = request.getHeader("Accept-Encoding");
-            List<ValueQ> values = ValueQ.sortDescending(accepts);
-            for (ValueQ value : values)
-            {
-                if (value.value != null)
-                {
-                    String accept = value.value.toLowerCase();
-
-                    if (this.supportedEncodings.contains(accept))
-                    {
-                        response.setHeader("Content-Encoding", value.value);
-                        encoding = accept;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        String key=encoding + "|" + localFile;
+        String key=downloadResponse.getKey();
+        byte[] bytes = this.cache.get(parent, key);
         if (this.enableLocalCaching==false)
         {
             this.cache.remove(key);
         }
-        byte[] bytes = this.cache.get(parent, key);
         if (bytes != null)
         {
             response.setContentLength(bytes.length);
             response.getOutputStream().write(bytes);
         }
+    }
+
+    public HashSet<String> getSupportedEncodings()
+    {
+        return supportedEncodings;
+    }
+
+    public String getRootDirectory()
+    {
+        return rootDirectory;
     }
 
 }
