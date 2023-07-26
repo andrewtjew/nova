@@ -28,6 +28,7 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Row;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.Table;
+import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.hr;
@@ -46,18 +47,28 @@ public class NameValueContainer extends Container
     public NameValueContainer(boolean fluid,int nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
     {
         super(fluid);
+        p(0);
         this.nameSize=nameSize;
         this.nameTemplate=nameTemplate;
         this.valueTemplate=valueTemplate;
+    }
+    public NameValueContainer(int nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
+    {
+        this(true,nameSize,nameTemplate,valueTemplate);
     }
     public NameValueContainer(boolean fluid,int nameSize)
     {
         this(fluid,nameSize,null,null);
     }
 
+    public NameValueContainer(int nameSize)
+    {
+        this(true,nameSize);
+    }
+
     public NameValueContainer add(StyleTemplate nameTemplate,Object name,StyleTemplate valueTemplate,Object value)
     {
-        Row row=this.returnAddInner(new Row());
+        Row row=this.returnAddInner(new Row()).align_items(AlignSelf.center);
         if (this.firstRow==false)
         {
             row.mt(2);

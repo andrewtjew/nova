@@ -436,7 +436,7 @@ public class StringHandleEditor
     }
     
     @GET
-    public Element viewByLocales(Trace parent,@CookieStateParam(value=UserState.NAME,save=true) UserState userState,@QueryParam("localeID") Long localeID,@QueryParam("enumID") Long enumID)  throws Throwable
+    public Element viewByLocales(Trace parent,@CookieStateParam(UserState.NAME) UserState userState,@QueryParam("localeID") Long localeID,@QueryParam("enumID") Long enumID)  throws Throwable
     {
         
         
@@ -616,7 +616,7 @@ public class StringHandleEditor
         return page;
     }
     @GET
-    public Element viewByHandles(Trace parent,@CookieStateParam(value=UserState.NAME,save=true) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
+    public Element viewByHandles(Trace parent,@CookieStateParam(UserState.NAME) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
     {
         Page page=new Page();
         if (handle==null)
