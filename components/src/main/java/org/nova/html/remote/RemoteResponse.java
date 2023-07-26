@@ -64,6 +64,11 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
         return this;
     }
+//    public RemoteResponse innerHtml(String id,Object text)
+//    {
+//        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text.toString()));
+//        return this;
+//    }
     public RemoteResponse outerHtml(String id,Element element,QuotationMark mark)
     {
         String text=element.getHtml(mark);
@@ -76,9 +81,9 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
         return this;
     }
-    public RemoteResponse innerText(String id,String text)
+    public RemoteResponse innerText(String id,Object text)
     {
-        this.instructions.add(new Instruction(this.trace,Command.innerText,id,StringEscapeUtils.escapeHtml4(text)));
+        this.instructions.add(new Instruction(this.trace,Command.innerText,id,StringEscapeUtils.escapeHtml4(text.toString())));
         return this;
     }
     public RemoteResponse innerText(String id,Element element)
@@ -95,11 +100,11 @@ public class RemoteResponse
         }
         return this;
     }
-    public RemoteResponse alert(Object value)
-    {
-        this.instructions.add(new Instruction(this.trace,Command.alert,value==null?null:value.toString()));
-        return this;
-    }
+//    public RemoteResponse alert(Object value)
+//    {
+//        this.instructions.add(new Instruction(this.trace,Command.alert,value==null?null:value.toString()));
+//        return this;
+//    }
     public RemoteResponse log(Object value)
     {
         this.instructions.add(new Instruction(this.trace,Command.log,value==null?null:value.toString()));

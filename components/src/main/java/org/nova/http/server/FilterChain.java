@@ -621,9 +621,9 @@ public class FilterChain
 					{
 						ParameterInfo info=parameterInfos[i];
 						if (info.getAnnotation() instanceof CookieStateParam)
-						{
+						{   
 						    CookieStateParam cookieStateParam=(CookieStateParam)info.getAnnotation();
-						    if (cookieStateParam.saveUpdates())
+						    if (cookieStateParam.save())
 						    {
     	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
     	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);

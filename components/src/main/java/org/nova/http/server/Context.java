@@ -128,19 +128,34 @@ public class Context
 //	{
 //		return this.cookieStates;
 //	}
-	public ObjectBox getCookieState(String name)
-	{
-		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
-		for (int i=0;i<infos.length;i++)
-		{
-			ParameterInfo info=infos[i];
-			if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
-			{
-				return new ObjectBox(this.filterChain.parameters[i]);
-			}
-		}
-		return null;
-	}
+//	public ObjectBox getCookieState(String name)
+//	{
+//		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+//		for (int i=0;i<infos.length;i++)
+//		{
+//			ParameterInfo info=infos[i];
+//			if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
+//			{
+//				return new ObjectBox(this.filterChain.parameters[i]);
+//			}
+//		}
+//		return null;
+//	}
+    @SuppressWarnings("unchecked")
+    public <OBJECT> OBJECT  getCookieState(String name)
+    {
+        ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+        for (int i=0;i<infos.length;i++)
+        {
+            ParameterInfo info=infos[i];
+            if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
+            {
+//              return new ObjectBox(this.filterChain.parameters[i]);
+                return (OBJECT)this.filterChain.parameters[i];
+            }
+        }
+        return null;
+    }
 	
 	public ObjectBox getQueryParameter(String name)
 	{

@@ -88,18 +88,16 @@ public class Modal extends StyleComponent<Modal>
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
     }
-//    public static String js_show(String id)
-//    {
-//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
-//    }
-//    public static String js_hide(String id)
-//    {
-//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).hide();";
-//    }
-//    public static String js_toggle(String id)
-//    {
-//        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
-//    }
-    
-    
+    public static String js_show(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
+    }
+    public static String js_hide(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).hide();";
+    }
+    public static String js_toggle(String id)
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
+    }
 }

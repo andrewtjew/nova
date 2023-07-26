@@ -193,6 +193,17 @@ public class SecurityUtils
         long id=value&0xffffffffL;
         return id;
     }
+    
+    
+    
+    static public SecretKey buildKey3DES(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+    {
+//        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+//        DESKeySpec spec = new DESKeySpec(key);
+////        return factory.generateSecret(spec);
+        return new SecretKeySpec(key, "TripleDES");
+    }
+    
 
     static public long decryptDES(SecretKey secretKey,long encrypted) throws Throwable
     {

@@ -429,13 +429,14 @@ public class StringHandleEditor
 
     static class UserState
     {
+        public static final String NAME="X-Nova-UserState"; 
         public Long enumID;
         public Long localeID;
         public String handle;
     }
     
     @GET
-    public Element viewByLocales(Trace parent,@CookieStateParam("X-Nova-UserState") UserState userState,@QueryParam("localeID") Long localeID,@QueryParam("enumID") Long enumID)  throws Throwable
+    public Element viewByLocales(Trace parent,@CookieStateParam(value=UserState.NAME,save=true) UserState userState,@QueryParam("localeID") Long localeID,@QueryParam("enumID") Long enumID)  throws Throwable
     {
         
         
@@ -615,7 +616,7 @@ public class StringHandleEditor
         return page;
     }
     @GET
-    public Element viewByHandles(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
+    public Element viewByHandles(Trace parent,@CookieStateParam(value=UserState.NAME,save=true) UserState userState,@QueryParam("enumID") Long enumID,@QueryParam("handle") String handle) throws Throwable
     {
         Page page=new Page();
         if (handle==null)
@@ -807,7 +808,7 @@ public class StringHandleEditor
     }
 
     @GET
-    public Element nextUndefined(Trace parent,@CookieStateParam(value="X-Nova-UserState") UserState userState) throws Throwable
+    public Element nextUndefined(Trace parent,@CookieStateParam(UserState.NAME) UserState userState) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
