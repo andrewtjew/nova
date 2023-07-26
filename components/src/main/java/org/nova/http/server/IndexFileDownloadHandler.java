@@ -115,6 +115,8 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
                     }
                 }
             }
+            
+            
         }
         
         return new DownloadResponse(encoding,this.getRootDirectory(),filePath, contentType, allowBrowserCaching, allowCompression,this.preCompressionExtension,this.preCompressionEncoding);

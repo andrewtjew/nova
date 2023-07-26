@@ -27,6 +27,7 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
+import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.LiteralHtml;
@@ -37,20 +38,36 @@ public class NameValueList extends Item
 	final private Size nameSize;
     final private StyleTemplate nameTemplate;
     final private StyleTemplate valueTemplate;
+    final private Integer lineSpace;
+    private int lines;
     
-    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
+    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
     {
     	this.nameSize=nameSize;
         this.nameTemplate=nameTemplate;
         this.valueTemplate=valueTemplate;
+        this.lineSpace=lineSpace;
+    }
+    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
+    {
+        this(nameSize,nameTemplate,valueTemplate,null);
+    }
+    public NameValueList(Size nameSize,Integer lineSpace)
+    {
+        this(nameSize,null,null,lineSpace);
     }
     public NameValueList(Size nameSize)
     {
-        this(nameSize,null,null);
+        this(nameSize,null,null,null);
     }
 
     public NameValueList add(StyleTemplate nameTemplate,Object name,StyleTemplate valueTemplate,Object value)
     {
+        if ((lines>0)&&(this.lineSpace!=null))
+        {
+            addLineSpace(this.lineSpace);
+        }
+        lines++;
 //        tr.addClass("table-striped");
     	Item row=returnAddInner(new Item()).d(Display.flex);
         if (name instanceof TagElement)
@@ -89,9 +106,9 @@ public class NameValueList extends Item
         this.addInner(new hr());
         return this;
     }
-    public NameValueList addLineSpace()
+    public NameValueList addLineSpace(int space)
     {
-        add(null,new LiteralHtml("#&nbsp;"),null," ");
+        Item row=returnAddInner(new Item()).mt(space);
         return this;
     }
     

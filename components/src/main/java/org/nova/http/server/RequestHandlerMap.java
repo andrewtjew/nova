@@ -572,7 +572,7 @@ class RequestHandlerMap
 				else if (type == QueryParam.class)
 				{
 					queryParam = (QueryParam) annotation;
-					if (queryParam.hideParameterValue())
+					if (queryParam.hidden())
 					{
 					    hiddenParameters.add(queryParam.value());
 					}

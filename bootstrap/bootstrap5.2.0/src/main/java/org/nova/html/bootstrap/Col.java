@@ -34,6 +34,18 @@ public class Col extends StyleComponent<Col>
         super("div","col");
         addClass("col",breakPoint);
     }
+    public Col(boolean auto)
+    {
+        super("div",null);
+        if (auto)
+        {
+            addClass("col","auto");
+        }
+        else
+        {
+            addClass("col");
+        }
+    }
     public Col(BreakPoint breakPoint,boolean auto)
     {
         super("div",null);

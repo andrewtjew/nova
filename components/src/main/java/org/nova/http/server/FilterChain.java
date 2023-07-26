@@ -622,11 +622,15 @@ public class FilterChain
 						ParameterInfo info=parameterInfos[i];
 						if (info.getAnnotation() instanceof CookieStateParam)
 						{
-	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
-	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
-	                        Cookie cookie=new Cookie(info.getName(), value);
-	                        cookie.setPath("/");
-	                        servletResponse.addCookie(cookie);
+						    CookieStateParam cookieStateParam=(CookieStateParam)info.getAnnotation();
+						    if (cookieStateParam.saveUpdates())
+						    {
+    	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
+    	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
+    	                        Cookie cookie=new Cookie(info.getName(), value);
+    	                        cookie.setPath(cookieStateParam.path());
+    	                        servletResponse.addCookie(cookie);
+						    }
 						}
 					}
 				}
