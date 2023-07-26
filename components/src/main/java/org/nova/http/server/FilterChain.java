@@ -623,7 +623,7 @@ public class FilterChain
 						if (info.getAnnotation() instanceof CookieStateParam)
 						{
 						    CookieStateParam cookieStateParam=(CookieStateParam)info.getAnnotation();
-						    if (cookieStateParam.saveUpdates())
+						    if (cookieStateParam.save2())
 						    {
     	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
     	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);

@@ -31,6 +31,6 @@ import java.lang.annotation.Target;
 public @interface CookieStateParam
 {
 	String value();
-    boolean saveUpdates() default false;
+    boolean save2() default true;
     String path() default "/";
 }
