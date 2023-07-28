@@ -14,6 +14,8 @@ import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
 
+import com.nixxcode.jvmbrotli.common.BrotliLoader;
+
 public abstract class FileDownloadHandler extends ServletHandler
 {
 
@@ -42,7 +44,10 @@ public abstract class FileDownloadHandler extends ServletHandler
         this.supportedEncodings = new HashSet<String>();
         this.getSupportedEncodings().add("deflate");
         this.getSupportedEncodings().add("gzip");
-        this.getSupportedEncodings().add("br");
+        if (BrotliLoader.isBrotliAvailable())
+        {
+            this.getSupportedEncodings().add("br");
+        }
     }
 
     public boolean isActive()

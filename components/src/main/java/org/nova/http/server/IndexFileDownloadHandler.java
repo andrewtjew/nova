@@ -35,7 +35,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
         return set;
     }
 
-    public static HashSet<String> defaultNoBrowserCachingPaths()
+    public static HashSet<String> DEFAULT_NO_BROWSER_CACHING_PATHS()
     {
         HashSet<String> set=new HashSet<String>();
         set.add("/index.html");
@@ -65,7 +65,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
     }
     public IndexFileDownloadHandler(String rootDirectory,boolean enableLocalCaching,String cacheControl) throws Throwable
     {
-      this(rootDirectory,enableLocalCaching,defaultNoBrowserCachingPaths(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,0,(long)(0.1*Runtime.getRuntime().freeMemory()));
+      this(rootDirectory,enableLocalCaching,DEFAULT_NO_BROWSER_CACHING_PATHS(),cacheControl,CACHE_CONTROL_MAX_AGE,MAX_AGE,0,1024L*1024L*200);
     }
     public IndexFileDownloadHandler(String rootDirectory,boolean caching) throws Throwable
     {
@@ -100,23 +100,24 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
         if (allowCompression)
         {
             String accepts = request.getHeader("Accept-Encoding");
-            List<ValueQ> values = ValueQ.sortDescending(accepts);
-            for (ValueQ value : values)
+            if (accepts!=null)
             {
-                if (value.value != null)
+                List<ValueQ> values = ValueQ.sortDescending(accepts);
+                for (ValueQ value : values)
                 {
-                    String accept = value.value.toLowerCase();
-
-                    if (this.getSupportedEncodings().contains(accept))
+                    if (value.value != null)
                     {
-                        response.setHeader("Content-Encoding", value.value);
-                        encoding = accept;
-                        break;
+                        String accept = value.value.toLowerCase();
+    
+                        if (this.getSupportedEncodings().contains(accept))
+                        {
+                            response.setHeader("Content-Encoding", value.value);
+                            encoding = accept;
+                            break;
+                        }
                     }
                 }
-            }
-            
-            
+            }            
         }
         
         return new DownloadResponse(encoding,this.getRootDirectory(),filePath, contentType, allowBrowserCaching, allowCompression,this.preCompressionExtension,this.preCompressionEncoding);
