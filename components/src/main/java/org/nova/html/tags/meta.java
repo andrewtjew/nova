@@ -22,15 +22,16 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.enums.name;
 import org.nova.html.enums.character_set;
 
-public class meta extends GlobalEventTagElement<meta>
+public class meta extends EmptyTagElement<meta>
 {
     public meta()
     {
-        super("meta",true);
+        super("meta");
     }
     
     public meta charset(character_set character_set)

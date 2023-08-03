@@ -22,13 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.crossorigin;
 
-public class img extends GlobalEventTagElement<img>
+public class img extends EmptyTagElement<img>
 {
     public img()
     {
-        super("img",true);
+        super("img");
     }
     
     public img alt(String text)
@@ -69,9 +70,9 @@ public class img extends GlobalEventTagElement<img>
     {
         return attr("src",URL);
     }
-    public img srcset(String HTML_code)
+    public img srcset(String value)
     {
-        return attr("srcset",HTML_code);
+        return attr("srcset",value);
     }
     public img usemap(String mapname)
     {
@@ -80,6 +81,10 @@ public class img extends GlobalEventTagElement<img>
     public img width(int width)
     {
         return attr("width",width);
+    }
+    public img style(String style)
+    {
+        return attr("style",style);
     }
         
     

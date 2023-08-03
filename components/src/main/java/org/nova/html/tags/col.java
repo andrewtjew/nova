@@ -22,12 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 
-public class col extends GlobalEventTagElement<col>
+public class col extends EmptyTagElement<col>
 {
     public col()
     {
-        super("col",true);
+        super("col");
     }
     
     public col span(int number)

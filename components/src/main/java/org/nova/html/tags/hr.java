@@ -22,11 +22,12 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 
-public class hr extends GlobalEventTagElement<hr>
+public class hr extends EmptyTagElement<hr>
 {
     public hr()
     {
-        super("hr",true);
+        super("hr");
     }
 }

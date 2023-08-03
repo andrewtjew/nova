@@ -31,10 +31,6 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
     {
         super(tag);
     }
-    public GlobalTagElement(String tag,boolean noEndTag)
-    {
-        super(tag,noEndTag);
-    }
 
     public ELEMENT accesskey(String value)
     {

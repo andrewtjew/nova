@@ -28,7 +28,7 @@ public class TableRow extends StyleComponent<TableRow>
 {
     public TableRow()
     {
-        super("tr","table",false,true);
+        super("tr","table",true);
     }
     
     public TableRow addWithStyle(StyleTemplate template,Object...objects)

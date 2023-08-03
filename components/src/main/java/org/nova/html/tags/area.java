@@ -23,15 +23,16 @@ package org.nova.html.tags;
 
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.area_rel;
 import org.nova.html.enums.area_shape;
 import org.nova.html.enums.target;
 
-public class area extends GlobalEventTagElement<area>
+public class area extends EmptyTagElement<area>
 {
     public area()
     {
-        super("area",true);
+        super("area");
     }
     
     public area alt(String text)

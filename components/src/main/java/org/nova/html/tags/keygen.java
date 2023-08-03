@@ -22,13 +22,14 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.keytype;
 
-public class keygen extends GlobalEventTagElement<keygen>
+public class keygen extends EmptyTagElement<keygen>
 {
     public keygen()
     {
-        super("keygen",true);
+        super("keygen");
     }
     
     public keygen autofocus()

@@ -22,12 +22,13 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 
-public class embed extends GlobalEventTagElement<embed>
+public class embed extends EmptyTagElement<embed>
 {
     public embed()
     {
-        super("embed",true);
+        super("embed");
     }
     
     public embed height(int height)

@@ -21,13 +21,13 @@
  ******************************************************************************/
 package org.nova.html.tags;
 
-import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.EmptyTagElement;
 
-public class param extends GlobalEventTagElement<param>
+public class param extends EmptyTagElement<param>
 {
     public param()
     {
-        super("param",true);
+        super("param");
     }
     
     public param name(String name)

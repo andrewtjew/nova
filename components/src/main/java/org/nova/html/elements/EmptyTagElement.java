@@ -19,40 +19,76 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags;
+package org.nova.html.elements;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.nova.core.NameObject;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.QuotationMark;
-import org.nova.html.enums.crossorigin;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
-import org.nova.html.ext.Text;
 import org.nova.json.ObjectMapper;
-import org.nova.html.enums.character_set;
 
-public class script extends Element
+
+public class EmptyTagElement<ELEMENT extends EmptyTagElement<ELEMENT>> extends Element
 {
-    final private ArrayList<NameObject> attributes;
     private String id;
-    final private StringBuilder script;
-    public script()
+    final private String tag;
+    final private StringBuilder classBuilder;
+    final private ArrayList<NameObject> attributes;
+    
+    public EmptyTagElement(String tag)
     {
+        this.tag=tag;
+        this.classBuilder=new StringBuilder();
         this.attributes=new ArrayList<NameObject>();
-        this.script=new StringBuilder();
     }
-    public script id(String value)
+    
+    public List<NameObject> getAttributes()
+    {
+        return this.attributes;
+    }
+    public String getTag()
+    {
+        return this.tag;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public ELEMENT addClass(Object class_,Object...fragments)
+    {
+        if (class_!=null)
+        {
+            if (this.classBuilder.length()>0)
+            {
+                this.classBuilder.append(' ');
+            }
+            this.classBuilder.append(class_);
+            if (fragments!=null)
+            {
+                if (class_!=null)
+                {
+                    for (Object fragment:fragments)
+                    {
+                        if (fragment!=null)
+                        {
+                            this.classBuilder.append('-').append(fragment);
+                        }
+                    }
+                }
+            }
+        }
+        return (ELEMENT)this;
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+    public ELEMENT id(String value)
     {
         if (value!=null)
         {
             this.id=value;
         }
-        return this;
+        return (ELEMENT) this;
     }
     public String id()
     {
@@ -63,89 +99,41 @@ public class script extends Element
         }
         return this.id;
     }
-
     @SuppressWarnings("unchecked")
-    private script attr(String name,Object value)
+    public ELEMENT attr(String name,Object value)
     {
         this.attributes.add(new NameObject(name,value));
-        return this;
+        return (ELEMENT) this;
     }
-    public script attr(String name)
+    @SuppressWarnings("unchecked")
+    public ELEMENT attr(NameObject attr)
+    {
+        if (attr!=null)
+        {
+            this.attributes.add(attr);
+        }
+        return (ELEMENT) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ELEMENT attr(String name)
     {
         this.attributes.add(new NameObject(name,null));
-        return this;
+        return (ELEMENT) this;
+    }
+
+    public String class_()
+    {
+        return this.classBuilder.toString();
     }
     
-    
-    public script integrity(String code)
-    {
-        return attr("integrity",code);
-    }
-    public script crossorigin(crossorigin crossorigin)
-    {
-        return attr("crossorigin",crossorigin.toString());
-    }
-    public script async()
-    {
-        return attr("async","async");
-    }
-    public script async(boolean async)
-    {
-        if (async)
-        {
-            return attr("async");
-        }
-        return this;
-    }
-    public script charset(character_set character_set)
-    {
-        return attr("charset",character_set);
-    }
-    public script defer()
-    {
-        return attr("defer");
-    }
-    public script defer(boolean defer)
-    {
-        if (defer)
-        {
-            return attr("defer");
-        }
-        return this;
-    }
-    public script src(String URL)
-    {
-        URL=Element.replaceURL(URL);
-        return attr("src",URL);
-    }
-    public script type(String media_type)
-    {
-        return attr("type",media_type);
-    }
-    public script addInner(LiteralHtml script)
-    {
-        this.script.append(script.getHtml());
-        return this;
-    }
-    public script addInner(String script)
-    {
-        this.script.append(script);
-        return this;
-    }
-    
-    @Deprecated
-    public script addInner(Element element)
-    {
-        if (element==null)
-        {
-            return this;
-        }
-        this.script.append(element.getHtml());
-        return this;
-    }
     @Override
     public void compose(Composer composer) throws Throwable
     {
+        if (this.classBuilder.length()>0)
+        {
+            attr("class",this.classBuilder.toString());
+        }
         if (this.id!=null)
         {
             attr("id",this.id);
@@ -153,7 +141,7 @@ public class script extends Element
 
         
         StringBuilder composerStringBuilder=composer.getStringBuilder();
-        composerStringBuilder.append("<script");
+        composerStringBuilder.append('<').append(this.tag);
 
         QuotationMark mark=composer.getQuotationMark();
         for (NameObject item:this.attributes)
@@ -190,13 +178,6 @@ public class script extends Element
             }
             
         }
-        composerStringBuilder.append('>');
-        composerStringBuilder.append(this.script);
-        composerStringBuilder.append("</script>");
+        composerStringBuilder.append(">");
     }
-    public String getScript()
-    {
-        return this.script.toString();
-    }
-    
 }
