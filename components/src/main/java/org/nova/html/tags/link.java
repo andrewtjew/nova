@@ -23,15 +23,14 @@ package org.nova.html.tags;
 
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.crossorigin;
 import org.nova.html.enums.link_rel;
 
-public class link extends EmptyTagElement<link>
+public class link extends GlobalEventTagElement<link>
 {
     public link()
     {
-        super("link");
+        super("link",true);
     }
     
     public link integrity(String code)

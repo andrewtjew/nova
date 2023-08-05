@@ -21,61 +21,17 @@
  ******************************************************************************/
 package org.nova.html.tags;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-
-import org.nova.core.NameObject;
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.crossorigin;
-import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
-import org.nova.html.ext.Text;
-import org.nova.json.ObjectMapper;
 import org.nova.html.enums.character_set;
 
-public class script extends Element
+public class script extends GlobalEventTagElement<script>
 {
-    final private ArrayList<NameObject> attributes;
-    private String id;
-    final private StringBuilder script;
     public script()
     {
-        this.attributes=new ArrayList<NameObject>();
-        this.script=new StringBuilder();
+        super("script");
     }
-    public script id(String value)
-    {
-        if (value!=null)
-        {
-            this.id=value;
-        }
-        return this;
-    }
-    public String id()
-    {
-        if (this.id==null)
-        {
-            this.id="_"+this.hashCode();
-            return this.id;
-        }
-        return this.id;
-    }
-
-    @SuppressWarnings("unchecked")
-    private script attr(String name,Object value)
-    {
-        this.attributes.add(new NameObject(name,value));
-        return this;
-    }
-    public script attr(String name)
-    {
-        this.attributes.add(new NameObject(name,null));
-        return this;
-    }
-    
     
     public script integrity(String code)
     {
@@ -122,81 +78,4 @@ public class script extends Element
     {
         return attr("type",media_type);
     }
-    public script addInner(LiteralHtml script)
-    {
-        this.script.append(script.getHtml());
-        return this;
-    }
-    public script addInner(String script)
-    {
-        this.script.append(script);
-        return this;
-    }
-    
-    @Deprecated
-    public script addInner(Element element)
-    {
-        if (element==null)
-        {
-            return this;
-        }
-        this.script.append(element.getHtml());
-        return this;
-    }
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        if (this.id!=null)
-        {
-            attr("id",this.id);
-        }
-
-        
-        StringBuilder composerStringBuilder=composer.getStringBuilder();
-        composerStringBuilder.append("<script");
-
-        QuotationMark mark=composer.getQuotationMark();
-        for (NameObject item:this.attributes)
-        {
-            composerStringBuilder.append(' ').append(item.getName());
-            Object value=item.getValue();
-            if (value!=null)
-            {
-                Class<?> type=value.getClass();
-                if (type==String.class)
-                {
-                    composerStringBuilder.append("=").append(mark).append(HtmlUtils.escapeAttributeString(value.toString())).append(mark);
-                }
-                else if ((type.isPrimitive())
-                        ||(type.isEnum())
-                        ||(type==Long.class)
-                        ||(type==Float.class)
-                        ||(type==Double.class)
-                        ||(type==Boolean.class)
-                        ||(type==Integer.class)
-                        ||(type==BigDecimal.class)
-                        ||(type==Byte.class)
-                        ||(type==Short.class)
-                        
-                        )
-                {
-                    composerStringBuilder.append("=").append(mark).append(value).append(mark);
-                }
-                else
-                {
-                    String text=ObjectMapper.writeObjectToString(value);//.replace("\"", "&#34;");
-                    composerStringBuilder.append("=").append(mark).append(HtmlUtils.escapeAttributeString(text)).append(mark);
-                }
-            }
-            
-        }
-        composerStringBuilder.append('>');
-        composerStringBuilder.append(this.script);
-        composerStringBuilder.append("</script>");
-    }
-    public String getScript()
-    {
-        return this.script.toString();
-    }
-    
 }

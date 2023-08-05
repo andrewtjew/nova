@@ -23,14 +23,13 @@ package org.nova.html.tags;
 
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.EmptyTagElement;
 import org.nova.html.enums.target;
 
-public class base extends EmptyTagElement<base>
+public class base extends GlobalEventTagElement<base>
 {
     public base()
     {
-        super("base");
+        super("base",true);
     }
     
     public base href(String URL)

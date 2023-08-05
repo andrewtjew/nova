@@ -22,13 +22,12 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.EmptyTagElement;
 
-public class source extends EmptyTagElement<source>
+public class source extends GlobalEventTagElement<source>
 {
     public source()
     {
-        super("source");
+        super("source",true);
     }
     
     public source src(String URL)

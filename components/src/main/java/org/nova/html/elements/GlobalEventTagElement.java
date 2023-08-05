@@ -27,6 +27,10 @@ public class GlobalEventTagElement<ELEMENT extends TagElement<ELEMENT>> extends 
     {
         super(tag);
     }
+    protected GlobalEventTagElement(String tag,boolean noEndTag)
+    {
+        super(tag,noEndTag);
+    }
 
     public ELEMENT onafterprint(String script)
     {

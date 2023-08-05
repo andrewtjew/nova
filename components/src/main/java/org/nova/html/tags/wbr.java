@@ -22,12 +22,11 @@
 package org.nova.html.tags;
 
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.EmptyTagElement;
 
-public class wbr extends EmptyTagElement<wbr>
+public class wbr extends GlobalEventTagElement<wbr>
 {
     public wbr()
     {
-        super("wbr");
+        super("wbr",true);
     }
 }

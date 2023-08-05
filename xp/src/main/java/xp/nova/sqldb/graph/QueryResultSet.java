@@ -57,7 +57,7 @@ public class QueryResultSet
         }
         if (this.results.length>1)
         {
-            throw new Exception("Size:"+this.results);
+            throw new Exception("Length:"+this.results.length);
         }
         return this.results[0].get((Class<OBJECT>)this.one);
     }

@@ -34,16 +34,22 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
 {
     private String id;
     final private String tag;
+    final private boolean noEndTag;
     final private StringBuilder classBuilder;
     final private ArrayList<NameObject> attributes;
     
-    public TagElement(String tag)
+    public TagElement(String tag,boolean noEndTag)
     {
         this.tag=tag;
+        this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
         this.attributes=new ArrayList<NameObject>();
     }
     
+    public TagElement(String tag)
+    {
+        this(tag,false);
+    }
     public List<NameObject> getAttributes()
     {
         return this.attributes;
@@ -53,7 +59,19 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         return this.tag;
     }
     
-    @SuppressWarnings("unchecked")
+//    public ELEMENT addClass(String class_)
+//    {
+//        if (class_!=null)
+//        {
+//            if (this.classBuilder.length()>0)
+//            {
+//                this.classBuilder.append(' ');
+//            }
+//            this.classBuilder.append(class_);
+//        }
+//        return (ELEMENT) this;
+//    }
+    
     public ELEMENT addClass(Object class_,Object...fragments)
     {
         if (class_!=null)
@@ -81,7 +99,6 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
     }
     
     
-    @SuppressWarnings("unchecked")
     public ELEMENT id(String value)
     {
         if (value!=null)
@@ -108,7 +125,6 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         }
         return (ELEMENT) this;
     }
-    @SuppressWarnings("unchecked")
     public ELEMENT attr(NameObject attr)
     {
         if (attr!=null)
@@ -137,10 +153,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         {
             attr("class",this.classBuilder.toString());
         }
-        if (this.id!=null)
-        {
-            attr("id",this.id);
-        }
+        attr("id",this.id);
 
         
         StringBuilder composerStringBuilder=composer.getStringBuilder();
@@ -182,6 +195,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
             
         }
         composerStringBuilder.append('>');
+        if (this.noEndTag==false)
         {
             super.compose(composer);
             composerStringBuilder=composer.getStringBuilder();

@@ -7,13 +7,11 @@ import java.util.List;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
+import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.script;
 import org.nova.tracing.Trace;
 //
-// Each RemoteElement must have an id.
-// All state for rendering must be set, render() can only use internal data.
-// render() should never be called other than in this class.
 
 public abstract class RemoteElement extends Element
 {
@@ -30,7 +28,7 @@ public abstract class RemoteElement extends Element
     
     abstract protected TagElement<?> render() throws Throwable;
     
-    private void getScripts(TagElement<?> parent,RemoteResponse response)
+    private void getScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
     {
         if (parent==null)
         {
@@ -40,11 +38,18 @@ public abstract class RemoteElement extends Element
         {
             if (element instanceof NodeElement<?>)
             {
-                getScripts((TagElement<?>)element,response);
+                getScripts((NodeElement<?>)element,response);
             }
             else if (element instanceof script)
             {
-                response.script(((script) element).getScript());
+                script script=(script)element;
+                StringComposer composer=new StringComposer();
+                for (Element inner:script.getInners())
+                {
+                    inner.compose(composer);
+                }
+                String scriptText=composer.getStringBuilder().toString();
+                response.script(scriptText);
             }
         }
     }
