@@ -29,7 +29,7 @@ public class InputTimeZone extends input_hidden
     public InputTimeZone(String name)
     {
         name(name);
-        returnAddInner(new script().addInner(HtmlUtils.js_inputNow(this)));
+        returnAddInner(new script().addInner(HtmlUtils.js_inputTimeZone(this)));
     }
 //    @Override
 //    public void compose(Composer composer) throws Throwable

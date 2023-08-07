@@ -16,7 +16,7 @@ import org.nova.tracing.Trace;
 public abstract class RemoteElement extends Element
 {
     final private String id;
-    
+    private TagElement<?> element;
     protected RemoteElement(String id)
     {
         this.id=id;
@@ -28,7 +28,7 @@ public abstract class RemoteElement extends Element
     
     abstract protected TagElement<?> render() throws Throwable;
     
-    private void getScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
+    private void addScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
     {
         if (parent==null)
         {
@@ -36,11 +36,7 @@ public abstract class RemoteElement extends Element
         }
         for (Element element:parent.getInners())
         {
-            if (element instanceof NodeElement<?>)
-            {
-                getScripts((NodeElement<?>)element,response);
-            }
-            else if (element instanceof script)
+            if (element instanceof script)
             {
                 script script=(script)element;
                 StringComposer composer=new StringComposer();
@@ -51,12 +47,21 @@ public abstract class RemoteElement extends Element
                 String scriptText=composer.getStringBuilder().toString();
                 response.script(scriptText);
             }
+            else if (element instanceof NodeElement<?>)
+            {
+                addScripts((NodeElement<?>)element,response);
+            }
+            else if (element instanceof RemoteElement)
+            {
+                RemoteElement remoteElement=(RemoteElement)element;
+                addScripts(remoteElement.element,response);
+            }
         }
     }
     
     public void compose(Composer composer) throws Throwable
     {
-        TagElement<?> element=render();
+        this.element=render();
         if (element!=null)
         {
             element.id(this.id);
@@ -72,13 +77,13 @@ public abstract class RemoteElement extends Element
     }
     public RemoteResponse composeRemoteResponse(RemoteResponse response) throws Throwable
     {
-        TagElement<?> element=render();
+        this.element=render();
         if (element!=null)
         {
             element.id(this.id);
             
             response.outerHtml(this.id, element);
-            getScripts(element,response);
+            addScripts(element,response);
         }
         return response;
     }
