@@ -642,6 +642,7 @@ public class Configuration
 		}			
 	}
 	
+	@Deprecated
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <ENUM> ENUM getEnumValue(String name,ENUM defaultValue,Class<ENUM> type) throws Exception
 	{

@@ -55,7 +55,7 @@ import org.nova.utils.FileUtils;
 
 @Description("Handlers for server operator pages")
 @ContentDecoders({GzipContentDecoder.class,DeflaterContentDecoder.class})
-@ContentEncoders({BrotliContentEncoder.class,GzipContentEncoder.class})
+//@ContentEncoders({BrotliContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 
 @Deprecated

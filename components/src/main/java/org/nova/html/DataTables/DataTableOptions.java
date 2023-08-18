@@ -137,5 +137,6 @@ public class DataTableOptions
     
     public Integer tabIndex;
     public Language language;
+    public Boolean responsive;
     
 }

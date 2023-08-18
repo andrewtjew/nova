@@ -201,15 +201,15 @@ public class Select
             sb.append(" WHERE ");
             sb.append(this.whereExpression);
         }
-        if (this.orderBy!=null)
-        {
-            sb.append(" ORDER BY ");
-            sb.append(this.orderBy);
-        }
         if (this.groupBy!=null)
         {
             sb.append(" GROUP BY ");
             sb.append(this.groupBy);
+        }
+        if (this.orderBy!=null)
+        {
+            sb.append(" ORDER BY ");
+            sb.append(this.orderBy);
         }
         if (this.maximumRows!=null)
         {
@@ -235,7 +235,7 @@ public class Select
         {
             throw new Exception(sql,t);
         }
-    }
+    } 
     
     
     public RowSet execute(Trace parent,Connector connector) throws Throwable

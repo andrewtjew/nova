@@ -26,6 +26,7 @@ import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Head;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.link;
 import org.nova.html.tags.script;
 
@@ -48,8 +49,8 @@ public class DateTimeRangePicker extends StyleComponent<DateTimeRangePicker>
         this.events=events;
 
         link link=new link().rel(link_rel.stylesheet).type("text/css").href(cssFilePath);
-        script script=new script().src("/resources/html/xbootstrap4/datetimepicker/js/daterangepicker.js");
-        script momentScript=new script().src("/resources/html/xbootstrap4/datetimepicker/js/moment.min.js");
+        script script=new script().src("/resources/html/datetimepicker/js/daterangepicker.js");
+        script momentScript=new script().src("/resources/html/datetimepicker/js/moment.min.js");
         if (head!=null)
         {
             head.add(this.getClass().getCanonicalName(),link);
@@ -66,7 +67,7 @@ public class DateTimeRangePicker extends StyleComponent<DateTimeRangePicker>
 
     public DateTimeRangePicker(Head head,String name,String value,int size,DateTimeRangePickerOptions options,DateTimeRangePickerEvents events)
     {
-        this(head,name,value,size,options,events,"/resources/html/xbootstrap4/datetimepicker/css/daterangepicker.css");
+        this(head,name,value,size,options,events,"/resources/html/datetimepicker/css/daterangepicker.css");
     }
     
     public DateTimeRangePicker(Head head,String name,String value,int size,DateTimeRangePickerOptions options)
@@ -157,7 +158,8 @@ public class DateTimeRangePicker extends StyleComponent<DateTimeRangePicker>
             
         if (sb.length()>0)
         {
-            script script=new script().addInner(sb.toString());
+//            script script=new script().addInner(sb.toString());
+            script script=new script().addInner(new LiteralHtml(sb.toString()));
             composer.getStringBuilder().append(script.getHtml());
         }
     }

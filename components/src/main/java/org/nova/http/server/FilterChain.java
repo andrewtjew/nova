@@ -27,6 +27,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.HashMap;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +52,9 @@ public class FilterChain
     int stateParameterIndex=-1;
     int contentParameterIndex=-1;
 
+    
+    static HashMap<String,Integer> cookieMaxAgeMap=new HashMap<String, Integer>();
+    
     FilterChain(RequestHandlerWithParameters methodResult)
 	{
 		this.methodResult=methodResult;
@@ -627,7 +632,22 @@ public class FilterChain
 						    {
     	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
     	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
-    	                        Cookie cookie=new Cookie(info.getName(), value);
+    	                        String name=info.getName();
+    	                        Cookie cookie=new Cookie(name, value);
+    	                        Integer maxAge=cookieMaxAgeMap.get(info.getName());
+    	                        if (maxAge==null)
+    	                        {
+    	                            int cookieMaxAge=cookieStateParam.maxAge();
+    	                            if (cookieMaxAge>-1)
+    	                            {
+    	                                maxAge=cookieMaxAge;
+    	                                cookieMaxAgeMap.put(name, maxAge);
+    	                            }
+    	                        }
+                                if (maxAge!=null)
+                                {
+                                    cookie.setMaxAge(maxAge);
+                                }
     	                        cookie.setPath(cookieStateParam.path());
     	                        servletResponse.addCookie(cookie);
 						    }

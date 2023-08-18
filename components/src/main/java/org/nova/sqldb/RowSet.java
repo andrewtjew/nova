@@ -75,11 +75,26 @@ public class RowSet
 	{
 		return this.mappings;
 	}
-	public RowSet(String[] columnNames,Row[] rows)
+	public RowSet(String[] columnNames,Row[]...rowsArray)
 	{
 		this.columnNames=columnNames;
-		this.rows=rows;
-		if ((rows!=null)&&(rows.length>0))
+		
+		int totalRows=0;
+		for (Row[] rows:rowsArray)
+		{
+		    totalRows+=rows.length;
+		}
+		
+		this.rows=new Row[totalRows];
+		int index=0;
+        for (Row[] rows:rowsArray)
+        {
+            for (Row row:rows)
+            {
+                this.rows[index++]=row;
+            }
+        }
+		if (rows.length>0)
 		{
 		    this.mappings=rows[0].mappings;
 		}

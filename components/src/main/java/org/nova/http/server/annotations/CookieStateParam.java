@@ -30,7 +30,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CookieStateParam
 {
+    static final int MAX_AGE=34560000;
+    
 	String value();
     boolean save() default true;
     String path() default "/";
+    int maxAge() default -1;
 }

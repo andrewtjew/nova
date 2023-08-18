@@ -67,7 +67,7 @@ public abstract class FileDownloadHandler extends ServletHandler
     {
         this.cache.removeAll();
     }
-    final private boolean TESTING=true;
+    final private boolean TESTING=false;
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
