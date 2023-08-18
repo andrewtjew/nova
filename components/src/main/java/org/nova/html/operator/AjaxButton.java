@@ -97,7 +97,7 @@ public class AjaxButton extends button_button
         sb.append("},async:");
         sb.append(async);
         sb.append(",success:function(data){$.each(data,function(key,value){$('#'+key).html(value);})} });});");
-        addInner(new script().type("text/javascript").addInner(sb));
+        addInner(new script().type("text/javascript").addInner(sb.toString()));
         super.compose(builder);
 //        builder.getOutputStream().write(sb.toString().getBytes(StandardCharsets.UTF_8));
         

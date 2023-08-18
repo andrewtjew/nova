@@ -29,6 +29,19 @@ import org.nova.html.ext.Text;
 public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
 {
     protected ArrayList<Element> inners=null; 
+    
+//    public ELEMENT copyToAndClearInners(NodeElement<?> target)
+//    {
+//        target.inners=this.inners;
+//        this.inners=null;
+//        return (ELEMENT)this;
+//    }
+    
+//    public ELEMENT setInner(Element element)
+//    {
+//        this.inners=new ArrayList<>();
+//        return addInner(element);
+//    }
 
     @SuppressWarnings("unchecked")
     public ELEMENT addInner(Element element)
@@ -45,18 +58,6 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         return (ELEMENT)this;
     }
 
-    public ELEMENT copyToAndClearInners(NodeElement<?> target)
-    {
-        target.inners=this.inners;
-        this.inners=null;
-        return (ELEMENT)this;
-    }
-    
-//    public ELEMENT setInner(Element element)
-//    {
-//        this.inners=new ArrayList<>();
-//        return addInner(element);
-//    }
     @SuppressWarnings("unchecked")
     public ELEMENT addInners(Element...elements)
     {

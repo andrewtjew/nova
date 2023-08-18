@@ -29,29 +29,24 @@ public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> ex
 {
     final private String componentClass;
 
-    public StyleComponent(String tag)
+    public StyleComponent(String tag, String componentClass, boolean noRootComponentClass)
     {
-        this(tag, null);
-    }
-    public StyleComponent(String tag, String componentClass)
-    {
-        this(tag, componentClass, false, false);
-    }
-
-    public StyleComponent(String tag, String componentClass, boolean noEndTag)
-    {
-        this(tag, componentClass, noEndTag, false);
-    }
-
-    public StyleComponent(String tag, String componentClass, boolean noEndTag,boolean noRootComponentClass)
-    {
-        super(tag, noEndTag);
+        super(tag);
         this.componentClass = componentClass;
         if (noRootComponentClass==false)
         {
             addClass(componentClass);
         }
     }
+    public StyleComponent(String tag, String componentClass)
+    {
+        this(tag, componentClass, false);
+    }
+    public StyleComponent(String tag)
+    {
+        this(tag, null);
+    }
+
     
     
     

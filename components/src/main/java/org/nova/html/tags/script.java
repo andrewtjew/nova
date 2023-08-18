@@ -78,6 +78,4 @@ public class script extends GlobalEventTagElement<script>
     {
         return attr("type",media_type);
     }
-         
-    
 }

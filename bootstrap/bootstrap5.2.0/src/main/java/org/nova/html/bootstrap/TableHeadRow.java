@@ -30,7 +30,7 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
     {
         public TableRow()
         {
-            super("tr","table",false,true);
+            super("tr","table",true);
         }
         
         public TableRow addWithStyle(StyleTemplate template,Object...objects)
@@ -74,7 +74,7 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
 
     public TableHeadRow()
     {
-        super("tr","table",false,true);
+        super("tr","table",true);
     }
     
     public TableHeadRow addWithStyle(StyleTemplate template,Object...objects)

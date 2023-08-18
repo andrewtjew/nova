@@ -46,6 +46,10 @@ public class LiteralHtml extends Element
         }
     }
 
+    public String getHtml()
+    {
+        return this.html;
+    }
     
     @Override
     public void compose(Composer composer) throws Throwable

@@ -1,0 +1,91 @@
+package org.nova.html.remote;
+
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.Element;
+import org.nova.html.elements.NodeElement;
+import org.nova.html.elements.StringComposer;
+import org.nova.html.elements.TagElement;
+import org.nova.html.tags.script;
+import org.nova.tracing.Trace;
+//
+
+public abstract class RemoteElement extends Element
+{
+    final private String id;
+    private TagElement<?> element;
+    protected RemoteElement(String id)
+    {
+        this.id=id;
+    }
+    public String id()
+    {
+        return this.id;
+    }
+    
+    abstract protected TagElement<?> render() throws Throwable;
+    
+    private void addScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
+    {
+        if (parent==null)
+        {
+            return;
+        }
+        for (Element element:parent.getInners())
+        {
+            if (element instanceof script)
+            {
+                script script=(script)element;
+                StringComposer composer=new StringComposer();
+                for (Element inner:script.getInners())
+                {
+                    inner.compose(composer);
+                }
+                String scriptText=composer.getStringBuilder().toString();
+                response.script(scriptText);
+            }
+            else if (element instanceof NodeElement<?>)
+            {
+                addScripts((NodeElement<?>)element,response);
+            }
+            else if (element instanceof RemoteElement)
+            {
+                RemoteElement remoteElement=(RemoteElement)element;
+                addScripts(remoteElement.element,response);
+            }
+        }
+    }
+    
+    public void compose(Composer composer) throws Throwable
+    {
+        this.element=render();
+        if (element!=null)
+        {
+            element.id(this.id);
+            element.compose(composer);
+        }
+    }
+
+    public RemoteResponse composeRemoteResponse() throws Throwable
+    {
+        RemoteResponse response=new RemoteResponse();
+        composeRemoteResponse(response);
+        return response;
+    }
+    public RemoteResponse composeRemoteResponse(RemoteResponse response) throws Throwable
+    {
+        this.element=render();
+        if (element!=null)
+        {
+            element.id(this.id);
+            
+            response.outerHtml(this.id, element);
+            addScripts(element,response);
+        }
+        return response;
+    }
+    
+}

@@ -166,6 +166,11 @@ public class GraphTransaction implements AutoCloseable
 
     public void update(NodeObject object) throws Throwable
     {
+        if (object._nodeId==null)
+        {
+            throw new Exception();
+        }
+        long eventId=getEventId();
         Class<? extends NodeObject> type=object.getClass();
         GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
         String table=meta.getTableName();
@@ -178,6 +183,7 @@ public class GraphTransaction implements AutoCloseable
         Object[] parameters=new Object[columnAccessors.length*2+1];
         int insertIndex=0;
         int updateIndex=columnAccessors.length+1;
+        parameters[insertIndex++]=object._nodeId;
         parameters[insertIndex++]=eventId;
         parameters[updateIndex++]=eventId;
 
@@ -221,6 +227,20 @@ public class GraphTransaction implements AutoCloseable
                 .value("type", typeName).value("relation", value)
                 .executeAndReturnLongKey(parent, this.accessor);
     }
+    public void link(long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
+    {
+        link(fromNodeId,relation,toNode.getNodeId());
+    }
+    public void link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
+    {
+        link(fromNode.getNodeId(),relation,toNode.getNodeId());
+    }
+    public void link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
+    {
+        link(fromNode.getNodeId(),relation,toNodeId);
+    }
+    
+    
 //    public void link(long fromNodeId,long toNodeId) throws Throwable
 //    {
 //        if (this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type IS NULL AND relation=0",fromNodeId,toNodeId)>1)
