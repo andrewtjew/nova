@@ -23,14 +23,6 @@ package org.nova.cloudInterfaces;
 
 import org.nova.tracing.Trace;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
-
 public abstract class SMSService
 {
     public abstract String send(Trace parent,String phoneNumber, String message);

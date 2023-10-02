@@ -43,8 +43,6 @@ import org.nova.tracing.TraceManager;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-import com.google.common.base.Strings;
-
 public class HttpServer 
 {
 	final private RequestHandlerMap requestHandlerMap;

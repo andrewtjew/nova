@@ -58,5 +58,9 @@ public class InputRadio extends InputComponent<InputRadio>
         addClass("form-check-input");
         return this;
     }
+    public InputRadio required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
+    {
+        return attr("required");
+    }
 }
 

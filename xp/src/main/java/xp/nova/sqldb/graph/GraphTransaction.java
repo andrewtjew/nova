@@ -39,8 +39,8 @@ public class GraphTransaction implements AutoCloseable
         {
             Timestamp created=SqlUtils.now();
             this.eventId=this.accessor.executeUpdateAndReturnGeneratedKeys(parent,null
-                    ,"INSERT INTO _event (created,creatorId,source) VALUES(?,?,?)"
-                    ,created,this.creatorId,this.source
+                    ,"INSERT INTO _event (created,creatorId) VALUES(?,?)"
+                    ,created,this.creatorId
                     ).getAsLong(0);
         }
         return this.eventId;
@@ -91,6 +91,7 @@ public class GraphTransaction implements AutoCloseable
     
     void put(NodeObject object,long nodeId,long eventId) throws Throwable
     {
+        //OPTIMIZE: build insert or update based on state in DB. Current insert and update are both built, then one is not used.
         object._nodeId=nodeId;
         Class<? extends NodeObject> type=object.getClass();
         GraphObjectDescriptor meta=this.graph.register(type);
@@ -164,58 +165,58 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public void update(NodeObject object) throws Throwable
-    {
-        if (object._nodeId==null)
-        {
-            throw new Exception();
-        }
-        long eventId=getEventId();
-        Class<? extends NodeObject> type=object.getClass();
-        GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
-        String table=meta.getTableName();
-        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
+//    public void update(NodeObject object) throws Throwable
+//    {
+//        if (object._nodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        long eventId=getEventId();
+//        Class<? extends NodeObject> type=object.getClass();
+//        GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
+//        String table=meta.getTableName();
+//        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
+//
+//        StringBuilder insert=new StringBuilder();
+//        StringBuilder update=new StringBuilder();
+//        StringBuilder values=new StringBuilder();
+//
+//        Object[] parameters=new Object[columnAccessors.length*2+1];
+//        int insertIndex=0;
+//        int updateIndex=columnAccessors.length+1;
+//        parameters[insertIndex++]=object._nodeId;
+//        parameters[insertIndex++]=eventId;
+//        parameters[updateIndex++]=eventId;
+//
+//        insert.append("_nodeId,_eventId");
+//        values.append("?,?");
+//        update.append("_eventId=?");
+//        
+//        for (FieldDescriptor columnAccessor:columnAccessors)
+//        {
+//            if (columnAccessor.isInternal())
+//            {
+//                continue;
+//            }
+//            String name=columnAccessor.getName();
+//            Object value=columnAccessor.get(object);
+//            insert.append(',');
+//            insert.append('`'+name+'`');
+//            values.append(",?");
+//            update.append(",`"+name+"`=?");
+//            parameters[insertIndex++]=value;
+//            parameters[updateIndex++]=value;
+//        }
+//        
+//        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
+//        if (Graph.TEST)
+//        {
+//            Testing.log(sql);
+//        }
+//        accessor.executeUpdate(parent,null,sql,parameters);
+//    }
 
-        StringBuilder insert=new StringBuilder();
-        StringBuilder update=new StringBuilder();
-        StringBuilder values=new StringBuilder();
-
-        Object[] parameters=new Object[columnAccessors.length*2+1];
-        int insertIndex=0;
-        int updateIndex=columnAccessors.length+1;
-        parameters[insertIndex++]=object._nodeId;
-        parameters[insertIndex++]=eventId;
-        parameters[updateIndex++]=eventId;
-
-        insert.append("_nodeId,_eventId");
-        values.append("?,?");
-        update.append("_eventId=?");
-        
-        for (FieldDescriptor columnAccessor:columnAccessors)
-        {
-            if (columnAccessor.isInternal())
-            {
-                continue;
-            }
-            String name=columnAccessor.getName();
-            Object value=columnAccessor.get(object);
-            insert.append(',');
-            insert.append('`'+name+'`');
-            values.append(",?");
-            update.append(",`"+name+"`=?");
-            parameters[insertIndex++]=value;
-            parameters[updateIndex++]=value;
-        }
-        
-        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
-        if (Graph.TEST)
-        {
-            Testing.log(sql);
-        }
-        accessor.executeUpdate(parent,null,sql,parameters);
-    }
-
-    public void link(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
+    public long link(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         String typeName=relation.getClass().getSimpleName();
         int value=relation.getValue();
@@ -223,21 +224,21 @@ public class GraphTransaction implements AutoCloseable
         {
             throw new Exception();
         }
-        Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
+        return Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
                 .value("type", typeName).value("relation", value)
                 .executeAndReturnLongKey(parent, this.accessor);
     }
-    public void link(long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
+    public long link(long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
     {
-        link(fromNodeId,relation,toNode.getNodeId());
+        return link(fromNodeId,relation,toNode.getNodeId());
     }
-    public void link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
+    public long link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
-        link(fromNode.getNodeId(),relation,toNode.getNodeId());
+        return link(fromNode.getNodeId(),relation,toNode.getNodeId());
     }
-    public void link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
+    public long link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
-        link(fromNode.getNodeId(),relation,toNodeId);
+        return link(fromNode.getNodeId(),relation,toNodeId);
     }
     
     

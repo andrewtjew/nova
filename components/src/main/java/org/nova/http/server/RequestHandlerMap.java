@@ -33,8 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
-import javax.servlet.http.Cookie;
-
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.Attributes;

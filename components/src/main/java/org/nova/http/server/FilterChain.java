@@ -33,7 +33,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
 import org.nova.http.server.annotations.CookieStateParam;

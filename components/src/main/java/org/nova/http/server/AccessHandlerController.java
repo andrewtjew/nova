@@ -1,21 +1,13 @@
 package org.nova.http.server;
 
-import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.http.HttpStatus;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
-import org.nova.html.elements.StringComposer;
-import org.nova.html.ext.Redirect;
 import org.nova.html.operator.NameValueList;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.input_checkbox;
-import org.nova.html.tags.input_text;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -25,8 +17,6 @@ import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.services.SessionFilter;
-import org.nova.sqldb.Accessor;
-import org.nova.sqldb.Update;
 import org.nova.tracing.Trace;
 
 @ContentDecoders(GzipContentDecoder.class)

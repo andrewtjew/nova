@@ -1,9 +1,5 @@
 package org.nova.http.server;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.nova.utils.FileUtils;
 
 public class DownloadResponse

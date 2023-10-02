@@ -740,7 +740,10 @@ public class Graph
                 int position=(int)row.getBIGINT("ORDINAL_POSITION");
                 orderedRows[position-1]=row;
             }
-            
+//            if (table.equals("Subscription"))
+            {
+                System.out.println("**** table="+table);
+            }
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
@@ -760,6 +763,10 @@ public class Graph
                     {
                         rowIndex++;
                         continue;
+                    }
+                    if (fieldName.equals("limits"))
+                    {
+                        System.out.println("**** limits");
                     }
                     int compareResult=fieldName.compareTo(columnName);
                     if (compareResult==0)
@@ -859,7 +866,7 @@ public class Graph
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_event",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createTable:_event"
-                        ,"CREATE TABLE `_event` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(256) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=547 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_event` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=547 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 
@@ -876,6 +883,13 @@ public class Graph
             {
                 accessor.executeUpdate(parent, "createTable:_node"
                         ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        );
+            }
+            if (accessor.executeQuery(parent,"existTable:_version"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable:_version"
+                        ,"CREATE TABLE `_version` (`version` varchar(50) NOT NULL,PRIMARY KEY (`version`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
         }

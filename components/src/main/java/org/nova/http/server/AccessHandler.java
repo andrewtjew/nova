@@ -5,13 +5,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
-import org.nova.html.elements.StringComposer;
 import org.nova.html.ext.Redirect;
 import org.nova.services.Session;
 import org.nova.services.SessionFilter;
-import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
 
 public class AccessHandler extends ServletHandler
 {

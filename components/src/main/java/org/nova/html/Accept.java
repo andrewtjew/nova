@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.nova.html;
 
-import java.util.ArrayList;
-
-import org.nova.core.Pair;
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
-
 //public class Accept
 //{
 //    static class QValue extends Pair<Float,String>

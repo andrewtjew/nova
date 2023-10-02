@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.td;
-
 public class TableHeader extends StyleComponent<TableHeader>
 {
     public TableHeader()

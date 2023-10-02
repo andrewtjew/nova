@@ -6,7 +6,8 @@ public class LinkQuery
 {
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
-    Class<? extends LinkObject>[] linkTypes;
+    Class<? extends LinkObject>[] edgeTypes;
+    Class<? extends LinkObject>[] optionalEdgeTypes;
     Class<? extends GraphObject> one;
     Direction direction;
     String namespace;
@@ -43,7 +44,7 @@ public class LinkQuery
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
-        if (nodeTypes.length>0)
+        if (nodeTypes.length==1)
         {
             this.one=nodeTypes[0];
         }
@@ -54,7 +55,7 @@ public class LinkQuery
     final public LinkQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
-        if (nodeTypes.length>0)
+        if (nodeTypes.length==1)
         {
             this.one=nodeTypes[0];
         }
@@ -64,8 +65,8 @@ public class LinkQuery
     @SafeVarargs
     final public LinkQuery selectLinkObjects(Class<? extends LinkObject>... linkTypes)
     {
-        this.linkTypes = linkTypes;
-        if (nodeTypes.length>0)
+        this.edgeTypes = linkTypes;
+        if (nodeTypes.length==1)
         {
             this.one=nodeTypes[0];
         }

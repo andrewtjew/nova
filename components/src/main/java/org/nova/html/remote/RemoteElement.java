@@ -1,17 +1,11 @@
 package org.nova.html.remote;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.script;
-import org.nova.tracing.Trace;
-//
 
 public abstract class RemoteElement extends Element
 {

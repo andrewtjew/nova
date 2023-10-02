@@ -48,7 +48,6 @@ import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
-import org.nova.operations.OperatorVariable;
 import org.nova.operations.OperatorVariableManager;
 import org.nova.security.Vault;
 import org.nova.tracing.Trace;
