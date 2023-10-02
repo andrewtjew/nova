@@ -1,17 +1,11 @@
 package org.nova.html.remote;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.StringComposer;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.script;
-import org.nova.tracing.Trace;
-//
 
 public abstract class RemoteElement extends Element
 {
@@ -26,7 +20,7 @@ public abstract class RemoteElement extends Element
         return this.id;
     }
     
-    abstract protected TagElement<?> render() throws Throwable;
+    abstract protected TagElement<?> refresh() throws Throwable;
     
     private void addScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
     {
@@ -58,17 +52,24 @@ public abstract class RemoteElement extends Element
             }
         }
     }
+    protected Element setup() throws Throwable
+    {
+        this.element=refresh();
+        if (element!=null)
+        {
+            this.element.id(this.id);
+        }
+        return this.element;
+    }
     
     public void compose(Composer composer) throws Throwable
     {
-        this.element=render();
+        Element element=setup();
         if (element!=null)
         {
-            element.id(this.id);
             element.compose(composer);
         }
     }
-
     public RemoteResponse composeRemoteResponse() throws Throwable
     {
         RemoteResponse response=new RemoteResponse();
@@ -77,7 +78,7 @@ public abstract class RemoteElement extends Element
     }
     public RemoteResponse composeRemoteResponse(RemoteResponse response) throws Throwable
     {
-        this.element=render();
+        this.element=refresh();
         if (element!=null)
         {
             element.id(this.id);

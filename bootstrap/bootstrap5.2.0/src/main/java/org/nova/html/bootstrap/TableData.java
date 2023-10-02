@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.td;
-
 public class TableData extends StyleComponent<TableData>
 {
     public TableData()

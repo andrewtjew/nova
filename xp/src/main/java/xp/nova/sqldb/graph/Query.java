@@ -55,7 +55,7 @@ public class Query
     final public Query select(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
-        if (nodeTypes.length>0)
+        if (nodeTypes.length==1)
         {
             this.one=nodeTypes[0];
         }
@@ -65,7 +65,7 @@ public class Query
     final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
-        if (nodeTypes.length>0)
+        if (nodeTypes.length==1)
         {
             this.one=nodeTypes[0];
         }

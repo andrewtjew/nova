@@ -144,12 +144,12 @@ public class SecurityUtils
         byte[] encryptedBytes=cipher.doFinal(bytes);
         long encrypted=TypeUtils.bigEndianBytesToLong(encryptedBytes);
         int length=15;
-        int digits=CODE_ALPHABET.length();
+        int digits=USER_CODE_ALPHABET.length();
         StringBuilder sb=new StringBuilder();
         for (int i=0;i<length;i++)
         {
             long index=Long.remainderUnsigned(encrypted, digits);
-            sb.append(CODE_ALPHABET.charAt((int)index));
+            sb.append(USER_CODE_ALPHABET.charAt((int)index));
             encrypted=Long.divideUnsigned(encrypted, digits);
         }
  //       sb.append(CODE_ALPHABET.charAt(random%length));
@@ -157,7 +157,7 @@ public class SecurityUtils
     }
     static public Long decrypt(SecretKey key,byte[] initializationVector,long businessId,String code) throws Throwable
     {
-        int digits=CODE_ALPHABET.length();
+        int digits=USER_CODE_ALPHABET.length();
         if (businessId<0)
         {
             throw new Exception();
@@ -170,7 +170,7 @@ public class SecurityUtils
         for (int i=code.length()-1;i>=0;i--)
         {
             char c=code.charAt(i);
-            int index=CODE_ALPHABET.indexOf(c);
+            int index=USER_CODE_ALPHABET.indexOf(c);
             if (index<0)
             {
                 return null;
@@ -280,7 +280,7 @@ public class SecurityUtils
         }
     }
     
-    final static String CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
+    final static String USER_CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
 
     public static byte[] generateRandomBytes(int length)
     {
@@ -309,10 +309,10 @@ public class SecurityUtils
     {
         StringBuilder sb=new StringBuilder();
         int index=0;
-        int codes=CODE_ALPHABET.length()-1;
+        int codes=USER_CODE_ALPHABET.length()-1;
         while (number!=0)
         {
-            sb.append(CODE_ALPHABET.charAt((int)(number%codes)));
+            sb.append(USER_CODE_ALPHABET.charAt((int)(number%codes)));
             number=number/codes;
             index++;
             if (index>length-1)
@@ -324,26 +324,36 @@ public class SecurityUtils
         {
             throw new Exception();
         }
-        sb.append(CODE_ALPHABET.charAt(codes));
+        sb.append(USER_CODE_ALPHABET.charAt(codes));
         index++;
         while (index<length)
         {
-            sb.append(CODE_ALPHABET.charAt(RANDOM.nextInt()%codes));
+            sb.append(USER_CODE_ALPHABET.charAt(RANDOM.nextInt()%codes));
             index++;
         }
         return sb.toString();
     }
+    final static String LETTER_DIGIT_CODE_ALPHABET="1234567890abcdefghijklmnopqrstuvwxyz";
 
+    public static String generateLetterDigitCode(int length)
+    {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            bytes[i] = (byte) (LETTER_DIGIT_CODE_ALPHABET.charAt(RANDOM.nextInt(LETTER_DIGIT_CODE_ALPHABET.length())));
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
+    }
     
     public static String generateUserVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
-        bytes[0] = (byte) (CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
+        bytes[0] = (byte) (USER_CODE_ALPHABET.charAt(RANDOM.nextInt(USER_CODE_ALPHABET.length())));
         for (int i = 1; i < length; i++)
         {
             do
             {
-                bytes[i] = (byte) (CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
+                bytes[i] = (byte) (USER_CODE_ALPHABET.charAt(RANDOM.nextInt(USER_CODE_ALPHABET.length())));
             }
             while (bytes[i] == bytes[i - 1]);
         }

@@ -86,7 +86,7 @@ public class Insert
         }
         else
         {
-            sql.append("INSERT INTO "+this.table);
+            sql.append("INSERT INTO "+this.table+" VALUES()");
         }
         return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).getAsLong(0);
     }

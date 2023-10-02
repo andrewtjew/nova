@@ -22,8 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.ThemeColor;
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.td;
 
 public class TableHead extends StyleComponent<TableHead>
 {

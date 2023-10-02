@@ -26,7 +26,6 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
-import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
 import org.nova.http.server.RequestLogEntry;

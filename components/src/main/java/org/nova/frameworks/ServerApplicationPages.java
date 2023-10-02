@@ -90,7 +90,6 @@ import org.nova.http.client.HttpClientFactory;
 import org.nova.http.client.JSONClient;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.TextResponse;
-import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.CSharpClassWriter;
 import org.nova.http.server.ContentDecoder;
 import org.nova.http.server.ContentEncoder;

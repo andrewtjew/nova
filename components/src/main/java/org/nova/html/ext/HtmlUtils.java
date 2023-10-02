@@ -373,7 +373,6 @@ public class HtmlUtils
         return sb.toString();
     }
     
-    
     public static String js_submit(FormElement<?> form)
     {
         return js_call("document.getElementById", form.id())+".submit()";
@@ -410,7 +409,7 @@ public class HtmlUtils
 
     public static String js_setElementProperty(String id,String property,String value)
     {
-        return "document.getElementById('"+id+"')."+property+"='"+value+"'";
+        return "document.getElementById(\""+id+"\")."+property+"=\""+value+"\"";
     }  
     public static String js_setElementProperty(TagElement<?> element,String property,String value)
     {

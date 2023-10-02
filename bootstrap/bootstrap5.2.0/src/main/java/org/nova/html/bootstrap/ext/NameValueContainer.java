@@ -24,16 +24,11 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.Container;
-import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Row;
 import org.nova.html.bootstrap.StyleTemplate;
-import org.nova.html.bootstrap.Table;
 import org.nova.html.bootstrap.classes.AlignSelf;
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.ext.TableRow;
 import org.nova.html.tags.hr;
 import org.nova.html.tags.tbody;
-import org.nova.html.tags.td;
 
 public class NameValueContainer extends Container
 {

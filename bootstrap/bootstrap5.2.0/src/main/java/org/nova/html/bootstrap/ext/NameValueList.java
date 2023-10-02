@@ -27,10 +27,8 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
-import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.hr;
 
 public class NameValueList extends Item
