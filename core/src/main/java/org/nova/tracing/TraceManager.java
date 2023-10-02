@@ -103,15 +103,15 @@ public class TraceManager
 		this.logTracesWithGreaterDuration=configuration.logSlowTraceDurationMs;
 		this.logger=logger;
 	}
-	public TraceManager(Logger logger)
+	public TraceManager(TraceManagerConfiguration configuration)
 	{
-        this(logger, new TraceManagerConfiguration());
-	}
-	public TraceManager()
-	{
-		this(null);
+		this(null,configuration);
 	}
 	
+    public TraceManager()
+    {
+        this(null,new TraceManagerConfiguration(100));
+    }
 	
 	TraceContext open(Trace trace)
 	{

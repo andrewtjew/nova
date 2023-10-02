@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import org.nova.concurrent.Synchronization;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -133,7 +133,7 @@ public class ClientConnection
 					{
 						if (TESTING)
 						{
-							Testing.log("host="+this.socket.getInetAddress().getHostName()+", waiting");
+							Debugging.log("host="+this.socket.getInetAddress().getHostName()+", waiting");
 						}
 						readRequestHeader(header);
 						trace.endWait();
@@ -145,7 +145,7 @@ public class ClientConnection
 						Trace processingTrace=new Trace(this.server.traceManager,trace, this.processCategory,true);
 						if (TESTING)
 						{
-						    Testing.log("host="+this.socket.getInetAddress().getHostName()+", id="+id);
+						    Debugging.log("host="+this.socket.getInetAddress().getHostName()+", id="+id);
 							
 						}
 						this.server.schedule(new Context(processingTrace,this,id,type,content));
@@ -190,7 +190,7 @@ public class ClientConnection
 	{
 		if (TESTING)
 		{
-		    Testing.log("host="+this.socket.getInetAddress().getHostName());
+		    Debugging.log("host="+this.socket.getInetAddress().getHostName());
 		}
 		synchronized(this)
 		{

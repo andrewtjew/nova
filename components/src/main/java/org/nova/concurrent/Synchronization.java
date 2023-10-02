@@ -79,7 +79,7 @@ public class Synchronization
 			}
 		}
 	}
-	public static boolean waitFor(Object synchronizationObject,Predicate predicate,long timeout) throws Throwable
+	public static boolean waitFor(Object synchronizationObject,long timeout,Predicate predicate) throws Throwable
 	{
         if (timeout==Long.MAX_VALUE)
         {
@@ -137,7 +137,7 @@ public class Synchronization
 	    }
     }
 
-	public static boolean waitForNoThrow(Object synchronizationObject,NoThrowPredicate predicate,long timeout)
+	public static boolean waitForNoThrow(Object synchronizationObject,long timeout,NoThrowPredicate predicate)
 	{
         if (timeout==Long.MAX_VALUE)
         {
@@ -167,12 +167,12 @@ public class Synchronization
 		return true;
 	}
 
-	public static boolean waitForNoThrow(Trace trace,Object synchronizationObject,NoThrowPredicate predicate,long timeout)
+	public static boolean waitForNoThrow(Trace trace,Object synchronizationObject,long timeout,NoThrowPredicate predicate)
     {
 	    trace.beginWait();
 	    try
 	    {
-	        return waitForNoThrow(synchronizationObject,predicate,timeout);
+	        return waitForNoThrow(synchronizationObject,timeout,predicate);
 	    }
 	    finally
 	    {
@@ -180,12 +180,12 @@ public class Synchronization
 	    }
     }
 
-	public static boolean waitFor(Trace trace,Object synchronizationObject,Predicate predicate,long timeout) throws Throwable
+	public static boolean waitFor(Trace trace,Object synchronizationObject,long timeout,Predicate predicate) throws Throwable
     {
         trace.beginWait();
         try
         {
-            return waitFor(synchronizationObject,predicate,timeout);
+            return waitFor(synchronizationObject,timeout,predicate);
         }
         finally
         {

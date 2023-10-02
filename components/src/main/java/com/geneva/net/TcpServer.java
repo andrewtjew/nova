@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 
 import org.nova.logging.Logger;
 import org.nova.metrics.LongValueMeter;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
@@ -193,7 +193,7 @@ public class TcpServer
 					Socket clientSocket=this.acceptSocket.accept();
 					if (TESTING)
 					{
-						Testing.log("host="+clientSocket.getInetAddress().getHostName());
+						Debugging.log("host="+clientSocket.getInetAddress().getHostName());
 					}
 					trace.endWait();
 					try

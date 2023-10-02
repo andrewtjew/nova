@@ -34,9 +34,9 @@ import org.nova.frameworks.InteropTarget;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-public class CSharpClassWriter
+public class TypeScriptClassWriter
 {
-    public String write(String host, String namespace, Collection<Class<?>> types, int columns, InteropTarget target) 
+    public String write(String host, String namespace, Collection<Class<?>> types, int columns) 
     {
         HashMap<String, Class<?>> dependents = new HashMap<>();
         for (Class<?> type : types)
@@ -45,22 +45,27 @@ public class CSharpClassWriter
         }
         StringBuilder sb = new StringBuilder();
 
-        sb.append("// Auto-generated at host " + host + " for target " + target + " on " + Utils.millisToLocalDateTime(System.currentTimeMillis()) + "\r\n\r\n");
-        if (target == InteropTarget.CSHARP_DATACONTRACT)
+        sb.append("// Auto-generated at host " + host + " on " + Utils.millisToLocalDateTime(System.currentTimeMillis()) + "\r\n\r\n");
+        boolean generateNamespace=TypeUtils.isNullOrSpace(namespace)==false;
+        
+        int indentLevel=generateNamespace?1:0;
+        if (generateNamespace)
         {
-            sb.append("using System.Runtime.Serialization;\r\n");
+            sb.append("namespace " + namespace);
+            sb.append("\r\n{\r\n");
         }
-        sb.append("namespace " + namespace);
-        sb.append("\r\n{\r\n");
         if (dependents.size() > 0)
         {
             dependents.keySet().stream().sorted().forEach(key ->
             {
-                write(sb, dependents.get(key), 1, columns, target);
+                write(sb, dependents.get(key), indentLevel, columns);
                 sb.append("\r\n");
             });
         }
-        sb.append("}\r\n");
+        if (generateNamespace)
+        {
+            sb.append("}\r\n");
+        }
         return sb.toString();
     }
 
@@ -162,68 +167,68 @@ public class CSharpClassWriter
     {
         if (fieldType == boolean.class)
         {
-            return "bool";
+            return "boolean";
         }
         else if (fieldType == Boolean.class)
         {
-            return "bool?";
+            return "boolean";
         }
         else if (fieldType == Integer.class)
         {
-            return "int?";
+            return "number";
         }
         else if (fieldType == int.class)
         {
-            return "int";
+            return "number";
         }
         else if (fieldType == Short.class)
         {
-            return "short?";
+            return "number";
         }
         else if (fieldType == short.class)
         {
-            return "short";
+            return "number";
         }
         else if (fieldType == Long.class)
         {
-            return "long?";
+            return "number";
         }
         else if (fieldType == long.class)
         {
-            return "long";
+            return "number";
         }
         else if (fieldType == Float.class)
         {
-            return "float?";
+            return "number";
         }
         else if (fieldType == float.class)
         {
-            return "float";
+            return "number";
         }
         else if (fieldType == Double.class)
         {
-            return "double?";
+            return "number";
         }
         else if (fieldType == double.class)
         {
-            return "double";
+            return "number";
         }
         else if (fieldType == byte.class)
         {
-            return "byte";
+            return "number";
         }
         else if (fieldType == Byte.class)
         {
-            return "byte?";
+            return "number";
             
         }
         else if (fieldType == char.class)
         {
-            return "char";
+            return "string";
         }
         else if (fieldType == Character.class)
         {
-            return "char?";
+            return "string";
         }
         else if (fieldType == String.class)
         {
@@ -231,7 +236,7 @@ public class CSharpClassWriter
         }
         else if (fieldType == BigDecimal.class)
         {
-            return "decimal";
+            return "number";
         }
         else
         {
@@ -247,7 +252,7 @@ public class CSharpClassWriter
         
     }
     
-    private void write(StringBuilder sb, Class<?> type, int indentLevel, int columns, InteropTarget target)
+    private void write(StringBuilder sb, Class<?> type, int indentLevel, int columns)
     {
         if (type.isArray())
         {
@@ -310,16 +315,11 @@ public class CSharpClassWriter
         }
         else
         {
-            if (target == InteropTarget.CSHARP_DATACONTRACT)
-            {
-                writeIndent(sb, indentLevel).append("[DataContract]\r\n");
-            }
-
-            writeIndent(sb, indentLevel).append("public class " + type.getSimpleName());
+            writeIndent(sb, indentLevel).append("class " + type.getSimpleName());
             Class<?> superClass=type.getSuperclass();
             if ((superClass!=null)&&(superClass!=Object.class))
             {
-                sb.append(":"+superClass.getSimpleName());
+                sb.append(" extends "+superClass.getSimpleName());
             }
             sb.append("\r\n");
             writeIndent(sb, indentLevel).append("{\r\n");
@@ -342,10 +342,6 @@ public class CSharpClassWriter
                     writeComments(sb, indentLevel + 1, description.value(), columns);
                 }
 
-                if (target == InteropTarget.CSHARP_DATACONTRACT)
-                {
-                    writeIndent(sb, indentLevel + 1).append("[DataMember]\r\n");
-                }
                 if (fieldType.isArray()&&fieldType.getComponentType().isEnum())
                 {
                     String typeName=fieldType.getSimpleName();
@@ -384,8 +380,10 @@ public class CSharpClassWriter
                 else
                 {
                     writeIndent(sb, indentLevel + 1).append("public ");
+                    sb.append(field.getName());
+                    sb.append(':');
                     sb.append(translateTypeName(fieldType));
-                    sb.append(' ').append(field.getName()).append(";\r\n\r\n");
+                    sb.append(";\r\n\r\n");
                 }
             }
             writeIndent(sb, indentLevel).append("}\r\n");

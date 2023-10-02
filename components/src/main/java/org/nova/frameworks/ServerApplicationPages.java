@@ -23,6 +23,8 @@ package org.nova.frameworks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -111,6 +113,7 @@ import org.nova.http.server.RequestHandler;
 import org.nova.http.server.RequestHandlerNotFoundLogEntry;
 import org.nova.http.server.RequestLogEntry;
 import org.nova.http.server.Response;
+import org.nova.http.server.TypeScriptClassWriter;
 import org.nova.http.server.HtmlContentWriter;
 import org.nova.html.attributes.Color;
 import org.nova.html.attributes.Size;
@@ -207,7 +210,7 @@ import org.nova.operations.Status;
 import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -4122,9 +4125,25 @@ public class ServerApplicationPages
                 }
             }
         }
-        CSharpClassWriter classWriter=new CSharpClassWriter();
-        String source=Utils.getLocalHostName();
-        return classWriter.write(source,namespace, roots.values(),columns,target);
+        switch (target)
+        {
+            case CSHARP_DATACONTRACT:
+            case CSHARP_PLAIN:
+            {
+                CSharpClassWriter classWriter=new CSharpClassWriter();
+                String source=Utils.getLocalHostName();
+                return classWriter.write(source,namespace, roots.values(),columns,target);
+            }
+            case TYPESCRIPT:
+            {
+                TypeScriptClassWriter classWriter=new TypeScriptClassWriter();
+                String source=Utils.getLocalHostName();
+                return classWriter.write(source,namespace, roots.values(),columns);
+            }
+            default:
+                throw new Exception();
+            
+        }
     }
     
     private String namespace;
@@ -4148,7 +4167,7 @@ public class ServerApplicationPages
         }
         list.add("Code",options);
         list.add("Columns", new input_number().name("columns").id("columns").min(40).style("width:396px;").value(80));
-        list.add("Namespace", new input_text().name("namespace").id("namespace").style("width:100%").value(this.namespace));
+        list.add("Namespace", new input_text().name("namespace").id("namespace").style("width:396px;").value(this.namespace));
         list.add("",new input_submit().value("Download").style("width:400px;"));
         AjaxButton button = new AjaxButton("button", "Preview", "/operator/httpServer/classDefinitions/preview/"+server);
         list.add("",button);
@@ -4169,7 +4188,7 @@ public class ServerApplicationPages
     {
         AjaxQueryResult result = new AjaxQueryResult();
         String text=generateClassDefinitions(server, namespace, columns, target);
-        Panel panel=new Panel1(null,"C# classes");
+        Panel panel=new Panel1(null,"Interfaces");
         
         textarea textarea=new textarea().readonly().style("width:100%;").rows(Utils.occurs(text, "\r")+1).addInner(text);
         textarea.id();
@@ -4821,7 +4840,12 @@ public class ServerApplicationPages
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("Main");
         long now = System.currentTimeMillis();
+     
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> arguments = runtimeMxBean.getInputArguments();
+        String args=Utils.combine(arguments, " ");
         page.content().returnAddInner(new NameValueList())
+        .add("JVM Parameters",args)
         .add("Started",DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime()))
         .add("Current",DateTimeUtils.toSystemDateTimeString(now))
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
@@ -4956,7 +4980,7 @@ public class ServerApplicationPages
         {
             if (TESTING)
             {
-                Testing.log(file + " not found");
+                Debugging.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
@@ -4985,7 +5009,7 @@ public class ServerApplicationPages
         {
             if (TESTING)
             {
-                Testing.log(file + " not found");
+                Debugging.log(file + " not found");
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;

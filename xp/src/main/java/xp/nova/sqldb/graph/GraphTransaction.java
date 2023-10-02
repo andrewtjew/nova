@@ -6,7 +6,7 @@ import org.nova.sqldb.Insert;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 public class GraphTransaction implements AutoCloseable
@@ -145,7 +145,7 @@ public class GraphTransaction implements AutoCloseable
             String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
             if (Graph.TEST)
             {
-                Testing.log(sql);
+                Debugging.log(sql);
             }
             accessor.executeUpdate(parent, null, sql, insertParameters);
         }
@@ -155,7 +155,7 @@ public class GraphTransaction implements AutoCloseable
             accessor.executeUpdate(parent, null, sql, updateParameters);
             if (Graph.TEST)
             {
-                Testing.log(sql);
+                Debugging.log(sql);
             }
         }
         else
@@ -210,7 +210,7 @@ public class GraphTransaction implements AutoCloseable
         String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
         if (Graph.TEST)
         {
-            Testing.log(sql);
+            Debugging.log(sql);
         }
         accessor.executeUpdate(parent,null,sql,parameters);
     }

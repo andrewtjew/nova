@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
@@ -67,7 +67,8 @@ public abstract class FileDownloadHandler extends ServletHandler
     {
         this.cache.removeAll();
     }
-    final private boolean TESTING=false;
+    static public boolean DEBUG=false;
+    
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
@@ -125,17 +126,23 @@ public abstract class FileDownloadHandler extends ServletHandler
         byte[] bytes=this.cache.getValueFromCache(parent, downloadResponse.getKey());
         if (bytes!=null)
         {
-            if (TESTING)
+            if (Debugging.ENABLE)
             {
-                Testing.log("download using cache:"+filePath);
+                if (DEBUG)
+                {
+                    Debugging.log("FileDownloadHandler:cache="+filePath);
+                }
             }
             response.setContentLength(bytes.length);
             response.getOutputStream().write(bytes);
             return true;
         }
-        if (TESTING)
+        if (Debugging.ENABLE)
         {
-            Testing.log("download:"+filePath);
+            if (DEBUG)
+            {
+                Debugging.log("FileDownloadHandler:load="+filePath);
+            }
         }
         
         
@@ -156,9 +163,12 @@ public abstract class FileDownloadHandler extends ServletHandler
                 file=new File(rootFilePath);
                 if (file.exists()==false)
                 {
-                    if (TESTING)
+                    if (Debugging.ENABLE)
                     {
-                        Testing.log("FileDownload: not found: "+rootFilePath);
+                        if (DEBUG)
+                        {
+                            Debugging.log("FileDownload: not found: "+rootFilePath);
+                        }
                     }
                     return false;
                 }

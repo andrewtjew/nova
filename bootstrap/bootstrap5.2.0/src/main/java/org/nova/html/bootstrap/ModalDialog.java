@@ -51,7 +51,17 @@ public class ModalDialog extends StyleComponent<ModalDialog>
     }
     public ModalDialog size(Size size)
     {
-    	addClass("modal",size.toString());
-    	return this;
+        addClass("modal",size.toString());
+        return this;
+    }
+    public ModalDialog fullScreen()
+    {
+        addClass("modal","fullscreen");
+        return this;
+    }
+    public ModalDialog fullScreen(Size size)
+    {
+        addClass("modal","fullscreen",size.toString(),"down");
+        return this;
     }
 }

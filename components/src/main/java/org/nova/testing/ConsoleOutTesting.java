@@ -1,6 +1,6 @@
 package org.nova.testing;
 
-public class ConsoleOutTesting extends Testing
+public class ConsoleOutTesting extends Debugging
 {
     public ConsoleOutTesting()
     {

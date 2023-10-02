@@ -66,7 +66,7 @@ public class LockManager<KEY>
                 slot.waiting++;
                 try
                 {
-                    if (Synchronization.waitForNoThrow(slot, ()->{return slot_.locked==false;},timeoutMs)==false)
+                    if (Synchronization.waitForNoThrow(slot,timeoutMs, ()->{return slot_.locked==false;})==false)
                     {
                         trace.close();
                         return null;

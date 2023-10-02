@@ -121,7 +121,7 @@ public class Progress<RESULT>
 	{
 		synchronized(this)
 		{
-			return Synchronization.waitForNoThrow(this, ()->{return this.completed>=this.tasks.length;},timeout);
+			return Synchronization.waitForNoThrow(this,timeout, ()->{return this.completed>=this.tasks.length;});
 		}
 	}
 	public void waitAll()
@@ -135,7 +135,7 @@ public class Progress<RESULT>
 	{
 		synchronized(this)
 		{
-			return Synchronization.waitForNoThrow(this, ()->{return this.completed>=count;},timeout);
+			return Synchronization.waitForNoThrow(this,timeout, ()->{return this.completed>=count;});
 		}
 	}
 	public void waitAtLeast(int count)
@@ -150,7 +150,7 @@ public class Progress<RESULT>
 	{
 		synchronized(this)
 		{
-			return Synchronization.waitForNoThrow(this, ()->{return this.completed>0;},timeout);
+			return Synchronization.waitForNoThrow(this,timeout, ()->{return this.completed>0;});
 		}
 	}
 	public void waitAny()

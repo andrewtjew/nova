@@ -36,23 +36,14 @@ public class ModalDocument extends Modal
     private ModalFooter footer;
     private ModalBody body;
     
-    public ModalDocument(boolean centered)
+    public ModalDocument()
     {
         this.dialog=returnAddInner(new ModalDialog());
         
         this.content=this.dialog.returnAddInner(new ModalContent());
-        if (centered)
-        {
-            this.dialog.centered();
-        }
         this.header=this.content.returnAddInner(new ModalHeader());
         this.body=this.content.returnAddInner(new ModalBody());
         this.footer=this.content.returnAddInner(new ModalFooter());
-    }
-    
-    public ModalDocument()
-    {
-        this(false);
     }
     
     public ModalHeader header()

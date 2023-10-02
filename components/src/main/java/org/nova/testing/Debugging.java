@@ -21,23 +21,25 @@
  ******************************************************************************/
 package org.nova.testing;
 
-public abstract class Testing
+public abstract class Debugging
 {
     abstract public void _log(LogLevel logLevel,Object object);
 
-    private static Testing TESTING=new ConsoleOutTesting();
+    private static Debugging DEBUGGING=new ConsoleOutTesting();
 
-    public static void set(Testing testing)
+    final public static boolean ENABLE=true;
+    
+    public static void set(Debugging debuging)
     {
-        TESTING=testing;
+        DEBUGGING=debuging;
     }
     
     public static void log(Object object)
     {
-        TESTING._log(LogLevel.INFO,object);
+        DEBUGGING._log(LogLevel.INFO,object);
     }
     public static void log(LogLevel logLevel,Object object)
     {
-        TESTING._log(logLevel,object);
+        DEBUGGING._log(logLevel,object);
     }
 }

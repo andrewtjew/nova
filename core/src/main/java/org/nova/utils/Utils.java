@@ -519,10 +519,14 @@ public class Utils
 		return hash;
 	}
 	
-	public static String getLocalHostName() throws Exception
-	{
-		return java.net.InetAddress.getLocalHost().getHostName();
-	}
+    public static String getLocalHostName() throws Exception
+    {
+        return java.net.InetAddress.getLocalHost().getHostName();
+    }
+    public static String getLocalAddress() throws Exception
+    {
+        return java.net.InetAddress.getLocalHost().getHostAddress();
+    }
 
 	public static String getMacAddress() throws Exception
     {

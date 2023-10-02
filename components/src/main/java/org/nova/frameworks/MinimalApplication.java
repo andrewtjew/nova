@@ -24,6 +24,7 @@ package org.nova.frameworks;
 import org.nova.logging.LogUtils;
 import org.nova.logging.Logger;
 import org.nova.tracing.TraceManager;
+import org.nova.tracing.TraceManagerConfiguration;
 
 public class MinimalApplication
 {
@@ -33,12 +34,12 @@ public class MinimalApplication
 	public MinimalApplication() throws Throwable
 	{
 		this.logger=LogUtils.createConsoleLogger();
-		this.traceManager=new TraceManager(this.logger);
+		this.traceManager=new TraceManager(this.logger,new TraceManagerConfiguration(100));
 	}
     public MinimalApplication(Logger logger) throws Throwable
     {
         this.logger=logger;
-        this.traceManager=new TraceManager(this.logger);
+        this.traceManager=new TraceManager(this.logger,new TraceManagerConfiguration(100));
     }
 	
 	public TraceManager getTraceManager()
