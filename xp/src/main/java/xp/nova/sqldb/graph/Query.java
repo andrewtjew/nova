@@ -9,7 +9,6 @@ public class Query
 {
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
-    Class<? extends GraphObject> one;
 
     String expression;
     Object[] parameters;
@@ -54,21 +53,13 @@ public class Query
     @SafeVarargs
     final public Query select(Class<? extends NodeObject>... nodeTypes)
     {
-        this.nodeTypes = nodeTypes;
-        if (nodeTypes.length==1)
-        {
-            this.one=nodeTypes[0];
-        }
+        this.nodeTypes=nodeTypes;
         return this;
     }
     @SafeVarargs
-    final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
+    final public Query selectOptional(Class<? extends NodeObject>... optionalNodeTypes)
     {
-        this.optionalNodeTypes= nodeTypes;
-        if (nodeTypes.length==1)
-        {
-            this.one=nodeTypes[0];
-        }
+        this.optionalNodeTypes=optionalNodeTypes;
         return this;
     }
 
@@ -89,9 +80,7 @@ public class Query
         final StringBuilder sources;
         final StringBuilder select;
         final ArrayList<Object> parameters;
-        
-        public Class<? extends GraphObject> one;
-        int aliasIndex=0;
+        private int aliasIndex=0;
         
         public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
         {
@@ -100,6 +89,10 @@ public class Query
             this.sources=sources;
             this.select=select;
             this.parameters=parameters;
+        }
+        public int getNextAliasIndex()
+        {
+            return this.aliasIndex++;
         }
     }    
     
@@ -111,35 +104,41 @@ public class Query
         }
         for (LinkQuery linkQuery : linkQueries)
         {
-            if (state.one==null)
-            {
-                state.one=linkQuery.one;
-            }
             TypeUtils.addToList(state.parameters,linkQuery.parameters);
-            String linkAlias = "_link" + state.aliasIndex;
-//            String nodeAlias = "_node" + state.aliasIndex;
+            int aliasIndex=state.getNextAliasIndex();
+            String linkAlias = "_link" + aliasIndex;
             String nodeAlias=null;
+            String optional=linkQuery.optional?" LEFT":" ";
             switch (linkQuery.direction)
             {
             case FROM:
-                nodeAlias = " ON _link" + state.aliasIndex+".toNodeId=";
+                nodeAlias = " ON _link" + aliasIndex+".toNodeId=";
                 state.sources.append(
-                        " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                        optional+" JOIN _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
                 break;
             case TO:
-                nodeAlias = " ON _link" + state.aliasIndex+".fromNodeId=";
+                nodeAlias = " ON _link" + aliasIndex+".fromNodeId=";
                 state.sources.append(
-                        " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".toNodeId");
+                        optional+" JOIN _link AS " + linkAlias + source + linkAlias + ".toNodeId");
                 break;
             default:
                 break;
             }
-            if (linkQuery.relation!=null)
+//            if (linkQuery.relation!=null)
             {
-                String typeName=linkQuery.relation.getClass().getSimpleName();
-                state.sources.append(" AND "+linkAlias+".type='"+typeName+"' AND "+linkAlias+".relation="+linkQuery.relation.getValue());
+                int relationValue=linkQuery.relation.getValue();
+                if (relationValue<0)
+                {
+                    state.sources.append(" AND "+linkAlias+".relation="+relationValue);
+                }
+                else
+                {
+                    String typeName=linkQuery.relation.getClass().getSimpleName();
+                    state.sources.append(" AND "+linkAlias+".type='"+typeName+"' AND "+linkAlias+".relation="+relationValue);
+                }
             }
-
+//            state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
+            
             if (linkQuery.nodeTypes != null)
             {
                 String on = null;
@@ -154,32 +153,27 @@ public class Query
                 default:
                     break;
                 }
-                String namespace = "";
-                if (linkQuery.namespace!=null)
-                {
-                    namespace = linkQuery.namespace + ".";
-                }
                     
                 for (int i = 0; i < linkQuery.nodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
                     GraphObjectDescriptor descriptor = state.graph.register(type);
-                    state.map.put(namespace+descriptor.getTypeName(), descriptor);
+                    state.map.put(linkQuery.nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
 
                     String as=" ";
                     String alias=table;
-                    if (linkQuery.namespace!=null)
+                    if (linkQuery.nodeNamespace!=null)
                     {
-                        alias="`"+linkQuery.namespace+"_"+typeName+"`";
+                        alias="`"+linkQuery.nodeNamespace+"_"+typeName+"`";
                         as=" AS "+alias+" ";
                     }
 
                     state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
                     for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                     {
-                        String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
+                        String fieldColumnName = linkQuery.nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
                         if (state.select.length()>0)
                         {
@@ -203,19 +197,18 @@ public class Query
                 default:
                     break;
                 }
-                String namespace = linkQuery.namespace != null ? linkQuery.namespace + "." : "";
                 for (int i = 0; i < linkQuery.optionalNodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
                     GraphObjectDescriptor descriptor = state.graph.register(type);
-                    state.map.put(descriptor.getNamespaceTypeName(linkQuery.namespace), descriptor);
+                    state.map.put(descriptor.getNamespaceTypeName(linkQuery.nodeNamespace), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
-                    String alias = descriptor.getTableAlias(linkQuery.namespace);
+                    String alias = descriptor.getTableAlias(linkQuery.nodeNamespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                     {
-                        String fieldColumnName = namespace + columnAccessor.getColumnName(typeName);
+                        String fieldColumnName = linkQuery.nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
                         if (state.select.length()>0)
                         {
@@ -225,14 +218,38 @@ public class Query
                     }
                 }
             }
-            state.aliasIndex++;
+            
+            if (linkQuery.linkTypes!= null)
+            {
+                String on = " ON " + linkAlias + ".nodeId=";
+                for (int i = 0; i < linkQuery.linkTypes.length; i++)
+                {
+                    Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
+                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    state.map.put(descriptor.getNamespaceTypeName(linkQuery.nodeNamespace), descriptor);
+                    String typeName = descriptor.getTypeName();
+                    String table = descriptor.getTableName();
+                    String alias = descriptor.getTableAlias(linkQuery.nodeNamespace);
+                    state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
+                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    {
+                        String fieldColumnName = linkQuery.linkNamespace + columnAccessor.getColumnName(typeName);
+                        String tableColumnName = columnAccessor.getColumnName(alias);
+                        if (state.select.length()>0)
+                        {
+                            state.select.append(',');
+                        }
+                        state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
+                    }
+                }
+            }
             addLinkQueries(state,linkQuery.linkQueries, nodeAlias);
         }
     }
 
     static class PreparedQuery
     {
-        Class<? extends GraphObject> one;
+//        Class<? extends GraphObject> one;
         String sql;
         String start;
         Object[] parameters;
@@ -254,20 +271,16 @@ public class Query
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
 
-        String on=null;
-        if (on==null)
+        if (this.expression==null)
         {
-            if (this.expression==null)
-            {
-                preparedQuery.start=" WHERE _node.id=";
-            }
-            else
-            {
-                preparedQuery.start=" AND _node.id=";
-            }
-            on=" ON _node.id=";
-            sources.append(" _node");
+            preparedQuery.start=" WHERE _node.id=";
         }
+        else
+        {
+            preparedQuery.start=" AND _node.id=";
+        }
+        String on=" ON _node.id=";
+        sources.append(" _node");
         
         if (this.nodeTypes != null)
         {
@@ -278,9 +291,7 @@ public class Query
                 preparedQuery.map.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
-                {
-                    sources.append(" JOIN " + table + " AS " + table + on + table + "._nodeId");
-                }
+                sources.append(" JOIN " + table + " " + on + table + "._nodeId");
                 for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
@@ -316,7 +327,6 @@ public class Query
         ArrayList<Object> list=new ArrayList<Object>();
         TypeUtils.addToList(list, this.parameters);
         State state=new State(graph,preparedQuery.map,sources,select,list);
-        state.one=this.one;
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
         preparedQuery.countSql="SELECT count(*) FROM" + sources;
@@ -330,7 +340,6 @@ public class Query
             preparedQuery.parameters=list.toArray(new Object[list.size()]);
         }
         preparedQuery.sql=query.toString();
-        preparedQuery.one=state.one;
         if (this.orderBy!=null)
         {
             preparedQuery.orderBy=" ORDER BY "+this.orderBy;

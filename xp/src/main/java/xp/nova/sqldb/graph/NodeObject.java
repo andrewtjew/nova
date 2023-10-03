@@ -1,6 +1,6 @@
 package xp.nova.sqldb.graph;
 
-public class NodeObject extends GraphObject
+public class NodeObject
 {
     @Internal
     protected Long _nodeId;
