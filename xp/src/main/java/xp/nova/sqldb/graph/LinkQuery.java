@@ -8,10 +8,11 @@ public class LinkQuery
     Class<? extends NodeObject>[] optionalNodeTypes;
     Class<? extends NodeObject>[] linkTypes;
     Direction direction;
-    String nodeNamespace="";
-    String linkNamespace="";
+    String nodeNamespace=null;
+    String linkNamespace=null;
     Relation_ relation;
     boolean optional;
+    boolean selectLink;
     
     String expression;
     Object[] parameters;
@@ -76,6 +77,12 @@ public class LinkQuery
     final public LinkQuery selectLink(Class<? extends NodeObject>... nodeTypes)
     {
         this.linkTypes = nodeTypes;
+        return this;
+    }
+
+    final public LinkQuery selectLink()
+    {
+        this.selectLink=true;
         return this;
     }
 
