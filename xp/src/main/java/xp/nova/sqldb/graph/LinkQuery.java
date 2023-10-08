@@ -10,19 +10,25 @@ public class LinkQuery
     Direction direction;
     String nodeNamespace=null;
     String linkNamespace=null;
+
     Relation_ relation;
-    boolean optional;
     boolean selectLink;
     
     String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
+    public <SUBJECT extends SubjectNode<RELATION>,RELATION extends Relation_> 
+    LinkQuery(Direction direction,Class<RELATION> subjectNodeType,RELATION relation)
+    {
+        this.direction=direction;
+        this.relation=relation;
+    }
+    
     public LinkQuery(Direction direction,Relation_ relation)
     {
         this.direction=direction;
         this.relation=relation;
-        this.optional=false;
     }
     public LinkQuery nodeNamespace(String namespace)
     {
@@ -34,12 +40,6 @@ public class LinkQuery
         this.linkNamespace=namespace;
         return this;
     }    
-    public LinkQuery optional()
-    {
-        this.optional=true;
-        return this;
-    }    
-    
     public LinkQuery where(String expression)
     {
         this.expression=expression;

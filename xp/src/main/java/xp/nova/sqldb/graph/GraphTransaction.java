@@ -218,8 +218,13 @@ public class GraphTransaction implements AutoCloseable
 
     public long link(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
-        String typeName=relation.getClass().getSimpleName();
-        int value=relation.getValue();
+        String typeName=null;
+        Integer value=null;
+        if (relation!=null)
+        {
+            value=relation.getValue();
+            typeName=relation.getClass().getSimpleName();
+        }
         if (deleteLink(fromNodeId,relation,toNodeId)>1)
         {
             throw new Exception();
@@ -230,14 +235,19 @@ public class GraphTransaction implements AutoCloseable
                 .execute(parent, this.accessor);
         return nodeId;
     }
-    public long link(long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
+    public <SUBJECT extends SubjectNode<RELATION>,RELATION extends Relation_> long link(SUBJECT subject,RELATION relation,Node object) throws Throwable
     {
-        return link(fromNodeId,relation,toNode.getNodeId());
+        return link(subject.getNodeId(),relation,object.getNodeId());
     }
-    public long link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
-    {
-        return link(fromNode.getNodeId(),relation,toNode.getNodeId());
-    }
+    
+//    public long link(long fromNodeId,Predicate_ relation,NodeObject toNode) throws Throwable
+//    {
+//        return link(fromNodeId,relation,toNode.getNodeId());
+//    }
+//    public long link(NodeObject fromNode,Predicate_ relation,NodeObject toNode) throws Throwable
+//    {
+//        return link(fromNode.getNodeId(),relation,toNode.getNodeId());
+//    }
     public long link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
         return link(fromNode.getNodeId(),relation,toNodeId);

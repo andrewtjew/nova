@@ -869,8 +869,10 @@ public class Graph
             if (accessor.executeQuery(parent,"existTable:_link"
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
             {
+                
+                
                 accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`nodeId`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` int DEFAULT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`nodeId`),KEY `link` (`fromNodeId`,`relation`,`toNodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 
