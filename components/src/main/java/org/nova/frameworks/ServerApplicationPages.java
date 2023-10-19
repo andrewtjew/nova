@@ -3626,7 +3626,8 @@ public class ServerApplicationPages
             if (source == filter)
             {
                 Parameter parameter = method.getParameters()[info.getIndex()];
-                table.addRow(new TableRow().add(info.getName(),parameter.getType().getName(),getDescription(parameter),info.getDefaultValue()));
+                String typeName=parameter.getType().getSimpleName();
+                table.addRow(new TableRow().add(info.getName(),typeName,getDescription(parameter),info.getDefaultValue()));
             }
         }
         panel.content().addInner(new p());
@@ -3771,7 +3772,7 @@ public class ServerApplicationPages
         void write(Class<?> type)
         {
             String typeName=type.isArray()?type.getComponentType().getName():type.getName();
-            String displayTypeName=type.isArray()?type.getComponentType().getName()+"[]":type.getName();
+            String displayTypeName=type.isArray()?type.getComponentType().getSimpleName()+"[]":type.getSimpleName();
             if (this.shownClasses.contains(typeName))
             {
                 return;
@@ -3805,32 +3806,37 @@ public class ServerApplicationPages
             if (fields.size()>0)
             {
                 WideTable table=panel.content().returnAddInner(new WideTable(head));
-                table.setHeader("Name","Type","Description");
+                TableHeader th=new TableHeader();
+                th.add(new th().style("text-align:left;").addInner("Name"));
+                th.add(new th().style("text-align:left;").addInner("Type"));
+                th.add(new th().style("text-align:left;").addInner("Description"));
+                
+                table.setHeader(th);
                 for (Field field : fields)
                 {
                     TableRow row=new TableRow();
                     table.addRow(row);
-                    row.add(field.getName());
+                    row.add(new td().style("text-align:left;").addInner(field.getName()));
                     Class<?> fieldType = field.getType();
     
                     if (fieldType.isArray())
                     {
-                        row.add(escapeHtml(fieldType.getComponentType().getName() + "[]"));
+                        row.add(new td().style("white-space:nowrap;text-align:left;").addInner(escapeHtml(fieldType.getComponentType().getSimpleName() + "[]")));
                         fieldType = fieldType.getComponentType();
                     }
                     else
                     {
-                        String fieldName=fieldType.getName();
+                        String fieldName=fieldType.getSimpleName();
                         if (fieldName.startsWith("java.lang."))
                         {
                             fieldName=fieldName.substring("java.lang.".length());
                         }
-                        row.add(escapeHtml(fieldName));
+                        row.add(new td().style("white-space:nowrap;text-align:left;").addInner(escapeHtml(fieldName)));
                     }
                     description = field.getAnnotation(Description.class);
                     if (description != null)
                     {
-                        row.add(description.value());
+                        row.add(new td().style("text-align:left;").addInner(description.value()));
                     }
                     else
                     {

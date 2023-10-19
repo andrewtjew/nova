@@ -39,6 +39,7 @@ public class NameValueTable extends Table
         this.nameTemplate=nameTemplate;
         this.valueTemplate=valueTemplate;
         this.body=returnAddInner(new tbody());
+        this.borderless();
     }
     public NameValueTable()
     {

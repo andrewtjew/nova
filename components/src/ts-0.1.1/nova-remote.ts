@@ -211,7 +211,7 @@ namespace nova.remote
 
     }
 
-    export async function postStatic(pathAndQuery:string,data:string,error:Function=null)
+    export async function postStatic(pathAndQuery:string,data:string=null,error:Function=null)
     {
         return await fetch(pathAndQuery,
             {

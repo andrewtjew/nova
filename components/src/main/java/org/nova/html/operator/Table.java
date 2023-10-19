@@ -54,7 +54,7 @@ public class Table extends Element
     public Table(Head head,String class_,String cssFilePath)
     {
         this.table=new table();
-        this.tbody=new tbody();
+        this.tbody=new tbody();//.style("text-align:left;");
 
         this.table.addClass(class_);
         link link=new link().rel(link_rel.stylesheet).type("text/css").href(cssFilePath);

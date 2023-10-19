@@ -19,37 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.html.bootstrap.classes;
 
-import org.nova.http.Header;
-import org.nova.http.server.annotations.Filters;
-import org.nova.http.server.annotations.OPTIONS;
-import org.nova.http.server.annotations.Path;
-import org.nova.tracing.Trace;
-
-@Filters(CORSFilter.class)
-public class CORSFilter extends HeaderFilter
+public enum AlignContent
 {
-    public CORSFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
+    start("start"), 
+    center("center"), 
+    end("end"), 
+    between("between"), 
+    around("around"), 
+    stretch("stretch"), 
+    ;
+    private String value;
+
+    AlignContent(String value)
     {
-        super(new Header("Access-Control-Allow-Origin", allowOrigin)
-                ,new Header("Access-Control-Allow-Methods", allowOrigin)
-                ,new Header("Access-Control-Allow-Headers", allowOrigin)
-                ,new Header("Access-Control-Max-Age", maxAge)
-                );
-    }
-    public CORSFilter(int maxAge,String allowOrigin)
-    {
-        this(maxAge,allowOrigin,"*","*");
-    }
-    public CORSFilter(int maxAge)
-    {
-        this(maxAge,"*");
+        this.value = value;
     }
 
-    @OPTIONS
-    @Path("/{+}")
-    public void options(Trace parent) throws Throwable
+    public String toString()
     {
+        return this.value;
     }
 }
