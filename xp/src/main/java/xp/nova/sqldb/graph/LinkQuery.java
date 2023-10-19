@@ -6,12 +6,13 @@ public class LinkQuery
 {
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
-    Class<? extends LinkObject>[] edgeTypes;
-    Class<? extends LinkObject>[] optionalEdgeTypes;
-    Class<? extends GraphObject> one;
+    Class<? extends NodeObject>[] linkTypes;
     Direction direction;
-    String namespace;
+    String nodeNamespace=null;
+    String linkNamespace=null;
     Relation_ relation;
+    boolean optional;
+    boolean selectLink;
     
     String expression;
     Object[] parameters;
@@ -21,12 +22,24 @@ public class LinkQuery
     {
         this.direction=direction;
         this.relation=relation;
+        this.optional=false;
     }
-    public LinkQuery namespace(String namespace)
+    public LinkQuery nodeNamespace(String namespace)
     {
-        this.namespace=namespace;
+        this.nodeNamespace=namespace;
         return this;
     }    
+    public LinkQuery linkNamespace(String namespace)
+    {
+        this.linkNamespace=namespace;
+        return this;
+    }    
+    public LinkQuery optional()
+    {
+        this.optional=true;
+        return this;
+    }    
+    
     public LinkQuery where(String expression)
     {
         this.expression=expression;
@@ -40,14 +53,16 @@ public class LinkQuery
         return this;
     }
     
+//    @SafeVarargs
+//    final public LinkQuery select2(Class<? extends GraphObject>... nodeTypes)
+//    {
+//        this.nodeTypes = nodeTypes;
+//        return this;
+//    }
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
-        if (nodeTypes.length==1)
-        {
-            this.one=nodeTypes[0];
-        }
         return this;
     }
 
@@ -55,31 +70,29 @@ public class LinkQuery
     final public LinkQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
-        if (nodeTypes.length==1)
-        {
-            this.one=nodeTypes[0];
-        }
         return this;
     }
 
     @SafeVarargs
-    final public LinkQuery selectLinkObjects(Class<? extends LinkObject>... linkTypes)
+    final public LinkQuery selectLink(Class<? extends NodeObject>... nodeTypes)
     {
-        this.edgeTypes = linkTypes;
-        if (nodeTypes.length==1)
-        {
-            this.one=nodeTypes[0];
-        }
+        this.linkTypes = nodeTypes;
         return this;
     }
 
-    public LinkQuery traverse(LinkQuery predictate)
+    final public LinkQuery selectLink()
+    {
+        this.selectLink=true;
+        return this;
+    }
+
+    public LinkQuery traverse(LinkQuery linkQuery)
     {
         if (this.linkQueries == null)
         {
             this.linkQueries = new ArrayList<>();
         }
-        this.linkQueries.add(predictate);
+        this.linkQueries.add(linkQuery);
         return this;
     }
     

@@ -15,7 +15,7 @@ public class QueryResult
         this.row=row;
     }
     
-    public <OBJECT extends GraphObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
     {
         String typeName=namespace!=null?namespace+"."+type.getSimpleName():type.getSimpleName();
         GraphObjectDescriptor meta=this.map.get(typeName);
@@ -37,7 +37,7 @@ public class QueryResult
         return (OBJECT)nodeObject;
     }
 
-    public <OBJECT extends GraphObject> OBJECT get(Class<OBJECT> type) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type) throws Throwable
     {
         return get(null,type);
     }

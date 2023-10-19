@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
-public class GlobalEventTagElement<ELEMENT extends TagElement<ELEMENT>> extends GlobalTagElement<ELEMENT>
+public class GlobalEventTagElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalTagElement<ELEMENT>
 {
     protected GlobalEventTagElement(String tag)
     {

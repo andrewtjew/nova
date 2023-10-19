@@ -583,7 +583,7 @@ public class Graph
 
     
     
-    protected GraphObjectDescriptor register(Class<? extends GraphObject> type) throws Exception
+    protected GraphObjectDescriptor register(Class<? extends NodeObject> type) throws Exception
     {
         GraphObjectDescriptor descriptor=null;
         String simpleTypeName=type.getSimpleName();
@@ -631,10 +631,6 @@ public class Graph
             {
                 objectType=GraphObjectType.IDENTITY_NODE;
             }
-            else if (type.getSuperclass()==LinkObject.class)
-            {
-                objectType=GraphObjectType.LINK;
-            }
             else
             {
                 throw new Exception(type.getName()+" needs to extend from a subclass of GraphObject.");
@@ -649,7 +645,7 @@ public class Graph
         return descriptor;
     }
     
-    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends GraphObject> type) throws Exception
+    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends NodeObject> type) throws Exception
     {
         String simpleTypeName=type.getSimpleName();
         return descriptorMap.get(simpleTypeName);
@@ -676,7 +672,7 @@ public class Graph
     }
     
 
-    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends GraphObject> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends NodeObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         GraphObjectDescriptor descriptor=this.register(type);
@@ -874,7 +870,7 @@ public class Graph
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`id` bigint NOT NULL AUTO_INCREMENT, `fromNodeId` bigint NOT NULL, `toNodeId` bigint NOT NULL, `eventId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`id`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`nodeId`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 

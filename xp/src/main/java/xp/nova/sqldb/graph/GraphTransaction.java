@@ -224,9 +224,11 @@ public class GraphTransaction implements AutoCloseable
         {
             throw new Exception();
         }
-        return Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
+        long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+        Insert.table("_link").value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeId", toNodeId)
                 .value("type", typeName).value("relation", value)
-                .executeAndReturnLongKey(parent, this.accessor);
+                .execute(parent, this.accessor);
+        return nodeId;
     }
     public long link(long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
     {

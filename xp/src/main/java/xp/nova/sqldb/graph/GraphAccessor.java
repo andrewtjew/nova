@@ -99,7 +99,7 @@ public class GraphAccessor implements AutoCloseable
             rowSet = accessor.executeQuery(parent, null, sql);
         }
         
-        return new QueryResultSet(rowSet,preparedQuery.one,preparedQuery.map);
+        return new QueryResultSet(rowSet,preparedQuery.map);
     }
     public QueryResultSet execute(Trace parent,String orderBy,Long startNodeId,Query query,Object...parameters) throws Throwable
     {
