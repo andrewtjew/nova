@@ -123,7 +123,7 @@ public class TcpClient
 			
 			synchronized(waiter)
 			{
-				if (Synchronization.waitForNoThrow(waiter, ()->{return waiter.completed;},timeoutMs)==false)
+				if (Synchronization.waitForNoThrow(waiter,timeoutMs, ()->{return waiter.completed;})==false)
 				{
 					return new Response(Status.TIMEOUT,null);
 				}

@@ -98,7 +98,7 @@ public class Task<RESULT>
 	{
 		synchronized(this)
 		{
-			return Synchronization.waitForNoThrow(this, ()->{return this.status==TaskStatus.COMPLETED;},timeout);
+			return Synchronization.waitForNoThrow(this,timeout, ()->{return this.status==TaskStatus.COMPLETED;});
 		}
 	}
 	public void waitForCompletion()

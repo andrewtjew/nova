@@ -20,7 +20,7 @@ import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -735,7 +735,7 @@ public class Graph
             }
             if (TEST)
             {
-                Testing.log(sql);
+                Debugging.log(sql);
             }
             accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
         }
@@ -750,7 +750,7 @@ public class Graph
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
-                    Testing.log("Catalog="+catalog+", type="+type.getSimpleName());
+                    Debugging.log("Catalog="+catalog+", type="+type.getSimpleName());
                 }
             }
             int rowIndex=0;
@@ -838,7 +838,7 @@ public class Graph
                             rowIndex++;
                             if (TEST)
                             {
-                                Testing.log("Unused column: columnName="+columnName+", table="+table);
+                                Debugging.log("Unused column: columnName="+columnName+", table="+table);
                             }
                             continue;
                         }
@@ -862,7 +862,7 @@ public class Graph
                 sql.append(';');
                 if (TEST)
                 {
-                    Testing.log(sql);
+                    Debugging.log(sql);
                 }
                 accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
             }

@@ -56,7 +56,7 @@ public class SingleWaiterBoard
         synchronized(message)
         {
             final Message m=message;
-            if (Synchronization.waitForNoThrow(message, ()->{return m.receivedMs!=null;},lifeTimeMs)==false)
+            if (Synchronization.waitForNoThrow(message,lifeTimeMs, ()->{return m.receivedMs!=null;})==false)
             {
                 synchronized(this)
                 {
@@ -78,7 +78,7 @@ public class SingleWaiterBoard
         Message message;
         synchronized (this)
         {
-            if (Synchronization.waitForNoThrow(this, ()->{return this.messages.containsKey(name);},waitMs)==false)
+            if (Synchronization.waitForNoThrow(this,waitMs, ()->{return this.messages.containsKey(name);})==false)
             {
                 return null;
             }                

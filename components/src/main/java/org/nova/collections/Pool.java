@@ -119,7 +119,7 @@ public class Pool<RESOURCE extends Resource>
                         try
                         {
                             trace.beginWait();
-                            if (Synchronization.waitForNoThrow(this,()->{return container.size()>0;},timeout)==false)
+                            if (Synchronization.waitForNoThrow(this,timeout,()->{return container.size()>0;})==false)
                             {
                                 return null;
                             }

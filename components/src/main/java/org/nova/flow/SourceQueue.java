@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import org.nova.concurrent.Synchronization;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 
 public class SourceQueue<ITEM>
 {
@@ -149,14 +149,14 @@ public class SourceQueue<ITEM>
                 this.lock.notify();
                 if (TESTING)
                 {
-                    Testing.log("SourceQueue:notify, queue size=" + size);
+                    Debugging.log("SourceQueue:notify, queue size=" + size);
                 }
             }
             else
             {
                 if (TESTING)
                 {
-                    Testing.log("SourceQueue:send, queue size=" + size);
+                    Debugging.log("SourceQueue:send, queue size=" + size);
                 }
             }
         }
@@ -212,7 +212,7 @@ public class SourceQueue<ITEM>
 
             if (TESTING)
             {
-                Testing.log("SourceQueue:enter");
+                Debugging.log("SourceQueue:enter");
             }
             for (;;)
             {
@@ -239,16 +239,16 @@ public class SourceQueue<ITEM>
                         }
                         if (TESTING)
                         {
-                            Testing.log("SourceQueue:start wait, timeout=" + timeout);
+                            Debugging.log("SourceQueue:start wait, timeout=" + timeout);
                         }
-                        if (Synchronization.waitForNoThrow(this.lock, () ->
+                        if (Synchronization.waitForNoThrow(this.lock, timeout,() ->
                             {
                                 return this.waitingMeter.getLevel() > 0 || this.stop || this.noWait;
-                            } , timeout))
+                            } ))
                         {
                             if (TESTING)
                             {
-                                Testing.log("SourceQueue:end wait, queue size=" + this.waitingMeter.getLevel());
+                                Debugging.log("SourceQueue:end wait, queue size=" + this.waitingMeter.getLevel());
                             }
                             if (this.waitingMeter.getLevel() < this.sendSizeThreshold) 
                             {
@@ -258,15 +258,15 @@ public class SourceQueue<ITEM>
                                     timeout = this.sendWait - waited;
                                     if (TESTING)
                                     {
-                                        Testing.log("SourceQueue:start wait for sendSizeThreshold, current queue size=" + waitingMeter.getLevel() + ", timeout=" + timeout);
+                                        Debugging.log("SourceQueue:start wait for sendSizeThreshold, current queue size=" + waitingMeter.getLevel() + ", timeout=" + timeout);
                                     }
-                                    Synchronization.waitForNoThrow(this.lock, () ->
+                                    Synchronization.waitForNoThrow(this.lock, timeout, () ->
                                     {
                                         return this.waitingMeter.getLevel() >= this.sendSizeThreshold || this.stop;
-                                    } , timeout);
+                                    } );
                                     if (TESTING)
                                     {
-                                        Testing.log("SourceQueue:end wait for sendSizeThreshold");
+                                        Debugging.log("SourceQueue:end wait for sendSizeThreshold");
                                     }
                                 }
                             }
@@ -281,7 +281,7 @@ public class SourceQueue<ITEM>
                     {
                         if (TESTING)
                         {
-                            Testing.log("SourceQueue:switch buffers");
+                            Debugging.log("SourceQueue:switch buffers");
                         }
                         toSendBuffer = this.buffer;
                         if (this.current.sizeOrType() > 0)
@@ -306,7 +306,7 @@ public class SourceQueue<ITEM>
                     Packet sendPacket = new Packet(sendSize);
                     if (TESTING)
                     {
-                        Testing.log("SourceQueue:send size=" + sendSize);
+                        Debugging.log("SourceQueue:send size=" + sendSize);
                     }
 
                     for (Packet packet : toSendBuffer)
@@ -360,7 +360,7 @@ public class SourceQueue<ITEM>
                 {
                     if (TESTING)
                     {
-                        Testing.log("SourceQueue:flush");
+                        Debugging.log("SourceQueue:flush");
                     }
                     this.receiver.flush();
                     flush = false;
@@ -372,7 +372,7 @@ public class SourceQueue<ITEM>
                     {
                         if (TESTING)
                         {
-                            Testing.log("SourceQueue:rollover");
+                            Debugging.log("SourceQueue:rollover");
                         }
                         this.receiver.endGroup();
                         this.receiver.beginGroup(rollOver);

@@ -19,25 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.testing;
+package org.nova.html.bootstrap.classes;
 
-public abstract class Testing
+public enum AlignContent
 {
-    abstract public void _log(LogLevel logLevel,Object object);
+    start("start"), 
+    center("center"), 
+    end("end"), 
+    between("between"), 
+    around("around"), 
+    stretch("stretch"), 
+    ;
+    private String value;
 
-    private static Testing TESTING=new ConsoleOutTesting();
+    AlignContent(String value)
+    {
+        this.value = value;
+    }
 
-    public static void set(Testing testing)
+    public String toString()
     {
-        TESTING=testing;
-    }
-    
-    public static void log(Object object)
-    {
-        TESTING._log(LogLevel.INFO,object);
-    }
-    public static void log(LogLevel logLevel,Object object)
-    {
-        TESTING._log(logLevel,object);
+        return this.value;
     }
 }

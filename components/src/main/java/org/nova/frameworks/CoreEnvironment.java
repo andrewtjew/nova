@@ -23,11 +23,14 @@ package org.nova.frameworks;
 
 import java.util.HashMap;
 
+import org.nova.collections.ContentCache;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.concurrent.TimerScheduler;
 import org.nova.configuration.Configuration;
 import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
+import org.nova.http.server.FileCache;
+import org.nova.http.server.FileDownloadHandler;
 import org.nova.logging.ConsoleWriter;
 import org.nova.logging.HighPerformanceLogger;
 import org.nova.logging.HighPerformanceConfiguration;
@@ -42,6 +45,7 @@ import org.nova.metrics.SourceEventBoard;
 import org.nova.security.SecureFileVault;
 import org.nova.security.Vault;
 import org.nova.tracing.TraceManager;
+import org.nova.tracing.TraceManagerConfiguration;
 
 public class CoreEnvironment
 {
@@ -67,6 +71,7 @@ public class CoreEnvironment
 		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",10_000_000_000L);
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);
 		this.logCategoryBufferSize=configuration.getIntegerValue("Environment.Logger.logCategoryBufferSize",10);
+        int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",2000);
 
         this.meterStore=new MeterStore();
 
@@ -94,17 +99,24 @@ public class CoreEnvironment
 		Logger traceLogger=this.getLogger("tracing");
         this.logger=getLogger("application");
 	
-		this.traceManager=new TraceManager(traceLogger);
+		this.traceManager=new TraceManager(traceLogger,new TraceManagerConfiguration(traceBufferSize));
 		this.multiTaskScheduler=new MultiTaskScheduler(traceManager,configuration.getIntegerValue("Environment.TaskScheduler.threads",1000),this.logger);
 		this.timerScheduler=new TimerScheduler(traceManager, this.getLogger());
 		this.timerScheduler.start();
 
         this.vault=SecureFileVault.getVault(configuration);
+        setupDebugging();
 	}
 	
 	public MeterStore getMeterManager()
 	{
 		return meterStore;
+	}
+	
+	public void setupDebugging() throws Exception
+	{
+        ContentCache.DEBUG=this.configuration.getBooleanValue("CoreEnvironment.DEBUG.ContentCache",false);
+        FileDownloadHandler.DEBUG=this.configuration.getBooleanValue("CoreEnvironment.DEBUG.FileDownloadHandler",false);
 	}
 	
 	public SourceEventBoard getSourceEventBoard()

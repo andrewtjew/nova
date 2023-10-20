@@ -26,7 +26,7 @@ import org.nova.concurrent.Synchronization;
 import org.nova.logging.ThrowableEvents;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 
 public class ThreadWorkerQueue extends Node
 {
@@ -125,21 +125,21 @@ public class ThreadWorkerQueue extends Node
     		{
     		    if (TESTING)
     		    {
-    		        Testing.log("ThreadWorkerQueue="+this.id+":enter");
+    		        Debugging.log("ThreadWorkerQueue="+this.id+":enter");
     		    }
 	            ArrayList<Packet> old=null;
 				synchronized (this.lock)
 				{
 		            if (TESTING)
 		            {
-		                Testing.log("ThreadWorkerQueue="+this.id+":start wait");
+		                Debugging.log("ThreadWorkerQueue="+this.id+":start wait");
 		            }
                     this.threadInUseMeter.decrement();
 					Synchronization.waitForNoThrow(this.lock, ()->{return this.queue.size()>0||this.stop;});
                     this.threadInUseMeter.increment();
                     if (TESTING)
                     {
-                        Testing.log("ThreadWorkerQueue="+this.id+":end wait");
+                        Debugging.log("ThreadWorkerQueue="+this.id+":end wait");
                     }
 					if (this.stop)
 					{
@@ -158,7 +158,7 @@ public class ThreadWorkerQueue extends Node
                         {
                             if (TESTING)
                             {
-                                Testing.log("ThreadWorkerQueue="+this.id+":receiver.beginSegment="+packet.getSegmentMarker());
+                                Debugging.log("ThreadWorkerQueue="+this.id+":receiver.beginSegment="+packet.getSegmentMarker());
                             }
                             this.receiver.beginGroup((long)packet.getSegmentMarker());
                         }
@@ -166,7 +166,7 @@ public class ThreadWorkerQueue extends Node
                         {
                             if (TESTING)
                             {
-                                Testing.log("ThreadWorkerQueue="+this.id+":receiver.endSegment");
+                                Debugging.log("ThreadWorkerQueue="+this.id+":receiver.endSegment");
                             }
                             this.receiver.endGroup();
                         }
@@ -175,7 +175,7 @@ public class ThreadWorkerQueue extends Node
                             this.receiver.flush();
                             if (TESTING)
                             {
-                                Testing.log("ThreadWorkerQueue="+this.id+":receiver.flush");
+                                Debugging.log("ThreadWorkerQueue="+this.id+":receiver.flush");
                             }
                         }
 				    }
@@ -232,7 +232,7 @@ public class ThreadWorkerQueue extends Node
             this.lock.notify();
             if (TESTING)
             {
-                Testing.log("ThreadWorkerQueue="+this.id+":notify, queue size="+this.queue.size());
+                Debugging.log("ThreadWorkerQueue="+this.id+":notify, queue size="+this.queue.size());
             }
         }
     }

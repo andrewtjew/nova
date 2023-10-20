@@ -90,7 +90,7 @@ public class ReservableLock
     {
         synchronized(this)
         {
-            return Synchronization.waitForNoThrow(this, ()->{return this.object==null;},timeout);
+            return Synchronization.waitForNoThrow(this,timeout, ()->{return this.object==null;});
         }        
     }
 

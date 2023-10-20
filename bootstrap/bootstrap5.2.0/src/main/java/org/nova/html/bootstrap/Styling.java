@@ -22,6 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.Align;
+import org.nova.html.bootstrap.classes.AlignContent;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.BreakPoint;
@@ -522,6 +523,10 @@ public interface Styling<ELEMENT>
     public default ELEMENT input_group_text()
     {
         return addClass("input-group-text");
+    }
+    public default ELEMENT align_content(AlignContent value)
+    {
+        return addClass("align-content",value);
     }
     public default ELEMENT align_items(AlignSelf value)
     {

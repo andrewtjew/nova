@@ -22,11 +22,12 @@
 package org.nova.services;
 
 import org.nova.http.Header;
+import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.Path;
 import org.nova.tracing.Trace;
 
-
+@Filters(CORSFilter.class)
 public class CORSFilter extends HeaderFilter
 {
     public CORSFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
@@ -40,6 +41,10 @@ public class CORSFilter extends HeaderFilter
     public CORSFilter(int maxAge,String allowOrigin)
     {
         this(maxAge,allowOrigin,"*","*");
+    }
+    public CORSFilter(int maxAge)
+    {
+        this(maxAge,"*");
     }
 
     @OPTIONS

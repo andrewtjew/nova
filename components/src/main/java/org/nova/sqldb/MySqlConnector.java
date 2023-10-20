@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.TraceManager;
 
 import com.nova.disrupt.Disruptor;
@@ -117,7 +117,7 @@ public class MySqlConnector extends Connector
 	    String connectionString=this.buildConnectionString();
 	    if (TEST)
 	    {
-	    	Testing.log(null, connectionString);
+	    	Debugging.log(null, connectionString);
 	    }
 	    	
 	    //"jdbc:mysql://localhost:3306/YourDBName";

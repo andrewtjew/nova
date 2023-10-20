@@ -45,7 +45,7 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
@@ -207,7 +207,7 @@ public class ResourceController
                 trace.close(t);
                 if (TESTING)
                 {
-                    Testing.log("Resource: "+file + " not found\r\n");
+                    Debugging.log("Resource: "+file + " not found\r\n");
                 }
                 response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
                 response.setStatus(HttpStatus.NOT_FOUND_404);

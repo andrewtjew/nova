@@ -37,7 +37,7 @@ import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
 import org.nova.operations.OperatorVariable;
-import org.nova.testing.Testing;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.utils.TypeUtils;
@@ -346,7 +346,7 @@ public class HttpServer
     				{
     					if (TESTING)
     					{
-    						Testing.log(method+" "+URI+": No Handler");
+    						Debugging.log(method+" "+URI+": No Handler");
     					}
     					servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
     					synchronized (this.lastRequestHandlerNotFoundLogEntries)

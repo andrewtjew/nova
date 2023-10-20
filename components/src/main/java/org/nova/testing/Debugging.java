@@ -19,49 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.testing;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Size;
-
-public class ModalDialog extends StyleComponent<ModalDialog>
+public abstract class Debugging
 {
-    public ModalDialog(BreakPoint breakPoint)
+    abstract public void _log(LogLevel logLevel,Object object);
+
+    private static Debugging DEBUGGING=new ConsoleOutTesting();
+
+    final public static boolean ENABLE=true;
+    
+    public static void set(Debugging debuging)
     {
-        super("div","modal-dialog");
-        if (breakPoint!=null)
-        {
-            addClass("modal",breakPoint);
-        }
-    }
-    public ModalDialog()
-    {
-        this(null);
+        DEBUGGING=debuging;
     }
     
-    public ModalDialog centered()
+    public static void log(Object object)
     {
-        addClass("modal-dialog","centered");
-        return this;
+        DEBUGGING._log(LogLevel.INFO,object);
     }
-    public ModalDialog scrollable()
+    public static void log(LogLevel logLevel,Object object)
     {
-        addClass("modal-dialog","scrollable");
-        return this;
-    }
-    public ModalDialog size(Size size)
-    {
-        addClass("modal",size.toString());
-        return this;
-    }
-    public ModalDialog fullScreen()
-    {
-        addClass("modal","fullscreen");
-        return this;
-    }
-    public ModalDialog fullScreen(Size size)
-    {
-        addClass("modal","fullscreen",size.toString(),"down");
-        return this;
+        DEBUGGING._log(logLevel,object);
     }
 }

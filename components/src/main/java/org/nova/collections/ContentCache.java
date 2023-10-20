@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import org.nova.annotations.Description;
 import org.nova.metrics.CountMeter;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 abstract public class ContentCache<KEY,VALUE>
@@ -59,6 +60,7 @@ abstract public class ContentCache<KEY,VALUE>
 		    return valueSize.value;
 		}
 	}
+    public static boolean DEBUG=true;
 	
 	public static class ValueSize<VALUE>
 	{
@@ -176,6 +178,13 @@ abstract public class ContentCache<KEY,VALUE>
                 remove(key);
             }
         }
+        if (Debugging.ENABLE)
+        {
+            if (DEBUG)
+            {
+                Debugging.log("Cache miss:"+key+",size="+this.entries.size());
+            }
+        }
         this.misses.increment();
         return null;
     }
@@ -185,7 +194,15 @@ abstract public class ContentCache<KEY,VALUE>
 		synchronized(this)
 		{
 			ValueSize<VALUE> valueSize=load(parent,key);
-			return put(parent,key,valueSize);
+			VALUE value=put(parent,key,valueSize);
+            if (Debugging.ENABLE)
+            {
+    	        if (DEBUG)
+    	        {
+    	            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
+    	        }
+            }
+	        return value;
 		}
 	}
 //    public  void update(KEY key,VALUE value) throws Throwable
@@ -221,11 +238,11 @@ abstract public class ContentCache<KEY,VALUE>
             if (freeMemory<this.freeMemoryCapacity)
             {
                 Runtime.getRuntime().gc();
-                freeMemory=Runtime.getRuntime().freeMemory();
-                if (freeMemory<this.freeMemoryCapacity)
-                {
-                    return true;
-                }
+//                freeMemory=Runtime.getRuntime().freeMemory();
+//                if (freeMemory<this.freeMemoryCapacity)
+//                {
+//                    return true;
+//                }
             }
         }
         
@@ -302,6 +319,13 @@ abstract public class ContentCache<KEY,VALUE>
 			else
 			{
 				node.next.previous=node.previous;
+			}
+			if (Debugging.ENABLE)
+			{
+    	        if (DEBUG)
+    	        {
+    	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
+    	        }
 			}
 			return node.valueSize.value;
 		}

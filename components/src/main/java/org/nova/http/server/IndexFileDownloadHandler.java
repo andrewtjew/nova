@@ -30,6 +30,7 @@ public class IndexFileDownloadHandler extends FileDownloadHandler
         set.add("gif");
         set.add("jpg");
         set.add("png");
+        set.add("mp3");
         return set;
     }
 

@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
+
 public class DropdownItem extends StyleComponent<DropdownItem>
 {
     public DropdownItem(String label,String URL)
@@ -42,4 +45,12 @@ public class DropdownItem extends StyleComponent<DropdownItem>
         attr("href",URL);
         return this;
     }    
+    public DropdownItem target(target target)
+    {
+        return attr("target",target.toString());
+    }
+    public DropdownItem target(String framename)
+    {
+        return attr("target",framename);
+    }
 }
