@@ -11,16 +11,21 @@ public abstract class RemoteElement extends Element
 {
     final private String id;
     private TagElement<?> element;
+    
     protected RemoteElement(String id)
     {
         this.id=id;
+    }
+    protected RemoteElement()
+    {
+        this.id="_"+this.hashCode();
     }
     public String id()
     {
         return this.id;
     }
     
-    abstract protected TagElement<?> refresh() throws Throwable;
+    abstract protected TagElement<?> render() throws Throwable;
     
     private void addScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
     {
@@ -48,13 +53,18 @@ public abstract class RemoteElement extends Element
             else if (element instanceof RemoteElement)
             {
                 RemoteElement remoteElement=(RemoteElement)element;
-                addScripts(remoteElement.element,response);
+                addScripts(remoteElement.build(),response);
             }
         }
     }
-    protected Element setup() throws Throwable
+
+    public TagElement<?> build() throws Throwable
     {
-        this.element=refresh();
+        if (this.element!=null)
+        {
+            return this.element;
+        }
+        this.element=render();
         if (element!=null)
         {
             this.element.id(this.id);
@@ -64,21 +74,21 @@ public abstract class RemoteElement extends Element
     
     public void compose(Composer composer) throws Throwable
     {
-        Element element=setup();
+        Element element=build();
         if (element!=null)
         {
             element.compose(composer);
         }
     }
-    public RemoteResponse composeRemoteResponse() throws Throwable
+    public RemoteResponse respond() throws Throwable
     {
         RemoteResponse response=new RemoteResponse();
-        composeRemoteResponse(response);
+        respond(response);
         return response;
     }
-    public RemoteResponse composeRemoteResponse(RemoteResponse response) throws Throwable
+    public RemoteResponse respond(RemoteResponse response) throws Throwable
     {
-        this.element=refresh();
+        this.element=render();
         if (element!=null)
         {
             element.id(this.id);

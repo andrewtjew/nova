@@ -28,14 +28,20 @@ import org.nova.json.ObjectMapper;
 public class PathAndQuery
 {
 	private StringBuilder sb;
-	private char separator='?'; 
+	private char separator;; 
+    
+    public PathAndQuery(String path,char startSeparator)
+    {
+        this.sb=path!=null?new StringBuilder(path):new StringBuilder();
+        this.separator=startSeparator;
+    }
     public PathAndQuery(String path)
     {
-        this.sb=new StringBuilder(path);
+        this(path,'?');
     }
     public PathAndQuery()
     {
-        this.sb=new StringBuilder();
+        this(null);
     }
     public PathAndQuery addSegment(String segment) throws Exception
     {

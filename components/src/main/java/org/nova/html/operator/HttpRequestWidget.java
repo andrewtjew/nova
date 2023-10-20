@@ -38,11 +38,11 @@ public class HttpRequestWidget extends Element
     public HttpRequestWidget(Head head,RequestLogEntry entry)
     {
         String title;
-        if (entry.getQueryString()!=null)
-        {
-            title=entry.getRequest()+"?"+entry.getQueryString();
-        }
-        else
+//        if (entry.getQueryString()!=null)
+//        {
+//            title=entry.getRequest()+"?"+entry.getQueryString();
+//        }
+//        else
         {
             title=entry.getRequest();
         }
@@ -152,7 +152,7 @@ public class HttpRequestWidget extends Element
         {
             return;
         }
-        Accordion accordion=content.returnAddInner(new Accordion(head,false, heading+", length: "+(array.length-1)));
+        Accordion accordion=content.returnAddInner(new Accordion(head,false, heading+": "+(array.length)));
         accordion.content().addInner(list);
         
     }    

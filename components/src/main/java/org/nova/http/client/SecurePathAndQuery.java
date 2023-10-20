@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2019 Kat Fung Tjew
+ * Copyright (C) 2017-2019 Kat Fung Tjew
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,24 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.core;
+package org.nova.http.client;
 
-public class Pair<NAME,VALUE>
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+import org.nova.core.NameString;
+import org.nova.json.ObjectMapper;
+
+public abstract class SecurePathAndQuery
 {
-	final private NAME name;
-	final private VALUE value;
-	public Pair(NAME key,VALUE value)
+    final protected String path;
+    final protected ArrayList<NameString> parameters;
+    
+    public SecurePathAndQuery(String path)
+    {
+        this.path=path;
+        this.parameters=new ArrayList<NameString>();
+    }
+    public SecurePathAndQuery()
+    {
+        this(null);
+    }
+	public SecurePathAndQuery addQuery(String key,Object value) throws Exception
 	{
-		this.name=key;
-		this.value=value;
+	    if (value==null)
+	    {
+            parameters.add(new NameString(key,null));
+	    }
+	    else
+	    {
+	        parameters.add(new NameString(key,value.toString()));
+	    }
+	    return this;
 	}
-	public NAME getName()
-	{
-		return name;
-	}
-	public VALUE getValue()
-	{
-		return value;
-	}
-		
+    public SecurePathAndQuery addJSONQuery(String key,Object value) throws Throwable
+    {
+        return addQuery(key,ObjectMapper.writeObjectToString(value));
+    }
+	abstract public String toString();
 }

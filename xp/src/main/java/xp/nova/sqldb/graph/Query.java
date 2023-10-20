@@ -29,18 +29,18 @@ public class Query
         this.orderBy=orderBy;
         return this;
     }
-    public Query orderBy(String orderBy,boolean descending)
-    {
-        if (descending)
-        {
-            this.orderBy=orderBy+" DESC";
-        }
-        else
-        {
-            this.orderBy=orderBy;
-        }
-        return this;
-    }
+//    public Query orderBy(String orderBy,boolean descending)
+//    {
+//        if (descending)
+//        {
+//            this.orderBy=orderBy+" DESC";
+//        }
+//        else
+//        {
+//            this.orderBy=orderBy;
+//        }
+//        return this;
+//    }
 
     public Query where(String expression, Object... parameters)
     {
@@ -80,8 +80,10 @@ public class Query
         final StringBuilder sources;
         final StringBuilder select;
         final ArrayList<Object> parameters;
-        
+//        Class<? extends NodeObject>[] nodeTypes;
         int aliasIndex=0;
+        Class<? extends RelationNodeObject<?>> startType=null;
+        
         
         public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
         {
@@ -103,38 +105,57 @@ public class Query
         {
             TypeUtils.addToList(state.parameters,linkQuery.parameters);
             String linkAlias = "_link" + state.aliasIndex;
-//            String nodeAlias = "_node" + state.aliasIndex;
             String nodeAlias=null;
+            String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
+            String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
+
+            Class<? extends RelationNodeObject<?>> fromType=null;
+            if (linkQuery.optional)
+            {
+                state.sources.append(" LEFT JOIN");
+            }
+            else
+            {
+                state.sources.append(" JOIN");
+            }
             switch (linkQuery.direction)
             {
             case FROM:
                 nodeAlias = " ON _link" + state.aliasIndex+".toNodeId=";
-                state.sources.append(
-                        " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                state.sources.append(" _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                if (linkQuery.relation!=null)
+                {
+                    if (fromType==null)
+                    {
+                        fromType=state.graph.getRelationNodeType(linkQuery.relation);
+                        if (state.aliasIndex==0)
+                        {
+                            state.startType=fromType;
+                        }
+                    }
+                    if (fromType!=state.graph.getRelationNodeType(linkQuery.relation))
+                    {
+                        throw new Exception("Not all link queries have the same from type");
+                    }
+                    int relationValue=linkQuery.relation.getValue();
+                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue);
+                }
+                
                 break;
             case TO:
                 nodeAlias = " ON _link" + state.aliasIndex+".fromNodeId=";
-                state.sources.append(
-                        " LEFT JOIN _link AS " + linkAlias + source + linkAlias + ".toNodeId");
+                state.sources.append(" _link AS " + linkAlias + source + linkAlias + ".toNodeId");
+                if (linkQuery.relation!=null)
+                {
+                    int relationValue=linkQuery.relation.getValue();
+                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue);
+                }
+                
                 break;
             default:
                 break;
             }
-            String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
-            String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
 
-//            if (linkQuery.relation!=null)
-            int relationValue=linkQuery.relation.getValue();
-            if (relationValue<0)
-            {
-                String typeName=linkQuery.relation.getClass().getSimpleName();
-                state.sources.append(" AND "+linkAlias+".type='"+typeName+"' AND "+linkAlias+".relation="+relationValue);
-            }
-            else
-            {
-                state.sources.append(" AND "+linkAlias+".relation="+relationValue);
-            }
-            
             if (linkQuery.selectLink)
             {
                 String on = " ON " + linkAlias + ".nodeId=";
@@ -286,6 +307,7 @@ public class Query
         HashMap<String,GraphObjectDescriptor> map;
         String orderBy;
         String countSql;
+        Class<? extends RelationNodeObject<?>> startType;
     }
     
     PreparedQuery preparedQuery=null;
@@ -380,6 +402,7 @@ public class Query
         {
             preparedQuery.orderBy=" ORDER BY "+this.orderBy;
         }
+        preparedQuery.startType=state.startType;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }

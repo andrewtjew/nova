@@ -870,7 +870,6 @@ class RequestHandlerMap
         boolean logResponseHeaders=true;
         boolean logResponseContent=true;
         boolean logRequestParameters=true;
-        boolean test=handlerAnnotations.test!=null;
         
         PathAndQuery path=new PathAndQuery();
         if (root!=null)
