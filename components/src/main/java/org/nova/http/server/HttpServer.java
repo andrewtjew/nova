@@ -176,17 +176,17 @@ public class HttpServer
 	    return this.transformers;
 	}
 	
-	public void registerHandlers(Object object) throws Exception
+	public void registerHandlers(Object object) throws Throwable
 	{
 		registerHandlers(null, object);
 	}
 
-	public void registerHandlers(String root, Object object) throws Exception
+	public void registerHandlers(String root, Object object) throws Throwable
 	{
 		this.requestHandlerMap.registerObject(root, object, this.transformers);
 	}
 
-	public void registerHandler(String root, Object object, Method method) throws Exception
+	public void registerHandler(String root, Object object, Method method) throws Throwable
 	{
 		this.requestHandlerMap.registerObjectMethod(root, object, method, this.transformers);
 	}

@@ -21,7 +21,9 @@
  ******************************************************************************/
 package org.nova.http.client;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.nova.json.ObjectMapper;
 
@@ -30,16 +32,17 @@ public class PathAndQuery
 	private StringBuilder sb;
 	private char separator;; 
     
-    public PathAndQuery(String path,char startSeparator)
+    public PathAndQuery(String path,char startSeparator) throws Throwable
     {
+//        this.sb=path!=null?new StringBuilder(URLEncoder.encode(path,"UTF-8")):new StringBuilder();
         this.sb=path!=null?new StringBuilder(path):new StringBuilder();
         this.separator=startSeparator;
     }
-    public PathAndQuery(String path)
+    public PathAndQuery(String path) throws Throwable
     {
         this(path,'?');
     }
-    public PathAndQuery()
+    public PathAndQuery() throws Throwable
     {
         this(null);
     }
@@ -119,7 +122,7 @@ public class PathAndQuery
         }
 		this.sb.append(this.separator);
 		this.separator='&';
-		this.sb.append(key).append('=').append(URLEncoder.encode(value, "UTF-8"));
+		this.sb.append(key).append('=').append(URLEncoder.encode(value, StandardCharsets.UTF_8));
 		return this;
 	}
 	public PathAndQuery addQuery(String key,short value) throws Exception

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.http.client;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -32,12 +33,12 @@ public abstract class SecurePathAndQuery
     final protected String path;
     final protected ArrayList<NameString> parameters;
     
-    public SecurePathAndQuery(String path)
+    public SecurePathAndQuery(String path) throws UnsupportedEncodingException
     {
         this.path=path;
         this.parameters=new ArrayList<NameString>();
     }
-    public SecurePathAndQuery()
+    public SecurePathAndQuery() throws UnsupportedEncodingException
     {
         this(null);
     }
