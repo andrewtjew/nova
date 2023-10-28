@@ -14,11 +14,12 @@ public abstract class RemoteElement extends Element
     
     protected RemoteElement(String id)
     {
-        this.id=id;
+        this.id=id!=null?id:"_"+this.hashCode();
+        
     }
     protected RemoteElement()
     {
-        this.id="_"+this.hashCode();
+        this(null);
     }
     public String id()
     {

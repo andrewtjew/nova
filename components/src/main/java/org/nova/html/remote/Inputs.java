@@ -77,7 +77,7 @@ public class Inputs
         }
         if (element instanceof RemoteElement)
         {
-            Element inner=((RemoteElement)element).render();
+            Element inner=((RemoteElement)element).build();
             addElements(inner);
             return;
         }
