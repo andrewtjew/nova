@@ -150,7 +150,14 @@ public class GraphTransaction implements AutoCloseable
             {
                 Debugging.log(sql);
             }
-            accessor.executeUpdate(parent, null, sql, insertParameters);
+            if (object instanceof IdentityNodeObject)
+            {
+            	((IdentityNodeObject)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
+            }
+            else
+            {
+            	accessor.executeUpdate(parent, null, sql, insertParameters);
+            }
         }
         else if (rowSet.size()==1)
         {
