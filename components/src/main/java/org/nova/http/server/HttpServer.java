@@ -57,8 +57,8 @@ public class HttpServer
 	final private RingBuffer<RequestHandlerNotFoundLogEntry> lastRequestHandlerNotFoundLogEntries;
 	private Transformers transformers;
 	final private Logger logger;
-    private ArrayList<ServletHandler> beforeServletHandlers;
-    private ArrayList<ServletHandler> afterServletHandlers;
+    private ArrayList<ServletHandler> frontServletHandlers;
+    private ArrayList<ServletHandler> backServletHandlers;
 //  final private Server[] servers;
 //  final private int [] ports;
 	
@@ -89,8 +89,8 @@ public class HttpServer
 		this.lastRequestHandlerNotFoundLogEntries=new RingBuffer<>(new RequestHandlerNotFoundLogEntry[configuration.lastNotFoundLogEntryBufferSize]);
 				
 		this.transformers=new Transformers();
-        this.beforeServletHandlers=new ArrayList<>();
-        this.afterServletHandlers=new ArrayList<>();
+        this.frontServletHandlers=new ArrayList<>();
+        this.backServletHandlers=new ArrayList<>();
 	}
 
 //	public HttpServer(TraceManager traceManager, Logger logger,boolean test,Server server) throws Exception
@@ -152,18 +152,18 @@ public class HttpServer
     {
         this.transformers.addTopFilters(filters);
     }
-    public void registerAfterServletHandlers(ServletHandler...servletHandlers)
+    public void registerBackServletHandlers(ServletHandler...servletHandlers)
     {
         for (ServletHandler handler:servletHandlers)
         {
-            this.afterServletHandlers.add(handler);
+            this.backServletHandlers.add(handler);
         }
     }
-    public void registerBeforeServletHandlers(ServletHandler...servletHandlers)
+    public void registerFrontServletHandlers(ServletHandler...servletHandlers)
     {
         for (ServletHandler handler:servletHandlers)
         {
-            this.beforeServletHandlers.add(handler);
+            this.frontServletHandlers.add(0,handler);
         }
     }
 
@@ -316,7 +316,7 @@ public class HttpServer
 			    servletResponse.setHeader("Connection", "keep-alive");
 			}
             boolean before=false;
-            for (ServletHandler handler:this.beforeServletHandlers)
+            for (ServletHandler handler:this.frontServletHandlers)
             {
                 before=handle(trace,handler,method, URI,servletRequest,servletResponse);
                 if (before)
@@ -334,7 +334,7 @@ public class HttpServer
     			else
     	        {
     				boolean after=false;
-    	            for (ServletHandler handler:this.afterServletHandlers)
+    	            for (ServletHandler handler:this.backServletHandlers)
     				{
     					after=handle(trace,handler,method, URI,servletRequest,servletResponse);
     					if (after)
