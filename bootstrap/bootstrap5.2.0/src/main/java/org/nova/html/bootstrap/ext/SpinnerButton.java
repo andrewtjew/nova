@@ -30,8 +30,8 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     public SpinnerButton onclick(String script)
     {
         super.onclick(
-                HtmlUtils.js_setElementProperty(this.spinner.id(), "style.display","inline-block")+";"+
-        HtmlUtils.js_setElementProperty(this.labelSpan.id(), "style.display","none")+";"+
+                HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"+
+        HtmlUtils.js_property(this.labelSpan.id(), "style.display","none")+";"+
                         script
                 );
         return this;
@@ -40,8 +40,8 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     public SpinnerButton submit(FormElement<?> form)
     {
         this.onclick(HtmlUtils.js_submit(form));
-        form.onsubmit(                HtmlUtils.js_setElementProperty(this.spinner.id(), "style.display","inline-block")+";"+
-                HtmlUtils.js_setElementProperty(this.labelSpan.id(), "style.display","none")+";");
+        form.onsubmit(                HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"+
+                HtmlUtils.js_property(this.labelSpan.id(), "style.display","none")+";");
         return this;
     }
     

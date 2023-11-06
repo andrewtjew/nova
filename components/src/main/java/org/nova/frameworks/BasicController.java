@@ -16,7 +16,7 @@ import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 
 @ContentDecoders({DeflaterContentDecoder.class,GzipContentDecoder.class})
-@ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
+@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({JSONContentReader.class, JSONPatchContentReader.class})
 @ContentWriters({JSONContentWriter.class, HtmlElementWriter.class, RemoteResponseWriter.class})
 public class BasicController

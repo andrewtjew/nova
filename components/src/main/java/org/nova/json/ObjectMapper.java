@@ -1240,8 +1240,8 @@ public class ObjectMapper
             }
         }
         
-        int BEFORE=50;
-        int AFTER=50;
+        int BEFORE=60;
+        int AFTER=60;
         private String getError()
         {
             int start=this.position-BEFORE;

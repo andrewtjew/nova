@@ -382,10 +382,16 @@ public class HtmlUtils
         return js_call("document.getElementById", id)+".submit()";
     }
     
-    public static String js_callWithDelay(long delay,String function,Object...parameters)
+    public static String js_setTimeout(long delay,String function,Object...parameters)
     {
-        String call=js_statement(function, parameters);
-        return "setTimeout(function(){"+call+"},"+delay+");";
+        String call=js_call(function, parameters);
+        return "setTimeout(function(){"+call+";},"+delay+");";
+    }
+
+
+    public static String js_setInterval(long delay,String call)
+    {
+        return "setInterval(function(){"+call+";},"+delay+");";
     }
 
     @Deprecated
@@ -407,13 +413,13 @@ public class HtmlUtils
         return js_call(function,parameters)+";";
     }
 
-    public static String js_setElementProperty(String id,String property,String value)
+    public static String js_property(String id,String property,String value)
     {
         return "document.getElementById(\""+id+"\")."+property+"=\""+value+"\"";
     }  
-    public static String js_setElementProperty(TagElement<?> element,String property,String value)
+    public static String js_property(TagElement<?> element,String property,String value)
     {
-        return js_setElementProperty(element.id(), property, value);
+        return js_property(element.id(), property, value);
     }  
     public static String js_setAttribute(TagElement<?> element,String attribute,String value)
     {
@@ -431,6 +437,22 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').removeAttribute('"+attribute+"')";
     }  
+    public static String js_classList_add(String id,String class_)
+    {
+        return "document.getElementById(\""+id+"\").classList.add("+"'"+class_+"')";
+    }  
+    public static String js_classList_remove(String id,String class_)
+    {
+        return "document.getElementById(\""+id+"\").classList.remove("+"'"+class_+"')";
+    }  
+    public static String js_classList_add(TagElement<?> element,String class_)
+    {
+        return js_classList_add(element.id(), class_);
+    }  
+    public static String js_classList_remove(TagElement<?> element,String class_)
+    {
+        return js_classList_remove(element.id(), class_);
+    }  
 
     public static String js_getAttribute(TagElement<?> element,String attribute)
     {
@@ -440,15 +462,23 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').getAttribute('"+attribute+"')";
     }  
+//    public static String js_call(String id,String function,Object...parameters)
+//    {
+//        return js_call("document.getElementById('"+id+"')."+function,parameters);
+//    }  
     
-    public static String js_elementCall(String id,String function,Object...parameters)
-    {
-        return js_call("document.getElementById('"+id+"')."+function,parameters);
-    }  
-    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
-    {
-        return js_elementCall(element.id(), function, parameters);
-    }  
+//    public static String js_elementCall(String id,String function,Object...parameters)
+//    {
+//        return js_call("document.getElementById('"+id+"')."+function,parameters);
+//    }  
+//    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
+//    {
+//        return js_elementCall(element.id(), function, parameters);
+//    }  
+//    public static String js_call(TagElement<?> element,String function,Object...parameters)
+//    {
+//        return js_call(element.id(), function, parameters);
+//    }  
     
     public static String js_jqueryCall(String id,String function,Object...parameters)
     {
@@ -869,8 +899,8 @@ public class HtmlUtils
     }
     public static String js_copyToClipboard(TagElement<?> element)
     {
-        return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
-//        return "getElementById('"+element.id()+"').select();document.execCommand('Copy');";
+//        return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
+        return "getElementById('"+element.id()+"').select();document.execCommand('Copy');";
     }
     public static String js_scollIntoView(String id)
     {
