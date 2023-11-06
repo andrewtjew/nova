@@ -447,7 +447,7 @@ public class ServerApplicationPages
         return page;
     }
 
-    private div buildPath(MeterAttributeValue av) throws Exception
+    private div buildPath(MeterAttributeValue av) throws Throwable
     {
         MeterAttribute attribute=av.getAttribute();
         div div=new div();
@@ -861,7 +861,7 @@ public class ServerApplicationPages
     }
 
 
-    void write(Table table, Trace trace, Object family) throws Exception
+    void write(Table table, Trace trace, Object family) throws Throwable
     {
         TableRow row=new TableRow().
         add(family,trace.getNumber()).

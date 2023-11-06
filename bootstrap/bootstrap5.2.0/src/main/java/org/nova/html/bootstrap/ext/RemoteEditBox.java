@@ -102,11 +102,11 @@ public class RemoteEditBox extends StyleComponent<RemoteEditBox>
         this.valueElement=valueElement;
     
     }
-    public RemoteEditBox(QuotationMark mark,StyleComponent<?> valueElement,InputElement<?> inputElement)
+    public RemoteEditBox(QuotationMark mark,StyleComponent<?> valueElement,InputElement<?> inputElement) throws Throwable
     {
         this(mark,valueElement,inputElement,new Inputs());
     }
-    public RemoteEditBox(StyleComponent<?> valueElement,InputElement<?> inputElement)
+    public RemoteEditBox(StyleComponent<?> valueElement,InputElement<?> inputElement) throws Throwable
     {
         this(QuotationMark.DOUBLE,valueElement,inputElement,new Inputs());
     }

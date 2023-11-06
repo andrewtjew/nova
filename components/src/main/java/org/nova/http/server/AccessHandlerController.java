@@ -29,7 +29,7 @@ public class AccessHandlerController extends AccessHandler
     {
         super(location,sessionFilter);
         this.service=service;
-        this.service.getPublicServer().registerBeforeServletHandlers(this);
+        this.service.getPublicServer().registerFrontServletHandlers(this);
         this.service.getOperatorServer().registerHandlers(this);
 
         this.service.getMenuBar().add("/access/status","Access","Status");

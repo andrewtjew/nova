@@ -65,7 +65,7 @@ public class SessionOperatorPages<SESSION extends Session>
         this.serverApplication=serverApplication;
     }
     
-    public void bind() throws Exception
+    public void bind() throws Throwable
     {
         this.serverApplication.getMenuBar().add("/operator/sessions","Sessions","View All");
         this.serverApplication.getOperatorServer().registerHandlers(this);

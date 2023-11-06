@@ -2,6 +2,8 @@
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -21,6 +23,8 @@ import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
+
+import com.amazonaws.services.forecast.model.Domain;
 
 public class Graph
 {
@@ -587,12 +591,25 @@ public class Graph
     {
         GraphObjectDescriptor descriptor=null;
         String simpleTypeName=type.getSimpleName();
+        
         synchronized (descriptorMap)
         {
             descriptor= descriptorMap.get(simpleTypeName);
         }
         if (descriptor==null)
         {
+            if ((type.getSuperclass()==RelationNodeObject.class)||(type.getSuperclass()==IdentityRelationNodeObject.class))
+            {
+                ParameterizedType genericSuperClass=(ParameterizedType)type.getGenericSuperclass();
+                Type[] arguments=genericSuperClass.getActualTypeArguments();
+                for (Type argument:arguments)
+                {
+                    this.relationNodeObjectMap.put((Class<? extends Relation_>)argument, (Class<? extends RelationNodeObject<?>>)type);
+                }
+            }
+                
+
+            
             HashMap<String, FieldDescriptor> map = new HashMap<String, FieldDescriptor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
             {
@@ -623,17 +640,25 @@ public class Graph
                 }
             }
             GraphObjectType objectType;
-            if (type.getSuperclass()==NodeObject.class)
-            {
-                objectType=GraphObjectType.NODE;
-            }
-            else if (type.getSuperclass()==IdentityNodeObject.class)
+            if (type.getSuperclass()==IdentityNodeObject.class)
             {
                 objectType=GraphObjectType.IDENTITY_NODE;
             }
+            else if (type.getSuperclass()==IdentityRelationNodeObject.class)
+            {
+                objectType=GraphObjectType.IDENTITY_NODE;
+            }
+            else if (type.getSuperclass()==NodeObject.class)
+            {
+                objectType=GraphObjectType.NODE;
+            }
+            else if (type.getSuperclass()==RelationNodeObject.class)
+            {
+                objectType=GraphObjectType.NODE;
+            }
             else
             {
-                throw new Exception(type.getName()+" needs to extend from a subclass of GraphObject.");
+                throw new Exception(type.getName()+" needs to extend from a subclass of NodeObject.");
             }
             
             descriptor = new GraphObjectDescriptor(simpleTypeName,type,objectType,map.values().toArray(new FieldDescriptor[map.size()]));
@@ -655,6 +680,7 @@ public class Graph
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
+    final private HashMap<Class<? extends Relation_>, Class<? extends RelationNodeObject<?>>> relationNodeObjectMap=new HashMap<>();
     
     public Graph(Connector connector)
     {
@@ -681,7 +707,7 @@ public class Graph
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
             	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
             }
@@ -699,7 +725,7 @@ public class Graph
                 sql.append(columnAccessor.getSqlType().getSql());
                 sql.append(",");
             }
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
                 sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
@@ -736,10 +762,6 @@ public class Graph
                 int position=(int)row.getBIGINT("ORDINAL_POSITION");
                 orderedRows[position-1]=row;
             }
-//            if (table.equals("Subscription"))
-            {
-                System.out.println("**** table="+table);
-            }
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
@@ -760,32 +782,12 @@ public class Graph
                         rowIndex++;
                         continue;
                     }
-                    if (fieldName.equals("limits"))
-                    {
-                        System.out.println("**** limits");
-                    }
                     int compareResult=fieldName.compareTo(columnName);
                     if (compareResult==0)
                     {
                         String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
                         Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
                         boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
-//                        if (length!=null)
-//                        {
-//                            sqlType=sqlType+"("+length+")";
-//                        }
-//                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
-//                        {
-//                            sqlType=sqlType+" DEFAULT NULL";
-//                        }
-//                        else
-//                        {
-//                            sqlType=sqlType+" NOT NULL";
-//                        }
-//                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
-//                        {
-//                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
-//                        }
                          if (length==null)
                          {
                              
@@ -847,6 +849,12 @@ public class Graph
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <RELATION extends Relation_> Class<? extends RelationNodeObject<RELATION>> getRelationNodeType(RELATION relation)
+    {
+        return (Class<? extends RelationNodeObject<RELATION>>) this.relationNodeObjectMap.get(relation.getClass());
+    }
+    
     public void createCatalog(Trace parent,String catalog) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
@@ -869,8 +877,10 @@ public class Graph
             if (accessor.executeQuery(parent,"existTable:_link"
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
             {
+                
+                
                 accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` int NOT NULL,`type` varchar(50) DEFAULT NULL,PRIMARY KEY (`nodeId`),KEY `link` (`fromNodeId`,`toNodeId`,`relation`,`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` int DEFAULT NULL,PRIMARY KEY (`nodeId`),KEY `link` (`fromNodeId`,`relationValue`,`toNodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 

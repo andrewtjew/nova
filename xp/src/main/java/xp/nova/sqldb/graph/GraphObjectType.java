@@ -4,5 +4,5 @@ enum GraphObjectType
 {
     NODE,
     IDENTITY_NODE,
-    LINK,
+//    LINK,
 }

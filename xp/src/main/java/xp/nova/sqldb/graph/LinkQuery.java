@@ -4,26 +4,41 @@ import java.util.ArrayList;
 
 public class LinkQuery
 {
+    final Direction direction;
+    final Relation_ relation;
+    
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
     Class<? extends NodeObject>[] linkTypes;
-    Direction direction;
     String nodeNamespace=null;
     String linkNamespace=null;
-    Relation_ relation;
-    boolean optional;
+
     boolean selectLink;
     
-    String expression;
+//    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
+    boolean optional=false;
 
-    public LinkQuery(Direction direction,Relation_ relation)
+    public <SUBJECT extends RelationNodeObject<RELATION>,RELATION extends Relation_> 
+    LinkQuery(Direction direction,RELATION relation)
     {
         this.direction=direction;
         this.relation=relation;
-        this.optional=false;
     }
+    public LinkQuery(Direction direction) throws Exception
+    {
+        this.direction=direction;
+        this.relation=null;
+    }
+    
+//    public LinkQuery(Direction direction,Relation_ relation) throws RuntimeException
+//    {
+//        throw new RuntimeException();
+////        this.fromNodeType=null;
+////        this.direction=direction;
+////        this.relation=relation;
+//    }
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;
@@ -34,31 +49,25 @@ public class LinkQuery
         this.linkNamespace=namespace;
         return this;
     }    
+//    public LinkQuery where(String expression)
+//    {
+//        this.expression=expression;
+//        return this;
+//    }
+//
+//    public LinkQuery where(String expression, Object... parameters)
+//    {
+//        this.parameters=parameters;
+//        this.expression=expression;
+//        return this;
+//    }
+    
     public LinkQuery optional()
     {
         this.optional=true;
         return this;
-    }    
-    
-    public LinkQuery where(String expression)
-    {
-        this.expression=expression;
-        return this;
-    }
-
-    public LinkQuery where(String expression, Object... parameters)
-    {
-        this.parameters=parameters;
-        this.expression=expression;
-        return this;
     }
     
-//    @SafeVarargs
-//    final public LinkQuery select2(Class<? extends GraphObject>... nodeTypes)
-//    {
-//        this.nodeTypes = nodeTypes;
-//        return this;
-//    }
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
     {

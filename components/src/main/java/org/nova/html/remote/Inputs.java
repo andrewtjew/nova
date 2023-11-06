@@ -15,35 +15,28 @@ public class Inputs
 {
     private String data;
     final private QuotationMark mark;
-    final private QuotationMark innerMark;
     final private ArrayList<Input> inputs;
     final private ArrayList<Element> elements;
     final private FormElement<?> form;
     private boolean trace=false;
 
-    public Inputs(FormElement<?> formElement,QuotationMark mark,QuotationMark innerMark)
+    public Inputs(FormElement<?> formElement,QuotationMark mark) throws Throwable
     {
         this.elements=new ArrayList<Element>();
         this.mark=mark;
-        this.innerMark=innerMark;
         this.inputs=new ArrayList<Input>();
         this.form=formElement;
         this.addElements(formElement);
     }
-    public Inputs(FormElement<?> element,QuotationMark mark)
-    {
-        this(element,mark,QuotationMark.SINGLE);
-    }
-
-    public Inputs(QuotationMark mark)
+    public Inputs(QuotationMark mark) throws Throwable
     {
         this(null,mark);
     }
-    public Inputs(FormElement<?> element)
+    public Inputs(FormElement<?> element) throws Throwable
     {
         this(element,QuotationMark.SINGLE);
     }
-    public Inputs()
+    public Inputs() throws Throwable
     {
         this(null,QuotationMark.SINGLE);
     }
@@ -63,7 +56,7 @@ public class Inputs
         return element;
     }
     
-    private void addElements()
+    private void addElements() throws Throwable
     {
         for (Element element:this.elements)
         {
@@ -71,7 +64,7 @@ public class Inputs
         }
     }
     
-    private void addElements(Element element)
+    private void addElements(Element element) throws Throwable
     {
         if (element==null)
         {
@@ -80,6 +73,12 @@ public class Inputs
         if (element instanceof InputElement<?>)
         {
             this.inputs.add(new Input((InputElement<?>)element));
+            return;
+        }
+        if (element instanceof RemoteElement)
+        {
+            Element inner=((RemoteElement)element).build();
+            addElements(inner);
             return;
         }
         if (element instanceof NodeElement<?>)
@@ -126,7 +125,8 @@ public class Inputs
     }
     public String js_post(String formID,String action) throws Throwable
     {
-        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,getContent(),this.trace);
+        String content=getContent();
+        return HtmlUtils.js_call(this.mark,"nova.remote.post",formID,action,content,this.trace);
     }
     
     public void buildFormSubmit() throws Throwable

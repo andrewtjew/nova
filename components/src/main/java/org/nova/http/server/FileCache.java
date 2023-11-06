@@ -1,6 +1,7 @@
 package org.nova.http.server;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -13,9 +14,15 @@ import com.nixxcode.jvmbrotli.enc.Encoder;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
-    public FileCache(long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
+    final private String root;
+    public FileCache(String root,long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
     {
         super(0,maxAgeMs,maxSize,freeMemoryCapacity);
+        this.root=root;
+    }
+    public FileCache(long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
+    {
+        this(null,maxAgeMs,maxSize,freeMemoryCapacity);
     }
      
     @Override
@@ -23,7 +30,7 @@ public class FileCache extends ContentCache<String,byte[]>
     {
         int index=fileKey.indexOf('|');
         String compression=fileKey.substring(0,index).toLowerCase();
-        String localFile=fileKey.substring(index+1);
+        String localFile=this.root!=null?this.root+File.separator+fileKey.substring(index+1):fileKey.substring(index+1);
         byte[] bytes=null;
         if ("gzip".equals(compression))
         {

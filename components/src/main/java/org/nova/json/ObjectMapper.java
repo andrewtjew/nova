@@ -31,12 +31,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 public class ObjectMapper
 {
@@ -426,6 +429,29 @@ public class ObjectMapper
             writeState.end(']');
         }
     }
+
+    static class ArrayListWriter extends Writer
+    {
+        void write(WriteState writeState,Object object) throws Throwable
+        {
+            writeState.begin('[');
+            ArrayList<?> list=(ArrayList<?>)object;
+            for (int i = 0; i < list.size(); i++)
+            {
+                Object element=list.get(i);
+                writeState.writeSeperator(i>0);
+                if (element==null)
+                {
+                    writeState.writeNull();
+                }
+                else
+                {
+                    getWriter(element.getClass()).write(writeState, element);
+                }
+            }
+            writeState.end(']');
+        }
+    }
     
     static class FieldWriter
     {
@@ -600,6 +626,10 @@ public class ObjectMapper
         else if (type == BigDecimal.class)
         {
             writer=new PrimitiveWriter();
+        }
+        else if (type==ArrayList.class)
+        {
+            writer=new ArrayListWriter();
         }
         else
         {

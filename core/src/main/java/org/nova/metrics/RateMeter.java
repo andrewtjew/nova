@@ -82,14 +82,14 @@ public class RateMeter
             {
                 this.lastSample.lastSample=null;
             }
-            RateSample result=new RateSample(this.lastSample, durationNs, this.samples,this.totalCount);
+            RateSample sample=new RateSample(this.lastSample, durationNs, this.samples,this.totalCount);
             if (durationNs>(long)(minimalResetDurationS*1.0e9))
             {
-                this.lastSample=result;
+                this.lastSample=sample;
                 this.markNs=nowNs;
                 this.samples=0;
             }
-            return result;
+            return sample;
         }
     }
 	

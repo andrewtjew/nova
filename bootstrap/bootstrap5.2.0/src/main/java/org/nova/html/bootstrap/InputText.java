@@ -77,6 +77,14 @@ public class InputText extends InputComponent<InputText>
     {
         return attr("required");
     }
+    public InputText required(boolean required)  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
+    {
+        if (required)
+        {
+            return required();
+        }
+        return this;
+    }
     public InputText value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
         return attr("value",text);

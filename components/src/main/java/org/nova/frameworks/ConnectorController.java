@@ -79,7 +79,7 @@ public class ConnectorController
     final private HashMap<String,Connector> connectors;
     final private ServerApplication application;
     
-    public ConnectorController(ServerApplication application) throws Exception
+    public ConnectorController(ServerApplication application) throws Throwable
     {
         this.connectors=new HashMap<>();
         this.application=application;

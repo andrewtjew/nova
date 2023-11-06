@@ -70,11 +70,11 @@ public class CallBuilder
     {
         return "org.nova.html.remoting.post("+formQueryBuilder.js_query(pathAndQuery)+")";
     }
-    public String js_post(String path,FormQueryBuilder formQueryBuilder)
+    public String js_post(String path,FormQueryBuilder formQueryBuilder) throws Throwable
     {
         return js_post(new PathAndQuery(path),formQueryBuilder);
     }
-    public static String js_post(String path,Object...values) throws Exception
+    public static String js_post(String path,Object...values) throws Throwable
     {
     	int index=path.indexOf("?");
     	String queryString=null;

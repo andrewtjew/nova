@@ -52,7 +52,7 @@ public class RemoteDialogPopover
 	    this.placement=Placement.right;
 	    this.inputs=inputs;
 	}
-    public RemoteDialogPopover(QuotationMark mark,GlobalEventTagElement<?> toggler)
+    public RemoteDialogPopover(QuotationMark mark,GlobalEventTagElement<?> toggler) throws Throwable
     {
         this(mark,toggler,new Inputs());
     }
@@ -60,7 +60,7 @@ public class RemoteDialogPopover
     {
         this(QuotationMark.DOUBLE,toggler,inputs);
     }
-    public RemoteDialogPopover(GlobalEventTagElement<?> toggler)
+    public RemoteDialogPopover(GlobalEventTagElement<?> toggler) throws Throwable
     {
         this(QuotationMark.DOUBLE,toggler,new Inputs());
     }

@@ -1,5 +1,6 @@
 package xp.nova.sqldb.graph;
 
+import org.nova.html.tags.pre;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
@@ -60,7 +61,7 @@ public class GraphAccessor implements AutoCloseable
             }
         }
     }
-    public QueryResultSet execute(Trace parent,Object[] parameters,String orderBy,Long startNodeId,Query query) throws Throwable
+    public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
         if (query.parameters!=null)
@@ -101,17 +102,22 @@ public class GraphAccessor implements AutoCloseable
         
         return new QueryResultSet(rowSet,preparedQuery.map);
     }
-    public QueryResultSet execute(Trace parent,String orderBy,Long startNodeId,Query query,Object...parameters) throws Throwable
-    {
-        return execute(parent,parameters,orderBy,startNodeId,query);
-    }
     public QueryResultSet execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,null,startNodeId,query);
+        return execute(parent,parameters,startNodeId,query);
+    }
+    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    {
+        PreparedQuery preparedQuery=query.build(this.graph);
+        if (preparedQuery.startType!=startNodeObject.getClass())
+        {
+            throw new Exception("Expected="+preparedQuery.startType.getName()+", actual="+startNodeObject.getClass().getName());
+        }
+        return execute(parent,parameters,startNodeObject.getNodeId(),query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,null,null,query);
+        return execute(parent,parameters,null,query);
     }
     public Accessor getAccessor()
     {

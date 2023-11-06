@@ -147,7 +147,7 @@ class RequestHandlerMap
 		return null;
 	}
 
-	void registerObject(String root, Object object, Transformers transformers) throws Exception
+	void registerObject(String root, Object object, Transformers transformers) throws Throwable
 	{
 		ClassAnnotations classAnnotations = new ClassAnnotations();
 		for (Class<?> classType=object.getClass();classType!=null;classType=classType.getSuperclass())
@@ -203,7 +203,7 @@ class RequestHandlerMap
 		}
 	}
 
-	void registerObjectMethod(String root, Object object, Method method, Transformers transformers) throws Exception
+	void registerObjectMethod(String root, Object object, Method method, Transformers transformers) throws Throwable
 	{
 		registerMethod(root, object, method, new ClassAnnotations(), transformers);
 	}
@@ -370,7 +370,7 @@ class RequestHandlerMap
 	    
 	}
 	
-	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Exception
+	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Throwable
 	{
 		String httpMethod = null;
 		int verbs = 0;
@@ -870,7 +870,6 @@ class RequestHandlerMap
         boolean logResponseHeaders=true;
         boolean logResponseContent=true;
         boolean logRequestParameters=true;
-        boolean test=handlerAnnotations.test!=null;
         
         PathAndQuery path=new PathAndQuery();
         if (root!=null)
