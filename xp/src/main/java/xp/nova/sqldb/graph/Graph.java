@@ -707,7 +707,7 @@ public class Graph
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
             	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
             }
@@ -725,7 +725,7 @@ public class Graph
                 sql.append(columnAccessor.getSqlType().getSql());
                 sql.append(",");
             }
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
                 sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
@@ -782,32 +782,12 @@ public class Graph
                         rowIndex++;
                         continue;
                     }
-                    if (fieldName.equals("limits"))
-                    {
-                        System.out.println("**** limits");
-                    }
                     int compareResult=fieldName.compareTo(columnName);
                     if (compareResult==0)
                     {
                         String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
                         Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
                         boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
-//                        if (length!=null)
-//                        {
-//                            sqlType=sqlType+"("+length+")";
-//                        }
-//                        if (row.getVARCHAR("IS_NULLABLE").equals("YES"))
-//                        {
-//                            sqlType=sqlType+" DEFAULT NULL";
-//                        }
-//                        else
-//                        {
-//                            sqlType=sqlType+" NOT NULL";
-//                        }
-//                        if (sqlType.equalsIgnoreCase(fieldSqlType)==false)
-//                        {
-//                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+sqlType);
-//                        }
                          if (length==null)
                          {
                              

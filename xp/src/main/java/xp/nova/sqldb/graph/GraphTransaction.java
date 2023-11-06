@@ -154,6 +154,10 @@ public class GraphTransaction implements AutoCloseable
             {
             	((IdentityNodeObject)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
             }
+            else if (object instanceof IdentityRelationNodeObject)
+            {
+                ((IdentityRelationNodeObject<?>)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
+            }
             else
             {
             	accessor.executeUpdate(parent, null, sql, insertParameters);
@@ -225,7 +229,7 @@ public class GraphTransaction implements AutoCloseable
 //        accessor.executeUpdate(parent,null,sql,parameters);
 //    }
 
-    public long link(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
+    public long badlink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         throw new Exception();
 //        return link(fromNodeId, relation!=null?relation.getValue():null, toNodeId);
