@@ -24,11 +24,13 @@ package org.nova.html.elements;
 import org.nova.html.enums.autocomplete;
 import org.nova.html.enums.method;
 import org.nova.html.enums.target;
+import org.nova.html.enums.enctype;
 
 public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
     private String action;
     private method method;
+    private enctype encyType;
     public FormElement(method method)
     {
         super("form");
@@ -44,6 +46,16 @@ public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEve
     public method method()
     {
         return this.method;
+    }
+    public ELEMENT enctype(enctype enctype) 
+    {
+        this.encyType=enctype;
+        return attr("enctype",enctype);
+    }
+    
+    public enctype enctype() 
+    {
+        return this.encyType;
     }
     
     public  ELEMENT action(String URL) 

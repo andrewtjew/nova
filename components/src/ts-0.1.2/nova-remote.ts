@@ -264,13 +264,70 @@ namespace nova.remote
         return JSON.stringify({success:returnSuccess,result:returnResult});
     }
 
-    export async function postFile(event:Event)
+    export async function submit(event:Event)
     {
         event.preventDefault();
         let form=event.currentTarget as HTMLFormElement;
+        let data=new FormData(form);
+        let params=new URLSearchParams();
+        for (let pair in data)
+        {
+            params.append(pair[0],pair[1]);
+        }
+
         return await fetch(form.action,
             {
-                method: form.method,
+                method:"POST",
+                body: params
+            }
+            ).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+    }
+
+    export async function postFormUrlEncoded(id:string)
+    {
+        let form=document.getElementById(id) as HTMLFormElement;
+        let data=new FormData(form);
+        let params=new URLSearchParams();
+        for (const pair of data)
+        {
+            params.append(pair[0],pair[1].toString());
+        }
+
+        return await fetch(form.action,
+            {
+                method:"POST",
+                body: params
+            }
+            ).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+    }
+
+    export async function postFormData(id:string)
+    {
+        let form=document.getElementById(id) as HTMLFormElement;
+        let data=new FormData(form);
+        return await fetch(form.action,
+            {
+                method:"POST",
                 body: new FormData(form),
             }
             ).then(response=>

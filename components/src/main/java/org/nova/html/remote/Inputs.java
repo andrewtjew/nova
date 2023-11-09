@@ -11,6 +11,7 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
 
+@Deprecated //Use RemoteForm
 public class Inputs
 {
     private String data;

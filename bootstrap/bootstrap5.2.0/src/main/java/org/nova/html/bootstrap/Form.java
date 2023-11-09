@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
-import org.nova.html.enums.enctype;
 import org.nova.html.enums.method;
 
 public class Form extends FormElement<Form> implements Styling<Form>
@@ -37,23 +36,10 @@ public class Form extends FormElement<Form> implements Styling<Form>
     {
         super(method);
     }
-    public Form enctype(enctype enctype) 
-    {
-        return attr("enctype",enctype);
-    }
-    
     public Form needs_validation()
     {
         return addClass("needs-validation");
     }
-
-//    public static script js_needsValidation()
-//    {
-//        script script=new script();
-////        script.addInner("(function(){'use strict';window.addEventListener('load', function(){var forms = document.getElementsByClassName('needs-validation');var validation = Array.prototype.filter.call(forms, function(form){form.addEventListener('submit', function(event){if (form.checkValidity()===false){event.preventDefault();event.stopPropagation();}form.classList.add('was-validated');},false);});}, false);})();");
-//        script.addInner("ui.validateOnLoad();");
-//        return script;
-//    }
 
     @Override
     public TagElement<?> getElement()
