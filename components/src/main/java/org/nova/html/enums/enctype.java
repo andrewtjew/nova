@@ -23,9 +23,9 @@ package org.nova.html.enums;
 
 public enum enctype
 {
-    application("application/x-www-form-urlencoded"),
-    multipart("multipart/form-data"),
-    text("text/plain"),
+    url("application/x-www-form-urlencoded"),
+    data("multipart/form-data"),
+    plain("text/plain"),
     ;
     private String value;
     enctype(String value)

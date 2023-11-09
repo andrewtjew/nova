@@ -325,6 +325,17 @@ public class GraphTransaction implements AutoCloseable
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
     }
+    public void deleteNode(NodeObject node) throws Throwable
+    {
+        if (node!=null)
+        {
+            if (node._nodeId==null)
+            {
+                throw new Exception("Not a graph node");
+            }
+            deleteNode(node.getNodeId());
+        }
+    }
     
     public void commit() throws Throwable
     {
