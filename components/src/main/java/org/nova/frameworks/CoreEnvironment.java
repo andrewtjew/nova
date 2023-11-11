@@ -71,7 +71,7 @@ public class CoreEnvironment
 		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",10_000_000_000L);
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);
 		this.logCategoryBufferSize=configuration.getIntegerValue("Environment.Logger.logCategoryBufferSize",10);
-        int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",2000);
+        int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",200);
 
         this.meterStore=new MeterStore();
 
@@ -99,7 +99,7 @@ public class CoreEnvironment
 		Logger traceLogger=this.getLogger("tracing");
         this.logger=getLogger("application");
 	
-		this.traceManager=new TraceManager(traceLogger,new TraceManagerConfiguration(traceBufferSize));
+		this.traceManager=new TraceManager(traceLogger,new TraceManagerConfiguration(300));
 		this.multiTaskScheduler=new MultiTaskScheduler(traceManager,configuration.getIntegerValue("Environment.TaskScheduler.threads",100),this.logger);
 		this.timerScheduler=new TimerScheduler(traceManager, this.getLogger());
 		this.timerScheduler.start();

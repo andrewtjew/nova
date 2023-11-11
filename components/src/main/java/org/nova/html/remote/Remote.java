@@ -20,8 +20,8 @@ public class Remote
         String data=ObjectMapper.writeObjectToString(objectMap);
         return HtmlUtils.js_call("nova.remote.postStatic",action,data);             
     }
-    public static String js_postForm(FormElement<?> form) throws Throwable
-    {
-        return HtmlUtils.js_call("nova.remote.postForm",form.id());             
-    }
+//    public static String js_postForm(FormElement<?> form,String action) throws Throwable
+//    {
+//        return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);             
+//    }
 }
