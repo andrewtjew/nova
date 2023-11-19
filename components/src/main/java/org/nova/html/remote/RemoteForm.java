@@ -6,11 +6,11 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.JsObject;
 import org.nova.html.enums.enctype;
 
-public class RemoteForm extends FormElement<RemoteForm>
+public class RemoteForm<ELEMENT extends RemoteForm<ELEMENT>> extends FormElement<ELEMENT>
 {
     public RemoteForm()
     {
-        super(method.get);
+        super(method.post);
         this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
     }
     public String js_post() throws Throwable

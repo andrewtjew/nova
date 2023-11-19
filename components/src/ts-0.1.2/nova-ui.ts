@@ -389,6 +389,83 @@ namespace nova.ui.password
     
     }
 
+    export function updatePasswordStrengthFeedback(messages:string[],minLength:number,inputId1:string,buttonId1:string,feedbackId:string,progressId:string,submitId:string)
+    {
+        var inputElement1 = document.getElementById(inputId1) as HTMLInputElement;
+        var password1=inputElement1.value;
+        var button=document.getElementById(submitId) as HTMLButtonElement;
+    
+        var score=getPasswordScore(password1,minLength);
+    
+        if (submitId!=null)
+        {
+            if (score>=3)
+            {
+                $("#"+submitId).removeClass("disabled");
+                $("#"+submitId).prop("disabled",false);
+            }
+            else
+            {
+                $("#"+submitId).addClass("disabled");
+                $("#"+submitId).prop("disabled",true);
+            }
+        }
+    
+        if (password1.length==0)
+        {
+            $("#"+buttonId1).addClass("disabled");
+            $("#"+buttonId1).prop("disabled",true);
+        }
+        else
+        {
+            $("#"+buttonId1).removeClass("disabled");
+            $("#"+buttonId1).prop("disabled",false);
+        }
+    
+        if (progressId!=null)
+        {
+    
+            var barElement = document.getElementById(progressId);
+            var feedbackElement = document.getElementById(feedbackId);
+            if (password1.length==0)
+            {
+                $("#"+progressId).attr("style","width:0%");
+            }
+            else if (score>=5)
+            {
+                $("#"+progressId).attr("style","width:100%");
+                $("#"+progressId).addClass("bg-success");
+                $("#"+progressId).removeClass("bg-warning");
+                $("#"+progressId).removeClass("bg-danger");
+                $("#"+progressId).addClass("text-light");
+                $("#"+progressId).removeClass("text-dark");
+                
+                feedbackElement.innerHTML=messages[2];
+            }
+            else if (score>=3)
+            {
+                $("#"+progressId).attr("style","width:66%");
+                $("#"+progressId).removeClass("bg-success");
+                $("#"+progressId).addClass("bg-warning");
+                $("#"+progressId).removeClass("bg-danger");
+                $("#"+progressId).removeClass("text-light");
+                $("#"+progressId).addClass("text-dark");
+                feedbackElement.innerHTML=messages[1];
+            }
+            else 
+            {
+                $("#"+progressId).attr("style","width:33%");
+                $("#"+progressId).removeClass("bg-success");
+                $("#"+progressId).removeClass("bg-warning");
+                $("#"+progressId).addClass("bg-danger");
+                $("#"+progressId).addClass("text-light");
+                $("#"+progressId).removeClass("text-dark");
+                feedbackElement.innerHTML=messages[0];
+            }
+                
+        }
+    
+    }
     
 }
 

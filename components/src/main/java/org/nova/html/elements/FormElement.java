@@ -28,7 +28,7 @@ import org.nova.html.enums.enctype;
 
 public class FormElement<ELEMENT extends FormElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
-    private String action;
+    protected String action;
     private method method;
     private enctype encyType;
     public FormElement(method method)
