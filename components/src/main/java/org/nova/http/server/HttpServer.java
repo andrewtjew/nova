@@ -330,6 +330,7 @@ public class HttpServer
     			if (requestHandlerWithParameters != null)
     			{
     	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
+//    	            System.out.println("Time:"+trace.getDurationS());
     			}
     			else
     	        {
