@@ -78,6 +78,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("col-form-label");
     }
+    public default ELEMENT col_auto()
+    {
+        return addClass("col-auto");
+    }
     public default ELEMENT row()
     {
         return addClass("row");
@@ -134,11 +138,11 @@ public interface Styling<ELEMENT>
     {
         return addClass("form-control",breakPoint);
     }
-    public default ELEMENT invalid_feeback()
+    public default ELEMENT invalid_feedback()
     {
         return addClass("invalid-feedback");
     }
-    public default ELEMENT valid_feeback()
+    public default ELEMENT valid_feedback()
     {
         return addClass("valid-feedback");
     }
@@ -506,6 +510,10 @@ public interface Styling<ELEMENT>
     public default ELEMENT input_group()
     {
         return addClass("input-group");
+    }
+    public default ELEMENT has_validation()
+    {
+        return addClass("has-validation");
     }
     public default ELEMENT btn_group()
     {

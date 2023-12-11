@@ -52,8 +52,6 @@ public class FilterChain
     int contentParameterIndex=-1;
 
     
-    static HashMap<String,Integer> cookieMaxAgeMap=new HashMap<String, Integer>();
-    
     FilterChain(RequestHandlerWithParameters methodResult)
 	{
 		this.methodResult=methodResult;
@@ -633,17 +631,8 @@ public class FilterChain
     	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
     	                        String name=info.getName();
     	                        Cookie cookie=new Cookie(name, value);
-    	                        Integer maxAge=cookieMaxAgeMap.get(info.getName());
-    	                        if (maxAge==null)
-    	                        {
-    	                            int cookieMaxAge=cookieStateParam.maxAge();
-    	                            if (cookieMaxAge>-1)
-    	                            {
-    	                                maxAge=cookieMaxAge;
-    	                                cookieMaxAgeMap.put(name, maxAge);
-    	                            }
-    	                        }
-                                if (maxAge!=null)
+                                int maxAge=cookieStateParam.maxAge();
+                                if (maxAge>0)
                                 {
                                     cookie.setMaxAge(maxAge);
                                 }

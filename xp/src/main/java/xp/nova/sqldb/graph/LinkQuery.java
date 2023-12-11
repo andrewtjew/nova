@@ -32,13 +32,6 @@ public class LinkQuery
         this.relation=null;
     }
     
-//    public LinkQuery(Direction direction,Relation_ relation) throws RuntimeException
-//    {
-//        throw new RuntimeException();
-////        this.fromNodeType=null;
-////        this.direction=direction;
-////        this.relation=relation;
-//    }
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;

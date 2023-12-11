@@ -11,6 +11,8 @@ import org.nova.sqldb.Transaction;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
+import xp.nova.sqldb.graph.Query.PreparedQuery;
+
 public class GraphTransaction implements AutoCloseable
 {
     final private long creatorId;
@@ -257,30 +259,6 @@ public class GraphTransaction implements AutoCloseable
         return link(fromNodeId,relation.getValue(),toNode.getNodeId());
     }
     
-//    public long link(long fromNodeId,Predicate_ relation,NodeObject toNode) throws Throwable
-//    {
-//        return link(fromNodeId,relation,toNode.getNodeId());
-//    }
-//    public long link(NodeObject fromNode,Predicate_ relation,NodeObject toNode) throws Throwable
-//    {
-//        return link(fromNode.getNodeId(),relation,toNode.getNodeId());
-//    }
-//    public long link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
-//    {
-//        return link(fromNode.getNodeId(),relation,toNodeId);
-//    }
-    
-    
-//    public void link(long fromNodeId,long toNodeId) throws Throwable
-//    {
-//        if (this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type IS NULL AND relation=0",fromNodeId,toNodeId)>1)
-//        {
-//            throw new Exception();
-//        }
-//        Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
-//                .value("relation", 0)
-//                .executeAndReturnLongKey(parent, this.accessor);
-//    }
     
     public int deleteLinks(Direction direction,long nodeId) throws Throwable
     {
@@ -319,13 +297,39 @@ public class GraphTransaction implements AutoCloseable
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
     }
 
-    public void deleteNode(long nodeId) throws Throwable
+    public int execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
+    {
+        return delete(parent,this.graphAccessor.execute(parent, startNodeId, query, parameters));
+    }
+    public int execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    {
+        return delete(parent,this.graphAccessor.execute(parent, startNodeObject, query, parameters));
+    }
+    public int delete(Trace parent,Query query,Object...parameters) throws Throwable
+    {
+        return delete(parent,this.graphAccessor.execute(parent, query, parameters));
+    }
+
+    public int delete(Trace parent,QueryResultSet set) throws Throwable
+    {
+        //TODO: SQL can be optimized
+        int deleted=0;
+        for (QueryResult result:set.results)
+        {
+            deleted+=deleteNode(result.getNodeId());
+        }
+        return deleted;
+    }
+    
+    public int deleteNode(long nodeId) throws Throwable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
+        return deleted;
+        
     }
-    public void deleteNode(NodeObject node) throws Throwable
+    public int deleteNode(NodeObject node) throws Throwable
     {
         if (node!=null)
         {
@@ -333,8 +337,9 @@ public class GraphTransaction implements AutoCloseable
             {
                 throw new Exception("Not a graph node");
             }
-            deleteNode(node.getNodeId());
+            return deleteNode(node.getNodeId());
         }
+        return 0;
     }
     
     public void commit() throws Throwable

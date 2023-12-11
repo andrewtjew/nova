@@ -11,7 +11,7 @@ public class QueryResultSet
     final private Map<String,GraphObjectDescriptor> map;
 //    final Class<? extends GraphObject> one;
     
-    QueryResultSet(RowSet rowSet,Map<String,GraphObjectDescriptor> map)
+    QueryResultSet(RowSet rowSet,Map<String,GraphObjectDescriptor> map) throws Exception
     {
         this.results=new QueryResult[rowSet.size()];
         for (int i=0;i<results.length;i++)

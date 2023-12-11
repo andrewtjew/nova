@@ -124,25 +124,8 @@ public class Context
 	{
 		this.cookieStates.put(cookieState.cookieStateParam.value(), cookieState);
 	}
-//	public Map<String,CookieState> getCookieStates()
-//	{
-//		return this.cookieStates;
-//	}
-//	public ObjectBox getCookieState(String name)
-//	{
-//		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
-//		for (int i=0;i<infos.length;i++)
-//		{
-//			ParameterInfo info=infos[i];
-//			if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
-//			{
-//				return new ObjectBox(this.filterChain.parameters[i]);
-//			}
-//		}
-//		return null;
-//	}
-    @SuppressWarnings("unchecked")
-    public <OBJECT> OBJECT  getCookieState(String name)
+
+    public ObjectBox  getCookieStateParameter(String name)
     {
         ParameterInfo[] infos=this.requestHandler.getParameterInfos();
         for (int i=0;i<infos.length;i++)
@@ -150,8 +133,7 @@ public class Context
             ParameterInfo info=infos[i];
             if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
             {
-//              return new ObjectBox(this.filterChain.parameters[i]);
-                return (OBJECT)this.filterChain.parameters[i];
+              return new ObjectBox(this.filterChain.parameters[i]);
             }
         }
         return null;

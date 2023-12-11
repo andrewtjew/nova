@@ -1,6 +1,7 @@
 package xp.nova.sqldb.graph;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.nova.sqldb.Row;
 
@@ -9,7 +10,7 @@ public class QueryResult
     final private Row row;
     final Map<String,GraphObjectDescriptor> map;
     
-    QueryResult(Row row,Map<String,GraphObjectDescriptor> map)
+    QueryResult(Row row,Map<String,GraphObjectDescriptor> map) throws Exception
     {
         this.map=map;
         this.row=row;
@@ -18,8 +19,8 @@ public class QueryResult
     public <OBJECT extends NodeObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
     {
         String typeName=namespace!=null?namespace+"."+type.getSimpleName():type.getSimpleName();
-        GraphObjectDescriptor meta=this.map.get(typeName);
-        if (meta==null)
+        GraphObjectDescriptor descriptor=this.map.get(typeName);
+        if (descriptor==null)
         {
             return null;
         }
@@ -30,11 +31,25 @@ public class QueryResult
             return null;
         }
         NodeObject nodeObject = (NodeObject) type.newInstance();
-        for (FieldDescriptor columnAccessor : meta.getColumnAccessors())
+        for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
         {
             columnAccessor.set(nodeObject, typeName, row);
         }
         return (OBJECT)nodeObject;
+    }
+    
+    public Long getNodeId() throws Exception
+    {
+        for (Entry<String, GraphObjectDescriptor> entry:this.map.entrySet())
+        {
+            GraphObjectDescriptor descriptor=entry.getValue();
+            Long nodeId = row.getNullableBIGINT(entry.getKey() + "._nodeId");
+            if (nodeId!=null)
+            {
+                return nodeId;
+            }
+        }
+        return null;
     }
 
     public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type) throws Throwable
