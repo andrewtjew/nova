@@ -316,8 +316,13 @@ public class GraphTransaction implements AutoCloseable
         int deleted=0;
         for (QueryResult result:set.results)
         {
-            deleted+=deleteNode(result.getNodeId());
+            Long nodeId=result.getNodeId();
+            if (nodeId!=null)
+            {
+                deleted+=deleteNode(nodeId);
+            }
         }
+        System.out.println("deleted:"+deleted);
         return deleted;
     }
     

@@ -370,7 +370,15 @@ namespace nova.remote
                                 break;
                                 
                             case "outerHTML":
-                            document.getElementById(parameters[0]).outerHTML=parameters[1];
+                            var element=document.getElementById(parameters[0]);
+                            if (element!=null)
+                            {
+                                element.outerHTML=parameters[1];
+                            }
+                            else
+                            {
+                                console.log("outerHtml:no id:"+parameters[0]);
+                            }
                             break;
 
                         case "innerText":
@@ -397,7 +405,7 @@ namespace nova.remote
                 }
                 catch (ex)
                 {
-                    alert("remote exception:"+ex);
+                    console.log("remote exception:"+ex+",prameters="+parameters);
                 }
             }
         }
