@@ -180,57 +180,6 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-//    public void update(NodeObject object) throws Throwable
-//    {
-//        if (object._nodeId==null)
-//        {
-//            throw new Exception();
-//        }
-//        long eventId=getEventId();
-//        Class<? extends NodeObject> type=object.getClass();
-//        GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
-//        String table=meta.getTableName();
-//        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
-//
-//        StringBuilder insert=new StringBuilder();
-//        StringBuilder update=new StringBuilder();
-//        StringBuilder values=new StringBuilder();
-//
-//        Object[] parameters=new Object[columnAccessors.length*2+1];
-//        int insertIndex=0;
-//        int updateIndex=columnAccessors.length+1;
-//        parameters[insertIndex++]=object._nodeId;
-//        parameters[insertIndex++]=eventId;
-//        parameters[updateIndex++]=eventId;
-//
-//        insert.append("_nodeId,_eventId");
-//        values.append("?,?");
-//        update.append("_eventId=?");
-//        
-//        for (FieldDescriptor columnAccessor:columnAccessors)
-//        {
-//            if (columnAccessor.isInternal())
-//            {
-//                continue;
-//            }
-//            String name=columnAccessor.getName();
-//            Object value=columnAccessor.get(object);
-//            insert.append(',');
-//            insert.append('`'+name+'`');
-//            values.append(",?");
-//            update.append(",`"+name+"`=?");
-//            parameters[insertIndex++]=value;
-//            parameters[updateIndex++]=value;
-//        }
-//        
-//        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
-//        if (Graph.TEST)
-//        {
-//            Testing.log(sql);
-//        }
-//        accessor.executeUpdate(parent,null,sql,parameters);
-//    }
-
     public long badlink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         throw new Exception();
@@ -297,44 +246,34 @@ public class GraphTransaction implements AutoCloseable
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
     }
 
-    public int execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
-    {
-        return delete(parent,this.graphAccessor.execute(parent, startNodeId, query, parameters));
-    }
-    public int execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
-    {
-        return delete(parent,this.graphAccessor.execute(parent, startNodeObject, query, parameters));
-    }
-    public int delete(Trace parent,Query query,Object...parameters) throws Throwable
-    {
-        return delete(parent,this.graphAccessor.execute(parent, query, parameters));
-    }
-
-    public int delete(Trace parent,QueryResultSet set) throws Throwable
+    public int delete(QueryResultSet set,Class<? extends NodeObject> type) throws Throwable
     {
         //TODO: SQL can be optimized
         int deleted=0;
         for (QueryResult result:set.results)
         {
-            Long nodeId=result.getNodeId();
-            if (nodeId!=null)
+            NodeObject node=result.get(type);
+            if (node!=null)
             {
-                deleted+=deleteNode(nodeId);
+                long nodeId=node.getNodeId();
+                deleted+=deleteNode(nodeId)?1:0;
             }
         }
         System.out.println("deleted:"+deleted);
         return deleted;
     }
     
-    public int deleteNode(long nodeId) throws Throwable
+    public boolean deleteNode(long nodeId) throws Throwable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
-        return deleted;
+        //The object rows are not deleted. A pruning process should go and delete all nodes.
+        
+        return deleted>0;
         
     }
-    public int deleteNode(NodeObject node) throws Throwable
+    public boolean deleteNode(NodeObject node) throws Throwable
     {
         if (node!=null)
         {
@@ -344,7 +283,7 @@ public class GraphTransaction implements AutoCloseable
             }
             return deleteNode(node.getNodeId());
         }
-        return 0;
+        return false;
     }
     
     public void commit() throws Throwable

@@ -38,19 +38,6 @@ public class QueryResult
         return (OBJECT)nodeObject;
     }
     
-    public Long getNodeId() throws Exception
-    {
-        for (Entry<String, GraphObjectDescriptor> entry:this.map.entrySet())
-        {
-            GraphObjectDescriptor descriptor=entry.getValue();
-            Long nodeId = row.getNullableBIGINT(entry.getKey() + "._nodeId");
-            if (nodeId!=null)
-            {
-                return nodeId;
-            }
-        }
-        return null;
-    }
 
     public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type) throws Throwable
     {

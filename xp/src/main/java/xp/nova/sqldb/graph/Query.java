@@ -156,34 +156,34 @@ public class Query
                 break;
             }
 
-            if (linkQuery.selectLink)
-            {
-                String on = " ON " + linkAlias + ".nodeId=";
-                Class<? extends NodeObject> type = LinkObject.class;
-                GraphObjectDescriptor descriptor = state.graph.register(type);
-                state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
-                String typeName = descriptor.getTypeName();
-                String table = descriptor.getTableName();
-
-                String as=" ";
-                String alias=table;
-                if (linkQuery.linkNamespace!=null)
-                {
-                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
-                    as=" AS "+alias+" ";
-                }
-
-                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
-                {
-                    String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
-                    String tableColumnName = columnAccessor.getColumnName(linkAlias);
-                    if (state.select.length()>0)
-                    {
-                        state.select.append(',');
-                    }
-                    state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
-                }
-            }
+//            if (linkQuery.selectLink)
+//            {
+//                String on = " ON " + linkAlias + ".nodeId=";
+//                Class<? extends NodeObject> type = LinkObject.class;
+//                GraphObjectDescriptor descriptor = state.graph.register(type);
+//                state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
+//                String typeName = descriptor.getTypeName();
+//                String table = descriptor.getTableName();
+//
+//                String as=" ";
+//                String alias=table;
+//                if (linkQuery.linkNamespace!=null)
+//                {
+//                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
+//                    as=" AS "+alias+" ";
+//                }
+//
+//                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+//                {
+//                    String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
+//                    String tableColumnName = columnAccessor.getColumnName(linkAlias);
+//                    if (state.select.length()>0)
+//                    {
+//                        state.select.append(',');
+//                    }
+//                    state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
+//                }
+//            }
             if (linkQuery.linkTypes != null)
             {
                 String on = " ON " + linkAlias + ".nodeId=";
