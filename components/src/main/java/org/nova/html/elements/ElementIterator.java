@@ -4,15 +4,11 @@ public class ElementIterator
 {
     public static interface Runnable
     {
-        public void run(Element element);
+        public void run(Element element) throws Throwable;
         
     }
     static public void iterate(Element element,Runnable runnable) throws Throwable
     {
-        if (element==null)
-        {
-            return;
-        }
         runnable.run(element);
         if (element instanceof NodeElement<?>)
         {

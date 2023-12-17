@@ -536,10 +536,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("align-content",value);
     }
-    public default ELEMENT align_items(AlignSelf value)
-    {
-        return addClass("align-items",value);
-    }
+//    public default ELEMENT align_items(AlignSelf value)
+//    {
+//        return addClass("align-items",value);
+//    }
     public default ELEMENT dropup(boolean center)
     {
         if (center)
