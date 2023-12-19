@@ -63,7 +63,7 @@ public class NameValueContainer extends Container
 
     public NameValueContainer add(StyleTemplate nameTemplate,Object name,StyleTemplate valueTemplate,Object value)
     {
-        Row row=this.returnAddInner(new Row()).align_items(AlignSelf.center);
+        Row row=this.returnAddInner(new Row()).align_self(AlignSelf.center);
         if (this.firstRow==false)
         {
             row.mt(2);

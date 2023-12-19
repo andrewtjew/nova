@@ -10,10 +10,11 @@ public class LinkQuery
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
     Class<? extends NodeObject>[] linkTypes;
+    Class<? extends NodeObject>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
 
-    boolean selectLink;
+//    boolean selectLink;
     
 //    String expression;
     Object[] parameters;
@@ -32,13 +33,6 @@ public class LinkQuery
         this.relation=null;
     }
     
-//    public LinkQuery(Direction direction,Relation_ relation) throws RuntimeException
-//    {
-//        throw new RuntimeException();
-////        this.fromNodeType=null;
-////        this.direction=direction;
-////        this.relation=relation;
-//    }
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;
@@ -88,12 +82,18 @@ public class LinkQuery
         this.linkTypes = nodeTypes;
         return this;
     }
-
-    final public LinkQuery selectLink()
+    @SafeVarargs
+    final public LinkQuery selectOptionalLink(Class<? extends NodeObject>... nodeTypes)
     {
-        this.selectLink=true;
+        this.optionalLinkTypes = nodeTypes;
         return this;
     }
+
+//    final public LinkQuery selectLink()
+//    {
+//        this.selectLink=true;
+//        return this;
+//    }
 
     public LinkQuery traverse(LinkQuery linkQuery)
     {

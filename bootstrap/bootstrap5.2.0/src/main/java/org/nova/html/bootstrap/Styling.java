@@ -78,6 +78,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("col-form-label");
     }
+    public default ELEMENT col_auto()
+    {
+        return addClass("col-auto");
+    }
     public default ELEMENT row()
     {
         return addClass("row");
@@ -134,11 +138,11 @@ public interface Styling<ELEMENT>
     {
         return addClass("form-control",breakPoint);
     }
-    public default ELEMENT invalid_feeback()
+    public default ELEMENT invalid_feedback()
     {
         return addClass("invalid-feedback");
     }
-    public default ELEMENT valid_feeback()
+    public default ELEMENT valid_feedback()
     {
         return addClass("valid-feedback");
     }
@@ -507,6 +511,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("input-group");
     }
+    public default ELEMENT has_validation()
+    {
+        return addClass("has-validation");
+    }
     public default ELEMENT btn_group()
     {
         return addClass("btn-group");
@@ -528,10 +536,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("align-content",value);
     }
-    public default ELEMENT align_items(AlignSelf value)
-    {
-        return addClass("align-items",value);
-    }
+//    public default ELEMENT align_items(AlignSelf value)
+//    {
+//        return addClass("align-items",value);
+//    }
     public default ELEMENT dropup(boolean center)
     {
         if (center)

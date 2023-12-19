@@ -11,6 +11,8 @@ import org.nova.sqldb.Transaction;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
+import xp.nova.sqldb.graph.Query.PreparedQuery;
+
 public class GraphTransaction implements AutoCloseable
 {
     final private long creatorId;
@@ -178,57 +180,6 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-//    public void update(NodeObject object) throws Throwable
-//    {
-//        if (object._nodeId==null)
-//        {
-//            throw new Exception();
-//        }
-//        long eventId=getEventId();
-//        Class<? extends NodeObject> type=object.getClass();
-//        GraphObjectDescriptor meta=this.graph.getGraphObjectDescriptor(type);
-//        String table=meta.getTableName();
-//        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
-//
-//        StringBuilder insert=new StringBuilder();
-//        StringBuilder update=new StringBuilder();
-//        StringBuilder values=new StringBuilder();
-//
-//        Object[] parameters=new Object[columnAccessors.length*2+1];
-//        int insertIndex=0;
-//        int updateIndex=columnAccessors.length+1;
-//        parameters[insertIndex++]=object._nodeId;
-//        parameters[insertIndex++]=eventId;
-//        parameters[updateIndex++]=eventId;
-//
-//        insert.append("_nodeId,_eventId");
-//        values.append("?,?");
-//        update.append("_eventId=?");
-//        
-//        for (FieldDescriptor columnAccessor:columnAccessors)
-//        {
-//            if (columnAccessor.isInternal())
-//            {
-//                continue;
-//            }
-//            String name=columnAccessor.getName();
-//            Object value=columnAccessor.get(object);
-//            insert.append(',');
-//            insert.append('`'+name+'`');
-//            values.append(",?");
-//            update.append(",`"+name+"`=?");
-//            parameters[insertIndex++]=value;
-//            parameters[updateIndex++]=value;
-//        }
-//        
-//        String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+") ON DUPLICATE KEY UPDATE "+update;
-//        if (Graph.TEST)
-//        {
-//            Testing.log(sql);
-//        }
-//        accessor.executeUpdate(parent,null,sql,parameters);
-//    }
-
     public long badlink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
         throw new Exception();
@@ -257,30 +208,6 @@ public class GraphTransaction implements AutoCloseable
         return link(fromNodeId,relation.getValue(),toNode.getNodeId());
     }
     
-//    public long link(long fromNodeId,Predicate_ relation,NodeObject toNode) throws Throwable
-//    {
-//        return link(fromNodeId,relation,toNode.getNodeId());
-//    }
-//    public long link(NodeObject fromNode,Predicate_ relation,NodeObject toNode) throws Throwable
-//    {
-//        return link(fromNode.getNodeId(),relation,toNode.getNodeId());
-//    }
-//    public long link(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
-//    {
-//        return link(fromNode.getNodeId(),relation,toNodeId);
-//    }
-    
-    
-//    public void link(long fromNodeId,long toNodeId) throws Throwable
-//    {
-//        if (this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type IS NULL AND relation=0",fromNodeId,toNodeId)>1)
-//        {
-//            throw new Exception();
-//        }
-//        Insert.table("_link").value("fromNodeId",fromNodeId).value("toNodeId", toNodeId).value("eventId",this.getEventId())
-//                .value("relation", 0)
-//                .executeAndReturnLongKey(parent, this.accessor);
-//    }
     
     public int deleteLinks(Direction direction,long nodeId) throws Throwable
     {
@@ -319,13 +246,34 @@ public class GraphTransaction implements AutoCloseable
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
     }
 
-    public void deleteNode(long nodeId) throws Throwable
+    public int delete(QueryResultSet set,Class<? extends NodeObject> type) throws Throwable
+    {
+        //TODO: SQL can be optimized
+        int deleted=0;
+        for (QueryResult result:set.results)
+        {
+            NodeObject node=result.get(type);
+            if (node!=null)
+            {
+                long nodeId=node.getNodeId();
+                deleted+=deleteNode(nodeId)?1:0;
+            }
+        }
+        System.out.println("deleted:"+deleted);
+        return deleted;
+    }
+    
+    public boolean deleteNode(long nodeId) throws Throwable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
+        //The object rows are not deleted. A pruning process should go and delete all nodes.
+        
+        return deleted>0;
+        
     }
-    public void deleteNode(NodeObject node) throws Throwable
+    public boolean deleteNode(NodeObject node) throws Throwable
     {
         if (node!=null)
         {
@@ -333,8 +281,9 @@ public class GraphTransaction implements AutoCloseable
             {
                 throw new Exception("Not a graph node");
             }
-            deleteNode(node.getNodeId());
+            return deleteNode(node.getNodeId());
         }
+        return false;
     }
     
     public void commit() throws Throwable

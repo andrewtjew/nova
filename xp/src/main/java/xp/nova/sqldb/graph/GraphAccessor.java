@@ -109,10 +109,10 @@ public class GraphAccessor implements AutoCloseable
     public QueryResultSet execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
-        if (preparedQuery.startType!=startNodeObject.getClass())
-        {
-            throw new Exception("Expected="+preparedQuery.startType.getName()+", actual="+startNodeObject.getClass().getName());
-        }
+//        if (preparedQuery.startType!=startNodeObject.getClass())
+//        {
+//            throw new Exception("Expected="+preparedQuery.startType.getName()+", actual="+startNodeObject.getClass().getName());
+//        }
         return execute(parent,parameters,startNodeObject.getNodeId(),query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
