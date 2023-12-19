@@ -630,7 +630,7 @@ public class FilterChain
 						    if (cookieStateParam.save())
 						    {
     	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
-    	                        value=URLEncoder.encode(value,StandardCharsets.UTF_8);
+    	                        value=URLEncoder.encode(value,"UTF-8");
     	                        String name=info.getName();
     	                        Cookie cookie=new Cookie(name, value);
     	                        Integer maxAge=cookieMaxAgeMap.get(info.getName());

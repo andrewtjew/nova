@@ -10,7 +10,7 @@ public class RemoteForm extends FormElement<RemoteForm>
 {
     public RemoteForm()
     {
-        super(method.get);
+        super(method.post);
         this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
     }
     public String js_post() throws Throwable

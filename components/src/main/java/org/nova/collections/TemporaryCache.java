@@ -19,16 +19,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.tags.ext;
+package org.nova.collections;
 
-import org.nova.html.enums.http_equiv;
-import org.nova.html.tags.meta;
+import java.util.Collection;
+import java.util.HashMap;
 
-public class meta_redirect extends meta
+import org.nova.annotations.Description;
+import org.nova.metrics.CountMeter;
+import org.nova.testing.Debugging;
+import org.nova.tracing.Trace;
+
+abstract public class TemporaryCache<VALUE>
 {
-    public meta_redirect(int seconds,String url)
+	private VALUE value;
+	private long duration;
+	private long lastRefresh;
+	
+	public TemporaryCache(long duration)
     {
-        http_equiv_content(http_equiv.refresh,Integer.toString(seconds)+";URL='"+url+"'");
+	    this.duration=duration;
+	    this.lastRefresh=System.currentTimeMillis()-this.duration*2;
     }
-    
+
+	public VALUE get(Trace parent) throws Throwable
+	{
+	    long now=System.currentTimeMillis();
+	    synchronized(this)
+	    {
+	        long span=now-this.lastRefresh;
+	        if (span>=this.duration)
+	        {
+	            this.value=load(parent);
+	            this.lastRefresh=now;
+	        }
+	        return this.value;
+	    }
+	}
+    public VALUE getFromCache(Trace parent) throws Throwable
+    {
+        synchronized(this)
+        {
+            if (this.value==null)
+            {
+                this.value=load(parent);
+            }
+            return this.value;
+        }
+    }
+    abstract protected VALUE load(Trace parent) throws Throwable; //Don't return null. return new ValueSize(null) instead. 
 }

@@ -62,7 +62,6 @@ public class ServerApplicationRunner //
         new ServerApplicationRunner().run(args,instantiator);
     }
 
-    
     private Throwable startupException;
     
     private HttpTransport startOperatorTransport(Configuration configuration,TraceManager traceManager,Logger logger) throws Exception
