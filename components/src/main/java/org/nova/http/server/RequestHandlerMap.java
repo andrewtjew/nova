@@ -45,7 +45,6 @@ import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.DELETE;
 import org.nova.http.server.annotations.DefaultValue;
-import org.nova.http.server.annotations.SecurePathParam;
 import org.nova.http.server.annotations.SecureQueryParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
@@ -522,7 +521,6 @@ class RequestHandlerMap
 			HeaderParam headerParam = null;
 			PathParam pathParam = null;
 			SecureQueryParam secureQueryParam=null;
-			SecurePathParam securePathParam=null;
 			QueryParam queryParam = null;
 			StateParam stateParam = null;
 			ParamName paramName=null;
@@ -563,10 +561,6 @@ class RequestHandlerMap
 				{
 					pathParam = (PathParam) annotation;
 				}
-                else if (type == SecurePathParam.class)
-                {
-                    securePathParam = (SecurePathParam) annotation;
-                }
 				else if (type == QueryParam.class)
 				{
 					queryParam = (QueryParam) annotation;
@@ -611,10 +605,6 @@ class RequestHandlerMap
 			{
 				params.add(pathParam);
 			}
-            if (securePathParam != null)
-            {
-                params.add(securePathParam);
-            }
 			if (headerParam != null)
 			{
 				params.add(headerParam);
@@ -696,15 +686,6 @@ class RequestHandlerMap
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
-            else if (securePathParam != null)
-            {
-                if (isSimpleParameterType(parameterType) == false)
-                {
-                    throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
-                }
-                parameterInfos.add(new ParameterInfo(ParameterSource.PATH, securePathParam, securePathParam.value(), parameterIndex, parameterType,
-                        getDefaultValue(method, defaultValue, parameterType),required!=null));
-            }
 			else if (queryParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,

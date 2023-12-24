@@ -38,10 +38,6 @@ public abstract class SecurePathAndQuery
         this.path=path;
         this.parameters=new ArrayList<NameString>();
     }
-    public SecurePathAndQuery() throws UnsupportedEncodingException
-    {
-        this(null);
-    }
 	public SecurePathAndQuery addQuery(String key,Object value) throws Exception
 	{
 	    if (value==null)

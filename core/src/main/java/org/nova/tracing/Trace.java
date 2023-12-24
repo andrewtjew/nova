@@ -48,7 +48,7 @@ public class Trace implements AutoCloseable
 	
 	public Trace(TraceManager traceManager,Trace parent,String category,String details,boolean waiting,boolean log)
 	{
-		this.thread=Thread.currentThread();
+		this.thread=Thread.currentThread(); //Not a performance issue, just reading a regular field.
 		this.traceManager=traceManager;
 		this.parent=parent;
 		this.category=category;
@@ -381,10 +381,10 @@ public class Trace implements AutoCloseable
 	    return null;
 	}
 	
-	public Trace newChild(String category)
-	{
-	    return new Trace(this.traceManager,this,category);
-	}
+//	public Trace newChild(String category)
+//	{
+//	    return new Trace(this.traceManager,this,category);
+//	}
 	
 	
 }
