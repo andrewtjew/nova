@@ -110,7 +110,7 @@ public class Query
             String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
 
             Class<? extends RelationNodeObject<?>> fromType=null;
-            if (linkQuery.optional)
+            if (linkQuery.nodeTypes==null)
             {
                 state.sources.append(" LEFT JOIN");
             }

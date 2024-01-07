@@ -293,7 +293,7 @@ namespace nova.remote
             });
     }
 
-    export async function postFormUrlEncoded(id:string)
+    export async function postFormUrlEncoded(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
         let data=new FormData(form);
@@ -303,7 +303,7 @@ namespace nova.remote
             params.append(pair[0],pair[1].toString());
         }
 
-        return await fetch(form.action,
+        return await fetch(action!=null?action:form.action,
             {
                 method:"POST",
                 body: params
@@ -321,11 +321,11 @@ namespace nova.remote
             });
     }
 
-    export async function postFormData(id:string)
+    export async function postFormData(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
         let data=new FormData(form);
-        return await fetch(form.action,
+        return await fetch(action!=null?action:form.action,
             {
                 method:"POST",
                 body: new FormData(form),

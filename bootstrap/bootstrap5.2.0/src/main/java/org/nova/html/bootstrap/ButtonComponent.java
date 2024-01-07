@@ -104,6 +104,10 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         return attr("for",element.id());
     }
 
+    public ELEMENT auto_close(boolean value)
+    {
+        return attr("data-bs-auto-close",value);
+    }
     
     public ELEMENT dismissModal()
     {
