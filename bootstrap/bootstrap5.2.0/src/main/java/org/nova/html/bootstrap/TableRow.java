@@ -63,7 +63,7 @@ public class TableRow extends StyleComponent<TableRow>
                     continue;
                 }
             }
-            addInner(new td().addInner(object));
+            addInner(new TableData().addInner(object));
         }
         return this;
     }

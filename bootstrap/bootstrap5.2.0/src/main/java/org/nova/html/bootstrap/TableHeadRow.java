@@ -103,13 +103,13 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
             if (object instanceof TagElement<?>)
             {
                 TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("th"))
+                if (tagElement.getTag().equals("td"))
                 {
                     addInner(tagElement);
                     continue;
                 }
             }
-            addInner(new th().addInner(object));
+            addInner(new TableData().addInner(object));
         }
         return this;
     }

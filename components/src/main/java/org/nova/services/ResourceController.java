@@ -88,7 +88,7 @@ public class ResourceController
 
     public void clearCache()
     {
-        this.cache.removeAll();
+        this.cache.clear();
         synchronized(this)
         {
             this.hashMap.clear();

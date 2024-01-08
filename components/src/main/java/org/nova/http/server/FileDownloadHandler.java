@@ -64,7 +64,7 @@ public abstract class FileDownloadHandler extends ServletHandler
 
     public void evictAll()
     {
-        this.cache.removeAll();
+        this.cache.clear();
     }
     static public boolean DEBUG=false;
     

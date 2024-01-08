@@ -23,6 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.TagElement;
 import org.nova.html.tags.td;
 
 public class TableRow extends StyleComponent<TableRow>
@@ -36,22 +37,16 @@ public class TableRow extends StyleComponent<TableRow>
     {
         for (Object object:objects)
         {
-            if (object==null)
+            if (object instanceof TagElement<?>)
             {
-                addInner(new td());
+                TagElement<?> tagElement=(TagElement<?>)object;
+                if (tagElement.getTag().equals("td"))
+                {
+                    addInner(tagElement);
+                    continue;
+                }
             }
-            else if (object instanceof td)
-            {
-                addInner(object);
-            }
-            else if (object instanceof Element)
-            {
-                addInner(new td().addInner((Element)object));
-            }
-            else
-            {
-                addInner(new td().addInner(object.toString()));
-            }
+            addInner(new td().addInner(object));
         }
         return this;
     }

@@ -23,7 +23,7 @@ package org.nova.html.enums;
 
 public enum enctype
 {
-    url("application/x-www-form-urlencoded"),
+    urlencoded("application/x-www-form-urlencoded"),
     data("multipart/form-data"),
     plain("text/plain"),
     ;

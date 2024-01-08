@@ -331,7 +331,7 @@ abstract public class ContentCache<KEY,VALUE>
 		}
 	}
 	
-	public void removeAll()
+	public void clear()
 	{
 		synchronized(this.entries)
 		{

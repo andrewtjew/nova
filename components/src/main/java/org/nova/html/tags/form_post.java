@@ -30,6 +30,7 @@ public class form_post extends FormElement<form_post>
     public form_post()
     {
         super(method.post);
+//        enctype(org.nova.html.enums.enctype.urlencoded);
     }
     public form_post enctype(enctype enctype) 
     {

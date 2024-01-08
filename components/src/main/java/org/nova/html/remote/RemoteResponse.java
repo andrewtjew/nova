@@ -120,13 +120,11 @@ public class RemoteResponse
         String code=HtmlUtils.js_location(pathAndQuery);
         return script(code);
     }
-    public RemoteResponse prop(String id,String prop,Object value) throws UnsupportedEncodingException
-    {
-//        (String id,String prop,Object value)
-//        QuotationMark mark=QuotationMark.SINGLE;
-        String code="$('#"+id+"').prop('"+prop+"',"+value+");";
-        return script(code);
-    }
+//    public RemoteResponse prop(String id,String prop,Object value) throws UnsupportedEncodingException
+//    {
+//        String code="$('#"+id+"').prop('"+prop+"',"+value+");";
+//        return script(code);
+//    }
     public RemoteResponse showModal(String id)
     {
         QuotationMark mark=QuotationMark.SINGLE;
