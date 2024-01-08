@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.enums.target;
+import org.nova.html.tags.a;
+
 public class Link extends ButtonComponent<Link>
 {
     public Link()
@@ -59,5 +62,13 @@ public class Link extends ButtonComponent<Link>
     {
         attr("href",href);
         return this;
+    }
+    public Link target(target target)
+    {
+        return attr("target",target.toString());
+    }
+    public Link target(String framename)
+    {
+        return attr("target",framename);
     }
 }

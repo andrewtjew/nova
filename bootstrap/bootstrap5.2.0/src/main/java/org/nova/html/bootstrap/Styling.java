@@ -540,21 +540,25 @@ public interface Styling<ELEMENT>
 //    {
 //        return addClass("align-items",value);
 //    }
-    public default ELEMENT dropup(boolean center)
+    public default ELEMENT dropup()
     {
-        if (center)
-        {
-            return addClass("dropup-center");
-        }
         return addClass("dropup");
     }
-    public default ELEMENT dropdown(boolean center)
+    public default ELEMENT dropdown()
     {
-        if (center)
-        {
-            return addClass("dropdown-center");
-        }
         return addClass("dropdown");
+    }
+    public default ELEMENT dropup_center()
+    {
+        return addClass("dropup-center");
+    }
+    public default ELEMENT dropdown_center()
+    {
+        return addClass("dropdown-center");
+    }
+    public default ELEMENT dropdown_toggle()
+    {
+        return addClass("dropdown-toggle");
     }
     public default ELEMENT dropstart()
     {

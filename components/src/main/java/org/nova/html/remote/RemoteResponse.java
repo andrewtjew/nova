@@ -5,7 +5,9 @@ import java.util.ArrayList;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
+import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
 import org.nova.json.ObjectMapper;
@@ -79,6 +81,12 @@ public class RemoteResponse
     {
         String text=element.getHtml();
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
+        return this;
+    }
+    public RemoteResponse outerHtml(TagElement element)
+    {
+        String text=element.getHtml();
+        this.instructions.add(new Instruction(this.trace,Command.outerHTML,element.id(),text));
         return this;
     }
     public RemoteResponse innerText(String id,Object text)

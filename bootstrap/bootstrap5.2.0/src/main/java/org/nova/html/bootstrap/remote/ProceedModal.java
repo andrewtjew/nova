@@ -10,6 +10,7 @@ import org.nova.html.bootstrap.ext.ModalDocument;
 import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.Inputs;
+import org.nova.html.remote.RemoteForm;
 
 public class ProceedModal extends ModalDocument
 {
@@ -68,14 +69,19 @@ public class ProceedModal extends ModalDocument
     {
         this(null,null,"Cancel","Proceed");
     }
-//    public ProceedModal(ButtonComponent<?> cancelButton,ButtonComponent<?> proceedButton) throws Throwable
-//    {
-//        this(null,null,null,cancelButton,proceedButton);
-//    }
     public void onProceed(String script)
     {
         proceedButton.onclick(script);
     }
+    public void onProceed(RemoteForm form) throws Throwable
+    {
+        proceedButton.onclick(form.js_post());
+    }
+    public void onProceed(RemoteForm form,String action) throws Throwable
+    {
+        proceedButton.onclick(form.js_post(action));
+    }
+    
     public void onProceed(Inputs inputs,String action) throws Throwable
     {
         proceedButton.onclick(inputs.js_post(action));

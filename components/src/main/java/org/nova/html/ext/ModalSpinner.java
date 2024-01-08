@@ -121,7 +121,7 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
     }
     public script js_onbeforeunload(int delay)
     {
-    	return js_on("window.onbeforeunload",delay);
+    	return js_on("window.visibilitychange=function(){"+js_hide()+";};window.onbeforeunload",delay);
     }
 	
 }

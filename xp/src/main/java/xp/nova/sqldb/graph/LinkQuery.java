@@ -19,7 +19,7 @@ public class LinkQuery
 //    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
-    boolean optional=false;
+//    boolean optional=false;
 
     public <SUBJECT extends RelationNodeObject<RELATION>,RELATION extends Relation_> 
     LinkQuery(Direction direction,RELATION relation)
@@ -56,11 +56,11 @@ public class LinkQuery
 //        return this;
 //    }
     
-    public LinkQuery optional()
-    {
-        this.optional=true;
-        return this;
-    }
+//    public LinkQuery optional()
+//    {
+//        this.optional=true;
+//        return this;
+//    }
     
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
@@ -88,12 +88,6 @@ public class LinkQuery
         this.optionalLinkTypes = nodeTypes;
         return this;
     }
-
-//    final public LinkQuery selectLink()
-//    {
-//        this.selectLink=true;
-//        return this;
-//    }
 
     public LinkQuery traverse(LinkQuery linkQuery)
     {
