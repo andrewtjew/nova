@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.enums.target;
 import org.nova.html.tags.a;
 
@@ -47,6 +48,11 @@ public class Link extends ButtonComponent<Link>
     public Link page_link()
     {
         return addClass("page-link");        
+    }
+    public Link link(StyleColor value)
+    {
+        addClass("link",value.toString());
+        return (Link)this;
     }
     public Link active()
     {

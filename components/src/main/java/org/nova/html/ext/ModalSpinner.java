@@ -98,21 +98,13 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 	}
 	
 	
-    public String js_show(QuotationMark mark)
-    {
-    	return "document.getElementById("+mark+id()+mark+").style.display="+mark+"block"+mark;
-    }
     public String js_show()
     {
-    	return js_show(QuotationMark.SINGLE);
-    }
-    public String js_hide(QuotationMark mark)
-    {
-    	return "document.getElementById("+mark+id()+mark+").style.display="+mark+"none"+mark;
+        return HtmlUtils.js_call("document.getElementById",id())+".style.display='block'";
     }
     public String js_hide()
     {
-    	return js_hide(QuotationMark.APOS);
+        return HtmlUtils.js_call("document.getElementById",id())+".style.display='none'";
     }
 
     public script js_on(String onName,int delay)
