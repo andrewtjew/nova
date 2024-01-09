@@ -106,15 +106,15 @@ public class OperatorUtils
         row.add(trace.getThread().getId()+":"+trace.getThread().getName());
     }
 
-    static private Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace)
+    static private Element formatStackTrace(String heading,StackTraceElement[] stackTrace)
     {
-        Accordion accordion=new Accordion(head, false, heading);
+        Accordion accordion=new Accordion(false, heading);
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(stackTrace.length+1).addInner(Utils.toString(stackTrace)));
         return accordion;
     }
-    static private Element formatThrowable(Head head,String heading,Throwable throwable) throws Exception
+    static private Element formatThrowable(String heading,Throwable throwable) throws Exception
     {
-        Accordion accordion=new Accordion(head, true, heading);
+        Accordion accordion=new Accordion(true, heading);
         String text=Utils.getStrackTraceAsString(throwable);
         int occurs=Utils.occurs(text,"\n");
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(occurs+1).addInner(text));
@@ -172,7 +172,7 @@ public class OperatorUtils
 
         if (trace.getThrowable() != null)
         {
-            panel.content().addInner(formatThrowable(head, "Exception Stack Trace" ,trace.getThrowable()));
+            panel.content().addInner(formatThrowable("Exception Stack Trace" ,trace.getThrowable()));
             panel.content().addInner(new p());
         }
         if (includeStackTraces)
@@ -182,18 +182,18 @@ public class OperatorUtils
                 StackTraceElement[] currentStackTrace = trace.getThread().getStackTrace();
                 if (currentStackTrace != null)
                 {
-                    panel.content().addInner(formatStackTrace(head, "Current Stack Trace",currentStackTrace ));
+                    panel.content().addInner(formatStackTrace("Current Stack Trace",currentStackTrace ));
                 }
             }
             StackTraceElement[] createStackTrace = trace.getCreateStackTrace();
             if (createStackTrace != null)
             {
-                panel.content().addInner(formatStackTrace(head, "Create Stack Trace",createStackTrace));
+                panel.content().addInner(formatStackTrace("Create Stack Trace",createStackTrace));
             }
             StackTraceElement[] closeStackTrace = trace.getCloseStackTrace();
             if (closeStackTrace != null)
             {
-                panel.content().addInner(formatStackTrace(head, "Close Stack Trace",closeStackTrace));
+                panel.content().addInner(formatStackTrace("Close Stack Trace",closeStackTrace));
             }
         }
     }

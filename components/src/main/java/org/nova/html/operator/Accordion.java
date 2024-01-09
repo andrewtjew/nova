@@ -32,22 +32,16 @@ public class Accordion extends Content
 {
     final private button_button button;
     final private div content;
-    public Accordion(Head head,String id,boolean opened,String heading,String cssFilePath)
+    public Accordion(String id,boolean opened,String heading)
     {
         if (id==null)
         {
             id=Integer.toString(this.hashCode());
         }
-        if (head!=null)
-        {
-       //     head.add(Accordion.class.getCanonicalName(),new script().src("/resources/html/js/accordion.js"));
-            head.add(Accordion.class.getCanonicalName(),new link().rel(link_rel.stylesheet).type("text/css").href(cssFilePath));
-        }
         if (opened==false)
         {
             this.button=returnAddInner(new button_button()).addClass("accordion");
             this.button.onclick("this.classList.toggle('active');var panel=this.nextElementSibling;if (panel.style.maxHeight){panel.style.maxHeight=null;}else{panel.style.maxHeight=10*panel.scrollHeight+'px';}");
-//            this.button.onclick("openAccordions();");
             this.content=returnAddInner(new div()).addClass("accordion-content").id(id);
         }
         else
@@ -61,13 +55,9 @@ public class Accordion extends Content
         this.button.addInner(heading);
         
     }
-    public Accordion(Head head,String id,boolean opened,String heading)
+    public Accordion(boolean opened,String heading)
     {
-        this(head,id, opened, heading, "/resources/html/w3c/Accordion/style.css");
-    }
-    public Accordion(Head head,boolean opened,String heading)
-    {
-        this(head,null, opened, heading);
+        this(null,opened,heading);
     }
     public button_button button()
     {

@@ -81,11 +81,12 @@ public class OperatorPage extends Instance
         +" .heading-p{margin:2px;white-space:nowrap;padding-left:8px;padding-right:8px;}"
         +" .body-content{padding:8px;}"));
         
+        
+        
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/ServerApplication/style.css"));
         head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
+        head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/w3c/Accordion/style.css"));
         head.addInner(new ReplaceMarker("head"));
-        head.addInner(new link().rel(link_rel.stylesheet).type("text/css").href("/resources/html/widgets/MenuBar/style.css"));
-//        head.addInner(new script().src("/resources/html/js/remote.js"));
         
         div heading=body.returnAddInner(new div()).addClass("heading");
         div banner=heading.returnAddInner(new div()).addClass("heading-banner");

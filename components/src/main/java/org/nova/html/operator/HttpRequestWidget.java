@@ -112,7 +112,7 @@ public class HttpRequestWidget extends Element
         {
             return;
         }
-        Accordion textAccodion=content.returnAddInner(new Accordion(head,false,heading+", length: "+text.length()));
+        Accordion textAccodion=content.returnAddInner(new Accordion(false,heading+", length: "+text.length()));
         int rows=Utils.occurs(text, "\n")+3;
         if (rows>20)
         {
@@ -152,20 +152,20 @@ public class HttpRequestWidget extends Element
         {
             return;
         }
-        Accordion accordion=content.returnAddInner(new Accordion(head,false, heading+": "+(array.length)));
+        Accordion accordion=content.returnAddInner(new Accordion(false, heading+": "+(array.length)));
         accordion.content().addInner(list);
         
     }    
 
     static private Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace,boolean open)
     {
-        Accordion accordion=new Accordion(head, false, heading);
+        Accordion accordion=new Accordion(false, heading);
         accordion.content().addInner(new textarea().style("width:100%;border:0;resize:vertical;").readonly().rows(stackTrace.length+1).addInner(Utils.toString(stackTrace)));
         return accordion;
     }
     static private Element formatThrowable(Head head,String heading,Throwable throwable,boolean open)
     {
-        Accordion accordion=new Accordion(head, open, heading);
+        Accordion accordion=new Accordion(open, heading);
         String text=Utils.getStrackTraceAsString(throwable);
         int occurs=Utils.occurs(text,"\n");
         accordion.content().addInner(new textarea().style("width:100%;border:0;resize:vertical;").readonly().rows(occurs+1).addInner(text));

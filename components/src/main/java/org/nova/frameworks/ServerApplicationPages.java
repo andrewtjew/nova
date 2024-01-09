@@ -62,11 +62,13 @@ import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.div;
+import org.nova.html.tags.em;
 import org.nova.html.tags.fieldset;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
+import org.nova.html.tags.i;
 import org.nova.html.tags.input_checkbox;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
@@ -76,7 +78,9 @@ import org.nova.html.tags.input_text;
 import org.nova.html.tags.label;
 import org.nova.html.tags.legend;
 import org.nova.html.tags.meta;
+import org.nova.html.tags.option;
 import org.nova.html.tags.p;
+import org.nova.html.tags.select;
 import org.nova.html.tags.span;
 import org.nova.html.tags.strong;
 import org.nova.html.tags.style;
@@ -472,7 +476,7 @@ public class ServerApplicationPages
     {
         if (meters.countMeterAttributeValues.size()>0)
         {
-            Accordion accordion=element.returnAddInner(new Accordion(head, null, true,"Count Meters"));
+            Accordion accordion=element.returnAddInner(new Accordion(null, true,"Count Meters"));
             OperatorDataTable table=accordion.content().returnAddInner(new OperatorTable(head));
             table.setHeader("Path","Count");
             for (MeterAttributeValue av:meters.countMeterAttributeValues.values())
@@ -486,7 +490,7 @@ public class ServerApplicationPages
         }
         if (meters.levelMeterAttributeValues.size()>0)
         {
-            Accordion accordion=element.returnAddInner(new Accordion(head, null, true,"Level Meters"));
+            Accordion accordion=element.returnAddInner(new Accordion(null, true,"Level Meters"));
             OperatorDataTable table=accordion.content().returnAddInner(new OperatorTable(head));
             table.setHeader("Path","Level","Base","Min","Min Instant","Max","Max Instant");
             for (MeterAttributeValue av:meters.levelMeterAttributeValues.values())
@@ -505,7 +509,7 @@ public class ServerApplicationPages
         }
         if (meters.rateMeterAttributeValues.size()>0)
         {
-            Accordion accordion=element.returnAddInner(new Accordion(head, null, true,"Rate Meters"));
+            Accordion accordion=element.returnAddInner(new Accordion(null, true,"Rate Meters"));
             OperatorDataTable table=accordion.content().returnAddInner(new OperatorTable(head));
             table.setHeader("Path","Rate","Total","Samples");
             for (MeterAttributeValue av:meters.rateMeterAttributeValues.values())
@@ -521,7 +525,7 @@ public class ServerApplicationPages
         }
         if (meters.longValueMeterAttributeValues.size()>0)
         {
-            Accordion accordion=element.returnAddInner(new Accordion(head, null, true,"Long Value Meters"));
+            Accordion accordion=element.returnAddInner(new Accordion(null, true,"Long Value Meters"));
             OperatorDataTable table=accordion.content().returnAddInner(new OperatorTable(head));
             table.setHeader("Path","Value","Average","Deviation","Rate","Min","Max","Samples");
             for (MeterAttributeValue av:meters.longValueMeterAttributeValues.values())
@@ -541,7 +545,7 @@ public class ServerApplicationPages
         }
         if (meters.recentSourceEventMeterAttributeValues.size()>0)
         {
-            Accordion accordion=element.returnAddInner(new Accordion(head, null, true,"Count Meters"));
+            Accordion accordion=element.returnAddInner(new Accordion(null, true,"Count Meters"));
             OperatorDataTable table=accordion.content().returnAddInner(new OperatorTable(head));
             table.setHeader("Path","Most recent","Most recent instant","State 1","Instant 1","State 2","Instant 2","Count");
             for (MeterAttributeValue av:meters.recentSourceEventMeterAttributeValues.values())
@@ -2364,21 +2368,21 @@ public class ServerApplicationPages
         }
     }
     
-    static public Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace)
+    static public Element formatStackTrace(String heading,StackTraceElement[] stackTrace)
     {
-        Accordion accordion=new Accordion(head, false, heading);
+        Accordion accordion=new Accordion(false, heading);
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(stackTrace.length+1).addInner(Utils.toString(stackTrace)));
         return accordion;
     }
-    static public Element formatStackTrace(Head head,String heading,StackTraceElement[] stackTrace,int start)
+    static public Element formatStackTrace(String heading,StackTraceElement[] stackTrace,int start)
     {
-        Accordion accordion=new Accordion(head, false, heading);
+        Accordion accordion=new Accordion(false, heading);
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(stackTrace.length+1-start).addInner(Utils.toString(stackTrace,start)));
         return accordion;
     }
-    static public Element formatThrowable(Head head,String heading,Throwable throwable) throws Exception
+    static public Element formatThrowable(String heading,Throwable throwable) throws Exception
     {
-        Accordion accordion=new Accordion(head, true, heading);
+        Accordion accordion=new Accordion(true, heading);
         String text=Utils.getStrackTraceAsString(throwable);
         int occurs=Utils.occurs(text,"\n");
         accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(occurs+1).addInner(text));
@@ -2424,15 +2428,15 @@ public class ServerApplicationPages
         }
         if (trace.getCreateStackTrace()!=null)
         {
-            list.add("Create Stack Trace",formatStackTrace(head,null, trace.getCreateStackTrace()));
+            list.add("Create Stack Trace",formatStackTrace(null, trace.getCreateStackTrace()));
         }
         if (trace.getCloseStackTrace()!=null)
         {
-            list.add("Close Stack Trace",formatStackTrace(head,null, trace.getCloseStackTrace()));
+            list.add("Close Stack Trace",formatStackTrace(null, trace.getCloseStackTrace()));
         }
         if (trace.getThrowable()!=null)
         {
-            list.add("Exception",formatThrowable(head,null,trace.getThrowable()));
+            list.add("Exception",formatThrowable(null,trace.getThrowable()));
         }
         
     }
@@ -3021,7 +3025,7 @@ public class ServerApplicationPages
         content.addInner(new p());
         if (trace.getThrowable() != null)
         {
-            content.addInner(formatThrowable(head, "Exception Stack Trace" ,trace.getThrowable()));
+            content.addInner(formatThrowable("Exception Stack Trace" ,trace.getThrowable()));
             content.addInner(new p());
         }
         if (includeStackTraces)
@@ -3031,7 +3035,7 @@ public class ServerApplicationPages
                 StackTraceElement[] currentStackTrace = trace.getThread().getStackTrace();
                 if (currentStackTrace != null)
                 {
-                    content.addInner(formatStackTrace(head, "Current Stack Trace",currentStackTrace ));
+                    content.addInner(formatStackTrace("Current Stack Trace",currentStackTrace ));
 //                    Accordion accordion=content.returnAddInner(new Accordion(head, null, false, "Current Stack Trace"));
 //                    accordion.content().addInner(toString(currentStackTrace, 0));
                 }
@@ -3039,14 +3043,14 @@ public class ServerApplicationPages
             StackTraceElement[] createStackTrace = trace.getCreateStackTrace();
             if (createStackTrace != null)
             {
-                content.addInner(formatStackTrace(head, "Create Stack Trace",createStackTrace));
+                content.addInner(formatStackTrace("Create Stack Trace",createStackTrace));
 //                Accordion accordion=content.returnAddInner(new Accordion(head, null, false, "Create Stack Trace"));
 //                accordion.content().addInner(toString(createStackTrace, 0));
             }
             StackTraceElement[] closeStackTrace = trace.getCloseStackTrace();
             if (closeStackTrace != null)
             {
-                content.addInner(formatStackTrace(head, "Close Stack Trace",closeStackTrace));
+                content.addInner(formatStackTrace("Close Stack Trace",closeStackTrace));
 //                Accordion accordion=content.returnAddInner(new Accordion(head, null, false, "Close Stack Trace"));
 //                accordion.content().addInner(toString(closeStackTrace, 0));
             }
@@ -3061,7 +3065,7 @@ public class ServerApplicationPages
         }
         panel.content().addInner(new p());
         String[] array=Utils.split(headers, '\r');
-        Accordion accordion=panel.content().returnAddInner(new Accordion(head,null,false, "Headers (Length: "+(array.length-1)+")"));
+        Accordion accordion=panel.content().returnAddInner(new Accordion(null,false, "Headers (Length: "+(array.length-1)+")"));
         NameValueList list=accordion.content().returnAddInner(new NameValueList());
         for (String item:array)
         {
@@ -3083,7 +3087,7 @@ public class ServerApplicationPages
         }
         content.addInner(new p());
         String[] array=Utils.split(headers, '\r');
-        Accordion accordion=content.returnAddInner(new Accordion(head,null,false, heading+", count: "+(array.length-1)));
+        Accordion accordion=content.returnAddInner(new Accordion(null,false, heading+", count: "+(array.length-1)));
         NameValueList list=accordion.content().returnAddInner(new NameValueList());
         for (String item:array)
         {
@@ -3106,7 +3110,7 @@ public class ServerApplicationPages
         }
 //        panel.content().addInner(new p());
 //        Panel textpanel=panel.content().returnAddInner(new Level3Panel(head,"Request Content (Length: "+text.length()+")"));
-        Accordion textAccodion=content.returnAddInner(new Accordion(head,false,heading+", length: "+text.length()));
+        Accordion textAccodion=content.returnAddInner(new Accordion(false,heading+", length: "+text.length()));
         int rows=text.length()/120+2;
         if (rows>20)
         {
@@ -3148,15 +3152,47 @@ public class ServerApplicationPages
 //        writeHeaders(head,"Response Headers",panel.content(),entry.getResponseHeaders());
 //        writeContent(head,"Response Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
 //    }    
-    private Element writeRequestLogEntries(Head head, RequestLogEntry[] entries) throws Throwable
+    private Element writeRequestLogEntries(Head head, String contentTypeFilter,RequestLogEntry[] entries) throws Throwable
     {
         OperatorDataTable dataTable=new OperatorDataTable(head);
         dataTable.setHeader("Number","Entry");
         dataTable.lengthMenu(-1,5,10,25);
+        
+        boolean wildCard=false;
+        String matchTarget=null;
+        if ("*/*".equals(contentTypeFilter)==false)
+        {
+            if (TypeUtils.isNullOrSpace(contentTypeFilter)==false)
+            {
+                int index=contentTypeFilter.lastIndexOf('*');
+                wildCard=index>=0;
+                if (wildCard)
+                {
+                    matchTarget=contentTypeFilter.substring(0,index-1);
+                }
+                else
+                {
+                    matchTarget=contentTypeFilter;
+                }
+            }
+        }
+        
+        
         for (RequestLogEntry entry : entries)
         {
-//            writeRequest(dataTable,page, entry);
             HttpRequestWidget element=new HttpRequestWidget(head,entry);
+            if (matchTarget!=null)
+            {
+                String contentType=entry.getContentType();
+                if (TypeUtils.isNullOrSpace(contentType))
+                {
+                    continue;
+                }
+                if (contentType.contains(matchTarget)==false)
+                {
+                    continue;
+                }
+            }
 
             TableRow row=new TableRow();
             row.add(entry.getTrace().getNumber());
@@ -3169,26 +3205,26 @@ public class ServerApplicationPages
     @Log(lastRequestsInMemory=false,responseContent=false)
     @GET
     @Path("/operator/httpServer/lastRequests/{server}")
-    public Element lastRequests(@PathParam("server") String server) throws Throwable
+    public Element lastRequests(@PathParam("server") String server,@QueryParam("contentTypeFilter") @DefaultValue("*/*") String contentTypeFilter ) throws Throwable
     {
         HttpServer httpServer=this.getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Last Requests", server,"lastRequests");
+        OperatorPage page=buildServerOperatorPage("Last Requests", server,"lastRequests",contentTypeFilter);
         
         RequestLogEntry[] entries = httpServer.getLastRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter, entries));
         return page;
     }
 
     @Log(lastRequestsInMemory=false,responseContent=false)
     @GET
     @Path("/operator/httpServer/lastExceptionRequests/{server}")
-    public Element lastExceptionRequests(@PathParam("server") String server) throws Throwable
+    public Element lastExceptionRequests(@PathParam("server") String server,@QueryParam("contentTypeFilter") @DefaultValue("*/*") String contentTypeFilter) throws Throwable
     {
         
         HttpServer httpServer=this.getHttpServer(server);
-        OperatorPage page=buildServerOperatorPage("Last Exception Requests", server,"lastExceptionRequests");
+        OperatorPage page=buildServerOperatorPage("Last Exception Requests", server,"lastExceptionRequests",contentTypeFilter);
         RequestLogEntry[] entries = httpServer.getLastExceptionRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter,entries));
         return page;
     }
 
@@ -3496,7 +3532,12 @@ public class ServerApplicationPages
         throw new Exception();
     }
     
-    private OperatorPage buildServerOperatorPage(String title,String server,String clear) throws Throwable
+    option addOption(String text,String selected)
+    {
+        return new option().addInner(text).selected(TypeUtils.equals(text, selected));
+    }
+    
+    private OperatorPage buildServerOperatorPage(String title,String server,String clear,String contentTypeFilter) throws Throwable
     {
         HttpTransport httpTransport=getHttpTransport(server);
         OperatorPage page=this.serverApplication.buildOperatorPage(title);
@@ -3514,12 +3555,34 @@ public class ServerApplicationPages
             String action="/operator/httpServer/clearLastRequests/"+server+"/"+clear;
             ConfirmButton confirm=new ConfirmButton(action, "Clear").style("float:right;");
             page.content().addInner(confirm);
-            page.content().addInner(new br());
-            page.content().addInner(new hr());
+        }
+        if (contentTypeFilter!=null)
+        {
+            div div=page.content().returnAddInner(new div()).style("display:flex;width:16em;float:right;");
+            div.returnAddInner(new div()).addInner("Content-Type: ").style("padding-right:0.5em;");
+            
+            form_get form=div.returnAddInner(new form_get());//.action("#");
+            select select=form.returnAddInner(new select()).name("contentTypeFilter");
+            select.returnAddInner(addOption("*/*",contentTypeFilter));
+            select.returnAddInner(addOption("application/json",contentTypeFilter));
+            select.returnAddInner(addOption("application/*",contentTypeFilter));
+            select.returnAddInner(addOption("text/html",contentTypeFilter));
+            select.returnAddInner(addOption("text/javascript",contentTypeFilter));
+            select.returnAddInner(addOption("text/css",contentTypeFilter));
+            select.returnAddInner(addOption("text/*",contentTypeFilter));
+            select.returnAddInner(addOption("image/*",contentTypeFilter));
+            select.returnAddInner(addOption("audio/*",contentTypeFilter));
+            select.returnAddInner(addOption("video/*",contentTypeFilter));
+            select.onchange(HtmlUtils.js_submit(form));
+//            form.returnAddInner(new button_submit()).addInner("test");
         }
         
         page.content().addInner(new hr());
         return page;
+    }
+    private OperatorPage buildServerOperatorPage(String title,String server,String clear) throws Throwable
+    {
+        return buildServerOperatorPage(title, server, clear,null);
     }
 
     @GET
@@ -4061,7 +4124,7 @@ public class ServerApplicationPages
             if (entries.length>0)
             {
                 Panel logPanel=page.content().returnAddInner(new Panel2(page.head(), "Last Log Entries"));
-                Element logElement=writeRequestLogEntries(page.head(), entries);
+                Element logElement=writeRequestLogEntries(page.head(), null,entries);
                 logPanel.content().addInner(logElement);
             }
             
@@ -4271,13 +4334,13 @@ public class ServerApplicationPages
                     String example = new String(byteOutputStream.toByteArray());
                     if (schema.length() > 0)
                     {
-                        Accordion accordion=contentReaderPanel.content().returnAddInner(new Accordion(page.head(), null, false, "Schema"));
+                        Accordion accordion=contentReaderPanel.content().returnAddInner(new Accordion(null, false, "Schema"));
                         textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(schema, "\r")+1));
                         area.addInner(schema);
                     }
                     if (example.length() > 0)
                     {
-                        Accordion accordion=contentReaderPanel.content().returnAddInner(new Accordion(page.head(), null, false, "Example"));
+                        Accordion accordion=contentReaderPanel.content().returnAddInner(new Accordion(null, false, "Example"));
                         textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(example,"\r")+1));
                         area.addInner(example);
                     }
@@ -4352,13 +4415,13 @@ public class ServerApplicationPages
                         String example = new String(byteOutputStream.toByteArray());
                         if (schema.length() > 0)
                         {
-                            Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(page.head(), null, false, "Schema"));
+                            Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Schema"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(schema, "\r")+1));
                             area.addInner(schema);
                         }
                         if (example.length() > 0)
                         {
-                            Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(page.head(), null, false, "Example"));
+                            Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Example"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(example,"\r")+1));
                             area.addInner(example);
                         }
