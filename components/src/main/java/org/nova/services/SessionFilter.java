@@ -33,6 +33,8 @@ import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
+import org.nova.http.server.RequestHandler;
 
 
 public class SessionFilter extends Filter
@@ -152,13 +154,23 @@ public class SessionFilter extends Filter
     {
         String token=getToken(context.getHttpServletRequest());
         Session session=this.sessionManager.getSessionByToken(token);
-
-        Method method=context.getRequestHandler().getMethod();
+        RequestHandler handler=context.getRequestHandler();
+        Method method=handler.getMethod();
         if (method.getAnnotation(AllowNoSession.class)!=null)
         {
             if (session==null)
             {
-                return context.next(parent);
+                try
+                {
+                    return context.next(parent);
+                }
+                finally
+                {
+                    HttpServletResponse response=context.getHttpServletResponse();
+                    response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
+                    response.setHeader("Pragma", "no-cache");
+                    response.setHeader("Expires", "0");
+                }
             }
         }
         else if (session==null)
@@ -174,12 +186,20 @@ public class SessionFilter extends Filter
                 session=this.sessionManager.getSessionByToken(token);
                 if (session==null)
                 {
-                    return null;
+                    return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
                 }
             }
             else
             {
                 session=this.debugSession;
+            }
+        }
+        Class<?> handlerSessionType=handler.getStateType();
+        if (handlerSessionType!=null)
+        {
+            if (TypeUtils.isDerivedFrom(session.getClass(),handlerSessionType)==false)
+            {
+                return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
             }
         }
         Lock<String> lock=sessionManager.waitForLock(parent,session.getToken());

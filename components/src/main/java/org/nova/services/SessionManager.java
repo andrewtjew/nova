@@ -84,9 +84,9 @@ public class SessionManager<SESSION extends Session>
     }
     public void addSession(Trace parent,SESSION session)
     {
-        removeSessionByUser(parent, session.getUser());
         synchronized(this)
         {
+            removeSession(parent,session);
             this.tokenSessions.put(session.getToken(),session);
             this.userSessions.put(session.getUser(),session);
         }
@@ -114,7 +114,6 @@ public class SessionManager<SESSION extends Session>
         }
     }
     
-    
     public boolean removeSessionByToken(Trace parent,String token)
     {
         return removeSession(parent,getSessionByToken(token));
@@ -130,15 +129,27 @@ public class SessionManager<SESSION extends Session>
         {
             return false;
         }
+        boolean removed=false;
         synchronized(this)
         {
-            session=userSessions.get(session.getUser());
-            if (session==null) //Need to perform this test inside synchronized to ensure onClose is called only once.
+            SESSION userSession=userSessions.get(session.getUser());
+            SESSION tokenSession=tokenSessions.get(session.getToken());
+            if (userSession!=null)
             {
-                return false;
+                this.userSessions.remove(userSession.getUser());
+                this.tokenSessions.remove(userSession.getToken());
+                removed=true;
             }
-            this.userSessions.remove(session.getUser());
-            this.tokenSessions.remove(session.getToken());
+            if (tokenSession!=null)
+            {
+                this.userSessions.remove(tokenSession.getUser());
+                this.tokenSessions.remove(tokenSession.getToken());
+                removed=true;
+            }
+        }
+        if (removed==false)
+        {
+            return false;
         }
         this.removeSessionMeter.increment();
         try

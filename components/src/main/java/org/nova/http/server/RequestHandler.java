@@ -66,21 +66,21 @@ public class RequestHandler
     final private RingBuffer<RequestLogEntry> lastRequestsLogEntries;
 //    final private Attributes attributes;
     final private HashSet<String> attributes;
-    final private boolean stateParam;
+    final private Class<?> stateType;
     final private boolean test;
     final private HashSet<String> hiddenParameters; 
     
 	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
-	    boolean stateParam=false;
+	    Class<?> stateType=null;
 	    for (ParameterInfo info:parameterInfos)
 	    {
 	        if (info.getSource()==ParameterSource.STATE)
 	        {
-	            stateParam=true;
+	            stateType=info.getType();
 	        }
 	    }
-	    this.stateParam=stateParam;
+	    this.stateType=stateType;
 	    
 		this.cookieParamCount=cookieParamCount;
 		this.object=object;
@@ -314,9 +314,9 @@ public class RequestHandler
             return list.toArray(new RequestLogEntry[list.size()]);
         }
     }
-    public boolean hasStateParam()
+    public Class<?> getStateType()
     {
-        return this.stateParam;
+        return this.stateType;
     }
 	public boolean isTest()
 	{
