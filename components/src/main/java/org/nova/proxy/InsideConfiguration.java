@@ -7,6 +7,7 @@ public class InsideConfiguration
     public String proxyEndPoint="localhost";
     public int proxyReceiveBufferSize=65536;
     public int proxySendBufferSize=65536;
+    public int proxyReadTimeout=30000;
     
     public int keepAliveInterval=10000;
     public int reconnectDelay=1000;
@@ -15,5 +16,6 @@ public class InsideConfiguration
     public String hostEndPoint="localhost";
     public int hostReceiveBufferSize=65536;
     public int hostSendBufferSize=65536;
+    public int hostReadTimeout=30000;
     public int hostPort=11779;
 }

@@ -45,7 +45,7 @@ public class Progress<RESULT>
 		this.trace=new Trace(traceManager,parent,"scheduler@"+traceCategory,true);
 		for (int i=0;i<executables.length;i++)
 		{
-			this.tasks[i]=new Task(traceManager,this.trace,"runner@"+traceCategory,executables[i],i,logger);
+			this.tasks[i]=new Task(traceManager,this.trace,traceCategory+"@"+i,executables[i],logger);
 		}
 	}
 	

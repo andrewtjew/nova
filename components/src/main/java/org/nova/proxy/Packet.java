@@ -2,6 +2,7 @@ package org.nova.proxy;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 
 import org.nova.utils.TypeUtils;
 
@@ -12,7 +13,7 @@ public class Packet
     private int size;
 
     
-    static void read(InputStream inputStream,byte[] buffer,int offset,int size) throws Throwable
+    static int read(InputStream inputStream,byte[] buffer,int offset,int size) throws Throwable
     {
         int totalRead=0;
         while (totalRead!=size)
@@ -20,24 +21,49 @@ public class Packet
             int read=inputStream.read(buffer,offset+totalRead,size-totalRead);
             if (read<0)
             {
-                throw new Exception();
+                break;
             }
             totalRead+=read;
         }
+        return totalRead;
     }
     
     
     public static Packet readFromProxyStream(InputStream inputStream) throws Throwable
     {
         byte[] dataSizeBytes=new byte[4]; 
-        read(inputStream,dataSizeBytes,0,4);
+        int totalRead;
+        try
+        {
+            totalRead=read(inputStream,dataSizeBytes,0,4);
+        }
+        catch (SocketTimeoutException ex)
+        {
+            return null;
+        }
+        if (totalRead!=4)
+        {
+            throw new Exception("totalRead="+totalRead);
+        }
+
         int insideDataSize=TypeUtils.bigEndianBytesToInt(dataSizeBytes, 0);
         byte[] buffer=new byte[insideDataSize+4];
         for (int i=0;i<4;i++)
         {
             buffer[i]=dataSizeBytes[i];
         }
-        read(inputStream,buffer,4,insideDataSize);
+        try
+        {
+            totalRead=read(inputStream,buffer,4,insideDataSize);
+        }
+        catch (SocketTimeoutException ex)
+        {
+            return null;
+        }
+        if (totalRead!=insideDataSize)
+        {
+            throw new Exception("totalRead="+totalRead+",insideDataSize="+insideDataSize);
+        }
         return new Packet(buffer,insideDataSize);
     }
 

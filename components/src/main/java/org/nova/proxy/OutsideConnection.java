@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
@@ -36,7 +37,9 @@ import org.nova.tracing.TraceRunnable;
                 OutsideConfiguration configuration=this.proxyConnection.getServer().getConfiguration();
                 socket.setReceiveBufferSize(configuration.outsideReceiveBufferSize);
                 socket.setSendBufferSize(configuration.outsideSendBufferSize);
+                socket.setSoTimeout(configuration.outsideReadTimeout);
                 socket.setTcpNoDelay(true);
+                
                 InputStream inputStream=socket.getInputStream();
                 Packet packet=new Packet(configuration.outsideReceiveBufferSize+8, this.port);
 
@@ -47,8 +50,15 @@ import org.nova.tracing.TraceRunnable;
                 
                 for (;;)
                 {
-                    int read=packet.readFromStream(inputStream);
-//                    System.out.println("OutsideConnection: port="+this.port+", read="+read);
+                    int read;
+                    try
+                    {
+                        read=packet.readFromStream(inputStream);
+                    }
+                    catch (SocketTimeoutException ex)
+                    {
+                        continue;
+                    }
                     if (read<0)
                     {
                         break;
@@ -64,6 +74,11 @@ import org.nova.tracing.TraceRunnable;
                     }
                 }
                 
+            }
+            catch (Throwable t)
+            {
+                ProxyConfiguration proxyConfiguration=this.proxyConnection.getProxyConfiguration();
+                parent.setDetails(this.proxyConnection.getKey()+":insideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
             }
             finally
             {

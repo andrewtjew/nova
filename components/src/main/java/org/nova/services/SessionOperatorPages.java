@@ -104,7 +104,7 @@ public class SessionOperatorPages<SESSION extends Session>
     @Path("/operator/sessions/remove")
     public Element delete(Trace parent,Context context,@QueryParam("token") String token) throws Exception, Throwable
     {
-        this.sessionManager.removeSessionByToken(parent, token);
+        this.sessionManager.removeSession(parent, token);
         return new Redirect("/operator/sessions");
     }   
 

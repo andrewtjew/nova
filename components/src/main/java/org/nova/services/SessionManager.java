@@ -88,7 +88,11 @@ public class SessionManager<SESSION extends Session>
         {
             removeSession(parent,session);
             this.tokenSessions.put(session.getToken(),session);
-            this.userSessions.put(session.getUser(),session);
+            String user=session.getUser();
+            if (user!=null)
+            {
+                this.userSessions.put(session.getUser(),session);
+            }
         }
         this.addSessionMeter.increment();
     }
@@ -114,13 +118,9 @@ public class SessionManager<SESSION extends Session>
         }
     }
     
-    public boolean removeSessionByToken(Trace parent,String token)
+    public boolean removeSession(Trace parent,String token)
     {
         return removeSession(parent,getSessionByToken(token));
-    }
-    public boolean removeSessionByUser(Trace parent,String user)
-    {
-        return removeSession(parent,getSessionByUser(user));
     }
     
     private boolean removeSession(Trace parent,SESSION session)

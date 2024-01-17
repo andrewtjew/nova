@@ -34,18 +34,16 @@ public class Task<RESULT>
 	final private Trace scheduleTrace;
 	final private String traceCategory;
 	final private TraceCallable<RESULT> callable;
-	final private int index;
 	final private Logger logger;
 	final private TraceManager traceManager;
 	
-	public Task(TraceManager traceManager,Trace scheduleTrace,String traceCategory,TraceCallable<RESULT> callable,int index,Logger logger)
+	public Task(TraceManager traceManager,Trace scheduleTrace,String traceCategory,TraceCallable<RESULT> callable,Logger logger)
 	{
 	    this.traceManager=traceManager;
 		this.traceCategory=traceCategory;
 		this.scheduleTrace=scheduleTrace;
 		this.callable=(TraceCallable<RESULT>)callable;
 		this.status=TaskStatus.READY;
-        this.index=index;
         this.logger=logger;
 	}
 
@@ -64,7 +62,6 @@ public class Task<RESULT>
 		Throwable throwable=null;
 		try (Trace trace=new Trace(this.traceManager,this.scheduleTrace,this.traceCategory,false))
 		{
-		    trace.setDetails("runner:"+index);
 			try
 			{
 				result=this.callable.call(trace);

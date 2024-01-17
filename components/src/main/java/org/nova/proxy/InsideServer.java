@@ -126,6 +126,7 @@ public class InsideServer
                     socket.setReceiveBufferSize(this.configuration.proxyReceiveBufferSize);
                     socket.setSendBufferSize(this.configuration.proxySendBufferSize);
                     socket.setTcpNoDelay(true);
+                    socket.setSoTimeout(this.configuration.proxyReadTimeout);
                     synchronized(this)
                     {
                         this.proxyInputStream=socket.getInputStream();
@@ -144,6 +145,10 @@ public class InsideServer
                     for (;;)
                     {
                         Packet proxyPacket=Packet.readFromProxyStream(this.proxyInputStream);
+                        if (proxyPacket==null)
+                        {
+                            continue;
+                        }
                         int dataSize=proxyPacket.size();
                         if (dataSize==0)
                         {

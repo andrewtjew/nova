@@ -79,27 +79,36 @@ class ProxyConnection implements TraceRunnable
                 OutsideConfiguration configuration=this.server.getConfiguration();
                 socket.setReceiveBufferSize(configuration.insideReceiveBufferSize);
                 socket.setSendBufferSize(configuration.insideSendBufferSize);
+                socket.setSoTimeout(configuration.outsideReadTimeout);
                 socket.setTcpNoDelay(true);
                 this.inputStream=socket.getInputStream();
                 this.outputStream=socket.getOutputStream();
 
-                byte[] lengthBytes=new byte[4];
-                Packet.read(this.inputStream, lengthBytes, 0, 4);
-                int length=TypeUtils.bigEndianBytesToInt(lengthBytes);
-                byte[] bytes=new byte[length];
-                Packet.read(this.inputStream, bytes,0,length);
-                String text=new String(bytes);
-
-                synchronized(this)
+                parent.setDetails(this.key+": waiting for header");
+                try (Trace readHeaderTrace=parent.newChild(this.key))
                 {
-                    this.proxyConfiguration=ObjectMapper.readObject(text, ProxyConfiguration.class);
+                    byte[] lengthBytes=new byte[4];
+                    Packet.read(this.inputStream, lengthBytes, 0, 4);
+                    int length=TypeUtils.bigEndianBytesToInt(lengthBytes);
+                    byte[] bytes=new byte[length];
+                    Packet.read(this.inputStream, bytes,0,length);
+                    String text=new String(bytes);
+    
+                    synchronized(this)
+                    {
+                        this.proxyConfiguration=ObjectMapper.readObject(text, ProxyConfiguration.class);
+                    }
+                    parent.setDetails(this.key+":insideName="+this.proxyConfiguration.insideName+",outsideListenPort="+this.proxyConfiguration.outsideListenPort);
                 }
                 this.server.getMultiTaskSheduler().schedule(null, "handleOutsideConnections", (trace)->{handleOutsideConnections(trace);});
-
                 
                 for (;;)
                 {
                     Packet proxyPacket=Packet.readFromProxyStream(this.inputStream);
+                    if (proxyPacket==null)
+                    {
+                        continue;
+                    }
                     int dataSize=proxyPacket.size();
                     if (dataSize==0)
                     {
@@ -115,7 +124,6 @@ class ProxyConnection implements TraceRunnable
                     }
                     sendToOutside(proxyPacket);
                 }
-            
             }
             finally
             {
@@ -182,19 +190,23 @@ class ProxyConnection implements TraceRunnable
                 outsidePacket.writeToProxyStream(this.outputStream);
             }
         }
+        public String getKey()
+        {
+            return this.key;
+        }
         
         private void handleOutsideConnections(Trace parent) throws Throwable
         {
             OutsideConfiguration configuration=this.server.getConfiguration();
-            int outsideListenPort;
+            ProxyConfiguration proxyConfiguration;
             synchronized(this.proxyConfiguration)
             {
-                outsideListenPort=this.proxyConfiguration.outsideListenPort;
+                proxyConfiguration=this.proxyConfiguration;
             }
             try
             {
                 
-                try (ServerSocket serverSocket=new ServerSocket(outsideListenPort,configuration.outsideBacklog))
+                try (ServerSocket serverSocket=new ServerSocket(proxyConfiguration.outsideListenPort,configuration.outsideBacklog))
                 {
                     synchronized(this)
                     {
@@ -221,7 +233,7 @@ class ProxyConnection implements TraceRunnable
             }
             catch (Throwable t)
             {
-                throw new Throwable("outsideListenPort="+outsideListenPort,t);
+                parent.setDetails(this.key+":insideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
             }
             finally
             {

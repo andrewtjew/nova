@@ -23,63 +23,98 @@ package org.nova.services;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
+
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.tracing.Trace;
 
-public abstract class AccessSession <SERVICE extends ServerApplication> extends Session
+import com.amazonaws.services.auditmanager.model.Role;
+
+public abstract class RoleSession <ROLE extends Enum> extends Session
 {
-    HashMap<String,Boolean> denyMap;
+    static HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
     
-    public AccessSession(String token, String user)
+    HashSet<ROLE> roles;
+    final private Class<ROLE> roleType;
+    
+    public RoleSession(Class<ROLE> roleType,String token, String user)
     {
         super(token, user);
-        this.denyMap=new HashMap<>();
+        this.roleType=roleType;
+        this.roles=new HashSet<>();
+    }
+    
+    public void addRole(ROLE role)
+    {
+        this.roles.add(role);
+    }
+
+    public boolean removeRole(ROLE role)
+    {
+        return this.roles.remove(role);
+    }
+
+    public void clearRoles()
+    {
+        this.roles.clear();
     }
 
     @Override
     public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
-        Boolean deny=this.denyMap.get(context.getRequestHandler().getKey());
-        if (deny==null)
+        synchronized (DENY_MAP)
         {
-            deny=isAccessDenied(context);
-            this.denyMap.put(context.getRequestHandler().getKey(),deny);
+            Boolean deny=DENY_MAP.get(context.getRequestHandler().getKey());
+            if (deny!=null)
+            {
+                return deny;
+            }
+        }
+        boolean deny=isAccessDenied(context);
+        synchronized (DENY_MAP)
+        {
+            DENY_MAP.put(context.getRequestHandler().getKey(),deny);
         }
         return deny;
     }
-    
-    boolean isAccessDenied(Context context)
+    public boolean hasRole(String value)
+    {
+        @SuppressWarnings("unchecked")
+        ROLE role=(ROLE)Enum.valueOf(this.roleType, value);
+        return this.roles.contains(role);
+    }
+    boolean isAccessDenied(Context context) throws Throwable
     {
         Method method=context.getRequestHandler().getMethod();
-        ForbiddenRoles denyGroups=method.getDeclaredAnnotation(ForbiddenRoles.class);
-        if (denyGroups!=null)
+        ForbiddenRoles forbiddenRoles=method.getDeclaredAnnotation(ForbiddenRoles.class);
+        if (forbiddenRoles!=null)
         {
-            if (denyGroups.value().length==0)
+            if (forbiddenRoles.value().length==0)
             {
                 return true; //deny all
             }
-            for (String value:denyGroups.value())
+            for (String value:forbiddenRoles.value())
             {
-                if (isInGroup(value))
+                if (hasRole(value))
                 {
                     return true;
                 }
             }
         }
 
-        RequiredRoles allowGroups=method.getDeclaredAnnotation(RequiredRoles.class);
-        if (allowGroups==null)
+        RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
+        if (requiredRoles==null)
         {
-            return true; //deny all
+            throw new Exception("Missing RequiredRoles: "+context.getRequestHandler().getKey());
         }
-        if (allowGroups.value().length==0)
+        if (requiredRoles.value().length==0)
         {
             return false; //allow all
         }
-        for (String value:allowGroups.value())
+        for (String value:requiredRoles.value())
         {
-            if (isInGroup(value))
+            if (hasRole(value))
             {
                 return false;
             }
@@ -87,5 +122,4 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
         return true;
     }
 
-    public abstract boolean isInGroup(String group); 
 }

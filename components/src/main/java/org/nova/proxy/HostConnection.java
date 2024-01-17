@@ -3,6 +3,7 @@ package org.nova.proxy;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
@@ -30,6 +31,7 @@ class HostConnection implements TraceRunnable
         socket.setReceiveBufferSize(configuration.hostReceiveBufferSize);
         socket.setSendBufferSize(configuration.hostSendBufferSize);
         socket.setTcpNoDelay(true);
+        socket.setSoTimeout(configuration.hostReadTimeout);
         this.outputStream=socket.getOutputStream();
         this.totalReceived=0;
         this.totalSent=0;
@@ -45,8 +47,15 @@ class HostConnection implements TraceRunnable
 
             for (;;)
             {
-                int read=hostPacket.readFromStream(inputStream);
-//                System.out.println("HostConnection: port="+this.outputPort+", read from host="+read);
+                int read;
+                try
+                {
+                    read=hostPacket.readFromStream(inputStream);
+                }
+                catch (SocketTimeoutException ex)
+                {
+                    continue;
+                }
                 if (read<0)
                 {
                     break;

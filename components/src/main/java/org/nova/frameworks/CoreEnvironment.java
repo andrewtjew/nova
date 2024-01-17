@@ -30,7 +30,6 @@ import org.nova.configuration.Configuration;
 import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
 import org.nova.http.server.FileCache;
-import org.nova.http.server.FileDownloadHandler;
 import org.nova.logging.ConsoleWriter;
 import org.nova.logging.HighPerformanceLogger;
 import org.nova.logging.HighPerformanceConfiguration;
@@ -115,8 +114,7 @@ public class CoreEnvironment
 	
 	public void setupDebugging() throws Exception
 	{
-        ContentCache.DEBUG=this.configuration.getBooleanValue("CoreEnvironment.DEBUG.ContentCache",false);
-        FileDownloadHandler.DEBUG=this.configuration.getBooleanValue("CoreEnvironment.DEBUG.FileDownloadHandler",false);
+        ContentCache.DEBUG=this.configuration.getBooleanValue("DEBUG.ContentCache",false);
 	}
 	
 	public SourceEventBoard getSourceEventBoard()

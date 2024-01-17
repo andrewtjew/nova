@@ -585,13 +585,14 @@ public class ServerApplicationPages
         OperatorPage page=this.serverApplication.buildOperatorPage("Tasks");
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
 
-        table.setHeader("Category","Number","Duration","Waiting","Executing","Completed");
+        table.setHeader("Category","Number","Details","Duration","Waiting","Executing","Completed");
         Progress<?>[] array = this.serverApplication.getMultiTaskScheduler().getProgressSnapshot();
         long now=System.currentTimeMillis();
         for (Progress<?> item : array)
         {
-            table.addRow(item.getTrace().getCategory(),item.getTrace().getNumber()
-                    ,Utils.millisToNiceDurationString((now-item.getTrace().getCreatedMs())),item.getWaiting(),item.getExecuting(),item.getCompleted());
+            Trace trace=item.getTrace();
+            table.addRow(trace.getCategory(),trace.getNumber(),trace.getDetails()
+                    ,Utils.millisToNiceDurationString((now-trace.getCreatedMs())),item.getWaiting(),item.getExecuting(),item.getCompleted());
         }
         return page;
     }
