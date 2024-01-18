@@ -19,27 +19,30 @@ import org.nova.utils.TypeUtils;
 import com.google.common.io.Files;
 import com.nixxcode.jvmbrotli.common.BrotliLoader;
 
-public class FileDownloader
+public class FileDownloader extends ServletHandler
 {
     //CR000054453
     final private String root;
     final private String cacheControl;
     final private long cacheControlMaxAge;
     final private FileCache cache;
-    final private boolean enableLocalCaching;
-
+    final private boolean localCaching;
     final private HashSet<String> supportedEncodings;
 
     public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl, long cacheControlMaxAge, long maxAge,
             long maxSize, long freeMemory) throws Throwable
     {
         File file = new File(FileUtils.toNativePath(rootDirectory));
-        file.mkdirs();
+        if (file.isDirectory()==false)
+        {
+            throw new Exception("Not a directory:"+file.getCanonicalPath());
+        }
+  //      file.mkdirs();
         this.root = file.getCanonicalPath();
         this.cacheControlMaxAge = cacheControlMaxAge;
         this.cache = new FileCache(this.root,maxAge, maxSize, freeMemory);
         this.cacheControl = cacheControl;
-        this.enableLocalCaching=enableLocalCaching;
+        this.localCaching=enableLocalCaching;
         this.supportedEncodings = new HashSet<String>();
         this.supportedEncodings.add("deflate");
         this.supportedEncodings.add("gzip");
@@ -51,7 +54,7 @@ public class FileDownloader
         this.mappings=ExtensionToContentTypeMappings.fromDefault();
     }
 
-    public void evictAll()
+    public void clearCache()
     {
         this.cache.clear();
     }
@@ -172,25 +175,25 @@ public class FileDownloader
         File file = new File(rootFilePath);
         if (file.isDirectory())
         {
-            response.setStatus(HttpStatus.FORBIDDEN_403);
-            return true;
+//            response.setStatus(HttpStatus.FORBIDDEN_403);
+            return false;
         }
         if (file.exists() == false)
         {
-            response.setStatus(HttpStatus.NOT_FOUND_404);
-            return true;
+//            response.setStatus(HttpStatus.NOT_FOUND_404);
+            return false;
         }
-        if (file.getCanonicalPath().startsWith(root) == false)
+        if (file.getCanonicalPath().startsWith(this.root) == false)
         {
-            response.setStatus(HttpStatus.FORBIDDEN_403);
-            return true;
+//            response.setStatus(HttpStatus.FORBIDDEN_403);
+            return false;
         }
         {
-            byte[] bytes = this.cache.get(parent, key);
-            if (this.enableLocalCaching==false)
+            if (this.localCaching==false)
             {
                 this.cache.remove(key);
             }
+            byte[] bytes = this.cache.get(parent, key);
             if (bytes != null)
             {
                 response.setContentLength(bytes.length);
@@ -199,6 +202,13 @@ public class FileDownloader
             response.setStatus(HttpStatus.OK_200);
         }
         return true;
+    }
+
+    @Override
+    public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
+    {
+        String URI=request.getRequestURI();
+        return this.download(parent, URI, request, response);
     }
 
 
