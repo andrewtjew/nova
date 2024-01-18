@@ -191,28 +191,17 @@ abstract public class ContentCache<KEY,VALUE>
 
 	public VALUE fill(Trace parent,KEY key) throws Throwable
 	{
-		synchronized(this)
-		{
-			ValueSize<VALUE> valueSize=load(parent,key);
-			VALUE value=put(parent,key,valueSize);
-            if (Debugging.ENABLE)
-            {
-    	        if (DEBUG)
-    	        {
-    	            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
-    	        }
-            }
-	        return value;
-		}
+		ValueSize<VALUE> valueSize=load(parent,key);
+		VALUE value=put(parent,key,valueSize);
+        if (Debugging.ENABLE)
+        {
+	        if (DEBUG)
+	        {
+	            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
+	        }
+        }
+        return value;
 	}
-//    public  void update(KEY key,VALUE value) throws Throwable
-//    {
-//        ValueSize<VALUE> valueSize=getFromCache(key);
-//        if (valueSize!=null)
-//        {
-//            put(key,new ValueSize<VALUE>(value,0));
-//        }
-//    }
     public void put(Trace parent,KEY key,VALUE value) throws Throwable
     {
         put(parent,key,new ValueSize<VALUE>(value,0));
@@ -255,43 +244,40 @@ abstract public class ContentCache<KEY,VALUE>
 	    {
 	        throw new Exception("No value for key:"+key);
 	    }
-        synchronized(this)
+        Entry<KEY,VALUE> entry=new Entry<KEY,VALUE>(key,valueSize);
+        synchronized(this.entries)
         {
-            Entry<KEY,VALUE> entry=new Entry<KEY,VALUE>(key,valueSize);
-            synchronized(this.entries)
+            while (needEvicting(entry))
             {
-                while (needEvicting(entry))
+                Entry<KEY,VALUE> removed=this.entries.remove(this.last.key);
+                this.onEvict(parent,removed.key,removed.valueSize.value);
+                this.totalContentSize-=this.last.valueSize.size;
+                this.sizeEvicts.increment();
+                this.last=last.previous;
+                if (this.last!=null)
                 {
-                    Entry<KEY,VALUE> removed=this.entries.remove(this.last.key);
-                    this.onEvict(parent,removed.key,removed.valueSize.value);
-                    this.totalContentSize-=this.last.valueSize.size;
-                    this.sizeEvicts.increment();
-                    this.last=last.previous;
-                    if (this.last!=null)
-                    {
-                        this.last.next=null;
-                    }
-                    else
-                    {
-                        this.first=null;
-                        break;
-                    }
+                    this.last.next=null;
                 }
-                this.entries.put(key, entry);
-                this.totalContentSize+=entry.valueSize.size;
-                entry.next=this.first;
-                if (this.first!=null)
+                else //last==null
                 {
-                    this.first.previous=entry;
-                }
-                this.first=entry;
-                if (this.last==null)
-                {
-                    this.last=entry;
+                    this.first=null;
+                    break;
                 }
             }
-            return valueSize.value;
+            this.entries.put(key, entry);
+            this.totalContentSize+=entry.valueSize.size;
+            entry.next=this.first;
+            if (this.first!=null)
+            {
+                this.first.previous=entry;
+            }
+            this.first=entry;
+            if (this.last==null)
+            {
+                this.last=entry;
+            }
         }
+        return valueSize.value;
     }
 	
 	public VALUE remove(KEY key)
@@ -307,6 +293,7 @@ abstract public class ContentCache<KEY,VALUE>
 			if (node.previous==null)
 			{
 				this.first=node.next;
+				this.first.previous=null;
 			}
 			else
 			{
@@ -315,11 +302,13 @@ abstract public class ContentCache<KEY,VALUE>
 			if (node.next==null)
 			{
 				this.last=node.previous;
+                this.last.next=null;
 			}
 			else
 			{
 				node.next.previous=node.previous;
 			}
+			
 			if (Debugging.ENABLE)
 			{
     	        if (DEBUG)

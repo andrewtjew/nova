@@ -202,10 +202,15 @@ public class SessionFilter extends Filter
                 return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
             }
         }
-        Lock<String> lock=sessionManager.waitForLock(parent,session.getToken());
-        if (lock==null)
+        
+        Lock<String> lock=null;
+        if (method.getAnnotation(AllowNoLock.class)==null)
         {
-            return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
+            lock=sessionManager.waitForLock(parent,session.getToken());
+            if (lock==null)
+            {
+                return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
+            }
         }
         session.beginSessionProcessing(lock);
         try

@@ -78,16 +78,21 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         return deny;
     }
-    public boolean hasRole(String value)
+    private boolean hasRole(String value)
     {
         @SuppressWarnings("unchecked")
         ROLE role=(ROLE)Enum.valueOf(this.roleType, value);
         return this.roles.contains(role);
     }
+    
     boolean isAccessDenied(Context context) throws Throwable
     {
         Method method=context.getRequestHandler().getMethod();
         ForbiddenRoles forbiddenRoles=method.getDeclaredAnnotation(ForbiddenRoles.class);
+        if (forbiddenRoles==null)
+        {
+            forbiddenRoles=method.getDeclaringClass().getDeclaredAnnotation(ForbiddenRoles.class);
+        }
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
@@ -106,7 +111,11 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
         if (requiredRoles==null)
         {
-            throw new Exception("Missing RequiredRoles: "+context.getRequestHandler().getKey());
+            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
+            if (requiredRoles==null)
+            {
+                throw new Exception("Missing RequiredRoles: "+context.getRequestHandler().getKey()+", class="+context.getRequestHandler().getMethod().getDeclaringClass());
+            }
         }
         if (requiredRoles.value().length==0)
         {
