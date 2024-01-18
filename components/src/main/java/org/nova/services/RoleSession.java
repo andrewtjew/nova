@@ -37,51 +37,80 @@ import com.amazonaws.services.auditmanager.model.Role;
 
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
+    static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
+
     final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
-    final private HashMap<Long,Boolean> denyMap;
+    private String partialKey;
     
     public RoleSession(Class<ROLE> roleType,String token, String user)
     {
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
-        this.denyMap=new HashMap<Long, Boolean>();
     }
     
-    public void addRole(ROLE role)
+    @SuppressWarnings("rawtypes")
+    private String computePartialKey()
+    {
+        StringBuilder sb=new StringBuilder();
+        
+        ArrayList<ROLE> list=new ArrayList<ROLE>();
+        list.addAll(roles);
+        list.sort(new Comparator<ROLE>()
+        {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public int compare(ROLE o1, ROLE o2)
+            {
+                Enum e1=(Enum)o1;
+                Enum e2=(Enum)o2;
+                return e1.compareTo(e2);
+            }
+        });
+        for (ROLE role:list)
+        {
+            sb.append(((Enum)role).ordinal());
+            sb.append("-");
+        }
+        return sb.toString();
+    }
+    
+    synchronized public void addRole(ROLE role)
     {
         this.roles.add(role);
-        this.denyMap.clear();
+        this.partialKey=computePartialKey();
     }
 
-    public boolean removeRole(ROLE role)
+    synchronized public boolean removeRole(ROLE role)
     {
-        this.denyMap.clear();
-        return this.roles.remove(role);
+        boolean result=this.roles.remove(role);
+        this.partialKey=computePartialKey();
+        return result;
     }
 
-    public void clearRoles()
+    synchronized public void clearRoles()
     {
         this.roles.clear();
-        this.denyMap.clear();
+        this.partialKey=computePartialKey();
     }
     @Override
-    public boolean isAccessDenied(Trace trace, Context context) throws Throwable
+    synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
         RequestHandler handler=context.getRequestHandler();
-        long key=handler.getRunTimeKey();
+        String key=this.partialKey+handler.getRunTimeKey();
         Boolean deny;
-        synchronized (this.denyMap)
+        synchronized (DENY_MAP)
         {
-            deny=this.denyMap.get(key);
+            deny=DENY_MAP.get(key);
         }
         if (deny==null)
         {
             deny=isAccessDenied(handler);
-            synchronized (this.denyMap)
+            synchronized (DENY_MAP)
             {
-                this.denyMap.put(key, deny);
+                DENY_MAP.put(key, deny);
             }
         }
         return deny;
