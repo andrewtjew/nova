@@ -22,72 +22,74 @@
 package org.nova.services;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
+import org.nova.http.server.RequestHandler;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
 import com.amazonaws.services.auditmanager.model.Role;
 
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
-    static HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
-    
-    HashSet<ROLE> roles;
+    final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
+    final private HashMap<Long,Boolean> denyMap;
     
     public RoleSession(Class<ROLE> roleType,String token, String user)
     {
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
+        this.denyMap=new HashMap<Long, Boolean>();
     }
     
     public void addRole(ROLE role)
     {
         this.roles.add(role);
+        this.denyMap.clear();
     }
 
     public boolean removeRole(ROLE role)
     {
+        this.denyMap.clear();
         return this.roles.remove(role);
     }
 
     public void clearRoles()
     {
         this.roles.clear();
+        this.denyMap.clear();
     }
-
     @Override
     public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
-        synchronized (DENY_MAP)
+        RequestHandler handler=context.getRequestHandler();
+        long key=handler.getRunTimeKey();
+        Boolean deny;
+        synchronized (this.denyMap)
         {
-            Boolean deny=DENY_MAP.get(context.getRequestHandler().getKey());
-            if (deny!=null)
-            {
-                return deny;
-            }
+            deny=this.denyMap.get(key);
         }
-        boolean deny=isAccessDenied(context);
-        synchronized (DENY_MAP)
+        if (deny==null)
         {
-            DENY_MAP.put(context.getRequestHandler().getKey(),deny);
+            deny=isAccessDenied(handler);
+            synchronized (this.denyMap)
+            {
+                this.denyMap.put(key, deny);
+            }
         }
         return deny;
     }
-    private boolean hasRole(String value)
+
+    public boolean isAccessDenied(RequestHandler handler) throws Throwable
     {
-        @SuppressWarnings("unchecked")
-        ROLE role=(ROLE)Enum.valueOf(this.roleType, value);
-        return this.roles.contains(role);
-    }
-    
-    boolean isAccessDenied(Context context) throws Throwable
-    {
-        Method method=context.getRequestHandler().getMethod();
+        Method method=handler.getMethod();
         ForbiddenRoles forbiddenRoles=method.getDeclaredAnnotation(ForbiddenRoles.class);
         if (forbiddenRoles==null)
         {
@@ -114,7 +116,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
             if (requiredRoles==null)
             {
-                throw new Exception("Missing RequiredRoles: "+context.getRequestHandler().getKey()+", class="+context.getRequestHandler().getMethod().getDeclaringClass());
+                throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
             }
         }
         if (requiredRoles.value().length==0)
@@ -130,5 +132,12 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         return true;
     }
+    private boolean hasRole(String value)
+    {
+        @SuppressWarnings("unchecked")
+        ROLE role=(ROLE)Enum.valueOf(this.roleType, value);
+        return this.roles.contains(role);
+    }
+    
 
 }
