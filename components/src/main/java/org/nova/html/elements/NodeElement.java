@@ -24,6 +24,7 @@ package org.nova.html.elements;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Text;
 
 public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
@@ -57,6 +58,7 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         this.inners.add(element);
         return (ELEMENT)this;
     }
+
 
     @SuppressWarnings("unchecked")
     public ELEMENT addInners(Element...elements)

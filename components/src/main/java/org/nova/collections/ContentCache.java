@@ -293,7 +293,10 @@ abstract public class ContentCache<KEY,VALUE>
 			if (node.previous==null)
 			{
 				this.first=node.next;
-				this.first.previous=null;
+				if (this.first!=null)
+				{
+				    this.first.previous=null;
+				}
 			}
 			else
 			{
@@ -302,7 +305,10 @@ abstract public class ContentCache<KEY,VALUE>
 			if (node.next==null)
 			{
 				this.last=node.previous;
-                this.last.next=null;
+                if (this.last!=null)
+                {
+                    this.last.next=null;
+                }
 			}
 			else
 			{

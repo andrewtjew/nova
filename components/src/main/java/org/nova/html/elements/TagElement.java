@@ -24,6 +24,7 @@ package org.nova.html.elements;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.nova.core.NameObject;
 import org.nova.html.ext.HtmlUtils;
@@ -107,11 +108,14 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         }
         return (ELEMENT) this;
     }
+    
+    static private AtomicLong ID=new AtomicLong();
+    
     public String id()
     {
         if (this.id==null)
         {
-            this.id="_"+this.hashCode();
+            this.id="_"+ID.getAndIncrement();
             return this.id;
         }
         return this.id;

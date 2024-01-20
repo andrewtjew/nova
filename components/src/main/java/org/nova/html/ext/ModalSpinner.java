@@ -107,13 +107,12 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
         return HtmlUtils.js_call("document.getElementById",id())+".style.display='none'";
     }
 
-    public script js_on(String onName,int delay)
-    {
-      return new script().addInner(onName+"=function(){setTimeout(function(){"+js_show()+";},"+delay+");}");
-    }
-    public script js_onbeforeunload(int delay)
-    {
-    	return js_on("window.visibilitychange=function(){"+js_hide()+";};window.onbeforeunload",delay);
-    }
-	
+//    public script js_showBusyServer(int delay)
+//    {
+//        id("busy-server-modal");
+//        
+//        //window.visibilitychange is used to display spinner after delay,onpageshow is used to hide spinner if page is shown using browser back button. 
+//        String script="window.visibilitychange=function(){"+js_hide()+";};window.onbeforeunload=function(){setTimeout(function(){"+js_show()+";},"+delay+");};window.addEventListener('pageshow',function(event){var traversal=event.persisted||(typeof window.performance!='undefined'&&window.performance.getEntriesByType('navigation')[0].entryType==='back_forward');if(traversal){window.location.reload();}});";
+//        return new script().addInner(script);
+//    }
 }

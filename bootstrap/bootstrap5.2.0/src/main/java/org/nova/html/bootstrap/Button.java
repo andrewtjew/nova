@@ -35,5 +35,13 @@ public class Button extends ButtonComponent<Button>
         attr("type","button");
         addInner(label);
     }
+    
+    public Button popover(String title,String content)
+    {
+        this.attr("data-bs-toggle","popover");        
+        this.attr("title",title);
+        this.attr("data-bs-content",content);
+        return this;
+    }
 
 }
