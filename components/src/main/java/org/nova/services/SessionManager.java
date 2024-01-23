@@ -167,7 +167,7 @@ public class SessionManager<SESSION extends Session>
     {
         synchronized (this)
         {
-            return this.userSessions.values();
+            return this.tokenSessions.values();
         }
     }
     public Lock<String> waitForLock(Trace parent,String user)

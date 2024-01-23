@@ -37,29 +37,36 @@ public class NameValueList extends Item
     final private StyleTemplate nameTemplate;
     final private StyleTemplate valueTemplate;
     final private Integer lineSpace;
+    final private Object divider;
     private int lines;
     
-    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
+    
+    public NameValueList(Size nameSize,StyleTemplate nameTemplate,Object divider,StyleTemplate valueTemplate,Integer lineSpace)
     {
     	this.nameSize=nameSize;
         this.nameTemplate=nameTemplate;
         this.valueTemplate=valueTemplate;
         this.lineSpace=lineSpace;
+        this.divider=divider;
     }
     public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
     {
-        this(nameSize,nameTemplate,valueTemplate,null);
+        this(nameSize,nameTemplate,null,valueTemplate,null);
     }
     public NameValueList(Size nameSize,Integer lineSpace)
     {
-        this(nameSize,null,null,lineSpace);
+        this(nameSize,null,null,null,lineSpace);
     }
     public NameValueList(Size nameSize)
     {
-        this(nameSize,null,null,null);
+        this(nameSize,null,null,null,null);
+    }
+    public NameValueList(Size nameSize,Object divider)
+    {
+        this(nameSize,null,divider,null,null);
     }
 
-    public NameValueList add(StyleTemplate nameTemplate,Object name,StyleTemplate valueTemplate,Object value)
+    public NameValueList add(StyleTemplate nameTemplate,Object name,Object divider,StyleTemplate valueTemplate,Object value)
     {
         if ((lines>0)&&(this.lineSpace!=null))
         {
@@ -79,6 +86,14 @@ public class NameValueList extends Item
         	Label tagElement=new Label().addInner(name);
             tagElement.style("width:"+this.nameSize.toString()+"!important;white-space:nowrap;");
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
+        }
+        if (divider==null)
+        {
+            divider=this.divider;
+            if (divider!=null)
+            {
+                row.addInner(divider);
+            }
         }
         if (value instanceof TagElement)
         {
@@ -112,14 +127,18 @@ public class NameValueList extends Item
     
     public NameValueList add(Object name,Object value)
     {
-        return add(this.nameTemplate,name,this.valueTemplate,value);
+        return add(name,null,value);
     }
-    public NameValueList add(StyleTemplate nameTemplateOverride,Object name,Object value)
+    public NameValueList add(Object name,Object divider,Object value)
     {
-        return add(nameTemplate,name,this.valueTemplate,value);
+        return add(this.nameTemplate,name,divider,this.valueTemplate,value);
     }
-    public NameValueList add(Object name,StyleTemplate valueTemplateOverride,Object value)
+    public NameValueList add(StyleTemplate nameTemplateOverride,Object name,Object divider,Object value)
     {
-        return add(this.nameTemplate,name,valueTemplate,value);
+        return add(nameTemplate,name,divider,this.valueTemplate,value);
+    }
+    public NameValueList add(Object name,Object divider,StyleTemplate valueTemplateOverride,Object value)
+    {
+        return add(this.nameTemplate,name,divider,valueTemplate,value);
     }
 }

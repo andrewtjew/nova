@@ -29,7 +29,7 @@ import org.nova.json.ObjectMapper;
 public class PathAndQuery
 {
 	private StringBuilder sb;
-	private char separator;; 
+	private char separator; 
     
     public PathAndQuery(String path,char startSeparator) throws Throwable
     {

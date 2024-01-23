@@ -304,7 +304,7 @@ public class Query
         String sql;
         String start;
         Object[] parameters;
-        HashMap<String,GraphObjectDescriptor> map;
+        HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
         String orderBy;
         String countSql;
         Class<? extends RelationNodeObject<?>> startType;
@@ -319,7 +319,7 @@ public class Query
             return this.preparedQuery;
         }
         PreparedQuery preparedQuery=new PreparedQuery();
-        preparedQuery.map=new HashMap<String, GraphObjectDescriptor>();
+        preparedQuery.typeDescriptorMap=new HashMap<String, GraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
 
@@ -344,7 +344,7 @@ public class Query
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.register(type);
-                preparedQuery.map.put(descriptor.getTypeName(), descriptor);
+                preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
                 {
@@ -367,7 +367,7 @@ public class Query
             {
                 Class<? extends NodeObject> type = this.optionalNodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.register(type);
-                preparedQuery.map.put(descriptor.getTypeName(), descriptor);
+                preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
                 sources.append(" LEFT JOIN " + table + " " + on + table + "._nodeId");
@@ -384,7 +384,7 @@ public class Query
         }
         ArrayList<Object> list=new ArrayList<Object>();
         TypeUtils.addToList(list, this.parameters);
-        State state=new State(graph,preparedQuery.map,sources,select,list);
+        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,list);
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
         preparedQuery.countSql="SELECT count(*) FROM" + sources;

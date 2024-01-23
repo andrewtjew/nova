@@ -22,7 +22,7 @@ public class QueryResult
         GraphObjectDescriptor descriptor=this.map.get(typeName);
         if (descriptor==null)
         {
-            return null;
+            throw new Exception();
         }
 
         Long nodeId = row.getNullableBIGINT(typeName + "._nodeId");

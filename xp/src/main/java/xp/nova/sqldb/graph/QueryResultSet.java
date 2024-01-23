@@ -38,18 +38,26 @@ public class QueryResultSet
         }
         return this.results[0];
     }
+    public QueryResult getResult(int index) throws Throwable
+    {
+        return this.results[index];
+    }
 
 
     @SuppressWarnings("unchecked")
-    public <OBJECT extends NodeObject> OBJECT[] getObjects() throws Throwable
+    public <OBJECT extends NodeObject> OBJECT[] getObjects(String namespace,Class<OBJECT> type) throws Throwable
     {
-        Class<? extends NodeObject> type=map.values().iterator().next().getType();
+//        Class<? extends NodeObject> type=map.values().iterator().next().getType();
         Object array=Array.newInstance(type, this.results.length);
         for (int i=0;i<this.results.length;i++)
         {
-            Array.set(array, i, this.results[i].get(type));
+            Array.set(array, i, this.results[i].get(namespace,type));
         }
         return (OBJECT[]) array;
+    }
+    public <OBJECT extends NodeObject> OBJECT[] getObjects(Class<OBJECT> type) throws Throwable
+    {
+        return getObjects(null,type);
     }
     public <OBJECT extends NodeObject> OBJECT getObject() throws Throwable
     {

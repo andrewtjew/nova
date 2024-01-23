@@ -215,7 +215,7 @@ public class Select
         {
             if (connector instanceof MySqlConnector)
             {
-                sb.append(" LMIT ");
+                sb.append(" LIMIT ");
                 sb.append(this.maximumRows);
             }
         }
