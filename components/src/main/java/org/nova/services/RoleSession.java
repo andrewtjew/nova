@@ -167,6 +167,10 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         ROLE role=(ROLE)Enum.valueOf(this.roleType, value);
         return this.roles.contains(role);
     }
+    public boolean hasRole(ROLE role)
+    {
+        return this.roles.contains(role);
+    }
     
 
 }
