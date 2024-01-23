@@ -17,9 +17,9 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.html.tags.style;
 
-public class BusyServerIndicator extends Content
+public class NextPageSlowIndicator extends Content
 {
-	public BusyServerIndicator(int delay) 
+	public NextPageSlowIndicator(int delay) 
 	{
 	    ModalSpinner spinner=this.returnAddInner(new ModalSpinner());
 	    this.addInner(spinner.style(new Size(5,unit.em)));

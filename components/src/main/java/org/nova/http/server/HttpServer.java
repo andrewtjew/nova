@@ -556,7 +556,9 @@ public class HttpServer
     		            if (this.test)
     		            {
     		                servletResponse.setHeader("Content-Type","text/html");
-    		                byte[] content=Utils.toString(e).getBytes();
+    		                String text=Utils.toString(e).replace("\n", "<br>");
+    		                
+    		                byte[] content=text.getBytes();
     		                encoderContext.encode(servletResponse, content, 0, content.length);
     		            }
     		            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);

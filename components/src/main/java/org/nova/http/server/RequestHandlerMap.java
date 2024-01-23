@@ -852,20 +852,19 @@ class RequestHandlerMap
         boolean logResponseContent=true;
         boolean logRequestParameters=true;
         
-        PathAndQuery path=new PathAndQuery();
+        PathAndQuery path=null;
         if (root!=null)
         {
-            path.addSegment(root);
+            path=new PathAndQuery(root);
         }
         if (classPath!=null)
         {
-            path.addSegment(classPath.value());
+            path=new PathAndQuery(classPath.value());
         }
         if (handlerAnnotations.path!=null)
         {
-            path.addSegment(handlerAnnotations.path.value());
+            path=new PathAndQuery(handlerAnnotations.path.value());
         }
-        
         
         String fullPath = path.toString();
         if (fullPath.length()==0)
@@ -931,7 +930,7 @@ class RequestHandlerMap
 		String[] fragments = Utils.split(path, '/');
 		if (fragments[0].length() != 0)
 		{
-			throw new Exception("Path must start with root / character. Site=" + requestHandler.getMethod().getName());
+			throw new Exception("Path must start with root / character. Site=" + requestHandler.getMethod().getName()+", path="+path);
 		}
 		Node node = null;
 		HashMap<String, Integer> indexMap = new HashMap<>();
