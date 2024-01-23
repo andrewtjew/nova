@@ -28,35 +28,45 @@ import org.nova.json.ObjectMapper;
 
 public class PathAndQuery
 {
-    private String path;
 	private StringBuilder sb;
-	private char separator;; 
+	private char separator; 
     
-//    public PathAndQuery(String path,char startSeparator) throws Throwable
-//    {
-//        this.path=path;
-//        this.sb=new StringBuilder();
-//        this.separator=startSeparator;
-//    }
+    public PathAndQuery(String path,char startSeparator) throws Throwable
+    {
+//        this.sb=path!=null?new StringBuilder(URLEncoder.encode(path,"UTF-8")):new StringBuilder();
+        this.sb=path!=null?new StringBuilder(path):new StringBuilder();
+        this.separator=startSeparator;
+    }
     public PathAndQuery(String path) throws Throwable
     {
-        this.path=path;
-        this.sb=new StringBuilder();
-        this.separator='?';
+        this(path,'?');
     }
-//    public PathAndQuery() throws Throwable
-//    {
-//        this("/");
-//    }
+    public PathAndQuery() throws Throwable
+    {
+        this(null);
+    }
     public PathAndQuery addSegment(String segment) throws Exception
     {
         if (this.separator!='?')
         {
             throw new Exception();
         }
-        this.path=this.path+segment;
+        this.sb.append(segment);
         return this;
     }
+//    @Deprecated
+//    public PathAndQuery addSegments(Object...segments) throws Exception
+//    {
+//        if (this.separator!='?')
+//        {
+//            throw new Exception();
+//        }
+//        for (Object segment:segments)
+//        {
+//            this.sb.append('/').append(segment);
+//        }
+//        return this;
+//    }
 	public PathAndQuery addQuery(String key,Object value) throws Exception
 	{
 	    if (value==null)
@@ -137,15 +147,11 @@ public class PathAndQuery
     }
     public boolean containQueries()
     {
-        return this.sb.length()>0;
+        return this.separator=='&';
     }
 	public String toString()
 	{
-	    if (this.sb.length()>0)
-	    {
-	        return this.path+this.separator+this.sb.toString();
-	    }
-	    return this.path;
+		return this.sb.toString();
 	}
 	public char getSeparator()
 	{

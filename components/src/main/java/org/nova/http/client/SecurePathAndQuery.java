@@ -28,36 +28,31 @@ import java.util.ArrayList;
 import org.nova.core.NameString;
 import org.nova.json.ObjectMapper;
 
-public abstract class SecurePathAndQuery extends PathAndQuery
+public abstract class SecurePathAndQuery
 {
-    public SecurePathAndQuery(String path) throws Throwable
+    final protected String path;
+    final protected ArrayList<NameString> parameters;
+    
+    public SecurePathAndQuery(String path) throws UnsupportedEncodingException
     {
-        super(path);
+        this.path=path;
+        this.parameters=new ArrayList<NameString>();
     }
-
-    //    final protected String path;
-//    final protected ArrayList<NameString> parameters;
-//    
-//    public SecurePathAndQuery(String path) throws UnsupportedEncodingException
-//    {
-//        this.path=path;
-//        this.parameters=new ArrayList<NameString>();
-//    }
-//	public SecurePathAndQuery addQuery(String key,Object value) throws Exception
-//	{
-//	    if (value==null)
-//	    {
-//            parameters.add(new NameString(key,null));
-//	    }
-//	    else
-//	    {
-//	        parameters.add(new NameString(key,value.toString()));
-//	    }
-//	    return this;
-//	}
-//    public SecurePathAndQuery addJSONQuery(String key,Object value) throws Throwable
-//    {
-//        return addQuery(key,ObjectMapper.writeObjectToString(value));
-//    }
+	public SecurePathAndQuery addQuery(String key,Object value) throws Exception
+	{
+	    if (value==null)
+	    {
+            parameters.add(new NameString(key,null));
+	    }
+	    else
+	    {
+	        parameters.add(new NameString(key,value.toString()));
+	    }
+	    return this;
+	}
+    public SecurePathAndQuery addJSONQuery(String key,Object value) throws Throwable
+    {
+        return addQuery(key,ObjectMapper.writeObjectToString(value));
+    }
 	abstract public String toString();
 }
