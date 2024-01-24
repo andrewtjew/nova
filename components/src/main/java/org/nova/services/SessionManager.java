@@ -123,7 +123,7 @@ public class SessionManager<SESSION extends Session>
         return removeSession(parent,getSessionByToken(token));
     }
     
-    private boolean removeSession(Trace parent,SESSION session)
+    public boolean removeSession(Trace parent,SESSION session)
     {
         if (session==null)
         {

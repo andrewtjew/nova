@@ -49,6 +49,10 @@ public class NameValueList extends Item
         this.lineSpace=lineSpace;
         this.divider=divider;
     }
+    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
+    {
+        this(nameSize,nameTemplate,null,valueTemplate,lineSpace);
+    }
     public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
     {
         this(nameSize,nameTemplate,null,valueTemplate,null);

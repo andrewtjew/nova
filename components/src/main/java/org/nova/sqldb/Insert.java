@@ -61,7 +61,7 @@ public class Insert
 		return this;
 	}
 	
-	public int execute(Trace parent,Accessor accessor) throws Throwable
+	public void execute(Trace parent,Accessor accessor) throws Throwable
 	{
 		StringBuilder sql=new StringBuilder("INSERT INTO "+this.table+" ("+this.columns.toString()+") VALUES (?");
         for (int i=1;i<this.parameters.size();i++)
@@ -69,7 +69,7 @@ public class Insert
             sql.append(",?");
         }
         sql.append(')');
-        return accessor.executeUpdate(parent, this.categoryOverride, parameters, sql.toString());
+        accessor.executeUpdate(parent, this.categoryOverride, parameters, sql.toString());
 	}
 
     public long executeAndReturnLongKey(Trace parent,Accessor accessor) throws Throwable
@@ -100,11 +100,11 @@ public class Insert
         sql.append(')');
         return accessor.executeUpdateAndReturnGeneratedKeys(parent, this.categoryOverride, parameters, sql.toString()).get(0);
     }
-	public int execute(Trace parent,Connector connector) throws Throwable
+	public void execute(Trace parent,Connector connector) throws Throwable
 	{
 		try (Accessor accessor=connector.openAccessor(parent))
 		{
-			return execute(parent, accessor);
+			execute(parent, accessor);
 		}
 	}
 
