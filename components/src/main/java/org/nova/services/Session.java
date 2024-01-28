@@ -21,17 +21,23 @@
  ******************************************************************************/
 package org.nova.services;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+
 import org.nova.concurrent.Lock;
 import org.nova.core.NameObject;
 import org.nova.http.server.Context;
 import org.nova.metrics.RateMeter;
+import org.nova.metrics.RateSample;
 import org.nova.tracing.Trace;
 
 public abstract class Session
 {
     final String token;
-    final String user;
     final long created;
+    private String user;
     private long lastAccess;
     private Lock<String> lock;
     private RateMeter accessRateMeter;
@@ -43,6 +49,19 @@ public abstract class Session
         this.lastAccess=this.created=System.currentTimeMillis();
         this.accessRateMeter=new RateMeter();
     }
+
+    public Session(String token)
+    {
+        this.token=token;
+        this.lastAccess=this.created=System.currentTimeMillis();
+        this.accessRateMeter=new RateMeter();
+    }
+    
+    protected void setUser(String user)
+    {
+        this.user=user;
+    }
+    
     public void beginSessionProcessing(Lock<String> lock)
     {
         synchronized(this)
@@ -92,6 +111,19 @@ public abstract class Session
     {
         return this.accessRateMeter;
     }
+    
+    protected void collectDisplayItems(List<NameObject> list)
+    {
+        ZoneId zoneId=ZoneId.of("UTC");
+        list.add(new NameObject("Token",this.token));
+        list.add(new NameObject("User",this.user));
+        list.add(new NameObject("Created",LocalDateTime.ofInstant(Instant.ofEpochMilli(this.created),zoneId)));
+        list.add(new NameObject("Last Access",LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastAccess),zoneId)));
+        RateSample rate=this.accessRateMeter.sample();
+        list.add(new NameObject("Access Rate",rate.getRate()));
+        list.add(new NameObject("Accesses",rate.getTotalCount()));
+    }
+    
     
     abstract public void onClose(Trace trace) throws Throwable;
     abstract public NameObject[] getDisplayItems();
