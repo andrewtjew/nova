@@ -30,7 +30,7 @@ public class DropdownSplitMenuButtonGroup extends ButtonGroup
     
     public DropdownSplitMenuButtonGroup buttonToggles()
     {
-        this.button().onclick(this.menu.js_dropdown_toggle());
+        this.button().onclick(this.menu.js_toggle());
         button.attr("data-toggle","dropdown");
 //        this.menu.reference_parent(this.button);
         return this;

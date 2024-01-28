@@ -83,20 +83,35 @@ public class PathAndQuery
 		this.sb.append(URLEncoder.encode(value.toString(), "UTF-8"));
 		return this;
 	}
-	public PathAndQuery addQuery(String key,long value) throws Exception
-	{
+    public PathAndQuery addJSONQuery(String key,Object value) throws Throwable
+    {
+        return addQuery(key,ObjectMapper.writeObjectToString(value));
+    }
+    public PathAndQuery addQuery(String key,String value) throws Exception
+    {
+        if (value==null)
+        {
+            return this;
+        }
         if (this.separator=='#')
         {
             throw new Exception();
         }
-		this.sb.append(this.separator);
-		this.separator='&';
-		this.sb.append(key).append('=').append(value);
-		return this;
-	}
-    public PathAndQuery addJSONQuery(String key,Object value) throws Throwable
+        this.sb.append(this.separator);
+        this.separator='&';
+        this.sb.append(key).append('=').append(URLEncoder.encode(value, "UTF-8"));
+        return this;
+    }
+    public PathAndQuery addQuery(String key,long value) throws Exception
     {
-        return addQuery(key,ObjectMapper.writeObjectToString(value));
+        if (this.separator=='#')
+        {
+            throw new Exception();
+        }
+        this.sb.append(this.separator);
+        this.separator='&';
+        this.sb.append(key).append('=').append(value);
+        return this;
     }
 	public PathAndQuery addQuery(String key,int value) throws Exception
 	{
@@ -107,21 +122,6 @@ public class PathAndQuery
 		this.sb.append(this.separator);
 		this.separator='&';
 		this.sb.append(key).append('=').append(value);
-		return this;
-	}
-	public PathAndQuery addQuery(String key,String value) throws Exception
-	{
-	    if (value==null)
-	    {
-	        return this;
-	    }
-        if (this.separator=='#')
-        {
-            throw new Exception();
-        }
-		this.sb.append(this.separator);
-		this.separator='&';
-		this.sb.append(key).append('=').append(URLEncoder.encode(value, "UTF-8"));
 		return this;
 	}
 	public PathAndQuery addQuery(String key,short value) throws Exception

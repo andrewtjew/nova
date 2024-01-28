@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.AutoClose;
 import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.elements.FormElement;
@@ -104,9 +105,9 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         return attr("for",element.id());
     }
 
-    public ELEMENT auto_close(boolean value)
+    public ELEMENT auto_close(AutoClose autoClose)
     {
-        return attr("data-bs-auto-close",value);
+        return attr("data-bs-auto-close",autoClose.toString());
     }
     
     public ELEMENT dismissModal()

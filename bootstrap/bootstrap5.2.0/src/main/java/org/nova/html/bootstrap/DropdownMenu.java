@@ -25,6 +25,7 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.ThemeColor;
 import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.tags.a;
 import org.nova.html.tags.div;
 
@@ -164,9 +165,21 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
         return this;
     }
  
-    public String js_dropdown_toggle()
+    public String js_toggle()
     {
-        return "$('#"+id()+"').dropdown();";
+        return "bootstrap.Dropdown.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
+    }
+    public String js_hide()
+    {
+        return "bootstrap.Dropdown.getOrCreateInstance(document.getElementById('"+this.id()+"')).hide();";
+    }
+    public String js_show()
+    {
+        return "bootstrap.Dropdown.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
+    }
+    public String js_update()
+    {
+        return "bootstrap.Dropdown.getOrCreateInstance(document.getElementById('"+this.id()+"')).update();";
     }
     
 }
