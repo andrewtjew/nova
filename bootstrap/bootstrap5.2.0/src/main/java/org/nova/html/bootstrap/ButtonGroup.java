@@ -27,13 +27,16 @@ public class ButtonGroup extends StyleComponent<ButtonGroup>
     public ButtonGroup()
     { 
         super("div","btn-group");
-        attr("role","group");
     }
     
     public ButtonGroup vertical()
     {
         addClass("btn-group-vertical");
         return this;
+    }
+    public String js_hide()
+    {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).hide();";
     }
     
 }

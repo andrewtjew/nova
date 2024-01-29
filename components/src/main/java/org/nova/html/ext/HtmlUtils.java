@@ -636,6 +636,14 @@ public class HtmlUtils
                 +js_call(QuotationMark.SINGLE,function,parameters)
                 +";}";
     }
+    public static String js_elementCall(String id,String function,Object...parameters)
+    {
+        return "document.getElementById('"+id+"')."+js_call(function,parameters);
+    }
+    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
+    {
+        return js_elementCall(element.id(),function,parameters);
+    }
     
     public static String js_call(String function,Object...parameters)
     {

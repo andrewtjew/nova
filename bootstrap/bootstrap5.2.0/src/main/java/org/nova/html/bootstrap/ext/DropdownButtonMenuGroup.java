@@ -21,7 +21,7 @@ public class DropdownButtonMenuGroup extends ButtonGroup
     
     public DropdownButtonMenuGroup buttonToggles()
     {
-        this.button().onclick(this.menu.js_dropdown_toggle());
+        this.button().onclick(this.menu.js_toggle());
         button.attr("data-toggle","dropdown");
         return this;
     }

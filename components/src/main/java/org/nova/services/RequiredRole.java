@@ -19,18 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server.annotations;
+package org.nova.services;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Deprecated 
-public @interface SecureQueryParam
+@Target({ElementType.METHOD,ElementType.TYPE})
+public @interface RequiredRole
 {
-	String value();
-    boolean hideParameterValue() default false;
+    String[] value() default {};
 }

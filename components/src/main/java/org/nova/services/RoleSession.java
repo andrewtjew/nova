@@ -26,17 +26,22 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+import org.nova.core.NameObject;
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.http.server.RequestHandler;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
+import org.nova.utils.Utils;
 
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
     static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
 
+    private HashMap<Long,Boolean> denyMap;
+    
     final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
     private String partialKey;
@@ -46,6 +51,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
+        this.denyMap=new HashMap<Long, Boolean>();
     }
     
     @SuppressWarnings("rawtypes")
@@ -78,12 +84,14 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     synchronized public void addRole(ROLE role)
     {
         this.roles.add(role);
+        this.denyMap.clear();
         this.partialKey=computePartialKey();
     }
 
     synchronized public boolean removeRole(ROLE role)
     {
         boolean result=this.roles.remove(role);
+        this.denyMap.clear();
         this.partialKey=computePartialKey();
         return result;
     }
@@ -91,14 +99,20 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     synchronized public void clearRoles()
     {
         this.roles.clear();
+        this.denyMap.clear();
         this.partialKey=computePartialKey();
     }
     @Override
     synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
         RequestHandler handler=context.getRequestHandler();
-        String key=this.partialKey+handler.getRunTimeKey();
-        Boolean deny;
+        long handlerKey=handler.getRunTimeKey();
+        Boolean deny=this.denyMap.get(handlerKey);
+        if (deny!=null)
+        {
+            return deny;
+        }
+        String key=this.partialKey+handlerKey;
         synchronized (DENY_MAP)
         {
             deny=DENY_MAP.get(key);
@@ -111,6 +125,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
                 DENY_MAP.put(key, deny);
             }
         }
+        this.denyMap.put(handlerKey, deny);
         return deny;
     }
 
@@ -137,10 +152,10 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             }
         }
 
-        RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
+        RequiredRole requiredRoles=method.getDeclaredAnnotation(RequiredRole.class);
         if (requiredRoles==null)
         {
-            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
+            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRole.class);
             if (requiredRoles==null)
             {
                 throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
@@ -169,6 +184,12 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     {
         return this.roles.contains(role);
     }
-    
+    @Override
+    protected void collectDisplayItems(List<NameObject> list)
+    {
+        super.collectDisplayItems(list);
+        String roles=Utils.combine(this.roles.iterator(), ", ");
+        list.add(new NameObject("Roles",roles));
+    }    
 
 }

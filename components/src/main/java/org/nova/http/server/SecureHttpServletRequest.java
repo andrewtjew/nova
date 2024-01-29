@@ -43,10 +43,9 @@ public abstract class SecureHttpServletRequest extends HttpServletRequestWrapper
     {
         return java.util.Collections.enumeration(this.parameters.keySet());
     }    
-    protected void setParameter(String name, String value)
+    public void setParameter(String name, String value)
     {
         parameters.put(name, new String[] {value});
     }
     
-    abstract public void decode(HttpServletRequest request) throws Throwable;
 }

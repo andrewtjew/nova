@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.TimeZone;
 
 public class Utils
@@ -197,6 +198,20 @@ public class Utils
                 sb.append(seperator);
             }
             sb.append(item);
+        }
+        return sb.toString();
+    }
+    public static String combine(Iterator<?> iterator,String seperator)
+    {
+        StringBuilder sb=new StringBuilder();
+        while (iterator.hasNext())
+        {
+            Object object=iterator.next();
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(object);
         }
         return sb.toString();
     }

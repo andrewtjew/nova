@@ -45,7 +45,6 @@ import org.nova.http.server.annotations.CookieParam;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.DELETE;
 import org.nova.http.server.annotations.DefaultValue;
-import org.nova.http.server.annotations.SecureQueryParam;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.HEAD;
@@ -520,7 +519,7 @@ class RequestHandlerMap
 			CookieStateParam cookieStateParam = null;
 			HeaderParam headerParam = null;
 			PathParam pathParam = null;
-			SecureQueryParam secureQueryParam=null;
+//			SecureQueryParam secureQueryParam=null;
 			QueryParam queryParam = null;
 			StateParam stateParam = null;
 			ParamName paramName=null;
@@ -569,14 +568,14 @@ class RequestHandlerMap
 					    hiddenParameters.add(queryParam.value());
 					}
 				}
-                else if (type == SecureQueryParam.class)
-                {
-                    secureQueryParam = (SecureQueryParam) annotation;
-                    if (secureQueryParam.hideParameterValue())
-                    {
-                        hiddenParameters.add(secureQueryParam.value());
-                    }
-                }
+//                else if (type == SecureQueryParam.class)
+//                {
+//                    secureQueryParam = (SecureQueryParam) annotation;
+//                    if (secureQueryParam.hideParameterValue())
+//                    {
+//                        hiddenParameters.add(secureQueryParam.value());
+//                    }
+//                }
                 else if (type == StateParam.class)
                 {
                     stateParam = (StateParam) annotation;
@@ -613,10 +612,10 @@ class RequestHandlerMap
 			{
 				params.add(queryParam);
 			}
-            if (secureQueryParam != null)
-            {
-                params.add(secureQueryParam);
-            }
+//            if (secureQueryParam != null)
+//            {
+//                params.add(secureQueryParam);
+//            }
 			if (stateParam != null)
 			{
 				params.add(stateParam);
@@ -691,11 +690,11 @@ class RequestHandlerMap
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
-            else if (secureQueryParam != null)
-            {
-                parameterInfos.add(new ParameterInfo(ParameterSource.SECURE_QUERY, secureQueryParam, secureQueryParam.value(), parameterIndex, parameterType,
-                        getDefaultValue(method, defaultValue, parameterType),required!=null));
-            }
+//            else if (secureQueryParam != null)
+//            {
+//                parameterInfos.add(new ParameterInfo(ParameterSource.SECURE_QUERY, secureQueryParam, secureQueryParam.value(), parameterIndex, parameterType,
+//                        getDefaultValue(method, defaultValue, parameterType),required!=null));
+//            }
 			else if (headerParam != null)
 			{
 				if (isSimpleParameterType(parameterType) == false)

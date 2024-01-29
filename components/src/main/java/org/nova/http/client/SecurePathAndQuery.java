@@ -42,14 +42,27 @@ public abstract class SecurePathAndQuery
 	{
 	    if (value==null)
 	    {
-            parameters.add(new NameString(key,null));
+	        return this;
 	    }
-	    else
-	    {
-	        parameters.add(new NameString(key,value.toString()));
-	    }
+	    parameters.add(new NameString(key,URLEncoder.encode(value.toString(), "UTF-8")));
+//        parameters.add(new NameString(key,value.toString()));
 	    return this;
 	}
+    public SecurePathAndQuery addQuery(String key,long value) throws Exception
+    {
+        parameters.add(new NameString(key,Long.toString(value)));
+        return this;
+    }
+    public SecurePathAndQuery addQuery(String key,int value) throws Exception
+    {
+        parameters.add(new NameString(key,Integer.toString(value)));
+        return this;
+    }
+    public SecurePathAndQuery addQuery(String key,short value) throws Exception
+    {
+        parameters.add(new NameString(key,Short.toString(value)));
+        return this;
+    }
     public SecurePathAndQuery addJSONQuery(String key,Object value) throws Throwable
     {
         return addQuery(key,ObjectMapper.writeObjectToString(value));
