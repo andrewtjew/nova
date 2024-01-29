@@ -33,8 +33,6 @@ import org.nova.http.server.RequestHandler;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-import com.amazonaws.services.auditmanager.model.Role;
-
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
     static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();

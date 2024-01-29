@@ -24,8 +24,6 @@ import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-import com.amazonaws.services.forecast.model.Domain;
-
 public class Graph
 {
     static final boolean TEST=true;
