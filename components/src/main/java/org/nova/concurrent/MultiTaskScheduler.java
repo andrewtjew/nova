@@ -36,14 +36,14 @@ public class MultiTaskScheduler
 	private final ExecutorService executorService;
 	private final TraceManager traceManager;
 	private long number;
-	private final HashMap<Long,Progress<?>> futures;
+	private final HashMap<Long,Progress<?>> progresses;
 	private final Logger logger;
 	
 	public MultiTaskScheduler(TraceManager traceManager,ExecutorService executorService,Logger logger)
 	{
 		this.traceManager=traceManager;
 		this.executorService=executorService;
-		this.futures=new HashMap<>();
+		this.progresses=new HashMap<>();
 		this.logger=logger;
 	}
     public MultiTaskScheduler(TraceManager traceManager,int maximumThreads,Logger logger)
@@ -53,21 +53,21 @@ public class MultiTaskScheduler
 
 	class Runner implements java.lang.Runnable
 	{
-		final Progress<?> future;
+		final Progress<?> progress;
 		final Task<?> task;
 
-		Runner(Progress<?> futures,Task<?> task)
+		Runner(Progress<?> progress,Task<?> task)
 		{
 			this.task=task;
-			this.future=futures;
+			this.progress=progress;
 		}
 
 		@Override
 		public void run()
 		{
-		    this.future.startTask();
+		    this.progress.startTask();
 			this.task.execute();
-			complete(future);
+			complete(progress);
 		}
 	}
 	
@@ -77,7 +77,7 @@ public class MultiTaskScheduler
 		{
 			if (futures.completeTask())
 			{
-				this.futures.remove(futures.getNumber());
+				this.progresses.remove(futures.getNumber());
 			}
 		}		
 	}
@@ -89,7 +89,7 @@ public class MultiTaskScheduler
 		{
 			long number=this.number++;
 			future=new Progress<RESULT>(this.traceManager,parent,traceCategory,number,callables,this.logger);
-			this.futures.put(number, future);
+			this.progresses.put(number, future);
 		}
 		for (int i=0;i<callables.length;i++)
 		{
@@ -100,18 +100,18 @@ public class MultiTaskScheduler
 
 	public Progress<Void> schedule(Trace parent,String traceCategory,TraceRunnable...runnables)
     {
-        Progress<Void> future=null;
+        Progress<Void> progress=null;
         synchronized(this)
         {
             long number=this.number++;
-            future=new Progress<Void>(this.traceManager,parent,traceCategory,number,runnables,this.logger);
-            this.futures.put(number, future);
+            progress=new Progress<Void>(this.traceManager,parent,traceCategory,number,runnables,this.logger);
+            this.progresses.put(number, progress);
         }
         for (int i=0;i<runnables.length;i++)
         {
-            this.executorService.submit(new Runner(future, future.getTask(i)));
+            this.executorService.submit(new Runner(progress, progress.getTask(i)));
         }
-        return future;
+        return progress;
     }
 
 
@@ -119,7 +119,7 @@ public class MultiTaskScheduler
 	{
 		synchronized(this)
 		{
-			return this.futures.values().toArray(new Progress[this.futures.size()]);
+			return this.progresses.values().toArray(new Progress[this.progresses.size()]);
 		}
 	}
 	

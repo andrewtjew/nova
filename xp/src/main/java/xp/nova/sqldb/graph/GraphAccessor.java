@@ -35,7 +35,6 @@ public class GraphAccessor implements AutoCloseable
     
     public long getCount(Trace parent,Class<? extends NodeObject> type,String where,Object...parameters) throws Throwable
     {
-//        GraphObjectDescriptor descriptor=this.graph.register(type);
         GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptorMap().get(type.getSimpleName());
         String table=descriptor.getTableName();
         return accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
@@ -123,50 +122,50 @@ public class GraphAccessor implements AutoCloseable
     {
         return this.accessor;
     }
-    public long getCount(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
-    {
-        PreparedQuery preparedQuery=query.build(this.graph);
-        if (query.parameters!=null)
-        {
-            if (parameters.length!=0)
-            {
-                throw new Exception();
-            }
-            parameters=query.parameters;
-        }
-        else
-        {
-            translateParameters(parameters);
-        }
-        StringBuilder sb=new StringBuilder(preparedQuery.countSql);
-        if (startNodeId!=null)
-        {
-            sb.append(preparedQuery.start+startNodeId);
-        }
-        String sql=sb.toString();
-        RowSet rowSet;
-        if (TEST)
-        {
-            System.out.println("GraphAcessor.getCount:sql");
-        }
-        if (parameters != null)
-        {
-            rowSet = accessor.executeQuery(parent, null,parameters, sql);
-        }
-        else
-        {
-            rowSet = accessor.executeQuery(parent, null, sql);
-        }
-        return rowSet.getRow(0).getBIGINT(0);
-    }
-    public long getCount(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
-    {
-        return getCount(parent,parameters,startNodeId,query);
-    }
-    public long getCount(Trace parent,Query query,Object...parameters) throws Throwable
-    {
-        return getCount(parent,parameters,null,query);
-    }
+//    public long getCount(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
+//    {
+//        PreparedQuery preparedQuery=query.build(this.graph);
+//        if (query.parameters!=null)
+//        {
+//            if (parameters.length!=0)
+//            {
+//                throw new Exception();
+//            }
+//            parameters=query.parameters;
+//        }
+//        else
+//        {
+//            translateParameters(parameters);
+//        }
+//        StringBuilder sb=new StringBuilder(preparedQuery.countSql);
+//        if (startNodeId!=null)
+//        {
+//            sb.append(preparedQuery.start+startNodeId);
+//        }
+//        String sql=sb.toString();
+//        RowSet rowSet;
+//        if (TEST)
+//        {
+//            System.out.println("GraphAcessor.getCount:sql");
+//        }
+//        if (parameters != null)
+//        {
+//            rowSet = accessor.executeQuery(parent, null,parameters, sql);
+//        }
+//        else
+//        {
+//            rowSet = accessor.executeQuery(parent, null, sql);
+//        }
+//        return rowSet.getRow(0).getBIGINT(0);
+//    }
+//    public long getCount(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
+//    {
+//        return getCount(parent,parameters,startNodeId,query);
+//    }
+//    public long getCount(Trace parent,Query query,Object...parameters) throws Throwable
+//    {
+//        return getCount(parent,parameters,null,query);
+//    }
     
     
     

@@ -78,7 +78,9 @@ public class SqlStringHandleResolver extends StringHandleResolver
         }
         if (format==null)
         {
-            return String.format(this.notFoundFormat, locale,enumName,handle);
+            System.err.println(String.format(this.notFoundFormat, locale,enumName,handle));
+//            return String.format(this.notFoundFormat, locale,enumName,handle);
+            return handle;
         }
         return String.format(format,parameters);
     }

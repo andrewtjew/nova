@@ -257,21 +257,35 @@ public enum CountryCode
     
     private Country_ISO_3166_1 value;
     
-    static private HashMap<String,CountryCode> NAME_MAP=constructMap();
+    static private HashMap<String,CountryCode> ALPHA2_MAP=constructAlpha2Map();
+    static private HashMap<String,CountryCode> DISPLAY_NAME_MAP=constructDisplayNameMap();
     
-    static private HashMap<String,CountryCode> constructMap()
+    static private HashMap<String,CountryCode> constructAlpha2Map()
     {
-    	HashMap<String,CountryCode> map=new HashMap<String, CountryCode>();
-    	for (CountryCode value:CountryCode.values())
-    	{
-    		map.put(value.name(), value);
-    	}
-    	return map;
+        HashMap<String,CountryCode> map=new HashMap<String, CountryCode>();
+        for (CountryCode value:CountryCode.values())
+        {
+            map.put(value.name(), value);
+        }
+        return map;
+    }
+    static private HashMap<String,CountryCode> constructDisplayNameMap()
+    {
+        HashMap<String,CountryCode> map=new HashMap<String, CountryCode>();
+        for (CountryCode value:CountryCode.values())
+        {
+            map.put(value.value.displayName, value);
+        }
+        return map;
     }
     
-    static public CountryCode from(String name)
+    static public CountryCode fromAlpha2Code(String name)
     {
-    	return NAME_MAP.get(name);
+        return ALPHA2_MAP.get(name);
+    }
+    static public CountryCode fromDisplayName(String name)
+    {
+        return DISPLAY_NAME_MAP.get(name);
     }
     
     
