@@ -152,10 +152,10 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             }
         }
 
-        RequiredRole requiredRoles=method.getDeclaredAnnotation(RequiredRole.class);
+        RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
         if (requiredRoles==null)
         {
-            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRole.class);
+            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
             if (requiredRoles==null)
             {
                 throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
