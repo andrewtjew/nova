@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.BreakPoint;
+
 public class Container extends StyleComponent<Container>
 {
 	public Container(boolean fluid)
@@ -35,6 +37,11 @@ public class Container extends StyleComponent<Container>
 	    	addClass("container");
 	    }
 	}
+    public Container(BreakPoint breakPoint)
+    {
+        super("div",null);
+        addClass("container-"+breakPoint);
+    }
 	public Container()
 	{
 		this(false);

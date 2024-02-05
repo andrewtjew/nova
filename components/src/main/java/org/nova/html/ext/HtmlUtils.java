@@ -649,6 +649,10 @@ public class HtmlUtils
     {
         return js_call(QuotationMark.SINGLE,function,parameters);
     }
+    public static String js_writeTextToClipboard(String text)
+    {
+        return js_call("navigator.clipboard.writeText",text);
+    }
     
     public static String js_call(QuotationMark mark,String function,Object...parameters)
     {

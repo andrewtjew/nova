@@ -184,9 +184,9 @@ public class Context
 		return null;
 	}
 	
-	public Object getState()
+	public <T> T getState()
 	{
-		return state;
+		return (T)state;
 	}
     public void setState(Object state)
     {

@@ -28,36 +28,35 @@ import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.ModalFooter;
 import org.nova.html.bootstrap.ModalHeader;
 
-public class ModalDocument extends Modal
+public class ModalDialogDocument extends ModalDialog
 {
-    final private ModalDialogDocument modalDialogDocument;
+    final private ModalContent content;
+    private ModalHeader header;
+    private ModalFooter footer;
+    private ModalBody body;
     
-    public ModalDocument()
+    public ModalDialogDocument()
     {
-        this.modalDialogDocument=returnAddInner(new ModalDialogDocument());
-        
+        this.content=this.returnAddInner(new ModalContent());
+        this.header=this.content.returnAddInner(new ModalHeader());
+        this.body=this.content.returnAddInner(new ModalBody());
+        this.footer=this.content.returnAddInner(new ModalFooter());
     }
     
     public ModalHeader header()
     {
-        return this.modalDialogDocument.header();
-    }
-    public ModalDialog modalDialog()
-    {
-        return this.modalDialogDocument;
+        return this.header;
     }
     public ModalFooter footer()
     {
-        return this.modalDialogDocument.footer();
+        return this.footer;
     }
     public ModalBody body()
     {
-        return this.modalDialogDocument.body();
+        return this.body;
     }
     public ModalContent modalContent()
     {
-        return this.modalDialogDocument.modalContent();
+        return this.content;
     }
-    
-    
 }
