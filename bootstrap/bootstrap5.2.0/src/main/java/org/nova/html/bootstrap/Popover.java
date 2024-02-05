@@ -58,6 +58,10 @@ public class Popover extends TipComponent<Popover>
     {
         return new script().addInner(new LiteralHtml("var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"popover\"]'));var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {return new bootstrap.Popover(popoverTriggerEl)});"));
     }
+    public static String js_readyAll()
+    {
+        return "var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"popover\"]'));var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {return new bootstrap.Popover(popoverTriggerEl)});";
+    }
     public static script script_dismiss()
     {
         return new script().addInner(new LiteralHtml("var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {trigger: 'focus'});"));
