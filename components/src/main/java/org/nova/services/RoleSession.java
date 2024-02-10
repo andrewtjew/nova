@@ -36,8 +36,6 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-import com.amazonaws.services.auditmanager.model.Role;
-
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
     static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
@@ -154,10 +152,10 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             }
         }
 
-        RequiredRole requiredRoles=method.getDeclaredAnnotation(RequiredRole.class);
+        RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
         if (requiredRoles==null)
         {
-            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRole.class);
+            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
             if (requiredRoles==null)
             {
                 throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());

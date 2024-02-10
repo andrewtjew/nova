@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -48,7 +49,6 @@ import org.nova.tracing.TraceManager;
 import org.nova.utils.FileUtils;
 import org.nova.utils.Utils;
 
-import com.amazonaws.util.IOUtils;
 import com.nova.disrupt.Disruptor;
 import com.nova.disrupt.DisruptorTraceContext;
 

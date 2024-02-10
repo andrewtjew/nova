@@ -68,7 +68,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
             }
         }
 
-        RequiredRole allowGroups=method.getDeclaredAnnotation(RequiredRole.class);
+        RequiredRoles allowGroups=method.getDeclaredAnnotation(RequiredRoles.class);
         if (allowGroups==null)
         {
             return true; //deny all

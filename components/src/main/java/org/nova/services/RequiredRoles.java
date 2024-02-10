@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD,ElementType.TYPE})
-public @interface RequiredRole
+public @interface RequiredRoles
 {
     String[] value() default {};
 }
