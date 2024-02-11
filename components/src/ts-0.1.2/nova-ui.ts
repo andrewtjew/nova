@@ -129,7 +129,7 @@ namespace nova.ui.search
     
         public process(event:KeyboardEvent)
         {
-            console.log("process"+event.keyCode);
+            console.log("keyCode:"+event.keyCode);
             if (event.keyCode==40) //down
             {
                 var lastId=this.currentId;
