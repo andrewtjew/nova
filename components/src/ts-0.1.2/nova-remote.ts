@@ -293,6 +293,33 @@ namespace nova.remote
             });
     }
 
+    export async function postUrlEncoded(action:string,obj:any)
+    {
+        let params=new URLSearchParams();
+        
+        for (const key in obj)
+        {
+            params.append(key,obj[key]);
+        }
+
+        return await fetch(action,
+            {
+                method:"POST",
+                body: params
+            }
+            ).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+    }
+
     export async function postFormUrlEncoded(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;

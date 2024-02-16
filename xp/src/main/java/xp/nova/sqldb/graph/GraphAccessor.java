@@ -84,6 +84,10 @@ public class GraphAccessor implements AutoCloseable
         {
             sb.append(preparedQuery.orderBy);
         }
+        if (preparedQuery.limit!=null)
+        {
+            sb.append(preparedQuery.limit);
+        }
         String sql=sb.toString();
         RowSet rowSet;
         if (TEST)

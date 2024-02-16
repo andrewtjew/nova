@@ -13,6 +13,7 @@ public class Query
     String expression;
     Object[] parameters;
     String orderBy;
+    Integer limit;
     
     private ArrayList<LinkQuery> linkQueries;
 
@@ -26,21 +27,25 @@ public class Query
     }
     public Query orderBy(String orderBy)
     {
-        this.orderBy=orderBy;
+        return orderBy(orderBy,false);
+    }
+    public Query orderBy(String orderBy,boolean descending)
+    {
+        if (descending)
+        {
+            this.orderBy=orderBy+" DESC";
+        }
+        else
+        {
+            this.orderBy=orderBy;
+        }
         return this;
     }
-//    public Query orderBy(String orderBy,boolean descending)
-//    {
-//        if (descending)
-//        {
-//            this.orderBy=orderBy+" DESC";
-//        }
-//        else
-//        {
-//            this.orderBy=orderBy;
-//        }
-//        return this;
-//    }
+    public Query limit(int limit)
+    {
+        this.limit=limit;
+        return this;
+    }
 
     public Query where(String expression, Object... parameters)
     {
@@ -307,6 +312,7 @@ public class Query
         HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
         String orderBy;
         String countSql;
+        String limit;
         Class<? extends RelationNodeObject<?>> startType;
     }
     
@@ -401,6 +407,10 @@ public class Query
         if (this.orderBy!=null)
         {
             preparedQuery.orderBy=" ORDER BY "+this.orderBy;
+        }
+        if (this.limit!=null)
+        {
+            preparedQuery.limit=" LIMIT "+this.limit;
         }
         preparedQuery.startType=state.startType;
         this.preparedQuery=preparedQuery;
