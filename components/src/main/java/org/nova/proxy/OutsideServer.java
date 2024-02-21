@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
-import org.nova.frameworks.ServerApplicationPages.OperatorTable;
+import org.nova.frameworks.ServerOperatorPages.OperatorTable;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.operator.MenuBar;

@@ -56,7 +56,7 @@ public class Service extends ServerApplication
 			@Override
 			public void run(Trace parent, TimerTask event) throws Throwable 
 			{
-				update(null,0,0);
+				removeStaleClients();
 			}
 		});
     }
@@ -81,7 +81,6 @@ public class Service extends ServerApplication
 		int used=0;
 	}
 	
-	
 	private Pointer availablePointer;
 	private Pointer overloadedPointer;
     
@@ -89,32 +88,10 @@ public class Service extends ServerApplication
 	{
 		boolean rebuild=false;
 		long now=System.currentTimeMillis();
-		ArrayList<Client> availableList=new ArrayList<Client>();
-		ArrayList<Client> overloadedList=new ArrayList<Client>();
-		ArrayList<Client> unusableList=new ArrayList<Client>();
 		
 		synchronized(this.clients)
 		{
-			if (endPoint==null)
-			{
-				ArrayList<Client> removeList=new ArrayList<Client>();
-				for (Client client:this.clients.values())
-				{
-					if (now-client.lastUpdated>this.clientTimeout)
-					{
-						removeList.add(client);
-					}
-				}
-				if (removeList.size()>0)
-				{
-					for (Client client:removeList)
-					{
-						this.clients.remove(client.getEndPoint());
-					}
-					rebuild=true;
-				}
-			}
-			else if (cores<=0)
+			if (cores<=0)
 			{
 				this.clients.remove(endPoint);
 				rebuild=true;
@@ -138,40 +115,77 @@ public class Service extends ServerApplication
 				}
 				client.update(load, cores);
 			}
-			if (rebuild)
-			{
-				for (Client client:this.clients.values())
-				{
-					if (client.available<=this.unusableThreshold)
-					{
-						unusableList.add(client);
-					}
-					else if (client.load>this.overloadThreshold)
-					{
-						overloadedList.add(client);
-					}
-					else
-					{
-						availableList.add(client);
-					}
-				}
-				this.lastRebuild=now;
-			}
 		}
 		if (rebuild)
 		{
-			build(availableList);
-			build(overloadedList);
-			synchronized(this)
-			{
-				this.availableList=availableList;
-				this.overloadedList=overloadedList;
-				this.unusableList=unusableList;
-				this.availablePointer=new Pointer();
-				this.overloadedPointer=new Pointer();
-			}
+		    rebuild();
 		}
 	}	
+
+	public void removeStaleClients()
+    {
+        long now=System.currentTimeMillis();
+        boolean rebuild=false;
+        ArrayList<Client> removeList=new ArrayList<Client>();
+        synchronized(this.clients)
+        {
+            for (Client client:this.clients.values())
+            {
+                if (now-client.lastUpdated>this.clientTimeout)
+                {
+                    removeList.add(client);
+                }
+            }
+            if (removeList.size()>0)
+            {
+                for (Client client:removeList)
+                {
+                    this.clients.remove(client.getEndPoint());
+                }
+                rebuild=true;
+            }
+        }
+        if (rebuild)
+        {
+            rebuild();
+        }
+    }   
+    public void rebuild()
+    {
+        long now=System.currentTimeMillis();
+        ArrayList<Client> availableList=new ArrayList<Client>();
+        ArrayList<Client> overloadedList=new ArrayList<Client>();
+        ArrayList<Client> unusableList=new ArrayList<Client>();
+        synchronized(this.clients)
+        {
+            for (Client client:this.clients.values())
+            {
+                if (client.available<=this.unusableThreshold)
+                {
+                    unusableList.add(client);
+                }
+                else if (client.load>this.overloadThreshold)
+                {
+                    overloadedList.add(client);
+                }
+                else
+                {
+                    availableList.add(client);
+                }
+            }
+            this.lastRebuild=now;
+        }
+        build(availableList);
+        build(overloadedList);
+        synchronized(this)
+        {
+            this.availableList=availableList;
+            this.overloadedList=overloadedList;
+            this.unusableList=unusableList;
+            this.availablePointer=new Pointer();
+            this.overloadedPointer=new Pointer();
+        }
+    }   
 	
 	public synchronized String getEndPoint()
 	{

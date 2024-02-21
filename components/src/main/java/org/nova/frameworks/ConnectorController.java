@@ -322,7 +322,7 @@ public class ConnectorController
                 StackTraceElement[] activateStackTrace=accessor.getActivateStackTrace();
                 if (activateStackTrace!=null)
                 {
-                    panel.content().addInner(ServerApplicationPages.formatStackTrace("Activate Stack Trace",activateStackTrace));
+                    panel.content().addInner(ServerOperatorPages.formatStackTrace("Activate Stack Trace",activateStackTrace));
                 }
             }
             
@@ -335,11 +335,11 @@ public class ConnectorController
                 StackTraceElement[] stackTrace=transaction.getCreateStackTrace();
                 if (stackTrace!=null)
                 {
-                    panel.content().addInner(ServerApplicationPages.formatStackTrace("Transaction Create Success Stack Trace",stackTrace,3));
+                    panel.content().addInner(ServerOperatorPages.formatStackTrace("Transaction Create Success Stack Trace",stackTrace,3));
                 }
                 
             }
-            panel.content().addInner(ServerApplicationPages.formatStackTrace("Transaction Clash Stack Trace",accessor.getRetireStackTrace(),0));
+            panel.content().addInner(ServerOperatorPages.formatStackTrace("Transaction Clash Stack Trace",accessor.getRetireStackTrace(),0));
             
             page.content().addInner(new p());
         }        
@@ -361,7 +361,7 @@ public class ConnectorController
                 StackTraceElement[] stackTrace=transaction.getCreateStackTrace();
                 if (stackTrace!=null)
                 {
-                    panel.content().addInner(ServerApplicationPages.formatStackTrace("Transaction Create Stack Trace",stackTrace,3));
+                    panel.content().addInner(ServerOperatorPages.formatStackTrace("Transaction Create Stack Trace",stackTrace,3));
                 }
             }
             

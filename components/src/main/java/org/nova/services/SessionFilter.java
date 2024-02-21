@@ -152,84 +152,81 @@ public class SessionFilter extends Filter
     @Override
     public Response<?> executeNext(Trace parent, Context context) throws Throwable
     {
-        String token=getToken(context.getHttpServletRequest());
-        Session session=this.sessionManager.getSessionByToken(token);
-        RequestHandler handler=context.getRequestHandler();
-        Method method=handler.getMethod();
-        if (method.getAnnotation(AllowNoSession.class)!=null)
+        try
         {
-            if (session==null)
+            String token=getToken(context.getHttpServletRequest());
+            Session session=this.sessionManager.getSessionByToken(token);
+            RequestHandler handler=context.getRequestHandler();
+            Method method=handler.getMethod();
+            if (method.getAnnotation(AllowNoSession.class)!=null)
             {
-                try
+                if (session==null)
                 {
                     return context.next(parent);
                 }
-                finally
+            }
+            else if (session==null)
+            {
+                if (this.debugSession==null)
                 {
-                    HttpServletResponse response=context.getHttpServletResponse();
-                    response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
-                    response.setHeader("Pragma", "no-cache");
-                    response.setHeader("Expires", "0");
+                    Response<?> response=getAbnormalSessionRequestHandler(context).handleNoSessionRequest(parent,this, context);
+                    if (response!=null)
+                    {
+                        return response;
+                    }
+                    // handleNoSessionRequest() can create a valid session, so we check again.
+                    session=this.sessionManager.getSessionByToken(token);
+                    if (session==null)
+                    {
+                        return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
+                    }
+                }
+                else
+                {
+                    session=this.debugSession;
                 }
             }
-        }
-        else if (session==null)
-        {
-            if (this.debugSession==null)
+            Class<?> handlerSessionType=handler.getStateType();
+            if (handlerSessionType!=null)
             {
-                Response<?> response=getAbnormalSessionRequestHandler(context).handleNoSessionRequest(parent,this, context);
-                if (response!=null)
-                {
-                    return response;
-                }
-                // handleNoSessionRequest() can create a valid session, so we check again.
-                session=this.sessionManager.getSessionByToken(token);
-                if (session==null)
+                if (TypeUtils.isDerivedFrom(session.getClass(),handlerSessionType)==false)
                 {
                     return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
                 }
             }
-            else
+            
+            Lock<String> lock=null;
+            if (method.getAnnotation(AllowNoLock.class)==null)
             {
-                session=this.debugSession;
+                lock=sessionManager.waitForLock(parent,session.getToken());
+                if (lock==null)
+                {
+                    return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
+                }
             }
-        }
-        Class<?> handlerSessionType=handler.getStateType();
-        if (handlerSessionType!=null)
-        {
-            if (TypeUtils.isDerivedFrom(session.getClass(),handlerSessionType)==false)
+            session.beginSessionProcessing(lock);
+            try
             {
-                return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
+                if (session.isAccessDenied(parent,context))
+                {
+                    return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
+                }
+                context.setState(session);
+                return context.next(parent);
             }
-        }
-        
-        Lock<String> lock=null;
-        if (method.getAnnotation(AllowNoLock.class)==null)
-        {
-            lock=sessionManager.waitForLock(parent,session.getToken());
-            if (lock==null)
+            finally
             {
-                return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
+                session.endSessionProcessing();
             }
-        }
-        session.beginSessionProcessing(lock);
-        try
-        {
-            if (session.isAccessDenied(parent,context))
-            {
-                return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
-            }
-            context.setState(session);
-            return context.next(parent);
         }
         finally
         {
-            session.endSessionProcessing();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Expires", "0");
         }
+
         
     }
 

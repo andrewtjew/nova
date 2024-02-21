@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.TimeZone;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
-import org.nova.frameworks.ServerApplicationPages.WideTable;
+import org.nova.frameworks.ServerOperatorPages.WideTable;
 import org.nova.html.deprecated.th_title;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;

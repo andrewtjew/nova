@@ -287,7 +287,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.menuBar=new MenuBar();
         String namespace=configuration.getValue("ServerApplication.APIDefinitionNamespace","");
         this.operatorTransport.getHttpServer().getTransformers().add(new RemoteResponseWriter());
-        this.operatorTransport.getHttpServer().registerHandlers(new ServerApplicationPages(this,namespace));
+        this.operatorTransport.getHttpServer().registerHandlers(new ServerOperatorPages(this,namespace));
         
         //Build template and start operator server so we can monitor the rest of the startup.
         this.template=OperatorPage.buildTemplate(this.menuBar,this.getName(),this.hostName); 

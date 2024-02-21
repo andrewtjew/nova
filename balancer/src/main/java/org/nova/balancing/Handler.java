@@ -36,14 +36,10 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
-import org.nova.services.AllowGroups;
 import org.nova.services.WebController;
 import org.nova.services.WebSessionController;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
-
-import com.amazonaws.services.inspector2.model.Usage;
-import com.amazonaws.services.simplesystemsmanagement.model.OperatingSystem;
 
 @ContentDecoders(GzipContentDecoder.class)
 @ContentEncoders(GzipContentEncoder.class)

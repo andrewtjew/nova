@@ -231,7 +231,7 @@ import com.google.common.base.Strings;
 @ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 @ContentReaders({ JSONContentReader.class, JSONPatchContentReader.class })
 @ContentWriters({HtmlContentWriter.class, HtmlElementWriter.class,RemoteResponseWriter.class})
-public class ServerApplicationPages
+public class ServerOperatorPages
 {
     static public class OperatorTable extends OperatorDataTable
     {
@@ -263,7 +263,7 @@ public class ServerApplicationPages
     @OperatorVariable(description = "cache control value returned to client other than max-age (e.g.: no-transform, public)")
     private String cacheControlValue = "public";
 
-    public ServerApplicationPages(ServerApplication serverApplication,String namespace) throws Throwable
+    public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
     {
         this.namespace=namespace;
         this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue("ServerOperatorPages.meters.rateSamplingDuration", 10);
@@ -4919,8 +4919,9 @@ public class ServerApplicationPages
         .add("Started",DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime()))
         .add("Current",DateTimeUtils.toSystemDateTimeString(now))
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
+        .add("Base Directory",this.serverApplication.getBaseDirectory())
         .add("SAFE_ESCAPE",Text.SAFE_ESCAPE)
-        .add("Base Directory",this.serverApplication.getBaseDirectory());
+        .add("OS",System.getProperty("os.name"));
      
         try
         {

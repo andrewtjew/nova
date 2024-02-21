@@ -30,16 +30,20 @@ import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.TextAlign;
+import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.hr;
 
 public class NameValueColumns extends Item
 {
     final private Item names;
     final private Item values;
+    final private Element divider;
+    final private TextAlign nameAlign;
     
-    public NameValueColumns(Size nameSize,StyleTemplate rowTemplate)
+    public NameValueColumns(Size nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
     {
         d(Display.flex);
         this.names=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);
@@ -49,32 +53,39 @@ public class NameValueColumns extends Item
             StyleTemplate.apply(rowTemplate,this.names);
             StyleTemplate.apply(rowTemplate,this.values);
         }
+        this.nameAlign=nameAlign;
         if (nameSize!=null)
         {
             this.names.style("width:"+nameSize.toString()+";");
         }
+        this.divider=divider;
     }
-    public NameValueColumns(Size nameSize)
+    public NameValueColumns(Size nameSize,TextAlign nameAlign,Element divider)
     {
-        this(nameSize,null);
+        this(nameSize,nameAlign,null,divider);
+    }
+    public NameValueColumns(Size nameSize,TextAlign nameAlign)
+    {
+        this(nameSize,nameAlign,new LiteralHtml("&nbsp;:&nbsp;"));
     }
     public NameValueColumns()
     {
-        this(null);
+        this(null,TextAlign.end);
     }
 
-    public NameValueColumns add(TextAlign nameAlign,String name,String value)
+    public NameValueColumns add(String name,Object value)
     {
         Label nameLabel=this.names.returnAddInner(new Label()).addInner(name).text(Text.nowrap);
         if (nameAlign!=null)
         {
             nameLabel.text(nameAlign);
         }
-        this.values.returnAddInner(new Label()).addInner(value).text(Text.nowrap);
+        Label valueLabel=this.values.returnAddInner(new Label());
+        if (this.divider!=null)
+        {
+            valueLabel.addInner(this.divider);
+        }
+        valueLabel.addInner(value).text(Text.nowrap);
         return this;
-    }
-    public NameValueColumns add(String name,String value)
-    {
-        return add(null,name,value);
     }
 }

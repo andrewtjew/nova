@@ -24,8 +24,8 @@ package org.nova.services;
 import org.nova.core.NameObject;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
-import org.nova.frameworks.ServerApplicationPages;
-import org.nova.frameworks.ServerApplicationPages.OperatorTable;
+import org.nova.frameworks.ServerOperatorPages;
+import org.nova.frameworks.ServerOperatorPages.OperatorTable;
 import org.nova.html.elements.Element;
 import org.nova.html.operator.MoreButton;
 import org.nova.html.operator.NameValueList;
@@ -77,7 +77,7 @@ public class SessionOperatorPages<SESSION extends Session>
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("All Sessions");
         page.content().addInner(new hr());
-        OperatorTable table=page.content().returnAddInner(new ServerApplicationPages.OperatorTable(page.head()));
+        OperatorTable table=page.content().returnAddInner(new ServerOperatorPages.OperatorTable(page.head()));
         table.setHeader("Token","User","Created","Last Accessed","Active","Idle","Accessed","Rate","");
         
         for (Session session:this.sessionManager.getSessionSnapshot())

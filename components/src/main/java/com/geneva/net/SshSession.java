@@ -302,68 +302,6 @@ public class SshSession
 		}
 	}
 
-	/*
-	public CopyDirectoryResult copyDirectoryRecursivelyIfOlder(String sourceDirectory, String destinationDirectory, int seconds) throws JSchException, SftpException, IOException
-	{
-		File directory = new File(sourceDirectory);
-		if (directory.isDirectory() == false)
-		{
-			return CopyDirectoryResult.SOURCE_NOT_DIRECTORY;
-		}
-		if (checkDirectory(directory, destinationDirectory) == false)
-		{
-			return CopyDirectoryResult.DESTINATION_CHECK_FAILED;
-		}
-		copyDirectoryRecursivelyIfOlder(directory, destinationDirectory, seconds);
-		return CopyDirectoryResult.SUCCESS;
-	}
-
-	private void copyDirectoryRecursivelyIfOlder(File directory, String destinationDirectory, int seconds) throws JSchException, SftpException, IOException
-	{
-		try
-		{
-			channel.lstat(destinationDirectory);
-		}
-		catch (Throwable t)
-		{
-			channel.mkdir(destinationDirectory);
-		}
-		File[] files = directory.listFiles();
-		for (File file : files)
-		{
-			if (file.isDirectory() == false)
-			{
-				String name = file.getName();
-				String destination = destinationDirectory + "/" + name;
-
-				try
-				{
-					SftpATTRS attributes = channel.lstat(destination);
-					long localTime=file.lastModified();
-					long remoteTime=attributes.getMTime()*1000L;
-					int span = (int)((localTime-remoteTime)/1000);
-					if (span < seconds)
-					{
-						continue;
-					}
-				}
-				catch (Throwable t)
-				{
-				}
-
-				channel.put(file.getCanonicalPath(), destination);
-			}
-		}
-		for (File file : files)
-		{
-			if (file.isDirectory())
-			{
-				String name = file.getName();
-				copyDirectoryRecursively(file, destinationDirectory + "/" + name);
-			}
-		}
-	}
-    */
 	private boolean checkDirectory(File directory, String destination) throws JSchException, SftpException, IOException
 	{
 		try
