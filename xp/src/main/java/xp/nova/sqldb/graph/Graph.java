@@ -811,7 +811,7 @@ public class Graph
                     else
                     {
                         after=columnName;
-                        if (rowIndex<rowSet.size()-1)
+                        if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
                             if (TEST)
