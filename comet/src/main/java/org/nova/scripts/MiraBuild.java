@@ -17,7 +17,7 @@ public class MiraBuild extends Script
         String version = "0.0.1-SNAPSHOT";
         String mem="256M";
         boolean noLibs=false;
-        boolean noBuild=false;
+        boolean noBuilds=false;
         String aws=null;
 
         for (String arg : args)
@@ -50,6 +50,10 @@ public class MiraBuild extends Script
                     noLibs = Boolean.parseBoolean(parts[1]);
                     break;
 
+                case "nobuilds":
+                    noBuilds = Boolean.parseBoolean(parts[1]);
+                    break;
+
                 case "aws":
                     aws = parts[1];
                     break;
@@ -73,7 +77,7 @@ public class MiraBuild extends Script
         String artifactJar=artifact+".jar";
         String package_=sourceDir+artifact+"\\"+artifact;
         String jarDest = sourceDir+artifact+"\\target\\"+mvnJar;
-        if (noBuild==false)
+        if (noBuilds==false)
         {
             
             if (noLibs==false)
@@ -90,15 +94,16 @@ public class MiraBuild extends Script
                 System.err.println("jar not found: "+jarDest);
                 return;
             }
+            System.out.println("building done");
     
             //Create package
             CometUtils.deleteDirectory(package_);
             CometUtils.createDirectory(package_);
             CometUtils.copyFile(jarDest,package_+"\\"+artifactJar);
-            CometUtils.cloneDirectory(sourceDir+"\\resources",package_+"\\resources");
-            if (CometUtils.existsFile(sourceDir+"\\client"))
+            CometUtils.cloneDirectory(sourceDir+artifact+"\\resources",package_+"\\resources");
+            if (CometUtils.existsFile(sourceDir+artifact+"\\client"))
             {
-                CometUtils.cloneDirectory(sourceDir+"\\client",package_+"\\client");
+                CometUtils.cloneDirectory(sourceDir+artifact+"\\client",package_+"\\client");
             }
             CometUtils.copyDirectory(sourceDir+artifact+"\\etc",package_+"\\etc");
             String buildVersion=CometUtils.exec(sourceDir,"git describe --tags --abbrev=0");
