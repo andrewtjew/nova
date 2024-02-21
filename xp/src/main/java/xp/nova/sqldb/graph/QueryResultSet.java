@@ -34,7 +34,7 @@ public class QueryResultSet
         }
         if (this.results.length>1)
         {
-            throw new Exception("Size:"+this.results);
+            throw new Exception("Size:"+this.results.length);
         }
         return this.results[0];
     }

@@ -28,7 +28,7 @@ public class InputEmail extends InputComponent<InputEmail>
 {
     public InputEmail()
     {
-        super(InputType.email,"input");
+        super(InputType.text,"input");
     }
     public InputEmail autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
     {
