@@ -1,4 +1,7 @@
-HttpServer.public.https=true
-HttpServer.public.http=true
-HttpServer.operator.port=20001
+HttpServer.operator.port=11779
+HttpServer.private.port=11780
+
+
+Application.commentFile=.\resources\comment.txt
+
 

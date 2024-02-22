@@ -423,22 +423,33 @@ public class Scanner
         return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
     }
 
-    //At this moment, some invalid json text will not generate error. 
+    //At this moment, some invalid json text will not generate error for example invalid numbers like 1234f33. 
     public Lexeme produceEnclosedJSONText(char startCharacter,char endCharacter) throws Throwable
     {
         int level = 0;
         boolean inString = false;
         boolean inStringEscape = false;
+        boolean inArray=false;
+        boolean expectName=startCharacter=='{';
         for (;;)
         {
             char c = this.source.next();
+            System.out.print(c);
             if (c==0)
             {
-                if (inString)
+                if (expectName)
                 {
-                    return new Lexeme(Token.ERROR, "Invalid string literal", this.source.endAndGetSnippet(1));
+                    return new Lexeme(Token.ERROR, "Expected name not present before end-of-text", this.source.endAndGetSnippet(1));
                 }
-                return new Lexeme(Token.ERROR, "Premature end-of-text.", this.source.endAndGetSnippet(1));
+                else if (inString)
+                {
+                    return new Lexeme(Token.ERROR, "Invalid string literal before end-of-text", this.source.endAndGetSnippet(1));
+                }
+                else if (level>0)
+                {
+                    return new Lexeme(Token.ERROR, "Premature end-of-text.", this.source.endAndGetSnippet(1));
+                }
+                return new Lexeme(Token.ERROR, "Unexpected end-of-text.", this.source.endAndGetSnippet(1));
             }
             if (inString == true)
             {
@@ -449,25 +460,11 @@ public class Scanner
                 else if (c == '"')
                 {
                     inString = false;
-                    /*
-                    for (;;)
-                    {
-                        c = this.source.next();
-                        if ((c==0)||(c==',')||(c==':')||(c=='}')||(c==']'))
-                        {
-                            break;
-                        }
-                        System.out.print(c);
-                        if (Character.isWhitespace(c)==false)
-                        {
-                            return new Lexeme(Token.ERROR, "Invalid text after string.", this.source.endAndGetSnippet(1));
-                        }
-                    }
-                    */
                 }
             }
             else if (inStringEscape)
             {
+                //TODO: check if escaped character is valid
                 inStringEscape = false;
             }
             else
@@ -478,16 +475,43 @@ public class Scanner
                 }
                 else if (c == startCharacter)
                 {
+                    if (c=='{')
+                    {
+                        expectName=true;
+                    }
+                    else if (c=='[')
+                    {
+                        inArray=true;
+                    }
                     level++;
                 }
                 else if (c == endCharacter)
                 {
+                    if (c==']')
+                    {
+                        inArray=false;
+                    }
                     if (level == 0)
                     {
                         Snippet snippet=this.source.endAndGetSnippet(0);
                         return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
                     }
                     level--;
+                }
+                else if (c==':')
+                {
+                    if (expectName==false)
+                    {
+                        return new Lexeme(Token.ERROR, "Unexpected character :", this.source.endAndGetSnippet(1));
+                    }
+                    expectName=false;
+                }
+                else if (c==',')
+                {
+                    if (inArray==false)
+                    {
+                        expectName=true;
+                    }
                 }
             }
         }

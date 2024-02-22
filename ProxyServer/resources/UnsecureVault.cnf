@@ -2,6 +2,7 @@ KeyStore.serverCertificate.password=password1
 KeyStore.clientCertificate.password=password1
 KeyManager.password=password1
 
-SqlServer.password.gas=password#1
-SqlServer.password.lgs2=password#1
-SqlServer.password.site=password#1
+SqlServer.password.alerts=password#1
+
+AWS.Emailer.password=AkQhVfjQK0FB/QajQKz8ER3RGIkButItWalbHu26wzun
+AWS.secretAccessKey=AkQhVfjQK0FB/QajQKz8ER3RGIkButItWalbHu26wzun
