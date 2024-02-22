@@ -24,6 +24,7 @@
 **/.metadata/*
 **/.recommenders/*
 **/obj/*
+**/packages/*
 **/bin/*
 **/target/*
 **/logs/*
