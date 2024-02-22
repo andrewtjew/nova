@@ -159,6 +159,7 @@ public class ConfigurationReader
                 if (lexeme.isError()==false)
                 {
                     this.configuration.add(new ConfigurationItem(name, lexeme.getValue().trim(), ConfigurationSource.FILE,fileName+"("+line+")", description));
+                    System.out.println("Configuration: "+name+"="+lexeme.getValue().trim());
                 }
                 else
                 {

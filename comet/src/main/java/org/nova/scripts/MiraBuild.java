@@ -72,7 +72,11 @@ public class MiraBuild extends Script
             System.err.println("no sourceDir");
             return;
         }
-
+        sourceDir=CometUtils.toNativePath(sourceDir);
+        if (sourceDir.endsWith(File.separator)==false)
+        {
+            sourceDir=sourceDir+File.separator;
+        }
         String mvnJar = artifact + "-" + version + ".jar";
         String artifactJar=artifact+".jar";
         String package_=sourceDir+artifact+"\\"+artifact;

@@ -12,6 +12,10 @@ import com.google.common.io.Files;
 
 public class CometUtils
 {
+    static public String toNativePath(String path)
+    {
+        return path.replace("\\",File.separator).replace("/", File.separator);
+    }
     static public String incrementVersion(String version,long majorIncrement,long minorIncrement)
     {
         int index=version.lastIndexOf('.');
@@ -106,17 +110,17 @@ public class CometUtils
     }
     static public void copyFile(String source,String destination) throws IOException
     {
-        Files.copy(new java.io.File(source),new java.io.FileOutputStream(new java.io.File(destination)));
+        Files.copy(new java.io.File(toNativePath(source)),new java.io.FileOutputStream(new java.io.File(toNativePath(destination))));
     }
 
     static public void moveFile(String source,String destination) throws IOException
     {
-        Files.move(new java.io.File(source),new java.io.File(destination));
+        Files.move(new java.io.File(toNativePath(source)),new java.io.File(toNativePath(destination)));
     }
 
     static public boolean createDirectory(String path) throws IOException
     {
-        java.io.File file=new java.io.File(path);
+        java.io.File file=new java.io.File(toNativePath(path));
         return file.mkdir();
     }
 
@@ -135,7 +139,7 @@ public class CometUtils
     }
     static public void deleteDirectory(String sourcePath) throws Exception
     {
-        java.io.File sourcePathFile=new java.io.File(sourcePath);
+        java.io.File sourcePathFile=new java.io.File(toNativePath(sourcePath));
         if (sourcePathFile.exists()==false)
         {
             return;
@@ -150,12 +154,12 @@ public class CometUtils
 
     static public void cloneDirectory(String sourcePath,String destinationPath) throws Exception
     {
-        java.io.File sourcePathFile=new java.io.File(sourcePath);
+        java.io.File sourcePathFile=new java.io.File(toNativePath(sourcePath));
         if (sourcePathFile.isDirectory()==false)
         {
             throw new Exception("Not a directory: sourcePath="+sourcePath);
         }
-        java.io.File destinationPathFile=new java.io.File(destinationPath);
+        java.io.File destinationPathFile=new java.io.File(toNativePath(destinationPath));
         if (destinationPathFile.exists())
         {
             throw new Exception("Cannot clone to existing directory or file: destinationPath="+destinationPath);
@@ -181,7 +185,7 @@ public class CometUtils
 
     static public void copyDirectory(String sourcePath,String destinationPath) throws Exception
     {
-        java.io.File sourcePathFile=new java.io.File(sourcePath);
+        java.io.File sourcePathFile=new java.io.File(toNativePath(sourcePath));
         if (sourcePathFile.exists()==false)
         {
             return;
@@ -190,7 +194,7 @@ public class CometUtils
         {
             throw new Exception("Source not a directory: sourcePath="+sourcePath);
         }
-        java.io.File destinationPathFile=new java.io.File(destinationPath);
+        java.io.File destinationPathFile=new java.io.File(toNativePath(destinationPath));
         if (destinationPathFile.exists())
         {
             if (destinationPathFile.isDirectory()==false)
