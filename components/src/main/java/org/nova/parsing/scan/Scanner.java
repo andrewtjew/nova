@@ -422,7 +422,8 @@ public class Scanner
         Snippet snippet=this.source.endAndGetSnippet(1);
         return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
     }
-    
+
+    //At this moment, some invalid json text will not generate error. 
     public Lexeme produceEnclosedJSONText(char startCharacter,char endCharacter) throws Throwable
     {
         int level = 0;
@@ -433,6 +434,10 @@ public class Scanner
             char c = this.source.next();
             if (c==0)
             {
+                if (inString)
+                {
+                    return new Lexeme(Token.ERROR, "Invalid string literal", this.source.endAndGetSnippet(1));
+                }
                 return new Lexeme(Token.ERROR, "Premature end-of-text.", this.source.endAndGetSnippet(1));
             }
             if (inString == true)
