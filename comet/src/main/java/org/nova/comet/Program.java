@@ -43,6 +43,10 @@ public class Program
         {
             script.run(scriptArgs);
         }
+        catch (Throwable t)
+        {
+            t.printStackTrace();
+        }
         finally
         {
             System.out.println("script ended");

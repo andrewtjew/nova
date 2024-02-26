@@ -39,7 +39,7 @@ public class OutsideServer
     final private OutsideConfiguration configuration;
     final private Logger logger;
     private final ServerApplication serverApplication;
-    final private HashMap<String,ProxyConnection> proxyConnections;
+    final private HashMap<Integer,ProxyConnection> proxyConnections;
 
     public OutsideServer(MultiTaskScheduler scheduler,Logger logger,OutsideConfiguration configuration,ServerApplication serverApplication)
     {
@@ -73,7 +73,6 @@ public class OutsideServer
     public void start() throws IOException
     {
         this.scheduler.schedule(null, "handleProxyConnection", (trace)->{handleProxyConnection(trace);});
-        
     }
     private void handleProxyConnection(Trace parent) throws Exception
     {
@@ -85,22 +84,19 @@ public class OutsideServer
                 {
                     for (;;)
                     {
-//                        System.out.println("Waiting for inside to connect");
                        Socket socket = serverSocket.accept();
-//                       System.out.println("Accept inside connection");
                        InetSocketAddress socketAddress=(InetSocketAddress)socket.getRemoteSocketAddress();
-                       String key=socketAddress.getHostString()+":"+socketAddress.getPort();
-                       ProxyConnection current;
-                       ProxyConnection connection=new ProxyConnection(this,socket,key);
-                       synchronized(this.proxyConnections)
-                       {
-                           current=this.proxyConnections.remove(key);
-                           this.proxyConnections.put(key, connection);
-                       }
-                       if (current!=null)
-                       {
-                           current.close();
-                       }
+//                       ProxyConnection current;
+                       ProxyConnection connection=new ProxyConnection(this,socket);
+//                       synchronized(this.proxyConnections)
+//                       {
+//                           current=this.proxyConnections.remove(key);
+//                           this.proxyConnections.put(key, connection);
+//                       }
+//                       if (current!=null)
+//                       {
+//                           current.close();
+//                       }
                        this.scheduler.schedule(parent, "InsideConnection", connection);
                     }
                 }
@@ -111,18 +107,39 @@ public class OutsideServer
             }
         }
     }
-    
-    public void removeProxyConnection(String key)
+    public void addProxyConnection(Integer port,ProxyConnection newConnection)
     {
-        ProxyConnection connection;
+        ProxyConnection old;
         synchronized(this.proxyConnections)
         {
-            connection=this.proxyConnections.remove(key);
+            old=this.proxyConnections.put(port, newConnection);
         }
-        if (connection!=null)
+        System.out.println("addProxyConnection:"+newConnection.getRemoteSocketAddress());
+        if (old!=null)
         {
-            connection.close();
+            System.out.println("addProxyConnection:removed="+old.getRemoteSocketAddress());
+            old.close();
         }
+    }
+    
+    public void removeProxyConnection(ProxyConnection connection)
+    {
+        int port=connection.getProxyConfiguration().outsideListenPort;
+        ProxyConnection existing;
+        System.out.println("removeProxyConnection:"+connection.getRemoteSocketAddress());
+        synchronized(this.proxyConnections)
+        {
+            existing=this.proxyConnections.get(port);
+            if (existing!=null)
+            {
+                System.out.println("removeProxyConnection:existing="+existing.getRemoteSocketAddress());
+                if (connection.getRemoteSocketAddress().equals(existing.getRemoteSocketAddress()))
+                {
+                    this.proxyConnections.remove(port);
+                }
+            }
+        }
+        connection.close();
     }
     public Logger getLogger()
     {
@@ -135,27 +152,24 @@ public class OutsideServer
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("View Proxy Connections");
         OperatorTable table=page.content().returnAddInner(new OperatorTable(page.head()));
-        table.setHeader("Inside Host","Created","Last Keep Alive","Inside Name","Inside Mac Address","Port","Connected","");
+        table.setHeader("Port","Inside Name","MAC","Remote","In","Out","Created","KeepAlive","Activity","Sockets","");
         synchronized (this.proxyConnections)
         {
-            for (Entry<String, ProxyConnection> entry:this.proxyConnections.entrySet())
+            for (Entry<Integer, ProxyConnection> entry:this.proxyConnections.entrySet())
             {
-                TableRow tr=new TableRow();
-                tr.add(entry.getKey());
                 ProxyConnection connection=entry.getValue();
+                ProxyConfiguration configuration=connection.getProxyConfiguration();
+
+                TableRow tr=new TableRow();
+                tr.add(configuration.outsideListenPort,configuration.insideName,configuration.insideMacAddress);
+                tr.add(connection.getRemoteSocketAddress());
+                tr.add(connection.getIn());
+                tr.add(connection.getOut());
                 tr.add(DateTimeUtils.toSystemDateTimeString(connection.getCreated()));
                 tr.add(DateTimeUtils.toSystemDateTimeString(connection.getLastKeepAliveReceived()));
-                ProxyConfiguration configuration=connection.getProxyConfiguration();
-                if (configuration!=null)
-                {
-                    tr.add(configuration.insideName,configuration.insideMacAddress,configuration.outsideListenPort);
-                }
-                else
-                {
-                    tr.add("","","");
-                }
+                tr.add(DateTimeUtils.toSystemDateTimeString(connection.getLastActivity()));
                 tr.add(connection.getOutsideConnectionSize());
-                tr.add(new MoreButton(page.head(),new PathAndQuery("/proxy/outside/viewConnection").addQuery("insideHost",entry.getKey()).toString()));
+                tr.add(new MoreButton(page.head(),new PathAndQuery("/proxy/outside/viewConnection").addQuery("port",entry.getKey()).toString()));
                 table.addRow(tr);
             }
         }
@@ -165,13 +179,13 @@ public class OutsideServer
 
     @GET
     @Path("/proxy/outside/viewConnection")
-    public Element viewConnection(Trace parent,@QueryParam("insideHost") String insideHost) throws Throwable
+    public Element viewConnection(Trace parent,@QueryParam("port") int port) throws Throwable
     {
-        OperatorPage page=this.serverApplication.buildOperatorPage("View Outside Connection: "+insideHost);
+        OperatorPage page=this.serverApplication.buildOperatorPage("View Outside Connection: "+port);
         ProxyConnection connection;
         synchronized (this.proxyConnections)
         {
-            connection=this.proxyConnections.get(insideHost);
+            connection=this.proxyConnections.get(port);
         }
         if (connection!=null)
         {

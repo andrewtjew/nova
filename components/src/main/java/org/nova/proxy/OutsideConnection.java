@@ -70,7 +70,7 @@ import org.nova.tracing.TraceRunnable;
                     }
                     if (read>0)
                     {
-                        this.proxyConnection.sendToProxy(packet);
+                        this.proxyConnection.sendToInside(packet);
                     }
                 }
                 
@@ -78,7 +78,7 @@ import org.nova.tracing.TraceRunnable;
             catch (Throwable t)
             {
                 ProxyConfiguration proxyConfiguration=this.proxyConnection.getProxyConfiguration();
-                parent.setDetails(this.proxyConnection.getKey()+":insideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
+                parent.setDetails("InsideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
             }
             finally
             {

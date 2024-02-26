@@ -28,38 +28,45 @@ public class MiraBuild extends Script
                 System.err.println("invalid arg:" + arg);
                 return;
             }
-            switch (parts[0].toLowerCase())
+            try
             {
-                case "sourcedir":
-                    sourceDir = parts[1];
-                    break;
-
-                case "version":
-                    version = parts[1];
-                    break;
-
-                case "artifact":
-                    artifact = parts[1];
-                    break;
-
-                case "mem":
-                    mem = parts[1];
-                    break;
-
-                case "nolibs":
-                    noLibs = Boolean.parseBoolean(parts[1]);
-                    break;
-
-                case "nobuilds":
-                    noBuilds = Boolean.parseBoolean(parts[1]);
-                    break;
-
-                case "aws":
-                    aws = parts[1];
-                    break;
-
-                default:
-                    System.err.println("invalid arg:" + arg);
+                switch (parts[0].toLowerCase())
+                {
+                    case "sourcedir":
+                        sourceDir = parts[1];
+                        break;
+    
+                    case "version":
+                        version = parts[1];
+                        break;
+    
+                    case "artifact":
+                        artifact = parts[1];
+                        break;
+    
+                    case "mem":
+                        mem = parts[1];
+                        break;
+    
+                    case "nolibs":
+                        noLibs = Boolean.parseBoolean(parts[1]);
+                        break;
+    
+                    case "nobuilds":
+                        noBuilds = Boolean.parseBoolean(parts[1]);
+                        break;
+    
+                    case "aws":
+                        aws = parts[1];
+                        break;
+    
+                    default:
+                        System.err.println("invalid arg:" + arg);
+                }
+            }
+            catch (Throwable t)
+            {
+                
             }
         }
         if (artifact == null)
@@ -109,6 +116,7 @@ public class MiraBuild extends Script
             {
                 CometUtils.cloneDirectory(sourceDir+artifact+"\\client",package_+"\\client");
             }
+            CometUtils.deleteFile(package_+"\\resources\\local.cnf");
             CometUtils.copyDirectory(sourceDir+artifact+"\\etc",package_+"\\etc");
             String buildVersion=CometUtils.exec(sourceDir,"git describe --tags --abbrev=0");
             buildVersion=CometUtils.incrementVersion(buildVersion,0,1);
@@ -122,7 +130,7 @@ public class MiraBuild extends Script
             CometUtils.exec(sourceDir+artifact,"jar -cf "+artifactJar+" "+artifact);
             CometUtils.createDirectory(sourceDir+"\\packages");
             CometUtils.moveFile(sourceDir+artifact+"\\"+artifactJar,sourceDir+"\\packages\\"+artifactJar);
-            CometUtils.deleteDirectory(package_);
+//            CometUtils.deleteDirectory(package_);
     
 //            CometUtils.exec(sourceDir,"git add .");
 //            CometUtils.exec(sourceDir,"git tag -a "+buildVersion+" -m \"package build\"");
@@ -134,7 +142,13 @@ public class MiraBuild extends Script
         {
             String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/"+" config=.\\resources\\application.cnf";
             System.out.println("connecting...");
-            SshSession session=new SshSession(aws,22,"ec2-user");
+//            SshSession session=new SshSession(aws,22,"ec2-user");
+//            SshSession session=new SshSession("18.211.84.163",22,"ec2-user");
+            
+            SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem","");
+            
+            
+            
             System.out.println("copying package"); 
             
             session.copy(sourceDir+"\\packages\\"+artifactJar,artifactJar);

@@ -2,9 +2,12 @@ package org.nova.proxy;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Date;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
@@ -12,7 +15,9 @@ import org.nova.tracing.TraceRunnable;
 import org.nova.utils.TypeUtils;
 
 class ProxyConnection implements TraceRunnable
-    {
+{
+    static final boolean TEST=true;
+    
         final OutsideServer server;
         private Socket socket;
         private InputStream inputStream;
@@ -20,21 +25,32 @@ class ProxyConnection implements TraceRunnable
         private ProxyConfiguration proxyConfiguration; 
         HashMap<Integer,OutsideConnection> outsideConnections;
         private long created;
-        final private String key;
         private long lastKeepAliveReceived;
+        private long lastActivity;
         private ServerSocket serverSocket;
+        private int remotePort;
+        final private String remoteAddress;
+        private AtomicLong in;
+        private AtomicLong out;
         
-        
-        public ProxyConnection(OutsideServer server,Socket socket,String key)
+        public ProxyConnection(OutsideServer server,Socket socket)
         {
             this.socket=socket;
             this.server=server;
             this.outsideConnections=new HashMap<>();
             this.created=System.currentTimeMillis();
-            this.key=key;
             this.lastKeepAliveReceived=System.currentTimeMillis();
+
+            InetSocketAddress socketAddress=(InetSocketAddress)this.socket.getRemoteSocketAddress();
+            this.remoteAddress=socketAddress.getHostString()+":"+socketAddress.getPort();
+            this.in=new AtomicLong(0);
+            this.out=new AtomicLong(0);
         }
         
+        public String getRemoteSocketAddress()
+        {
+            return this.remoteAddress;
+        }
         public OutsideServer getServer()
         {
             return this.server;
@@ -70,6 +86,10 @@ class ProxyConnection implements TraceRunnable
         {
             return this.lastKeepAliveReceived;
         }
+        public long getLastActivity()
+        {
+            return this.lastKeepAliveReceived;
+        }
         
         @Override
         public void run(Trace parent) throws Throwable
@@ -84,21 +104,27 @@ class ProxyConnection implements TraceRunnable
                 this.inputStream=socket.getInputStream();
                 this.outputStream=socket.getOutputStream();
 
-                parent.setDetails(this.key+": waiting for header");
-                try (Trace readHeaderTrace=parent.newChild(this.key))
+                try (Trace readHeaderTrace=parent.newChild("ProxyHeader"))
                 {
                     byte[] lengthBytes=new byte[4];
                     Packet.read(this.inputStream, lengthBytes, 0, 4);
                     int length=TypeUtils.bigEndianBytesToInt(lengthBytes);
+                    
+                    if (TEST)
+                    {
+                        System.out.println("header length:"+length);
+                    }
                     byte[] bytes=new byte[length];
                     Packet.read(this.inputStream, bytes,0,length);
                     String text=new String(bytes);
-    
-                    synchronized(this)
+                    if (TEST)
                     {
-                        this.proxyConfiguration=ObjectMapper.readObject(text, ProxyConfiguration.class);
+                        System.out.println("header text:"+text);
                     }
-                    parent.setDetails(this.key+":insideName="+this.proxyConfiguration.insideName+",outsideListenPort="+this.proxyConfiguration.outsideListenPort);
+    
+                    this.proxyConfiguration=ObjectMapper.readObject(text, ProxyConfiguration.class);
+                    parent.setDetails("insideName="+this.proxyConfiguration.insideName+",outsideListenPort="+this.proxyConfiguration.outsideListenPort);
+                    this.server.addProxyConnection(this.proxyConfiguration.outsideListenPort,this);
                 }
                 this.server.getMultiTaskSheduler().schedule(null, "handleOutsideConnections", (trace)->{handleOutsideConnections(trace);});
                 
@@ -127,7 +153,7 @@ class ProxyConnection implements TraceRunnable
             }
             finally
             {
-                this.server.removeProxyConnection(this.key);
+                this.server.removeProxyConnection(this);
                 close();
             }
         }
@@ -175,7 +201,7 @@ class ProxyConnection implements TraceRunnable
         {
             try
             {
-                sendToProxy(new Packet(port));
+                sendToInside(new Packet(port));
             }
             catch (Throwable t)
             {
@@ -183,16 +209,13 @@ class ProxyConnection implements TraceRunnable
             }
         }
         
-        public void sendToProxy(Packet outsidePacket) throws Throwable
+        public void sendToInside(Packet outsidePacket) throws Throwable
         {
             synchronized(this)
             {
                 outsidePacket.writeToProxyStream(this.outputStream);
             }
-        }
-        public String getKey()
-        {
-            return this.key;
+            this.in.addAndGet(outsidePacket.size());
         }
         
         private void handleOutsideConnections(Trace parent) throws Throwable
@@ -233,7 +256,7 @@ class ProxyConnection implements TraceRunnable
             }
             catch (Throwable t)
             {
-                parent.setDetails(this.key+":insideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
+                parent.setDetails("insideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
             }
             finally
             {
@@ -261,6 +284,7 @@ class ProxyConnection implements TraceRunnable
             OutsideConnection outsideConnection;
             synchronized (this.outsideConnections)
             {
+                this.lastActivity=System.currentTimeMillis();
                 outsideConnection=this.outsideConnections.get(port);
             }
             if (outsideConnection==null)
@@ -281,6 +305,7 @@ class ProxyConnection implements TraceRunnable
                     return;
                 }
                 outsideConnection.writeToOutside(proxyPacket);
+                this.out.addAndGet(proxyPacket.size());
             }
             catch (Throwable t)
             {
@@ -288,6 +313,16 @@ class ProxyConnection implements TraceRunnable
                 removeOutsideConnection(port);
             }
         }
+        
+        public long getIn()
+        {
+            return this.in.get();
+        }
+        public long getOut()
+        {
+            return this.out.get();
+        }
+        
         
         
     }

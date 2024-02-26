@@ -1,0 +1,9 @@
+/* 
+	General styles for this example page */
+
+.well{
+    max-width: 100% !important; // Max Width of the popover (depending on the container!)
+}
+.popover{
+    max-width: 100%; // Max Width of the popover (depending on the container!)
+}

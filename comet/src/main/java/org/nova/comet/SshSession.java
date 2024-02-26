@@ -25,6 +25,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 import org.nova.utils.Utils;
@@ -55,9 +58,12 @@ public class SshSession
     public SshSession(String host, int port, String user, String keyFile, String passphrase) throws JSchException, IOException
     {
         this.jsch = new JSch();
-        this.jsch.addIdentity(keyFile, passphrase);
+//        Path path=Paths.get(keyFile);
+//        String privateKey = Files.readString(path);
+        this.jsch.addIdentity(keyFile,passphrase);
         this.session = jsch.getSession(user, host, port);
         java.util.Properties config = new java.util.Properties();
+//        config.put("PreferredAuthentications", "password");
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
         this.session.connect();

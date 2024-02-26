@@ -1,0 +1,10 @@
+@default.cnf
+HttpServer.public.https=false
+HttpServer.public.http=false
+
+Environment.Vault.unsecureVaultFile=.\resources\UnsecureVault.cnf
+System.test=true
+
+HttpServer.serverCertificate.keyStorePath=.\testcerts\server.jks
+HttpServer.clientCertificate.keyStorePath=.\testcerts\client.jks
+
