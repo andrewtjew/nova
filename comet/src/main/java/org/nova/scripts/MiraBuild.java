@@ -130,7 +130,7 @@ public class MiraBuild extends Script
             CometUtils.exec(sourceDir+artifact,"jar -cf "+artifactJar+" "+artifact);
             CometUtils.createDirectory(sourceDir+"\\packages");
             CometUtils.moveFile(sourceDir+artifact+"\\"+artifactJar,sourceDir+"\\packages\\"+artifactJar);
-//            CometUtils.deleteDirectory(package_);
+            CometUtils.deleteDirectory(package_);
     
 //            CometUtils.exec(sourceDir,"git add .");
 //            CometUtils.exec(sourceDir,"git tag -a "+buildVersion+" -m \"package build\"");
@@ -142,13 +142,7 @@ public class MiraBuild extends Script
         {
             String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/"+" config=.\\resources\\application.cnf";
             System.out.println("connecting...");
-//            SshSession session=new SshSession(aws,22,"ec2-user");
-//            SshSession session=new SshSession("18.211.84.163",22,"ec2-user");
-            
-            SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem","");
-            
-            
-            
+            SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem",null);
             System.out.println("copying package"); 
             
             session.copy(sourceDir+"\\packages\\"+artifactJar,artifactJar);
@@ -164,8 +158,6 @@ public class MiraBuild extends Script
             System.out.println("Executing: "+javaCommand+" in "+jarDest);
             session.execBackground(jarDest,javaCommand);
         }
-        
-        
     }
 
 }

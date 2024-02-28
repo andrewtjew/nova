@@ -1,1 +1,0 @@
-java -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -Xms256M -Xmx256M -jar ProxyServer.jar config=.\resources\application.cnf
