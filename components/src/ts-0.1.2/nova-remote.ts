@@ -230,7 +230,11 @@ namespace nova.remote
                 }
                 else if (error!=null)
                 {
-                    error();
+                    console.log("postStatic:error="+error);
+                    if (error!=null)
+                    {
+                        error(error);
+                    }
                 }
             })
             .then((instructions:Instruction[])=>
@@ -424,7 +428,10 @@ namespace nova.remote
                 }
                 catch (ex)
                 {
-                    alert("remote exception:"+ex);
+                    if (instruction.trace)
+                    {
+                        console.log("nova-remote:exception="+ex);
+                    }
                 }
             }
         }

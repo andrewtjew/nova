@@ -102,6 +102,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         this.denyMap.clear();
         this.partialKey=computePartialKey();
     }
+    
     @Override
     synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
