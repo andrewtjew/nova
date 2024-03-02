@@ -154,6 +154,8 @@ public class OperatorDataTable extends Table
         this.table().id(id);
         id=this.table().id();
         this.objects=new Objects(id);
+        
+        
         this.table().addInner(new script().addInner(this.objects));
         script script=new script().src(scriptFilePath);
         if (head!=null)

@@ -71,13 +71,11 @@ public class MiraBuild extends Script
         }
         if (artifact == null)
         {
-            System.err.println("no artificat");
-            return;
+            throw new Exception("artifact cannot be null");
         }
         if (sourceDir== null)
         {
-            System.err.println("no sourceDir");
-            return;
+            throw new Exception("sourceDir cannot be null");
         }
         sourceDir=CometUtils.toNativePath(sourceDir);
         if (sourceDir.endsWith(File.separator)==false)
@@ -97,13 +95,13 @@ public class MiraBuild extends Script
                 CometUtils.exec("c:\\wd\\nova\\components","mvn clean install");
                 CometUtils.exec("c:\\wd\\nova\\services","mvn clean install");
                 CometUtils.exec("c:\\wd\\nova\\xp","mvn clean install");
+                CometUtils.exec("c:\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
             }
             CometUtils.deleteFile(jarDest);
             CometUtils.exec(sourceDir+artifact,"mvn clean install");
             if (CometUtils.existsFile(jarDest)==false)
             {
-                System.err.println("jar not found: "+jarDest);
-                return;
+                throw new Exception("jar not found: "+jarDest);
             }
             System.out.println("building done");
     
