@@ -116,6 +116,7 @@ public class MiraBuild extends Script
             }
             CometUtils.deleteFile(package_+"\\resources\\local.cnf");
             CometUtils.copyDirectory(sourceDir+artifact+"\\etc",package_+"\\etc");
+            
             String buildVersion=CometUtils.exec(sourceDir,"git describe --tags --abbrev=0");
             buildVersion=CometUtils.incrementVersion(buildVersion,0,1);
             System.out.println("build version: "+buildVersion);
