@@ -159,7 +159,7 @@ public class ConfigurationReader
                 if (lexeme.isError()==false)
                 {
                     this.configuration.add(new ConfigurationItem(name, lexeme.getValue().trim(), ConfigurationSource.FILE,fileName+"("+line+")", description));
-                    System.out.println("Configuration: "+name+"="+lexeme.getValue().trim());
+//                    System.out.println("Configuration: "+name+"="+lexeme.getValue().trim());
                 }
                 else
                 {
@@ -180,15 +180,15 @@ public class ConfigurationReader
     public static Configuration read(String fileName) throws Throwable 
 	{
         Configuration configuration=new Configuration();
-        try
+//        try
         {
     		ConfigurationReader reader=new ConfigurationReader(fileName, configuration);
     		reader.read();
         }
-        catch (Throwable t)
-        {
-            System.out.println("No config file: "+fileName);
-        }
+//        catch (Throwable t)
+//        {
+//            System.out.println("No config file: "+fileName);
+//        }
 		return configuration;
 	}
 
