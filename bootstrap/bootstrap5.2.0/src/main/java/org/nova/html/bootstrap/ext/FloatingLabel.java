@@ -19,7 +19,7 @@ public class FloatingLabel extends Item
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        Label label=returnAddInner(new Label(this.label));
+        Label label=returnAddInner(new Label(this.label)).ps(3);
         for (Element element:this.getInners())
         {
             if (element instanceof InputComponent<?>)

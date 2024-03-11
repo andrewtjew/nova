@@ -139,14 +139,16 @@ public class ConfigurationReader
                 checkError(lexeme);
     
                 character=scanner.skipWhiteSpaceAndBegin();
-                if (character == '{')
+                if ((character == '{')||(character=='['))
                 {
-                    lexeme=scanner.produceEnclosedJSONText('{', '}');
+                    scanner.revert();
+                    lexeme=scanner.produceJSONLikeText();
                 }
-                else if (character == '[')
-                {
-                    lexeme=scanner.produceEnclosedJSONText('[', ']');
-                }
+//                else if (character == '[')
+//                {
+//                    scanner.revert();
+//                    lexeme=scanner.produceEnclosedJSONText();
+//                }
                 else if (character==0)
                 {
                     lexeme=scanner.produceEnd();
@@ -159,7 +161,7 @@ public class ConfigurationReader
                 if (lexeme.isError()==false)
                 {
                     this.configuration.add(new ConfigurationItem(name, lexeme.getValue().trim(), ConfigurationSource.FILE,fileName+"("+line+")", description));
-                    System.out.println("Configuration: "+name+"="+lexeme.getValue().trim());
+//                    System.out.println("Configuration: "+name+"="+lexeme.getValue().trim());
                 }
                 else
                 {

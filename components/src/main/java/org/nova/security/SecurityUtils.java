@@ -250,7 +250,7 @@ public class SecurityUtils
         return new SecretKeySpec(secretKey.getEncoded(), "AES");
     }
 
-    static public SecretKey buildKeyDES(String password) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException
+    static public SecretKey buildKeyDES(String password) throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException
     {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
         DESKeySpec spec = new DESKeySpec(password.getBytes());

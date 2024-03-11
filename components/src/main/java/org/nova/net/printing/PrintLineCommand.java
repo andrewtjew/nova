@@ -32,7 +32,7 @@ public class PrintLineCommand extends Command
         super(Code.PrintLine);
         if (text==null)
         {
-            this.text=null;
+            this.text="";
         }
         else
         {

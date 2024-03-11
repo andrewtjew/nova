@@ -423,25 +423,19 @@ public class Scanner
         return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
     }
 
-    //At this moment, some invalid json text will not generate error for example invalid numbers like 1234f33. 
-    public Lexeme produceEnclosedJSONText(char startCharacter,char endCharacter) throws Throwable
+    //Not a full JSON parser.  
+    public Lexeme produceJSONLikeText() throws Throwable
     {
         int level = 0;
         boolean inString = false;
         boolean inStringEscape = false;
-        boolean inArray=false;
-        boolean expectName=startCharacter=='{';
         for (;;)
         {
             char c = this.source.next();
-            System.out.print(c);
+//            System.out.print(c);
             if (c==0)
             {
-                if (expectName)
-                {
-                    return new Lexeme(Token.ERROR, "Expected name not present before end-of-text", this.source.endAndGetSnippet(1));
-                }
-                else if (inString)
+                if (inString)
                 {
                     return new Lexeme(Token.ERROR, "Invalid string literal before end-of-text", this.source.endAndGetSnippet(1));
                 }
@@ -473,45 +467,32 @@ public class Scanner
                 {
                     inString = true;
                 }
-                else if (c == startCharacter)
+                if (c=='{')
                 {
-                    if (c=='{')
-                    {
-                        expectName=true;
-                    }
-                    else if (c=='[')
-                    {
-                        inArray=true;
-                    }
                     level++;
                 }
-                else if (c == endCharacter)
+                else if (c=='[')
                 {
-                    if (c==']')
-                    {
-                        inArray=false;
-                    }
-                    if (level == 0)
-                    {
-                        Snippet snippet=this.source.endAndGetSnippet(0);
-                        return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
-                    }
+                    level++;
+                }
+                else if (c=='}')
+                {
+                    level--;
+                }
+                else if (c==']')
+                {
                     level--;
                 }
                 else if (c==':')
                 {
-                    if (expectName==false)
-                    {
-                        return new Lexeme(Token.ERROR, "Unexpected character :", this.source.endAndGetSnippet(1));
-                    }
-                    expectName=false;
                 }
                 else if (c==',')
                 {
-                    if (inArray==false)
-                    {
-                        expectName=true;
-                    }
+                }
+                if (level == 0)
+                {
+                    Snippet snippet=this.source.endAndGetSnippet(0);
+                    return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
                 }
             }
         }
