@@ -254,7 +254,7 @@ class ProxyConnection implements TraceRunnable
                     {
                        Socket socket = serverSocket.accept();
                        int port=socket.getPort();
-                       System.out.println("Proxy:accept,removeOutsideConnection,port="+port);
+//                       System.out.println("Proxy:accept,removeOutsideConnection,port="+port);
                        removeAndCloseOutsideConnection(port);
                        OutsideConnection connection;
                        synchronized(this.outsideConnections)
@@ -285,7 +285,7 @@ class ProxyConnection implements TraceRunnable
             }
             if (connection!=null)
             {
-                System.out.println("Proxy:removeOutsideConnection closes outside,port="+connection.getPort());
+//                System.out.println("Proxy:removeOutsideConnection closes outside,port="+connection.getPort());
                 connection.close();
             }
 //            closeHost(port);
@@ -302,7 +302,6 @@ class ProxyConnection implements TraceRunnable
             }
             if (outsideConnection==null)
             {
-                System.out.println("Proxy:noOutside,port="+port+",lost="+proxyPacket.size());
                 return;
             }
             try

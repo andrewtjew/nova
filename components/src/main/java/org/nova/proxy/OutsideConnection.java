@@ -159,6 +159,7 @@ import org.nova.tracing.TraceRunnable;
                     long span=now-this.sending;
                     if (span>this.configuration.outsideSendTimeout)
                     {
+                        System.out.println("Outside:Timeout");
                         throw new Exception("SendTimeout");
                     }
                 }
@@ -166,6 +167,7 @@ import org.nova.tracing.TraceRunnable;
                 this.sendPacketsSize+=packet.size();
                 if (this.sendPacketsSize>=this.configuration.sendPacketsSize)
                 {
+                    System.out.println("Outside:SendpacketSize,queue="+this.sendPackets.size());
                     throw new Exception("sendPacketsSize="+this.sendPacketsSize);
                 }
                 
