@@ -72,7 +72,7 @@ public class OutsideServer
     
     public void start() throws IOException
     {
-        this.scheduler.schedule(null, "handleProxyConnection", (trace)->{handleProxyConnection(trace);});
+        this.scheduler.schedule(null, "acceptProxyConnections", (trace)->{handleProxyConnection(trace);});
     }
     private void handleProxyConnection(Trace parent) throws Exception
     {

@@ -81,12 +81,11 @@ class HostConnection implements TraceRunnable
 
     public void writeToHost(Packet proxyPacket) throws Throwable
     {
+        proxyPacket.writeToStream(this.outputStream);
         synchronized(this)
         {
             //this.outputStream cannot be null. If so, then implementation error.
-            proxyPacket.writeToStream(this.outputStream);
-            this.totalSent+=proxyPacket.size()-4;
-            System.out.println("Send size:"+proxyPacket.size());
+            this.totalSent+=proxyPacket.size();
             this.lastSent=System.currentTimeMillis();
         }
     }

@@ -154,14 +154,11 @@ public class InsideServer
                         int dataSize=proxyPacket.size();
                         if (dataSize==0)
                         {
-                            System.out.println("Inside: keep alive response");
                             this.lastKeepAliveReceived=System.currentTimeMillis();
-                            System.out.println("Inside: keep alive response "+this.lastKeepAliveReceived);
                             reconnectDelay=this.configuration.reconnectDelay;
                             continue;
                         }
                         int outsidePort=proxyPacket.getPort();
-                        System.out.println("Inside: data, outsidePort="+outsidePort);
                         if (dataSize==4)
                         {
                             this.closeOutside(outsidePort);
@@ -175,10 +172,12 @@ public class InsideServer
                                 connection=new HostConnection(this, outsidePort);
                                 this.hostConnections.put(outsidePort, connection);
                                 this.scheduler.schedule(parent, "HostConnection", connection);
-                                System.out.println("Inside: new HostConnection 2, outsidePort="+outsidePort);
                             }
                         }
-                        connection.writeToHost(proxyPacket);
+                        try (Trace trace=new Trace(parent,"HostConnection:writeToHost"))
+                        {
+                            connection.writeToHost(proxyPacket);
+                        }
                     }
                 }
             }
@@ -256,10 +255,9 @@ public class InsideServer
 
     void keepAlive() throws Throwable
     {
-    	System.out.println("Inside: keepAlive 1");
+//    	System.out.println("Inside: keepAlive");
         synchronized(this)
         {
-        	System.out.println("Inside: keepAlive 2");
             if (this.proxyOutputStream!=null)
             {
                 this.keepAlivePacket.writeToProxyStream(this.proxyOutputStream);

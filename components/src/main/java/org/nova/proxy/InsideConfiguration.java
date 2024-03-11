@@ -10,8 +10,8 @@ public class InsideConfiguration
     public int proxyReadTimeout=30000;
     
     public int keepAliveInterval=10000;
-    public int reconnectDelay=1000;
-    public int maxReconnectDelay=10000;
+    public int reconnectDelay=200;
+    public int maxReconnectDelay=2000;
     
     public String hostEndPoint="localhost";
     public int hostReceiveBufferSize=65536;

@@ -16,15 +16,15 @@ public class QueryResult
         this.row=row;
     }
     
-    public Long getNodeId() throws Exception
-    {
-        for (String typeName:this.map.keySet())
-        {
-            Long nodeId = row.getNullableBIGINT(typeName + "._nodeId");
-            return nodeId;
-        }
-        return null;
-    }
+//    public Long getNodeId() throws Exception
+//    {
+//        for (String typeName:this.map.keySet())
+//        {
+//            Long nodeId = row.getNullableBIGINT(typeName + "._nodeId");
+//            return nodeId;
+//        }
+//        return null;
+//    }
     
     public <OBJECT extends NodeObject> OBJECT get(String namespace,Class<OBJECT> type) throws Throwable
     {

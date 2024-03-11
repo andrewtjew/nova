@@ -5,7 +5,10 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.LinkedList;
+import java.util.Queue;
 
+import org.nova.concurrent.Synchronization;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
 
@@ -17,9 +20,11 @@ import org.nova.tracing.TraceRunnable;
         private Socket socket;
         private OutputStream outputStream;
         private long lastSent;
+        private Long sending;
         private long lastReceived;
         private long totalReceived;
         private long totalSent;
+        LinkedList<Packet> sendPackets;
         
         public OutsideConnection(ProxyConnection proxyConnection,Socket socket,int port)
         {
@@ -28,25 +33,64 @@ import org.nova.tracing.TraceRunnable;
             this.proxyConnection=proxyConnection;
             this.port=port;
             this.lastReceived=System.currentTimeMillis();
+            this.sendPackets=new LinkedList<>();
         }
+        
+        private void sender(Trace parent) throws Throwable
+        {
+            for (;;)
+            {
+                Packet packet=null;
+                synchronized(this)
+                {
+                    Synchronization.waitFor(this, ()->{return this.sendPackets.size()>0||this.socket==null;});
+                    if (this.socket==null)
+                    {
+                        return;
+                    }
+                    if (this.sendPackets.size()>0)
+                    {
+                        packet=this.sendPackets.remove();
+                        if (this.sendPackets.size()==0)
+                        {
+                            this.sending=null;
+                        }
+                        else if (this.sending==null)
+                        {
+                            this.sending=System.currentTimeMillis();
+                        }
+                    }
+                }
+                if (packet!=null)
+                {
+                    try (Trace trace=new Trace(parent,"Outside:writeToOutside"))
+                    {
+                        this.writeToOutside(packet);
+                    }
+                }
+            }
+            
+        }
+        
+        
+        private OutsideConfiguration configuration;
+        
         @Override
         public void run(Trace parent) throws Throwable
         {
             try
             {
-                OutsideConfiguration configuration=this.proxyConnection.getServer().getConfiguration();
-                socket.setReceiveBufferSize(configuration.outsideReceiveBufferSize);
-                socket.setSendBufferSize(configuration.outsideSendBufferSize);
-                socket.setSoTimeout(configuration.outsideReadTimeout);
+                this.configuration=this.proxyConnection.getServer().getConfiguration();
+                socket.setReceiveBufferSize(this.configuration.outsideReceiveBufferSize);
+                socket.setSendBufferSize(this.configuration.outsideSendBufferSize);
+                socket.setSoTimeout(this.configuration.outsideReadTimeout);
                 socket.setTcpNoDelay(true);
                 
                 InputStream inputStream=socket.getInputStream();
-                Packet packet=new Packet(configuration.outsideReceiveBufferSize+8, this.port);
+                Packet packet=new Packet(this.configuration.outsideReceiveBufferSize+8, this.port);
+                this.outputStream=socket.getOutputStream();
 
-                synchronized(this)
-                {
-                    this.outputStream=socket.getOutputStream();
-                }
+                this.proxyConnection.getServer().getMultiTaskSheduler().schedule(parent, "OutsideSender", (trace)->{sender(trace);});
                 
                 for (;;)
                 {
@@ -61,6 +105,9 @@ import org.nova.tracing.TraceRunnable;
                     }
                     if (read<0)
                     {
+                        System.out.println("Outside:close,removeOutsideConnection,port="+port);
+//                        this.proxyConnection.sendToInside(packet);
+                        this.proxyConnection.removeAndCloseOutsideConnection(this.port);
                         break;
                     }
                     synchronized(this)
@@ -70,6 +117,7 @@ import org.nova.tracing.TraceRunnable;
                     }
                     if (read>0)
                     {
+//                        System.out.println("Outside:port="+this.port+",readSize="+read);
                         this.proxyConnection.sendToInside(packet);
                     }
                 }
@@ -77,13 +125,29 @@ import org.nova.tracing.TraceRunnable;
             }
             catch (Throwable t)
             {
+                System.out.println("Outside:exception,removeOutsideConnection,port="+port);
                 ProxyConfiguration proxyConfiguration=this.proxyConnection.getProxyConfiguration();
-                parent.setDetails("InsideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort);
+                parent.setDetails("InsideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort+",port="+this.port);
+                parent.close(t);
+                this.proxyConnection.removeAndCloseOutsideConnection(this.port);
             }
-            finally
+        }
+        
+        public void sendToOutside(Packet packet) throws Exception
+        {
+            long now=System.currentTimeMillis();
+            synchronized(this)
             {
-                this.proxyConnection.removeOutsideConnection(this.port);
-                close();
+                if (this.sending!=null)
+                {
+                    long span=now-this.sending;
+                    if (span>this.configuration.outsideSendTimeout)
+                    {
+                        throw new Exception("SendTimeout");
+                    }
+                }
+                this.sendPackets.add(packet);
+                this.notifyAll();
             }
         }
         
@@ -98,14 +162,15 @@ import org.nova.tracing.TraceRunnable;
             return this.port;
         }
 
-        public void writeToOutside(Packet proxyPacket) throws Throwable
+        private void writeToOutside(Packet proxyPacket) throws Throwable
         {
+            proxyPacket.writeToStream(this.outputStream);
             synchronized(this)
             {
-                //this.outputStream cannot be null. If so, then implementation error.
-                proxyPacket.writeToStream(this.outputStream);
-                this.totalSent+=proxyPacket.size()-4;
+                long sent=proxyPacket.size()-4;
+                this.totalSent+=sent;
                 this.lastSent=System.currentTimeMillis();
+                this.proxyConnection.updateOut(sent);
             }
         }
         
@@ -151,6 +216,7 @@ import org.nova.tracing.TraceRunnable;
                     {
                         this.socket.close();
                         this.socket=null;
+                        this.notifyAll();
                     }
                 }
             }

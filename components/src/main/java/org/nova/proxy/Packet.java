@@ -46,25 +46,25 @@ public class Packet
             throw new Exception("totalRead="+totalRead);
         }
 
-        int insideDataSize=TypeUtils.bigEndianBytesToInt(dataSizeBytes, 0);
-        byte[] buffer=new byte[insideDataSize+4];
+        int dataSize=TypeUtils.bigEndianBytesToInt(dataSizeBytes, 0);
+        byte[] buffer=new byte[dataSize+4];
         for (int i=0;i<4;i++)
         {
             buffer[i]=dataSizeBytes[i];
         }
         try
         {
-            totalRead=read(inputStream,buffer,4,insideDataSize);
+            totalRead=read(inputStream,buffer,4,dataSize);
         }
         catch (SocketTimeoutException ex)
         {
             return null;
         }
-        if (totalRead!=insideDataSize)
+        if (totalRead!=dataSize)
         {
-            throw new Exception("totalRead="+totalRead+",insideDataSize="+insideDataSize);
+            throw new Exception("totalRead="+totalRead+",insideDataSize="+dataSize);
         }
-        return new Packet(buffer,insideDataSize);
+        return new Packet(buffer,dataSize);
     }
 
     public Packet(byte[] buffer,int size)
