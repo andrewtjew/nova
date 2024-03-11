@@ -63,7 +63,7 @@ public class ToHttpsController
 
     public ToHttpsController(TraceManager traceManager,Logger logger) throws Throwable
     {
-        this(traceManager,logger,80,443,10);
+        this(traceManager,logger,80,443,20);
     }
     
     @GET
