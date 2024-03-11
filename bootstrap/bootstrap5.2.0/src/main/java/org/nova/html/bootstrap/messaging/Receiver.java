@@ -36,18 +36,6 @@ public class Receiver
         LinkedList<Message> messages=getMessages(message.getPresentation());
         if (message.isHighPriority())
         {
-            if (messages.get(0).isHighPriority())
-            {
-                for (int i=1;i<messages.size();i++)
-                {
-                    if (messages.get(i).isHighPriority()==false)
-                    {
-                        messages.add(i,message);
-                        return;
-                    }
-                }
-                messages.add(message);
-            }
             messages.addFirst(message);
         }
         else
@@ -65,8 +53,4 @@ public class Receiver
         }
         return null;
     }
-//    synchronized public void retireMessage()
-//    {
-//        this.message=null;
-//    }
 }

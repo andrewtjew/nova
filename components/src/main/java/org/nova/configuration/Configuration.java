@@ -93,10 +93,6 @@ public class Configuration
 	{
 		synchronized (this)
 		{
-//			if ("lgs".equals(defaultValue))
-//			{
-//				System.out.println("def");
-//			}
 			ConfigurationItem item=this.map.get(name);
 			if (item==null)
 			{

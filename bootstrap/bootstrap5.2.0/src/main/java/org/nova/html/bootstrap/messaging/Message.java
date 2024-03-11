@@ -9,7 +9,7 @@ public class Message
     final private Element content;
     final private boolean highPriority;
     
-    public Message(boolean highPriority,Long expire,Presentation presentation,Element content)
+    public Message(boolean highPriority,Presentation presentation,Element content)
     {
         this.presentation=presentation;
         this.highPriority=highPriority;
@@ -17,7 +17,7 @@ public class Message
     }
     public Message(Presentation presentation,Element content)
     {
-        this(false,null,presentation,content);
+        this(false,presentation,content);
     }    
     public Message(Presentation presentation,String text)
     {

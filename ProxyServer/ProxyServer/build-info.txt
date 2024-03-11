@@ -1,5 +1,0 @@
-package: ProxyServer
-maven version: 0.0.1-SNAPSHOT
-build version: fatal: No names found, cannot describe anything0.1
-built on: 2024-02-25T15:46:16.3714282Z[UTC]
-built at: Minis

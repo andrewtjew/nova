@@ -182,15 +182,15 @@ public class ConfigurationReader
     public static Configuration read(String fileName) throws Throwable 
 	{
         Configuration configuration=new Configuration();
-        try
+//        try
         {
     		ConfigurationReader reader=new ConfigurationReader(fileName, configuration);
     		reader.read();
         }
-        catch (Throwable t)
-        {
-            System.out.println("No config file: "+fileName);
-        }
+//        catch (Throwable t)
+//        {
+//            System.out.println("No config file: "+fileName);
+//        }
 		return configuration;
 	}
 

@@ -79,15 +79,15 @@ public class Modal extends StyleComponent<Modal>
 
     public String js_show()
     {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).show();";
+        return js_show(this.id());
     }
     public String js_hide()
     {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).hide();";
+        return js_hide(this.id());
     }
     public String js_toggle()
     {
-        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+this.id()+"')).toggle();";
+        return js_toggle(this.id());
     }
     public static String js_show(String id)
     {

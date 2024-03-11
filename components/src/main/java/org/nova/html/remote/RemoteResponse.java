@@ -133,12 +133,14 @@ public class RemoteResponse
 //        String code="$('#"+id+"').prop('"+prop+"',"+value+");";
 //        return script(code);
 //    }
+    @Deprecated
     public RemoteResponse showModal(String id)
     {
         QuotationMark mark=QuotationMark.SINGLE;
         String code="$("+mark+"#"+id+mark+").modal("+mark+"show"+mark+");";
         return script(code);
     }
+    @Deprecated
     public RemoteResponse hideModal(String id)
     {
         QuotationMark mark=QuotationMark.SINGLE;

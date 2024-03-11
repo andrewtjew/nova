@@ -113,9 +113,15 @@ public class InsideServer
             this.proxyInputStream=null;
             this.proxyOutputStream=null;
         }
-        this.timer.schedule("KeepAlive", TimeBase.FREE,1000,this.configuration.keepAliveInterval,(trace,event)->keepAlive());
+        this.timer.schedule("KeepAlive", TimeBase.FREE,this.configuration.keepAliveInterval,this.configuration.keepAliveInterval,(trace,event)->keepAlive());
         
         int reconnectDelay=this.configuration.reconnectDelay;
+        ProxyConfiguration proxyConfiguration=new ProxyConfiguration();
+        proxyConfiguration.outsideListenPort=this.configuration.outsideListenPort;
+        proxyConfiguration.insideName=NetUtils.getLocalHostName();
+        proxyConfiguration.insideMacAddress=NetUtils.getMacAddress();
+        String headerText=ObjectMapper.writeObjectToString(proxyConfiguration);
+        byte[] headerBytes=headerText.getBytes();
         for (;;)
         {
 //            System.out.println("Connecting to outside");
@@ -127,20 +133,16 @@ public class InsideServer
                     socket.setSendBufferSize(this.configuration.proxySendBufferSize);
                     socket.setTcpNoDelay(true);
                     socket.setSoTimeout(this.configuration.proxyReadTimeout);
+                    
+                    socket.getOutputStream().write(TypeUtils.bigEndianIntToBytes(headerBytes.length));
+                    socket.getOutputStream().write(headerBytes);
+
                     synchronized(this)
                     {
+                        this.lastConnect=System.currentTimeMillis();
                         this.proxyInputStream=socket.getInputStream();
                         this.proxyOutputStream=socket.getOutputStream();
-                        this.lastConnect=System.currentTimeMillis();
                     }
-                    ProxyConfiguration proxyConfiguration=new ProxyConfiguration();
-                    proxyConfiguration.outsideListenPort=this.configuration.outsideListenPort;
-                    proxyConfiguration.insideName=NetUtils.getLocalHostName();
-                    proxyConfiguration.insideMacAddress=NetUtils.getMacAddress();
-                    String text=ObjectMapper.writeObjectToString(proxyConfiguration);
-                    byte[] bytes=text.getBytes();
-                    this.proxyOutputStream.write(TypeUtils.bigEndianIntToBytes(bytes.length));
-                    this.proxyOutputStream.write(bytes);
                     
                     for (;;)
                     {
@@ -170,8 +172,10 @@ public class InsideServer
                                 connection=new HostConnection(this, outsidePort);
                                 this.hostConnections.put(outsidePort, connection);
                                 this.scheduler.schedule(parent, "HostConnection", connection);
-                                System.out.println("Inside: new HostConnection, outsidePort="+outsidePort);
                             }
+                        }
+                        try (Trace trace=new Trace(parent,"HostConnection:writeToHost"))
+                        {
                             connection.writeToHost(proxyPacket);
                         }
                     }
@@ -251,6 +255,7 @@ public class InsideServer
 
     void keepAlive() throws Throwable
     {
+//    	System.out.println("Inside: keepAlive");
         synchronized(this)
         {
             if (this.proxyOutputStream!=null)

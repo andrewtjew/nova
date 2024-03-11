@@ -1,7 +1,0 @@
-@default.cnf
-Environment.Vault.unsecureVaultFile=.\resources\UnsecureVault.cnf
-System.test=true
-
-HttpServer.serverCertificate.keyStorePath=.\testcerts\server.jks
-HttpServer.clientCertificate.keyStorePath=.\testcerts\client.jks
-
