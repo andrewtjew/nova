@@ -25,6 +25,7 @@ import org.nova.tracing.TraceRunnable;
         private long totalReceived;
         private long totalSent;
         LinkedList<Packet> sendPackets;
+        private long sendPacketsSize;
         
         public OutsideConnection(ProxyConnection proxyConnection,Socket socket,int port)
         {
@@ -65,8 +66,23 @@ import org.nova.tracing.TraceRunnable;
                 {
                     try (Trace trace=new Trace(parent,"Outside:writeToOutside"))
                     {
-                        this.writeToOutside(packet);
+                        packet.writeToStream(this.outputStream);
                     }
+                    synchronized(this)
+                    {
+                        long sent=packet.size()-4;
+                        this.totalSent+=sent;
+                        this.lastSent=System.currentTimeMillis();
+                        this.proxyConnection.updateOut(sent);
+                        if (this.sendPackets.size()==0)
+                        {
+                            this.sendPacketsSize=0;
+                        }
+                        else
+                        {
+                            this.sendPacketsSize-=packet.size();
+                        }
+                     }
                 }
             }
             
@@ -147,6 +163,12 @@ import org.nova.tracing.TraceRunnable;
                     }
                 }
                 this.sendPackets.add(packet);
+                this.sendPacketsSize+=packet.size();
+                if (this.sendPacketsSize>=this.configuration.sendPacketsSize)
+                {
+                    throw new Exception("sendPacketsSize="+this.sendPacketsSize);
+                }
+                
                 this.notifyAll();
             }
         }
@@ -162,18 +184,6 @@ import org.nova.tracing.TraceRunnable;
             return this.port;
         }
 
-        private void writeToOutside(Packet proxyPacket) throws Throwable
-        {
-            proxyPacket.writeToStream(this.outputStream);
-            synchronized(this)
-            {
-                long sent=proxyPacket.size()-4;
-                this.totalSent+=sent;
-                this.lastSent=System.currentTimeMillis();
-                this.proxyConnection.updateOut(sent);
-            }
-        }
-        
         public long getCreated()
         {
             return this.created;
