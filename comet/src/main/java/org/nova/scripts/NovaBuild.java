@@ -162,7 +162,7 @@ public class NovaBuild extends Script
         }
         if (exedir!=null)
         {
-            CometUtils.exec(exedir,"jar -xf "+artifactJar+" "+artifact);
+            CometUtils.exec(exedir,"jar -xf "+sourcedir+"\\packages\\"+artifactJar);
         }
             
         if (aws!=null)
