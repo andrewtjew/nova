@@ -126,13 +126,13 @@ public class OutsideServer
     {
         int port=connection.getProxyConfiguration().outsideListenPort;
         ProxyConnection existing;
-        System.out.println("removeProxyConnection:"+connection.getRemoteSocketAddress());
+//        System.out.println("removeProxyConnection:"+connection.getRemoteSocketAddress());
         synchronized(this.proxyConnections)
         {
             existing=this.proxyConnections.get(port);
             if (existing!=null)
             {
-                System.out.println("removeProxyConnection:existing="+existing.getRemoteSocketAddress());
+//                System.out.println("removeProxyConnection:existing="+existing.getRemoteSocketAddress());
                 if (connection.getRemoteSocketAddress().equals(existing.getRemoteSocketAddress()))
                 {
                     this.proxyConnections.remove(port);
