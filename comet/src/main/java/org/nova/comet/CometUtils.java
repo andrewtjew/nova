@@ -19,59 +19,33 @@ public class CometUtils
     static public String incrementVersion(String version,long majorIncrement,long minorIncrement)
     {
         int index=version.lastIndexOf('.');
-        if (index==0)
+        if (index<=0)
         {
-            return version+"0.0";
+            version="0.0";
+            index=version.lastIndexOf('.');
         }
         String minor=version.substring(index+1);
-        long number=minorIncrement;
+        long minorNumber=minorIncrement;
         try
         {
-            number+=Long.parseLong(minor);
+            minorNumber+=Long.parseLong(minor);
         }
         catch (Throwable t)
         {
+            minorNumber=0;
         }
-        version=version.substring(0, index+1)+number;
-
-        number=majorIncrement;
-        if (index==0)
-        {
-            version=number+version;
-            return version;
-        }
-        int start=index-1;
-        char c=version.charAt(start);
-        if ((c<'0')||(c>'9'))
-        {
-            version=version.substring(0,index)+number+version.substring(index);
-            return version;
-        }
-        for (;;)
-        {
-            if (start==0)
-            {
-                break;
-            }
-            start--;
-            c=version.charAt(start);
-            if ((c<'0')||(c>'9'))
-            {
-                start++;
-                break;
-            }
-        }
-        String major=version.substring(start,index);
+        String major=version.substring(0,index);
+        long majorNumber=majorIncrement;
         try
         {
-            number+=Long.parseLong(major);
+            majorNumber+=Long.parseLong(major);
         }
         catch (Throwable t)
         {
+            majorNumber=0;
         }
-        version=version.substring(0, start)+number+version.substring(index);
+        version=majorNumber+"."+minorNumber;
         return version;
-        
     }
 
     static public String exec(String directory,String command,boolean out) throws Exception

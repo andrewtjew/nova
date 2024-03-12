@@ -121,7 +121,7 @@ import org.nova.tracing.TraceRunnable;
                     }
                     if (read<0)
                     {
-                        System.out.println("Outside:close,removeOutsideConnection,port="+port);
+//                        System.out.println("Outside:close,removeOutsideConnection,port="+port);
 //                        this.proxyConnection.sendToInside(packet);
                         this.proxyConnection.removeAndCloseOutsideConnection(this.port);
                         break;
@@ -141,7 +141,7 @@ import org.nova.tracing.TraceRunnable;
             }
             catch (Throwable t)
             {
-                System.out.println("Outside:exception,removeOutsideConnection,port="+port);
+//                System.out.println("Outside:exception,removeOutsideConnection,port="+port);
                 ProxyConfiguration proxyConfiguration=this.proxyConnection.getProxyConfiguration();
                 parent.setDetails("InsideName="+proxyConfiguration.insideName+",outsideListenPort="+proxyConfiguration.outsideListenPort+",port="+this.port);
                 parent.close(t);
@@ -154,20 +154,23 @@ import org.nova.tracing.TraceRunnable;
             long now=System.currentTimeMillis();
             synchronized(this)
             {
-                if (this.sending!=null)
+                if (this.configuration.outsideSendTimeout>=0)
                 {
-                    long span=now-this.sending;
-                    if (span>this.configuration.outsideSendTimeout)
+                    if (this.sending!=null)
                     {
-                        System.out.println("Outside:Timeout");
-                        throw new Exception("SendTimeout");
+                        long span=now-this.sending;
+                        if (span>this.configuration.outsideSendTimeout)
+                        {
+    //                        System.out.println("Outside:Timeout");
+                            throw new Exception("SendTimeout");
+                        }
                     }
                 }
                 this.sendPackets.add(packet);
                 this.sendPacketsSize+=packet.size();
-                if (this.sendPacketsSize>=this.configuration.sendPacketsSize)
+                if ((this.configuration.sendPacketsSize>=0)&&(this.sendPacketsSize>=this.configuration.sendPacketsSize))
                 {
-                    System.out.println("Outside:SendpacketSize,queue="+this.sendPackets.size());
+  //                  System.out.println("Outside:SendpacketSize,queue="+this.sendPackets.size());
                     throw new Exception("sendPacketsSize="+this.sendPacketsSize);
                 }
                 
