@@ -58,7 +58,7 @@ public class FileDownloader extends ServletHandler
     {
         this.cache.clear();
     }
-    static public boolean DEBUG=true;
+    static public boolean DEBUG=false;
 
     final private HashSet<String> doNotCompressFileExtensions;
     final private ExtensionToContentTypeMappings mappings;
