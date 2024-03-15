@@ -7,7 +7,7 @@ import org.nova.comet.SshSession;
 
 import com.google.common.io.Files;
 
-public class MiraBuild extends Script
+public class NovaBuild extends Script
 {
     @Override
     public void run(String[] args) throws Throwable
@@ -116,8 +116,8 @@ public class MiraBuild extends Script
                     CometUtils.exec("c:\\wd\\nova\\core","mvn clean install");
                     CometUtils.exec("c:\\wd\\nova\\components","mvn clean install");
                     CometUtils.exec("c:\\wd\\nova\\services","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\xp","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
+//                    CometUtils.exec("c:\\wd\\nova\\xp","mvn clean install");
+//                    CometUtils.exec("c:\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
                 }
                 CometUtils.deleteFile(jarDest);
                 CometUtils.exec(sourcedir+artifact,"mvn clean install");
@@ -159,6 +159,10 @@ public class MiraBuild extends Script
                  CometUtils.exec(sourcedir,"git commit -m \""+artifact+" package build version: "+buildVersion+"\"");
     //            CometUtils.exec(sourceDir,"git push");
             }
+        }
+        if (exedir!=null)
+        {
+            CometUtils.exec(exedir,"jar -xf "+sourcedir+"\\packages\\"+artifactJar);
         }
             
         if (aws!=null)

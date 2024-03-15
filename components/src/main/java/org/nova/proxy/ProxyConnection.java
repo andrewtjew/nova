@@ -104,7 +104,7 @@ class ProxyConnection implements TraceRunnable
                 this.inputStream=socket.getInputStream();
                 this.outputStream=socket.getOutputStream();
 
-                try (Trace readHeaderTrace=parent.newChild("ProxyHeader"))
+                try (Trace readHeaderTrace=new Trace(parent,"ProxyHeader"))
                 {
                     byte[] lengthBytes=new byte[4];
                     Packet.read(this.inputStream, lengthBytes, 0, 4);
@@ -159,6 +159,10 @@ class ProxyConnection implements TraceRunnable
                         sendToOutside(trace,proxyPacket);
                     }
                 }
+            }
+            catch (Throwable t)
+            {
+                parent.close(t);
             }
             finally
             {

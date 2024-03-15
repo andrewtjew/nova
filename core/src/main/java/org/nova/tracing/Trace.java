@@ -381,10 +381,10 @@ public class Trace implements AutoCloseable
 	    return null;
 	}
 	
-	public Trace newChild(String category)
-	{
-	    return new Trace(this.traceManager,this,category);
-	}
+//	public Trace newChild(String category)
+//	{
+//	    return new Trace(this.traceManager,this,category);
+//	}
 	
 	
 }
