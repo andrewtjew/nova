@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.core;
 
-public interface Condition
-{
-	public void set();
-}
+//public interface Condition
+//{
+//	public void set();
+//}
