@@ -627,26 +627,38 @@ public class FilterChain
 						if (info.getAnnotation() instanceof CookieStateParam)
 						{   
 						    CookieStateParam cookieStateParam=(CookieStateParam)info.getAnnotation();
-						    if (cookieStateParam.save())
+						    if (cookieStateParam.add())
 						    {
     	                        String value=ObjectMapper.writeObjectToString(parameters[i]);
     	                        value=URLEncoder.encode(value,"UTF-8");
     	                        String name=info.getName();
     	                        Cookie cookie=new Cookie(name, value);
-    	                        Integer maxAge=cookieMaxAgeMap.get(info.getName());
-    	                        if (maxAge==null)
+
+//    	                        Integer maxAge=cookieMaxAgeMap.get(info.getName());
+//    	                        if (maxAge==null)
+//    	                        {
+//    	                            int cookieMaxAge=cookieStateParam.maxAge();
+//    	                            if (cookieMaxAge>-1)
+//    	                            {
+//    	                                maxAge=cookieMaxAge;
+//    	                                cookieMaxAgeMap.put(name, maxAge);
+//    	                            }
+//    	                        }
+//    	                        if (maxAge!=null)
+//                                {
+//                                    cookie.setMaxAge(maxAge);
+//                                }
+
+    	                        Integer maxAge=cookieStateParam.maxAge();
+    	                        if (maxAge<0)
     	                        {
-    	                            int cookieMaxAge=cookieStateParam.maxAge();
-    	                            if (cookieMaxAge>-1)
-    	                            {
-    	                                maxAge=cookieMaxAge;
-    	                                cookieMaxAgeMap.put(name, maxAge);
-    	                            }
+                                    maxAge=cookieMaxAgeMap.get(info.getName());
     	                        }
                                 if (maxAge!=null)
                                 {
                                     cookie.setMaxAge(maxAge);
                                 }
+
     	                        cookie.setPath(cookieStateParam.path());
     	                        servletResponse.addCookie(cookie);
 						    }

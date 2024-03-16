@@ -139,14 +139,16 @@ public class ConfigurationReader
                 checkError(lexeme);
     
                 character=scanner.skipWhiteSpaceAndBegin();
-                if (character == '{')
+                if ((character == '{')||(character=='['))
                 {
-                    lexeme=scanner.produceEnclosedJSONText('{', '}');
+                    scanner.revert();
+                    lexeme=scanner.produceJSONLikeText();
                 }
-                else if (character == '[')
-                {
-                    lexeme=scanner.produceEnclosedJSONText('[', ']');
-                }
+//                else if (character == '[')
+//                {
+//                    scanner.revert();
+//                    lexeme=scanner.produceEnclosedJSONText();
+//                }
                 else if (character==0)
                 {
                     lexeme=scanner.produceEnd();

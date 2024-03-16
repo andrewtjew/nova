@@ -33,8 +33,12 @@ public class InputCheckbox extends InputComponent<InputCheckbox>
     {
         return attr("checked");
     }
-    public InputCheckbox checked(boolean checked)
+    public InputCheckbox checked(Boolean checked)
     {
+        if (checked==null)
+        {
+            return this;
+        }
         if (checked)
         {
             attr("checked");

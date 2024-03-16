@@ -33,7 +33,7 @@ public @interface CookieStateParam
     static final int MAX_AGE=34560000;
     
 	String value();
-    boolean save() default true;
+    boolean add() default false;
     String path() default "/";
     int maxAge() default -1;
 }

@@ -260,6 +260,10 @@ public class Utils
         StringBuilder sb=new StringBuilder();
         for (String item:items)
         {
+            if (item==null)
+            {
+                continue;
+            }
             if (sb.length()>0)
             {
                 sb.append(seperator);

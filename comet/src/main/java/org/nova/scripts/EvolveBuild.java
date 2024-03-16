@@ -68,14 +68,14 @@ public class EvolveBuild extends Script
             System.err.println("no artificat");
             return;
         }
-
+        //---- End of args processing -----------------------------------------------------------
+        
         String mvnJar = artifact + "-" + version + ".jar";
         String destJar=artifact+".jar";
         String package_=sourceDir+artifact+"\\"+artifact;
         String destDir = sourceDir+artifact+"\\target\\"+mvnJar;
         if (noBuild==false)
         {
-            
             if (noLibs==false)
             {
                 CometUtils.exec("c:\\dependencies\\nova\\core","mvn clean install");
@@ -100,7 +100,7 @@ public class EvolveBuild extends Script
             CometUtils.copyFile(destDir,package_+"\\"+destJar);
             CometUtils.cloneDirectory(sourceDir+"\\resources",package_+"\\resources");
             CometUtils.copyDirectory(sourceDir+artifact+"\\resources",package_+"\\resources");
-            CometUtils.deleteDirectory(package_+"\\resources\\client\\games");
+//            CometUtils.deleteDirectory(package_+"\\resources\\client\\games");
             CometUtils.copyDirectory(sourceDir+artifact+"\\etc",package_+"\\etc");
             CometUtils.copyDirectory(sourceDir+"\\testcerts",package_+"\\testcerts");
             String buildVersion=CometUtils.exec(sourceDir,"git describe --tags --abbrev=0");
