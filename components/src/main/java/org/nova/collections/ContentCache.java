@@ -192,6 +192,10 @@ abstract public class ContentCache<KEY,VALUE>
 	public VALUE fill(Trace parent,KEY key) throws Throwable
 	{
 		ValueSize<VALUE> valueSize=load(parent,key);
+		if (valueSize==null)
+		{
+		    return null;
+		}
 		VALUE value=put(parent,key,valueSize);
         if (Debugging.ENABLE)
         {

@@ -5,18 +5,18 @@ import java.util.Comparator;
 
 public class GraphObjectDescriptor
 {
-    final FieldDescriptor[] columnAccessors;
+    final FieldDescriptor[] fieldDescriptors;
     final private GraphObjectType graphObjectType;
     final private String tableName;
     final private String typeName;
     final private Class<? extends NodeObject> type;
     
-    GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] columnnAccessors)
+    GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
     {
         this.type=type;
         this.graphObjectType=graphObjectType;
         
-        Arrays.sort(columnnAccessors,new Comparator<FieldDescriptor>()
+        Arrays.sort(fieldDescriptors,new Comparator<FieldDescriptor>()
         {
             @Override
             public int compare(FieldDescriptor o1, FieldDescriptor o2)
@@ -24,7 +24,7 @@ public class GraphObjectDescriptor
                 return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
             }
         });
-        this.columnAccessors=columnnAccessors;
+        this.fieldDescriptors=fieldDescriptors;
         this.typeName=typeName;
         this.tableName='`'+typeName+'`';
     }
@@ -35,7 +35,7 @@ public class GraphObjectDescriptor
     }
     public FieldDescriptor[] getColumnAccessors()
     {
-        return this.columnAccessors;
+        return this.fieldDescriptors;
     }
 //    String getTableAlias()
 //    {

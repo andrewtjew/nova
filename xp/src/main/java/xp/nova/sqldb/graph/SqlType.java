@@ -29,6 +29,14 @@ public class SqlType
         }
         return TypeUtils.equals(this.length, length);
     }
+    public String getType()
+    {
+        if (this.length!=null)
+        {
+            return this.name+"("+this.length+")";
+        }
+        return this.name;
+    }
     public Long getLength()
     {
         return this.length;

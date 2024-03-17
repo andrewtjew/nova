@@ -695,10 +695,10 @@ public class Graph
 
     public void setDebugUpgradeWatchType(Class<? extends NodeObject> debugUpgradeWatchType)
     {
-        this.debugUpgradeWatchType=debugUpgradeWatchType;
+        this.debugUpgradeType=debugUpgradeWatchType;
     }
 
-    Class<? extends NodeObject> debugUpgradeWatchType;
+    Class<? extends NodeObject> debugUpgradeType;
 
     public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends NodeObject> type) throws Throwable
     {
@@ -717,7 +717,7 @@ public class Graph
             {
             	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
             }
-            for (FieldDescriptor columnAccessor:descriptor.columnAccessors)
+            for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
                 if (columnAccessor.isInternal())
                 {
@@ -766,19 +766,23 @@ public class Graph
                 orderedRows[position-1]=row;
             }
             
+            boolean debug=this.debugUpgradeType==type;
             
-            
-            while (fieldIndex<descriptor.columnAccessors.length)
+            while (fieldIndex<descriptor.fieldDescriptors.length)
             {
-                FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
-                if (columnAccessor.isInternal())
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                if (fieldDescriptor.isInternal())
                 {
                     fieldIndex++;
                     rowIndex++;
                     continue;
                 }
-                String fieldName=columnAccessor.getName();
-                SqlType fieldSqlType=columnAccessor.getSqlType();
+                String fieldName=fieldDescriptor.getName();
+                SqlType fieldSqlType=fieldDescriptor.getSqlType();
+                if (debug)
+                {
+                    System.out.println("Field:"+fieldSqlType.getType()+" "+fieldName);
+                }
                 if (rowIndex<rowSet.size())
                 {
                     Row row=orderedRows[rowIndex];
