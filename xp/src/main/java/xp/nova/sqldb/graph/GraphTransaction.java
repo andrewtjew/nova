@@ -98,16 +98,16 @@ public class GraphTransaction implements AutoCloseable
         //OPTIMIZE: build insert or update based on state in DB. Current insert and update are both built, then one is not used.
         object._nodeId=nodeId;
         Class<? extends NodeObject> type=object.getClass();
-        GraphObjectDescriptor meta=this.graph.register(type);
-        String table=meta.getTableName();
-        FieldDescriptor[] columnAccessors=meta.getColumnAccessors();
+        GraphObjectDescriptor descriptor=this.graph.register(type);
+        String table=descriptor.getTableName();
+        FieldDescriptor[] columnAccessors=descriptor.getColumnAccessors();
 
         StringBuilder insert=new StringBuilder();
         StringBuilder update=new StringBuilder();
         StringBuilder values=new StringBuilder();
 
         int length=columnAccessors.length;
-        if (meta.getObjectType()==GraphObjectType.NODE)
+        if (descriptor.getObjectType()==GraphObjectType.NODE)
         {
             length++; 
         }
@@ -148,9 +148,9 @@ public class GraphTransaction implements AutoCloseable
         if (rowSet.size()==0)
         {
             String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
-            if (Graph.TEST)
+            if (Graph.DEBUG)
             {
-                Debugging.log(sql);
+                Debugging.log("Graph",sql);
             }
             if (object instanceof IdentityNodeObject)
             {
@@ -169,9 +169,9 @@ public class GraphTransaction implements AutoCloseable
         {
             String sql="UPDATE "+table+" SET "+update+" WHERE _nodeId=?";
             accessor.executeUpdate(parent, null, sql, updateParameters);
-            if (Graph.TEST)
+            if (Graph.DEBUG)
             {
-                Debugging.log(sql);
+                Debugging.log("Graph",sql);
             }
         }
         else

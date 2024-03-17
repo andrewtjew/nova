@@ -26,7 +26,7 @@ import org.nova.utils.TypeUtils;
 
 public class Graph
 {
-    static final boolean TEST=true;
+    static final boolean DEBUG=true;
     
     private int defaultVARCHARLength=45;
     
@@ -605,8 +605,6 @@ public class Graph
                     this.relationNodeObjectMap.put((Class<? extends Relation_>)argument, (Class<? extends RelationNodeObject<?>>)type);
                 }
             }
-                
-
             
             HashMap<String, FieldDescriptor> map = new HashMap<String, FieldDescriptor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
@@ -694,7 +692,13 @@ public class Graph
     {
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
     }
-    
+
+    public void setDebugUpgradeWatchType(Class<? extends NodeObject> debugUpgradeWatchType)
+    {
+        this.debugUpgradeWatchType=debugUpgradeWatchType;
+    }
+
+    Class<? extends NodeObject> debugUpgradeWatchType;
 
     public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends NodeObject> type) throws Throwable
     {
@@ -731,24 +735,25 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (TEST)
+            if (DEBUG)
             {
-                Debugging.log(sql);
+                Debugging.log("Graph",sql);
             }
             accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
         }
         else
         {
+            
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
             String after="_eventId";
             Stack<String> alters=new Stack<String>();
 
-            if (Graph.TEST)
+            if (Graph.DEBUG)
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
-                    Debugging.log("Catalog="+catalog+", type="+type.getSimpleName());
+                    Debugging.log("Graph","Catalog="+catalog+", type="+type.getSimpleName());
                 }
             }
             int rowIndex=0;
@@ -760,6 +765,9 @@ public class Graph
                 int position=(int)row.getBIGINT("ORDINAL_POSITION");
                 orderedRows[position-1]=row;
             }
+            
+            
+            
             while (fieldIndex<descriptor.columnAccessors.length)
             {
                 FieldDescriptor columnAccessor=descriptor.columnAccessors[fieldIndex];
@@ -814,9 +822,9 @@ public class Graph
                         if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
-                            if (TEST)
+                            if (DEBUG)
                             {
-                                Debugging.log("Unused column: columnName="+columnName+", table="+table);
+                                Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
                             }
                             continue;
                         }
@@ -838,9 +846,9 @@ public class Graph
                     
                 }
                 sql.append(';');
-                if (TEST)
+                if (DEBUG)
                 {
-                    Debugging.log(sql);
+                    Debugging.log("Graph",sql);
                 }
                 accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
             }

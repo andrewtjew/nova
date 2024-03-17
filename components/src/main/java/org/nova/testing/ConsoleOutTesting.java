@@ -8,9 +8,20 @@ public class ConsoleOutTesting extends Debugging
     
     
     @Override
-    public void _log(LogLevel logLevel,Object object)
+    public void _log(LogLevel logLevel,String category,Object object)
     {
-        System.out.println(object);
+        switch (logLevel)
+        {
+            case ERROR:
+            case WARNING:
+            System.err.println(category+":"+object);
+            break;
+
+            default:
+            System.out.println(category+":"+object);
+            break;
+            
+        }
     }
 
 }

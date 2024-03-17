@@ -3,6 +3,7 @@ package xp.nova.sqldb.graph;
 import org.nova.html.tags.pre;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.RowSet;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 import xp.nova.sqldb.graph.Query.PreparedQuery;
@@ -39,8 +40,6 @@ public class GraphAccessor implements AutoCloseable
         String table=descriptor.getTableName();
         return accessor.executeQuery(parent,null,"SELECT count(*) FROM "+table+" WHERE "+where,parameters).getRow(0).getBIGINT(0);
     }
-    
-    static final private boolean TEST=true;
     
     static void translateParameters(Object[] parameters)
     {
@@ -90,9 +89,9 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (TEST)
+        if (Graph.DEBUG)
         {
-            System.out.println(sql);
+            Debugging.log("Graph",sql);
         }
         if (parameters != null)
         {
