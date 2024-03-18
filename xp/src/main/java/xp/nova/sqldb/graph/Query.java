@@ -14,6 +14,7 @@ public class Query
     Object[] parameters;
     String orderBy;
     Integer limit;
+    Integer offset;
     
     private ArrayList<LinkQuery> linkQueries;
 
@@ -44,6 +45,12 @@ public class Query
     public Query limit(int limit)
     {
         this.limit=limit;
+        return this;
+    }
+    public Query limit(int limit,int offset)
+    {
+        this.limit=limit;
+        this.offset=offset;
         return this;
     }
 
@@ -410,7 +417,14 @@ public class Query
         }
         if (this.limit!=null)
         {
-            preparedQuery.limit=" LIMIT "+this.limit;
+            if (this.offset!=null)
+            {
+                preparedQuery.limit=" LIMIT "+this.limit+" OFFSET "+this.offset;
+            }
+            else
+            {
+                preparedQuery.limit=" LIMIT "+this.limit;
+            }
         }
         preparedQuery.startType=state.startType;
         this.preparedQuery=preparedQuery;
