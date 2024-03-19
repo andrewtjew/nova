@@ -4921,6 +4921,7 @@ public class ServerOperatorPages
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
         .add("Base Directory",this.serverApplication.getBaseDirectory())
         .add("SAFE_ESCAPE",Text.SAFE_ESCAPE)
+        .add("Debugging.ENABLE",Debugging.ENABLE)
         .add("OS",System.getProperty("os.name"));
      
         try
