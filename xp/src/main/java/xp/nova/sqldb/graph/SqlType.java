@@ -66,6 +66,6 @@ public class SqlType
         {
             return false;
         }
-        return length>this.length;
+        return length<this.length;
     }
 }

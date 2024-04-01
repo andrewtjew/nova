@@ -194,6 +194,10 @@ public class GraphTransaction implements AutoCloseable
                 .execute(parent, this.accessor);
         return nodeId;
     }
+    public <FROM extends RelationNodeObject<RELATION>,RELATION extends Relation_> long link(FROM fromNode,RELATION relation,long toNodeId) throws Throwable
+    {
+        return link(fromNode.getNodeId(),relation.getValue(),toNodeId);
+    }
     public <FROM extends RelationNodeObject<RELATION>,RELATION extends Relation_> long link(FROM fromNode,RELATION relation,NodeObject toNode) throws Throwable
     {
         return link(fromNode.getNodeId(),relation.getValue(),toNode.getNodeId());

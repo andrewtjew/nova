@@ -806,7 +806,7 @@ public class Graph
                         {
                             if (fieldSqlType.isLengthAcceptable(length)==false)
                             {
-                                throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", db type="+dataType);
+                                throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", field length="+fieldSqlType.getLength()+", db type="+dataType+", db length="+length);
                             }
                             alters.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
                         }
