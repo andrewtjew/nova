@@ -66,17 +66,17 @@ public class MathUtils
         double sumDeviationSquared=sumDeviationSquared(values,average);
         return Math.sqrt(sumDeviationSquared/(values.length-1));
     }
-    public static double populationStandardDeviation(double[] values,double average)
-    {
-        double sumDeviationSquared=sumDeviationSquared(values,average);
-        return Math.sqrt(sumDeviationSquared/(values.length));
-    }
-    public static double populationStandardDeviation(double[] values)
-    {
-        double average=average(values);
-        double sumDeviationSquared=sumDeviationSquared(values,average);
-        return Math.sqrt(sumDeviationSquared/(values.length));
-    }
+//    public static double populationStandardDeviation(double[] values,double average)
+//    {
+//        double sumDeviationSquared=sumDeviationSquared(values,average);
+//        return Math.sqrt(sumDeviationSquared/(values.length));
+//    }
+//    public static double populationStandardDeviation(double[] values)
+//    {
+//        double average=average(values);
+//        double sumDeviationSquared=sumDeviationSquared(values,average);
+//        return Math.sqrt(sumDeviationSquared/(values.length));
+//    }
     
 }
 

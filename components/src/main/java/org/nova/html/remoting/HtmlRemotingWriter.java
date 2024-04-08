@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import org.nova.http.server.ContentWriter;
 import org.nova.http.server.Context;
 
+@Deprecated
 public class HtmlRemotingWriter extends ContentWriter
 {
 	public HtmlRemotingWriter() throws Exception
