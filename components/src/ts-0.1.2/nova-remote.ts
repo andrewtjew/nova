@@ -268,10 +268,11 @@ namespace nova.remote
         return JSON.stringify({success:returnSuccess,result:returnResult});
     }
 
-    export async function submit(event:Event)
+    export async function submit(event:Event,formId:string=null)
     {
         event.preventDefault();
-        let form=event.currentTarget as HTMLFormElement;
+        let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
+//        let form=event.currentTarget as HTMLFormElement;
         let data=new FormData(form);
         let params=new URLSearchParams();
         for (let pair in data)
@@ -331,6 +332,7 @@ namespace nova.remote
         let params=new URLSearchParams();
         for (const pair of data)
         {
+            console.log(pair[0]+"="+pair[1]);
             params.append(pair[0],pair[1].toString());
         }
 

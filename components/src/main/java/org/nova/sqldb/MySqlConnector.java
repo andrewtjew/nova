@@ -109,7 +109,7 @@ public class MySqlConnector extends Connector
 		this.pool.initialize(accessors);
 	}
 
-	final static private boolean TEST=true; 
+	final static private boolean TEST=false; 
 	@Override
 	protected Connection createConnection() throws Throwable
 	{
@@ -117,7 +117,7 @@ public class MySqlConnector extends Connector
 	    String connectionString=this.buildConnectionString();
 	    if (TEST)
 	    {
-	    	Debugging.log(null, connectionString);
+	    	Debugging.log("MySqlConnector", connectionString);
 	    }
 	    	
 	    //"jdbc:mysql://localhost:3306/YourDBName";

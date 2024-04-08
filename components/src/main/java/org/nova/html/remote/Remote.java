@@ -11,17 +11,17 @@ public class Remote
     {
         return HtmlUtils.js_call("nova.remote.getStatic",action);             
     }
-	public static String js_postStatic(String action) throws Throwable
-	{
-		return HtmlUtils.js_call("nova.remote.postStatic",action,null);				
-	}
+    public static String js_postStatic(String action) throws Throwable
+    {
+        return HtmlUtils.js_call("nova.remote.postStatic",action,null);             
+    }
     public static String js_postStatic(String action,ObjectMap objectMap) throws Throwable
     {
         String data=ObjectMapper.writeObjectToString(objectMap);
         return HtmlUtils.js_call("nova.remote.postStatic",action,data);             
     }
-//    public static String js_postForm(FormElement<?> form,String action) throws Throwable
-//    {
-//        return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);             
-//    }
+    public static String js_postFormUrlEncoded(FormElement<?> form,String action) throws Throwable
+    {
+        return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);             
+    }
 }

@@ -212,7 +212,6 @@ public class GraphTransaction implements AutoCloseable
         return link(fromNodeId,relation.getValue(),toNode.getNodeId());
     }
     
-    
     public int deleteLinks(Direction direction,long nodeId) throws Throwable
     {
         if (direction==Direction.FROM)
@@ -224,7 +223,6 @@ public class GraphTransaction implements AutoCloseable
             return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
         }
     }
-
 
     public int deleteLinks(long fromNodeId,Relation_ relation) throws Throwable
     {
@@ -240,15 +238,20 @@ public class GraphTransaction implements AutoCloseable
 //        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND type=? and relation=?",fromNodeId,toNodeId,typeName,relation.getValue());
     }
 
+    public <FROM extends RelationNodeObject<RELATION>,RELATION extends Relation_> int deleteLink(FROM fromNode,RELATION relation,long toNodeId) throws Throwable
+    {
+        return deleteLink(fromNode.getNodeId(),relation.getValue(),toNodeId);
+    }
+
     private int deleteLink(long fromNodeId,Integer relationValue,long toNodeId) throws Throwable
     {
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
     }
 
-    public int deleteLinks(long fromNodeId,long toNodeId) throws Throwable
-    {
-        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
-    }
+//    public int deleteLinks(long fromNodeId,long toNodeId) throws Throwable
+//    {
+//        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
+//    }
 
     public int delete(QueryResultSet set,Class<? extends NodeObject> type) throws Throwable
     {

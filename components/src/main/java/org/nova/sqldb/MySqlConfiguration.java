@@ -25,7 +25,7 @@ public class MySqlConfiguration
 {
     String default_host="localhost";
     static int default_port=3306;
-    static int default_poolSize=2;
+    static int default_poolSize=10;
     static long default_connectionKeepAlive=3600*1000;
     static long default_maximumRecentlyUsedCount=1000;
 
