@@ -260,7 +260,7 @@ public class Utils
         StringBuilder sb=new StringBuilder();
         for (String item:items)
         {
-            if (item==null)
+            if (TypeUtils.isNullOrEmpty(item))
             {
                 continue;
             }
