@@ -199,9 +199,9 @@ public class Query
             if (linkQuery.linkTypes != null)
             {
                 String on = " ON " + linkAlias + ".nodeId=";
-                for (int i = 0; i < linkQuery.nodeTypes.length; i++)
+                for (int i = 0; i < linkQuery.linkTypes.length; i++)
                 {
-                    Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
+                    Class<? extends NodeObject> type = linkQuery.linkTypes[i];
                     GraphObjectDescriptor descriptor = state.graph.register(type);
                     state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
