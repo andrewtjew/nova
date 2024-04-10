@@ -30,7 +30,7 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
     {
         public TableRow()
         {
-            super("tr","table",true);
+            super("tr",null,true);
         }
         
         public TableRow addWithStyle(StyleTemplate template,Object...objects)
@@ -74,7 +74,7 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
 
     public TableHeadRow()
     {
-        super("tr","table",true);
+        super("tr",null,true);
     }
     
     public TableHeadRow addWithStyle(StyleTemplate template,Object...objects)
@@ -103,13 +103,13 @@ public class TableHeadRow extends StyleComponent<TableHeadRow>
             if (object instanceof TagElement<?>)
             {
                 TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("td"))
+                if (tagElement.getTag().equals("th"))
                 {
                     addInner(tagElement);
                     continue;
                 }
             }
-            addInner(new TableData().addInner(object));
+            addInner(new th().addInner(object));
         }
         return this;
     }
