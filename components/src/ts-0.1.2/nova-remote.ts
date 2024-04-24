@@ -191,7 +191,7 @@ namespace nova.remote
         }); 
     }
 
-    export async function getInnerHTML(pathAndQuery:string,id:string)
+    export async function getRemote(pathAndQuery:string,id:string)
     {
         return await fetch(pathAndQuery,
             {

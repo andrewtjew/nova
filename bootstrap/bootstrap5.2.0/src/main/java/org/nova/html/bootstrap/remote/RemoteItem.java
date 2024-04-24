@@ -19,7 +19,7 @@ public class RemoteItem extends Item
 {
     public RemoteItem(String href,boolean showSpinner,String loadingMessage) throws Throwable
     {
-        returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getInnerHTML(href,id())));
+        returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(href,id())));
         
         Item item=new Item().text(StyleColor.info).p(2).d(Display.flex).justify_content(Justify.center);
         if (showSpinner)
