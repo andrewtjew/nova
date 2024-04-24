@@ -39,7 +39,7 @@ public class PathAndQuery
     }
     public PathAndQuery(String path) throws Throwable
     {
-        this(path,'?');
+        this(path,path.contains("?")?'&':'?');
     }
     public PathAndQuery() throws Throwable
     {

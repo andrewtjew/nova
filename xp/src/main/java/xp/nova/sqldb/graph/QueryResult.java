@@ -41,7 +41,21 @@ public class QueryResult
 
     public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type) throws Throwable
     {
-        return get(null,type);
+        return this.get(null,type);
+    }
+    
+    static public <OBJECT extends NodeObject> OBJECT get(String namespace,Class<OBJECT> type,QueryResult result) throws Throwable
+    {
+        if (result==null)
+        {
+            return null;
+        }
+        return result.get(namespace,type);
+    }
+
+    static public <OBJECT extends NodeObject> OBJECT get(Class<OBJECT> type,QueryResult result) throws Throwable
+    {
+        return QueryResult.get(null,type,result);
     }
 }
 
