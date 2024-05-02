@@ -538,9 +538,9 @@ public class HtmlUtils
                         sb.append("\\'");
                         break;
                         
-                    case '/':
-                        sb.append("\\/");
-                        break;
+//                    case '/':
+//                        sb.append("\\/");
+//                        break;
 
                     case '\\':
                         sb.append("\\\\");
@@ -622,6 +622,10 @@ public class HtmlUtils
     public static String js_element(String id)
     {
         return "document.getElementById('"+id+"')";
+    }  
+    public static String js_elementInnerHTML(String id,String text)
+    {
+        return "document.getElementById('"+id+"').innerHTML='"+text+"';";
     }  
     
     public static String js_new(String instanceName,String className,Object...parameters)

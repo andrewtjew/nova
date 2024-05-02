@@ -22,7 +22,7 @@ public class QueryResult
         GraphObjectDescriptor descriptor=this.map.get(typeName);
         if (descriptor==null)
         {
-            throw new Exception();
+            throw new Exception("Type not in query: type="+type.getCanonicalName()+", namespace="+namespace);
         }
 
         Long nodeId = row.getNullableBIGINT(typeName + "._nodeId");

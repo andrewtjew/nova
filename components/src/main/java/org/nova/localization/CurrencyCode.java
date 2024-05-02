@@ -10,7 +10,7 @@ public enum CurrencyCode
     EUR(new Currency_ISO_4217("Euro","EUR","978",2,"€")),
     GBP(new Currency_ISO_4217("Pound sterling","GBP","826",2,"£")),
     CNY(new Currency_ISO_4217("Renminbi","GBP","156",2,"¥")),
-    SGD(new Currency_ISO_4217(" Singapore dollar","SGD","702",2,"$")),
+    SGD(new Currency_ISO_4217("Singapore dollar","SGD","702",2,"$")),
     ;
     
     private Currency_ISO_4217 value;
