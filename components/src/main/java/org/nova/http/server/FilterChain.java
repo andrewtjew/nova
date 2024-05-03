@@ -52,6 +52,213 @@ public class FilterChain
     int contentParameterIndex=-1;
 
     
+    public static Object parseParameter(Class<?> type,String value) throws Exception 
+    {
+        try
+        {
+            if (type==String.class)
+            {
+                return value;
+            }
+            if (type==int.class)
+            {
+                if (value==null)
+                {
+                    return 0;//
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return 0;
+                }
+                return Integer.parseInt(value);
+            }
+            if (type==Integer.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Integer.parseInt(value);
+            }
+            if (type==long.class)
+            {
+                if (value==null)
+                {
+                    return 0L;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return 0L;
+                }
+                return Long.parseLong(value);
+            }
+            if (type==Long.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Long.parseLong(value);
+            }
+            if (type==short.class)
+            {
+                if (value==null)
+                {
+                    return (short)0;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return (short)0;
+                }
+                return Short.parseShort(value);
+            }
+            if (type==Short.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Short.parseShort(value);
+            }
+            if (type==float.class)
+            {
+                if (value==null)
+                {
+                    return 0.0f;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return 0.0f;
+                }
+                return Float.parseFloat(value);
+            }
+            if (type==Float.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Float.parseFloat(value);
+            }
+            if (type==double.class)
+            {
+                if (value==null)
+                {
+                    return 0.0;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return 0.0;
+                }
+                return Double.parseDouble(value);
+            }
+            if (type==Double.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Double.parseDouble(value);
+            }
+            if (type==boolean.class)
+            {
+                if (value==null)
+                {
+                    return false;
+                }
+                value=value.trim().toLowerCase();
+                if (value.length()==0)
+                {
+                    return false;
+                }
+                if ("on".equals(value))
+                {
+                    return true;
+                }
+                return "true".equals(value);
+            }
+            if (type==Boolean.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim().toLowerCase();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                if ("on".equals(value))
+                {
+                    return true;
+                }
+                return !("false".equals(value));
+            }
+            if (type.isEnum())
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Enum.valueOf((Class<Enum>)type, value);
+            }
+            if (type==BigDecimal.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return new BigDecimal(value);
+            }
+            return ObjectMapper.readObject(value, type);
+        }
+        catch (Throwable t)
+        {
+            throw new Exception("Error parsing parameter: type="+type.getCanonicalName()+", value="+value,t);
+        }
+    }
+
+    
     static HashMap<String,Integer> cookieMaxAgeMap=new HashMap<String, Integer>();
     
     FilterChain(RequestHandlerWithParameters methodResult)

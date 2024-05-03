@@ -62,8 +62,15 @@ public class RemoteResponse
     }
     public RemoteResponse innerHtml(String id,Element element)
     {
-        String text=element.getHtml();
-        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
+        if (element==null)
+        {
+            this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,null));
+        }
+        else
+        {
+            String text=element.getHtml();
+            this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
+        }
         return this;
     }
     public RemoteResponse clearInnerHtml(String id)

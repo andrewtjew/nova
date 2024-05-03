@@ -21,7 +21,7 @@ public class LinkQuery
     ArrayList<LinkQuery> linkQueries;
 //    boolean optional=false;
 
-    public <SUBJECT extends RelationNodeObject<RELATION>,RELATION extends Relation_> 
+    public <RELATION extends Relation_> 
     LinkQuery(Direction direction,RELATION relation)
     {
         this.direction=direction;

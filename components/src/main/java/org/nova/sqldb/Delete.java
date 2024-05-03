@@ -58,7 +58,7 @@ public class Delete
         {
             throw new Exception("Do not use without WHERE");
         }
-        StringBuilder sql=new StringBuilder("DELETE "+this.table+" WHERE "+this.whereExpression);
+        StringBuilder sql=new StringBuilder("DELETE FROM "+this.table+" WHERE "+this.whereExpression);
         if (this.whereParameters!=null)
         {
             return accessor.executeUpdate(parent, this.categoryOverride, this.whereParameters, sql.toString());

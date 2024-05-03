@@ -190,6 +190,26 @@ namespace nova.remote
             }
         }); 
     }
+
+    export async function getRemote(pathAndQuery:string,id:string)
+    {
+        return await fetch(pathAndQuery,
+            {
+                method:"GET",
+                headers: {'Content-Type': 'text/html'},
+            }).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.text();
+                }
+            })
+            .then((text:string)=>
+            {
+                document.getElementById(id).innerHTML=text;
+            });
+
+    }
     
     export async function getStatic(pathAndQuery:string,error:Function=null)
     {
@@ -230,7 +250,6 @@ namespace nova.remote
                 }
                 else if (error!=null)
                 {
-                    console.log("postStatic:error="+error);
                     if (error!=null)
                     {
                         error(error);

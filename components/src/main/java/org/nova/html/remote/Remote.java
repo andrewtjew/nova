@@ -11,6 +11,10 @@ public class Remote
     {
         return HtmlUtils.js_call("nova.remote.getStatic",action);             
     }
+    public static String js_getRemote(String href,String id) throws Throwable
+    {
+        return HtmlUtils.js_call("nova.remote.getRemote",href,id);             
+    }
     public static String js_postStatic(String action) throws Throwable
     {
         return HtmlUtils.js_call("nova.remote.postStatic",action,null);             

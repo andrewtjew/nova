@@ -24,6 +24,7 @@ package org.nova.http.client;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.nova.html.ext.JsObject;
 import org.nova.json.ObjectMapper;
 
 public class PathAndQuery
@@ -39,7 +40,7 @@ public class PathAndQuery
     }
     public PathAndQuery(String path) throws Throwable
     {
-        this(path,'?');
+        this(path,path.contains("?")?'&':'?');
     }
     public PathAndQuery() throws Throwable
     {
