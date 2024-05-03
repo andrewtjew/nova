@@ -509,4 +509,28 @@ public class SecurityUtils
         }
         return set.size();
     }
+    
+    public static boolean isGoodEmailAddress(String emailAddress)
+    {
+        if (emailAddress==null)
+        {
+            return false;
+        }
+        emailAddress=emailAddress.trim();
+        int atIndex=emailAddress.indexOf('@');
+        int dotIndex=emailAddress.indexOf('.');
+        if (atIndex<1)
+        {
+            return false;
+        }
+        if (dotIndex-atIndex<=2)
+        {
+            return false;
+        }
+        if (dotIndex==emailAddress.length()-1)
+        {
+            return false;
+        }
+        return true;
+    }
 }

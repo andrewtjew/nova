@@ -66,6 +66,11 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
         return this;
     }
+    public RemoteResponse clearInnerHtml(String id)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,null));
+        return this;
+    }
 //    public RemoteResponse innerHtml(String id,Object text)
 //    {
 //        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text.toString()));
