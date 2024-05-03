@@ -37,10 +37,16 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
         return this;
     }    
 
+    public String js_hideSpinner()
+    {
+        return HtmlUtils.js_property(this.spinner.id(), "style.display","none")+";"+
+                HtmlUtils.js_property(this.labelSpan.id(), "style.display","block")+";";
+    }    
+
     public SpinnerButton submit(FormElement<?> form)
     {
         this.onclick(HtmlUtils.js_submit(form));
-        form.onsubmit(                HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"+
+        form.onsubmit(HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"+
                 HtmlUtils.js_property(this.labelSpan.id(), "style.display","none")+";");
         return this;
     }

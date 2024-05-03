@@ -8,9 +8,9 @@ import org.nova.html.enums.enctype;
 
 public class RemoteForm extends RemoteFormElement<RemoteForm>
 {
-
     public RemoteForm()
     {
         super(true);
     }
+    
 }
