@@ -145,10 +145,10 @@ class RequestHandlerMap
 		return null;
 	}
 
-	void registerObject(String root, Object object, Transformers transformers) throws Throwable
+	void registerObject(String root, Object object, Class<?> objectType,Transformers transformers) throws Throwable
 	{
 		ClassAnnotations classAnnotations = new ClassAnnotations();
-		for (Class<?> classType=object.getClass();classType!=null;classType=classType.getSuperclass())
+		for (Class<?> classType=objectType;classType!=null;classType=classType.getSuperclass())
 		{
 		    if (Modifier.isPublic(classType.getModifiers())==false)
 		    {
@@ -195,7 +195,7 @@ class RequestHandlerMap
                 }
     		}
 		}
-		for (Method method : object.getClass().getMethods())
+		for (Method method : objectType.getMethods())
 		{
 			registerMethod(root, object, method, new ClassAnnotations(classAnnotations), transformers);
 		}
@@ -353,16 +353,16 @@ class RequestHandlerMap
 	    }
 	}
 
-	private void rejectDefaultValueAndRequired(Object object,Method method,Parameter parameter,DefaultValue defaultValue,Required required) throws Exception
+	private void rejectDefaultValueAndRequired(Class<?> objectType,Method method,Parameter parameter,DefaultValue defaultValue,Required required) throws Exception
 	{
         if (defaultValue != null)
         {
-            throw new Exception("@DefaultValue not allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+            throw new Exception("@DefaultValue not allowed for parameter "+parameter.getName()+" in "+objectType.getCanonicalName() + "."
                     + method.getName());
         }
         if (required != null)
         {
-            throw new Exception("@Required not allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+            throw new Exception("@Required not allowed for parameter "+parameter.getName()+" in "+objectType.getCanonicalName() + "."
                     + method.getName());
         }
 	    
@@ -370,6 +370,7 @@ class RequestHandlerMap
 	
 	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Throwable
 	{
+	    Class<?> objectType=method.getDeclaringClass().getClass();
 		String httpMethod = null;
 		int verbs = 0;
 		Path classPath=handlerAnnotations.path;
@@ -468,7 +469,7 @@ class RequestHandlerMap
 		}
 		if (verbs > 1)
 		{
-			throw new Exception("Multiple Http verbs. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+			throw new Exception("Multiple Http verbs. Site=" + objectType.getCanonicalName() + "." + method.getName());
 		}
 
 		// filters
@@ -492,13 +493,14 @@ class RequestHandlerMap
 					}
 					else
 					{
-						throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+						throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + objectType.getCanonicalName() + "." + method.getName());
 					}
 				}
 			}
 		}
 
 		// parameters
+		ContentReaders contentReaders=handlerAnnotations.contentReaders;
 		ArrayList<ParameterInfo> parameterInfos = new ArrayList<ParameterInfo>();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		Parameter[] parameters=method.getParameters();
@@ -537,9 +539,9 @@ class RequestHandlerMap
                 }
 				else if (type == ContentParam.class)
 				{
-					if (handlerAnnotations.contentReaders == null)
+					if (contentReaders == null)
 					{
-						throw new Exception("Need @ContentReaders for @ContentParam "+parameter.getName()+" for method " + object.getClass().getCanonicalName() + "." + method.getName());
+						throw new Exception("Need @ContentReaders for @ContentParam "+parameter.getName()+" for method " + objectType.getCanonicalName() + "." + method.getName());
 					}
 					contentParam = (ContentParam) annotation;
 				}
@@ -626,7 +628,7 @@ class RequestHandlerMap
             }
 			if (params.size() > 1)
 			{
-				throw new Exception("Only one param annotation allowed. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+				throw new Exception("Only one param annotation allowed. Site=" + objectType.getCanonicalName() + "." + method.getName());
 			}
 //			else if (params.size() == 0)
 //			{
@@ -640,29 +642,29 @@ class RequestHandlerMap
 			
             if (parameterType == Trace.class)
             {
-                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
                 parameterInfos.add(new ParameterInfo(ParameterSource.TRACE, null,parameter.getName(), parameterIndex, parameterType, null,true));
                 continue;
             }
 
 			if (parameterType == Context.class)
 			{
-                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
 				parameterInfos.add(new ParameterInfo(ParameterSource.CONTEXT, null, parameter.getName(), parameterIndex, parameterType, null,true));
 			}
             else if (parameterType==Queries.class)
             {
-                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
                 parameterInfos.add(new ParameterInfo(ParameterSource.QUERIES, null, parameter.getName(), parameterIndex, parameterType, null, true));
             }
 			else if (contentParam != null)
 			{
-                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
 				parameterInfos.add(new ParameterInfo(ParameterSource.CONTENT, contentParam, parameter.getName(), parameterIndex, parameterType,null,true));
 			}
 			else if (stateParam != null)
 			{
-                rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
 				parameterInfos.add(new ParameterInfo(ParameterSource.STATE, stateParam, parameter.getName(), parameterIndex, parameterType, null,true));
 			}
 			else if (cookieParam != null)
@@ -680,7 +682,7 @@ class RequestHandlerMap
 			{
 				if (isSimpleParameterType(parameterType) == false)
 				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+					throw new Exception("Only simple types allowed for parameter. Site=" + objectType.getCanonicalName() + "." + method.getName());
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
@@ -699,7 +701,7 @@ class RequestHandlerMap
 			{
 				if (isSimpleParameterType(parameterType) == false)
 				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+					throw new Exception("Only simple types allowed for parameter. Site=" + objectType.getCanonicalName() + "." + method.getName());
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.HEADER, headerParam, headerParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
@@ -713,10 +715,10 @@ class RequestHandlerMap
                 }
                 else
                 {
-                    rejectDefaultValueAndRequired(object, method, parameter, defaultValue, required);
+                    rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
     			    if (parameterType!=boolean.class)
     			    {
-    		            throw new Exception("When the startsWith field is false for Param name only the boolean type is allowed for parameter "+parameter.getName()+" in "+object.getClass().getCanonicalName() + "."
+    		            throw new Exception("When the startsWith field is false for Param name only the boolean type is allowed for parameter "+parameter.getName()+" in "+objectType.getCanonicalName() + "."
     		                    + method.getName());
     			    }
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
@@ -738,7 +740,7 @@ class RequestHandlerMap
 			if (returnType != void.class)
 			{
 				throw new Exception("Method return type is not void. @ContentWriters annotation missing. Site="
-						+ object.getClass().getCanonicalName() + "." + method.getName());
+						+ objectType.getCanonicalName() + "." + method.getName());
 			}
 		}
 		else 
@@ -764,7 +766,7 @@ class RequestHandlerMap
     				ContentWriter writer=transformers.getContentWriter(type);
     				if (writer==null)
     				{
-                        throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ object.getClass().getCanonicalName() + "." + method.getName());
+                        throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ objectType.getCanonicalName() + "." + method.getName());
     				}
 				    try
 				    {
@@ -781,7 +783,7 @@ class RequestHandlerMap
 				    catch (Throwable t)
 				    {
 	                    throw new Exception("Cannot match return type with suitable content writer. Generic return type?. "
-	                            + object.getClass().getCanonicalName() + "." + method.getName(),t);
+	                            + objectType.getCanonicalName() + "." + method.getName(),t);
 				        
 				    }
     			}
@@ -793,7 +795,7 @@ class RequestHandlerMap
     			if (contentWriterMap.size()==0)
     			{
                     throw new Exception("No suitable ContentWriter found. "
-                            + object.getClass().getCanonicalName() + "." + method.getName());
+                            + objectType.getCanonicalName() + "." + method.getName());
     			}
 		    }
 		}
@@ -820,7 +822,7 @@ class RequestHandlerMap
 				if (decoder==null)
 				{
 					throw new Exception(
-							"No ContentEncoder of type "+type.getName()+" is supplied. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+							"No ContentEncoder of type "+type.getName()+" is supplied. Site=" + objectType.getCanonicalName() + "." + method.getName());
 					
 				}
 				contentDecoderMap.put(decoder.getCoding(),decoder);
@@ -836,7 +838,7 @@ class RequestHandlerMap
 				if (encoder==null)
 				{
 					throw new Exception(
-							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + objectType.getCanonicalName() + "." + method.getName());
 					
 				}
                 contentEncoderList.add(encoder);
@@ -869,7 +871,7 @@ class RequestHandlerMap
         String fullPath = path.toString();
         if (fullPath.length()==0)
         {
-            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + object.getClass().getCanonicalName() + "." + method.getName());
+            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + objectType.getCanonicalName() + "." + method.getName());
         }
 	    if (handlerAnnotations.log!=null)
 	    {
@@ -899,7 +901,7 @@ class RequestHandlerMap
         }
         else if (fullPath.endsWith("/@"))
         {
-            fullPath=fullPath.substring(0, fullPath.length()-1)+object.getClass().getSimpleName()+"/"+method.getName(); 
+            fullPath=fullPath.substring(0, fullPath.length()-1)+objectType.getSimpleName()+"/"+method.getName(); 
         }
 	    Filter[] bottomFilters=bottomHandlerFilters.toArray(new Filter[bottomHandlerFilters.size()]);
 	    Filter[] topFilters=topHandlerFilters.toArray(new Filter[topHandlerFilters.size()]);
@@ -975,8 +977,8 @@ class RequestHandlerMap
 		if (node.requestHandler != null)
 		{
 			throw new Exception(
-					"Path conflict. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getObject().getClass().getName()+":"+node.requestHandler.getMethod().getName()
-							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getObject().getClass().getName()+":"+requestHandler.getMethod().getName());
+					"Path conflict. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
 		}
 		ParameterInfo[] parameterInfos = requestHandler.getParameterInfos();
 		for (int i = 0; i < parameterInfos.length; i++)

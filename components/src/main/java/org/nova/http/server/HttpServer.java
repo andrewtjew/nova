@@ -183,8 +183,13 @@ public class HttpServer
 
 	public void registerHandlers(String root, Object object) throws Throwable
 	{
-		this.requestHandlerMap.registerObject(root, object, this.transformers);
+		this.requestHandlerMap.registerObject(root, object, object.getClass(), this.transformers);
 	}
+
+	public void registerHandlers(Class<?> objectType) throws Throwable
+    {
+        this.requestHandlerMap.registerObject(null, null, objectType, this.transformers);
+    }
 
 	public void registerHandler(String root, Object object, Method method) throws Throwable
 	{
