@@ -120,7 +120,7 @@ public class SessionFilter extends Filter
         return this.sessionManager.getSessionByToken(token);
     }
 
-    private String getToken(HttpServletRequest request)
+    public String getToken(HttpServletRequest request)
     {
         String token=null;
         if (this.headerTokenKey!=null)
@@ -230,6 +230,10 @@ public class SessionFilter extends Filter
         
     }
 
+    public <SESSION extends Session> SessionManager<SESSION> getSessionManager()
+    {
+        return (SessionManager<SESSION>)this.sessionManager;
+    }
     public String getHeaderTokenKey()
     {
         return headerTokenKey;

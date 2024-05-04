@@ -54,6 +54,15 @@ public class Utils
         return a.compareTo(b);
     }
     
+    public static String capitalize(String word)
+    {
+        if (TypeUtils.isNullOrEmpty(word))
+        {
+            return word;
+        }
+        return word.substring(0,1).toUpperCase()+word.substring(1).toLowerCase();
+    }
+    
     public static String[] splitUsingWhiteSpace(String string)
     {
         int count=0;

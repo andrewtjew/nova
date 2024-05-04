@@ -219,6 +219,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("border",edge);
     }
+    public default ELEMENT shadow()
+    {
+        return addClass("shadow");
+    }
     public default ELEMENT shadow(Size value)
     {
         return addClass("shadow",value.toString());
