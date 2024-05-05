@@ -7,6 +7,7 @@ import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.LiteralHtml;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {
@@ -18,10 +19,11 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
         super("button");
 //        d(Display.flex);
         attr("type","button");
+        this.addInner(new LiteralHtml("&nbsp;"));
         this.spinner=returnAddInner(new Spinner("span", type, BreakPoint.sm));
         this.spinner.style("display:none;");
         this.labelSpan=returnAddInner(new Span()).addInner(label);
-//        addInner("label");
+        this.addInner(new LiteralHtml("&nbsp;")); //to make button height the same when the label is replaced by the spinner.
     }
     public SpinnerButton(String label)
     {
