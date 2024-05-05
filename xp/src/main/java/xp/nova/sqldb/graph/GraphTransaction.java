@@ -180,15 +180,6 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public long badlink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
-    {
-        throw new Exception();
-//        return link(fromNodeId, relation!=null?relation.getValue():null, toNodeId);
-    }
-//    public long (long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
-//    {
-//        return link(fromNodeId, relation.getValue(), toNodeId);
-//    }
     private long link(long fromNodeId,Integer relationValue,long toNodeId) throws Throwable
     {
         deleteLink(fromNodeId,relationValue,toNodeId);

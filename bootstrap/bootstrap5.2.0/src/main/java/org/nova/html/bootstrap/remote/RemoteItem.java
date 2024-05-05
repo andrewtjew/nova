@@ -15,6 +15,7 @@ import org.nova.html.remote.Remote;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
+//Use this to populate content by calling back to server.
 public class RemoteItem extends Item
 {
     public RemoteItem(String href,boolean showSpinner,String loadingMessage) throws Throwable
