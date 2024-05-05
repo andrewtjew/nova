@@ -130,6 +130,7 @@ public class Query
             {
                 state.sources.append(" JOIN");
             }
+            Class<? extends NodeObject> relationFromType=state.graph.getRelationNodeType(linkQuery.relation);
             switch (linkQuery.direction)
             {
             case FROM:
@@ -145,12 +146,16 @@ public class Query
                             state.startType=fromType;
                         }
                     }
-                    if (fromType!=state.graph.getRelationNodeType(linkQuery.relation))
+                    if (fromType!=relationFromType)
                     {
-                        throw new Exception("Not all link queries have the same from type");
+                        throw new Exception("LinkQuery from type is incompatible with relation. fromType="+fromType.getName()+", relation="+relationFromType.getName());
                     }
                     int relationValue=linkQuery.relation.getValue();
                     state.sources.append(" AND "+linkAlias+".relationValue="+relationValue);
+                    if (linkQuery.nodeTypes!=null)
+                    {
+                        state.sources.append(" AND linkAlias.toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
+                    }
                 }
                 
                 break;
@@ -160,7 +165,7 @@ public class Query
                 if (linkQuery.relation!=null)
                 {
                     int relationValue=linkQuery.relation.getValue();
-                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue);
+                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue+" AND linkAlias.fromNodeType='"+fromType.getSimpleName()+"'");
                 }
                 
                 break;
