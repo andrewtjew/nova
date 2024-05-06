@@ -33,7 +33,7 @@ import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.ModalBackground;
-import org.nova.html.remote.Inputs;
+import org.nova.html.remoting.Inputs;
 
 public class RemoteEditBox extends StyleComponent<RemoteEditBox>   
 {

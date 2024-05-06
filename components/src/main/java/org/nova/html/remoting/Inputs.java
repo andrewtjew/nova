@@ -1,4 +1,4 @@
-package org.nova.html.remote;
+package org.nova.html.remoting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,7 @@ import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.remote.RemoteElement;
 import org.nova.json.ObjectMapper;
 
 @Deprecated //Use RemoteForm
