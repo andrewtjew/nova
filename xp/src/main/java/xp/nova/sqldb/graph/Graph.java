@@ -596,16 +596,6 @@ public class Graph
         }
         if (descriptor==null)
         {
-            if ((type.getSuperclass()==RelationNodeObject.class)||(type.getSuperclass()==IdentityRelationNodeObject.class))
-            {
-                ParameterizedType genericSuperClass=(ParameterizedType)type.getGenericSuperclass();
-                Type[] arguments=genericSuperClass.getActualTypeArguments();
-                for (Type argument:arguments)
-                {
-                    this.relationNodeObjectMap.put((Class<? extends Relation_>)argument, (Class<? extends RelationNodeObject<?>>)type);
-                }
-            }
-            
             HashMap<String, FieldDescriptor> map = new HashMap<String, FieldDescriptor>();
             for (Class<?> c = type; c != null; c = c.getSuperclass())
             {
@@ -640,15 +630,7 @@ public class Graph
             {
                 objectType=GraphObjectType.IDENTITY_NODE;
             }
-            else if (type.getSuperclass()==IdentityRelationNodeObject.class)
-            {
-                objectType=GraphObjectType.IDENTITY_NODE;
-            }
             else if (type.getSuperclass()==NodeObject.class)
-            {
-                objectType=GraphObjectType.NODE;
-            }
-            else if (type.getSuperclass()==RelationNodeObject.class)
             {
                 objectType=GraphObjectType.NODE;
             }
@@ -676,7 +658,6 @@ public class Graph
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
-    final private HashMap<Class<? extends Relation_>, Class<? extends RelationNodeObject<?>>> relationNodeObjectMap=new HashMap<>();
     
     public Graph(Connector connector)
     {
@@ -709,7 +690,7 @@ public class Graph
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
-            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
             	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
             }
@@ -727,7 +708,7 @@ public class Graph
                 sql.append(columnAccessor.getSqlType().getSql());
                 sql.append(",");
             }
-            if (TypeUtils.isDerivedFrom(type, IdentityRelationNodeObject.class)||TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
                 sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
@@ -859,12 +840,6 @@ public class Graph
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <RELATION extends Relation_> Class<? extends RelationNodeObject<RELATION>> getRelationNodeType(RELATION relation)
-    {
-        return (Class<? extends RelationNodeObject<RELATION>>) this.relationNodeObjectMap.get(relation.getClass());
-    }
-    
     public void createCatalog(Trace parent,String catalog) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
@@ -890,7 +865,7 @@ public class Graph
                 
                 
                 accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` int DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 

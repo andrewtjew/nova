@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class LinkQuery
 {
     final Direction direction;
-    final Relation_ relation;
+    final long relationValue;
     
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
@@ -19,19 +19,21 @@ public class LinkQuery
 //    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
-//    boolean optional=false;
-
-    public <RELATION extends Relation_> 
-    LinkQuery(Direction direction,RELATION relation)
+    
+    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
     {
         this.direction=direction;
-        this.relation=relation;
+        this.relationValue=GraphTransaction.toRelationValue(relation, objectType);
     }
-    public LinkQuery(Direction direction) throws Exception
+    public LinkQuery(Direction direction,Relation_ relation)
     {
-        this.direction=direction;
-        this.relation=null;
+        this(direction,relation,null);
     }
+//    public LinkQuery(Direction direction) throws Exception
+//    {
+//        this.direction=direction;
+//        this.relation=null;
+//    }
     
     public LinkQuery nodeNamespace(String namespace)
     {
@@ -43,24 +45,6 @@ public class LinkQuery
         this.linkNamespace=namespace;
         return this;
     }    
-//    public LinkQuery where(String expression)
-//    {
-//        this.expression=expression;
-//        return this;
-//    }
-//
-//    public LinkQuery where(String expression, Object... parameters)
-//    {
-//        this.parameters=parameters;
-//        this.expression=expression;
-//        return this;
-//    }
-    
-//    public LinkQuery optional()
-//    {
-//        this.optional=true;
-//        return this;
-//    }
     
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)

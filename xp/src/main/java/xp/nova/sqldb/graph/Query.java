@@ -94,7 +94,6 @@ public class Query
         final ArrayList<Object> parameters;
 //        Class<? extends NodeObject>[] nodeTypes;
         int aliasIndex=0;
-        Class<? extends RelationNodeObject<?>> startType=null;
         
         
         public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
@@ -121,7 +120,7 @@ public class Query
             String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
             String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
 
-            Class<? extends RelationNodeObject<?>> fromType=null;
+//            Class<? extends NodeObject> fromType=null;
             if (linkQuery.nodeTypes==null)
             {
                 state.sources.append(" LEFT JOIN");
@@ -130,42 +129,26 @@ public class Query
             {
                 state.sources.append(" JOIN");
             }
-            Class<? extends NodeObject> relationFromType=state.graph.getRelationNodeType(linkQuery.relation);
+  //          Class<? extends NodeObject> relationFromType=state.graph.getRelationNodeType(linkQuery.relation);
             switch (linkQuery.direction)
             {
             case FROM:
                 nodeAlias = " ON _link" + state.aliasIndex+".toNodeId=";
                 state.sources.append(" _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
-                if (linkQuery.relation!=null)
+                state.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
+                if (linkQuery.nodeTypes!=null)
                 {
-                    if (fromType==null)
-                    {
-                        fromType=state.graph.getRelationNodeType(linkQuery.relation);
-                        if (state.aliasIndex==0)
-                        {
-                            state.startType=fromType;
-                        }
-                    }
-                    if (fromType!=relationFromType)
-                    {
-                        throw new Exception("LinkQuery from type is incompatible with relation. fromType="+fromType.getName()+", relation="+relationFromType.getName());
-                    }
-                    int relationValue=linkQuery.relation.getValue();
-                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue);
-                    if (linkQuery.nodeTypes!=null)
-                    {
-                        state.sources.append(" AND linkAlias.toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
-                    }
+                    state.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
                 }
                 
                 break;
             case TO:
                 nodeAlias = " ON _link" + state.aliasIndex+".fromNodeId=";
                 state.sources.append(" _link AS " + linkAlias + source + linkAlias + ".toNodeId");
-                if (linkQuery.relation!=null)
+                state.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
+                if (linkQuery.nodeTypes!=null)
                 {
-                    int relationValue=linkQuery.relation.getValue();
-                    state.sources.append(" AND "+linkAlias+".relationValue="+relationValue+" AND linkAlias.fromNodeType='"+fromType.getSimpleName()+"'");
+                    state.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
                 }
                 
                 break;
@@ -325,7 +308,6 @@ public class Query
         String orderBy;
         String countSql;
         String limit;
-        Class<? extends RelationNodeObject<?>> startType;
     }
     
     PreparedQuery preparedQuery=null;
@@ -431,7 +413,6 @@ public class Query
                 preparedQuery.limit=" LIMIT "+this.limit;
             }
         }
-        preparedQuery.startType=state.startType;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }

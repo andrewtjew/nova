@@ -140,6 +140,12 @@ public class RemoteResponse
         String code=HtmlUtils.js_location(pathAndQuery);
         return script(code);
     }
+    
+    public RemoteResponse clear()
+    {
+        this.instructions.clear();
+        return this;
+    }
 //    public RemoteResponse prop(String id,String prop,Object value) throws UnsupportedEncodingException
 //    {
 //        String code="$('#"+id+"').prop('"+prop+"',"+value+");";

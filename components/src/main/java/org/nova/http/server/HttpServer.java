@@ -190,6 +190,10 @@ public class HttpServer
     {
         this.requestHandlerMap.registerObject(null, null, objectType, this.transformers);
     }
+    public void registerHandlers(String root,Class<?> objectType) throws Throwable
+    {
+        this.requestHandlerMap.registerObject(root, null, objectType, this.transformers);
+    }
 
 	public void registerHandler(String root, Object object, Method method) throws Throwable
 	{
