@@ -684,9 +684,9 @@ public class FilterChain
     		        Object state=box.get();
     		        if (state!=null)
     		        {
-    		            if (state instanceof ObjectLookup)
+    		            if (state instanceof StateHandling)
     		            {
-    		                object=((ObjectLookup)state).getObject(context);
+    		                object=((StateHandling)state).getHandlerObject(context);
     		            }
     		        }
     		        if (object==null)

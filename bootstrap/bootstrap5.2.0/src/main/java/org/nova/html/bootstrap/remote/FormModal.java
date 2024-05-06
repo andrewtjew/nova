@@ -9,7 +9,7 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.ModalDocument;
 import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.remote.Inputs;
+import org.nova.html.remoting.Inputs;
 
 public class FormModal extends ModalDocument
 {

@@ -42,7 +42,7 @@ import org.nova.http.server.annotations.Path;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
-@ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
+@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 public class FavIconController
 {
     final private byte[] bytes;

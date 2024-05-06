@@ -29,7 +29,7 @@ public class ProgressBar extends StyleComponent<ProgressBar>
         attr("role","progressbar");
     }
     
-    public ProgressBar width(int percentage)
+    public ProgressBar width(double percentage)
     {
         attr("style","width:"+percentage+"%");
         return this;
