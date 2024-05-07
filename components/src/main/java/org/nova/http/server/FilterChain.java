@@ -588,7 +588,6 @@ public class FilterChain
      */
     
     
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response<?> next(Trace trace,Context context) throws Throwable
 	{
 		int index=this.filterIndex++;
@@ -686,7 +685,7 @@ public class FilterChain
     		        {
     		            if (state instanceof StateHandling)
     		            {
-    		                object=((StateHandling)state).getHandlerObject(context);
+    		                object=((StateHandling)state).getHandlerElement(context);
     		            }
     		        }
     		        if (object==null)

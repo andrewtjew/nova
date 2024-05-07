@@ -28,12 +28,14 @@ public abstract class ToggleComponent<ELEMENT extends ToggleComponent<ELEMENT>> 
         super(tag, componentClass);
     }
 
+    @SuppressWarnings("unchecked")
     public ELEMENT toggleCollapse(NavbarCollapse target)
     {
         attr("data-toggle","collapse");
         attr("data-target","#"+target.id());
         return (ELEMENT)this;
     }
+    @SuppressWarnings("unchecked")
     public ELEMENT toggleCollapse(Collapse collapse)
     {
         attr("data-toggle","collapse");

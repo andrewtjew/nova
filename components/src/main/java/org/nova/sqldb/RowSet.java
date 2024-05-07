@@ -150,6 +150,7 @@ public class RowSet
             return null;
         }
         Row row=rows()[0];
+        @SuppressWarnings("unchecked")
         TYPE item = (TYPE)constructorFieldMap.newInstance();
         for (int columnIndex = 0; columnIndex < columns; columnIndex++)
         {
@@ -201,6 +202,7 @@ public class RowSet
 //        }
 //        return list.toArray((TYPE[]) Array.newInstance(type, list.size()));
 //    }
+    @SuppressWarnings("unchecked")
     public <TYPE> TYPE[] map(Class<TYPE> type) throws Throwable
     {
         ArrayList<TYPE> list = new ArrayList<>();

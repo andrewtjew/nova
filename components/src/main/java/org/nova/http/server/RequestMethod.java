@@ -266,6 +266,7 @@ public class RequestMethod
             }
             return new ParsedParameters(parameters, contextParameterIndex, stateParameterIndex);
         }
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public static Object parseParameter(Class<?> type,String value) throws Exception 
         {
             try

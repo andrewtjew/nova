@@ -280,7 +280,6 @@ public class ExpireMap<KEY,VALUE>
         }
     }
 	
-	@SuppressWarnings("unchecked")
 	private void expire(Trace parent) throws Throwable
 	{
 		HashMap<KEY,VALUE> oldestGeneration=null;

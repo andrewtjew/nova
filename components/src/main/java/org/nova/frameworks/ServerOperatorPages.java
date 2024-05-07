@@ -5185,7 +5185,7 @@ public class ServerOperatorPages
                 Class<?> type=field.getType();
                 Object value=instance.getValue();
                 String resultElementId=(category+name+"Result").replace('.', '_');
-                String valueKey=(category+name+"Value").replace('.', '_');
+             //   String valueKey=(category+name+"Value").replace('.', '_');
 
                 TableRow row=new TableRow();
                 row.add(new td().style("text-align:left;").addInner(new TitleText(variable.description(),name)));

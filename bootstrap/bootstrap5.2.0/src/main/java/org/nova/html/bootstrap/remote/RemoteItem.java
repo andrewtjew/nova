@@ -14,11 +14,22 @@ public class RemoteItem extends StyleComponent<RemoteItem>
     }
     public RemoteItem clear()
     {
-        this.clearIneners();
+        this.clearInners();
         return this;
     }
 
+    public RemoteItem setInner(Element element)
+    {
+        clear();
+        addInner(element);
+        return this;
+    }
  
-    
+    public <RETURN extends Element> RETURN returnSetInner(RETURN element)
+    {
+        clear();
+        addInner(element);
+        return element;
+    }    
 
 }

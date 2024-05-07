@@ -47,7 +47,6 @@ public class Task<RESULT>
         this.logger=logger;
 	}
 
-	@SuppressWarnings("unchecked")
 	void execute()
 	{
 		synchronized (this)

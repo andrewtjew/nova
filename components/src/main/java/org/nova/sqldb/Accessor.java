@@ -343,6 +343,7 @@ public class Accessor extends Resource
         }
     }
 	
+    @SuppressWarnings("unchecked")
     public static <TYPE> TYPE[] map(RowSet rowSet,Class<TYPE> type) throws Throwable
     {
         ArrayList<TYPE> list = new ArrayList<>();
@@ -751,7 +752,6 @@ public class Accessor extends Resource
 	}
 
 
-	@SuppressWarnings("unchecked")
     public <TYPE> DataReader<TYPE> openQuery(Trace parent, String traceCategoryOverride, Class<TYPE> type, String sql, Object... parameters) throws Throwable
     {
 	    return openQuery(parent, traceCategoryOverride, type, parameters,sql);

@@ -287,6 +287,7 @@ namespace nova.remote
         return JSON.stringify({success:returnSuccess,result:returnResult});
     }
 
+
     export async function submit(event:Event,formId:string=null)
     {
         event.preventDefault();

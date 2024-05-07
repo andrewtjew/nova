@@ -31,7 +31,8 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
 {
     protected ArrayList<Element> inners=null; 
 
-    public ELEMENT clearIneners()
+    @SuppressWarnings("unchecked")
+    public ELEMENT clearInners()
     {
         this.inners=null;
         return (ELEMENT)this;
@@ -50,8 +51,6 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         this.inners.add(element);
         return (ELEMENT)this;
     }
-
-
     @SuppressWarnings("unchecked")
     public ELEMENT addInners(Element...elements)
     {

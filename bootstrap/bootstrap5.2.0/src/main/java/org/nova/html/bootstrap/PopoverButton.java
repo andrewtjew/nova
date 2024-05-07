@@ -121,7 +121,6 @@ public class PopoverButton extends ButtonComponent<PopoverButton>
         return this;
     }
     
-    @SuppressWarnings("unchecked")
     public PopoverButton delay(Integer show,Integer hide)
     {
         Delay delay=new Delay();

@@ -4,6 +4,7 @@ import org.nova.html.bootstrap.InputCheckbox;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.remoting.Inputs;
 
+@Deprecated
 public class Switch extends StyleComponent<Switch>
 {
     final private Inputs inputs;

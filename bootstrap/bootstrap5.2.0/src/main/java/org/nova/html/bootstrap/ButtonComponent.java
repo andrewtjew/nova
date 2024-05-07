@@ -66,6 +66,7 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
         return (ELEMENT)this;
     }
     
+    @SuppressWarnings("unchecked")
     public ELEMENT name(String name)
     {
         attr("name",name);
@@ -86,11 +87,13 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
 //        return (ELEMENT)this;
 //    }
     
+    @SuppressWarnings("unchecked")
     public ELEMENT outline(StyleColor value)
     {
         addClass("btn-outline",value);
         return (ELEMENT)this;
     }
+    @SuppressWarnings("unchecked")
     public ELEMENT color(StyleColor value)
     {
         addClass("btn",value.toString());

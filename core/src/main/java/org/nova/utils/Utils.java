@@ -549,7 +549,6 @@ public class Utils
 		return millisToDurationString(nanos/1000000);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static int simpleHash(byte[] array)
 	{
 		int hash=0x811c9dc5;

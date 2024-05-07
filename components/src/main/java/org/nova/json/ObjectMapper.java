@@ -365,6 +365,7 @@ public class ObjectMapper
         void write(WriteState writeState,Object object) throws Throwable
         {
             writeState.begin('[');
+            @SuppressWarnings("unchecked")
             TYPE[] array = (TYPE[])object;
             for (int i = 0; i < array.length; i++)
             {
