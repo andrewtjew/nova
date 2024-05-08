@@ -5,12 +5,12 @@ import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.remoting.Inputs;
 
 @Deprecated
-public class Switch extends StyleComponent<Switch>
+public class Switch2 extends StyleComponent<Switch2>
 {
     final private Inputs inputs;
     final private InputCheckbox inputCheckBox;
     
-    public Switch(String name,boolean checked,String action) throws Throwable
+    public Switch2(String name,boolean checked,String action) throws Throwable
     {
       super("div",null);
       addClass("form-check");

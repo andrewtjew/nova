@@ -27,7 +27,7 @@ import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.DataTables.DataTable;
 import org.nova.html.bootstrap.remote.ProceedModal;
-import org.nova.html.bootstrap.remote.Switch;
+import org.nova.html.bootstrap.remote.Switch2;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;
@@ -869,7 +869,7 @@ public class StringHandleEditor
                     item.addInner(locale);
                     String localeId="locale_"+id;
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
-                    Switch s=ui.returnAddInner(new Switch(localeId,active,"/StringHandleEditor/setLocale?ID="+id));
+                    Switch2 s=ui.returnAddInner(new Switch2(localeId,active,"/StringHandleEditor/setLocale?ID="+id));
                     s.pt(1);
                     ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required","Delete "+locale+"?"
                             ));
@@ -902,7 +902,7 @@ public class StringHandleEditor
                     item.addInner(enum_);
                     String name="name_"+id;
                     Item ui=item.returnAddInner(new Item()).d(Display.flex).justify_content(Justify.between);
-                    Switch s=ui.returnAddInner(new Switch(name,active,"/StringHandleEditor/setEnum?ID="+id));
+                    Switch2 s=ui.returnAddInner(new Switch2(name,active,"/StringHandleEditor/setEnum?ID="+id));
                     s.pt(1);
                     ProceedModal dialog=ui.returnAddInner(new ProceedModal("Confirmation required", "Delete "+enum_+"?"));
                     dialog.onProceed(new Inputs(),new PathAndQuery("/StringHandleEditor/deleteEnum").addQuery("ID", id).toString());
