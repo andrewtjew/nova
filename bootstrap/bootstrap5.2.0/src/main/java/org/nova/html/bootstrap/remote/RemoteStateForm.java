@@ -62,9 +62,9 @@ public class RemoteStateForm extends RemoteForm
             {
                 ((RemoteStateInput<?>) element).clearValidationMessage();
             }
-            else if (element instanceof RemoteStatePostButton)
+            else if (element instanceof SubmitRemoteStateFormButton)
             {
-                ((RemoteStatePostButton) element).reset(response);
+                ((SubmitRemoteStateFormButton) element).reset(response);
             }
         }
         return response;

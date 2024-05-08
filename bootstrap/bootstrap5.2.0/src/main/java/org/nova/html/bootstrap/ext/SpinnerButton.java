@@ -14,16 +14,14 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {
     final private Spinner spinner;
     final private Span labelSpan;
-//    final private Span spinnerSpan;
+
     public SpinnerButton(String label,SpinnerType type)
     { 
         super("button");
-//        d(Display.flex);
         attr("type","button");
         this.spinner=returnAddInner(new Spinner("span", type, BreakPoint.sm));
         this.spinner.style("display:none;");
         this.labelSpan=returnAddInner(new Span()).addInner(label);
-        this.spinner.addInner(new LiteralHtml("&nbsp;")); //to make button height the same when the label is replaced by the spinner.
     }
     public SpinnerButton(String label)
     {

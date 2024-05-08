@@ -5,10 +5,10 @@ import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remote.RemoteResponse;
 
-public class RemoteStatePostButton extends SpinnerButton
+public class SubmitRemoteStateFormButton extends SpinnerButton
 {
 
-    public RemoteStatePostButton(RemoteForm form,String label) throws Throwable
+    public SubmitRemoteStateFormButton(RemoteForm form,String label) throws Throwable
     {
         super(label);
         style("height:2.5em;");
