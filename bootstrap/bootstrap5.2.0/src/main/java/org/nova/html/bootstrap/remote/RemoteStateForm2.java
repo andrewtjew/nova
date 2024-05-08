@@ -39,10 +39,49 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateItem extends RemoteItem
+public class RemoteStateForm2 extends RemoteStateForm
 {
-    public RemoteStateItem(StateHandling stateHandling) throws Throwable
+    private RemoteResponse response;
+    public RemoteStateForm2(StateHandling stateHandling, String action) throws Throwable
     {
+        super(stateHandling,action);
         stateHandling.setHandlerElement(this);
+        action(action);
     }
+
+    public RemoteStateForm2(StateHandling stateHandling) throws Throwable
+    {
+        this(stateHandling, null);
+    }
+
+    public RemoteResponse beginResponse()
+    {
+        this.response=new RemoteResponse();
+        for (Element element : this.inners)
+        {
+            if (element instanceof RemoteStateInput<?>)
+            {
+                ((RemoteStateInput<?>) element).clearValidationMessage();
+            }
+            else if (element instanceof SubmitRemoteStateFormButton)
+            {
+                ((SubmitRemoteStateFormButton) element).reset(response);
+            }
+        }
+        return response;
+    }
+
+    public RemoteResponse location(String pathAndQuery) throws Throwable
+    {
+        this.response.location(pathAndQuery);
+        return this.response;
+    }
+    
+    public RemoteResponse endResponse()
+    {
+        this.response.outerHtml(this);
+        return this.response;
+    }
+
+
 }

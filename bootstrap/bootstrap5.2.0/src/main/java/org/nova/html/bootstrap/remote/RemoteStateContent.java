@@ -20,6 +20,7 @@ import org.nova.html.remote.RemoteForm;
 import org.nova.html.remote.RemoteFormElement;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.html.tags.div;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -39,21 +40,16 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateForm extends RemoteForm
+public class RemoteStateContent extends div
 {
-    public RemoteStateForm(StateHandling stateHandling, String action) throws Throwable
+    public RemoteStateContent(StateHandling stateHandling) throws Throwable
     {
+        id();
         stateHandling.setHandlerElement(this);
-        if (action!=null)
-        {
-            action(action);
-        }
     }
-
-    public RemoteStateForm(StateHandling stateHandling) throws Throwable
+    public RemoteResponse responed(RemoteResponse response)
     {
-        this(stateHandling, null);
+        response.outerHtml(this);
+        return response;
     }
-
-
 }

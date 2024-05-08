@@ -37,6 +37,24 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         this.inners=null;
         return (ELEMENT)this;
     }
+
+    public ELEMENT setInner(Element element)
+    {
+        this.clearInners();
+        return addInner(element);
+    }
+    public ELEMENT setInners(Element...elements)
+    {
+        this.clearInners();
+        return addInners(elements);
+    }
+ 
+    public <RETURN extends Element> RETURN returnSetInner(RETURN element)
+    {
+        this.clearInners();
+        return returnAddInner(element);
+    }    
+    
     @SuppressWarnings("unchecked")
     public ELEMENT addInner(Element element)
     {
