@@ -11,6 +11,7 @@ public class RemoteFormElement<ELEMENT extends RemoteFormElement<ELEMENT>> exten
     public RemoteFormElement(boolean submit)
     {
         super(method.post);
+        id();
         if (submit)
         {
             this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));

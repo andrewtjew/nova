@@ -34,11 +34,11 @@ public class Spinner extends GlobalEventTagElement<Spinner>
 		style.border_top(borderSize,border_style.solid,color);
 		style.width(size);
 		style.height(size);
-		String key=this.className+"-spin";
+		String key=id()+"-spin";
 		String animation=key+" "+speed+"s linear infinite";
 		style.add("animation", animation);
 		style.add("-webkit-animation", animation);
-		sb.begin("."+this.className);
+		sb.begin("."+id());
 		sb.add(style);
 		sb.end();
 

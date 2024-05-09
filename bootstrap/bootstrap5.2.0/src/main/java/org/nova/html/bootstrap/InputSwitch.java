@@ -55,6 +55,23 @@ public class InputSwitch extends InputComponent<InputSwitch>
         attr("required");
         return this;
     }
+    public InputSwitch value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
+    {
+        return attr("value",text);
+    }
+    public InputSwitch value(Object value)
+    {
+        if (value==null)
+        {
+            return this;
+        }
+        return attr("value",value.toString());
+    }
+    public InputSwitch form_check_input()
+    {
+        addClass("form-check-input");
+        return this;
+    }
 
     boolean outer=false;
     @Override
@@ -63,10 +80,11 @@ public class InputSwitch extends InputComponent<InputSwitch>
         if (outer==false)
         {
             outer=true;
-            div div=returnAddInner(new div());
+            div div=new div();
             div.addClass("form-check");
             div.addClass("form-switch");
             div.addInner(this);
+            composer.compose(div);
         }
         else
         {

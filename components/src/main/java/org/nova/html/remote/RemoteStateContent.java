@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.remote;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
@@ -6,9 +6,6 @@ import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.HtmlElementWriter;
@@ -16,10 +13,7 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
-import org.nova.html.remote.RemoteForm;
-import org.nova.html.remote.RemoteFormElement;
-import org.nova.html.remote.RemoteResponse;
-import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.html.tags.div;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -39,21 +33,21 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateForm extends RemoteForm
+public class RemoteStateContent extends RemoteContent
 {
-    public RemoteStateForm(StateHandling stateHandling, String action) throws Throwable
+    public RemoteStateContent(StateHandling stateHandling,String href) throws Throwable
     {
+        super(href);
         stateHandling.setHandlerElement(this);
-        if (action!=null)
-        {
-            action(action);
-        }
     }
-
-    public RemoteStateForm(StateHandling stateHandling) throws Throwable
+    public RemoteStateContent(StateHandling stateHandling) throws Throwable
     {
-        this(stateHandling, null);
+        this(stateHandling,null);
+    }    
+    
+    public RemoteResponse responed(RemoteResponse response)
+    {
+        response.outerHtml(this);
+        return response;
     }
-
-
 }
