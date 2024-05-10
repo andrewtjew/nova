@@ -6,7 +6,6 @@ import org.nova.http.server.annotations.ContentWriters;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateForm extends RemoteForm
 {
-    private RemoteResponse response;
     public RemoteStateForm(StateHandling stateHandling, String action) throws Throwable
     {
         stateHandling.setHandlerElement(this);
@@ -22,22 +21,17 @@ public class RemoteStateForm extends RemoteForm
     }
 
 
-    public RemoteResponse beginResponse()
-    {
-        this.response=new RemoteResponse();
-        return response;
-    }
-
     public RemoteResponse location(String pathAndQuery) throws Throwable
     {
-        this.response.location(pathAndQuery);
-        return this.response;
+        RemoteResponse response=new RemoteResponse();
+        response.location(pathAndQuery);
+        return response;
     }
     
-    public RemoteResponse endResponse()
+    public RemoteResponse respond(RemoteResponse response)
     {
-        this.response.outerHtml(this);
-        return this.response;
+        response.outerHtml(this);
+        return response;
     }    
 
 }

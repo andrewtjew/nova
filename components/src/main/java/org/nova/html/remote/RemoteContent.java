@@ -42,4 +42,13 @@ public class RemoteContent extends div
         }
         */
     }
+    public RemoteContent() throws Throwable
+    {
+        this(null);
+    }    
+    public RemoteResponse respond(RemoteResponse response)
+    {
+        response.outerHtml(this);
+        return response;
+    }
 }
