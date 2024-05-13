@@ -23,7 +23,10 @@ package org.nova.html.elements;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.nova.core.NameObject;
@@ -37,21 +40,22 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
     final private String tag;
     final private boolean noEndTag;
     final private StringBuilder classBuilder;
-    final private ArrayList<NameObject> attributes;
+//    final private ArrayList<NameObject> attributes;
+    final private HashMap<String,Object> attributes;
     
     public TagElement(String tag,boolean noEndTag)
     {
         this.tag=tag;
         this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
-        this.attributes=new ArrayList<NameObject>();
+        this.attributes=new HashMap<>();
     }
     
     public TagElement(String tag)
     {
         this(tag,false);
     }
-    public List<NameObject> getAttributes()
+    public Map<String,Object> getAttributes()
     {
         return this.attributes;
     }
@@ -59,19 +63,6 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
     {
         return this.tag;
     }
-    
-//    public ELEMENT addClass(String class_)
-//    {
-//        if (class_!=null)
-//        {
-//            if (this.classBuilder.length()>0)
-//            {
-//                this.classBuilder.append(' ');
-//            }
-//            this.classBuilder.append(class_);
-//        }
-//        return (ELEMENT) this;
-//    }
     
     public ELEMENT addClass(Object class_,Object...fragments)
     {
@@ -125,15 +116,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
     {
         if (value!=null)
         {
-            this.attributes.add(new NameObject(name,value));
-        }
-        return (ELEMENT) this;
-    }
-    public ELEMENT attr(NameObject attr)
-    {
-        if (attr!=null)
-        {
-            this.attributes.add(attr);
+            this.attributes.put(name,value);
         }
         return (ELEMENT) this;
     }
@@ -141,7 +124,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
     @SuppressWarnings("unchecked")
     public ELEMENT attr(String name)
     {
-        this.attributes.add(new NameObject(name,null));
+        this.attributes.put(name,null);
         return (ELEMENT) this;
     }
 
@@ -164,10 +147,10 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         composerStringBuilder.append('<').append(this.tag);
 
         QuotationMark mark=composer.getQuotationMark();
-        for (NameObject item:this.attributes)
+        for (Entry<String, Object> entry:this.attributes.entrySet())
         {
-            composerStringBuilder.append(' ').append(item.getName());
-            Object value=item.getValue();
+            composerStringBuilder.append(' ').append(entry.getKey());
+            Object value=entry.getValue();
             if (value!=null)
             {
                 Class<?> type=value.getClass();

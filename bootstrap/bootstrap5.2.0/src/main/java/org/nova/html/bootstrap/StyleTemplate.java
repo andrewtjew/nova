@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import java.util.Map.Entry;
+
 import org.nova.core.NameObject;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.div;
@@ -66,9 +68,16 @@ public class StyleTemplate implements Styling<StyleTemplate>
         if (element!=null)
         {            
             element.addClass(this.template.class_());
-            for (NameObject attr:this.template.getAttributes())
+            for (Entry<String, Object> entry:this.template.getAttributes().entrySet())
             {
-                element.attr(attr);
+                if (entry.getValue()!=null)
+                {
+                    element.attr(entry.getKey(),entry.getValue());
+                }
+                else
+                {
+                    element.attr(entry.getKey());
+                }
             }
         }
         return this;

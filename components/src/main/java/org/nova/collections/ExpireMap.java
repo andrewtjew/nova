@@ -62,6 +62,17 @@ public class ExpireMap<KEY,VALUE>
 		this(categoryOverride,timerScheduler,maxAgeMs,generations,null);
 	}
 	
+	public void clear()
+	{
+        synchronized(this)
+        {
+            for (HashMap<KEY,VALUE> generation:this.generations)
+            {
+                generation.clear();
+            }
+        }	    
+	}
+	
 	public void start() throws Exception
 	{
 		synchronized(this)

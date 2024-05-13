@@ -11,9 +11,16 @@ import org.nova.html.tags.script;
 //Use this to populate content by calling back to server.
 public class RemoteContent extends div
 {
-    public RemoteContent(String href) throws Throwable
+    public RemoteContent(String href,String id) throws Throwable
     {
-        id();
+        if (id==null)
+        {
+            id();
+        }
+        else
+        {
+            id(id);
+        }
         if (href!=null)
         {
             returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(href,id())));
@@ -42,6 +49,10 @@ public class RemoteContent extends div
         }
         */
     }
+    public RemoteContent(String href) throws Throwable
+    {
+        this(href,null);
+    }    
     public RemoteContent() throws Throwable
     {
         this(null);
