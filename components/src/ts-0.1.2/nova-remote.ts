@@ -374,6 +374,56 @@ namespace nova.remote
             });
     }
 
+    export async function postForm(id:string)
+    {
+        let form=document.getElementById(id) as HTMLFormElement;
+        if (form.enctype=="data")
+        {
+            let data=new FormData(form);
+            return await fetch(form.action,
+                {
+                    method:"POST",
+                    body: new FormData(form),
+                }
+                ).then(response=>
+                {
+                    if (response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then((instructions:Instruction[])=>
+                {
+                    run(instructions);
+                });
+            }
+        else
+        {
+            let data=new FormData(form);
+            let params=new URLSearchParams();
+            for (const pair of data)
+            {
+                params.append(pair[0],pair[1].toString());
+            }
+            return await fetch(form.action,
+                {
+                    method:"POST",
+                    body: params
+                }
+                ).then(response=>
+                {
+                    if (response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then((instructions:Instruction[])=>
+                {
+                    run(instructions);
+                });
+            }
+
+    }
     export async function postFormData(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;

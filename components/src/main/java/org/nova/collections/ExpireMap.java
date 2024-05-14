@@ -68,7 +68,10 @@ public class ExpireMap<KEY,VALUE>
         {
             for (HashMap<KEY,VALUE> generation:this.generations)
             {
-                generation.clear();
+                if (generation!=null)
+                {
+                    generation.clear();
+                }
             }
         }	    
 	}
