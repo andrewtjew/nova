@@ -1,23 +1,23 @@
 package org.nova.html.remote;
 
-import org.nova.http.server.StateHandling;
+import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
 
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateForm extends RemoteForm
 {
-    public RemoteStateForm(StateHandling stateHandling, String action) throws Throwable
+    public RemoteStateForm(RemoteStateBinding binding, String action) throws Throwable
     {
-        stateHandling.setHandlerElement(this);
+        binding.setState(this);
         if (action!=null)
         {
             action(action);
         }
     }
 
-    public RemoteStateForm(StateHandling stateHandling) throws Throwable
+    public RemoteStateForm(RemoteStateBinding binding) throws Throwable
     {
-        this(stateHandling, null);
+        this(binding, null);
     }
 
 

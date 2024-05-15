@@ -57,7 +57,7 @@ public class RemoteContent extends div
     {
         this(null);
     }    
-    public RemoteResponse respond(RemoteResponse response)
+    public RemoteResponse respond(RemoteResponse response) throws Throwable
     {
         response.outerHtml(this);
         return response;
