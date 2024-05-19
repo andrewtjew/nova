@@ -1,5 +1,6 @@
 namespace nova.remote
 {
+    //Deprecated
     class Input 
     {
         name:string;
@@ -13,6 +14,9 @@ namespace nova.remote
         parameters:string[];
     }
 
+
+
+    //Deprecated
     function getInputElement(parent:Document|Element,input:Input):HTMLInputElement
     {
         var element=parent.querySelector("[name='"+input.name+"']") as HTMLInputElement;
@@ -23,6 +27,7 @@ namespace nova.remote
         return element;
     }
 
+    //Deprecated
     function getSelectElement(parent:Document|Element,input:Input):HTMLSelectElement
     {
         var element=parent.querySelector("[name='"+input.name+"']") as HTMLSelectElement;
@@ -33,6 +38,7 @@ namespace nova.remote
         return element;
     }
 
+    //Deprecated
     function toData(formID:string,text:string,trace:boolean):object
     {
         if (text==null)
@@ -103,11 +109,14 @@ namespace nova.remote
     }
 
 
+    //Deprecated
     export function post(formID:string,action:string,text:string,trace:boolean)
     {
         var data=toData(formID,text,trace);
         call("POST",action,data);
     }
+
+    //Deprecated
     export function get(formID:string,action:string,text:string,trace:boolean)
     {
         var parent=formID==null?document:document.getElementById(formID)
@@ -171,6 +180,7 @@ namespace nova.remote
         call("GET",action,null);
     }
 
+    //Deprecated
     export function call(type:string,pathAndQuery:string,data:object)
     {
         $.ajax(
@@ -189,6 +199,12 @@ namespace nova.remote
                 alert("Error: "+xhr.status+" "+xhr.statusText);
             }
         }); 
+    }
+
+    export async function postCheckboxChange(evt:Event,pathAndQuery:string)
+    {
+        var checkbox=evt.target as HTMLInputElement;
+        return await nova.remote.postStatic(pathAndQuery+"&checked="+checkbox.checked);
     }
 
     export async function getRemote(pathAndQuery:string,id:string)

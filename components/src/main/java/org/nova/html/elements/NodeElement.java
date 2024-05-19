@@ -38,6 +38,12 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         return (ELEMENT)this;
     }
 
+    @SuppressWarnings("unchecked")
+    public ELEMENT setInner(Object object)
+    {
+        this.clearInners();
+        return addInner(object);
+    }
     public ELEMENT setInner(Element element)
     {
         this.clearInners();

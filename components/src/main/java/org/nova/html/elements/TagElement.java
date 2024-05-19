@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.nova.core.NameObject;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
+import org.nova.testing.Debugging;
 
 
 public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement<ELEMENT>
@@ -43,12 +44,44 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
 //    final private ArrayList<NameObject> attributes;
     final private HashMap<String,Object> attributes;
     
+    final static int INCLUDE_STACK_TRACE_LEVELS=0;
+    final static String STACK_TRACE_KEY="java-source"; 
+//    final static String STACK_TRACE_KEY="title"; //Use this to view the stack traces by using the mouse, but clashes with html elements using the title attribute
+    
     public TagElement(String tag,boolean noEndTag)
     {
         this.tag=tag;
         this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
         this.attributes=new HashMap<>();
+        if (Debugging.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
+        {
+            StackTraceElement[] stackTraceElements=Thread.currentThread().getStackTrace();
+            StringBuilder sb=new StringBuilder();
+            for (int i=0;i<stackTraceElements.length;i++)
+            {
+                StackTraceElement stackTraceElement=stackTraceElements[i];
+                String className=stackTraceElement.getClassName();
+                if (className.startsWith("org.nova"))
+                {
+                    continue;
+                }
+                else if (className.startsWith("java"))
+                {
+                    continue;
+                }
+                for (int j=0;j<INCLUDE_STACK_TRACE_LEVELS;j++)
+                {
+                    if (j+i>=stackTraceElements.length)
+                    {
+                        break;
+                    }
+                    sb.append(className+stackTraceElement.getMethodName()+"("+stackTraceElement.getFileName()+"."+stackTraceElement.getLineNumber()+");");
+                }
+            }
+            attr(STACK_TRACE_KEY,sb.toString());
+        }
+        
     }
     
     public TagElement(String tag)
@@ -127,6 +160,11 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         this.attributes.put(name,null);
         return (ELEMENT) this;
     }
+//    public ELEMENT clearAttributes()
+//    {
+//        this.attributes.clear();
+//        return (ELEMENT) this;
+//    }
 
     public String class_()
     {

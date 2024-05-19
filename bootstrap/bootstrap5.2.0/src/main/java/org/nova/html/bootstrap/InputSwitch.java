@@ -33,6 +33,7 @@ public class InputSwitch extends InputComponent<InputSwitch>
     public InputSwitch()
     {
         super(InputType.checkbox);
+        addClass("form-check-input");
     }
     public InputSwitch checked() 
     {
@@ -67,11 +68,11 @@ public class InputSwitch extends InputComponent<InputSwitch>
         }
         return attr("value",value.toString());
     }
-    public InputSwitch form_check_input()
-    {
-        addClass("form-check-input");
-        return this;
-    }
+//    public InputSwitch form_check_input()
+//    {
+//        addClass("form-check-input");
+//        return this;
+//    }
 
     boolean outer=false;
     @Override
@@ -80,7 +81,7 @@ public class InputSwitch extends InputComponent<InputSwitch>
         if (outer==false)
         {
             outer=true;
-            div div=new div();
+            div div=new div().id(this.id());
             div.addClass("form-check");
             div.addClass("form-switch");
             div.addInner(this);

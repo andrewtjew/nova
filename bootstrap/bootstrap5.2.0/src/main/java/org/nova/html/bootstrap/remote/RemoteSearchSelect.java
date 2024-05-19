@@ -52,9 +52,9 @@ import xp.nova.sqldb.graph.QueryResult;
 
 @Path(RemoteSearchSelect.PATH)
 @RequiredRoles()
-public abstract class RemoteSearchSelect<STATE> extends InputText
+public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> extends InputText
 {
-    public static final String PATH = "/$/SelectInputText";
+    public static final String PATH = "/$/RemoteSearchSelect";
 
     final private Item options;
     final private String instanceName;
