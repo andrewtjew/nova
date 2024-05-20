@@ -30,9 +30,12 @@ import org.nova.html.tags.div;
 
 public class InputSwitch extends InputComponent<InputSwitch>
 {
+    private Item outer;
     public InputSwitch()
     {
         super(InputType.checkbox);
+        this.outer=new Item().form_check().form_switch();
+        this.outer.addInner(this);
         addClass("form-check-input");
     }
     public InputSwitch checked() 
@@ -56,6 +59,14 @@ public class InputSwitch extends InputComponent<InputSwitch>
         attr("required");
         return this;
     }
+    public InputSwitch required(boolean required)
+    {
+        if (required)
+        {
+            attr("required");
+        }
+        return this;
+    }
     public InputSwitch value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
         return attr("value",text);
@@ -68,28 +79,23 @@ public class InputSwitch extends InputComponent<InputSwitch>
         }
         return attr("value",value.toString());
     }
-//    public InputSwitch form_check_input()
-//    {
-//        addClass("form-check-input");
-//        return this;
-//    }
 
-    boolean outer=false;
+    public Item outer()
+    {
+        return outer;
+    }
+    boolean inner=false;
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        if (outer==false)
+        if (inner==false)
         {
-            outer=true;
-            div div=new div().id(this.id());
-            div.addClass("form-check");
-            div.addClass("form-switch");
-            div.addInner(this);
-            composer.compose(div);
+            inner=true;
+            composer.compose(outer);
         }
         else
         {
-            outer=false;
+            inner=false;
             super.compose(composer);
         }
     }        

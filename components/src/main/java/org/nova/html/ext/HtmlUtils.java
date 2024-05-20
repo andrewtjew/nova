@@ -630,7 +630,7 @@ public class HtmlUtils
     
     public static String js_new(String instanceName,String className,Object...parameters)
     {
-        return "var "+instanceName+"=new "+js_call(className,parameters)+";";
+        return "window."+instanceName+"=new "+js_call(className,parameters)+";";
     }    
     
     // eg js_callIfElementProperty("e1","checked==true","alert","hello");
