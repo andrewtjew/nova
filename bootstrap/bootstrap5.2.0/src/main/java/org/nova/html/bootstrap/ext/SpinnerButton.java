@@ -5,23 +5,28 @@ import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Text;
+import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.Text;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {
     final private Spinner spinner;
     final private Span labelSpan;
 
-    public SpinnerButton(String label,SpinnerType type)
+    public SpinnerButton(Element labelElement,SpinnerType type)
     { 
         super("button");
         attr("type","button");
         this.spinner=returnAddInner(new Spinner("span", type, BreakPoint.sm));
         this.spinner.style("display:none;");
-        this.labelSpan=returnAddInner(new Span()).addInner(label);
+        this.labelSpan=returnAddInner(new Span()).addInner(labelElement);
+    }
+    public SpinnerButton(String label,SpinnerType type)
+    {
+        this(new Text(label),type);
     }
     public SpinnerButton(String label)
     {

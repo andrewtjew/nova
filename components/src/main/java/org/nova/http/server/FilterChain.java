@@ -680,12 +680,12 @@ public class FilterChain
 		        ObjectBox box=context.getStateParameter();
 		        if (box!=null)
 		        {
-    		        Object state=box.get();
-    		        if (state!=null)
+    		        Object binding=box.get();
+    		        if (binding!=null)
     		        {
-    		            if (state instanceof StateHandling)
+    		            if (binding instanceof RemoteStateBinding)
     		            {
-    		                object=((StateHandling)state).getHandlerElement(context);
+    		                object=((RemoteStateBinding)binding).getState(context);
     		            }
     		        }
     		        if (object==null)

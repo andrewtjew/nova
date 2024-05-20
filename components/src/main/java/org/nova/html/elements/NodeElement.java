@@ -38,6 +38,12 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         return (ELEMENT)this;
     }
 
+    @SuppressWarnings("unchecked")
+    public ELEMENT setInner(Object object)
+    {
+        this.clearInners();
+        return addInner(object);
+    }
     public ELEMENT setInner(Element element)
     {
         this.clearInners();
@@ -87,7 +93,14 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
             {
                 return addInner((Element)object);
             }
-            return addInner(new Text(object.toString()));
+            else if (object instanceof String)
+            {
+                return addInner(new Text((String)object));
+            }
+            else
+            {
+                return addInner(new Text(object.toString()));
+            }
         }
         return (ELEMENT)this;
     }

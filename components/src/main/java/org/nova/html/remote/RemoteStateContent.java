@@ -21,7 +21,7 @@ import org.nova.http.server.FilterChain;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
-import org.nova.http.server.StateHandling;
+import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
@@ -35,14 +35,14 @@ import org.nova.html.enums.enctype;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateContent extends RemoteContent
 {
-    public RemoteStateContent(StateHandling stateHandling,String href) throws Throwable
+    public RemoteStateContent(RemoteStateBinding binding,String href) throws Throwable
     {
         super(href);
-        stateHandling.setHandlerElement(this);
+        binding.setState(this);
     }
-    public RemoteStateContent(StateHandling stateHandling) throws Throwable
+    public RemoteStateContent(RemoteStateBinding binding) throws Throwable
     {
-        this(stateHandling,null);
+        this(binding,null);
     }    
     
     public RemoteResponse responed(RemoteResponse response)

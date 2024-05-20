@@ -415,7 +415,7 @@ public class HtmlUtils
 
     public static String js_property(String id,String property,String value)
     {
-        return "document.getElementById(\""+id+"\")."+property+"=\""+value+"\"";
+        return "document.getElementById('"+id+"')."+property+"=\""+value+"\"";
     }  
     public static String js_property(TagElement<?> element,String property,String value)
     {
@@ -439,7 +439,7 @@ public class HtmlUtils
     }  
     public static String js_classList_add(String id,String class_)
     {
-        return "document.getElementById(\""+id+"\").classList.add("+"'"+class_+"')";
+        return "document.getElementById('"+id+"').classList.add("+"'"+class_+"')";
     }  
     public static String js_classList_remove(String id,String class_)
     {
@@ -630,7 +630,7 @@ public class HtmlUtils
     
     public static String js_new(String instanceName,String className,Object...parameters)
     {
-        return "var "+instanceName+"=new "+js_call(className,parameters)+";";
+        return "window."+instanceName+"=new "+js_call(className,parameters)+";";
     }    
     
     // eg js_callIfElementProperty("e1","checked==true","alert","hello");

@@ -42,17 +42,23 @@ public class Select extends InputComponent<Select>
         }
         return this;
     }
+    private boolean required;
     public Select required()
     {
-        return attr("required");
+        return required(true);
     }
     public Select required(boolean required)
     {
+        this.required=required;
         if (required)
         {
             return attr("required");
         }
         return this;
+    }
+    public boolean isRequired()
+    {
+        return this.required;
     }
     public Select form_select()
     {
