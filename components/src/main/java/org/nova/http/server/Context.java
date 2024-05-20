@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
+import org.nova.html.elements.LocalTextResolver;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
@@ -52,6 +53,7 @@ public class Context
 	private EncoderContext encoderContext;
 	final private FilterChain filterChain;
 	private HashMap<String,CookieState> cookieStates;
+	private LocalTextResolver resolver;
 	
 	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
@@ -183,7 +185,14 @@ public class Context
 		}
 		return null;
 	}
-	
+    public LocalTextResolver getLocalTextResolver()
+    {
+        return this.resolver;
+    }
+    public void setLocalTextResolver(LocalTextResolver resolver)
+    {
+        this.resolver=resolver;
+    }
 	public <T> T getState()
 	{
 		return (T)state;
@@ -214,10 +223,6 @@ public class Context
 	{
 		return responseContentText;
 	}
-//	public void setResponseContentText(String responseContentText)
-//	{
-//		this.responseContentText=responseContentText;
-//	}
 	private boolean requestContentTextValid=false;
 	
 	public void writeContent(String text) throws Throwable

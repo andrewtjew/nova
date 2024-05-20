@@ -46,7 +46,7 @@ public class HtmlElementWriter extends ContentWriter
 		if (content!=null)
 		{
 	        Element element=(Element)content;
-		    StringComposer composer=new StringComposer(element.getQuotationMark());
+            StringComposer composer=new StringComposer(context.getLocalTextResolver());
             element.compose(composer);
             String text=composer.getStringBuilder().toString();
             context.writeContent(text, StandardCharsets.UTF_8);

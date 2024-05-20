@@ -25,7 +25,9 @@ import java.util.ArrayList;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.LocalTextResolver;
 import org.nova.html.elements.QuotationMark;
+import org.nova.html.ext.LocalText;
 import org.nova.html.ext.Text;
 
 public class TemplateComposer extends Composer
@@ -66,6 +68,12 @@ public class TemplateComposer extends Composer
         }
         this.elements.add(marker);
     }
-    
+
+    @Override
+    public LocalTextResolver getLocalTextResolver()
+    {
+        return null;
+    }
+
 
 }

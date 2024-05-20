@@ -2,6 +2,7 @@ package org.nova.html.remoting;
 
 import org.nova.html.elements.InputElement;
 
+@Deprecated
 public class Input
 {
     final public String name;

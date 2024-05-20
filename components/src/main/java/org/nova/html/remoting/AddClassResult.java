@@ -20,7 +20,7 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.html.remoting;
-
+@Deprecated
 public class AddClassResult
 {
     public String id;
