@@ -122,8 +122,8 @@ public class SqlServerConnector extends Connector
 	    }
 	    catch (Throwable t)
 	    {
-//	        throw new Exception("ConnectionString:"+connectionString,t);
-	        throw t;
+	        throw new Exception("ConnectionString:"+connectionString,t);
+//	        throw t;
 	    }
 	}
 

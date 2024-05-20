@@ -538,9 +538,9 @@ public class HtmlUtils
                         sb.append("\\'");
                         break;
                         
-//                    case '/':
-//                        sb.append("\\/");
-//                        break;
+                    case '/':
+                        sb.append("\\/");
+                        break;
 
                     case '\\':
                         sb.append("\\\\");
