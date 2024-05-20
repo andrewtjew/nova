@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
+import org.nova.localization.LocalTextResolver;
+
 public abstract class Element
 {
     abstract public void compose(Composer composer) throws Throwable;

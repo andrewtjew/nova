@@ -24,6 +24,7 @@ package org.nova.html.elements;
 import java.util.Stack;
 
 import org.nova.html.ext.LocalText;
+import org.nova.localization.LocalTextResolver;
 
 public abstract class Composer
 {
@@ -57,23 +58,10 @@ public abstract class Composer
     
     public void compose(Element element) throws Throwable
     {
-        if (element instanceof LocalText)
-        {
-            LocalText localText=(LocalText)element;
-            LocalTextResolver resolver=this.getLocalTextResolver();
-            if (resolver!=null)
-            {
-                this.getStringBuilder().append(resolver.resolve(localText));
-            }
-            else
-            {
-                this.getStringBuilder().append(localText.getKeyText());
-            }
-        }
-        else if (element!=null)
+        if (element!=null)
         {
             element.compose(this);
         }
     }
-
+    
 }

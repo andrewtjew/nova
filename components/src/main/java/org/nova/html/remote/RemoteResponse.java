@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.LocalTextResolver;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
 import org.nova.json.ObjectMapper;
+import org.nova.localization.LocalTextResolver;
 
 public class RemoteResponse
 {

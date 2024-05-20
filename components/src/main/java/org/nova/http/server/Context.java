@@ -31,10 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
-import org.nova.html.elements.LocalTextResolver;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
+import org.nova.localization.LocalTextResolver;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
