@@ -452,3 +452,20 @@ namespace nova.ui.remote
     }
 }
 
+namespace nova.ui
+{
+    export function toggleOptionalTextInput(checkId:string,inputId:string,reversed:boolean)
+    {
+        var checkElement = document.getElementById(checkId) as HTMLInputElement;
+        var inputElement = document.getElementById(inputId) as HTMLInputElement;
+        if (checkElement.checked!=reversed)
+        {
+            inputElement.setAttribute("disabled","true");
+        }
+        else
+        {
+            inputElement.removeAttribute("disabled");
+        }
+
+    }    
+}

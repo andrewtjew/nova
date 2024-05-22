@@ -73,7 +73,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             session.setContext(context);
             context.setStateParameter(session);
             Response<?> response=context.next(parent);
-            if (session.isPage())
+            if (session.wasPageRequest())
             {
                 HttpServletRequest request=context.getHttpServletRequest();
                 String pathAndQuery=request.getRequestURI();
