@@ -71,7 +71,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         try
         {
             session.setContext(context);
-            context.setStateParameter(session);
+            context.setState(session);
             Response<?> response=context.next(parent);
             if (session.isPage())
             {
