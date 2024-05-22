@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.bootstrap.localization;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.bootstrap.Button;
@@ -12,6 +12,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remoting.Inputs;
 
+@Deprecated
 public class ProceedModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;

@@ -69,7 +69,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return (T)this.pageStates.get(key);
     }
     
-    public boolean isPage()
+    public boolean wasPageRequest()
     {
         if (this.isPage)
         {
