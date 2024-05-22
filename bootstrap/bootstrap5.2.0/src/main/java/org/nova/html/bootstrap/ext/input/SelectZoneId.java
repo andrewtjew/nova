@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.bootstrap.ext.input;
 
 import java.time.Instant;
 import java.time.ZoneId;

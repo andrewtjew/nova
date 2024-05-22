@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Select;

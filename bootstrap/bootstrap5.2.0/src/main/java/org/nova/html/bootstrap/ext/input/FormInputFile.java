@@ -1,8 +1,9 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.InputComponent;
 import org.nova.html.bootstrap.InputEmail;
+import org.nova.html.bootstrap.InputFile;
 import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
@@ -21,23 +22,23 @@ import org.nova.html.ext.Content;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.div;
 
-public class FormInputSwitch extends FormInput<InputSwitch>
+public class FormInputFile extends FormInput<InputFile>
 {
-    public FormInputSwitch(Integer columns, String labelText,String name,boolean checked)
+    public FormInputFile(Integer columns, String labelText,String name,boolean required)
     {
-        super(null, columns, labelText, new InputSwitch(), null);
-        input().name(name).checked(checked);
+        super(null, columns, labelText, new InputFile(), null);
+        input().name(name).required(required);
     }
-    public FormInputSwitch(Integer columns, String labelText,String name)
+    public FormInputFile(Integer columns, String labelText,String name)
     {
         this(columns, labelText, name,false);
     }
-    public FormInputSwitch(String labelText,String name,boolean checked)
+    public FormInputFile(String labelText,String name,boolean required)
     {
-        this(null,labelText,name,checked);
+        this(null,labelText,name,required);
     }
-    public FormInputSwitch(String labelText,String name)
+    public FormInputFile(String labelText,String name)
     {
-        this(labelText,name,false);
+        this(labelText, name,false);
     }
 }

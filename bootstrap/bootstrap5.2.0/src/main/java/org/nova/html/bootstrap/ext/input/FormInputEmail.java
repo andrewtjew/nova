@@ -1,8 +1,8 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.InputComponent;
-import org.nova.html.bootstrap.InputPassword;
+import org.nova.html.bootstrap.InputEmail;
 import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
@@ -21,35 +21,34 @@ import org.nova.html.ext.Content;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.div;
 
-
-public class FormInputPasswordWithToggle extends FormInput<InputPasswordWithToggle>
+public class FormInputEmail extends FormInput<InputEmail>
 {
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value,boolean required,Element right)
+    public FormInputEmail(Integer columns, String labelText,String name,String value,boolean required)
     {
-        super(null, columns, labelText, new InputPasswordWithToggle(), right);
+        super(null, columns, labelText, new InputEmail(), null);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value,boolean required)
-    {
-        this(columns,labelText,name,value,required,null);
-    }
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value)
+    public FormInputEmail(Integer columns, String labelText,String name,String value)
     {
         this(columns, labelText, name,value,false);
     }
-    public FormInputPasswordWithToggle(String labelText,String name,String value,boolean required)
+    public FormInputEmail(Integer columns, String labelText,String name)
+    {
+        this(columns, labelText, name,null);
+    }
+    public FormInputEmail(String labelText,String name,String value,boolean required)
     {
         this(null,labelText,name,value,required);
     }
-    public FormInputPasswordWithToggle(String labelText,String name,String value)
+    public FormInputEmail(String labelText,String name,String value)
     {
         this(labelText, name,value,false);
     }
-    public FormInputPasswordWithToggle(String labelText,String name)
+    public FormInputEmail(String labelText,String name)
     {
         this(labelText,name,null);
     }
