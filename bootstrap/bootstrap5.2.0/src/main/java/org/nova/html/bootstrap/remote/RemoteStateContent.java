@@ -1,4 +1,4 @@
-package org.nova.html.remote;
+package org.nova.html.bootstrap.remote;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
@@ -13,6 +13,8 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
+import org.nova.html.remote.RemoteResponse;
+import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.tags.div;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
@@ -35,19 +37,17 @@ import org.nova.html.enums.enctype;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateContent extends RemoteContent
 {
-    public RemoteStateContent(RemoteStateBinding binding,String href) throws Throwable
-    {
-        super(href);
-        binding.setState(this);
-    }
+    final private RemoteStateBinding binding;
+    
     public RemoteStateContent(RemoteStateBinding binding) throws Throwable
     {
-        this(binding,null);
-    }    
+        super(null);
+        binding.setState(this);
+        this.binding=binding;
+    }
     
-    public RemoteResponse responed(RemoteResponse response)
+    public RemoteStateBinding getRemoteStateBinding()
     {
-        response.outerHtml(this);
-        return response;
+        return this.binding;
     }
 }

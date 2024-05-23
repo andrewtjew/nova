@@ -207,7 +207,7 @@ namespace nova.remote
         return await nova.remote.postStatic(pathAndQuery+"&checked="+checkbox.checked);
     }
 
-    export async function getRemote(pathAndQuery:string,id:string)
+    export async function getRemote(id:string,pathAndQuery:string)
     {
         return await fetch(pathAndQuery,
             {

@@ -23,10 +23,19 @@ import org.nova.localization.CountryCode;
 
 public class FormSelectCountry extends FormInput<SelectCountry>
 {
+    public FormSelectCountry(BreakPoint breakPoint,Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
+    {
+        super(breakPoint, columns, labelText, new SelectCountry(countryCodes,value), null);
+        input().name(name).required(required);
+    }
+    public FormSelectCountry(BreakPoint breakPoint,Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value)
+    {
+        this(breakPoint,columns, labelText, name,countryCodes,value,false);
+    }
+    
     public FormSelectCountry(Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
     {
-        super(null, columns, labelText, new SelectCountry(countryCodes,value), null);
-        input().name(name).required(required);
+        this(null,columns, labelText, name,countryCodes,value,required);
     }
     public FormSelectCountry(Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value)
     {
