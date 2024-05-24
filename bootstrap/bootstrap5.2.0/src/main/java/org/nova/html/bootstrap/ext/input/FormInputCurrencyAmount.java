@@ -25,35 +25,34 @@ import org.nova.localization.CurrencyCode;
 
 public class FormInputCurrencyAmount extends FormInput<InputCurrencyAmount>
 {
-    public FormInputCurrencyAmount(Integer columns, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required,Element right)
+    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required,Element right)
     {
-        super(null, columns, labelText, new InputCurrencyAmount(currencyCode), right);
+        super(col, labelText, new InputCurrencyAmount(currencyCode), right);
         input().name(name).required(required);
         
         if (value!=null)
         {
             input().value(value);
-//            input().value(Convert.toLocalCurrency(currencyCode, value));
         }
     }
-    public FormInputCurrencyAmount(Integer columns, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
+    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
     {
-        this(columns,labelText,name,currencyCode,value,required,null);
+        this(col,labelText,name,currencyCode,value,required,null);
     }
-    public FormInputCurrencyAmount(Integer columns, String labelText,String name,CurrencyCode currencyCode,Double value)
+    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value)
     {
-        this(columns, labelText, name,currencyCode,value,false);
+        this(col, labelText, name,currencyCode,value,false);
     }
-    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
-    {
-        this(null,labelText,name,currencyCode,value,required);
-    }
-    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode,Double value)
-    {
-        this(labelText, name,currencyCode,value,false);
-    }
-    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode)
-    {
-        this(labelText,name,currencyCode,null);
-    }
+//    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
+//    {
+//        this(null,labelText,name,currencyCode,value,required);
+//    }
+//    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode,Double value)
+//    {
+//        this(labelText, name,currencyCode,value,false);
+//    }
+//    public FormInputCurrencyAmount(String labelText,String name,CurrencyCode currencyCode)
+//    {
+//        this(labelText,name,currencyCode,null);
+//    }
 }

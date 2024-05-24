@@ -22,53 +22,37 @@ import org.nova.html.tags.div;
 
 public class FormInputText extends FormInput<InputText>
 {
-    public FormInputText(BreakPoint breakPoint,Integer columns, String labelText,String name,String value,boolean required)
+    public FormInputText(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(breakPoint, columns, labelText, new InputText(), null);
+        super(col, labelText, new InputText(), null);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
-    public FormInputText(BreakPoint breakPoint,Integer columns, String labelText,String name,String value)
+    public FormInputText(FormCol col, String labelText,String name,String value)
     {
-        this(breakPoint,columns, labelText, name,value,false);
+        this(col, labelText, name,value,false);
     }
-    public FormInputText(BreakPoint breakPoint,Integer columns, String labelText,String name)
+    public FormInputText(FormCol col, String labelText,String name)
     {
-        this(breakPoint,columns, labelText, name,null);
+        this(col, labelText, name,null);
     }
-    public FormInputText(Integer columns, String labelText,String name,String value,boolean required)
-    {
-        this(null,columns, labelText, name,value,required);
-    }
-    public FormInputText(Integer columns, String labelText,String name,String value)
-    {
-        this(columns, labelText, name,value,false);
-    }
-    public FormInputText(Integer columns, String labelText,String name)
-    {
-        this(columns, labelText, name,null);
-    }
-    public FormInputText(Integer columns, String labelText,String name,boolean required)
-    {
-        this(columns, labelText, name,null,required);
-    }
-    public FormInputText(String labelText,String name,String value,boolean required)
-    {
-        this(null,labelText,name,value,required);
-    }
-    public FormInputText(String labelText,String name,String value)
-    {
-        this(labelText, name,value,false);
-    }
-    public FormInputText(String labelText,String name,boolean required)
-    {
-        this(labelText, name,null,required);
-    }
-    public FormInputText(String labelText,String name)
-    {
-        this(labelText,name,null);
-    }
+//    public FormInputText(String labelText,String name,String value,boolean required)
+//    {
+//        this(null,labelText,name,value,required);
+//    }
+//    public FormInputText(String labelText,String name,String value)
+//    {
+//        this(labelText, name,value,false);
+//    }
+//    public FormInputText(String labelText,String name,boolean required)
+//    {
+//        this(labelText, name,null,required);
+//    }
+//    public FormInputText(String labelText,String name)
+//    {
+//        this(labelText,name,null);
+//    }
 }

@@ -23,35 +23,19 @@ import org.nova.localization.CountryCode;
 
 public class FormSelectCountry extends FormInput<SelectCountry>
 {
-    public FormSelectCountry(BreakPoint breakPoint,Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
+    public FormSelectCountry(FormCol col, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
     {
-        super(breakPoint, columns, labelText, new SelectCountry(countryCodes,value), null);
+        super(col, labelText, new SelectCountry(countryCodes,value), null);
         input().name(name).required(required);
     }
-    public FormSelectCountry(BreakPoint breakPoint,Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value)
+    public FormSelectCountry(FormCol col, String labelText,String name,CountryCode[] countryCodes,CountryCode value)
     {
-        this(breakPoint,columns, labelText, name,countryCodes,value,false);
+        this(col, labelText, name,countryCodes,value,false);
     }
     
-    public FormSelectCountry(Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
+    public FormSelectCountry(FormCol col,String labelText,String name,CountryCode[] countryCodes)
     {
-        this(null,columns, labelText, name,countryCodes,value,required);
-    }
-    public FormSelectCountry(Integer columns, String labelText,String name,CountryCode[] countryCodes,CountryCode value)
-    {
-        this(columns, labelText, name,countryCodes,value,false);
-    }
-    public FormSelectCountry(String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
-    {
-        this(null,labelText,name,countryCodes,value,required);
-    }
-    public FormSelectCountry(String labelText,String name,CountryCode[] countryCodes,CountryCode value)
-    {
-        this(labelText, name,countryCodes,value,false);
-    }
-    public FormSelectCountry(String labelText,String name,CountryCode[] countryCodes)
-    {
-        this(labelText,name,countryCodes,null);
+        this(col,labelText,name,countryCodes,null);
     }
     
 }

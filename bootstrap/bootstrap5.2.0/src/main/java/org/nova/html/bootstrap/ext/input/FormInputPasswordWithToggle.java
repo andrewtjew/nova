@@ -24,33 +24,33 @@ import org.nova.html.tags.div;
 
 public class FormInputPasswordWithToggle extends FormInput<InputPasswordWithToggle>
 {
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value,boolean required,Element right)
+    public FormInputPasswordWithToggle(FormCol col, String labelText,String name,String value,boolean required,Element right)
     {
-        super(null, columns, labelText, new InputPasswordWithToggle(), right);
+        super(col, labelText, new InputPasswordWithToggle(), right);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value,boolean required)
+    public FormInputPasswordWithToggle(FormCol col, String labelText,String name,String value,boolean required)
     {
-        this(columns,labelText,name,value,required,null);
+        this(col,labelText,name,value,required,null);
     }
-    public FormInputPasswordWithToggle(Integer columns, String labelText,String name,String value)
+    public FormInputPasswordWithToggle(FormCol col, String labelText,String name,String value)
     {
-        this(columns, labelText, name,value,false);
+        this(col, labelText, name,value,false);
     }
-    public FormInputPasswordWithToggle(String labelText,String name,String value,boolean required)
-    {
-        this(null,labelText,name,value,required);
-    }
-    public FormInputPasswordWithToggle(String labelText,String name,String value)
-    {
-        this(labelText, name,value,false);
-    }
-    public FormInputPasswordWithToggle(String labelText,String name)
-    {
-        this(labelText,name,null);
-    }
+//    public FormInputPasswordWithToggle(String labelText,String name,String value,boolean required)
+//    {
+//        this(null,labelText,name,value,required);
+//    }
+//    public FormInputPasswordWithToggle(String labelText,String name,String value)
+//    {
+//        this(labelText, name,value,false);
+//    }
+//    public FormInputPasswordWithToggle(String labelText,String name)
+//    {
+//        this(labelText,name,null);
+//    }
 }

@@ -24,33 +24,33 @@ import org.nova.html.tags.div;
 
 public class FormInputPassword extends FormInput<InputPassword>
 {
-    public FormInputPassword(Integer columns, String labelText,String name,String value,boolean required,Element right)
+    public FormInputPassword(FormCol col, String labelText,String name,String value,boolean required,Element right)
     {
-        super(null, columns, labelText, new InputPassword(), right);
+        super(col, labelText, new InputPassword(), right);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
-    public FormInputPassword(Integer columns, String labelText,String name,String value,boolean required)
+    public FormInputPassword(FormCol col, String labelText,String name,String value,boolean required)
     {
-        this(columns,labelText,name,value,required,null);
+        this(col,labelText,name,value,required,null);
     }
-    public FormInputPassword(Integer columns, String labelText,String name,String value)
+    public FormInputPassword(FormCol col, String labelText,String name,String value)
     {
-        this(columns, labelText, name,value,false);
+        this(col, labelText, name,value,false);
     }
-    public FormInputPassword(String labelText,String name,String value,boolean required)
-    {
-        this(null,labelText,name,value,required);
-    }
-    public FormInputPassword(String labelText,String name,String value)
-    {
-        this(labelText, name,value,false);
-    }
-    public FormInputPassword(String labelText,String name)
-    {
-        this(labelText,name,null);
-    }
+//    public FormInputPassword(String labelText,String name,String value,boolean required)
+//    {
+//        this(null,labelText,name,value,required);
+//    }
+//    public FormInputPassword(String labelText,String name,String value)
+//    {
+//        this(labelText, name,value,false);
+//    }
+//    public FormInputPassword(String labelText,String name)
+//    {
+//        this(labelText,name,null);
+//    }
 }

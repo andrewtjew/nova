@@ -23,46 +23,34 @@ import org.nova.html.tags.div;
 
 public class FormInputEmail extends FormInput<InputEmail>
 {
-    public FormInputEmail(BreakPoint breakPoint,Integer columns, String labelText,String name,String value,boolean required)
+    public FormInputEmail(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(breakPoint, columns, labelText, new InputEmail(), null);
+        super(col, labelText, new InputEmail(), null);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
-    public FormInputEmail(BreakPoint breakPoint,Integer columns, String labelText,String name,String value)
+    public FormInputEmail(FormCol col, String labelText,String name,String value)
     {
-        this(breakPoint,columns, labelText, name,value,false);
+        this(col, labelText, name,value,false);
     }
-    public FormInputEmail(BreakPoint breakPoint,Integer columns, String labelText,String name)
+    public FormInputEmail(FormCol col, String labelText,String name)
     {
-        this(breakPoint,columns, labelText, name,null);
+        this(col, labelText, name,null);
     }
     
-    public FormInputEmail(Integer columns, String labelText,String name,String value,boolean required)
-    {
-        this(null,columns, labelText, name,value,false);
-    }
-    public FormInputEmail(Integer columns, String labelText,String name,String value)
-    {
-        this(columns, labelText, name,value,false);
-    }
-    public FormInputEmail(Integer columns, String labelText,String name)
-    {
-        this(columns, labelText, name,null);
-    }
-    public FormInputEmail(String labelText,String name,String value,boolean required)
-    {
-        this(null,labelText,name,value,required);
-    }
-    public FormInputEmail(String labelText,String name,String value)
-    {
-        this(labelText, name,value,false);
-    }
-    public FormInputEmail(String labelText,String name)
-    {
-        this(labelText,name,null);
-    }
+//    public FormInputEmail(String labelText,String name,String value,boolean required)
+//    {
+//        this(null,labelText,name,value,required);
+//    }
+//    public FormInputEmail(String labelText,String name,String value)
+//    {
+//        this(labelText, name,value,false);
+//    }
+//    public FormInputEmail(String labelText,String name)
+//    {
+//        this(labelText,name,null);
+//    }
 }

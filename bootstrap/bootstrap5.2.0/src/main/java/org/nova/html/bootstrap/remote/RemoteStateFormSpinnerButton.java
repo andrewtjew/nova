@@ -8,6 +8,7 @@ import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.elements.Composer;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.script;
@@ -36,7 +37,7 @@ public class RemoteStateFormSpinnerButton extends SpinnerButton
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        returnAddInner(new script()).addInner(js_hideSpinner());
+        returnAddInner(new script()).addInner(new LiteralHtml(js_hideSpinner()));
         super.compose(composer);
     }            
         

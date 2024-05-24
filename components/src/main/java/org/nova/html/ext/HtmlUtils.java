@@ -389,8 +389,9 @@ public class HtmlUtils
     }
 
 
-    public static String js_setInterval(long delay,String call)
+    public static String js_setInterval(long delay,String function,Object...parameters)
     {
+        String call=js_call(function, parameters);
         return "setInterval(function(){"+call+";},"+delay+");";
     }
 

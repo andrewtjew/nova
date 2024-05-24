@@ -24,21 +24,21 @@ import org.nova.html.tags.div;
 
 public class FormInputFile extends FormInput<InputFile>
 {
-    public FormInputFile(Integer columns, String labelText,String name,boolean required)
+    public FormInputFile(FormCol col, String labelText,String name,boolean required)
     {
-        super(null, columns, labelText, new InputFile(), null);
+        super(col, labelText, new InputFile(), null);
         input().name(name).required(required);
     }
-    public FormInputFile(Integer columns, String labelText,String name)
+    public FormInputFile(FormCol col, String labelText,String name)
     {
-        this(columns, labelText, name,false);
+        this(col, labelText, name,false);
     }
-    public FormInputFile(String labelText,String name,boolean required)
-    {
-        this(null,labelText,name,required);
-    }
-    public FormInputFile(String labelText,String name)
-    {
-        this(labelText, name,false);
-    }
+//    public FormInputFile(String labelText,String name,boolean required)
+//    {
+//        this(null,labelText,name,required);
+//    }
+//    public FormInputFile(String labelText,String name)
+//    {
+//        this(labelText, name,false);
+//    }
 }

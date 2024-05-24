@@ -22,8 +22,8 @@ import org.nova.html.tags.div;
 
 public class FormOptionalInputText extends FormInput<OptionalInputText>
 {
-    public FormOptionalInputText(Integer columns, String labelText,String optionalLabel,String name,boolean checked,boolean reversed)
+    public FormOptionalInputText(FormCol col, String labelText,String optionalLabel,String name,boolean checked,boolean reversed)
     {
-        super(null, columns, labelText, new OptionalInputText(optionalLabel, name, checked,reversed), null);
+        super(col, labelText, new OptionalInputText(optionalLabel, name, checked,reversed), null);
     }
 }

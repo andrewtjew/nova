@@ -27,30 +27,47 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
     private INPUT input;
     final private Item validationMessage;
     
-    public FormInput(BreakPoint breakPoint,Integer columns,String labelText,INPUT input,Element right)
+    public FormInput(FormCol formCol,String labelText,INPUT input,Element right)
     {
         super("div");
         id();
-        
-        if (breakPoint != null && columns != null)
+        if (formCol!=null)
         {
-            addClass("col", breakPoint, columns);
-        }
-        else if (columns != null)
-        {
-            addClass("col", columns);
-        }
-        else if (breakPoint != null)
-        {
-            addClass("col", breakPoint);
+            if (formCol.breakPoint != null)
+            {
+                if (formCol.columns>0)
+                {
+                    addClass("col", formCol.breakPoint, formCol.columns);
+                }
+                else if (formCol.auto)
+                {
+                    addClass("col", formCol.breakPoint, "auto");
+                }
+                else
+                {
+                    addClass("col", formCol.breakPoint);
+                }
+            }
+            else 
+            {
+                if (formCol.columns>0)
+                {
+                    addClass("col", formCol.columns);
+                }
+                else if (formCol.auto)
+                {
+                    addClass("col", "auto");
+                }
+                else
+                {
+                    addClass("col");
+                }
+            }
         }
         
         if (input instanceof InputSwitch)
         {
-            if (columns!=null)
-            {
-                this.align_self(AlignSelf.end).pb(2);
-            }
+            this.align_self(AlignSelf.end).pb(2);
             InputSwitch inputSwitch=(InputSwitch)input;
             Item row=returnAddInner(new Item()).d(Display.flex);
             if (right!=null)
@@ -124,32 +141,11 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
         mb(3);
     }
     
-    public FormInput(BreakPoint breakPoint,Integer columns,String labelText,INPUT input)
+    public FormInput(FormCol col,String labelText,INPUT input)
     {
-        this(breakPoint,columns,labelText,input,null);
+        this(col,labelText,input,null);
     }
 
-    public FormInput(String labelText,INPUT input,Element right)
-    {
-        this(null,null,labelText,input,null);
-    }
-
-    public FormInput(String labelText,INPUT input)
-    {
-        this(labelText,input,null);
-    }
-
-    public FormInput(Integer columns,String labelText,INPUT input,Element right)
-    {
-        this(null,columns,labelText,input,right);
-    }
-    public FormInput(Integer columns,String labelText,INPUT input)
-    {
-        this(null,columns,labelText,input,null);
-    }
-
-    
-    
     public INPUT input()
     {
         return this.input;

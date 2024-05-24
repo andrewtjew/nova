@@ -26,26 +26,26 @@ import org.nova.localization.CountryCode;
 
 public class FormSelectZoneId extends FormInput<SelectZoneId>
 {
-    public FormSelectZoneId(Integer columns, String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
+    public FormSelectZoneId(FormCol col, String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
     {
-        super(null, columns, labelText, new SelectZoneId(zoneIds,value), null);
+        super(col, labelText, new SelectZoneId(zoneIds,value), null);
         input().name(name).required(required);
     }
-    public FormSelectZoneId(Integer columns, String labelText,String name,ZoneId[] zoneIds,ZoneId value)
+    public FormSelectZoneId(FormCol col, String labelText,String name,ZoneId[] zoneIds,ZoneId value)
     {
-        this(columns, labelText, name,zoneIds,value,false);
+        this(col, labelText, name,zoneIds,value,false);
     }
-    public FormSelectZoneId(String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
+//    public FormSelectZoneId(String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
+//    {
+//        this(null,labelText,name,zoneIds,value,required);
+//    }
+//    public FormSelectZoneId(String labelText,String name,ZoneId[] zoneIds,ZoneId value)
+//    {
+//        this(labelText, name,zoneIds,value,false);
+//    }
+    public FormSelectZoneId(FormCol col,String labelText,String name,ZoneId[] zoneIds)
     {
-        this(null,labelText,name,zoneIds,value,required);
-    }
-    public FormSelectZoneId(String labelText,String name,ZoneId[] zoneIds,ZoneId value)
-    {
-        this(labelText, name,zoneIds,value,false);
-    }
-    public FormSelectZoneId(String labelText,String name,ZoneId[] zoneIds)
-    {
-        this(labelText,name,zoneIds,null);
+        this(col,labelText,name,zoneIds,null);
     }
     
 }

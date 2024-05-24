@@ -23,21 +23,21 @@ import org.nova.html.tags.div;
 
 public class FormInputSwitch extends FormInput<InputSwitch>
 {
-    public FormInputSwitch(Integer columns, String labelText,String name,boolean checked)
+    public FormInputSwitch(FormCol col, String labelText,String name,boolean checked)
     {
-        super(null, columns, labelText, new InputSwitch(), null);
+        super(col, labelText, new InputSwitch(), null);
         input().name(name).checked(checked);
     }
-    public FormInputSwitch(Integer columns, String labelText,String name)
+    public FormInputSwitch(FormCol col, String labelText,String name)
     {
-        this(columns, labelText, name,false);
+        this(col, labelText, name,false);
     }
-    public FormInputSwitch(String labelText,String name,boolean checked)
-    {
-        this(null,labelText,name,checked);
-    }
-    public FormInputSwitch(String labelText,String name)
-    {
-        this(labelText,name,false);
-    }
+//    public FormInputSwitch(String labelText,String name,boolean checked)
+//    {
+//        this(null,labelText,name,checked);
+//    }
+//    public FormInputSwitch(String labelText,String name)
+//    {
+//        this(labelText,name,false);
+//    }
 }

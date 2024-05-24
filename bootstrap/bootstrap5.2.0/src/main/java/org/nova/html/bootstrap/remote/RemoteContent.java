@@ -32,9 +32,20 @@ public class RemoteContent extends Item
     {
         this(null);
     }        
-    public RemoteContent href(String href,boolean showSpinner,String waitingMessage) throws Throwable
+    public RemoteContent load(String href,boolean showSpinner,String waitingMessage,Long interval,Long timeout) throws Throwable
     {
-        returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
+        if (interval!=null)
+        {
+            returnAddInner(new script()).addInner(HtmlUtils.js_setInterval(timeout, "nova.remote.getRemote",href));
+        }
+        else if (timeout!=null)
+        {
+            returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getRemote",href));
+        }
+        else
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
+        }
         if ((showSpinner||waitingMessage!=null))
         {
             Item item=new Item();

@@ -25,9 +25,9 @@ import org.nova.localization.CountryCode;
 
 public class FormInputCountry extends FormInput<InputText>
 {
-    public FormInputCountry(Integer columns, String labelText,String name,String value,boolean required)
+    public FormInputCountry(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(null, columns, labelText, new InputText(), null);
+        super(col, labelText, new InputText(), null);
         input().name(name).required(required);
         if (value!=null)
         {
@@ -40,28 +40,25 @@ public class FormInputCountry extends FormInput<InputText>
         }
         input().list(list);
     }
-    public FormInputCountry(Integer columns, String labelText,String name,String value)
+    public FormInputCountry(FormCol col, String labelText,String name,String value)
     {
-        this(columns, labelText, name,value,false);
+        this(col, labelText, name,value,false);
     }
-    public FormInputCountry(Integer columns, String labelText,String name,boolean required)
+    public FormInputCountry(FormCol col, String labelText,String name)
     {
-        this(columns, labelText, name,null,required);
+        this(col, labelText, name,null);
     }
-    public FormInputCountry(String labelText,String name,String value,boolean required)
-    {
-        this(null,labelText,name,value,required);
-    }
-    public FormInputCountry(String labelText,String name,String value)
-    {
-        this(labelText, name,value,false);
-    }
-    public FormInputCountry(String labelText,String name,boolean required)
-    {
-        this(labelText, name,null,required);
-    }
-    public FormInputCountry(String labelText,String name)
-    {
-        this(labelText,name,null);
-    }
+
+//    public FormInputCountry(String labelText,String name,String value,boolean required)
+//    {
+//        this(null,labelText,name,value,required);
+//    }
+//    public FormInputCountry(String labelText,String name,String value)
+//    {
+//        this(labelText, name,value,false);
+//    }
+//    public FormInputCountry(String labelText,String name)
+//    {
+//        this(labelText,name,null);
+//    }
 }

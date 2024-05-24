@@ -24,27 +24,27 @@ import org.nova.localization.CurrencyCode;
 
 public class FormSelectCurrency extends FormInput<SelectCurrency>
 {
-    public FormSelectCurrency(Integer columns, String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value,boolean required)
+    public FormSelectCurrency(FormCol col, String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value,boolean required)
     {
-        super(null, columns, labelText, new SelectCurrency(currencyCodes,value), null);
+        super(col, labelText, new SelectCurrency(currencyCodes,value), null);
         input().name(name).required(required);
         
     }
-    public FormSelectCurrency(Integer columns, String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value)
+    public FormSelectCurrency(FormCol col, String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value)
     {
-        this(columns, labelText, name,currencyCodes,value,false);
+        this(col, labelText, name,currencyCodes,value,false);
     }
-    public FormSelectCurrency(String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value,boolean required)
+//    public FormSelectCurrency(String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value,boolean required)
+//    {
+//        this(null,labelText,name,currencyCodes,value,required);
+//    }
+//    public FormSelectCurrency(String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value)
+//    {
+//        this(labelText, name,currencyCodes,value,false);
+//    }
+    public FormSelectCurrency(FormCol col,String labelText,String name,CurrencyCode[] currencyCodes)
     {
-        this(null,labelText,name,currencyCodes,value,required);
-    }
-    public FormSelectCurrency(String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value)
-    {
-        this(labelText, name,currencyCodes,value,false);
-    }
-    public FormSelectCurrency(String labelText,String name,CurrencyCode[] currencyCodes)
-    {
-        this(labelText,name,currencyCodes,null);
+        this(col,labelText,name,currencyCodes,null);
     }
     
 }
