@@ -1,4 +1,4 @@
-package org.nova.html.bootstrap.localization;
+package org.nova.html.bootstrap.remote;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.bootstrap.Button;

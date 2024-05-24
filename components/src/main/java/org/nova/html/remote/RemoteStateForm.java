@@ -6,13 +6,18 @@ import org.nova.http.server.annotations.ContentWriters;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateForm extends RemoteForm
 {
-    public RemoteStateForm(RemoteStateBinding binding, String action) throws Throwable
+    public RemoteStateForm(String id,RemoteStateBinding binding, String action) throws Throwable
     {
+        super(id);
         binding.setState(this);
         if (action!=null)
         {
             action(action);
         }
+    }
+    public RemoteStateForm(RemoteStateBinding binding,String action) throws Throwable
+    {
+        this(null,binding, action);
     }
 
     public RemoteStateForm(RemoteStateBinding binding) throws Throwable

@@ -8,14 +8,29 @@ import org.nova.html.enums.enctype;
 
 public class RemoteFormElement<ELEMENT extends RemoteFormElement<ELEMENT>> extends FormElement<ELEMENT>
 {
-    public RemoteFormElement(boolean submit)
+    public RemoteFormElement(String id,boolean submit)
     {
         super(method.post);
-        id();
+        if (id==null)
+        {
+            id();
+        }
+        else
+        {
+            id(id);
+        }
         if (submit)
         {
             this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
         }
+    }
+    public RemoteFormElement(boolean submit)
+    {
+        this(null,submit);
+    }
+    public RemoteFormElement(String id)
+    {
+        this(id,false);
     }
     public String js_post() throws Throwable
     {
