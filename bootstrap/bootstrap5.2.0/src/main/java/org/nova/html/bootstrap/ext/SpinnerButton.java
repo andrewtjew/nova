@@ -1,5 +1,7 @@
 package org.nova.html.bootstrap.ext;
 
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.ButtonComponent;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
@@ -16,17 +18,21 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     final private Spinner spinner;
     final private Span labelSpan;
 
-    public SpinnerButton(Element labelElement,SpinnerType type)
+    public SpinnerButton(Element labelElement,SpinnerType type,Size width)
     { 
         super("button");
         attr("type","button");
         this.spinner=returnAddInner(new Spinner("span", type, BreakPoint.sm));
         this.spinner.style("display:none;");
+        if (width!=null)
+        {
+            style("width:"+width.value()+width.unit()+";");
+        }
         this.labelSpan=returnAddInner(new Span()).addInner(labelElement);
     }
     public SpinnerButton(String label,SpinnerType type)
     {
-        this(new Text(label),type);
+        this(new Text(label),type,new Size(label.length()+1,unit.em));
     }
     public SpinnerButton(String label)
     {
@@ -35,17 +41,20 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     public SpinnerButton onclick(String script)
     {
         super.onclick(
-                HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"+
-        HtmlUtils.js_property(this.labelSpan.id(), "style.display","none")+";"+
+                HtmlUtils.js_classList_add(id(), "disabled")+";"
+                +HtmlUtils.js_property(this.spinner.id(), "style.display","inline-block")+";"
+                +HtmlUtils.js_property(this.labelSpan.id(), "style.display","none")+";"+
                         script
                 );
         return this;
     }    
 
-    public String js_hideSpinner()
+    public String js_reset()
     {
-        return HtmlUtils.js_property(this.spinner.id(), "style.display","none")+";"+
-                HtmlUtils.js_property(this.labelSpan.id(), "style.display","block")+";";
+        return HtmlUtils.js_property(this.spinner.id(), "style.display","none")+";"
+                +HtmlUtils.js_property(this.labelSpan.id(), "style.display","block")+";"
+                +HtmlUtils.js_classList_add(id(), "disabled")+";"
+                ;
     }    
 
     public SpinnerButton submit(FormElement<?> form)

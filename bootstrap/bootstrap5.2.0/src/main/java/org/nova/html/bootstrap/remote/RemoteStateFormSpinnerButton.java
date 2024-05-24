@@ -1,5 +1,7 @@
 package org.nova.html.bootstrap.remote;
 
+import org.nova.html.attributes.Size;
+import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.SpinnerType;
@@ -26,18 +28,18 @@ public class RemoteStateFormSpinnerButton extends SpinnerButton
     
     public RemoteStateFormSpinnerButton(RemoteForm form,String label) throws Throwable
     {
-        super(new SpinnerLabel(label),SpinnerType.border);
+        super(new SpinnerLabel(label),SpinnerType.border,null);
 //        this.disabled();
         style("height:2.5em;");
         color(StyleColor.primary);
-        onclick("if (mira.ui.reportValidity('"+form.id()+"')){"+HtmlUtils.js_classList_add(id(), "disabled")+";"+form.js_post()+";}else{"+js_hideSpinner()+";}");
+        onclick("if (mira.ui.reportValidity('"+form.id()+"')){"+form.js_post()+";}else{"+js_reset()+";}");
     }
     
     
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        returnAddInner(new script()).addInner(new LiteralHtml(js_hideSpinner()));
+        returnAddInner(new script()).addInner(new LiteralHtml(js_reset()));
         super.compose(composer);
     }            
         
