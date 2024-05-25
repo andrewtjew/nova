@@ -13,9 +13,11 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
+import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.tags.div;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -49,5 +51,10 @@ public class RemoteStateContent extends RemoteContent
     public RemoteStateBinding getRemoteStateBinding()
     {
         return this.binding;
+    }
+    
+    public String js_postStatic(String action) throws Exception, Throwable
+    {
+        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getKey(),id()).toString());
     }
 }

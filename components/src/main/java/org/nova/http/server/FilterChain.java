@@ -691,7 +691,7 @@ public class FilterChain
     		        if (object==null)
     		        {
     		            RequestHandler handler=context.getRequestHandler();
-    		            throw new Exception("No object for "+handler.getMethod().getDeclaringClass().getClass().getCanonicalName()+"."+handler.getMethod().getName());
+    		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing.");
     		        }
 		        }
 		    }

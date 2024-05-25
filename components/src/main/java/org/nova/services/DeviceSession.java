@@ -32,7 +32,7 @@ import org.nova.tracing.Trace;
 
 public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding
 {
-    final static boolean DEBUG=true;
+    final static boolean DEBUG=false;
     final protected HashMap<String,Object> pageStates;
     final protected ZoneId zoneId;
     final private long deviceSessionId;
@@ -112,10 +112,10 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         if (state!=null)
         {
             this.pageStates.put(key, state);
-//            if (Debugging.ENABLE && DEBUG)
-//            {
-//                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
-//            }            
+            if (Debugging.ENABLE && DEBUG)
+            {
+                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+            }            
         }
     }
     @Override
