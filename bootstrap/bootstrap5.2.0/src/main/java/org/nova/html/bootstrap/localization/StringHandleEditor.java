@@ -26,8 +26,12 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.DropdownButtonMenuGroup;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.bootstrap.ext.DataTables.DataTable;
+import org.nova.html.bootstrap.ext.input.Switch;
 import org.nova.html.bootstrap.remote.ProceedModal;
+<<<<<<< HEAD
 import org.nova.html.bootstrap.remote.Switch2;
+=======
+>>>>>>> 12f868694b9b67bc35357055ad4004bb478abacc
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.enums.method;

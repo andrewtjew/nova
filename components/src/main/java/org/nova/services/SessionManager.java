@@ -131,6 +131,15 @@ public class SessionManager<SESSION extends Session>
         return removeSession(parent,getSessionByToken(token));
     }
     
+    public void clear()
+    {
+        synchronized(this)
+        {
+            this.userSessions.clear();
+            this.tokenSessions.clear();
+        }
+    }
+    
     public boolean removeSession(Trace parent,SESSION session)
     {
         if (session==null)

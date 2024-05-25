@@ -12,6 +12,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remoting.Inputs;
 
+@Deprecated
 public class ProceedModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;

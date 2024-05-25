@@ -29,26 +29,26 @@ import org.nova.http.server.Context;
 import org.nova.tracing.Trace;
 import org.nova.html.ext.Redirect;;
 
-public class RedirectAbnormalSessionRequestHandler implements AbnormalSessionRequestHandling
+public class RedirectAbnormalSessionRequestHandling implements AbnormalSessionRequestHandling
 {
 
     final private String noSessionRedirect;
     final private String accessDeniedRedirect;
     final private String noLockRedirect;
     
-    public RedirectAbnormalSessionRequestHandler(String noSessionRedirect,String accessDeniedRedirect,String noLockRedirect)
+    public RedirectAbnormalSessionRequestHandling(String noSessionRedirect,String accessDeniedRedirect,String noLockRedirect)
     {
         this.noSessionRedirect=noSessionRedirect;
         this.accessDeniedRedirect=accessDeniedRedirect;
         this.noLockRedirect=noLockRedirect;
     }
 
-    public RedirectAbnormalSessionRequestHandler(String redirect)
+    public RedirectAbnormalSessionRequestHandling(String redirect)
     {
         this(redirect,redirect,redirect);
     }
 
-    public RedirectAbnormalSessionRequestHandler()
+    public RedirectAbnormalSessionRequestHandling()
     {
         this("/");
     }

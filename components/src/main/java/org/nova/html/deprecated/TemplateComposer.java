@@ -28,6 +28,8 @@ import org.nova.html.deprecated.TemplateComposer;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.QuotationMark;
+import org.nova.html.ext.LocalText;
+import org.nova.localization.LocalTextResolver;
 
 public class TemplateComposer extends Composer
 {
@@ -72,5 +74,11 @@ public class TemplateComposer extends Composer
     static public Template build(Element element) throws Throwable
     {
         return new TemplateComposer().compose_(element);
+    }
+
+    @Override
+    public LocalTextResolver getLocalTextResolver()
+    {
+        return null;
     }
 }

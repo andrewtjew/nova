@@ -34,6 +34,7 @@ import org.nova.core.ObjectBox;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
+import org.nova.localization.LocalTextResolver;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
@@ -52,6 +53,7 @@ public class Context
 	private EncoderContext encoderContext;
 	final private FilterChain filterChain;
 	private HashMap<String,CookieState> cookieStates;
+	private LocalTextResolver resolver;
 	
 	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
@@ -183,20 +185,28 @@ public class Context
 		}
 		return null;
 	}
-	
+    public LocalTextResolver getLocalTextResolver()
+    {
+        return this.resolver;
+    }
+    public void setLocalTextResolver(LocalTextResolver resolver)
+    {
+        this.resolver=resolver;
+    }
 	public <T> T getState()
 	{
 		return (T)state;
 	}
     public void setState(Object state)
     {
+        this.filterChain.setStateParameter(state);
         this.state = state;
     }
 
-    public void setStateParameter(Object state)
-    {
-        this.filterChain.setStateParameter(state);
-    }
+//    public void setStateParameter(Object state)
+//    {
+//        this.filterChain.setStateParameter(state);
+//    }
     public void setContentParameter(Object content)
     {
         this.filterChain.setContentParameter(content);
@@ -214,10 +224,6 @@ public class Context
 	{
 		return responseContentText;
 	}
-//	public void setResponseContentText(String responseContentText)
-//	{
-//		this.responseContentText=responseContentText;
-//	}
 	private boolean requestContentTextValid=false;
 	
 	public void writeContent(String text) throws Throwable

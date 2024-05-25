@@ -59,6 +59,7 @@ public class QueryResultSet
     {
         return getObjects(null,type);
     }
+    @SuppressWarnings("unchecked")
     public <OBJECT extends NodeObject> OBJECT getObject() throws Throwable
     {
         if (this.results.length==0)

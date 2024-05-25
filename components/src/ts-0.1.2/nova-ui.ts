@@ -169,64 +169,6 @@ namespace nova.ui.search
         }
     
     }
-    
-    // export function toggleInput(checkboxId:string,inputId:string):void
-    // {
-    //     var checkbox=document.getElementById(checkboxId) as HTMLInputElement;
-    //     var input=document.getElementById(inputId) as HTMLInputElement;
-    //     input.disabled=!checkbox.checked;
-    // }
-
-    // export function showModalMessage(root:string,header:string,body:string)
-    // {
-    //     document.getElementById(root+".header").innerHTML=header;
-    //     document.getElementById(root+".body").innerHTML=body;
-    //     $('#'+root).modal("show");
-
-    // }
-
-    // export function validate()
-    // {
-    //         var forms = document.getElementsByClassName('needs-validation');
-    //         var validation = Array.prototype.filter.call(forms, function(form)
-    //         {
-    //             form.addEventListener('submit', function(event)
-    //             {
-    //                 if (form.checkValidity()===false)
-    //                 {
-    //                     event.preventDefault();
-    //                     event.stopPropagation();
-    //                 }
-    //                 form.classList.add('was-validated');
-    //             }
-    //             ,false);
-    //         }
-    //         );
-    // }
-
-    // export function validateOnLoad()
-    // {
-    //     window.addEventListener('load', function()
-    //     {
-    //         var forms = document.getElementsByClassName('needs-validation');
-    //         var validation = Array.prototype.filter.call(forms, function(form)
-    //         {
-    //             form.addEventListener('submit', function(event)
-    //             {
-    //                 if (form.checkValidity()===false)
-    //                 {
-    //                     event.preventDefault();
-    //                     event.stopPropagation();
-    //                 }
-    //                 form.classList.add('was-validated');
-    //             }
-    //             ,false);
-    //         }
-    //         );
-    //     }
-    //     , false);
-    // }
-
 }
 namespace nova.ui.password
 {
@@ -392,4 +334,138 @@ namespace nova.ui.password
     
 }
 
+namespace nova.ui.remote
+{
+    export  class RemoteSearchSelect
+    {
+        private inputElement:HTMLInputElement;
+        private action:string;
+        private remoteStateBinding:string;
+        private id:string;
+        private optionIndex:number;
+        private selectedOptionElement:HTMLElement;
+        private selectedColor="bg-secondary";
+        private blur:boolean=false;
 
+        constructor(remoteStateBinding:string,action:string,id:string)
+        {
+            this.remoteStateBinding=remoteStateBinding;
+            this.action=action;
+            this.id=id;
+            this.inputElement=document.getElementById(id) as HTMLInputElement;
+            this.optionIndex=-1;
+        }
+    
+        private timer:number=null;
+
+        public processBlur(event:Event)
+        {
+            if (this.timer!=null)
+            {
+                clearTimeout(this.timer);
+            }
+            setTimeout(()=>{this.clearOptions();},200);
+        }
+
+        clearOptions()
+        {
+            var element=document.getElementById(this.id+"-options");
+            element.innerHTML="";
+        }
+
+        public processKeyup(event:KeyboardEvent)
+        {
+            if (this.keydownCaptured==false)
+            {
+                console.log("keyup:"+event.keyCode);
+                if (this.timer!=null)
+                {
+                    clearTimeout(this.timer);
+                }
+                this.timer=setTimeout(()=>{this.post();},400);
+            }
+            this.keydownCaptured=false;
+        }
+        public post()
+        {
+            if ((this.inputElement.value==null)||(this.inputElement.value.length==0))
+            {
+                return;
+            }
+            var pathAndQuery=this.action+"/options?"+this.remoteStateBinding+"&search="+encodeURIComponent(this.inputElement.value);
+            console.log("path:"+pathAndQuery);
+            this.optionIndex=-1;
+            if (this.selectedOptionElement!=null)
+            {
+                this.selectedOptionElement.classList.remove(this.selectedColor);
+                this.selectedOptionElement.classList.remove("bg-opacity-25");
+            }
+            nova.remote.postStatic(pathAndQuery);
+
+        }
+
+        keydownCaptured:boolean;
+        public processKeydown(event:KeyboardEvent)
+        {
+            console.log("keydown:"+event.keyCode);
+            var newOptionIndex=null;
+            if (event.keyCode==40) //down
+            {
+                newOptionIndex=this.optionIndex+1;
+            }
+            else if (event.keyCode==38) //up
+            {
+                newOptionIndex=this.optionIndex-1;
+            }
+            else if (event.keyCode==13)
+            {
+                if (this.selectedOptionElement!=null)
+                {
+                    console.log("click:"+newOptionIndex);
+
+                    this.selectedOptionElement.click();
+                    return;
+                    // var pathAndQuery=this.action+"/select?_id="+this.id+"&index="+this.optionIndex;
+                    // console.log("path:"+pathAndQuery);
+                    // nova.remote.postStatic(pathAndQuery);
+                }
+            }
+            console.log("index:"+newOptionIndex);
+            if (newOptionIndex!=null)
+            {
+                this.keydownCaptured=true;
+                var optionElement=document.getElementById(this.id+"-option-"+newOptionIndex);
+                if (optionElement!=null)
+                {
+                    if (this.selectedOptionElement!=null)
+                    {
+                        this.selectedOptionElement.classList.remove(this.selectedColor);
+                        this.selectedOptionElement.classList.remove("bg-opacity-25");
+                    }
+                    this.optionIndex=newOptionIndex;
+                    this.selectedOptionElement=optionElement;
+                    this.selectedOptionElement.classList.add(this.selectedColor);
+                    this.selectedOptionElement.classList.add("bg-opacity-25");
+                }
+           }
+        }
+    }
+}
+
+namespace nova.ui
+{
+    export function toggleOptionalTextInput(checkId:string,inputId:string,reversed:boolean)
+    {
+        var checkElement = document.getElementById(checkId) as HTMLInputElement;
+        var inputElement = document.getElementById(inputId) as HTMLInputElement;
+        if (checkElement.checked!=reversed)
+        {
+            inputElement.setAttribute("disabled","true");
+        }
+        else
+        {
+            inputElement.removeAttribute("disabled");
+        }
+
+    }    
+}

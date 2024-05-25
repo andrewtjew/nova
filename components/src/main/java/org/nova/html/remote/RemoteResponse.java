@@ -11,15 +11,23 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
 import org.nova.json.ObjectMapper;
+import org.nova.localization.LocalTextResolver;
 
 public class RemoteResponse
 {
     private final ArrayList<Instruction> instructions;
     boolean trace;
-    public RemoteResponse()
+    final LocalTextResolver resolver;
+    
+    public RemoteResponse(LocalTextResolver resolver)
     {
+        this.resolver=resolver;
         this.instructions=new ArrayList<Instruction>();
         this.trace=false;
+    }
+    public RemoteResponse()
+    {
+        this(null);
     }
     
     
@@ -56,7 +64,7 @@ public class RemoteResponse
     }
     public RemoteResponse innerHtml(String id,Element element,QuotationMark mark)
     {
-        String text=element.getHtml(mark);
+        String text=element.getHtml(mark,this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
         return this;
     }
@@ -68,26 +76,26 @@ public class RemoteResponse
         }
         else
         {
-            String text=element.getHtml();
+            String text=element.getHtml(this.resolver);
             this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
         }
         return this;
     }
     public RemoteResponse outerHtml(String id,Element element,QuotationMark mark)
     {
-        String text=element.getHtml(mark);
+        String text=element.getHtml(mark,this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
         return this;
     }
     public RemoteResponse outerHtml(String id,Element element)
     {
-        String text=element.getHtml();
+        String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
         return this;
     }
     public RemoteResponse outerHtml(TagElement element)
     {
-        String text=element.getHtml();
+        String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,element.id(),text));
         return this;
     }
@@ -98,7 +106,7 @@ public class RemoteResponse
     }
     public RemoteResponse innerText(String id,Element element)
     {
-        String text=element.getHtml();
+        String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
         return this;
     }

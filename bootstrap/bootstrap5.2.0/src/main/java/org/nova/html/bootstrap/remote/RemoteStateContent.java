@@ -6,9 +6,6 @@ import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.HtmlElementWriter;
@@ -16,10 +13,11 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
-import org.nova.html.remote.RemoteForm;
-import org.nova.html.remote.RemoteFormElement;
+import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.html.tags.div;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -27,7 +25,7 @@ import org.nova.http.server.FilterChain;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
-import org.nova.http.server.StateHandling;
+import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
@@ -39,10 +37,24 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateItem extends RemoteItem
+public class RemoteStateContent extends RemoteContent
 {
-    public RemoteStateItem(StateHandling stateHandling) throws Throwable
+    final private RemoteStateBinding binding;
+    
+    public RemoteStateContent(RemoteStateBinding binding) throws Throwable
     {
-        stateHandling.setHandlerElement(this);
+        super(null);
+        binding.setState(this);
+        this.binding=binding;
+    }
+    
+    public RemoteStateBinding getRemoteStateBinding()
+    {
+        return this.binding;
+    }
+    
+    public String js_postStatic(String action) throws Exception, Throwable
+    {
+        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getKey(),id()).toString());
     }
 }

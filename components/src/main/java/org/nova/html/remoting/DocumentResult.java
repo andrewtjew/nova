@@ -27,6 +27,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.StringComposer;
 import org.nova.json.ObjectMapper;
 
+@Deprecated
 public class DocumentResult extends Result
 {
     final private ArrayList<ClearTimerCommand> clearTimerCommands;

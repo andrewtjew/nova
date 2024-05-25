@@ -680,18 +680,18 @@ public class FilterChain
 		        ObjectBox box=context.getStateParameter();
 		        if (box!=null)
 		        {
-    		        Object state=box.get();
-    		        if (state!=null)
+    		        Object binding=box.get();
+    		        if (binding!=null)
     		        {
-    		            if (state instanceof StateHandling)
+    		            if (binding instanceof RemoteStateBinding)
     		            {
-    		                object=((StateHandling)state).getHandlerElement(context);
+    		                object=((RemoteStateBinding)binding).getState(context);
     		            }
     		        }
     		        if (object==null)
     		        {
     		            RequestHandler handler=context.getRequestHandler();
-    		            throw new Exception("No object for "+handler.getMethod().getDeclaringClass().getClass().getCanonicalName()+"."+handler.getMethod().getName());
+    		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing.");
     		        }
 		        }
 		    }

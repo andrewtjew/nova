@@ -24,6 +24,7 @@ package org.nova.services;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
+import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
 
 public abstract class SessionServerApplication<SESSION extends Session> extends ServerApplication
@@ -51,11 +52,21 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
         String cookieTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.cookie", headerTokenKey);
         this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
 
-        this.getMenuBar().add("/operator/sessions","Sessions","View All");
         this.getPublicServer().addBottomFilters(this.sessionFilter);
+        this.getMenuBar().add("/operator/sessions","Sessions","View All");
         
         SessionOperatorPages<SESSION> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);
+        
+        if (isTest()==false)
+        {
+            if (TagElement.INCLUDE_STACK_TRACE_LEVELS>0)
+            {
+                String message="Build configuration: TagElement.INCLUDE_STACK_TRACE_LEVELS="+TagElement.INCLUDE_STACK_TRACE_LEVELS;
+                System.err.println(message);
+                throw new Exception(message);
+            }
+        }
     }
 
     public SessionManager<SESSION> getSessionManager()

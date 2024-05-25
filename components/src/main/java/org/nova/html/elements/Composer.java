@@ -23,12 +23,15 @@ package org.nova.html.elements;
 
 import java.util.Stack;
 
+import org.nova.html.ext.LocalText;
+import org.nova.localization.LocalTextResolver;
+
 public abstract class Composer
 {
     private QuotationMark quotationMark;
     private Stack<QuotationMark> stack;
     public abstract StringBuilder getStringBuilder();
-
+    public abstract LocalTextResolver getLocalTextResolver();
     
     public Composer(QuotationMark quotationMark)
     {
@@ -60,4 +63,5 @@ public abstract class Composer
             element.compose(this);
         }
     }
+    
 }

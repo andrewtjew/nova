@@ -21,17 +21,23 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
+import org.nova.localization.LocalTextResolver;
+
 public abstract class Element
 {
     abstract public void compose(Composer composer) throws Throwable;
 
     private QuotationMark mark=QuotationMark.DOUBLE;
-    @Override
-    public String toString()
-    {
-        return getHtml();
-    }
+//    @Override
+//    public String toString()
+//    {
+//        return getHtml();
+//    }
     
+    public String getHtml()
+    {
+        return getHtml((LocalTextResolver)null);
+    }
     public String getHtml(Composer composer)
     {
         try
@@ -43,25 +49,25 @@ public abstract class Element
         {
             throw new RuntimeException(t);
         }
-   }
-    public String getHtml()
-    {
-        return getHtml(mark);
     }
-    public void setQuotationMark(QuotationMark mark)
+    public String getHtml(QuotationMark quotationMark,LocalTextResolver resolver)
     {
-        this.mark=mark;
+        return getHtml(new StringComposer(quotationMark,resolver));
     }
-    public QuotationMark getQuotationMark()
+   public String getHtml(LocalTextResolver resolver)
     {
-        return this.mark;
+        return getHtml(mark,resolver);
     }
+//    public void setQuotationMark(QuotationMark mark)
+//    {
+//        this.mark=mark;
+//    }
+//    public QuotationMark getQuotationMark()
+//    {
+//        return this.mark;
+//    }
     
-    public String getHtml(QuotationMark quotationMark)
-    {
-        return getHtml(new StringComposer(quotationMark));
-   }
-
+ 
     static public String HREF_LOCAL_DIRECTORY=null;
     
     static protected String replaceURL(String URL)

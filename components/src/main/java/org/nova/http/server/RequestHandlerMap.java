@@ -152,7 +152,7 @@ class RequestHandlerMap
 		{
 		    if (Modifier.isPublic(classType.getModifiers())==false)
 		    {
-  //              throw new Exception("Class must be public. Site=" + classType.getCanonicalName());
+                throw new Exception("Class must be public. Site=" + classType.getCanonicalName());
 		    }
     		for (Annotation annotation : classType.getAnnotations())
     		{

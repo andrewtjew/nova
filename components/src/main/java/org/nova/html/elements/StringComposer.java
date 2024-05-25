@@ -21,24 +21,35 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
+import org.nova.html.ext.LocalText;
+import org.nova.localization.LocalTextResolver;
+
 public class StringComposer extends Composer
 {
     final private StringBuilder sb;
-
+    final private LocalTextResolver resolver;
     public StringComposer()
     {
-
-        this(QuotationMark.DOUBLE);
+        this((LocalTextResolver)null);
+    }
+    public StringComposer(LocalTextResolver resolver)
+    {
+        this(QuotationMark.DOUBLE,resolver);
+    }
+    public StringComposer(QuotationMark quotationMark,LocalTextResolver resolver)
+    {
+        this(quotationMark,new StringBuilder(),resolver);
     }
     public StringComposer(QuotationMark quotationMark)
     {
-        this(quotationMark,new StringBuilder());
+        this(quotationMark,new StringBuilder(),null);
     }
 
-    public StringComposer(QuotationMark quotationMark,StringBuilder sb)
+    public StringComposer(QuotationMark quotationMark,StringBuilder sb,LocalTextResolver resolver)
     {
         super(quotationMark);
         this.sb=sb;
+        this.resolver=resolver;
     }
 
     @Override
@@ -46,5 +57,10 @@ public class StringComposer extends Composer
     {
         return this.sb;
     }
-    
+
+    @Override
+    public LocalTextResolver getLocalTextResolver()
+    {
+        return this.resolver;
+    }
 }
