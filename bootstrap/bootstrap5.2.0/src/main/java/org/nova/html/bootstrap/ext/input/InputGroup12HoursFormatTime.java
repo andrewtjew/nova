@@ -10,13 +10,13 @@ import org.nova.localization.CountryCode;
 import org.nova.localization.CurrencyCode;
 import org.nova.utils.TypeUtils;
 
-public class MultiSelectAMPMTime extends Item
+public class InputGroup12HoursFormatTime extends Item
 {
     final private String namePrefix;
     final int minuteStep;
     final Integer secondStep;
 
-    public MultiSelectAMPMTime(String namePrefix,int minuteStep,Integer secondStep,Integer hourValue,Integer minuteValue,Integer secondValue)
+    public InputGroup12HoursFormatTime(String namePrefix,int minuteStep,Integer secondStep,Integer hourValue,Integer minuteValue,Integer secondValue)
     {
         input_group().d(Display.flex);
         this.minuteStep=minuteStep;
@@ -25,12 +25,12 @@ public class MultiSelectAMPMTime extends Item
 
         set(hourValue,minuteValue,secondValue);
     }
-    public MultiSelectAMPMTime(String namePrefix,int minuteStep,int secondStep)
+    public InputGroup12HoursFormatTime(String namePrefix,int minuteStep,int secondStep)
     {
         this(namePrefix,minuteStep,secondStep,null,null,null);
     }
     
-    public MultiSelectAMPMTime set(Integer hourValue,Integer minuteValue,Integer secondValue)
+    public InputGroup12HoursFormatTime set(Integer hourValue,Integer minuteValue,Integer secondValue)
     {
         clearInners();
         SelectHourAMPM selectHour=new SelectHourAMPM(hourValue);
