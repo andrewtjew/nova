@@ -29,10 +29,11 @@ public class SelectMinute extends Select
         {
             prompt.disabled();
         }
+        
         for (int i=0;i<60;i+=this.step)
         {
             option option=returnAddInner(new option()).value(i);
-            option.addInner(i);    
+            option.addInner(String.format("%02d", i));    
             option.selected(TypeUtils.equals(value,i));
         }
         return this;

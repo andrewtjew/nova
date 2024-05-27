@@ -235,12 +235,12 @@ public class GraphTransaction implements AutoCloseable
         return deleteLinks(direction,nodeObject.getNodeId(),relation,objectType);
     }
 
-    public int deleteLinks(long fromNodeId,Relation_ relation) throws Throwable
-    {
-        throw new Exception();
-//        String typeName=relation.getClass().getSimpleName();
-//        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=? and relation=?",fromNodeId,typeName,relation.getValue());
-    }
+//    public int deleteLinks(long fromNodeId,Relation_ relation) throws Throwable
+//    {
+//        throw new Exception();
+////        String typeName=relation.getClass().getSimpleName();
+////        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND type=? and relation=?",fromNodeId,typeName,relation.getValue());
+//    }
 
 //    public int deleteLink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
 //    {
@@ -284,18 +284,13 @@ public class GraphTransaction implements AutoCloseable
         return deleteLink(fromNode,relation,null,toNode.getNodeId());
     }
 
-//    public int deleteLinks(long fromNodeId,long toNodeId) throws Throwable
-//    {
-//        return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=?",fromNodeId,toNodeId);
-//    }
-
-    public int delete(QueryResultSet set,Class<? extends NodeObject> type) throws Throwable
+    private int deleteNodes(Class<? extends NodeObject> deleteNodeType,QueryResultSet set) throws Throwable
     {
         //TODO: SQL can be optimized
         int deleted=0;
         for (QueryResult result:set.results)
         {
-            NodeObject node=result.get(type);
+            NodeObject node=result.get(deleteNodeType);
             if (node!=null)
             {
                 long nodeId=node.getNodeId();
@@ -305,6 +300,7 @@ public class GraphTransaction implements AutoCloseable
         System.out.println("deleted:"+deleted);
         return deleted;
     }
+
     
     public boolean deleteNode(long nodeId) throws Throwable
     {
@@ -321,13 +317,30 @@ public class GraphTransaction implements AutoCloseable
     {
         if (node!=null)
         {
-            if (node._nodeId==null)
+            if (node._nodeId!=null)
             {
-                throw new Exception("Not a graph node");
+                return deleteNode(node.getNodeId());
             }
-            return deleteNode(node.getNodeId());
         }
         return false;
+    }
+//    public int deleteNodes(NodeObject[] nodes) throws Throwable
+//    {
+//        int total=0;
+//        for (NodeObject node:nodes)
+//        {
+//            total+=deleteNode(node)?1:0;
+//        }
+//        return total;
+//    }
+    public int deleteNodes(NodeObject...nodes) throws Throwable
+    {
+        int total=0;
+        for (NodeObject node:nodes)
+        {
+            total+=deleteNode(node)?1:0;
+        }
+        return total;
     }
     
     public void commit() throws Throwable
