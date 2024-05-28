@@ -37,14 +37,14 @@ import org.nova.testing.Debugging;
 
 public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement<ELEMENT>
 {
-    private String id;
+    String id;
     final private String tag;
     final private boolean noEndTag;
     final private StringBuilder classBuilder;
 //    final private ArrayList<NameObject> attributes;
     final private HashMap<String,Object> attributes;
     
-    final public static int INCLUDE_STACK_TRACE_LEVELS=2;
+    final public static int INCLUDE_STACK_TRACE_LEVELS=0;
     final static String STACK_TRACE_KEY="java-source"; 
 //    final static String STACK_TRACE_KEY="title"; //Use this to view the stack traces by using the mouse, but clashes with html elements using the title attribute
     

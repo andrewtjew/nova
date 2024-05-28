@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Text;
+import org.nova.utils.TypeUtils;
 
 public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
 {
@@ -118,6 +119,27 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         return this.inners;
     }
     
+    public ELEMENT removeInnersById(String id)
+    {
+        if (this.inners!=null)
+        {
+            List<Element> list=this.inners;
+            this.inners=new ArrayList<>(); 
+            
+            for (Element inner:list)
+            {
+                if (inner instanceof TagElement<?>)
+                {
+                    TagElement<?> tagElement=(TagElement<?>)inner;
+                    if (TypeUtils.equals(id, tagElement.id)==false)
+                    {
+                        this.inners.add(tagElement);
+                    }
+                }
+            }
+        }
+        return (ELEMENT)this;
+    }
     
     @Override
     public void compose(Composer composer) throws Throwable
