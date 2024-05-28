@@ -12,7 +12,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remoting.Inputs;
 
-@Deprecated
+
 public class ProceedModal extends ModalDocument
 {
     final private ButtonComponent<?> proceedButton;
@@ -47,7 +47,7 @@ public class ProceedModal extends ModalDocument
         this(id,
                 title,message
                 ,new Button(cancel).color(StyleColor.warning).w(25)
-                ,new SpinnerButton(proceed).color(StyleColor.success).w(25)
+                ,new SpinnerButton(proceed).color(StyleColor.primary).w(25)
                 );
     }
     public ProceedModal(String title,String message,String cancel,String proceed) throws Throwable

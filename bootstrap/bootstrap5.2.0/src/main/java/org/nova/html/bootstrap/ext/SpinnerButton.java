@@ -21,14 +21,17 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     public SpinnerButton(Element labelElement,SpinnerType type,Size width)
     { 
         super("button");
+        id();
         attr("type","button");
         this.spinner=returnAddInner(new Spinner("span", type, BreakPoint.sm));
+        this.spinner.id();
         this.spinner.style("display:none;");
         if (width!=null)
         {
             style("width:"+width.value()+width.unit()+";");
         }
         this.labelSpan=returnAddInner(new Span()).addInner(labelElement);
+        this.labelSpan.id();
     }
     public SpinnerButton(String label,SpinnerType type)
     {
@@ -53,7 +56,7 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     {
         return HtmlUtils.js_property(this.spinner.id(), "style.display","none")+";"
                 +HtmlUtils.js_property(this.labelSpan.id(), "style.display","block")+";"
-                +HtmlUtils.js_classList_add(id(), "disabled")+";"
+                +HtmlUtils.js_classList_remove(id(), "disabled")+";"
                 ;
     }    
 

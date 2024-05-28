@@ -68,6 +68,16 @@ public class Query
         this.nodeTypes = nodeTypes;
         return this;
     }
+    
+    //This is a hack for now. 
+    final public Query follow(Class<? extends NodeObject> followType) throws Throwable
+    {
+        if (this.nodeTypes!=null)
+        {
+            throw new Exception();
+        }
+        return select(followType);
+    }
     @SafeVarargs
     final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
     {

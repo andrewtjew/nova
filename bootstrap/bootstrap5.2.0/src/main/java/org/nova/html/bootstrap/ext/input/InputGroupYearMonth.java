@@ -10,13 +10,13 @@ import org.nova.localization.CountryCode;
 import org.nova.localization.CurrencyCode;
 import org.nova.utils.TypeUtils;
 
-public class MultiSelectYearMonth extends Item
+public class InputGroupYearMonth extends Item
 {
     final private String namePrefix;
     final private int baseYear;
     final private int years;
 
-    public MultiSelectYearMonth(String namePrefix,int baseYear,int years,Integer yearValue,Integer monthValue)
+    public InputGroupYearMonth(String namePrefix,int baseYear,int years,Integer yearValue,Integer monthValue)
     {
         input_group().d(Display.flex);
         this.namePrefix=namePrefix;
@@ -25,16 +25,16 @@ public class MultiSelectYearMonth extends Item
 
         set(yearValue,monthValue);
     }
-    public MultiSelectYearMonth(String namePrefix,int baseYear,int years)
+    public InputGroupYearMonth(String namePrefix,int baseYear,int years)
     {
         this(namePrefix,baseYear,years,null,null);
     }
     
-    public MultiSelectYearMonth set(Integer yearValue,Integer monthValue)
+    public InputGroupYearMonth set(Integer yearValue,Integer monthValue)
     {
         clearInners();
         SelectYear selectYear=new SelectYear(this.baseYear,years,yearValue);
-        SelectMonth selectMonth=new SelectMonth(monthValue);
+        SelectMonth selectMonth=new SelectMonth().set(monthValue);
 
         selectYear.name(namePrefix+"-year").form_control();
         selectMonth.name(namePrefix+"-month").form_control();
