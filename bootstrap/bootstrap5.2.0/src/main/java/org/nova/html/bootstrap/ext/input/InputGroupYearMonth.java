@@ -34,7 +34,7 @@ public class InputGroupYearMonth extends Item
     {
         clearInners();
         SelectYear selectYear=new SelectYear(this.baseYear,years,yearValue);
-        SelectMonth selectMonth=new SelectMonth(monthValue);
+        SelectMonth selectMonth=new SelectMonth().set(monthValue);
 
         selectYear.name(namePrefix+"-year").form_control();
         selectMonth.name(namePrefix+"-month").form_control();

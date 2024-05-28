@@ -928,7 +928,6 @@ class RequestHandlerMap
 		{
 			throw new Exception("Invalid http method=" + method + ". Site=" + requestHandler.getMethod().getName());
 		}
-		this.requestHandlers.put(requestHandler.getKey(), requestHandler);
 		String[] fragments = Utils.split(path, '/');
 		if (fragments[0].length() != 0)
 		{
@@ -976,9 +975,27 @@ class RequestHandlerMap
 		}
 		if (node.requestHandler != null)
 		{
-			throw new Exception(
-					"Path conflict. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
-							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+
+            if (requestHandler.getObject()!=null)
+		    {
+    			throw new Exception(
+    			        "Path conflict with incompatible types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+    							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+		    }
+//            if (TypeUtils.isDerivedFrom(node.requestHandler.getMethod().getDeclaringClass(), requestHandler.getMethod().getDeclaringClass())==false)
+//            {
+//                throw new Exception(
+//                        "Path conflict with incompatible state types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+//                                 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+//            }
+            if (node.requestHandler.getMethod().equals(requestHandler.getMethod())==false)
+            {
+                throw new Exception(
+                        "Path conflict types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+                                 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+            }
+            
+            return;
 		}
 		ParameterInfo[] parameterInfos = requestHandler.getParameterInfos();
 		for (int i = 0; i < parameterInfos.length; i++)
@@ -995,6 +1012,7 @@ class RequestHandlerMap
 			}
 		}
 		node.requestHandler = requestHandler;
+        this.requestHandlers.put(requestHandler.getKey(), requestHandler);
 	}
 
 	RequestHandlerWithParameters resolve(String method, String path)
