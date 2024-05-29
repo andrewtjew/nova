@@ -179,7 +179,7 @@ public class GraphTransaction implements AutoCloseable
     private long link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,RelationObjectType_ objectType,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
         long relationValue=toRelationValue(relation, objectType);
-        deleteLink(fromNodeId,relation,objectType,toNodeId);
+        deleteLink(fromNodeId,relation,objectType,toNodeId);//We should just check if link exist and return. 
         long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Insert.table("_link").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
                 .value("relationValue", relationValue)

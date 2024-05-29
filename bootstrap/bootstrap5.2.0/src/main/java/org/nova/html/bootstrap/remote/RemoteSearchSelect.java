@@ -51,8 +51,6 @@ import org.nova.utils.TypeUtils;
 import xp.nova.sqldb.graph.Query;
 import xp.nova.sqldb.graph.QueryResult;
 
-
-@Path(RemoteSearchSelect.PATH)
 @RequiredRoles()
 public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> extends RemoteStateContent
 {
@@ -61,18 +59,42 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     final private Item options;
     final private String instanceName;
     final private InputText inputText;
-    public RemoteSearchSelect(RemoteStateBinding binding,Icon searchIcon) throws Throwable
+    public RemoteSearchSelect(RemoteStateBinding binding,Size size,Icon searchIcon,String searchMessage) throws Throwable
     {
         super(binding);
         style("z-index:1000;");
         
         Item group=returnAddInner(new Item()).input_group().position(Position.relative);
-        group.returnAddInner(new Span()).addInner(searchIcon).input_group_text();
+        Span messageSpan=group.returnAddInner(new Span()).input_group_text();
+        if (searchIcon!=null)
+        {
+            messageSpan.addInner(searchIcon);
+        }
+        if (searchMessage!=null)
+        {
+            Item messageItem=messageSpan.returnAddInner(new Item()).addInner(searchMessage);
+            if (searchIcon!=null)
+            {
+                messageItem.ps(2);
+            }
+        }
         this.inputText=group.returnAddInner(new InputText());
         this.inputText.form_control().autocomplete(autocomplete.off).autofocus();
 
         this.options=group.returnAddInner(new Item()).id(this.inputText.id()+"-options").border(Edge.bottom).border(Edge.start).border(Edge.end);
-        this.options.style("left:2.5em;top:2.25em;right:0px;");
+        if (size!=null)
+        {
+            this.inputText.style("width:"+size.toString());
+            this.options.style("top:2.25em;right:0px;width:"+size.toString());
+        }
+        else if ((searchIcon!=null)&&(searchMessage==null))
+        {
+            this.options.style("top:2.25em;right:0px;left:2.5em;");
+        }
+        else
+        {
+            this.options.style("top:2.25em;right:0px;left:0;");
+        }
         this.options.position(Position.absolute).bg(StyleColor.light);
 
         this.instanceName=RemoteSearchSelect.class.getSimpleName()+id();
@@ -80,7 +102,12 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
         this.inputText.onkeydown(instanceName+".processKeydown(event);");
         this.inputText.onblur(instanceName+".processBlur(event);");
         this.inputText.onfocus(instanceName+".post();");
-        returnAddInner(new script()).addInner(HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), binding.getKey()+"="+id() ,PATH,this.inputText.id()));
+        returnAddInner(new script()).addInner(js_new());
+    }
+    
+    public String js_new()
+    {
+        return HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), this.getRemoteStateBinding().getKey()+"="+id() ,PATH,this.inputText.id());
     }
     static public class OptionResult
     {
@@ -102,7 +129,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     public abstract RemoteResponse onSelect(Trace parent,STATE state,int index) throws Throwable;
     
     @POST
-    @Path("/options")
+    @Path(PATH+"/options")
     public RemoteResponse options(Trace parent,
             @StateParam STATE state,
         @QueryParam("search") String search
@@ -130,7 +157,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     }
     
     @POST
-    @Path("/select")
+    @Path(PATH+"/select")
     public RemoteResponse memberSelect(Trace parent,
             @StateParam STATE state,
         @QueryParam("index") int index 
