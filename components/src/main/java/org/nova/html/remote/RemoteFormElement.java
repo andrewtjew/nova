@@ -4,6 +4,7 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.JsObject;
+import org.nova.http.client.PathAndQuery;
 import org.nova.html.enums.enctype;
 
 public class RemoteFormElement<ELEMENT extends RemoteFormElement<ELEMENT>> extends FormElement<ELEMENT>
@@ -32,10 +33,13 @@ public class RemoteFormElement<ELEMENT extends RemoteFormElement<ELEMENT>> exten
     {
         this(id,false);
     }
+ 
+    
     public String js_post() throws Throwable
     {
         return js_post(action());
     }
+    
     public String js_post(String action) throws Throwable
     {
         if (enctype()==enctype.data)

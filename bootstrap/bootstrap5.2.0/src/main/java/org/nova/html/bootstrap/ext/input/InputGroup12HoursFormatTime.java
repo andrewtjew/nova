@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Select;
 import org.nova.html.bootstrap.classes.Display;
+import org.nova.html.ext.InputHidden;
 import org.nova.html.tags.option;
 import org.nova.localization.CountryCode;
 import org.nova.localization.CurrencyCode;
@@ -34,17 +35,21 @@ public class InputGroup12HoursFormatTime extends Item
     {
         clearInners();
         SelectHourAMPM selectHour=new SelectHourAMPM(hourValue);
-        SelectMinute selectMinute=new SelectMinute(this.secondStep,minuteValue);
-        selectHour.name(namePrefix+"-year").form_control();
-        selectMinute.name(namePrefix+"-month").form_control();
+        SelectMinute selectMinute=new SelectMinute(this.minuteStep,minuteValue);
+        selectHour.name(namePrefix+"-hour").form_control();
+        selectMinute.name(namePrefix+"-minute").form_control();
         addInner(selectHour);
         addInner(selectMinute);
 
         if (this.secondStep!=null)
         {
             SelectSecond selectSecond=new SelectSecond(this.secondStep,secondValue);
-            selectSecond.name(namePrefix+"-day").form_control();
+            selectSecond.name(namePrefix+"-second").form_control();
             addInner(selectSecond);
+        }
+        else
+        {
+            addInner(new InputHidden(namePrefix+"-second",0));
         }
         
         return this;

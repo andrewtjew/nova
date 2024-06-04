@@ -37,9 +37,9 @@ public class InputGroupDate extends Item
         SelectMonth selectMonth=new SelectMonth().set(monthValue);
         SelectDay selectDay=new SelectDay(dayValue);
 
-        selectYear.name(namePrefix+"-year").form_select();
-        selectMonth.name(namePrefix+"-month").form_select();
-        selectDay.name(namePrefix+"-day").form_select();
+        selectYear.name(namePrefix+"-year").form_select().style("width:30%;");
+        selectMonth.name(namePrefix+"-month").form_select().style("width:40%;");
+        selectDay.name(namePrefix+"-day").form_select().style("width:30%;");
 
         addInner(selectYear);
         addInner(selectMonth);

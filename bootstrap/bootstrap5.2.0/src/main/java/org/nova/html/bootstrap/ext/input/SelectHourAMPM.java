@@ -44,6 +44,7 @@ public class SelectHourAMPM extends Select
             {
                 option.addInner("12 PM");
             }
+            else
             {
                 option.addInner((i-12)+" PM");
             }
