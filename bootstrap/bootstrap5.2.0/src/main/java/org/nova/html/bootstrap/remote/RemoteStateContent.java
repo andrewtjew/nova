@@ -53,8 +53,8 @@ public class RemoteStateContent extends RemoteContent
         return this.binding;
     }
     
-    public String js_postStatic(String action) throws Exception, Throwable
-    {
-        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getKey(),id()).toString());
-    }
+//    public String js_postStatic(String action) throws Exception, Throwable
+//    {
+//        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getKey(),id()).toString());
+//    }
 }

@@ -69,10 +69,25 @@ public class RemoteContent extends Item
         }
         return this;
     }    
-
-    public RemoteResponse respond(RemoteResponse response) throws Throwable
+    
+    public void addScript(RemoteResponse response,String js_script)
     {
-        response.outerHtml(this);
+        if (response!=null)
+        {
+            response.script(js_script);
+        }
+        else
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
+            
+        }
+    }
+    public RemoteResponse render(RemoteResponse response) throws Throwable
+    {
+        if (response!=null)
+        {
+            response.outerHtml(this);
+        }
         return response;
     }
 }
