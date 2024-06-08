@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.HtmlElementWriter;
+import org.nova.html.elements.TagElement;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
@@ -37,13 +38,13 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateContent extends RemoteContent
+public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends RemoteContent<ELEMENT>
 {
     final private RemoteStateBinding binding;
     
-    public RemoteStateContent(RemoteStateBinding binding) throws Throwable
+    public RemoteStateContent(String tag,RemoteStateBinding binding) throws Throwable
     {
-        super(null);
+        super(tag,null);
         binding.setState(this);
         this.binding=binding;
     }

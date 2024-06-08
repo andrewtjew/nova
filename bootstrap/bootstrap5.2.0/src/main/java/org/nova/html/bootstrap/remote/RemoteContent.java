@@ -7,6 +7,9 @@ import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
@@ -15,10 +18,11 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
 //Use this to populate content by calling back to server.
-public class RemoteContent extends Item
+public class RemoteContent<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
-    public RemoteContent(String id) throws Throwable
+    public RemoteContent(String tag,String id) throws Throwable
     {
+        super(tag);
         if (id==null)
         {
             id();
@@ -28,11 +32,11 @@ public class RemoteContent extends Item
             id(id);
         }
     }
-    public RemoteContent() throws Throwable
+    public RemoteContent(String tag) throws Throwable
     {
-        this(null);
+        this(tag,null);
     }        
-    public RemoteContent load(String href,boolean showSpinner,String waitingMessage,Long interval,Long timeout) throws Throwable
+    public RemoteContent<ELEMENT> load(String href,Long interval,Long timeout) throws Throwable
     {
         if (interval!=null)
         {
@@ -46,27 +50,6 @@ public class RemoteContent extends Item
         {
             returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
         }
-        if ((showSpinner||waitingMessage!=null))
-        {
-            Item item=new Item();
-            item.d(Display.flex).justify_content(Justify.center);
-            if (showSpinner)
-            {
-                item.returnAddInner(new Spinner(SpinnerType.border,BreakPoint.md));
-            }
-            if (waitingMessage!=null)
-            {
-                Item messageItem=item.returnAddInner(new Item()).addInner(waitingMessage);
-                if (showSpinner)
-                {
-                    messageItem.me(1);
-                }
-            }
-            if (showSpinner||(waitingMessage!=null))
-            {
-                this.addInner(item);
-            }
-        }
         return this;
     }    
     
@@ -79,7 +62,6 @@ public class RemoteContent extends Item
         else
         {
             returnAddInner(new script()).addInner(new LiteralHtml(js_script));
-            
         }
     }
     public RemoteResponse render(RemoteResponse response) throws Throwable
@@ -89,5 +71,12 @@ public class RemoteContent extends Item
             response.outerHtml(this);
         }
         return response;
+    }
+    
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        render(null);
+        super.compose(composer);
     }
 }
