@@ -1,19 +1,11 @@
-package org.nova.html.bootstrap.remote;
+package org.nova.html.remote;
 
 
-import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Spinner;
-import org.nova.html.bootstrap.SpinnerType;
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
-import org.nova.html.remote.Remote;
-import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 

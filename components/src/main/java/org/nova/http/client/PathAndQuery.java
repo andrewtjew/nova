@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.nova.html.ext.JsObject;
+import org.nova.html.remote.RemoteStateContent;
 import org.nova.json.ObjectMapper;
 
 public class PathAndQuery
@@ -37,6 +38,11 @@ public class PathAndQuery
 //        this.sb=path!=null?new StringBuilder(URLEncoder.encode(path,"UTF-8")):new StringBuilder();
         this.sb=path!=null?new StringBuilder(path):new StringBuilder();
         this.separator=startSeparator;
+    }
+    public PathAndQuery(RemoteStateContent<?> content,String path) throws Throwable
+    {
+        this(path,path.contains("?")?'&':'?');
+        addQuery(content.getRemoteStateBinding().getKey(),content.id());
     }
     public PathAndQuery(String path) throws Throwable
     {
@@ -55,20 +61,8 @@ public class PathAndQuery
         this.sb.append(segment);
         return this;
     }
-//    @Deprecated
-//    public PathAndQuery addSegments(Object...segments) throws Exception
-//    {
-//        if (this.separator!='?')
-//        {
-//            throw new Exception();
-//        }
-//        for (Object segment:segments)
-//        {
-//            this.sb.append('/').append(segment);
-//        }
-//        return this;
-//    }
-	public PathAndQuery addQuery(String key,Object value) throws Exception
+
+    public PathAndQuery addQuery(String key,Object value) throws Exception
 	{
 	    if (value==null)
 	    {
