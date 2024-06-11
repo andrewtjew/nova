@@ -150,6 +150,19 @@ public class Query
                 {
                     state.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
                 }
+                else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
+                {
+                    state.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
+                }
+                else if (linkQuery.targetNodeType!=null)
+                {
+                    state.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
+                }
+                else
+                {
+                    throw new Exception("Cannot infer targetNodeType");
+                }
+            
                 
                 break;
             case TO:
@@ -159,6 +172,18 @@ public class Query
                 if (linkQuery.nodeTypes!=null)
                 {
                     state.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
+                }
+                else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
+                {
+                    state.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
+                }
+                else if (linkQuery.targetNodeType!=null)
+                {
+                    state.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
+                }
+                else
+                {
+                    throw new Exception("Cannot infer targetNodeType");
                 }
                 
                 break;
