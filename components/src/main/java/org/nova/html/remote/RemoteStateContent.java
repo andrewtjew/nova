@@ -1,5 +1,6 @@
 package org.nova.html.remote;
 
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
 
@@ -19,6 +20,10 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
     {
         return this.binding;
     }
+    public String js_postStatic(String action) throws Exception, Throwable
+    {
+        return Remote.js_postStatic(new PathAndQuery(this,action).addQuery(binding.getKey(),id()).toString());
+    }    
     
 
 }

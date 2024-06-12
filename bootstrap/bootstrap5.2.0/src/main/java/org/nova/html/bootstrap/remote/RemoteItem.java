@@ -23,6 +23,7 @@ import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
+import org.nova.html.remote.RemoteContent;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remote.RemoteStateContent;
@@ -47,11 +48,12 @@ import org.nova.tracing.Trace;
 
 import org.nova.html.enums.enctype;
 
-public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> implements Styling<RemoteStateItem>
+@ContentWriters(RemoteResponseWriter.class)
+public class RemoteItem extends RemoteContent<RemoteItem> implements Styling<RemoteItem>
 {
-    public RemoteStateItem(RemoteStateBinding binding) throws Throwable
+    public RemoteItem() throws Throwable
     {
-        super("div",binding);
+        super("div");
     }
     
     @Override
@@ -60,7 +62,7 @@ public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> impleme
         return this;
     }
     
-    public RemoteStateItem load(String href,Long interval,Long timeout,boolean showSpinner,String waitingMessage) throws Throwable
+    public RemoteItem load(String href,Long interval,Long timeout,boolean showSpinner,String waitingMessage) throws Throwable
     {
         if ((showSpinner||waitingMessage!=null))
         {
@@ -83,9 +85,9 @@ public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> impleme
                 this.addInner(item);
             }
         }
-        return (RemoteStateItem) super.load(href, interval, timeout);
+        return (RemoteItem) super.load(href, interval, timeout);
     }    
-    public RemoteStateItem load(String href) throws Throwable
+    public RemoteItem load(String href) throws Throwable
     {
         return load(href,null,null,true,null);
     }    
