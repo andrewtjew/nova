@@ -351,7 +351,7 @@ public class HttpServer
     						break;
     					}
     				}
-    				if (after==false)
+    				if ((after==false)||(servletResponse.getStatus()==HttpStatus.NOT_FOUND_404))
     				{
     					if (TESTING)
     					{
