@@ -107,7 +107,7 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
         {
             InputComponent<?> inputComponent=(InputComponent<?>)input;
             Item top=returnAddInner(new Item());
-            top.returnAddInner(new Label(labelText)).form_label().for_(inputComponent);
+            top.returnAddInner(new Label(labelText));//.form_label().for_(inputComponent);
             if (right!=null)
             {
                 top.justify_content(Justify.between).d(Display.flex);
@@ -121,7 +121,7 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
             Item top=returnAddInner(new Item());
             if (labelText!=null)
             {
-                top.returnAddInner(new Label(labelText)).form_label();
+                top.returnAddInner(new Label(labelText));
             }
             else
             {

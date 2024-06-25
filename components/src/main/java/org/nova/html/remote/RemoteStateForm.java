@@ -27,6 +27,11 @@ public class RemoteStateForm extends RemoteForm
     {
         this(binding, null);
     }
+    
+    public RemoteStateBinding getRemoteStateBinding()
+    {
+        return this.binding;
+    }
 
 
 //    public RemoteResponse location(String pathAndQuery) throws Throwable
