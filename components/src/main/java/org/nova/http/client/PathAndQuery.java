@@ -42,7 +42,7 @@ public class PathAndQuery
     public PathAndQuery(RemoteStateContent<?> content,String path) throws Throwable
     {
         this(path,path.contains("?")?'&':'?');
-        addQuery(content.getRemoteStateBinding().getKey(),content.id());
+        addQuery(content.getRemoteStateBinding().getStateKey(),content.id());
     }
     public PathAndQuery(String path) throws Throwable
     {

@@ -137,7 +137,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
 
 
     @Override
-    public String getKey()
+    public String getStateKey()
     {
         return STATE_KEY;
     }

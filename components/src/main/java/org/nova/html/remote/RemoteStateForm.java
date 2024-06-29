@@ -39,7 +39,7 @@ public class RemoteStateForm extends RemoteForm
     }    
     public String js_postStatic(String action) throws Exception, Throwable
     {
-        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getKey(),id()).toString());
+        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getStateKey(),id()).toString());
     }    
 
 }

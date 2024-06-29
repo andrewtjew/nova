@@ -22,8 +22,6 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
     }
     public String js_postStatic(String action) throws Exception, Throwable
     {
-        return Remote.js_postStatic(new PathAndQuery(this,action).addQuery(binding.getKey(),id()).toString());
+        return Remote.js_postStatic(new PathAndQuery(this,action).addQuery(binding.getStateKey(),id()).toString());
     }    
-    
-
 }
