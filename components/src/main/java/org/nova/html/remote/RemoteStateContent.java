@@ -12,7 +12,7 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
     public RemoteStateContent(String tag,RemoteStateBinding binding) throws Throwable
     {
         super(tag,null);
-        binding.setState(this);
+        binding.setState(id(),this);
         this.binding=binding;
     }
     

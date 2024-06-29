@@ -5,8 +5,8 @@ import org.nova.security.QuerySecurity;
 
 public interface RemoteStateBinding
 {
-    public TagElement<?> getState(Context context) throws Throwable;
-    public void setState(TagElement<?> element) throws Throwable;
+    public Object getState(Context context) throws Throwable;
+    public void setState(String key,Object state) throws Throwable;
     public String getStateKey();
     
     

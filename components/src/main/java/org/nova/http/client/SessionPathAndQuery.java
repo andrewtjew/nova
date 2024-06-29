@@ -28,18 +28,20 @@ import java.util.ArrayList;
 import org.nova.core.NameString;
 import org.nova.html.ext.JsObject;
 import org.nova.json.ObjectMapper;
+import org.nova.security.QuerySecurity;
 
-public abstract class SecurePathAndQuery
+public class SessionPathAndQuery
 {
     final protected String path;
     final protected ArrayList<NameString> parameters;
-    
-    public SecurePathAndQuery(String path) throws UnsupportedEncodingException
+    final private QuerySecurity security;    
+    public SessionPathAndQuery(QuerySecurity security,String path) throws UnsupportedEncodingException
     {
+        this.security=security;
         this.path=path;
         this.parameters=new ArrayList<NameString>();
     }
-	public SecurePathAndQuery addQuery(String key,Object value) throws Exception
+	public SessionPathAndQuery addQuery(String key,Object value) throws Exception
 	{
 	    if (value==null)
 	    {
@@ -49,24 +51,35 @@ public abstract class SecurePathAndQuery
 //        parameters.add(new NameString(key,value.toString()));
 	    return this;
 	}
-    public SecurePathAndQuery addQuery(String key,long value) throws Exception
+    public SessionPathAndQuery addQuery(String key,long value) throws Exception
     {
         parameters.add(new NameString(key,Long.toString(value)));
         return this;
     }
-    public SecurePathAndQuery addQuery(String key,int value) throws Exception
+    public SessionPathAndQuery addQuery(String key,int value) throws Exception
     {
         parameters.add(new NameString(key,Integer.toString(value)));
         return this;
     }
-    public SecurePathAndQuery addQuery(String key,short value) throws Exception
+    public SessionPathAndQuery addQuery(String key,short value) throws Exception
     {
         parameters.add(new NameString(key,Short.toString(value)));
         return this;
     }
-    public SecurePathAndQuery addJSONQuery(String key,Object value) throws Throwable
+    public SessionPathAndQuery addJSONQuery(String key,Object value) throws Throwable
     {
         return addQuery(key,ObjectMapper.writeObjectToString(value));
     }
-	abstract public String toString();
+    @Override
+    public String toString()
+    {
+        try
+        {
+            return path+security.encodeParameters(this.parameters);
+        }
+        catch (Throwable t)
+        {
+            return this.path;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.nova.html.remote;
 
+import org.nova.html.ext.InputHidden;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
@@ -12,7 +13,8 @@ public class RemoteStateForm extends RemoteForm
     {
         super(id);
         this.binding=binding;
-        binding.setState(this);
+        binding.setState(id(),this);
+        addInner(new InputHidden(binding.getStateKey(),id()));
         if (action!=null)
         {
             action(action);
