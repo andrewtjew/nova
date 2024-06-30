@@ -1,7 +1,7 @@
 package org.nova.html.remote;
 
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.client.SessionPathAndQuery;
+import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.security.QuerySecurity;
@@ -24,6 +24,6 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
     }
     public String js_postStatic(QuerySecurity querySecurity,String action) throws Exception, Throwable
     {
-        return Remote.js_postStatic(new SessionPathAndQuery(querySecurity,action).addQuery(binding.getStateKey(),id()).toString());
+        return Remote.js_postStatic(new SecurePathAndQuery(querySecurity,action).addQuery(binding.getStateKey(),id()).toString());
     }    
 }

@@ -240,8 +240,21 @@ namespace nova.help
             {
                 helperX=scrollX;
             }
+            var helperRight=helperX+this.helperElement.offsetWidth;
+            if (helperRight>window.innerWidth)
+            {
+                helperRight=window.innerWidth;
+                this.helperElement.style.right=helperRight+"px";
+                helperX=helperRight-this.helperElement.offsetWidth;
+                if (helperX<0)
+                {
+                    helperX=0;
+                }
+            }
+
             this.helperElement.style.left=helperX+"px";
             var pointerX=targetCenter-helperX+scrollX;
+            //This sets the pointer to target using some voodoo css trick.
             this.helperElement.style.setProperty("--nova-help-helper-left",pointerX+"px");
             var topLength=this.targetRect.top-scrollY;
             var bottomLength=scrollY+window.innerHeight-this.targetRect.bottom;
@@ -274,7 +287,6 @@ namespace nova.help
         }
         showHelper(topic:HTMLElement)
         {
-
             this.helperElement.style.display="block";
             if (this.currentTopic!=null)
             {
@@ -283,13 +295,15 @@ namespace nova.help
             topic.style.display="block";
             this.currentTopic=topic;
 
-            this.helperElement.style.left="50%";
-            this.helperElement.style.top="50%";
+            this.helperElement.style.left=(window.innerWidth/2-this.helperElement.offsetWidth/2)+"px";
+            this.helperElement.style.top="25%";
             var rect=this.helperElement.getBoundingClientRect();
             console.log("rect:width="+rect.width+",height="+rect.height);
-            this.helperElement.style.marginLeft=(-rect.width/2)+"px";
+//            this.helperElement.style.marginLeft=(-rect.width/2)+"px";
             this.helperElement.style.marginTop=(-rect.height/2)+"px";
+            //Turns off the pointer to target using voodoo css trick.
             this.helperElement.style.setProperty("--nova-help-helper-border-width","0");
+
         }
         alertTest()
         {
@@ -301,8 +315,7 @@ namespace nova.help
             if (this.index<this.links.length-1)
             {
                 this.show(this.index+1);
-                this.helperElement.style.display="none";
-                setTimeout(()=>{ this.helperElement.style.display="block";},200);
+                this.hideAndShowHelper();
 
             }
         }
@@ -311,9 +324,14 @@ namespace nova.help
             if (this.index>0)
             {
                 this.show(this.index-1);
-                this.helperElement.style.display="none";
-                setTimeout(()=>{ this.helperElement.style.display="block";},200);
+                this.hideAndShowHelper();
             }
+        }
+        //Hiding the helper makes the focus animation to the target easier to follow.
+        hideAndShowHelper()
+        {
+            this.helperElement.style.display="none";
+            setTimeout(()=>{ this.helperElement.style.display="block";},200);
         }
         close()
         {

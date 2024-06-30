@@ -95,10 +95,12 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.zoneId;
     }
     
+    @Deprecated
     protected void setContext(Context context)
     {
         this.context=context;
     }
+    @Deprecated
     public Context getContext()
     {
         return this.context;

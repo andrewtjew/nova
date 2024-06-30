@@ -66,17 +66,17 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
         
         Item group=returnAddInner(new Item()).input_group().position(Position.relative);
         Span messageSpan=group.returnAddInner(new Span()).input_group_text();
-        if (searchIcon!=null)
-        {
-            messageSpan.addInner(searchIcon);
-        }
         if (searchMessage!=null)
         {
             Item messageItem=messageSpan.returnAddInner(new Item()).addInner(searchMessage);
             if (searchIcon!=null)
             {
-                messageItem.ps(2);
+                messageItem.pe(2);
             }
+        }
+        if (searchIcon!=null)
+        {
+            messageSpan.addInner(searchIcon);
         }
         this.inputText=group.returnAddInner(new InputText());
         this.inputText.form_control().autocomplete(autocomplete.off).autofocus();
