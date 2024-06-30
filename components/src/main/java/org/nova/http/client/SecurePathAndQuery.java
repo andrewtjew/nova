@@ -84,11 +84,11 @@ import org.nova.security.QuerySecurity;
 //    }
 //}
 
-public class SessionPathAndQuery extends PathAndQuery
+public class SecurePathAndQuery extends PathAndQuery
 {
     final private QuerySecurity security;
 
-    public SessionPathAndQuery(QuerySecurity security, String path) throws Throwable 
+    public SecurePathAndQuery(QuerySecurity security, String path) throws Throwable 
     {
         super(path);
         this.security = security;
