@@ -30,56 +30,88 @@ import org.nova.html.ext.JsObject;
 import org.nova.json.ObjectMapper;
 import org.nova.security.QuerySecurity;
 
-public class SessionPathAndQuery
+//public class SessionPathAndQuery
+//{
+//    final protected String path;
+//    final protected ArrayList<NameString> parameters;
+//    final private QuerySecurity security;    
+//    public SessionPathAndQuery(QuerySecurity security,String path) throws UnsupportedEncodingException
+//    {
+//        this.security=security;
+//        this.path=path;
+//        this.parameters=new ArrayList<NameString>();
+//    }
+//	public SessionPathAndQuery addQuery(String key,Object value) throws Exception
+//	{
+//	    if (value==null)
+//	    {
+//	        return this;
+//	    }
+//	    parameters.add(new NameString(key,URLEncoder.encode(value.toString(), "UTF-8")));
+////        parameters.add(new NameString(key,value.toString()));
+//	    return this;
+//	}
+//    public SessionPathAndQuery addQuery(String key,long value) throws Exception
+//    {
+//        parameters.add(new NameString(key,Long.toString(value)));
+//        return this;
+//    }
+//    public SessionPathAndQuery addQuery(String key,int value) throws Exception
+//    {
+//        parameters.add(new NameString(key,Integer.toString(value)));
+//        return this;
+//    }
+//    public SessionPathAndQuery addQuery(String key,short value) throws Exception
+//    {
+//        parameters.add(new NameString(key,Short.toString(value)));
+//        return this;
+//    }
+//    public SessionPathAndQuery addJSONQuery(String key,Object value) throws Throwable
+//    {
+//        return addQuery(key,ObjectMapper.writeObjectToString(value));
+//    }
+//    @Override
+//    public String toString()
+//    {
+//        try
+//        {
+//            return path+security.encodeParameters(this.parameters);
+//        }
+//        catch (Throwable t)
+//        {
+//            return this.path;
+//        }
+//    }
+//}
+
+public class SessionPathAndQuery extends PathAndQuery
 {
-    final protected String path;
-    final protected ArrayList<NameString> parameters;
-    final private QuerySecurity security;    
-    public SessionPathAndQuery(QuerySecurity security,String path) throws UnsupportedEncodingException
+    final private QuerySecurity security;
+
+    public SessionPathAndQuery(QuerySecurity security, String path) throws Throwable 
     {
-        this.security=security;
-        this.path=path;
-        this.parameters=new ArrayList<NameString>();
+        super(path);
+        this.security = security;
     }
-	public SessionPathAndQuery addQuery(String key,Object value) throws Exception
-	{
-	    if (value==null)
-	    {
-	        return this;
-	    }
-	    parameters.add(new NameString(key,URLEncoder.encode(value.toString(), "UTF-8")));
-//        parameters.add(new NameString(key,value.toString()));
-	    return this;
-	}
-    public SessionPathAndQuery addQuery(String key,long value) throws Exception
-    {
-        parameters.add(new NameString(key,Long.toString(value)));
-        return this;
-    }
-    public SessionPathAndQuery addQuery(String key,int value) throws Exception
-    {
-        parameters.add(new NameString(key,Integer.toString(value)));
-        return this;
-    }
-    public SessionPathAndQuery addQuery(String key,short value) throws Exception
-    {
-        parameters.add(new NameString(key,Short.toString(value)));
-        return this;
-    }
-    public SessionPathAndQuery addJSONQuery(String key,Object value) throws Throwable
-    {
-        return addQuery(key,ObjectMapper.writeObjectToString(value));
-    }
+
     @Override
     public String toString()
     {
+        String pathAndQuery=super.toString();
         try
         {
-            return path+security.encodeParameters(this.parameters);
+            int index=pathAndQuery.indexOf('?');
+            if (index<0)
+            {
+                return pathAndQuery;
+            }
+            String path=pathAndQuery.substring(0,index+1);
+            String query=pathAndQuery.substring(index+1);
+            return path+security.sign(query);
         }
         catch (Throwable t)
         {
-            return this.path;
+            return pathAndQuery;
         }
     }
 }

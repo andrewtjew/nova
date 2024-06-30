@@ -31,7 +31,7 @@ import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding
+public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
     final protected HashMap<String,Object> pageStates;

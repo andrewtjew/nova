@@ -5,19 +5,14 @@ import java.util.Base64;
 
 import javax.crypto.SecretKey;
 
+import org.nova.http.server.Context;
 import org.nova.json.ObjectMapper;
 
 public interface QuerySecurity
 {
-    static public class NameParameter
-    {
-        public String name;
-        public String value;
-    }
-    public NameParameter[] decodeParameters(String query) throws Throwable;
-    public String encodeParameters(Object object) throws Throwable;
     public String getSecurityQueryKey();
-    
+    public void verifyQuery(Context context) throws Throwable;
+    public String sign(String parameters) throws Throwable;
 }
 //public class QuerySecurity
 //{
