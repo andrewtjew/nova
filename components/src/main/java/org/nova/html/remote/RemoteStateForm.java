@@ -34,13 +34,6 @@ public class RemoteStateForm extends RemoteForm
     }
 
 
-//    public RemoteResponse location(String pathAndQuery) throws Throwable
-//    {
-//        RemoteResponse response=new RemoteResponse();
-//        response.location(pathAndQuery);
-//        return response;
-//    }
-    
     public RemoteResponse render(RemoteResponse response)
     {
         if (response!=null)

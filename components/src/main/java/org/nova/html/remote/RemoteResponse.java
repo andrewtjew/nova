@@ -93,12 +93,13 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
         return this;
     }
-    public RemoteResponse outerHtml(TagElement element)
+    public RemoteResponse outerHtml(TagElement<?> element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,element.id(),text));
         return this;
     }
+    
     public RemoteResponse innerText(String id,Object text)
     {
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,StringEscapeUtils.escapeHtml4(text.toString())));
@@ -164,5 +165,25 @@ public class RemoteResponse
         return script(code);
     }
 
+    //Allows instruction results to be reorder.
+    public int reserve()
+    {
+        this.instructions.add(null);
+        return this.instructions.size()-1;
+    }
+    
+    //Allows instruction results to be reorder.
+    public void exchangeReservedWithLast(int reserved)
+    {
+        this.instructions.set(reserved, this.instructions.get(this.instructions.size()-1));
+        this.instructions.remove(this.instructions.size()-1);
+    }
+    
+    public void exchange(int indexA,int indexB)
+    {
+        Instruction t=this.instructions.get(indexA);
+        this.instructions.set(indexA, this.instructions.get(indexB));
+        this.instructions.set(indexB, t);
+    }
     
 }

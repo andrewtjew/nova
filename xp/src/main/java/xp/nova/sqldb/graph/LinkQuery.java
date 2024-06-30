@@ -6,13 +6,15 @@ public class LinkQuery
 {
     final Direction direction;
     final long relationValue;
-    
+    final Class<? extends NodeObject> targetNodeType;
+
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
     Class<? extends NodeObject>[] linkTypes;
     Class<? extends NodeObject>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
+    
 
 //    boolean selectLink;
     
@@ -20,14 +22,23 @@ public class LinkQuery
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
     
-    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
+    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType,Class<? extends NodeObject> targetNodeType)
     {
         this.direction=direction;
+        this.targetNodeType=targetNodeType;
         this.relationValue=GraphTransaction.toRelationValue(relation, objectType);
+    }
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
+    {
+        this(direction,relation,null,targetNodeType);
+    }
+    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
+    {
+        this(direction,relation,objectType,null);
     }
     public LinkQuery(Direction direction,Relation_ relation)
     {
-        this(direction,relation,null);
+        this(direction,relation,null,null);
     }
 //    public LinkQuery(Direction direction) throws Exception
 //    {
