@@ -25,12 +25,13 @@ import org.nova.http.server.RemoteStateBinding;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.CountryCode;
 import org.nova.localization.CurrencyCode;
+import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding
+public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
     final protected HashMap<String,Object> pageStates;
@@ -105,6 +106,10 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     
     public void setPageState(TagElement<?> element)
     {
+        if (element instanceof FormElement<?>)
+        {
+            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
+        }
         setPageState(element.id(), element);
     }
     public void setPageState(String key,Object state)
@@ -119,25 +124,27 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         }
     }
     @Override
-    public TagElement<?> getState(Context context) throws Throwable
+    public Object getState(Context context) throws Throwable
     {
         String id=context.getHttpServletRequest().getParameter(STATE_KEY);
         return getPageState(id);
     }
     @Override
-    public void setState(TagElement<?> element) throws Throwable
+    public void setState(String key,Object object) throws Throwable
     {
-        if (element instanceof FormElement<?>)
-        {
-            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
-        }
-        setPageState(element);
+        this.pageStates.put(key, object);
+//        if (object instanceof FormElement<?>)
+//        {
+//            FormElement<?> element=(FormElement<?>)object;
+//            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
+//        }
+//        setPageState(object);
     }
     final static public String STATE_KEY="@";
 
 
     @Override
-    public String getKey()
+    public String getStateKey()
     {
         return STATE_KEY;
     }

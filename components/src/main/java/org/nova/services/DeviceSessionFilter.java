@@ -50,10 +50,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 session=this.debugSession;
             }
         }
-        else if (session.isAccessDenied(handler))
+        else
         {
-          this.sessionManager.removeSession(parent, session.getToken());
-          return new Response<Redirect>(new Redirect("/"));
+            session.verifyQuery(context);
+            if (session.isAccessDenied(handler))
+            {
+              this.sessionManager.removeSession(parent, session.getToken());
+              return new Response<Redirect>(new Redirect("/"));
+            }
         }
 
         Lock<String> lock=null;
