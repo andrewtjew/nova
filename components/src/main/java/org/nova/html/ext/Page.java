@@ -23,22 +23,29 @@ package org.nova.html.ext;
 import org.nova.html.tags.html;
 import org.nova.html.tags.body;
 
-public class BasicPage extends Content
+public class Page extends Content
 {
     final private html html;
     final private Head head;
     final private body body;
+    final private boolean stateless;
     
-    public BasicPage(String docType)
+    public Page(String docType,boolean stateless)
     {
         addInner(new DocType(docType));
         this.html=returnAddInner(new html());
         this.head=this.html.returnAddInner(new Head());
         this.body=this.html.returnAddInner(new body());
+        this.stateless=stateless;
     }
-    public BasicPage()
+    
+    public Page(boolean continuationPage)
     {
-        this("html");
+        this("html",continuationPage);
+    }
+    public Page()
+    {
+        this(false);
     }
     
     public Head head()
@@ -52,6 +59,10 @@ public class BasicPage extends Content
     public html html()
     {
         return this.html;
+    }
+    public boolean isStateless()
+    {
+        return this.stateless;
     }
     
 }

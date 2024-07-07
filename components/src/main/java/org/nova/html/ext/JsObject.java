@@ -1,15 +1,21 @@
 package org.nova.html.ext;
 
+import org.nova.json.ObjectMapper;
+
 public class JsObject
 {
-    private final String name;
-    public JsObject(String name)
+    private final String content;
+    public JsObject(String content)
     {
-        this.name=name;
+        this.content=content;
+    }
+    public JsObject(Object object) throws Throwable
+    {
+        this.content=ObjectMapper.writeObjectToString(object);
     }
     @Override 
     public String toString()
     {
-        return this.name;
+        return this.content;
     }
 }

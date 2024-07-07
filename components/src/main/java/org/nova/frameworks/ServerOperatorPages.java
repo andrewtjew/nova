@@ -129,7 +129,7 @@ import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.http_equiv;
-import org.nova.html.ext.BasicPage;
+import org.nova.html.ext.Page;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
@@ -4899,7 +4899,7 @@ public class ServerOperatorPages
         
         HttpClientEndPoint httpClientEndPoint=getExecuteClient(httpTransport,context);
         String content=httpClientEndPoint.endPoint+pathAndQuery.toString();
-        BasicPage page=new BasicPage();
+        Page page=new Page();
         page.head().addInner(new meta().http_equiv(http_equiv.refresh).content("0;URL='"+content+"'"));
         return page;
     }

@@ -32,7 +32,7 @@ public class RemoteStateFormSpinnerButton extends SpinnerButton
 //        this.disabled();
         style("height:2.5em;");
         color(StyleColor.primary);
-        onclick("if (mira.ui.reportValidity('"+form.id()+"')){"+form.js_post()+";}else{"+js_reset()+";}");
+        onclick("if (document.getElementById('"+form.id()+"').reportValidity()){"+form.js_post()+";}else{"+js_reset()+";}");
     }
     
     

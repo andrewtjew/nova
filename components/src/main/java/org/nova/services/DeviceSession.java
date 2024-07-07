@@ -39,7 +39,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     final private long deviceSessionId;
     private Context context;
     
-    private boolean isPage=false;
     
     public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
     {
@@ -70,25 +69,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return (T)this.pageStates.get(key);
     }
     
-    public boolean wasPageRequest()
-    {
-        if (this.isPage)
-        {
-            this.isPage=false;
-            return true;
-        }
-        return false;
-    }
-
-    public void setupPage()
-    {
-        this.isPage=true;
-        this.pageStates.clear();
-    }
-
-
-    
-
     //------------------
     public ZoneId getZoneId()
     {
@@ -150,4 +130,53 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     {
         return STATE_KEY;
     }
+    
+    public void clearPageStates()
+    {
+        this.pageStates.clear();
+    }
+    
+    private String getPathAndQuery(Context context)
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        String pathAndQuery=request.getRequestURI();
+        String query=request.getQueryString();
+        if (query!=null)
+        {
+            pathAndQuery+="?"+query;
+        }
+        return pathAndQuery;
+    }
+    private String continuationPage;
+    private String continuation;
+    private String activeContinuation;
+    
+    public void setContinuation(Context context)
+    {
+        this.continuation=this.getPathAndQuery(context);
+    }
+
+    public void setContinuationPage(Context context)
+    {
+        this.continuationPage=this.getPathAndQuery(context);
+    }
+
+    public String activateContination()
+    {
+        this.activeContinuation=this.continuation;
+        return this.continuationPage;
+    }
+    
+    public String useContinuation()
+    {
+        String activeContinuation=this.activeContinuation;
+        if (activeContinuation!=null)
+        {
+            this.activeContinuation=null;
+        }
+        return activeContinuation;
+    }
+    
+     
+    
 }
