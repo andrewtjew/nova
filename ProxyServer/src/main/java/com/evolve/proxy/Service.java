@@ -10,7 +10,6 @@ import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.frameworks.ServerApplicationRunner;
 import org.nova.html.elements.Element;
-import org.nova.html.ext.BasicPage;
 import org.nova.html.ext.Redirect;
 import org.nova.http.server.Context;
 import org.nova.http.server.GzipContentDecoder;

@@ -76,6 +76,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             }
         }
         session.beginSessionProcessing(lock);
+        
+        boolean pageRequest=false; 
         try
         {
             session.setContext(context);
@@ -86,6 +88,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 Object content=response.getContent();
                 if (content instanceof Page)
                 {
+                    pageRequest=true;
                     Page page=(Page)content;
                     if (page.isStateless()==false)
                     {
@@ -106,6 +109,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         finally
         {
+            session.updateStates(pageRequest);
             session.endSessionProcessing();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");

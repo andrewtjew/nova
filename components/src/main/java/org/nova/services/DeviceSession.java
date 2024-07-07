@@ -34,7 +34,10 @@ import org.nova.tracing.Trace;
 public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
-    final protected HashMap<String,Object> pageStates;
+    protected HashMap<String,Object> pageStates;
+    protected HashMap<String,Object> newPageStates;
+    
+    
     final protected ZoneId zoneId;
     final private long deviceSessionId;
     private Context context;
@@ -46,6 +49,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         this.deviceSessionId=deviceSessionId;
         this.zoneId=zoneId;
         this.pageStates=new HashMap<String, Object>();
+        this.newPageStates=null;
     }
     
     public long getDeviceSessionId()
@@ -53,23 +57,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.deviceSessionId;
     }
     
-    public <T> T getPageState(String key)
-    {
-        if (Debugging.ENABLE && DEBUG)
-        {
-            if (this.pageStates.containsKey(key)==false)
-            {
-                System.err.println("No Page State for key="+key);
-                for (Entry<String, Object> entry:this.pageStates.entrySet())
-                {
-                    System.err.println(entry.getKey()+":"+entry.getValue());
-                }
-            }
-        }
-        return (T)this.pageStates.get(key);
-    }
-    
-    //------------------
     public ZoneId getZoneId()
     {
         return this.zoneId;
@@ -86,25 +73,48 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.context;
     }
     
-    public void setPageState(TagElement<?> element)
+    public void setPageState(TagElement<?> element) throws Throwable
     {
         if (element instanceof FormElement<?>)
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
-        setPageState(element.id(), element);
+        setState(element.id(), element);
     }
-    public void setPageState(String key,Object state)
+    
+    public void updateStates(boolean pageRequest)
     {
-        if (state!=null)
+        if (pageRequest)
         {
-            this.pageStates.put(key, state);
-            if (Debugging.ENABLE && DEBUG)
+            if (this.newPageStates!=null)
             {
-                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
-            }            
+                this.pageStates=this.newPageStates;
+                this.newPageStates=null;
+            }
+        }
+        else
+        {
+            this.newPageStates=null;
         }
     }
+
+    public <T> T getPageState(String key)
+    {
+        if (Debugging.ENABLE && DEBUG)
+        {
+            if (this.pageStates.containsKey(key)==false)
+            {
+                System.err.println("No Page State for key="+key);
+                for (Entry<String, Object> entry:this.pageStates.entrySet())
+                {
+                    System.err.println(entry.getKey()+":"+entry.getValue());
+                }
+            }
+        }
+        return (T)this.pageStates.get(key);
+    }
+    
+    
     @Override
     public Object getState(Context context) throws Throwable
     {
@@ -112,15 +122,21 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return getPageState(id);
     }
     @Override
-    public void setState(String key,Object object) throws Throwable
+    public void setState(String key,Object state) throws Throwable
     {
-        this.pageStates.put(key, object);
-//        if (object instanceof FormElement<?>)
-//        {
-//            FormElement<?> element=(FormElement<?>)object;
-//            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
-//        }
-//        setPageState(object);
+        if (state!=null)
+        {
+            if (this.newPageStates==null)
+            {
+                this.newPageStates=new HashMap<String, Object>();
+            }
+            this.newPageStates.put(key, state);
+            this.pageStates.put(key, state);
+            if (Debugging.ENABLE && DEBUG)
+            {
+                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+            }            
+        }
     }
     final static public String STATE_KEY="@";
 
@@ -129,11 +145,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     public String getStateKey()
     {
         return STATE_KEY;
-    }
-    
-    public void clearPageStates()
-    {
-        this.pageStates.clear();
     }
     
     private String getPathAndQuery(Context context)
