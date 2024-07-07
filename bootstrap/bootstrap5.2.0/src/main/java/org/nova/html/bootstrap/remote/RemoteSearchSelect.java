@@ -142,7 +142,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
           for (int i=0;i<options.options.size();i++)
           {
               String option=options.options.get(i);
-              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(PATH+"/select").addQuery(this.getRemoteStateBinding().getKey(), id()).addQuery("index",i).toString()));
+              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(this,PATH+"/select").addQuery("index",i).toString()));
               item.returnAddInner(new Item()).addInner(option);
           }
           if (options.tooMany!=null)
