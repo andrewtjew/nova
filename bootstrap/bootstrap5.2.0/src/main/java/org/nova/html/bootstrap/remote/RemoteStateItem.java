@@ -49,9 +49,13 @@ import org.nova.html.enums.enctype;
 
 public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> implements Styling<RemoteStateItem>
 {
+    public RemoteStateItem(String id,RemoteStateBinding binding) throws Throwable
+    {
+        super("div",id,binding);
+    }
     public RemoteStateItem(RemoteStateBinding binding) throws Throwable
     {
-        super("div",binding);
+        this(null,binding);
     }
     
     @Override

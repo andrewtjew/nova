@@ -66,17 +66,17 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
         
         Item group=returnAddInner(new Item()).input_group().position(Position.relative);
         Span messageSpan=group.returnAddInner(new Span()).input_group_text();
-        if (searchIcon!=null)
-        {
-            messageSpan.addInner(searchIcon);
-        }
         if (searchMessage!=null)
         {
             Item messageItem=messageSpan.returnAddInner(new Item()).addInner(searchMessage);
             if (searchIcon!=null)
             {
-                messageItem.ps(2);
+                messageItem.pe(2);
             }
+        }
+        if (searchIcon!=null)
+        {
+            messageSpan.addInner(searchIcon);
         }
         this.inputText=group.returnAddInner(new InputText());
         this.inputText.form_control().autocomplete(autocomplete.off).autofocus();
@@ -107,7 +107,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     
     public String js_new()
     {
-        return HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), this.getRemoteStateBinding().getKey()+"="+id() ,PATH,this.inputText.id());
+        return HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), this.getRemoteStateBinding().getStateKey()+"="+id() ,PATH,this.inputText.id());
     }
     static public class OptionResult
     {
@@ -142,7 +142,8 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
           for (int i=0;i<options.options.size();i++)
           {
               String option=options.options.get(i);
-              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(this,PATH+"/select").addQuery("index",i).toString()));
+//              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new SecurePathAndQuery(this,PATH+"/select").addQuery("index",i).toString()));
+              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(PATH+"/select").addQuery(this.getRemoteStateBinding().getStateKey(), id()).addQuery("index",i).toString()));
               item.returnAddInner(new Item()).addInner(option);
           }
           if (options.tooMany!=null)

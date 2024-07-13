@@ -28,11 +28,11 @@ public abstract class Element
     abstract public void compose(Composer composer) throws Throwable;
 
     private QuotationMark mark=QuotationMark.DOUBLE;
-//    @Override
-//    public String toString()
-//    {
-//        return getHtml();
-//    }
+    @Override
+    public String toString()
+    {
+        return getHtml();
+    }
     
     public String getHtml()
     {

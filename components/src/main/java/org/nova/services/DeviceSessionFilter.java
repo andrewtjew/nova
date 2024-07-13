@@ -7,7 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
+import org.nova.html.ext.Page;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
+import org.nova.html.remote.Remote;
+import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestHandler;
@@ -50,10 +54,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 session=this.debugSession;
             }
         }
-        else if (session.isAccessDenied(handler))
+        else
         {
-          this.sessionManager.removeSession(parent, session.getToken());
-          return new Response<Redirect>(new Redirect("/"));
+            session.verifyQuery(context);
+            if (session.isAccessDenied(handler))
+            {
+              this.sessionManager.removeSession(parent, session.getToken());
+              return new Response<Redirect>(new Redirect("/"));
+            }
         }
 
         Lock<String> lock=null;
@@ -68,23 +76,32 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             }
         }
         session.beginSessionProcessing(lock);
+        
+        boolean pageRequest=false; 
         try
         {
             session.setContext(context);
             context.setState(session);
             Response<?> response=context.next(parent);
-            if (session.wasPageRequest())
+            if (response!=null)
             {
-                HttpServletRequest request=context.getHttpServletRequest();
-                String pathAndQuery=request.getRequestURI();
-                String query=request.getQueryString();
-                if (query!=null)
+                Object content=response.getContent();
+                if (content instanceof Page)
                 {
-                    pathAndQuery=pathAndQuery+"?"+query;
+                    pageRequest=true;
+                    Page page=(Page)content;
+                    if (page.isStateless()==false)
+                    {
+                        String action=session.useContinuation();
+                        if (action!=null)
+                        {
+                            page.body().returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_postStatic(action)));
+                        }
+                    }
+                    logPage(parent,session,context,page);
                 }
-                logPage(parent,session,pathAndQuery);
+                return response;
             }
-            return response;
         }
         catch (Throwable t)
         {
@@ -92,6 +109,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         finally
         {
+            session.updateStates(pageRequest);
             session.endSessionProcessing();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
@@ -105,5 +123,5 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;
     abstract protected String getToken(Trace parent,Context context);
-	abstract protected void logPage(Trace parent,SESSION session,String pathAndQuery) throws Throwable;
+	abstract protected void logPage(Trace parent,SESSION session,Context context,Page page) throws Throwable;
 }

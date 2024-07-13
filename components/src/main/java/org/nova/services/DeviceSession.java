@@ -25,20 +25,23 @@ import org.nova.http.server.RemoteStateBinding;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.CountryCode;
 import org.nova.localization.CurrencyCode;
+import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding
+public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
-    final protected HashMap<String,Object> pageStates;
+    protected HashMap<String,Object> pageStates;
+    protected HashMap<String,Object> newPageStates;
+    
+    
     final protected ZoneId zoneId;
     final private long deviceSessionId;
     private Context context;
     
-    private boolean isPage=false;
     
     public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
     {
@@ -46,6 +49,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         this.deviceSessionId=deviceSessionId;
         this.zoneId=zoneId;
         this.pageStates=new HashMap<String, Object>();
+        this.newPageStates=null;
     }
     
     public long getDeviceSessionId()
@@ -53,6 +57,47 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.deviceSessionId;
     }
     
+    public ZoneId getZoneId()
+    {
+        return this.zoneId;
+    }
+    
+    @Deprecated
+    protected void setContext(Context context)
+    {
+        this.context=context;
+    }
+    @Deprecated
+    public Context getContext()
+    {
+        return this.context;
+    }
+    
+    public void setPageState(TagElement<?> element) throws Throwable
+    {
+        if (element instanceof FormElement<?>)
+        {
+            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
+        }
+        setState(element.id(), element);
+    }
+    
+    public void updateStates(boolean pageRequest)
+    {
+        if (pageRequest)
+        {
+            if (this.newPageStates!=null)
+            {
+                this.pageStates=this.newPageStates;
+                this.newPageStates=null;
+            }
+        }
+        else
+        {
+            this.newPageStates=null;
+        }
+    }
+
     public <T> T getPageState(String key)
     {
         if (Debugging.ENABLE && DEBUG)
@@ -69,48 +114,23 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return (T)this.pageStates.get(key);
     }
     
-    public boolean wasPageRequest()
-    {
-        if (this.isPage)
-        {
-            this.isPage=false;
-            return true;
-        }
-        return false;
-    }
-
-    public void setupPage()
-    {
-        this.isPage=true;
-        this.pageStates.clear();
-    }
-
-
     
-
-    //------------------
-    public ZoneId getZoneId()
+    @Override
+    public Object getState(Context context) throws Throwable
     {
-        return this.zoneId;
+        String id=context.getHttpServletRequest().getParameter(STATE_KEY);
+        return getPageState(id);
     }
-    
-    protected void setContext(Context context)
-    {
-        this.context=context;
-    }
-    public Context getContext()
-    {
-        return this.context;
-    }
-    
-    public void setPageState(TagElement<?> element)
-    {
-        setPageState(element.id(), element);
-    }
-    public void setPageState(String key,Object state)
+    @Override
+    public void setState(String key,Object state) throws Throwable
     {
         if (state!=null)
         {
+            if (this.newPageStates==null)
+            {
+                this.newPageStates=new HashMap<String, Object>();
+            }
+            this.newPageStates.put(key, state);
             this.pageStates.put(key, state);
             if (Debugging.ENABLE && DEBUG)
             {
@@ -118,27 +138,56 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
             }            
         }
     }
-    @Override
-    public TagElement<?> getState(Context context) throws Throwable
-    {
-        String id=context.getHttpServletRequest().getParameter(STATE_KEY);
-        return getPageState(id);
-    }
-    @Override
-    public void setState(TagElement<?> element) throws Throwable
-    {
-        if (element instanceof FormElement<?>)
-        {
-            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
-        }
-        setPageState(element);
-    }
     final static public String STATE_KEY="@";
 
 
     @Override
-    public String getKey()
+    public String getStateKey()
     {
         return STATE_KEY;
     }
+    
+    private String getPathAndQuery(Context context)
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        String pathAndQuery=request.getRequestURI();
+        String query=request.getQueryString();
+        if (query!=null)
+        {
+            pathAndQuery+="?"+query;
+        }
+        return pathAndQuery;
+    }
+    private String continuationPage;
+    private String continuation;
+    private String activeContinuation;
+    
+    public void setContinuation(Context context)
+    {
+        this.continuation=this.getPathAndQuery(context);
+    }
+
+    public void setContinuationPage(Context context)
+    {
+        this.continuationPage=this.getPathAndQuery(context);
+    }
+
+    public String activateContination()
+    {
+        this.activeContinuation=this.continuation;
+        return this.continuationPage;
+    }
+    
+    public String useContinuation()
+    {
+        String activeContinuation=this.activeContinuation;
+        if (activeContinuation!=null)
+        {
+            this.activeContinuation=null;
+        }
+        return activeContinuation;
+    }
+    
+     
+    
 }

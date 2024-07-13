@@ -29,10 +29,10 @@ public class RemoteFormElement<ELEMENT extends RemoteFormElement<ELEMENT>> exten
     {
         this(null,submit);
     }
-    public RemoteFormElement(String id)
-    {
-        this(id,false);
-    }
+//    public RemoteFormElement(String id)
+//    {
+//        this(id,false);
+//    }
  
     
     public String js_post() throws Throwable

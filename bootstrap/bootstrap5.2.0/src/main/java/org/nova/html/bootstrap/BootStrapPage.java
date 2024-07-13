@@ -27,6 +27,7 @@ import org.nova.html.enums.character_set;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.enums.link_rel;
 import org.nova.html.enums.name;
+import org.nova.html.ext.Page;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.DocType;
 import org.nova.html.ext.Head;
@@ -37,38 +38,32 @@ import org.nova.html.tags.meta;
 import org.nova.html.tags.script;
 import org.nova.html.tags.title;
 
-public class BootStrapPage extends Element
+public class BootStrapPage extends Page
 {
-    final private Head head;
-    final private body body;
     final private Content content;
     public BootStrapPage(String title,String lang,String compatible)
 	{
         this.content=new Content();
         this.content.addInner(new DocType("html"));
-    	html html=this.content.returnAddInner(new html().lang(lang));
     	
-    	this.head=html.returnAddInner(new Head());
     	if (title!=null)
     	{
-    	    this.head.title(title);
-    	    this.head.returnAddInner(new title()).addInner(title);
+    	    this.head().title(title);
+    	    this.head().returnAddInner(new title()).addInner(title);
     	}
     	if (compatible!=null)
     	{
     	    this.head().addInner(new meta().http_equiv_content(http_equiv.X_UA_compatible,compatible));
     	}
-        this.head.addInner(new meta().charset(character_set.UTF_8).http_equiv(http_equiv.content_type).name(name.viewport).content("width=device-width, initial-scale=1, shrink-to-fit=no"));
+        this.head().addInner(new meta().charset(character_set.UTF_8).http_equiv(http_equiv.content_type).name(name.viewport).content("width=device-width, initial-scale=1, shrink-to-fit=no"));
 //        this.head.addInner(new meta().http_equiv(http_equiv.content_type).content("text/html;charset=utf-8;"));
     	
     	
-    	this.head.addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"));
-        this.head.addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"));
-        this.head.addInner(new script().src("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"));
-        this.head.addInner(new script().src("https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"));
+    	this.head().addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"));
+        this.head().addInner(new link().rel(link_rel.stylesheet).href("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"));
+        this.head().addInner(new script().src("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"));
+        this.head().addInner(new script().src("https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"));
     	
-
-        this.body=html.returnAddInner(new body());
 	}
 
     public BootStrapPage(String title,String lang)
@@ -83,20 +78,4 @@ public class BootStrapPage extends Element
     {
         this(null);
     }
-    public Head head()
-    {
-    	return this.head;
-    }
-    public body body()
-    {
-    	return this.body;
-    }
-
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        composer.compose(this.content);
-        
-    }
-    
 }

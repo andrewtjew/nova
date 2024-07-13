@@ -698,20 +698,12 @@ public class Row
 
     public LocalDateTime getLocalDateTime(int columnIndex)
     {
-        Object object = this.data[columnIndex];
-        if (object == null)
+        Timestamp timestamp=getTIMESTAMP(columnIndex);
+        if (timestamp == null)
         {
             return null;
         }
-        if (object instanceof Timestamp)
-        {
-            return ((Timestamp) object).toLocalDateTime();
-        }
-        else if (object instanceof LocalDateTime)
-        {
-            return (LocalDateTime) object;
-        }
-        throw new RuntimeException();
+        return timestamp.toLocalDateTime();
     }
 
     public LocalTime getLocalTime(String columnName) throws Exception

@@ -414,6 +414,14 @@ public class HtmlUtils
         return js_call(function,parameters)+";";
     }
 
+    public static String js_value(String id,Object value)
+    {
+        return "document.getElementById('"+id+"').value"+"=\""+value+"\"";
+    }  
+    public static String js_value(String id,String value)
+    {
+        return "document.getElementById('"+id+"').value"+"=\""+value+"\"";
+    }  
     public static String js_property(String id,String property,String value)
     {
         return "document.getElementById('"+id+"')."+property+"=\""+value+"\"";
