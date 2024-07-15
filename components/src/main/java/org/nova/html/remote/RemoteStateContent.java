@@ -26,4 +26,9 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
     {
         return Remote.js_postStatic(new SecurePathAndQuery(querySecurity,action).addQuery(binding.getStateKey(),id()).toString());
     }    
+    public String js_postStatic(PathAndQuery pathAndQuery) throws Exception, Throwable
+    {
+        pathAndQuery.addQuery(binding.getStateKey(),id());
+        return Remote.js_postStatic(pathAndQuery.toString());
+    }    
 }
