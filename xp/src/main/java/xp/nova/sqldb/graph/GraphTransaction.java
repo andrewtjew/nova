@@ -92,6 +92,65 @@ public class GraphTransaction implements AutoCloseable
             put(nodeId,objects);
         }
     }
+
+//    public void put(ArrayElement[] elements) throws Throwable
+//    {
+//        Long arrayNodeId=arrayObject._nodeId;
+//        if (arrayNodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        for (int i=0;i<elements.length;i++)
+//        {
+//            ArrayElement object=elements[i];
+//            object._index=i;
+//            object._arrayNodeId=arrayNodeId;
+//            put(object);
+//        }
+//    }
+    public <ELEMENT extends NodeObject> void createArray(NodeObject arrayObject,ELEMENT[] elements) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        deleteArray(arrayObject,(Class<ELEMENT>)elements.getClass().getComponentType());
+        for (int i=0;i<elements.length;i++)
+        {
+            NodeObject element=elements[i];
+            if (element!=null)
+            {
+                long elementId=createNode(element);
+                Insert.table("_array").value("arrayId",arrayNodeId).value("elementId",elementId).value("index",i).execute(parent, this.accessor);
+            }
+        }
+    }
+//    public <ELEMENT extends NodeObject> void createArrayElement(NodeObject arrayObject,ELEMENT element,int index) throws Throwable
+//    {
+//        Long arrayNodeId=arrayObject._nodeId;
+//        if (arrayNodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        if (element!=null)
+//        {
+//            long elementId=createNode(element);
+//            Insert.table("_array").value("arrayId",arrayNodeId).value("elementId",elementId).value("index",index).execute(parent, this.accessor);
+//        }
+//    }
+    public int deleteArray(NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        String elementTypeName=elementType.getSimpleName();
+        String deleteSql="DELETE _node,_array FROM _node JOIN _array ON _node.id=_array.elementId JOIN "+elementTypeName+" ON _node.id="+elementTypeName+"._nodeId";
+        int deleted=this.accessor.executeUpdate(this.parent,null,deleteSql);
+        return deleted;
+    }
     
     void put(NodeObject object,long nodeId,long eventId) throws Throwable
     {
@@ -307,7 +366,7 @@ public class GraphTransaction implements AutoCloseable
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
-        //The object rows are not deleted. A pruning process should go and delete all nodes.
+        //The node objects are not deleted. A pruning process should go and delete all nodes.
         //Alternative is to record meta data to store the node objects when put or createNode is called.
         
         return deleted>0;

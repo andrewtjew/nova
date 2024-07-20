@@ -876,6 +876,13 @@ public class Graph
                         ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
+            if (accessor.executeQuery(parent,"existTable:_array"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_array",catalog).getRow(0).getBIGINT(0)==0)
+            {
+                accessor.executeUpdate(parent, "createTable:_array"
+                        ,"CREATE TABLE `_array` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL,`arrayId` bigint NOT NULL,`elementType` varchar(45) DEFAULT NULL,`index` int NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        );
+            }
             if (accessor.executeQuery(parent,"existTable:_version"
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
             {

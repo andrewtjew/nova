@@ -68,6 +68,10 @@ public class Query
         this.nodeTypes = nodeTypes;
         return this;
     }
+    final public Query selectArray(Class<?>... nodeTypes)
+    {
+        return this;
+    }
     
     //This is a hack for now. 
     final public Query follow(Class<? extends NodeObject> followType) throws Throwable
