@@ -159,7 +159,7 @@ public class GraphTransaction implements AutoCloseable
         Class<? extends NodeObject> type=object.getClass();
         GraphObjectDescriptor descriptor=this.graph.register(type);
         String table=descriptor.getTableName();
-        FieldDescriptor[] columnAccessors=descriptor.getColumnAccessors();
+        FieldDescriptor[] columnAccessors=descriptor.getFieldDescriptors();
 
         StringBuilder insert=new StringBuilder();
         StringBuilder update=new StringBuilder();

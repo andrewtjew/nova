@@ -157,7 +157,7 @@ public class GraphAccessor implements AutoCloseable
             Row row=rowSet.getRow(i);
             int index=row.getINTEGER("_index");
             NodeObject element = (NodeObject)elementType.newInstance();
-            for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+            for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
             {
                 columnAccessor.set(element, typeName, row);
             }
@@ -187,7 +187,7 @@ public class GraphAccessor implements AutoCloseable
         GraphObjectDescriptor descriptor=this.graph.register(elementType);
         Row row=rowSet.getRow(0);
         NodeObject element = (NodeObject)elementType.newInstance();
-        for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+        for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
         {
             columnAccessor.set(element, typeName, row);
         }

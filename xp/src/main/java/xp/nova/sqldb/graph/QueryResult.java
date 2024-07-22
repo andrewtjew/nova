@@ -31,7 +31,7 @@ public class QueryResult
             return null;
         }
         NodeObject nodeObject = (NodeObject) type.newInstance();
-        for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+        for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
         {
             columnAccessor.set(nodeObject, typeName, row);
         }

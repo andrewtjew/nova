@@ -243,7 +243,7 @@ public class Query
                     }
 
                     state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -286,7 +286,7 @@ public class Query
                     }
 
                     state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -321,7 +321,7 @@ public class Query
                     String table = descriptor.getTableName();
                     String alias = descriptor.getTableAlias(linkQuery.nodeNamespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -389,7 +389,7 @@ public class Query
                 {
                     sources.append(" JOIN " + table + " AS " + table + on + table + "._nodeId");
                 }
-                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
                     if (select.length()>0)
@@ -410,7 +410,7 @@ public class Query
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
                 sources.append(" LEFT JOIN " + table + " " + on + table + "._nodeId");
-                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
                     if (select.length()>0)

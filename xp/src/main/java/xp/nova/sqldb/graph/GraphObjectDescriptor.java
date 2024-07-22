@@ -33,7 +33,7 @@ public class GraphObjectDescriptor
     {
         return this.type;
     }
-    public FieldDescriptor[] getColumnAccessors()
+    public FieldDescriptor[] getFieldDescriptors()
     {
         return this.fieldDescriptors;
     }
