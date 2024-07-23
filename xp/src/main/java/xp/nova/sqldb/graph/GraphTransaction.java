@@ -15,39 +15,28 @@ import xp.nova.sqldb.graph.Query.PreparedQuery;
 
 public class GraphTransaction implements AutoCloseable
 {
-    final private long creatorId;
-    final private String source;
     final Trace parent;
     final private GraphAccessor graphAccessor;
     final private Accessor accessor;
     final private Transaction transaction;
-    private Long eventId;
+    private Long transactionId;
     final private Graph graph;
     final private boolean autoCloseGraphAccessor;
 
     GraphTransaction(Trace parent,GraphAccessor graphAccessor,String source,long creatorId,boolean autoCloseGraphAccessor) throws Throwable
     {
         this.autoCloseGraphAccessor=autoCloseGraphAccessor;
-        this.source=source;
         this.graph=graphAccessor.graph;
         this.parent=parent;
-        this.creatorId=creatorId;
         this.graphAccessor=graphAccessor;
         this.accessor=graphAccessor.accessor;
         this.transaction=this.accessor.beginTransaction("GraphTransaction"+":"+creatorId+":"+source);
-    }
-    
-    public synchronized long getEventId() throws Throwable
-    {
-        if (this.eventId==null)
-        {
-            Timestamp created=SqlUtils.now();
-            this.eventId=this.accessor.executeUpdateAndReturnGeneratedKeys(parent,null
-                    ,"INSERT INTO _event (created,creatorId) VALUES(?,?)"
-                    ,created,this.creatorId
-                    ).getAsLong(0);
-        }
-        return this.eventId;
+
+        Timestamp created=SqlUtils.now();
+        this.transactionId=this.accessor.executeUpdateAndReturnGeneratedKeys(parent,null
+                ,"INSERT INTO _transaction (created,creatorId,source) VALUES(?,?,?)"
+                ,created,creatorId,source
+                ).getAsLong(0);
     }
     
     public GraphAccessor getGraphAccessor()
@@ -66,21 +55,20 @@ public class GraphTransaction implements AutoCloseable
 
     public long createNode(NodeObject...objects) throws Throwable
     {
-        long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+        long nodeId=Insert.table("_node").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         put(nodeId,objects);
         return nodeId;
     }
 
     public void put(long nodeId,NodeObject...objects) throws Throwable
     {
-        long eventId=this.getEventId();
         for (NodeObject object:objects)
         {
             if (object==null)
             {
                 continue;
             }
-            put(object,nodeId,eventId);
+            put(object,nodeId);
         }
     }
 
@@ -97,21 +85,6 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-//    public void put(ArrayElement[] elements) throws Throwable
-//    {
-//        Long arrayNodeId=arrayObject._nodeId;
-//        if (arrayNodeId==null)
-//        {
-//            throw new Exception();
-//        }
-//        for (int i=0;i<elements.length;i++)
-//        {
-//            ArrayElement object=elements[i];
-//            object._index=i;
-//            object._arrayNodeId=arrayNodeId;
-//            put(object);
-//        }
-//    }
     public <ELEMENT extends NodeObject> void createArray(NodeObject arrayObject,ELEMENT[] elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
@@ -130,19 +103,6 @@ public class GraphTransaction implements AutoCloseable
             }
         }
     }
-//    public <ELEMENT extends NodeObject> void createArrayElement(NodeObject arrayObject,ELEMENT element,int index) throws Throwable
-//    {
-//        Long arrayNodeId=arrayObject._nodeId;
-//        if (arrayNodeId==null)
-//        {
-//            throw new Exception();
-//        }
-//        if (element!=null)
-//        {
-//            long elementId=createNode(element);
-//            Insert.table("_array").value("arrayId",arrayNodeId).value("elementId",elementId).value("index",index).execute(parent, this.accessor);
-//        }
-//    }
     public int deleteArray(NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
@@ -156,7 +116,7 @@ public class GraphTransaction implements AutoCloseable
         return deleted;
     }
     
-    void put(NodeObject object,long nodeId,long eventId) throws Throwable
+    void put(NodeObject object,long nodeId) throws Throwable
     {
         //OPTIMIZE: build insert or update based on state in DB. Current insert and update are both built, then one is not used.
         object._nodeId=nodeId;
@@ -178,14 +138,14 @@ public class GraphTransaction implements AutoCloseable
         Object[] insertParameters=new Object[length];
         int insertIndex=0;
         insertParameters[insertIndex++]=nodeId;
-        insertParameters[insertIndex++]=eventId;
-        insert.append("_nodeId,_eventId");
+        insertParameters[insertIndex++]=this.transactionId;
+        insert.append("_nodeId,_transactionId");
         values.append("?,?");
         
         Object[] updateParameters=new Object[length];
         int updateIndex=0;
-        update.append("_eventId=?");
-        updateParameters[updateIndex++]=eventId;
+        update.append("_transactionId=?");
+        updateParameters[updateIndex++]=this.transactionId;
         
         for (FieldDescriptor columnAccessor:columnAccessors)
         {
@@ -243,7 +203,7 @@ public class GraphTransaction implements AutoCloseable
     {
         long relationValue=relation.getValue();
         deleteLink(fromNodeId,relation,toNodeId);//We should just check if link exist and return. 
-        long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
+        long nodeId=Insert.table("_node").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         Insert.table("_link").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
                 .value("relationValue", relationValue)
                 .execute(parent, this.accessor);
@@ -315,11 +275,11 @@ public class GraphTransaction implements AutoCloseable
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
-        return deleteLink(fromNode,relation,toNodeId);
+        return deleteLink(fromNode.getNodeId(),relation,toNodeId);
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
-        return deleteLink(fromNode,relation,toNode.getNodeId());
+        return deleteLink(fromNode.getNodeId(),relation,toNode.getNodeId());
     }
 
     private int deleteNodes(Class<? extends NodeObject> deleteNodeType,QueryResultSet set) throws Throwable
@@ -343,8 +303,7 @@ public class GraphTransaction implements AutoCloseable
     public boolean deleteNode(long nodeId) throws Throwable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=?",nodeId);
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=?",nodeId);
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
         //The node objects are not deleted. A pruning process should go and delete all nodes.
         //Alternative is to record meta data to store the node objects when put or createNode is called.
         
