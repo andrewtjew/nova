@@ -239,19 +239,15 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    private long link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,RelationObjectType_ objectType,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
+    private long link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
-        long relationValue=toRelationValue(relation, objectType);
-        deleteLink(fromNodeId,relation,objectType,toNodeId);//We should just check if link exist and return. 
+        long relationValue=relation.getValue();
+        deleteLink(fromNodeId,relation,toNodeId);//We should just check if link exist and return. 
         long nodeId=Insert.table("_node").value("eventId",this.getEventId()).executeAndReturnLongKey(parent, this.accessor);
         Insert.table("_link").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
                 .value("relationValue", relationValue)
                 .execute(parent, this.accessor);
         return nodeId;
-    }
-    private long link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
-    {
-        return link(fromNodeType,fromNodeId,relation,null,toNodeType,toNodeId);
     }
     public long link(NodeObject fromNode,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
@@ -265,25 +261,12 @@ public class GraphTransaction implements AutoCloseable
     {
         return link(fromNodeType,fromNodeId,relation,toNode.getClass(),toNode.getNodeId());
     }
-//--
-    public long link(NodeObject fromNode,Relation_ relation,RelationObjectType_ relationObjectType,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
-    {
-        return link(fromNode.getClass(),fromNode.getNodeId(),relation,relationObjectType,toNodeType,toNodeId);
-    }
-    public long link(NodeObject fromNode,Relation_ relation,RelationObjectType_ relationObjectType,NodeObject toNode) throws Throwable
-    {
-        return link(fromNode.getClass(),fromNode.getNodeId(),relation,relationObjectType,toNode.getClass(),toNode.getNodeId());
-    }
-    public long link(Class<? extends NodeObject> fromNodeType,long fromNodeId,Relation_ relation,RelationObjectType_ relationObjectType,NodeObject toNode) throws Throwable
-    {
-        return link(fromNodeType,fromNodeId,relation,relationObjectType,toNode.getClass(),toNode.getNodeId());
-    }
     
     
     
-    private int deleteLinks(Direction direction,long nodeId,Relation_ relation,RelationObjectType_ objectType) throws Throwable
+    private int deleteLinks(Direction direction,long nodeId,Relation_ relation) throws Throwable
     {
-        long relationValue=GraphTransaction.toRelationValue(relation, objectType);
+        long relationValue=relation.getValue();
         if (direction==Direction.FROM)
         {
             return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND relationValue=?",nodeId,relationValue);
@@ -293,9 +276,9 @@ public class GraphTransaction implements AutoCloseable
             return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE toNodeId=? AND relationValue=?",nodeId,relationValue);
         }
     }
-    public int deleteLinks(Direction direction,NodeObject nodeObject,Relation_ relation,RelationObjectType_ objectType) throws Throwable
+    public int deleteLinks(Direction direction,NodeObject nodeObject,Relation_ relation) throws Throwable
     {
-        return deleteLinks(direction,nodeObject.getNodeId(),relation,objectType);
+        return deleteLinks(direction,nodeObject.getNodeId(),relation);
     }
 
 //    public int deleteLinks(long fromNodeId,Relation_ relation) throws Throwable
@@ -326,25 +309,17 @@ public class GraphTransaction implements AutoCloseable
     {
         return this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
     }
-    public int deleteLink(long fromNodeId,Relation_ relation,RelationObjectType_ objectType,long toNodeId) throws Throwable
+    public int deleteLink(long fromNodeId,Relation_ relation,long toNodeId) throws Throwable
     {
-        return deleteLink(fromNodeId,toRelationValue(relation, objectType),toNodeId);
-    }
-    public int deleteLink(NodeObject fromNode,Relation_ relation,RelationObjectType_ objectType,long toNodeId) throws Throwable
-    {
-        return deleteLink(fromNode.getNodeId(),relation,objectType,toNodeId);
+        return deleteLink(fromNodeId,relation.getValue(),toNodeId);
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
-        return deleteLink(fromNode,relation,null,toNodeId);
-    }
-    public int deleteLink(NodeObject fromNode,Relation_ relation,RelationObjectType_ objectType,NodeObject toNode) throws Throwable
-    {
-        return deleteLink(fromNode.getNodeId(),relation,objectType,toNode.getNodeId());
+        return deleteLink(fromNode,relation,toNodeId);
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
-        return deleteLink(fromNode,relation,null,toNode.getNodeId());
+        return deleteLink(fromNode,relation,toNode.getNodeId());
     }
 
     private int deleteNodes(Class<? extends NodeObject> deleteNodeType,QueryResultSet set) throws Throwable
