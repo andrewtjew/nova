@@ -76,6 +76,10 @@ public class GraphTransaction implements AutoCloseable
         long eventId=this.getEventId();
         for (NodeObject object:objects)
         {
+            if (object==null)
+            {
+                continue;
+            }
             put(object,nodeId,eventId);
         }
     }
@@ -122,7 +126,7 @@ public class GraphTransaction implements AutoCloseable
             if (element!=null)
             {
                 long elementId=createNode(element);
-                Insert.table("_array").value("arrayId",arrayNodeId).value("elementId",elementId).value("index",i).execute(parent, this.accessor);
+                Insert.table("_array").value("elementId",elementId).value("arrayId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
             }
         }
     }
