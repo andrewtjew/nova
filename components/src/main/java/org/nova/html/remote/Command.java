@@ -11,4 +11,5 @@ public enum Command
     alert,
     fetch,
     log,
+    checked,
 }

@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
@@ -640,6 +641,24 @@ public class Row
         {
             throw new Exception("columnName=" + columnName, ex);
         }
+    }
+    public LocalDate getLocalDate(int columnIndex) throws Exception
+    {
+        Date date=getDATE(columnIndex);
+        if (date!=null)
+        {
+            return date.toLocalDate();
+        }
+        return null;
+    }
+    public LocalDate getLocalDate(String columnName) throws Exception
+    {
+        Date date=getDATE(this.mappings.get(columnName));
+        if (date!=null)
+        {
+            return date.toLocalDate();
+        }
+        return null;
     }
 
     public Time getTIME(int columnIndex) throws Exception

@@ -368,7 +368,6 @@ namespace nova.remote
         let params=new URLSearchParams();
         for (const pair of data)
         {
-            console.log(pair[0]+"="+pair[1]);
             params.append(pair[0],pair[1].toString());
         }
 
@@ -480,22 +479,26 @@ namespace nova.remote
                 {
                     switch (instruction.command)
                     {
-                        case "value":
-                            (document.getElementById(parameters[0]) as HTMLInputElement).value=parameters[1];
+                        case "innerHTML":
+                            document.getElementById(parameters[0]).innerHTML=parameters[1];
                             break;
                             
-                            case "innerHTML":
-                                document.getElementById(parameters[0]).innerHTML=parameters[1];
-                                break;
-                                
-                            case "outerHTML":
-                            document.getElementById(parameters[0]).outerHTML=parameters[1];
-                            break;
+                        case "outerHTML":
+                        document.getElementById(parameters[0]).outerHTML=parameters[1];
+                        break;
 
                         case "innerText":
                         document.getElementById(parameters[0]).innerText=parameters[1];
                         break;
                                 
+                        case "value":
+                            (document.getElementById(parameters[0]) as HTMLInputElement).value=parameters[1];
+                            break;
+                            
+                            case "checked":
+                            (document.getElementById(parameters[0]) as HTMLInputElement).checked=parameters[1].toLowerCase()=="true";
+                            break;
+                            
                         case "alert":
                         alert(parameters[0]);
                         break;
@@ -512,6 +515,12 @@ namespace nova.remote
                             eval(parameters[0]);
                             break;
 
+                        default:
+                        if (instruction.trace)
+                        {
+                            console.log("nova-remote:invalid command="+instruction.command);
+                        }
+            
                     }
                 }
                 catch (ex)

@@ -48,8 +48,6 @@ import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-import xp.nova.sqldb.graph.Query;
-import xp.nova.sqldb.graph.QueryResult;
 
 @RequiredRoles()
 public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> extends RemoteStateItem

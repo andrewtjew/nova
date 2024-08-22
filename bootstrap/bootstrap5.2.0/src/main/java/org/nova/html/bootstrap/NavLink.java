@@ -24,42 +24,48 @@ package org.nova.html.bootstrap;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.target;
 
-public class NavItemLink extends ToggleComponent<NavItemLink>
+public class NavLink extends ToggleComponent<NavLink>
 {
-    public NavItemLink()
+    public NavLink()
     {
         super("a","nav-link");
     }
-    public NavItemLink(String label,String href)
+    public NavLink(String label,String href)
     {
         this();
         attr("href",href);
         addInner(label);
     }
-    public NavItemLink(String label)
+    public NavLink(String label)
     {
         this(label,null);
     }
-    public NavItemLink active()
+    public NavLink active()
     {
         addClass("active");
         return this;
     }
-    public NavItemLink disabled()
+    public NavLink disabled()
     {
         addClass("disabled");
         return this;
     }
-    public NavItemLink target(target target)
+    public NavLink target(target target)
     {
         return attr("target",target.toString());
     }
-    public NavItemLink target(String target)
+    public NavLink target(String target)
     {
         attr("target",target);
         return this;
     }
-    public NavItemLink href(String href)
+    public NavLink tab(String target)
+    {
+        attr("data-bs-toggle","tab");
+        attr("data-bs-target",target);
+        return this;
+    }
+    public NavLink href(String href)
     {
         attr("href",href);
         return this;

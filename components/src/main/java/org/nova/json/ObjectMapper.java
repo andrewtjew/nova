@@ -38,11 +38,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.nova.annotations.Alias;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
 
 public class ObjectMapper
 {
+    //To support non standard JSON.
+    static public boolean PERMIT_ELEMENT_AS_ARRAY=false;
+    
+    
     final static private HashMap<String, FieldWriter[]> FIELD_WRITERS=new HashMap<>();
     final static private HashMap<String, Writer> WRITERS=new HashMap<>();
 
@@ -464,7 +469,15 @@ public class ObjectMapper
         {
             this.writer=writer;
             this.field = field;
-            this.jsonName = ('"' + field.getName() + '"' + ':').toCharArray();
+            Alias alias=field.getAnnotation(Alias.class);
+            if (alias!=null)
+            {
+                this.jsonName = ('"' + alias.value() + '"' + ':').toCharArray();
+            }
+            else
+            {
+                this.jsonName = ('"' + field.getName() + '"' + ':').toCharArray();
+            }
         }
         void write(WriteState writeState,boolean needComma,Object object) throws Throwable
         {
@@ -785,6 +798,10 @@ public class ObjectMapper
                 }
             }
         }
+        public void revert()
+        {
+            this.position--;
+        }
         
         public void expectOpenBrace() throws Exception
         {
@@ -956,51 +973,51 @@ public class ObjectMapper
                 getPrimitiveValue();
             }
         }
-        public void skipOld() throws Exception
-        {
-            char c=nextNonWhiteSpaceCharacter();
-            this.position--;
-            if (c=='"')
-            {
-                getString(); //we can optimize this by noticing that we don't need the computed string.
-            }
-            else if (c=='{')
-            {
-                if (nextNonWhiteSpaceCharacter()!='}')
-                {
-                    for (;;)
-                    {
-                        if (getName()==null)
-                        {
-                            break;
-                        }
-                        skip();
-                        if (isEndOfElements())
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (c=='[')
-            {
-                if (nextNonWhiteSpaceCharacter()!=']')
-                {
-                    for (;;)
-                    {
-                        skip();
-                        if (isEndOfArray())
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                getPrimitiveValue();
-            }
-        }
+//        public void skipOld() throws Exception
+//        {
+//            char c=nextNonWhiteSpaceCharacter();
+//            this.position--;
+//            if (c=='"')
+//            {
+//                getString(); //we can optimize this by noticing that we don't need the computed string.
+//            }
+//            else if (c=='{')
+//            {
+//                if (nextNonWhiteSpaceCharacter()!='}')
+//                {
+//                    for (;;)
+//                    {
+//                        if (getName()==null)
+//                        {
+//                            break;
+//                        }
+//                        skip();
+//                        if (isEndOfElements())
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//            else if (c=='[')
+//            {
+//                if (nextNonWhiteSpaceCharacter()!=']')
+//                {
+//                    for (;;)
+//                    {
+//                        skip();
+//                        if (isEndOfArray())
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//            else
+//            {
+//                getPrimitiveValue();
+//            }
+//        }
         private char next()
         {
             try
@@ -1039,10 +1056,10 @@ public class ObjectMapper
             }
             throw new Exception(", or ] expected: "+getError());
         }
-        public boolean isNext4(char end) throws Exception
-        {
-            return nextNonWhiteSpaceCharacter()==end;
-        }
+//        public boolean isNext4(char end) throws Exception
+//        {
+//            return nextNonWhiteSpaceCharacter()==end;
+//        }
         
         public boolean isNonEmptyElements() throws Exception
         {
@@ -1451,150 +1468,150 @@ public class ObjectMapper
     
     static abstract class Reader
     {
-        abstract Object read(Scanner parser,Class<?> type,Options options) throws Throwable;
+        abstract Object read(Scanner scanner,Class<?> type,Options options) throws Throwable;
     }
     static class PrimitiveBooleanReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveBoolean();
+            return scanner.getPrimitiveBoolean();
         }
     }
     static class PrimitiveIntegerReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveInteger();
+            return scanner.getPrimitiveInteger();
         }
     }
     static class PrimitiveLongReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveLong();
+            return scanner.getPrimitiveLong();
         }
     }
     static class PrimitiveFloatReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveFloat();
+            return scanner.getPrimitiveFloat();
         }
     }
     static class PrimitiveDoubleReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveDouble();
+            return scanner.getPrimitiveDouble();
         }
     }
     static class PrimitiveByteReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveByte();
+            return scanner.getPrimitiveByte();
         }
     }
     static class PrimitiveCharacterReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveCharacter();
+            return scanner.getPrimitiveCharacter();
         }
     }
     static class PrimitiveShortReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getPrimitiveShort();
+            return scanner.getPrimitiveShort();
         }
     }
     static class StringReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getString();
+            return scanner.getString();
         }
     }
     static class BooleanReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getBoolean();
+            return scanner.getBoolean();
         }
     }
     static class IntegerReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getInteger();
+            return scanner.getInteger();
         }
     }
     static class LongReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getLong();
+            return scanner.getLong();
         }
     }
     static class FloatReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getFloat();
+            return scanner.getFloat();
         }
     }
     static class DoubleReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getDouble();
+            return scanner.getDouble();
         }
     }
     static class ByteReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getByte();
+            return scanner.getByte();
         }
     }
     static class CharacterReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getCharacter();
+            return scanner.getCharacter();
         }
     }
     static class ShortReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return parser.getShort();
+            return scanner.getShort();
         }
     }
     static class EnumReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            String value=parser.getString();
+            String value=scanner.getString();
             if (value==null)
             {
                 return null;
@@ -1605,35 +1622,48 @@ public class ObjectMapper
     static class BigDecimalReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return new BigDecimal(parser.getPrimitiveValue()); 
+            return new BigDecimal(scanner.getPrimitiveValue()); 
         }
     }
     static class ArrayReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            char c=parser.nextNonWhiteSpaceCharacter();
+            char c=scanner.nextNonWhiteSpaceCharacter();
             if (c=='n')
             {
-                parser.expectRestOfNull();
+                scanner.expectRestOfNull();
                 return null;
+            }
+            if (PERMIT_ELEMENT_AS_ARRAY)
+            {
+                if (c=='{')
+                {
+                    scanner.revert();
+                    Class<?> componentType=type.getComponentType();
+                    Reader reader=getReader(componentType);
+                    Object item=reader.read(scanner, componentType,options);
+                    Object array = Array.newInstance(componentType, 1);
+                    Array.set(array, 0, item);
+                    return array;
+                }
             }
             if (c!='[')
             {
-                throw new Exception("array or null expected: "+parser.getError());
+                throw new Exception("array or null expected: "+scanner.getError());
             }
             Class<?> componentType=type.getComponentType();
             Reader reader=getReader(componentType);
             ArrayList<Object> list=new ArrayList<>();
-            if (parser.isNonEmptyArray())
+            if (scanner.isNonEmptyArray())
             {
                 for (;;)
                 {
-                    list.add(reader.read(parser, componentType,options));
-                    if (parser.isEndOfArray())
+                    list.add(reader.read(scanner, componentType,options));
+                    if (scanner.isEndOfArray())
                     {
                         break;
                     }
@@ -1652,25 +1682,25 @@ public class ObjectMapper
     static class ObjectReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            char c=parser.nextNonWhiteSpaceCharacter();
+            char c=scanner.nextNonWhiteSpaceCharacter();
             if (c=='n')
             {
-                parser.expectRestOfNull();
+                scanner.expectRestOfNull();
                 return null;
             }
             if (c!='{')
             {
-                throw new Exception("Elements or null expected: "+parser.getError()+". Error character="+c);
+                throw new Exception("Elements or null expected: "+scanner.getError()+". Error character="+c);
             }
             ClassReader reader=getFieldReaders(type);
             Object object=reader.newInstance();
-            if (parser.isNonEmptyElements())
+            if (scanner.isNonEmptyElements())
             {
                 for (;;)
                 {
-                    String name=parser.getName();
+                    String name=scanner.getName();
                     if (name==null)
                     {
                         break;
@@ -1680,18 +1710,18 @@ public class ObjectMapper
                     {
                         if (options.ignoreUnknownFields)
                         {
-                            parser.skip();
+                            scanner.skip();
                         }
                         else
                         {
-                            throw new Exception('"'+name+"\" not in type:"+parser.getError());
+                            throw new Exception('"'+name+"\" not in type:"+scanner.getError());
                         }
                     }
                     else
                     {
-                        fieldReader.read(parser, object,options);
+                        fieldReader.read(scanner, object,options);
                     }
-                    if (parser.isEndOfElements())
+                    if (scanner.isEndOfElements())
                     {
                         break;
                     }
@@ -1704,32 +1734,32 @@ public class ObjectMapper
     static class ObjectMapReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            char c=parser.nextNonWhiteSpaceCharacter();
+            char c=scanner.nextNonWhiteSpaceCharacter();
             if (c=='n')
             {
-                parser.expectRestOfNull();
+                scanner.expectRestOfNull();
                 return null;
             }
             if (c!='{')
             {
-                throw new Exception("Elements or null expected: "+parser.getError()+". Error character="+c);
+                throw new Exception("Elements or null expected: "+scanner.getError()+". Error character="+c);
             }
             ObjectMap object=new ObjectMap();
-            if (parser.isNonEmptyElements())
+            if (scanner.isNonEmptyElements())
             {
                 for (;;)
                 {
-                    String name=parser.getName();
+                    String name=scanner.getName();
                     if (name==null)
                     {
                         break;
                     }
-                    String value=parser.getValueString();
+                    String value=scanner.getValueString();
                     object.put(name, value);
                     
-                    if (parser.isEndOfElements())
+                    if (scanner.isEndOfElements())
                     {
                         break;
                     }
@@ -1742,9 +1772,9 @@ public class ObjectMapper
     static class ValueStringReader extends Reader
     {
         @Override
-        Object read(Scanner parser,Class<?> type,Options options) throws Throwable
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
-            return new ValueString(parser.getValueString());
+            return new ValueString(scanner.getValueString());
         }
     }
     
@@ -1759,9 +1789,9 @@ public class ObjectMapper
             this.reader=reader;
             this.field = field;
         }
-        void read(Scanner parser,Object object,Options options) throws Throwable
+        void read(Scanner scanner,Object object,Options options) throws Throwable
         {
-            field.set(object, reader.read(parser,this.field.getType(),options));
+            field.set(object, reader.read(scanner,this.field.getType(),options));
         }
     }
 
@@ -2007,7 +2037,15 @@ public class ObjectMapper
                         }
                         field.setAccessible(true);
                         Reader reader=getReader(fieldType);
-                        fieldReaders.put(field.getName(), new FieldReader(field,reader));
+                        Alias alias=field.getAnnotation(Alias.class);
+                        if (alias!=null)
+                        {
+                            fieldReaders.put(alias.value(), new FieldReader(field,reader));
+                        }
+                        else
+                        {
+                            fieldReaders.put(field.getName(), new FieldReader(field,reader));
+                        }
                     }
                 }
             }
@@ -2044,14 +2082,14 @@ public class ObjectMapper
     @SuppressWarnings("unchecked")
     static public <OBJECT> OBJECT readObject(String text,Class<OBJECT> type,Options options) throws Throwable
     {
-        Scanner parser=new Scanner(text);
-        return (OBJECT)readObject(parser,type,options);
+        Scanner scanner=new Scanner(text);
+        return (OBJECT)readObject(scanner,type,options);
     }
 
-    static Object readObject(Scanner parser,Class<?> type,Options options) throws Throwable
+    static Object readObject(Scanner scanner,Class<?> type,Options options) throws Throwable
     {
         Reader reader=getReader(type);
-        return reader.read(parser,type,options);
+        return reader.read(scanner,type,options);
     }
     
     

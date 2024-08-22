@@ -29,6 +29,7 @@ import org.nova.html.bootstrap.TableHead;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.link;
@@ -77,6 +78,11 @@ public class DataTable  extends StyleComponent<DataTable>
         addClass("w-auto");
         return this;
     }
+    public DataTable display_nowrap()
+    {
+        addClass("display nowrap");
+        return this;
+    }
     public DataTable hover()
     {
         addClass("table-hover");
@@ -101,23 +107,33 @@ public class DataTable  extends StyleComponent<DataTable>
     @Override
     public void compose(Composer composer) throws Throwable
     {
+        script script=new script().addInner(new LiteralHtml(js_ready()));
+        composer.getStringBuilder().append(script.getHtml());
+        super.compose(composer);
+    }
+    public String js_ready() throws Throwable
+    {
+        return js_ready(id(),options);
+    }
+    static public String js_ready(String id,DataTableOptions options) throws Throwable
+    {
         StringBuilder sb=new StringBuilder();
-        sb.append("$(document).ready(function(){$('#").append(id()).append("').DataTable(");
+        sb.append("$(document).ready(function(){$('#").append(id).append("').DataTable(");
         {
             ObjectBuilder ob=new ObjectBuilder();
-            ob.add(this.options);
+            ob.add(options);
             sb.append(ob.toString());
         }
         sb.append(");});");
-
-        if (sb.length()>0)
-        {
-            script script=new script().addInner(new LiteralHtml(sb.toString()));
-            composer.getStringBuilder().append(script.getHtml());
-        }
-        super.compose(composer);
+    //    sb.append(HtmlUtils.js_call("alert",id));
+        return sb.toString();
     }
-    
+    static public String js_draw(String id) throws Throwable
+    {
+        StringBuilder sb=new StringBuilder();
+        sb.append("$('#").append(id).append("').DataTable().draw();");
+        return sb.toString();
+    }
     public TableRow returnAddBodyRow()
     {
         return body().returnAddInner(new TableRow());

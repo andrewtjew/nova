@@ -82,7 +82,7 @@ public class DataTableOptions
         {
             DataTableColumnOrder order=orders[i];
         
-            objects[i]=new Object[]{order.column,order};
+            objects[i]=new Object[]{order.column,order.order};
         }
         this.order=objects;
     }
@@ -106,7 +106,7 @@ public class DataTableOptions
     public Boolean paging;
     public Boolean processing;
     public Boolean scrollX;
-    public Boolean scrollY;
+    public String scrollY;
     public Boolean searching;
     public Boolean serverSide;
     public Boolean stateSave;

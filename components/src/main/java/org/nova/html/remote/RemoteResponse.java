@@ -50,6 +50,11 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.value,id,value.toString()));
         return this;
     }
+    public RemoteResponse checked(String id,boolean value)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.checked,id,Boolean.toString(value)));
+        return this;
+    }
     
     public Instruction[] getInstructions()
     {

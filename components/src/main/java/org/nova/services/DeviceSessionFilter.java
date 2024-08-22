@@ -42,6 +42,13 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         Method method=handler.getMethod();
         if (session==null)
         {
+            if (method.getAnnotation(AllowNoSession.class)!=null)
+            {
+                if (session==null)
+                {
+                    return context.next(parent);
+                }
+            }
             if (this.debugSession==null)
             {
                 if (method.getAnnotation(AllowNoSession.class)==null)
@@ -90,7 +97,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 {
                     pageRequest=true;
                     Page page=(Page)content;
-                    if (page.isStateless()==false)
+                    if (page.isContinuationDisallowed()==false)
                     {
                         String action=session.useContinuation();
                         if (action!=null)
