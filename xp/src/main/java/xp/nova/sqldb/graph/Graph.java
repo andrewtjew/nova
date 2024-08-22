@@ -692,11 +692,11 @@ public class Graph
             StringBuilder sql=new StringBuilder();
             if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             else
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_eventId` bigint NOT NULL,");
+            	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
@@ -727,7 +727,7 @@ public class Graph
             
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
-            String after="_eventId";
+            String after="_transactionId";
             Stack<String> alters=new Stack<String>();
 
             if (Graph.DEBUG)
@@ -768,7 +768,7 @@ public class Graph
                 {
                     Row row=orderedRows[rowIndex];
                     String columnName=row.getVARCHAR("COLUMN_NAME");
-                    if (columnName.equals("_eventId"))
+                    if (columnName.equals("_transactionId"))
                     {
                         rowIndex++;
                         continue;
@@ -851,11 +851,11 @@ public class Graph
         }
         try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))
         {
-            if (accessor.executeQuery(parent,"existTable:_event"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_event",catalog).getRow(0).getBIGINT(0)==0)
+            if (accessor.executeQuery(parent,"existTable:_transaction"
+                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_transaction",catalog).getRow(0).getBIGINT(0)==0)
             {
-                accessor.executeUpdate(parent, "createTable:_event"
-                        ,"CREATE TABLE `_event` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=547 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                accessor.executeUpdate(parent, "createTable:_transaction"
+                        ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
 
@@ -873,14 +873,14 @@ public class Graph
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createTable:_node"
-                        ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
             if (accessor.executeQuery(parent,"existTable:_array"
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_array",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createTable:_array"
-                        ,"CREATE TABLE `_array` (`id` bigint NOT NULL AUTO_INCREMENT,`eventId` bigint NOT NULL,`arrayId` bigint NOT NULL,`elementType` varchar(45) DEFAULT NULL,`index` int NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`arrayId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
             if (accessor.executeQuery(parent,"existTable:_version"

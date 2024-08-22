@@ -68,8 +68,12 @@ public class Query
         this.nodeTypes = nodeTypes;
         return this;
     }
-    final public Query selectArray(Class<?>... nodeTypes)
+
+    NodeObject object;
+    
+    final public Query select(NodeObject object)
     {
+        this.object=object;
         return this;
     }
     
@@ -254,6 +258,34 @@ public class Query
                         state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
                     }
                 }
+            }
+            if ((linkQuery.targetNode!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+            {
+                String on = null;
+                switch (linkQuery.direction)
+                {
+                case FROM:
+                    on = " ON " + linkAlias + ".toNodeId=";
+                    break;
+                case TO:
+                    on = " ON " + linkAlias + ".fromNodeId=";
+                    break;
+                default:
+                    break;
+                }
+                Class<? extends NodeObject> type = linkQuery.targetNodeType;
+                GraphObjectDescriptor descriptor = state.graph.register(type);
+                String typeName = descriptor.getTypeName();
+                String table = descriptor.getTableName();
+
+                String as=" ";
+                String alias=table;
+                if (linkQuery.linkNamespace!=null)
+                {
+                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
+                    as=" AS "+alias+" ";
+                }
+                state.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNode.getNodeId());
             }
             if (linkQuery.nodeTypes != null)
             {

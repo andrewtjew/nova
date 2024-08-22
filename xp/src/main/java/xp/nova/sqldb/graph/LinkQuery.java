@@ -7,6 +7,7 @@ public class LinkQuery
     final Direction direction;
     final long relationValue;
     final Class<? extends NodeObject> targetNodeType;
+    final NodeObject targetNode;
 
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
@@ -16,29 +17,37 @@ public class LinkQuery
     String linkNamespace=null;
     
 
-//    boolean selectLink;
+//    boolean selectLink;   
     
 //    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
-    
-    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType,Class<? extends NodeObject> targetNodeType)
+
+    public LinkQuery(Direction direction,Relation_ relation,NodeObject targetNode)
     {
         this.direction=direction;
-        this.targetNodeType=targetNodeType;
-        this.relationValue=GraphTransaction.toRelationValue(relation, objectType);
+        this.targetNodeType=targetNode.getClass();
+        this.targetNode=targetNode;
+        this.relationValue=relation.getValue();
     }
     public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
     {
-        this(direction,relation,null,targetNodeType);
+        this.direction=direction;
+        this.targetNodeType=targetNodeType;
+        this.relationValue=relation.getValue();
+        this.targetNode=null;
     }
-    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
-    {
-        this(direction,relation,objectType,null);
-    }
+//    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
+//    {
+//        this(direction,relation,null,targetNodeType);
+//    }
+//    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
+//    {
+//        this(direction,relation,objectType,(Class<? extends NodeObject>)null);
+//    }
     public LinkQuery(Direction direction,Relation_ relation)
     {
-        this(direction,relation,null,null);
+        this(direction,relation,(Class<? extends NodeObject>)null);
     }
 //    public LinkQuery(Direction direction) throws Exception
 //    {
