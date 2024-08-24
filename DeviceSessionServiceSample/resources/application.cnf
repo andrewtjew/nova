@@ -1,4 +1,2 @@
 @default.cnf
-
-
-@local.cnf
+%local.cnf

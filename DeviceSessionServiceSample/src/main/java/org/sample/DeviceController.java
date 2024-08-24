@@ -71,15 +71,7 @@ public class DeviceController
     public UserPage initialize(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState, @QueryParam("redirect") String redirect) throws Throwable
     {
         UserPage page = new UserPage(null, null);
-        page.body().onload(HtmlUtils.js_call("initalize", PATH+"/session",redirect));
-        if (cookieState.token != null)
-        {
-            cookieState.referer = context.getHttpServletRequest().getHeader("referer");
-        }
-        else
-        {
-            cookieState.referer = null;
-        }
+        page.body().onload(HtmlUtils.js_call("nova.device.initalize", PATH+"/session",redirect));
         return page;
     }
 
@@ -173,14 +165,14 @@ public class DeviceController
     {
         HttpServletRequest request = context.getHttpServletRequest();
         String language = getAcceptableLanguage(request);
-        if (cookieState.token == null)
+        if (cookieState.getToken() == null)
         {
-            cookieState.token = this.service.generateSessionToken();
+            cookieState.setToken(this.service.generateSessionToken());
         }
 
         DeviceSessionResult result = createDeviceSession(parent, cookieState, request);
         
-        UserSession session = new UserSession(this.service, result.deviceSessionId,cookieState.token, TimeZone.getTimeZone(timeZone).toZoneId());
+        UserSession session = new UserSession(this.service, result.deviceSessionId,cookieState.getToken(), TimeZone.getTimeZone(timeZone).toZoneId());
         if (result.userId!=null)
         {
             LocalDateTime now=LocalDateTime.now();
@@ -191,10 +183,6 @@ public class DeviceController
             }
         }
         this.service.getSessionManager().addSession(parent, session);
-        if (cookieState.referer != null)
-        {
-            return new Redirect(cookieState.referer);
-        }
         return new Redirect(redirect);
 
     }
@@ -203,7 +191,7 @@ public class DeviceController
     @Path("/debug/clear")
     public Element clear(Trace parent, @CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState) throws Throwable
     {
-        cookieState.token = null;
+        cookieState.setToken(null);
         return new Redirect("/");
     }
 

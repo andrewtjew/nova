@@ -1,8 +1,14 @@
 package org.sample;
 
-public class CookieState
+import org.nova.services.DeviceCookieState;
+
+public class CookieState extends DeviceCookieState
 {
-	public String token;
-	public String referer;
+	public CookieState(String token)
+    {
+        super(token);
+    }
+
+	//public String referer;
 	
 }

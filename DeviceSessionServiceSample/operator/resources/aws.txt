@@ -1,0 +1,13 @@
+administrator
+password
+
+Manager
+111111
+
+Member 222222
+
+Client
+333333
+
+Window server
+X2NJX-VMH6C-G9866-GFG6Q-FM8DM
