@@ -18,6 +18,7 @@ import org.nova.html.ext.Redirect;
 import org.nova.html.google.GoogleMap;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.tags.script;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -52,7 +53,7 @@ import org.nova.utils.TypeUtils;
 public class DeviceController 
 {
     public static final String PATH = "/$/device";
-    final public static String COOKIE_NAME="CookieState";
+    final public static String COOKIE_NAME="X-Sample";
     final public static int COOKIE_MAXAGE=3600*24*30;
     
 
@@ -71,7 +72,9 @@ public class DeviceController
     public UserPage initialize(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState, @QueryParam("redirect") String redirect) throws Throwable
     {
         UserPage page = new UserPage(null, null);
-        page.body().onload(HtmlUtils.js_call("nova.device.initalize", PATH+"/session",redirect));
+//        String path=new PathAndQuery(PATH+"/session").addQuery("redirect",redirect).toString();
+        String path=PATH+"/session?redirect="+redirect;
+        page.body().onload(HtmlUtils.js_call("nova.device.initialize", path));
         return page;
     }
 
@@ -153,7 +156,7 @@ public class DeviceController
 //            }
 //        }
         result.deviceSessionId=0L;
-        result.remembered=LocalDateTime.now().minusDays(this.rememberDays);
+        result.remembered=LocalDateTime.now().minusDays(this.rememberDays-1);
         result.userId=0L;
         return result;
     }

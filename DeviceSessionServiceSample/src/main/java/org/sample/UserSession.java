@@ -52,4 +52,8 @@ public class UserSession extends DeviceSession<Role>
         this.userId=userId;
         this.addRole(role);
     }
+    public Long getUserId()
+    {
+        return this.userId;
+    }
 }

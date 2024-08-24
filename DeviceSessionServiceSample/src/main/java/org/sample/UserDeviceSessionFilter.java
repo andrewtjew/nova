@@ -44,7 +44,7 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
 {
     public UserDeviceSessionFilter(Service service)
     {
-        super(service.getSessionManager(),"X-Cookie",CookieState.class);
+        super(service.getSessionManager(),DeviceController.COOKIE_NAME,CookieState.class);
     }
 
     @Override

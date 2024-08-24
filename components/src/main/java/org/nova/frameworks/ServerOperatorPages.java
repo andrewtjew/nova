@@ -269,7 +269,6 @@ public class ServerOperatorPages
     public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
     {
         Configuration configuration=serverApplication.getConfiguration();
-        
         FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
         this.fileCache=new FileCache(fileCacheConfiguration);
         

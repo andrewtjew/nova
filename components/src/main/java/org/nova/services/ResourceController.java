@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
 import org.nova.collections.FileCache;
+import org.nova.collections.FileCacheConfiguration;
+import org.nova.configuration.Configuration;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.http.client.BinaryResponse;
@@ -73,7 +75,11 @@ public class ResourceController
 
     public ResourceController(ServerApplication serverApplication) throws Throwable
     {
-        this.cache=serverApplication.getFileCache();
+        Configuration configuration=serverApplication.getConfiguration();
+        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
+        this.cache=new FileCache(fileCacheConfiguration);
+        
+        
         this.cacheControl= serverApplication.getConfiguration().getBooleanValue("ResourceController.cacheControl", true);
         this.cacheControlMaxAge = serverApplication.getConfiguration().getIntegerValue("ResourceController.cacheControl.maxAgeS", 3600*24);
         this.cacheControlValue = serverApplication.getConfiguration().getValue("ResourceController.cacheControl.controlValue", "public");

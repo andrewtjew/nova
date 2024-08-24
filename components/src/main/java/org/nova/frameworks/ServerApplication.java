@@ -23,7 +23,6 @@ package org.nova.frameworks;
 
 import java.io.File;
 import org.eclipse.jetty.server.Server;
-import org.nova.collections.FileCache;
 import org.nova.collections.FileCacheConfiguration;
 import org.nova.concurrent.Synchronization;
 import org.nova.configuration.Configuration;
@@ -67,7 +66,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     final private HttpServer publicServer;
     
 	final private OperatorVariableManager operatorVariableManager;
-	final private FileCache fileCache;
+//	final private FileCache fileCache;
 	final private String baseDirectory;
 	final private ExtensionToContentTypeMappings typeMappings;
 	final private DisruptorManager disruptorManager;
@@ -269,10 +268,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 
 
         //File cache
-        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
-		this.fileCache=new FileCache(fileCacheConfiguration);
-		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
-		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
+//        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
+//		this.fileCache=new FileCache(fileCacheConfiguration);
+//		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
+//		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
 		
         this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
@@ -417,10 +416,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 		return this.baseDirectory;
 	}
 
-	public FileCache getFileCache()
-	{
-		return this.fileCache;
-	}
+//	public FileCache getFileCache()
+//	{
+//		return this.fileCache;
+//	}
 
 	public ExtensionToContentTypeMappings getContentTypeMappings()
 	{

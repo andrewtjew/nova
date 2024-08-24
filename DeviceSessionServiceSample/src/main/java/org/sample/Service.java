@@ -9,6 +9,7 @@ import org.nova.http.server.FileDownloader;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.DeviceSessionService;
+import org.nova.services.FavIconController;
 import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;
 
@@ -25,12 +26,13 @@ public class Service extends DeviceSessionService<UserSession>
     {
         super("Sample", coreEnvironment,transport);
         
-//    public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl, long maxAge, long maxSize, long freeMemory) throws Throwable
-        
-//        this.getOperatorServer().registerFrontServletHandlers(new FileDownloader(getBaseDirectory()+File.separatorChar+"operator", false, null, 0, 10,0));
-        this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", !isTest(), 1000000,0); 
+        this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", !isTest(), 1000000,0);
         this.getPublicServer().registerBackServletHandlers(this.fileDownloader);
         this.getPrivateServer().registerBackServletHandlers(this.fileDownloader);
+        
+        FavIconController favIconController=new FavIconController("./client/favicon.ico"); 
+        this.getPublicServer().registerHandlers(favIconController);
+        this.getPrivateServer().registerHandlers(favIconController);
 
         this.getPrivateServer().addContentWriters(new RemoteResponseWriter());
         this.getPublicServer().addContentWriters(new RemoteResponseWriter());

@@ -17,6 +17,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.Redirect;
 import org.nova.html.google.GoogleMap;
 import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.html.tags.img;
 import org.nova.html.tags.script;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
@@ -61,20 +62,31 @@ public class UserController
 
     @GET
     @Path("/user")
+    @RequiredRoles("User")
     public UserPage user(Trace parent,@StateParam UserSession session) throws Throwable
     {
         UserPage page = new UserPage(null, null);
-        page.body().addInner("Hello, user="+session.getUser());
+        page.body().addInner("Hello, userId="+session.getUserId());
         return page;
     }
 
     @GET
     @Path("/")
     @RequiredRoles()
-    public UserPage user(Trace parent) throws Throwable
+    public UserPage root(Trace parent,@StateParam UserSession session) throws Throwable
     {
         UserPage page = new UserPage(null, null);
         page.body().addInner("Hello world");
+        return page;
+    }
+
+    @GET
+    @Path("/nova")
+    @RequiredRoles("User")
+    public UserPage nova(Trace parent,@StateParam UserSession session) throws Throwable
+    {
+        UserPage page = new UserPage(null, null);
+        img img=page.body().returnAddInner(new img()).src("/$/images/nova.png");
         return page;
     }
 
