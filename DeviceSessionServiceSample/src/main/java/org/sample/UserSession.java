@@ -1,16 +1,24 @@
 package org.sample;
 
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Base64;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+
 import org.nova.core.NameObject;
 import org.nova.http.server.Context;
+import org.nova.security.SecurityUtils;
 import org.nova.services.DeviceSession;
 import org.nova.tracing.Trace;
 
 public class UserSession extends DeviceSession<Role>
 {
     public Long userId;
-    
+
     public UserSession(Service service,long deviceSessionId,String token,ZoneId zoneId) throws Throwable
     {
         super(deviceSessionId,token,zoneId,Role.class);
@@ -29,24 +37,6 @@ public class UserSession extends DeviceSession<Role>
         return list.toArray(new NameObject[list.size()]);
     }
 
-    @Override
-    public String getSecurityQueryKey()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    @Override
-    public void verifyQuery(Context context) throws Throwable
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    @Override
-    public String sign(String query) throws Throwable
-    {
-        return query;
-    }
-    
     public void login(Trace parent,long userId,Role role)
     {
         this.userId=userId;

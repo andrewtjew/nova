@@ -19,6 +19,7 @@ import org.nova.html.google.GoogleMap;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.tags.img;
 import org.nova.html.tags.script;
+import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -87,6 +88,24 @@ public class UserController
     {
         UserPage page = new UserPage(null, null);
         img img=page.body().returnAddInner(new img()).src("/$/images/nova.png");
+        return page;
+    }
+
+    @GET
+    @Path("/secure")
+    @RequiredRoles("User")
+    public Element query(Trace parent,@StateParam UserSession session) throws Throwable
+    {
+        return new Redirect(new SecurePathAndQuery(session,"/query").addQuery("value",12345).toString());
+    }
+
+    @GET
+    @Path("/query")
+    @RequiredRoles("User")
+    public UserPage query1(Trace parent,@StateParam UserSession session,@QueryParam("value") long value) throws Throwable
+    {
+        UserPage page = new UserPage(null, null);
+        page.body().addInner("value="+value);
         return page;
     }
 
