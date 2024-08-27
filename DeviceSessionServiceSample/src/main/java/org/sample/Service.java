@@ -5,6 +5,7 @@ import java.io.File;
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplicationRunner;
 import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.FileDownloader;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
@@ -31,6 +32,7 @@ public class Service extends DeviceSessionService<UserSession>
         this.getPrivateServer().registerBackServletHandlers(this.fileDownloader);
         
         FavIconController favIconController=new FavIconController("./client/favicon.ico"); 
+        this.getPublicServer().addContentEncoders(new BrotliContentEncoder());
         this.getPublicServer().registerHandlers(favIconController);
         this.getPrivateServer().registerHandlers(favIconController);
 

@@ -46,17 +46,11 @@ import org.nova.sqldb.Transaction;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-
-@ContentWriters({HtmlElementWriter.class,RemoteResponseWriter.class,JSONContentWriter.class})
-@ContentReaders({JSONContentReader.class})
-@ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
-@Filters({DeviceSessionFilter.class})
-public class UserController 
+public class UserController extends PageController
 {
-    final private Service service;
     public UserController(Service service) throws Throwable
     {
-        this.service=service;
+        super(service);
         
     }
 

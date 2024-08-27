@@ -58,12 +58,12 @@ public class DeviceController
     
 
     final private Service service;
-    private long rememberDays;
+    private long loggedInDays;
     public DeviceController(Service service) throws Throwable
     {
         this.service=service;
         Configuration configuration=service.getConfiguration();
-        this.rememberDays=configuration.getIntegerValue("Application.rememberDays",30);
+        this.loggedInDays=configuration.getIntegerValue("Application.loggedInDays",30);
         
     }
 
@@ -139,7 +139,7 @@ public class DeviceController
 //                        userState.token = this.service.generateToken();
 //                        try
 //                        {
-//                            result.deviceSessionId = Insert.table("devicesession").value("deviceId", deviceId).value("token", userState.token).value("remote", remote).value("created", now)
+//                            result.deviceSessionId = Insert.table("devicesession").value("deviceId", deviceId).value("token", userState.token).value("loggedInDays", remote).value("created", now)
 ////                                    .value("latitude", latitude).value("longitude", longitude).value("country", country)
 //                                    .executeAndReturnLongKey(parent, accessor);
 //                            transaction.commit();
@@ -156,7 +156,7 @@ public class DeviceController
 //            }
 //        }
         result.deviceSessionId=0L;
-        result.remembered=LocalDateTime.now().minusDays(this.rememberDays-1);
+        result.remembered=LocalDateTime.now().minusDays(this.loggedInDays-1);
         result.userId=0L;
         return result;
     }
@@ -180,7 +180,7 @@ public class DeviceController
         {
             LocalDateTime now=LocalDateTime.now();
             long days=Duration.between(result.remembered, now).toDays();
-            if ((days<this.rememberDays)&&(result.userId!=null))
+            if ((days<this.loggedInDays)&&(result.userId!=null))
             {
                 session.login(parent,result.userId,Role.User);
             }

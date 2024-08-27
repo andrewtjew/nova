@@ -99,6 +99,8 @@ public class AzureBuild extends Script
             CometUtils.deleteDirectory(package_);
             CometUtils.createDirectory(package_);
             CometUtils.copyFile(destDir,package_+"\\"+destJar);
+            CometUtils.copyDirectory(sourceDir+artifact+"\\client",package_+"\\client");
+
             CometUtils.cloneDirectory(sourceDir+"\\resources",package_+"\\resources");
             CometUtils.copyDirectory(sourceDir+artifact+"\\resources",package_+"\\resources");
 //            CometUtils.deleteDirectory(package_+"\\resources\\client\\games");
