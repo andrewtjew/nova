@@ -1,5 +1,8 @@
 package org.nova.html.remote;
 
+import org.nova.html.elements.Composer;
+import org.nova.html.ext.LiteralHtml;
+import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.RemoteStateBinding;
@@ -31,4 +34,31 @@ public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends 
         pathAndQuery.addQuery(binding.getStateKey(),id());
         return Remote.js_postStatic(pathAndQuery.toString());
     }    
+    public void addScript(RemoteResponse response,String js_script)
+    {
+        if (response!=null)
+        {
+            response.script(js_script);
+        }
+        else
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
+        }
+    }
+    public RemoteResponse render(RemoteResponse response) throws Throwable
+    {
+        if (response!=null)
+        {
+            response.outerHtml(this);
+        }
+        return response;
+    }
+    
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        render(null);
+        super.compose(composer);
+    }
+    
 }

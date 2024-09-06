@@ -45,30 +45,4 @@ public class RemoteContent<ELEMENT extends GlobalEventTagElement<ELEMENT>> exten
         return this;
     }    
     
-    public void addScript(RemoteResponse response,String js_script)
-    {
-        if (response!=null)
-        {
-            response.script(js_script);
-        }
-        else
-        {
-            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
-        }
-    }
-    public RemoteResponse render(RemoteResponse response) throws Throwable
-    {
-        if (response!=null)
-        {
-            response.outerHtml(this);
-        }
-        return response;
-    }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        render(null);
-        super.compose(composer);
-    }
 }
