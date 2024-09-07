@@ -26,7 +26,7 @@ import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteContent;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.remote.RemoteStateContent;
+import org.nova.html.remote.RemoteStateElement;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;

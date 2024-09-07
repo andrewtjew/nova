@@ -9,7 +9,7 @@ import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.remote.RemoteElement;
+import org.nova.html.remote.RemoteElement2;
 import org.nova.json.ObjectMapper;
 
 @Deprecated //Use RemoteForm
@@ -77,9 +77,9 @@ public class Inputs
             this.inputs.add(new Input((InputElement<?>)element));
             return;
         }
-        if (element instanceof RemoteElement)
+        if (element instanceof RemoteElement2)
         {
-            Element inner=((RemoteElement)element).build();
+            Element inner=((RemoteElement2)element).build();
             addElements(inner);
             return;
         }

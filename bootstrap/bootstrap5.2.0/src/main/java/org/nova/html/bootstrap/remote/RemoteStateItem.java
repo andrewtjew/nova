@@ -25,7 +25,7 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.remote.RemoteStateContent;
+import org.nova.html.remote.RemoteStateElement;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
@@ -47,7 +47,7 @@ import org.nova.tracing.Trace;
 
 import org.nova.html.enums.enctype;
 
-public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> implements Styling<RemoteStateItem>
+public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> implements Styling<RemoteStateItem>
 {
     public RemoteStateItem(String id,RemoteStateBinding binding) throws Throwable
     {

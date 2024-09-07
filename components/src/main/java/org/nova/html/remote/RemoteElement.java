@@ -1,104 +1,74 @@
 package org.nova.html.remote;
 
+
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.NodeElement;
-import org.nova.html.elements.StringComposer;
+import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.LiteralHtml;
+import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
-public abstract class RemoteElement extends Element
+//Use this to populate content by calling back to server.
+public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
-    final private String id;
-    private TagElement<?> element;
-    
-    protected RemoteElement(String id)
+    public RemoteElement(String tag,String id) throws Throwable
     {
-        this.id=id!=null?id:"_"+this.hashCode();
-        
-    }
-    protected RemoteElement()
-    {
-        this(null);
-    }
-    public String id()
-    {
-        return this.id;
-    }
-    
-    abstract protected TagElement<?> render() throws Throwable;
-    
-    private void addScripts(NodeElement<?> parent,RemoteResponse response) throws Throwable
-    {
-        if (parent==null)
+        super(tag);
+        if (id==null)
         {
-            return;
+            id();
         }
-        for (Element element:parent.getInners())
+        else
         {
-            if (element instanceof script)
-            {
-                script script=(script)element;
-                StringComposer composer=new StringComposer();
-                for (Element inner:script.getInners())
-                {
-                    inner.compose(composer);
-                }
-                String scriptText=composer.getStringBuilder().toString();
-                response.script(scriptText);
-            }
-            else if (element instanceof NodeElement<?>)
-            {
-                addScripts((NodeElement<?>)element,response);
-            }
-            else if (element instanceof RemoteElement)
-            {
-                RemoteElement remoteElement=(RemoteElement)element;
-                addScripts(remoteElement.build(),response);
-            }
+            id(id);
         }
     }
-
-    public TagElement<?> build() throws Throwable
+    public RemoteElement(String tag) throws Throwable
     {
-        
-        if (this.element!=null)
+        this(tag,null);
+    }        
+    public RemoteElement<ELEMENT> load(String href,Long interval,Long timeout) throws Throwable
+    {
+        if (interval!=null)
         {
-            return this.element;
+            returnAddInner(new script()).addInner(HtmlUtils.js_setInterval(timeout, "nova.remote.getRemote",href));
         }
-        this.element=render();
-        if (element!=null)
+        else if (timeout!=null)
         {
-            this.element.id(this.id);
+            returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getRemote",href));
         }
-        return this.element;
+        else
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
+        }
+        return this;
+    }    
+    public void addScript(RemoteResponse response,String js_script)
+    {
+        if (response!=null)
+        {
+            response.script(js_script);
+        }
+        else
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
+        }
+    }
+    public RemoteResponse render(RemoteResponse response) throws Throwable
+    {
+        if (response!=null)
+        {
+            response.outerHtml(this);
+        }
+        return response;
     }
     
+    @Override
     public void compose(Composer composer) throws Throwable
     {
-        Element element=build();
-        if (element!=null)
-        {
-            element.compose(composer);
-        }
-    }
-    public RemoteResponse respond() throws Throwable
-    {
-        RemoteResponse response=new RemoteResponse();
-        respond(response);
-        return response;
-    }
-    public RemoteResponse respond(RemoteResponse response) throws Throwable
-    {
-        this.element=render();
-        if (element!=null)
-        {
-            element.id(this.id);
-            
-            response.outerHtml(this.id, element);
-            addScripts(element,response);
-        }
-        return response;
-    }
+        render(null);
+        super.compose(composer);
+    }    
     
 }

@@ -10,11 +10,11 @@ import org.nova.http.server.annotations.ContentWriters;
 import org.nova.security.QuerySecurity;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateContent<ELEMENT extends RemoteContent<ELEMENT>> extends RemoteContent<ELEMENT>
+public class RemoteStateElement<ELEMENT extends RemoteContent<ELEMENT>> extends RemoteContent<ELEMENT>
 {
     final private RemoteStateBinding binding;
     
-    public RemoteStateContent(String tag,String id,RemoteStateBinding binding) throws Throwable
+    public RemoteStateElement(String tag,String id,RemoteStateBinding binding) throws Throwable
     {
         super(tag,id);
         binding.setState(id(),this);
