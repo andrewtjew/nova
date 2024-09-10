@@ -29,6 +29,7 @@ import org.nova.html.remote.RemoteStateElement;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
+import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -94,9 +95,9 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
         return load(href,null,null,true,null);
     }    
 
-    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
-    {
-        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
-        
-    }
+//    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
+//    {
+//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//        
+//    }
 }

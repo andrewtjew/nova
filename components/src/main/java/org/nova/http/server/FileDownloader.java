@@ -55,9 +55,9 @@ public class FileDownloader extends ServletHandler
         this.mappings=ExtensionToContentTypeMappings.fromDefault();
     }
 
-    public FileDownloader(String rootDirectory, boolean enableLocalCaching, long maxSize, long freeMemory) throws Throwable
+    public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl,long maxSize, long freeMemory) throws Throwable
     {
-        this(rootDirectory,enableLocalCaching,"public",2147483648L,maxSize,freeMemory);
+        this(rootDirectory,enableLocalCaching,cacheControl,2147483648L,maxSize,freeMemory);
     }
 
     public void clearCache()
@@ -140,7 +140,8 @@ public class FileDownloader extends ServletHandler
             {
                 response.setHeader("Cache-Control", this.cacheControl);
             }
-        } else
+        } 
+        else
         {
             if (cacheControlSet == false)
             {
@@ -196,16 +197,17 @@ public class FileDownloader extends ServletHandler
             return false;
         }
         {
-            if (this.enableLocalCaching==false)
-            {
-                this.cache.remove(key);
-            }
+
             byte[] bytes = this.cache.get(parent, key);
             if (bytes != null)
             {
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);
             }
+            if (this.enableLocalCaching==false)
+            {
+                this.cache.remove(key);
+            }            
             response.setStatus(HttpStatus.OK_200);
         }
         return true;

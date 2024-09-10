@@ -5,12 +5,23 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.SecurePathAndQuery;
+import org.nova.http.server.BrotliContentEncoder;
+import org.nova.http.server.DeflaterContentEncoder;
+import org.nova.http.server.GzipContentEncoder;
+import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.RemoteStateBinding;
+import org.nova.http.server.annotations.ContentEncoders;
+import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
+import org.nova.http.server.annotations.Filters;
 import org.nova.security.QuerySecurity;
+import org.nova.services.DeviceSessionFilter;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateElement<ELEMENT extends RemoteContent<ELEMENT>> extends RemoteContent<ELEMENT>
+@ContentReaders({JSONContentReader.class})
+@ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
+@Filters({DeviceSessionFilter.class})
+public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT>
 {
     final private RemoteStateBinding binding;
     
@@ -25,10 +36,7 @@ public class RemoteStateElement<ELEMENT extends RemoteContent<ELEMENT>> extends 
     {
         return this.binding;
     }
-    public String js_postStatic(QuerySecurity querySecurity,String action) throws Exception, Throwable
-    {
-        return Remote.js_postStatic(new SecurePathAndQuery(querySecurity,action).addQuery(binding.getStateKey(),id()).toString());
-    }    
+  
     public String js_postStatic(PathAndQuery pathAndQuery) throws Exception, Throwable
     {
         pathAndQuery.addQuery(binding.getStateKey(),id());

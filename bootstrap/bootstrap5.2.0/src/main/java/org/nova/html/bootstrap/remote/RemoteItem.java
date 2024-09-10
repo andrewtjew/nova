@@ -23,7 +23,7 @@ import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
-import org.nova.html.remote.RemoteContent;
+import org.nova.html.remote.RemoteElement;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remote.RemoteStateElement;
@@ -49,7 +49,7 @@ import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteItem extends RemoteContent<RemoteItem> implements Styling<RemoteItem>
+public class RemoteItem extends RemoteElement<RemoteItem> implements Styling<RemoteItem>
 {
     public RemoteItem() throws Throwable
     {
