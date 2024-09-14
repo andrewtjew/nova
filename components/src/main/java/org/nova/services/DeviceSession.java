@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
@@ -135,8 +136,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         }
         return (T)this.pageStates.get(key);
     }
-    
-    
+
     @Override
     public Object getState(Context context) throws Throwable
     {
