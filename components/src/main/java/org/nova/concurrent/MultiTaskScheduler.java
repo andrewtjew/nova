@@ -48,7 +48,7 @@ public class MultiTaskScheduler
 	}
     public MultiTaskScheduler(TraceManager traceManager,int maximumThreads,Logger logger)
     {
-        this(traceManager,Executors.newFixedThreadPool(maximumThreads),logger);
+        this(traceManager,maximumThreads>0?Executors.newFixedThreadPool(maximumThreads):null,logger);
     }
 
 	class Runner implements java.lang.Runnable
