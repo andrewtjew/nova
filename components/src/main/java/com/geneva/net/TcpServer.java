@@ -70,7 +70,7 @@ public class TcpServer
 	
 	public TcpServer(Logger logger,TraceManager traceManager,int maximumThreads,int port,Receivable receivable,Connectable connectable) throws Throwable
 	{
-		this(TcpServer.class.getSimpleName(),logger,traceManager, Executors.newFixedThreadPool(maximumThreads), port, receivable,connectable);
+		this(TcpServer.class.getSimpleName(),logger,traceManager, maximumThreads>0?Executors.newFixedThreadPool(maximumThreads):Executors.newVirtualThreadPerTaskExecutor(), port, receivable,connectable);
 	}
 	
 	public void start() throws Exception

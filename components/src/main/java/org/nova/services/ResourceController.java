@@ -25,7 +25,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;

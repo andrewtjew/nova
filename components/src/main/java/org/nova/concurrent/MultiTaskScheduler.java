@@ -39,16 +39,33 @@ public class MultiTaskScheduler
 	private final HashMap<Long,Progress<?>> progresses;
 	private final Logger logger;
 	
-	public MultiTaskScheduler(TraceManager traceManager,ExecutorService executorService,Logger logger)
+	private MultiTaskScheduler(TraceManager traceManager,ExecutorService executorService,Logger logger)
 	{
 		this.traceManager=traceManager;
 		this.executorService=executorService;
 		this.progresses=new HashMap<>();
 		this.logger=logger;
 	}
+    final static boolean MIGRATE_VIRTUAL_THREADS=true;
+    
     public MultiTaskScheduler(TraceManager traceManager,int maximumThreads,Logger logger)
     {
-        this(traceManager,Executors.newFixedThreadPool(maximumThreads),logger);
+        this(traceManager,maximumThreads>0?Executors.newFixedThreadPool(maximumThreads):Executors.newVirtualThreadPerTaskExecutor(),logger);
+        if (MIGRATE_VIRTUAL_THREADS)
+        {
+            if (maximumThreads<=0)
+            {
+                System.err.println("MIGRATE: MultiTaskScheduler is using virtual threads");
+            }
+            else
+            {
+                System.err.println("MIGRATE: MultiTaskScheduler max threads: "+maximumThreads);
+            }
+        }
+    }
+    public MultiTaskScheduler(TraceManager traceManager,Logger logger)
+    {
+        this(traceManager,0,logger);
     }
 
 	class Runner implements java.lang.Runnable

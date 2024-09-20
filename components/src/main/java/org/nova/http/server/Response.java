@@ -23,7 +23,7 @@ package org.nova.http.server;
 
 import java.util.ArrayList;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.Header;

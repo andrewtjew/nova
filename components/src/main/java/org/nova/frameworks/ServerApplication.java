@@ -119,7 +119,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             }
             if (ports>0)
             {
-                int threads=configuration.getIntegerValue("HttpServer.private.threads",20);
+                int threads=configuration.getIntegerValue("HttpServer.private.threads",0);
                 HttpServerConfiguration privateServerConfiguration=getConfiguration().getNamespaceObject("HttpServer.private", HttpServerConfiguration.class);
                 
                 int httpsPort=configuration.getIntegerValue("HttpServer.private.https.port",-1);
@@ -183,7 +183,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             }
             if (ports>0)
             {
-                int threads=configuration.getIntegerValue("HttpServer.public.threads",100);
+                int threads=configuration.getIntegerValue("HttpServer.public.threads",0);
                 HttpServerConfiguration publicServerConfiguration=getConfiguration().getNamespaceObject("HttpServer.public", HttpServerConfiguration.class);
                 
                 int httpsPort=configuration.getIntegerValue("HttpServer.public.https.port",-1);

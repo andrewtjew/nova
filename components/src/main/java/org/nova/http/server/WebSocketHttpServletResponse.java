@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.nova.utils.Utils;
 
 class WebSocketHttpServletResponse implements HttpServletResponse

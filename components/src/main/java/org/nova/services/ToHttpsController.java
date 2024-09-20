@@ -37,9 +37,9 @@ public class ToHttpsController
     private HttpServer httpServer;
     private HttpTransport httpTransport;
     
-    public ToHttpsController(TraceManager traceManager,Logger logger,int httpPort,int httpsPort,int threads) throws Throwable
+    public ToHttpsController(TraceManager traceManager,Logger logger,int httpPort,int httpsPort) throws Throwable
     {
-        Server server=JettyServerFactory.createServer(threads, httpPort);
+        Server server=JettyServerFactory.createServer(httpPort);
         HttpServerConfiguration httpServerConfiguration=new HttpServerConfiguration();
         
         this.httpServer=new HttpServer(traceManager, logger,false,httpServerConfiguration);
@@ -63,7 +63,7 @@ public class ToHttpsController
 
     public ToHttpsController(TraceManager traceManager,Logger logger) throws Throwable
     {
-        this(traceManager,logger,80,443,20);
+        this(traceManager,logger,80,443);
     }
     
     @GET
