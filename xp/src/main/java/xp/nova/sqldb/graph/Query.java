@@ -68,6 +68,14 @@ public class Query
         this.nodeTypes = nodeTypes;
         return this;
     }
+
+    NodeObject object;
+    
+    final public Query select(NodeObject object)
+    {
+        this.object=object;
+        return this;
+    }
     
     //This is a hack for now. 
     final public Query follow(Class<? extends NodeObject> followType) throws Throwable
@@ -239,7 +247,7 @@ public class Query
                     }
 
                     state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -250,6 +258,34 @@ public class Query
                         state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
                     }
                 }
+            }
+            if ((linkQuery.targetNode!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+            {
+                String on = null;
+                switch (linkQuery.direction)
+                {
+                case FROM:
+                    on = " ON " + linkAlias + ".toNodeId=";
+                    break;
+                case TO:
+                    on = " ON " + linkAlias + ".fromNodeId=";
+                    break;
+                default:
+                    break;
+                }
+                Class<? extends NodeObject> type = linkQuery.targetNodeType;
+                GraphObjectDescriptor descriptor = state.graph.register(type);
+                String typeName = descriptor.getTypeName();
+                String table = descriptor.getTableName();
+
+                String as=" ";
+                String alias=table;
+                if (linkQuery.linkNamespace!=null)
+                {
+                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
+                    as=" AS "+alias+" ";
+                }
+                state.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNode.getNodeId());
             }
             if (linkQuery.nodeTypes != null)
             {
@@ -282,7 +318,7 @@ public class Query
                     }
 
                     state.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -317,7 +353,7 @@ public class Query
                     String table = descriptor.getTableName();
                     String alias = descriptor.getTableAlias(linkQuery.nodeNamespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
-                    for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                    for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                     {
                         String fieldColumnName = nodeNamespace + columnAccessor.getColumnName(typeName);
                         String tableColumnName = columnAccessor.getColumnName(alias);
@@ -385,7 +421,7 @@ public class Query
                 {
                     sources.append(" JOIN " + table + " AS " + table + on + table + "._nodeId");
                 }
-                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
                     if (select.length()>0)
@@ -406,7 +442,7 @@ public class Query
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
                 sources.append(" LEFT JOIN " + table + " " + on + table + "._nodeId");
-                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
+                for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
                 {
                     String fieldColumnName = columnAccessor.getColumnName(typeName);
                     if (select.length()>0)
@@ -451,6 +487,5 @@ public class Query
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }
-    
     
 }

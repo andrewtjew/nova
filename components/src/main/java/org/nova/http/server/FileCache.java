@@ -15,14 +15,14 @@ import com.nixxcode.jvmbrotli.enc.Encoder;
 public class FileCache extends ContentCache<String,byte[]>
 {
     final private String root;
-    public FileCache(String root,long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
+    public FileCache(String root,long maxSize,long freeMemoryCapacity) throws Exception
     {
-        super(0,maxAgeMs,maxSize,freeMemoryCapacity);
+        super(0,-1,maxSize,freeMemoryCapacity);
         this.root=root;
     }
-    public FileCache(long maxAgeMs,long maxSize,long freeMemoryCapacity) throws Exception
+    public FileCache(long maxSize,long freeMemoryCapacity) throws Exception
     {
-        this(null,maxAgeMs,maxSize,freeMemoryCapacity);
+        this(null,maxSize,freeMemoryCapacity);
     }
      
     @Override

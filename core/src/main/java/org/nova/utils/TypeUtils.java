@@ -404,7 +404,7 @@ public class TypeUtils
     
     public static long parseLong(String value,long defaultValue)
     {
-        if (value==null)
+        if (TypeUtils.isNullOrSpace(value))
         {
             return defaultValue;
         }
@@ -413,11 +413,41 @@ public class TypeUtils
     
     public static int parseInt(String value,int defaultValue)
     {
-        if (value==null)
+        if (TypeUtils.isNullOrSpace(value))
         {
             return defaultValue;
         }
         return Integer.parseInt(value);
+    }
+    public static Integer tryParseInt(String value)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return null;
+        }
+        try
+        {
+            return Integer.parseInt(value);
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
+    }
+    public static Float tryParseFloat(String value)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return null;
+        }
+        try
+        {
+            return Float.parseFloat(value);
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
     }
     public static long[] parseLongs(String[] values,long defaultValue)
     {
@@ -780,6 +810,15 @@ public class TypeUtils
     	return box.get();
     }
 
+    public static Integer toInteger(Short value)
+    {
+        if (value==null)
+        {
+            return null;
+        }
+        return (int)value;
+    }
+    
 }
 
 

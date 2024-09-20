@@ -24,13 +24,13 @@ public class FileDownloader extends ServletHandler
     //CR000054453
     final private String root;
     final private String cacheControl;
-    final private long cacheControlMaxAge;
+    final private long maxAge;
+    final private long expires;
     final private FileCache cache;
-    final private boolean localCaching;
+    final private boolean enableLocalCaching;
     final private HashSet<String> supportedEncodings;
 
-    public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl, long cacheControlMaxAge, long maxAge,
-            long maxSize, long freeMemory) throws Throwable
+    public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl, long maxAge, long maxSize, long freeMemory) throws Throwable
     {
         File file = new File(FileUtils.toNativePath(rootDirectory));
         if (file.isDirectory()==false)
@@ -39,10 +39,11 @@ public class FileDownloader extends ServletHandler
         }
   //      file.mkdirs();
         this.root = file.getCanonicalPath();
-        this.cacheControlMaxAge = cacheControlMaxAge;
-        this.cache = new FileCache(this.root,maxAge, maxSize, freeMemory);
+        this.maxAge = maxAge;
+        this.expires=maxAge>31536000 ?31536000 :maxAge;
+        this.cache = new FileCache(this.root,maxSize, freeMemory);
         this.cacheControl = cacheControl;
-        this.localCaching=enableLocalCaching;
+        this.enableLocalCaching=enableLocalCaching;
         this.supportedEncodings = new HashSet<String>();
         this.supportedEncodings.add("deflate");
         this.supportedEncodings.add("gzip");
@@ -52,6 +53,11 @@ public class FileDownloader extends ServletHandler
         }
         this.doNotCompressFileExtensions=defaultDoNotCompressFileExtensions();
         this.mappings=ExtensionToContentTypeMappings.fromDefault();
+    }
+
+    public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl,long maxSize, long freeMemory) throws Throwable
+    {
+        this(rootDirectory,enableLocalCaching,cacheControl,2147483648L,maxSize,freeMemory);
     }
 
     public void clearCache()
@@ -123,17 +129,19 @@ public class FileDownloader extends ServletHandler
         }
         if (browserCachingEnabled)
         {
-            if (this.cacheControlMaxAge > 0)
+            if (this.maxAge > 0)
             {
-                response.setHeader("Cache-Control", this.cacheControl + ", max-age=" + this.cacheControlMaxAge);
-                String expires = OffsetDateTime.now().plusSeconds(this.cacheControlMaxAge)
+                response.setHeader("Cache-Control", this.cacheControl + ", max-age=" + this.maxAge);
+                String expires = OffsetDateTime.now().plusSeconds(this.expires)
                         .format(DateTimeFormatter.RFC_1123_DATE_TIME);
                 response.setHeader("Expires", expires);
-            } else
+            } 
+            else
             {
                 response.setHeader("Cache-Control", this.cacheControl);
             }
-        } else
+        } 
+        else
         {
             if (cacheControlSet == false)
             {
@@ -189,16 +197,17 @@ public class FileDownloader extends ServletHandler
             return false;
         }
         {
-            if (this.localCaching==false)
-            {
-                this.cache.remove(key);
-            }
+
             byte[] bytes = this.cache.get(parent, key);
             if (bytes != null)
             {
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);
             }
+            if (this.enableLocalCaching==false)
+            {
+                this.cache.remove(key);
+            }            
             response.setStatus(HttpStatus.OK_200);
         }
         return true;

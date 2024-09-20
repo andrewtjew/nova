@@ -28,7 +28,7 @@ public class NavbarList extends StyleComponent<NavbarList>
     public NavbarList()
     {
         super("ul",null);
-        addClass("navbar-nav");
+        addClass("nav");
     }
     public NavItem addItem(Element element)
     {

@@ -52,6 +52,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.http.client.HttpClient;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
+import org.nova.collections.FileCache;
+import org.nova.collections.FileCacheConfiguration;
 import org.nova.concurrent.Progress;
 import org.nova.concurrent.TimerTask;
 import org.nova.configuration.Configuration;
@@ -262,9 +264,14 @@ public class ServerOperatorPages
 
     @OperatorVariable(description = "cache control value returned to client other than max-age (e.g.: no-transform, public)")
     private String cacheControlValue = "public";
+    final private FileCache fileCache;
 
     public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
     {
+        Configuration configuration=serverApplication.getConfiguration();
+        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
+        this.fileCache=new FileCache(fileCacheConfiguration);
+        
         this.namespace=namespace;
         this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue("ServerOperatorPages.meters.rateSamplingDuration", 10);
         this.cacheMaxAge = serverApplication.getConfiguration().getIntegerValue("ServerOperatorPages.cache.maxAgeS", 300);
@@ -5047,7 +5054,7 @@ public class ServerOperatorPages
     public void content(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
     {
         HttpServletResponse response = context.getHttpServletResponse();
-        byte[] bytes = this.serverApplication.getFileCache().get(trace, file);
+        byte[] bytes = this.fileCache.get(trace, file);
         context.setCaptured(true);
         if (bytes == null)
         {
@@ -5076,7 +5083,7 @@ public class ServerOperatorPages
         byte[] bytes;
         try
         {
-            bytes = this.serverApplication.getFileCache().get(trace, file);
+            bytes = this.fileCache.get(trace, file);
         }
         catch (Throwable t)
         {

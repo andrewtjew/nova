@@ -103,7 +103,7 @@ public class Pool<RESOURCE extends Resource>
         return this.waitNsMeter;
     }
 
-    @SuppressWarnings("resource")
+//    @SuppressWarnings("resource")
 	public RESOURCE waitForAvailable(Trace parent,String traceCategory,long timeout) throws Throwable
 	{
 		
@@ -145,7 +145,7 @@ public class Pool<RESOURCE extends Resource>
 			}
 		}
 	}
-	@SuppressWarnings("resource")
+//	@SuppressWarnings("resource")
 	public RESOURCE waitForAvailable(Trace parent,String traceCategory) throws Throwable
 	{
 	    return waitForAvailable(parent, traceCategory,Long.MAX_VALUE);

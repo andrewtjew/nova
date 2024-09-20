@@ -1,7 +1,11 @@
 package xp.nova.sqldb.graph;
 
+import java.lang.reflect.Array;
+
+import org.apache.commons.lang3.NotImplementedException;
 import org.nova.html.tags.pre;
 import org.nova.sqldb.Accessor;
+import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
@@ -125,51 +129,71 @@ public class GraphAccessor implements AutoCloseable
     {
         return this.accessor;
     }
-//    public long getCount(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
-//    {
-//        PreparedQuery preparedQuery=query.build(this.graph);
-//        if (query.parameters!=null)
-//        {
-//            if (parameters.length!=0)
-//            {
-//                throw new Exception();
-//            }
-//            parameters=query.parameters;
-//        }
-//        else
-//        {
-//            translateParameters(parameters);
-//        }
-//        StringBuilder sb=new StringBuilder(preparedQuery.countSql);
-//        if (startNodeId!=null)
-//        {
-//            sb.append(preparedQuery.start+startNodeId);
-//        }
-//        String sql=sb.toString();
-//        RowSet rowSet;
-//        if (TEST)
-//        {
-//            System.out.println("GraphAcessor.getCount:sql");
-//        }
-//        if (parameters != null)
-//        {
-//            rowSet = accessor.executeQuery(parent, null,parameters, sql);
-//        }
-//        else
-//        {
-//            rowSet = accessor.executeQuery(parent, null, sql);
-//        }
-//        return rowSet.getRow(0).getBIGINT(0);
-//    }
-//    public long getCount(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
-//    {
-//        return getCount(parent,parameters,startNodeId,query);
-//    }
-//    public long getCount(Trace parent,Query query,Object...parameters) throws Throwable
-//    {
-//        return getCount(parent,parameters,null,query);
-//    }
     
-    
+    public <ELEMENT extends NodeObject> ELEMENT[] getArrayElements(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
+    {
+        Long arrayNodeId=arrayObject.getNodeId();
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        String typeName=elementType.getSimpleName();
+        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=?";
+        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId);
+        int largestArrayIndex=0;
+        for (int i=0;i<rowSet.size();i++)
+        {
+            Row row=rowSet.getRow(i);
+            int index=row.getINTEGER("_index");
+            if (index>largestArrayIndex)
+            {
+                largestArrayIndex=index;
+            }
+        }
+        GraphObjectDescriptor descriptor=this.graph.register(elementType);
+        Object array=Array.newInstance(elementType,largestArrayIndex+1);
+        for (int i=0;i<rowSet.size();i++)
+        {
+            Row row=rowSet.getRow(i);
+            int index=row.getINTEGER("_index");
+            NodeObject element = (NodeObject)elementType.newInstance();
+            for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
+            {
+                columnAccessor.set(element, typeName, row);
+            }
+            Array.set(array, index, element);
+        }
+        return (ELEMENT[]) array;
+    }
+
+    public <ELEMENT extends NodeObject> ELEMENT getArrayElement(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType,int index) throws Throwable
+    {
+        Long arrayNodeId=arrayObject.getNodeId();
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        String typeName=elementType.getSimpleName();
+        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=? AND _array.index=?";
+        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId,index);
+        if (rowSet.size()==0)
+        {
+            return null;
+        }
+        else if (rowSet.size()>1)
+        {
+            throw new NotImplementedException();
+        }
+        GraphObjectDescriptor descriptor=this.graph.register(elementType);
+        Row row=rowSet.getRow(0);
+        NodeObject element = (NodeObject)elementType.newInstance();
+        for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
+        {
+            columnAccessor.set(element, typeName, row);
+        }
+        return (ELEMENT)element;
+    }
+
+
     
 }

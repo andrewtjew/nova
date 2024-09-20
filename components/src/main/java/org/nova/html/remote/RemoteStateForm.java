@@ -44,9 +44,14 @@ public class RemoteStateForm extends RemoteForm
         }
         return response;
     }    
-    public String js_postStatic(String action) throws Exception, Throwable
+//    public String js_postStatic(String action) throws Exception, Throwable
+//    {
+//        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getStateKey(),id()).toString());
+//    }    
+    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getStateKey(),id()).toString());
-    }    
+        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+        
+    }
 
 }

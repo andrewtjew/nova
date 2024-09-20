@@ -304,35 +304,6 @@ namespace nova.remote
     }
 
 
-    export async function submit(event:Event,formId:string=null)
-    {
-        event.preventDefault();
-        let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
-//        let form=event.currentTarget as HTMLFormElement;
-        let data=new FormData(form);
-        let params=new URLSearchParams();
-        for (let pair in data)
-        {
-            params.append(pair[0],pair[1]);
-        }
-
-        return await fetch(form.action,
-            {
-                method:"POST",
-                body: params
-            }
-            ).then(response=>
-            {
-                if (response.ok)
-                {
-                    return response.json();
-                }
-            })
-            .then((instructions:Instruction[])=>
-            {
-                run(instructions);
-            });
-    }
 
     export async function postUrlEncoded(action:string,obj:any)
     {
@@ -361,6 +332,34 @@ namespace nova.remote
             });
     }
 
+    export async function submit(event:Event,formId:string=null)
+    {
+        event.preventDefault();
+        let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
+        let data=new FormData(form);
+        let params=new URLSearchParams();
+        for (const pair of data)
+        {
+            params.append(pair[0],pair[1].toString());
+        }
+
+        return await fetch(form.action,
+            {
+                method:"POST",
+                body: params
+            }
+            ).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+    }
     export async function postFormUrlEncoded(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
@@ -368,7 +367,6 @@ namespace nova.remote
         let params=new URLSearchParams();
         for (const pair of data)
         {
-            console.log(pair[0]+"="+pair[1]);
             params.append(pair[0],pair[1].toString());
         }
 
@@ -480,22 +478,26 @@ namespace nova.remote
                 {
                     switch (instruction.command)
                     {
-                        case "value":
-                            (document.getElementById(parameters[0]) as HTMLInputElement).value=parameters[1];
+                        case "innerHTML":
+                            document.getElementById(parameters[0]).innerHTML=parameters[1];
                             break;
                             
-                            case "innerHTML":
-                                document.getElementById(parameters[0]).innerHTML=parameters[1];
-                                break;
-                                
-                            case "outerHTML":
-                            document.getElementById(parameters[0]).outerHTML=parameters[1];
-                            break;
+                        case "outerHTML":
+                        document.getElementById(parameters[0]).outerHTML=parameters[1];
+                        break;
 
                         case "innerText":
                         document.getElementById(parameters[0]).innerText=parameters[1];
                         break;
                                 
+                        case "value":
+                            (document.getElementById(parameters[0]) as HTMLInputElement).value=parameters[1];
+                            break;
+                            
+                            case "checked":
+                            (document.getElementById(parameters[0]) as HTMLInputElement).checked=parameters[1].toLowerCase()=="true";
+                            break;
+                            
                         case "alert":
                         alert(parameters[0]);
                         break;
@@ -512,6 +514,12 @@ namespace nova.remote
                             eval(parameters[0]);
                             break;
 
+                        default:
+                        if (instruction.trace)
+                        {
+                            console.log("nova-remote:invalid command="+instruction.command);
+                        }
+            
                     }
                 }
                 catch (ex)

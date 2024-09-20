@@ -187,9 +187,9 @@ namespace nova.ui.password
             score = /[^a-zA-Z0-9]/.test(password) ? ++score : score;   // Special characters (inc. space)    
         }
         score = /.*pass.*|.*pass.*|.*123.*|.*098.*|.*qwe.*|.*asd.*|.*zxc.*/.test(password) ? --score:score;
-        score = /([a-z])\3/i.test(password) ? --score:score;
-        score = /([A-Z])\3/i.test(password) ? --score:score;
-        score = /([0-9])\3/i.test(password) ? --score:score;
+        // score = /([a-z])\3/i.test(password) ? --score:score;
+        // score = /([A-Z])\3/i.test(password) ? --score:score;
+        // score = /([0-9])\3/i.test(password) ? --score:score;
 
         if (password.length>minLength+2)
         {
@@ -467,5 +467,22 @@ namespace nova.ui
             inputElement.removeAttribute("disabled");
         }
 
+
     }    
+
+
+    export function initializeTabs(id:string)
+    {
+        var triggerTabList = [].slice.call(document.querySelectorAll(id))
+        triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl)
+    
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+        })
+    }
+    
 }
+

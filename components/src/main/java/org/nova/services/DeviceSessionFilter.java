@@ -1,8 +1,11 @@
 package org.nova.services;
 
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -16,16 +19,21 @@ import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestHandler;
 import org.nova.http.server.Response;
+import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 
-public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>> extends Filter
+public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
     final private SessionManager<SESSION> sessionManager;
     private SESSION debugSession;
+    final private Class<COOKIESTATE> coookieStateType;
+    final private String cookieStateName;
     
-    public DeviceSessionFilter(SessionManager<SESSION> sessionManager)
+    public DeviceSessionFilter(SessionManager<SESSION> sessionManager,String cookieStateName,Class<COOKIESTATE> cookieStateType)
     {
         this.sessionManager=sessionManager;
+        this.coookieStateType=cookieStateType;
+        this.cookieStateName=cookieStateName;
     }
 
     public void setDebugSession(SESSION session)
@@ -33,6 +41,45 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         this.debugSession=session;
     }
 
+    
+    private COOKIESTATE getCookieState(HttpServletRequest request)
+    {
+        try
+        {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null)
+            {
+                for (Cookie cookie : cookies)
+                {
+                    if (this.cookieStateName.equals(cookie.getName()))
+                    {
+                        String value = cookie.getValue();
+                        value = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                        return ObjectMapper.readObject(value, this.coookieStateType);
+                    }
+                }
+            }
+        } 
+        catch (Throwable t)
+        {
+        }
+        return null;
+    }
+
+    protected String getToken(Trace parent, Context context)
+    {
+          COOKIESTATE cookieState=context.getState(); //If SessionParametesFilter is in the handler stack, get userState from SessionParametesFilter.  
+          if (cookieState==null)
+          {
+              cookieState=getCookieState(context.getHttpServletRequest());
+          }
+          if (cookieState==null)
+          {
+              return null;
+          }
+          return cookieState.getToken();
+    }
+    
 	@Override
 	public Response<?> executeNext(Trace parent, Context context) throws Throwable 
 	{
@@ -42,6 +89,13 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         Method method=handler.getMethod();
         if (session==null)
         {
+            if (method.getAnnotation(AllowNoSession.class)!=null)
+            {
+                if (session==null)
+                {
+                    return context.next(parent);
+                }
+            }
             if (this.debugSession==null)
             {
                 if (method.getAnnotation(AllowNoSession.class)==null)
@@ -77,7 +131,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         session.beginSessionProcessing(lock);
         
-        boolean pageRequest=false; 
+        boolean keepStateAlive=false; 
         try
         {
             session.setContext(context);
@@ -88,9 +142,9 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 Object content=response.getContent();
                 if (content instanceof Page)
                 {
-                    pageRequest=true;
+                    keepStateAlive=true;
                     Page page=(Page)content;
-                    if (page.isStateless()==false)
+                    if (page.isContinuationDisallowed()==false)
                     {
                         String action=session.useContinuation();
                         if (action!=null)
@@ -109,7 +163,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         finally
         {
-            session.updateStates(pageRequest);
+            session.updateStates(keepStateAlive);
             session.endSessionProcessing();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
@@ -122,6 +176,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;
-    abstract protected String getToken(Trace parent,Context context);
 	abstract protected void logPage(Trace parent,SESSION session,Context context,Page page) throws Throwable;
+	
+	
+	
 }

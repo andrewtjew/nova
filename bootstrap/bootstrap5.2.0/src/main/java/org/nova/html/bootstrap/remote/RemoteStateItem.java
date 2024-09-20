@@ -25,10 +25,11 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.remote.RemoteStateContent;
+import org.nova.html.remote.RemoteStateElement;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
+import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
@@ -47,7 +48,7 @@ import org.nova.tracing.Trace;
 
 import org.nova.html.enums.enctype;
 
-public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> implements Styling<RemoteStateItem>
+public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> implements Styling<RemoteStateItem>
 {
     public RemoteStateItem(String id,RemoteStateBinding binding) throws Throwable
     {
@@ -94,5 +95,9 @@ public class RemoteStateItem extends RemoteStateContent<RemoteStateItem> impleme
         return load(href,null,null,true,null);
     }    
 
-    
+//    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
+//    {
+//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//        
+//    }
 }

@@ -1,5 +1,7 @@
 package org.nova.services;
 
+import static org.nova.services.DeviceSession.generateSecretKey;
+
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
@@ -41,11 +44,31 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     final protected ZoneId zoneId;
     final private long deviceSessionId;
     private Context context;
+    final protected SecretKey secretKey;
+    final private String querySecurityPathPrefix;
+
+    static byte[] generateSecretKey(String token)
+    {
+        byte[] bytes = token.getBytes();
+        byte[] secret = new byte[16]; 
+        for (int i = 0; i < secret.length; i++)
+        {
+            int value = i;
+            for (int j = 0; j < 8; j++)
+            {
+                value += bytes[(i * 3 + j) % bytes.length];
+            }
+            secret[i] = (byte) value;
+        }
+        return secret;
+    }   
     
     
     public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
+        this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
+        this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
         this.zoneId=zoneId;
         this.pageStates=new HashMap<String, Object>();
@@ -113,8 +136,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         }
         return (T)this.pageStates.get(key);
     }
-    
-    
+
     @Override
     public Object getState(Context context) throws Throwable
     {
@@ -140,6 +162,39 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     }
     final static public String STATE_KEY="@";
 
+    @Override
+    public String getSecurityQueryKey()
+    {
+        return "_";
+    }
+
+    @Override
+    public void verifyQuery(Context context) throws Throwable
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        String code=request.getParameter(getSecurityQueryKey());
+        if (code!=null)
+        {
+            String query=request.getQueryString();
+            int index=query.lastIndexOf(this.querySecurityPathPrefix);
+            String text=query.substring(0,index);
+            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
+            String computed=Base64.getUrlEncoder().encodeToString(hmac);
+            if (code.equals(computed)==false)
+            {
+                throw new Exception();
+            }
+        }
+    }
+    @Override
+    public String signQuery(String query) throws Throwable
+    {
+        byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
+        byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
+        String code=Base64.getUrlEncoder().encodeToString(hmac);
+        return query+this.querySecurityPathPrefix+code;
+    }
+
 
     @Override
     public String getStateKey()
@@ -147,45 +202,48 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return STATE_KEY;
     }
     
-    private String getPathAndQuery(Context context)
+//    private String continuationPage;
+    private String continuation;
+    
+    public String setContinuation(Context context)
+    {
+        this.continuation=context.getPathAndQuery();
+        return this.continuation;
+    }
+    public String setRefererContinuation(Context context)
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        String pathAndQuery=request.getRequestURI();
-        String query=request.getQueryString();
-        if (query!=null)
-        {
-            pathAndQuery+="?"+query;
-        }
-        return pathAndQuery;
+        this.continuation=request.getHeader("Referer");
+        return this.continuation;
     }
-    private String continuationPage;
-    private String continuation;
-    private String activeContinuation;
-    
-    public void setContinuation(Context context)
+    public void setContinuation(String pathAndQuery)
     {
-        this.continuation=this.getPathAndQuery(context);
+        this.continuation=pathAndQuery;
+    }
+    public void clearContinuation()
+    {
+        this.continuation=null;
     }
 
-    public void setContinuationPage(Context context)
-    {
-        this.continuationPage=this.getPathAndQuery(context);
-    }
+//    public void setContinuationPage(Context context)
+//    {
+//        this.continuationPage=this.getPathAndQuery(context);
+//    }
 
-    public String activateContination()
-    {
-        this.activeContinuation=this.continuation;
-        return this.continuationPage;
-    }
+//    public String activateContination()
+//    {
+//        this.activeContinuation=this.continuation;
+//        return this.continuationPage;
+//    }
     
     public String useContinuation()
     {
-        String activeContinuation=this.activeContinuation;
-        if (activeContinuation!=null)
+        String continuation=this.continuation;
+        if (continuation!=null)
         {
-            this.activeContinuation=null;
+            this.continuation=null;
         }
-        return activeContinuation;
+        return continuation;
     }
     
      

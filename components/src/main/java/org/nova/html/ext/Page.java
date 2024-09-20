@@ -28,15 +28,15 @@ public class Page extends Content
     final private html html;
     final private Head head;
     final private body body;
-    final private boolean stateless;
+    final private boolean continuationDisallowed;
     
-    public Page(String docType,boolean stateless)
+    public Page(String docType,boolean continuationDisallowed)
     {
         addInner(new DocType(docType));
         this.html=returnAddInner(new html());
         this.head=this.html.returnAddInner(new Head());
         this.body=this.html.returnAddInner(new body());
-        this.stateless=stateless;
+        this.continuationDisallowed=continuationDisallowed;
     }
     
     public Page(boolean continuationPage)
@@ -60,9 +60,9 @@ public class Page extends Content
     {
         return this.html;
     }
-    public boolean isStateless()
+    public boolean isContinuationDisallowed()
     {
-        return this.stateless;
+        return this.continuationDisallowed;
     }
     
 }
