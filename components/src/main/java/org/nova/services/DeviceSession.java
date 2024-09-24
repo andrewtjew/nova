@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.core.NameObject;
 import org.nova.html.elements.FormElement;
@@ -135,8 +136,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         }
         return (T)this.pageStates.get(key);
     }
-    
-    
+
     @Override
     public Object getState(Context context) throws Throwable
     {

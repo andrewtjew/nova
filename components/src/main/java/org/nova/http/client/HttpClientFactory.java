@@ -193,8 +193,10 @@ public class HttpClientFactory
 
     static public HttpClient createSSLClient(HttpClientConfiguration configuration,String clientCertficateStorePath, String clientCertficateStorePassword,String serverCertificateStorePath,String serverCertificateStorePassword,String clusterName,String tls,HostnameVerifier verifier) throws Throwable
     {
-        KeyStore clientCertficateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(clientCertficateStorePath))), "JKS", null, clientCertficateStorePassword);
-        KeyStore serverCertificateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(serverCertificateStorePath))), "JKS", null, serverCertificateStorePassword);
+//        KeyStore clientCertficateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(clientCertficateStorePath))), "JKS", null, clientCertficateStorePassword);
+//        KeyStore serverCertificateStore=CertificateUtils.getKeyStore(new PathResource(new File(FileUtils.toNativePath(serverCertificateStorePath))), "JKS", null, serverCertificateStorePassword);
+        KeyStore clientCertficateStore=KeyStore.getInstance(new File(FileUtils.toNativePath(clientCertficateStorePath)), clientCertficateStorePassword.toCharArray());
+        KeyStore serverCertificateStore=KeyStore.getInstance(new File(FileUtils.toNativePath(serverCertificateStorePath)), serverCertificateStorePassword.toCharArray());
         SSLContextBuilder contextBuilder=new SSLContextBuilder().
                 loadKeyMaterial(clientCertficateStore,clientCertficateStorePassword.toCharArray()).  
                 loadTrustMaterial(serverCertificateStore,null);

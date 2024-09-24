@@ -27,7 +27,8 @@ public class Service extends DeviceSessionService<UserSession>
     {
         super("Sample", coreEnvironment,transport);
         
-        this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", !isTest(), 1000000,0);
+        boolean cache=!isTest();
+        this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", cache, cache?"public":null,1000000,0);
         this.getPublicServer().registerBackServletHandlers(this.fileDownloader);
         this.getPrivateServer().registerBackServletHandlers(this.fileDownloader);
         

@@ -304,35 +304,6 @@ namespace nova.remote
     }
 
 
-    export async function submit(event:Event,formId:string=null)
-    {
-        event.preventDefault();
-        let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
-//        let form=event.currentTarget as HTMLFormElement;
-        let data=new FormData(form);
-        let params=new URLSearchParams();
-        for (let pair in data)
-        {
-            params.append(pair[0],pair[1]);
-        }
-
-        return await fetch(form.action,
-            {
-                method:"POST",
-                body: params
-            }
-            ).then(response=>
-            {
-                if (response.ok)
-                {
-                    return response.json();
-                }
-            })
-            .then((instructions:Instruction[])=>
-            {
-                run(instructions);
-            });
-    }
 
     export async function postUrlEncoded(action:string,obj:any)
     {
@@ -361,6 +332,34 @@ namespace nova.remote
             });
     }
 
+    export async function submit(event:Event,formId:string=null)
+    {
+        event.preventDefault();
+        let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
+        let data=new FormData(form);
+        let params=new URLSearchParams();
+        for (const pair of data)
+        {
+            params.append(pair[0],pair[1].toString());
+        }
+
+        return await fetch(form.action,
+            {
+                method:"POST",
+                body: params
+            }
+            ).then(response=>
+            {
+                if (response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then((instructions:Instruction[])=>
+            {
+                run(instructions);
+            });
+    }
     export async function postFormUrlEncoded(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;

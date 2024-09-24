@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.services;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.Response;

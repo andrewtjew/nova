@@ -488,5 +488,4 @@ public class Query
         return this.preparedQuery;
     }
     
-    
 }

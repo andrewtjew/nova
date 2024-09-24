@@ -25,9 +25,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
@@ -502,7 +502,7 @@ public class HttpServer
             						{
             						    for (Cookie cookie:response.cookies)
             						    {
-            						        javax.servlet.http.Cookie httpCookie=new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue());
+            						        jakarta.servlet.http.Cookie httpCookie=new jakarta.servlet.http.Cookie(cookie.getName(),cookie.getValue());
             						        httpCookie.setPath("/");
             						        servletResponse.addCookie(httpCookie);
             						    }
@@ -542,7 +542,7 @@ public class HttpServer
                             {
                                 for (Cookie cookie:e.cookies)
                                 {
-                                    servletResponse.addCookie(new javax.servlet.http.Cookie(cookie.getName(),cookie.getValue()));
+                                    servletResponse.addCookie(new jakarta.servlet.http.Cookie(cookie.getName(),cookie.getValue()));
                                 }
                             }
                             servletResponse.setStatus(e.statusCode);

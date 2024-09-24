@@ -57,7 +57,7 @@ public class TimerScheduler
 
 	public TimerScheduler(TraceManager traceManager, Logger logger) 
 	{
-	    this.executorService=Executors.newCachedThreadPool();
+	    this.executorService=Executors.newVirtualThreadPerTaskExecutor();
 	       
 		this.traceManager = traceManager;
 		this.logger = logger;
@@ -193,8 +193,6 @@ public class TimerScheduler
 					}
 				}
 			}
-			
-//			this.executorService.submit(
 			        
 			Key key=entry.getValue().execute();
 			synchronized(this)

@@ -5,9 +5,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
 import org.nova.html.ext.Page;
@@ -131,7 +131,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         session.beginSessionProcessing(lock);
         
-        boolean pageRequest=false; 
+        boolean keepStateAlive=false; 
         try
         {
             session.setContext(context);
@@ -142,7 +142,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 Object content=response.getContent();
                 if (content instanceof Page)
                 {
-                    pageRequest=true;
+                    keepStateAlive=true;
                     Page page=(Page)content;
                     if (page.isContinuationDisallowed()==false)
                     {
@@ -163,7 +163,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         finally
         {
-            session.updateStates(pageRequest);
+            session.updateStates(keepStateAlive);
             session.endSessionProcessing();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");

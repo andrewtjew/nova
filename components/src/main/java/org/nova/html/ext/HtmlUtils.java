@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 
 import org.eclipse.jetty.server.Request;
 import org.nova.html.elements.FormElement;
@@ -941,7 +941,7 @@ public class HtmlUtils
     public static void writeFile(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {
@@ -953,7 +953,7 @@ public class HtmlUtils
     public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {

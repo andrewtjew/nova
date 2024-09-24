@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.services;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.http.Header;
 import org.nova.http.server.Context;

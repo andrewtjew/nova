@@ -8,7 +8,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.configuration.Configuration;
 import org.nova.html.elements.Element;
@@ -100,7 +100,7 @@ public class DeviceController
     {
         public long deviceSessionId;
         public Long userId;
-        public LocalDateTime remembered;
+        public LocalDateTime lastLoggedIn;
     }
 
     public DeviceSessionResult createDeviceSession(Trace parent, CookieState userState, HttpServletRequest request) throws Throwable
@@ -112,7 +112,7 @@ public class DeviceController
 //        try (Accessor accessor = this.service.getConnector().openAccessor(parent))
 //        {
 //            Long deviceId = null;
-//            Row row = Select.source("devicesession JOIN device ON device.id=devicesession.deviceId").columns("devicesession.id","devicesession.remembered","userId","deviceId", "remote", "userAgent").where("token=?", userState.token).executeOne(parent, accessor);
+//            Row row = Select.source("devicesession JOIN device ON device.id=devicesession.deviceId").columns("devicesession.id","devicesession.keepLoggedIn","userId","deviceId", "remote", "userAgent").where("token=?", userState.token).executeOne(parent, accessor);
 //            if (row != null)
 //            {
 //                String sessionRemote = row.getVARCHAR("remote");
@@ -124,7 +124,7 @@ public class DeviceController
 //                    result.userId=row.getNullableBIGINT("userId");
 //                    if (result.userId!=null)
 //                    {
-//                        result.remembered=row.getTIMESTAMP("remembered").toLocalDateTime();
+//                        result.remembered=row.getTIMESTAMP("keepLoggedIn").toLocalDateTime();
 //                    }
 //                }
 //            }
@@ -156,7 +156,7 @@ public class DeviceController
 //            }
 //        }
         result.deviceSessionId=0L;
-        result.remembered=LocalDateTime.now().minusDays(this.loggedInDays-1);
+        result.lastLoggedIn=LocalDateTime.now().minusDays(this.loggedInDays-1);
         result.userId=0L;
         return result;
     }
@@ -179,7 +179,7 @@ public class DeviceController
         if (result.userId!=null)
         {
             LocalDateTime now=LocalDateTime.now();
-            long days=Duration.between(result.remembered, now).toDays();
+            long days=Duration.between(result.lastLoggedIn, now).toDays();
             if ((days<this.loggedInDays)&&(result.userId!=null))
             {
                 session.login(parent,result.userId,Role.User);
@@ -187,7 +187,6 @@ public class DeviceController
         }
         this.service.getSessionManager().addSession(parent, session);
         return new Redirect(redirect);
-
     }
 
     @GET

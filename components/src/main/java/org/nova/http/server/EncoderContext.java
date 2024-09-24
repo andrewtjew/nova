@@ -23,7 +23,7 @@ package org.nova.http.server;
 
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public abstract class EncoderContext implements AutoCloseable
 {

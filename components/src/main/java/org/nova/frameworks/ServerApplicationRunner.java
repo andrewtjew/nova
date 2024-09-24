@@ -66,7 +66,7 @@ public class ServerApplicationRunner //
     
     private HttpTransport startOperatorTransport(Configuration configuration,TraceManager traceManager,Logger logger) throws Exception
     {
-        int threads=configuration.getIntegerValue("HttpServer.operator.threads",20);
+        int threads=configuration.getIntegerValue("HttpServer.operator.threads",0);
         int operatorPort=configuration.getIntegerValue("HttpServer.operator.port",10051);
         boolean test=configuration.getBooleanValue("System.test",false);
         System.out.println("http://"+Utils.getLocalHostName()+":"+operatorPort);

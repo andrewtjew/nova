@@ -308,28 +308,15 @@ var nova;
                 var form, data, params, pair;
                 if (formId === void 0) { formId = null; }
                 return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            event.preventDefault();
-                            form = (formId == null ? event.currentTarget : document.getElementById(formId));
-                            data = new FormData(form);
-                            params = new URLSearchParams();
-                            for (pair in data) {
-                                params.append(pair[0], pair[1]);
-                            }
-                            return [4, fetch(form.action, {
-                                    method: "POST",
-                                    body: params
-                                }).then(function (response) {
-                                    if (response.ok) {
-                                        return response.json();
-                                    }
-                                })
-                                    .then(function (instructions) {
-                                    run(instructions);
-                                })];
-                        case 1: return [2, _a.sent()];
+                    event.preventDefault();
+                    form = (formId == null ? event.currentTarget : document.getElementById(formId));
+                    data = new FormData(form);
+                    params = new URLSearchParams();
+                    for (pair in data) {
+                        params.append(pair[0], pair[1]);
                     }
+                    console.log("Hello");
+                    return [2];
                 });
             });
         }

@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.nova.tracing.Trace;
 
 public class RequestHandlerNotFoundLogEntry
