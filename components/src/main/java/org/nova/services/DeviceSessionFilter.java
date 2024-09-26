@@ -108,25 +108,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 session=this.debugSession;
             }
         }
-        else
-        {
-            session.verifyQuery(context);
-            if (session.isAccessDenied(handler))
-            {
-              this.sessionManager.removeSession(parent, session.getToken());
-              return new Response<Redirect>(new Redirect("/"));
-            }
-        }
 
         Lock<String> lock=null;
+        if (method.getAnnotation(AllowNoLock.class)==null)
         {
-            if (method.getAnnotation(AllowNoLock.class)==null)
+            lock=sessionManager.waitForLock(parent,session.getToken());
+            if (lock==null)
             {
-                lock=sessionManager.waitForLock(parent,session.getToken());
-                if (lock==null)
-                {
-                    return handleNoLock(parent, context);
-                }
+                return handleNoLock(parent, context);
             }
         }
         session.beginSessionProcessing(lock);
@@ -134,6 +123,13 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         boolean keepStateAlive=false; 
         try
         {
+            session.verifyQuery(context);
+            if (session.isAccessDenied(handler))
+            {
+              this.sessionManager.removeSession(parent, session.getToken());
+              return new Response<Redirect>(new Redirect("/"));
+            }
+
             session.setContext(context);
             context.setState(session);
             Response<?> response=context.next(parent);

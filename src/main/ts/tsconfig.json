@@ -1,9 +1,0 @@
-{
-    "compilerOptions": {
-        "target": "es5",
-        "outDir": "../../../resources/html/js",
-        "removeComments": true,
-        "sourceMap": false
-    }
-
-}

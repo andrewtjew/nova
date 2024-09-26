@@ -1,0 +1,24 @@
+table.Table
+{
+	border: 1px solid #333;
+	border-collapse: collapse;
+}
+
+table.Table td
+{
+	border: 1px solid #aaa;
+	padding: 2px 4px;
+	text-align: center;
+}
+
+table.Table tr:nth-child(even)
+{
+	background-color: #f8f8f8;
+}
+table.Table th
+{
+    background-color: #ccc;
+	font-weight: bold;
+	padding: 2px 4px;
+	border: 1px solid #888;
+}

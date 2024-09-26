@@ -66,7 +66,7 @@ public class ServerApplicationRunner //
     
     private HttpTransport startOperatorTransport(Configuration configuration,TraceManager traceManager,Logger logger) throws Exception
     {
-        int threads=configuration.getIntegerValue("HttpServer.operator.threads",0);
+        int threads=configuration.getIntegerValue("HttpServer.operator.threads",5); //Operator server should not use virtual threads.
         int operatorPort=configuration.getIntegerValue("HttpServer.operator.port",10051);
         boolean test=configuration.getBooleanValue("System.test",false);
         System.out.println("http://"+Utils.getLocalHostName()+":"+operatorPort);
@@ -96,6 +96,8 @@ public class ServerApplicationRunner //
         logger.log(t);
     }
     
+    
+    
     public void run(String[] args,String configurationFileKey,String defaultConfigurationFileName,ServerApplicationInstantiator instantiator) throws Throwable
     {
         Configuration configuration=ConfigurationReader.read(args,configurationFileKey,defaultConfigurationFileName);
@@ -106,10 +108,14 @@ public class ServerApplicationRunner //
         run(args,"config",FileUtils.toNativePath("./resources/application.cnf"),instantiator);
     }
     
-    public void start(String[] args,String configurationFileKey,String defaultConfigurationFileName,ServerApplicationInstantiator instantiator) throws Throwable
+    public ServerApplication start(String[] args,String configurationFileKey,String defaultConfigurationFileName,ServerApplicationInstantiator instantiator) throws Throwable
     {
         Configuration configuration=ConfigurationReader.read(args,configurationFileKey,defaultConfigurationFileName);
-        start(configuration,instantiator);
+        return start(configuration,instantiator);
+    }
+    public ServerApplication start(String[] args,ServerApplicationInstantiator instantiator) throws Throwable
+    {
+        return start(args,"config",FileUtils.toNativePath("./resources/application.cnf"),instantiator);
     }
 
     public ServerApplication start(Configuration configuration,ServerApplicationInstantiator instantiator)

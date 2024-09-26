@@ -347,6 +347,19 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	    synchronized(this.runLock)
         {
             this.onStop();
+	        if (this.publicTransport!=null)
+	        {
+	            this.publicTransport.stop();
+	        }
+	        if (this.privateTransport!=null)
+	        {
+	            this.privateTransport.stop();
+	        }
+	        if (this.operatorTransport!=null)
+	        {
+	            this.operatorTransport.stop();
+	        }
+	        this.getCoreEnvironment().stop();
 	        this.status=Status.STOPPED;
 	        this.runLock.notify();
         }

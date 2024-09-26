@@ -155,7 +155,7 @@ public class FileDownloader extends ServletHandler
         }
         response.setContentType(contentType);
         {
-            byte[] bytes=this.cache.getValueFromCache(parent, key);
+            byte[] bytes=this.cache.getValueFromCache(key);
             if (bytes!=null)
             {
                 if (Debugging.ENABLE)

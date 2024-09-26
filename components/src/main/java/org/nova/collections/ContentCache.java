@@ -136,7 +136,7 @@ abstract public class ContentCache<KEY,VALUE>
 		return fill(parent,key);
 	}
 
-    public VALUE getValueFromCache(Trace parent,KEY key) throws Throwable
+    public VALUE getValueFromCache(KEY key) throws Throwable
     {
         ValueSize<VALUE> valueSize=getFromCache(key);
         if (valueSize!=null)

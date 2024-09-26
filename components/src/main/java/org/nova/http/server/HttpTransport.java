@@ -110,5 +110,9 @@ public class HttpTransport
 
     public void stop() throws Throwable
     {
+        for (Server server:this.servers)
+        {
+            server.stop();
+        }
     }
 }
