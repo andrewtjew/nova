@@ -112,7 +112,7 @@ public class AzureBuild extends Script
             
             String message="package: "+artifact+"\r\n"+"maven version: "+version+"\r\n"+"build version: "+buildVersion+"\r\n"+"built on: "+CometUtils.now_UTC_ISO()+"\r\n"+"built at: "+CometUtils.getLocalHostName()+"\r\n";
             CometUtils.writeTextFile(message,package_+"\\build-info.txt");           
-            String start="java -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -Xms"+mem+" -Xmx"+mem+" -jar "+destJar+" config=.\\resources\\application.cnf";
+            String start="java -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -Xms"+mem+" -Xmx"+mem+" -jar "+destJar+" config=.\\resources\\svr.cnf";
             CometUtils.writeTextFile(start,package_+"\\run-test-all-local.bat");          
             CometUtils.writeTextFile(start,package_+"\\run-svr.bat");         
     

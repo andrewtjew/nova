@@ -8,7 +8,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.configuration.Configuration;
 import org.nova.html.elements.Element;

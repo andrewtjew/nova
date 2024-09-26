@@ -42,10 +42,10 @@ public class ModalDocument extends Modal
     {
         return this.modalDialogDocument.header();
     }
-//    public ModalDialog modalDialog()
-//    {
-//        return this.modalDialogDocument;
-//    }
+    public ModalDialog modalDialog()
+    {
+        return this.modalDialogDocument;
+    }
     public ModalFooter footer()
     {
         return this.modalDialogDocument.footer();

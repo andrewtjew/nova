@@ -159,6 +159,10 @@ public interface Styling<ELEMENT>
     {
         return addClass("text",value);
     }
+    public default ELEMENT text_bg(StyleColor value)
+    {
+        return addClass("text-bg",value);
+    }
     public default ELEMENT text(TextAlign value)
     {
         return addClass("text",value);
