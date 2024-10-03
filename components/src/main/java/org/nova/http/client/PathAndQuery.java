@@ -55,19 +55,6 @@ public class PathAndQuery
         this.sb.append(segment);
         return this;
     }
-//    @Deprecated
-//    public PathAndQuery addSegments(Object...segments) throws Exception
-//    {
-//        if (this.separator!='?')
-//        {
-//            throw new Exception();
-//        }
-//        for (Object segment:segments)
-//        {
-//            this.sb.append('/').append(segment);
-//        }
-//        return this;
-//    }
 	public PathAndQuery addQuery(String key,Object value) throws Exception
 	{
 	    if (value==null)
