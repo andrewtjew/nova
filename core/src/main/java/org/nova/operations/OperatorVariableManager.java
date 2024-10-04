@@ -28,27 +28,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.nova.tracing.Trace;
+
 public class OperatorVariableManager
 {
 	final private HashMap<String, HashMap<String, VariableInstance>> map;
-	final private HashMap<String,Validator> validators;
+	final private HashMap<String,Validation> validators;
+	final private OperatorVariableStore store;
 	
-	
-	public OperatorVariableManager()
+	public OperatorVariableManager(OperatorVariableStore store)
 	{
 		this.map=new HashMap<>();
 		this.validators=new HashMap<>();
-		registerValidator(new DefaultValidator());
+		registerValidator(new NullValidation());
+		this.store=store;
 	}
-    public void registerValidator(Validator validator) 
+    public void registerValidator(Validation validator) 
     {
         this.validators.put(validator.getClass().getName(),validator);
     }
-	public void register(Object object) throws Throwable
+	public void register(Trace parent,Object object) throws Throwable
 	{
-		register(object.getClass().getSimpleName(),object);
+		register(parent,object.getClass().getSimpleName(),object);
 	}
-	public void register(String category,Object object) throws Throwable
+	public void register(Trace parent,String category,Object object) throws Throwable
 	{
 		HashMap<String,VariableInstance> variables=map.get(category);
 		if (variables==null)
@@ -77,12 +80,23 @@ public class OperatorVariableManager
 			{
 				throw new Exception("OperatorVariable already registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
 			}
-			Validator validator=this.validators.get(variable.validator().getName());
-            if (validator==null)
+			Validation validation=this.validators.get(variable.validation().getName());
+            if (validation==null)
             {
                 throw new Exception("No validator registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
             }
-			variables.put(key,new VariableInstance(validator,variable, object, field));
+			
+			var instance=new VariableInstance(validation,variable, object, field);
+			if ((this.store!=null)&&(parent!=null))
+			{
+			    String valueText=this.store.load(parent, category, instance);
+			    if (valueText==null)
+			    {
+                    valueText=variable.defaultValue();
+			    }
+                 instance.set(valueText);
+			}
+			variables.put(key,instance);
 		}
 	}
 	public VariableInstance getInstance(String category,String key)
@@ -97,22 +111,26 @@ public class OperatorVariableManager
 			return variables.get(key);
 		}
 	}
-    public boolean setOperatorVariable(String category,String key,OperatorVariable variable)
+	
+    public ValidationResult setOperatorVariable(Trace parent,String category,String key,String value) throws Throwable
     {
         synchronized (this)
         {
             HashMap<String, VariableInstance> variables=this.map.get(category);
             if (variables==null)
             {
-                return false;
+                return new ValidationResult(Status.CATEGORY_NOT_FOUND);
             }
             VariableInstance instance=variables.get(key);
             if (instance==null)
             {
-                return false;
+                return new ValidationResult(Status.KEY_NOT_FOUND);
             }
-            instance.setOperatorVariable(variable);
-            return true;
+            if (this.store!=null)
+            {
+                this.store.save(parent, category,instance, value);
+            }
+            return instance.set(value);
         }
     }
 	public String[] getCategories()

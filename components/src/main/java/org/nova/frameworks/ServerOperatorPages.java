@@ -168,6 +168,7 @@ import org.nova.html.operator.TableHeader;
 import org.nova.html.operator.TableRow;
 import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
+import org.nova.html.remote.RemoteForm;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remoting.Inputs;
@@ -257,13 +258,8 @@ public class ServerOperatorPages
     public final ServerApplication serverApplication;
 
     @org.nova.operations.OperatorVariable(description = "Sampling duration (seconds)", minimum = "0.1")
-    private double rateSamplingDuration = 10;
+    private double rateSamplingDuration;
 
-    @org.nova.operations.OperatorVariable(description = "cache max-age in (seconds)", minimum = "1")
-    private int cacheMaxAge = 300;
-
-    @OperatorVariable(description = "cache control value returned to client other than max-age (e.g.: no-transform, public)")
-    private String cacheControlValue = "public";
     final private FileCache fileCache;
 
     public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
@@ -274,8 +270,6 @@ public class ServerOperatorPages
         
         this.namespace=namespace;
         this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue("ServerOperatorPages.meters.rateSamplingDuration", 10);
-        this.cacheMaxAge = serverApplication.getConfiguration().getIntegerValue("ServerOperatorPages.cache.maxAgeS", 300);
-        this.cacheControlValue = serverApplication.getConfiguration().getValue("ServerOperatorPages.cache.controlValue", "public");
         this.serverApplication = serverApplication;
 
         MenuBar menuBar=serverApplication.getMenuBar();
@@ -357,11 +351,11 @@ public class ServerOperatorPages
         menuBar.add("/operator/httpServer/methods/operator","Servers","Operator","Methods");
         menuBar.add("/operator/httpServer/classDefinitions/operator","Servers","Operator","Class Definitions");
 
-//        menuBar.add("/operator/variables/view","Variables","View");
-//        menuBar.add("/operator/variables/modify","Variables","Modify");
+        menuBar.add("/operator/variables/view","Variables","View");
+        menuBar.add("/operator/variables/modify","Variables","Modify");
 
-        serverApplication.getOperatorVariableManager().register(serverApplication.getTraceManager());
-        serverApplication.getOperatorVariableManager().register(this);
+        serverApplication.getOperatorVariableManager().register(null,serverApplication.getTraceManager());
+        serverApplication.getOperatorVariableManager().register(null,this);
     }
 
     @GET
@@ -5099,8 +5093,8 @@ public class ServerOperatorPages
         {
             response.setContentType(contentType);
         }
-        response.setHeader("Cache-Control",
-                (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
+        response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
+//                (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
         response.setStatus(HttpStatus.OK_200);
         context.writeContent(bytes);
     }
@@ -5131,7 +5125,7 @@ public class ServerOperatorPages
             page.content().addInner(new p());
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             
-            table.setHeader("Name","Type","Validator","Default","Value","Modified","Description");
+            table.setHeader("Name","Type","Default","Value","Modified","Description");
 
             for (VariableInstance instance:instances)
             {
@@ -5140,8 +5134,7 @@ public class ServerOperatorPages
                 TableRow row=new TableRow();
                 row.add(instance.getName());
                 row.add(field.getType().getSimpleName());
-                row.add(variable.validator().getSimpleName());
-                row.add(instance.getDefaultValue());
+                row.add(variable.defaultValue());
                 row.add(instance.getValue());
                 row.add(instance.getModified()==0?"":DateTimeUtils.toSystemDateTimeString(instance.getModified()));
                 row.add(variable.description());
@@ -5179,36 +5172,38 @@ public class ServerOperatorPages
             header.add(new th_title("Max","Maximum"));
             header.add(new th_title("\u2205","Null String"));
             header.add("New Value");
-            header.add("Action");
-            header.add("Result");
+            header.add("");
             table.setHeader(header);
-            int textSize=10;
+            int textSize=15;
 
             for (VariableInstance instance:instances)
             {
-                Field field=instance.getField();
                 OperatorVariable variable=instance.getOperatorVariable();
                 String name=instance.getName();
+                form_post form=new form_post().action("/operator/variable");
+                form.addInner(new InputHidden("category",category));
+                form.addInner(new InputHidden("name",name));
+                Field field=instance.getField();
                 Class<?> type=field.getType();
                 Object value=instance.getValue();
                 String resultElementId=(category+name+"Result").replace('.', '_');
              //   String valueKey=(category+name+"Value").replace('.', '_');
 
-                TableRow row=new TableRow();
+                TableRow row=form.returnAddInner(new TableRow());
                 row.add(new td().style("text-align:left;").addInner(new TitleText(variable.description(),name)));
                 row.add(type.getSimpleName());
-                row.add(instance.getDefaultValue());
+                row.add(variable.defaultValue());
                 row.add(instance.getValue());//,new Attribute("id",valueKey));
                 String buttonKey=(category+name+"Button").replace('.', '_');
                 String[] options=variable.options();
-                Inputs inputs=new Inputs(QuotationMark.QOUT);
-                inputs.add(new InputHidden("resultElementId", resultElementId));
+                
+                td input_td=new td().style("width:10em;");
                 if (options[0].length()!=0)
                 {
                     row.add("","","");
                     
                     SelectOptions selectOptions=new SelectOptions();
-                    inputs.add(selectOptions);
+                    selectOptions.name("value");
                     for (String option:options)
                     {
                         selectOptions.add(option);
@@ -5219,7 +5214,7 @@ public class ServerOperatorPages
                 else if (type==boolean.class)
                 {
                     row.add("","","");
-                    row.add(inputs.returnAdd(new input_checkbox().id(name).checked((boolean)value)));
+                    row.add(input_td.addInner(new input_checkbox().name("value").checked((boolean)value)));
                     
                 }
                 else if (type.isEnum())
@@ -5227,12 +5222,13 @@ public class ServerOperatorPages
                     row.add("","","");
                     
                     SelectOptions selectOptions=new SelectOptions();
+                    selectOptions.name("value");
                     for (Object enumConstant:field.getType().getEnumConstants())
                     {
                         String option=enumConstant.toString();
                         selectOptions.add(option);
                     }
-                    row.add(selectOptions);
+                    row.add(input_td.addInner(selectOptions));
                 }
                 else if (type==String.class) 
                 {
@@ -5240,24 +5236,22 @@ public class ServerOperatorPages
                     if (value!=null)
                     {
                         row.add(new input_checkbox().id("nullString").checked(false));
-                        row.add(new input_text().id(name).value(value.toString()).size(textSize));
+                        row.add(input_td.addInner(new input_text().name("value").value(value.toString()).size(textSize)));
                     }
                     else
                     {
                         row.add(new input_checkbox().id("nullString").checked(true));
-                        row.add(new input_text().id(name).size(textSize));
+                        row.add(input_td.addInner(new input_text().name("value").size(textSize)));
                     }
                 }
                 else
                 {
                     row.add(variable.minimum(),variable.maximum(),"");
-                    row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
+                    row.add(input_td.addInner(new input_text().size(textSize).name("value").value(value==null?"":value.toString())));
                 }
-                button_button button=new button_button().addInner("Update");
-                button.onclick(inputs.js_post("/operator/variable"));
-                row.add(button);
-                row.add(new div().id(resultElementId));
-                table.addRow(row);
+                button_submit button=new button_submit().addInner("Update");
+                row.add(new td().addInner(button).style("width:0;"));
+                table.addRow(form);
             }
         }
         
@@ -5266,22 +5260,10 @@ public class ServerOperatorPages
 
     @POST
     @Path("/operator/variable")
-    public RemoteResponse update(@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue,@QueryParam("resultElementId") String resultElementId) throws Throwable
+    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
     {
-        RemoteResponse response=new RemoteResponse();
-        VariableInstance instance=this.serverApplication.getOperatorVariableManager().getInstance(category, name);
-        OperatorVariable variable=instance.getOperatorVariable();
-        Object old=instance.getValue();
-        ValidationResult validationResult=instance.set(value);
-        if (validationResult.getStatus()==Status.SUCCESS)
-        {
-            response.innerText(resultElementId, "old="+old+", new="+value);
-        }
-        else
-        {
-          response.innerText(resultElementId, "Error: "+validationResult.getMessage());
-        }
-        return response;
-      }
+        var validationResult=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
+        context.seeOther("/operator/variables/modify");
+    }
 
 }

@@ -436,9 +436,13 @@ public class TypeUtils
     }
     public static Float tryParseFloat(String value)
     {
+        return tryParseFloat(value,null);
+    }
+    public static Float tryParseFloat(String value,Float defaultValue)
+    {
         if (TypeUtils.isNullOrSpace(value))
         {
-            return null;
+            return defaultValue;
         }
         try
         {
@@ -446,7 +450,26 @@ public class TypeUtils
         }
         catch (Throwable t)
         {
-            return null;
+            return defaultValue;
+        }
+    }
+    public static Double tryParseDouble(String value)
+    {
+        return tryParseDouble(value,null);
+    }
+    public static Double tryParseDouble(String value,Double defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Double.parseDouble(value);
+        }
+        catch (Throwable t)
+        {
+            return defaultValue;
         }
     }
     public static long[] parseLongs(String[] values,long defaultValue)

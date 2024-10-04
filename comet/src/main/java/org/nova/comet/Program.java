@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.nova.builders.Script;
 import org.nova.concurrent.TimeBase;
 import org.nova.concurrent.TimerRunnable;
 import org.nova.concurrent.TimerTask;
@@ -18,7 +19,6 @@ import org.nova.http.server.HttpTransport;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
-import org.nova.scripts.Script;
 import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;
 
@@ -31,7 +31,7 @@ public class Program
         {
             return;
         }
-        String name="org.nova.scripts."+args[0];
+        String name="org.nova.builders."+args[0];
         
         Class<?> type=Class.forName(name);
         Script script=(Script)type.getDeclaredConstructor().newInstance();

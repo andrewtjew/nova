@@ -57,10 +57,6 @@ public class JettyServerFactory
     
     static private ThreadPool createThreadPool(int threads)
     {
-        if (threads>0)
-        {
-            return new ExecutorThreadPool(threads, threads);
-        }
         if (MIGRATE_VIRTUAL_THREADS)
         {
             if (threads<=0)
@@ -71,6 +67,10 @@ public class JettyServerFactory
             {
                 System.err.println("MIGRATE: Jetty max threads: "+threads);
             }
+        }
+        if (threads>0)
+        {
+            return new ExecutorThreadPool(threads, threads);
         }
         QueuedThreadPool threadPool=new QueuedThreadPool();
         threadPool.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());

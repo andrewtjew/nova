@@ -89,7 +89,7 @@ public class OperatorPages
 			page.content().addInner(new p());
 			WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
 			
-            table.setHeader("Name","Type","Validator","Default","Value","Modified","Description");
+            table.setHeader("Name","Type","Default","Value","Modified","Description");
 
 			for (VariableInstance instance:instances)
 			{
@@ -98,8 +98,7 @@ public class OperatorPages
                 TableRow row=new TableRow();
 			    row.add(instance.getName());
 			    row.add(field.getType().getSimpleName());
-			    row.add(variable.validator().getSimpleName());
-			    row.add(instance.getDefaultValue());
+			    row.add(variable.defaultValue());
 			    row.add(instance.getValue());
 			    row.add(instance.getModified()==0?"":formatDateTime(instance.getModified()));
 			    row.add(variable.description());
@@ -111,124 +110,124 @@ public class OperatorPages
 		return page;
 	}
 
-	@GET
-	@Path("/operator/variables/modify")
-	public Element modify() throws Throwable
-	{
-        OperatorPage page=this.serverApplication.buildOperatorPage("Modify Operator Variables"); 
-
-        List<String> list=Arrays.asList(serverApplication.getOperatorVariableManager().getCategories());
-		Collections.sort(list);
-
-		for (String category:list)
-		{
-            List<VariableInstance> instances=Arrays.asList(this.serverApplication.getOperatorVariableManager().getInstances(category));
-//			Collections.sort(variables);
-            Panel3 panel=page.content().returnAddInner(new Panel3(page.head(),category));
-            page.content().addInner(new p());
-            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
-
-            TableHeader header=new TableHeader();
-            header.add("Name");
-            header.add("Type");
-            header.add("Default");
-            header.add("Value");
-            header.add(new th_title("Min","Minimum"));
-            header.add(new th_title("Max","Maximum"));
-            header.add(new th_title("\u2205","Null String"));
-            header.add("New Value");
-            header.add("Action");
-            header.add("Result");
-            table.setHeader(header);
-            int textSize=10;
-
-            for (VariableInstance instance:instances)
-            {
-                Field field=instance.getField();
-                OperatorVariable variable=instance.getOperatorVariable();
-                String name=instance.getName();
-                Class<?> type=field.getType();
-                Object value=instance.getValue();
-                String resultKey=(category+name+"Result").replace('.', '_');
-                String valueKey=(category+name+"Value").replace('.', '_');
-
-                TableRow row=new TableRow();
-                row.add(new TitleText(variable.description(),name));
-                row.add(type.getSimpleName());
-                row.add(instance.getDefaultValue());
-                row.add(instance.getValue());//,new Attribute("id",valueKey));
-                String buttonKey=(category+name+"Button").replace('.', '_');
-                String[] options=variable.options();
-                if (options[0].length()!=0)
-                {
-                    row.add("","","");
-                    
-                    SelectOptions selectOptions=new SelectOptions();
-                    for (String option:options)
-                    {
-                        selectOptions.add(option);
-                    }
-                    row.add(selectOptions);
-                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
-                    button.async(false).val("value",name);
-                    row.add(button);
-                    
-                }
-                else if (type==boolean.class)
-                {
-                    row.add("","","");
-                    row.add(new input_checkbox().id(name).checked((boolean)value));
-                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
-                    button.async(false).prop("value",name,"checked");
-                    row.add(button);
-                }
-                else if (type.isEnum())
-                {
-                    row.add("","","");
-                    
-                    SelectOptions selectOptions=new SelectOptions();
-                    for (Object enumConstant:field.getType().getEnumConstants())
-                    {
-                        String option=enumConstant.toString();
-                        selectOptions.add(option);
-                    }
-                    row.add(selectOptions);
-                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
-                    button.async(false).val("value",name);
-                    row.add(button);
-                }
-                else if (type==String.class) 
-                {
-                    row.add("","");
-                    if (value!=null)
-                    {
-                        row.add(new input_checkbox().id("nullString").checked(false));
-                        row.add(new input_text().id(name).value(value.toString()).size(textSize));
-                    }
-                    else
-                    {
-                        row.add(new input_checkbox().id("nullString").checked(true));
-                        row.add(new input_text().id(name).size(textSize));
-                    }
-                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
-                    button.async(false).val("value",name).prop("nullString","nullString","checked");
-                    row.add(button);
-                }
-                else
-                {
-                    row.add(variable.minimum(),variable.maximum(),"");
-                    row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
-                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
-                    button.async(false).val("value",name);
-                    row.add(button);
-                }
-                row.add(new div().id(resultKey));
-                table.addRow(row);
-            }
-		}
-		
-		return page;
-	}
+//	@GET
+//	@Path("/operator/variables/modify")
+//	public Element modify() throws Throwable
+//	{
+//        OperatorPage page=this.serverApplication.buildOperatorPage("Modify Operator Variables"); 
+//
+//        List<String> list=Arrays.asList(serverApplication.getOperatorVariableManager().getCategories());
+//		Collections.sort(list);
+//
+//		for (String category:list)
+//		{
+//            List<VariableInstance> instances=Arrays.asList(this.serverApplication.getOperatorVariableManager().getInstances(category));
+////			Collections.sort(variables);
+//            Panel3 panel=page.content().returnAddInner(new Panel3(page.head(),category));
+//            page.content().addInner(new p());
+//            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+//
+//            TableHeader header=new TableHeader();
+//            header.add("Name");
+//            header.add("Type");
+//            header.add("Default");
+//            header.add("Value");
+//            header.add(new th_title("Min","Minimum"));
+//            header.add(new th_title("Max","Maximum"));
+//            header.add(new th_title("\u2205","Null String"));
+//            header.add("New Value");
+//            header.add("Action");
+//            header.add("Result");
+//            table.setHeader(header);
+//            int textSize=10;
+//
+//            for (VariableInstance instance:instances)
+//            {
+//                Field field=instance.getField();
+//                OperatorVariable variable=instance.getOperatorVariable();
+//                String name=instance.getName();
+//                Class<?> type=field.getType();
+//                Object value=instance.getValue();
+//                String resultKey=(category+name+"Result").replace('.', '_');
+//                String valueKey=(category+name+"Value").replace('.', '_');
+//
+//                TableRow row=new TableRow();
+//                row.add(new TitleText(variable.description(),name));
+//                row.add(type.getSimpleName());
+//                row.add(instance.getDefaultValue());
+//                row.add(instance.getValue());//,new Attribute("id",valueKey));
+//                String buttonKey=(category+name+"Button").replace('.', '_');
+//                String[] options=variable.options();
+//                if (options[0].length()!=0)
+//                {
+//                    row.add("","","");
+//                    
+//                    SelectOptions selectOptions=new SelectOptions();
+//                    for (String option:options)
+//                    {
+//                        selectOptions.add(option);
+//                    }
+//                    row.add(selectOptions);
+//                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
+//                    button.async(false).val("value",name);
+//                    row.add(button);
+//                    
+//                }
+//                else if (type==boolean.class)
+//                {
+//                    row.add("","","");
+//                    row.add(new input_checkbox().id(name).checked((boolean)value));
+//                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
+//                    button.async(false).prop("value",name,"checked");
+//                    row.add(button);
+//                }
+//                else if (type.isEnum())
+//                {
+//                    row.add("","","");
+//                    
+//                    SelectOptions selectOptions=new SelectOptions();
+//                    for (Object enumConstant:field.getType().getEnumConstants())
+//                    {
+//                        String option=enumConstant.toString();
+//                        selectOptions.add(option);
+//                    }
+//                    row.add(selectOptions);
+//                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
+//                    button.async(false).val("value",name);
+//                    row.add(button);
+//                }
+//                else if (type==String.class) 
+//                {
+//                    row.add("","");
+//                    if (value!=null)
+//                    {
+//                        row.add(new input_checkbox().id("nullString").checked(false));
+//                        row.add(new input_text().id(name).value(value.toString()).size(textSize));
+//                    }
+//                    else
+//                    {
+//                        row.add(new input_checkbox().id("nullString").checked(true));
+//                        row.add(new input_text().id(name).size(textSize));
+//                    }
+//                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
+//                    button.async(false).val("value",name).prop("nullString","nullString","checked");
+//                    row.add(button);
+//                }
+//                else
+//                {
+//                    row.add(variable.minimum(),variable.maximum(),"");
+//                    row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
+//                    AjaxButton button=new AjaxButton(buttonKey, "Update", "/operator/variable/"+category+"/"+name);
+//                    button.async(false).val("value",name);
+//                    row.add(button);
+//                }
+//                row.add(new div().id(resultKey));
+//                table.addRow(row);
+//            }
+//		}
+//		
+//		return page;
+//	}
 	
 	private String formatStringOutput(String s)
 	{

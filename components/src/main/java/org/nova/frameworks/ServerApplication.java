@@ -47,7 +47,9 @@ import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
+import org.nova.operations.NullValidation;
 import org.nova.operations.OperatorVariableManager;
+import org.nova.operator.ConfigurationOperatorVariableStore;
 import org.nova.security.Vault;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
@@ -98,8 +100,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
+        var operatorVariables=configuration.getValue("ServerApplication.operatorVariables",null);
         
-        this.operatorVariableManager=new OperatorVariableManager();
+        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariables,configuration));
 		this.typeMappings=ExtensionToContentTypeMappings.fromDefault();
 
         int operatorPort=this.operatorTransport.getPorts()[0];
@@ -273,14 +276,14 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 //		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
 //		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
 		
-        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
+//        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
         {
-            this.getOperatorVariableManager().register("HttpServer.private", this.privateServer);
+            this.getOperatorVariableManager().register(null,"HttpServer.private", this.privateServer);
         }
         if (this.publicServer!=null)
         {
-            this.getOperatorVariableManager().register("HttpServer.public", this.publicServer);
+            this.getOperatorVariableManager().register(null,"HttpServer.public", this.publicServer);
         }
 
         this.menuBar=new MenuBar();

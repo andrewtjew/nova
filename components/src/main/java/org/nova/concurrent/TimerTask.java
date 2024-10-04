@@ -83,26 +83,25 @@ public class TimerTask
 		this.key=new Key(this.due, this.number);
 	}
 	
-	TimerScheduler.Key getKey()
+//	TimerScheduler.Key getKey()
+//	{
+//		return this.key;
+//	}
+	void execute()
 	{
-		return this.key;
-	}
-	
-	Key execute()
-	{
+        synchronized(this)
+        {
+            if (this.cancel)
+            {
+                this.executeStatus=TaskStatus.CANCELLED;
+                return;
+            }
+            this.executeStatus=TaskStatus.EXECUTING;
+        }
 		try (Trace trace=new Trace(this.timerScheduler.traceManager,this.category))
 		{
 			try
 			{
-				synchronized(this)
-				{
-					if (this.cancel)
-					{
-						this.executeStatus=TaskStatus.COMPLETED;
-						return null;
-					}
-					this.executeStatus=TaskStatus.EXECUTING;
-				}
 				this.attempts++;
 				this.executable.run(trace, this);
 				this.successes++;
@@ -119,22 +118,22 @@ public class TimerTask
 				}
 			}
 			this.totalDuration+=trace.getDurationNs();
-            Key key=getSchedule();
-			synchronized(this)
-			{
-				if (this.cancel)
-				{
-					this.executeStatus=TaskStatus.CANCELLED;
-					return null;
-				}
-				if (key==null)
-				{
-					this.executeStatus=TaskStatus.COMPLETED;
-					return null;
-				}
-				this.executeStatus=TaskStatus.READY;
-			}
-			return key;
+	        Key key=getSchedule();
+	        synchronized(this)
+	        {
+	            if (this.cancel)
+	            {
+	                this.executeStatus=TaskStatus.CANCELLED;
+	                return;
+	            }
+	            if (key==null)
+	            {
+	                this.executeStatus=TaskStatus.COMPLETED;
+	                return;
+	            }
+	            this.executeStatus=TaskStatus.READY;
+	        }
+	        this.timerScheduler.reschedule(key, this);
 		}
 	}
 	

@@ -157,7 +157,7 @@ public class ResourceController
                 return;
             }
         }
-//        System.out.println(file);
+        System.out.println(file);
         try (Trace trace=new Trace(parent,"ResourceController.resource"))
         {
             trace.setDetails(file);

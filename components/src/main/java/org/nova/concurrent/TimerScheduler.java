@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.concurrent;
 
-//TODO: stats are not threadsafe. Timer code should be executed in its own thread using thread pool
+//TODO: stats are not threadsafe. 
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -192,18 +192,22 @@ public class TimerScheduler
 						}
 					}
 				}
-			}
-			        
-			Key key=entry.getValue().execute();
-			synchronized(this)
-			{
 				this.map.remove(entry.getKey());
-				if (key!=null)
-				{
-					this.map.put(key, entry.getValue());
-				}
 			}
+			TimerTask task=entry.getValue();
+	        this.executorService.execute(() -> 
+	        {
+	            task.execute();
+	        });
 		}
+	}
+	
+	void reschedule(Key key,TimerTask task)
+	{
+        synchronized(this)
+        {
+            this.map.put(key, task);
+        }
 	}
 	
 	void cancel(Key key)
