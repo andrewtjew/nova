@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.concurrent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 //TODO: stats are not threadsafe. 
 
 import java.util.Map.Entry;
@@ -48,7 +51,8 @@ public class TimerScheduler
 	}
 	final private Logger logger;
 	final TraceManager traceManager;
-	final private TreeMap<Key, TimerTask> map;
+    final private TreeMap<Key, TimerTask> waitingTasks;
+    final private HashMap<Key, TimerTask> runningTasks;
     final private ExecutorService executorService; 
 
     private AtomicLong number;
@@ -62,7 +66,8 @@ public class TimerScheduler
 		this.traceManager = traceManager;
 		this.logger = logger;
 		this.number=new AtomicLong();
-		this.map = new TreeMap<>((Key a, Key b) ->
+		this.runningTasks=new HashMap();
+		this.waitingTasks = new TreeMap<>((Key a, Key b) ->
 		{
 			if (a.due < b.due)
 			{
@@ -121,23 +126,6 @@ public class TimerScheduler
         }
 	}
 	
-    class Runner implements java.lang.Runnable
-    {
-        final TimerTask task;
-
-        Runner(TimerTask task)
-        {
-            this.task=task;
-        }
-
-        @Override
-        public void run()
-        {
-            task.execute();
-        }
-    }
-	
-
 	void run()
 	{
 		for (;;)
@@ -148,7 +136,7 @@ public class TimerScheduler
 				for (;;)
 				{
 					long now=System.currentTimeMillis();
-					entry=this.map.firstEntry();
+					entry=this.waitingTasks.firstEntry();
 					if (entry!=null)
 					{
 						Key key=entry.getKey();
@@ -192,21 +180,25 @@ public class TimerScheduler
 						}
 					}
 				}
-				this.map.remove(entry.getKey());
+				this.waitingTasks.remove(entry.getKey());
+				this.runningTasks.put(entry.getKey(),entry.getValue());
 			}
 			TimerTask task=entry.getValue();
+			final Key key=entry.getKey();
 	        this.executorService.execute(() -> 
 	        {
-	            task.execute();
+	            task.execute(key);
 	        });
 		}
 	}
 	
-	void reschedule(Key key,TimerTask task)
+	void reschedule(Key runningKey,Key key,TimerTask task)
 	{
         synchronized(this)
         {
-            this.map.put(key, task);
+            this.runningTasks.remove(runningKey);
+            this.waitingTasks.put(key, task);
+            this.notifyAll();
         }
 	}
 	
@@ -214,7 +206,8 @@ public class TimerScheduler
 	{
 		synchronized(this)
 		{
-			this.map.remove(key);
+            this.runningTasks.remove(key);
+			this.waitingTasks.remove(key);
 		}
 	}
 
@@ -229,7 +222,7 @@ public class TimerScheduler
 	    }
 		synchronized(this)
 		{
-			this.map.put(key, timerTask);
+			this.waitingTasks.put(key, timerTask);
 			this.notify();
 		}
 		return timerTask;
@@ -237,10 +230,13 @@ public class TimerScheduler
 	
 	public TimerTask[] getTimerTaskSnapshot()
 	{
+	    ArrayList<TimerTask> tasks=new ArrayList();
 		synchronized(this)
 		{
-			return this.map.values().toArray(new TimerTask[this.map.size()]);
+            tasks.addAll(this.runningTasks.values());
+            tasks.addAll(this.waitingTasks.values());
 		}
+		return tasks.toArray(new TimerTask[tasks.size()]);
 	}
 	Logger getLogger()
 	{

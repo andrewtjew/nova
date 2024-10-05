@@ -127,6 +127,7 @@ public class ConfigurationReader
                 }
                 catch (Throwable t)
                 {
+                    //optional include
                 }
             }
 			else

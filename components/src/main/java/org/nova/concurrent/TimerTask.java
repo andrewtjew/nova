@@ -87,7 +87,7 @@ public class TimerTask
 //	{
 //		return this.key;
 //	}
-	void execute()
+	void execute(Key runningKey)
 	{
         synchronized(this)
         {
@@ -124,6 +124,7 @@ public class TimerTask
 	            if (this.cancel)
 	            {
 	                this.executeStatus=TaskStatus.CANCELLED;
+	                this.timerScheduler.cancel(runningKey);
 	                return;
 	            }
 	            if (key==null)
@@ -133,7 +134,7 @@ public class TimerTask
 	            }
 	            this.executeStatus=TaskStatus.READY;
 	        }
-	        this.timerScheduler.reschedule(key, this);
+	        this.timerScheduler.reschedule(runningKey,key, this);
 		}
 	}
 	
@@ -313,7 +314,10 @@ public class TimerTask
 		synchronized (this)
 		{
 			this.cancel=true;
-			this.timerScheduler.cancel(this.key);
+            if (this.executeStatus!=TaskStatus.EXECUTING)
+            {
+                this.timerScheduler.cancel(this.key);
+            }
 		}
 	}
 
