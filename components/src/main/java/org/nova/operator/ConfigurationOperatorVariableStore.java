@@ -54,83 +54,78 @@ public class ConfigurationOperatorVariableStore extends OperatorVariableStore
             }
         }
         this.configuration=configuration;
-        this.fileName=fileName;
+        this.fileName=FileUtils.toNativePath(fileName);
     }
-    
+
     public void save(Trace parent,String category,VariableInstance instance, String value) throws Throwable
     {
         if (fileName!=null)
         {
+            boolean found=false;
             String name=category+"."+instance.getName();
-            boolean changed=false;
-            for (int i=0;i<this.lines.size();i++)
+            var item=this.configuration.getConfigurationItem(name);
+            if (item!=null)
             {
-                String line=this.lines.get(i);
-                int index=line.indexOf('=');
-                if (index>0)
+                var source=item.getSource();
+                if ((source==ConfigurationSource.FILE)||(source==ConfigurationSource.OPERATOR))
                 {
-                    String key=line.substring(0,index).trim();
-                    if (name.equals(key))
+                    String context=item.getSourceContext();
+                    if (context!=null)
                     {
-                        if (this.configuration.contains(name))
+                        int start=context.indexOf('(');
+                        if (start>0)
                         {
-                            if (value==null)
+                            int end=context.indexOf(')',start);
+                            if (end>start)
                             {
-                                this.lines.remove(i);
+                                String sourceFile=FileUtils.toNativePath(context.substring(0,start));
+                                if (sourceFile.contains(this.fileName)||(this.fileName.contains(sourceFile)))
+                                {
+                                    String lineString=context.substring(start+1,end);
+                                    Integer lineIndex=TypeUtils.tryParseInt(lineString);
+                                    if (lineIndex!=null)
+                                    {
+                                        lineIndex--;
+                                        String line=this.lines.get(lineIndex);
+                                        {
+                                            String newLine=name+"="+value;
+                                            this.lines.set(lineIndex, newLine);
+                                            var newItem=new ConfigurationItem(name, value, ConfigurationSource.OPERATOR, item.getSourceContext(), item.getDescription());
+                                            this.configuration.add(newItem);
+                                            found=true;
+                                        }
+                                    }
+                                }
                             }
-                            else
-                            {
-                                var newLine=name+"="+value;
-                                this.lines.set(i, newLine);
-                            }
-                            changed=true;
                         }
                     }
                 }
             }
-            if (changed==false)
+            
+            if (found==false)
             {
                 if (value!=null)
                 {
                     var newLine=name+"="+value;
                     this.lines.add(newLine);
+                    var newItem=new ConfigurationItem(name, value, ConfigurationSource.OPERATOR, fileName+"("+this.lines.size()+")",instance.getOperatorVariable().description());
+                    this.configuration.add(newItem);
                 }
             }
-            var item=this.configuration.getConfigurationItem(name);
-            if (item!=null)
-            {
-                item=new ConfigurationItem(name, value, ConfigurationSource.OPERATOR, item.getSourceContext(), item.getDescription());
-            }
-            else
-            {
-                item=new ConfigurationItem(name, value, ConfigurationSource.OPERATOR, null,instance.getOperatorVariable().description());
-            }
-            this.configuration.add(item);
-            
             String text=Utils.combine(this.lines, "\r\n");
             FileUtils.writeTextFile(this.fileName, text);
         }
     }
-
     @Override
     public String load(Trace parent, String category,VariableInstance instance)
     {
         if (fileName!=null)
         {
             String name=category+"."+instance.getName();
-            boolean changed=false;
-            for (int i=0;i<this.lines.size();i++)
+            var item=this.configuration.getConfigurationItem(name);
+            if (item!=null)
             {
-                String line=this.lines.get(i);
-                int index=line.indexOf('=');
-                if (index>0)
-                {
-                    String key=line.substring(0,index).trim();
-                    if (name.equals(key))
-                    {
-                        return line.substring(index+1);
-                    }
-                }
+                return item.getValue();
             }
         }
         return null;
