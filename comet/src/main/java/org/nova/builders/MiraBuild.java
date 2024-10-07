@@ -95,10 +95,6 @@ public class MiraBuild extends Script
                 throw new Exception("sourceDir not specified");
             }
             sourcedir=CometUtils.toNativePath(sourcedir);
-            if (sourcedir.endsWith(File.separator)==false)
-            {
-                sourcedir=sourcedir+File.separator;
-            }
         }
         if (packagedir== null)
         {
@@ -119,8 +115,8 @@ public class MiraBuild extends Script
 
         if (restart==false)
         {
-            String packageWorkDir=sourcedir+artifact+"\\package";
-            String jarSource = sourcedir+artifact+"\\target\\"+mvnJar;
+            String packageWorkDir=sourcedir+"\\"+artifact+"\\"+artifact;
+            String jarSource = sourcedir+"\\"+artifact+"\\target\\"+mvnJar;
             
             if (noBuilds==false)
             {
@@ -134,7 +130,7 @@ public class MiraBuild extends Script
                     System.out.println("nova building done");
                 }
                 CometUtils.deleteFile(jarSource);
-                CometUtils.exec(sourcedir+artifact,"mvn clean install");
+                CometUtils.exec(sourcedir+"\\"+artifact,"mvn clean install");
                 if (CometUtils.existsFile(jarSource)==false)
                 {
                     throw new Exception("jar not found: "+jarSource);
@@ -145,13 +141,13 @@ public class MiraBuild extends Script
                 CometUtils.deleteDirectory(packageWorkDir);
                 CometUtils.createDirectory(packageWorkDir);
                 CometUtils.copyFile(jarSource,packageWorkDir+"\\"+artifactJar);
-                CometUtils.cloneDirectory(sourcedir+artifact+"\\resources",packageWorkDir+"\\resources");
-                if (CometUtils.existsFile(sourcedir+artifact+"\\client"))
+                CometUtils.cloneDirectory(sourcedir+"\\"+artifact+"\\resources",packageWorkDir+"\\resources");
+                if (CometUtils.existsFile(sourcedir+"\\"+artifact+"\\client"))
                 {
                     CometUtils.cloneDirectory(sourcedir+artifact+"\\client",packageWorkDir+"\\client");
                 }
                 CometUtils.deleteFile(packageWorkDir+"\\resources\\local.cnf");
-                CometUtils.copyDirectory(sourcedir+artifact+"\\etc",packageWorkDir+"\\etc");
+                CometUtils.copyDirectory(sourcedir+"\\"+artifact+"\\etc",packageWorkDir+"\\etc");
                 
                 String buildVersion=CometUtils.exec(sourcedir,"git describe --tags --abbrev=0");
                 
@@ -163,9 +159,9 @@ public class MiraBuild extends Script
                 String start="java -XX:+UseCompressedOops -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -Xms"+mem+" -Xmx"+mem+" -jar "+artifactJar+" config=.\\resources\\application.cnf";
                 CometUtils.writeTextFile(start,packageWorkDir+"\\run.bat");         
         
-                CometUtils.exec(sourcedir+artifact,"jar -cf "+artifactJar+" "+artifact);
+                CometUtils.exec(sourcedir+"\\"+artifact,"jar -cf "+artifactJar+" "+artifact);
                 CometUtils.createDirectory(sourcedir+"\\packages");
-                CometUtils.moveFile(sourcedir+artifact+"\\"+artifactJar,packagedir+"\\"+artifactJar);
+                CometUtils.moveFile(sourcedir+"\\"+artifact+"\\"+artifactJar,packagedir+"\\"+artifactJar);
                 CometUtils.deleteDirectory(packageWorkDir);
         
                  CometUtils.exec(sourcedir,"git add .");
@@ -177,8 +173,8 @@ public class MiraBuild extends Script
             
         if (aws!=null)
         {
-            String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/"+" config=.\\resources\\application.cnf";
-            System.out.println("connecting...");
+            String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=.\\resources\\application.cnf";
+            System.out.println("connecting "+aws);
             SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem",null);
             System.out.println("copying package"); 
             
@@ -195,8 +191,8 @@ public class MiraBuild extends Script
             int killed=session.killMatching(javaCommand,1000);
             System.out.println("killed="+killed);
     
-            System.out.println("Executing: "+javaCommand+" in "+jarDest);
-            session.execBackground(jarDest,javaCommand);
+            System.out.println("Executing: "+javaCommand+" in "+artifact);
+            session.execBackground(artifact,javaCommand);
         }
     }
 
