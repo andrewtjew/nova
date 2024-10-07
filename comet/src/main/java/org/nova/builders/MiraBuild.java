@@ -14,9 +14,9 @@ public class MiraBuild extends Script
     {
         String artifact = null;
         String sourcedir=null;
+        String novadir=null;
         String version = "0.0.1-SNAPSHOT";
         String mem="256M";
-        boolean noLibs=false;
         boolean noBuilds=false;
         String aws=null;
         boolean restart=false;
@@ -38,6 +38,10 @@ public class MiraBuild extends Script
                     sourcedir = parts[1];
                     break;
 
+                    case "novadir":
+                        novadir = parts[1];
+                    break;
+
                     case "exedir":
                     exedir = parts[1];
                     break;
@@ -54,10 +58,6 @@ public class MiraBuild extends Script
                         mem = parts[1];
                         break;
     
-                    case "nolibs":
-                    noLibs = Boolean.parseBoolean(parts[1]);
-                    break;
-
                     case "restart":
                     restart = Boolean.parseBoolean(parts[1]);
                     break;
@@ -81,11 +81,11 @@ public class MiraBuild extends Script
         }
         if (artifact == null)
         {
-            throw new Exception("artifact cannot be null");
+            throw new Exception("artifact not specified");
         }
         if (sourcedir== null)
         {
-            throw new Exception("sourceDir cannot be null");
+            throw new Exception("sourceDir not specified");
         }
         if (restart)
         {
@@ -111,13 +111,14 @@ public class MiraBuild extends Script
             if (noBuilds==false)
             {
                 
-                if (noLibs==false)
+                if (novadir!=null)
                 {
-                    CometUtils.exec("c:\\wd\\nova\\core","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\components","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\services","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\xp","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
+                    CometUtils.exec(novadir+"\\core","mvn clean install");
+                    CometUtils.exec(novadir+"\\components","mvn clean install");
+                    CometUtils.exec(novadir+"\\services","mvn clean install");
+                    CometUtils.exec(novadir+"\\xp","mvn clean install");
+                    CometUtils.exec(novadir+"\\bootstrap\\bootstrap5.2.0","mvn clean install");
+                    System.out.println("nova building done");
                 }
                 CometUtils.deleteFile(jarDest);
                 CometUtils.exec(sourcedir+artifact,"mvn clean install");

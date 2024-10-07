@@ -54,7 +54,11 @@ public class ConfigurationOperatorVariableStore extends OperatorVariableStore
             }
         }
         this.configuration=configuration;
-        this.fileName=FileUtils.toNativePath(fileName);
+        if (fileName!=null)
+        {
+            fileName=FileUtils.toNativePath(fileName);
+        }
+        this.fileName=fileName;
     }
 
     public void save(Trace parent,String category,VariableInstance instance, String value) throws Throwable

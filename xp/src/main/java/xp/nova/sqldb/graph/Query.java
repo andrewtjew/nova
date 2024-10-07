@@ -191,7 +191,7 @@ public class Query
                 }
                 else
                 {
-                    throw new Exception("Cannot infer targetNodeType");
+                    throw new Exception("Cannot infer targetNodeType. Specify targetNodeType in LinkQuery constructor.");
                 }
                 
                 break;
