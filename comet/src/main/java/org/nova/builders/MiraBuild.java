@@ -173,7 +173,7 @@ public class MiraBuild extends Script
             
         if (aws!=null)
         {
-            String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=.\\resources\\application.cnf";
+            String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/application.cnf";
             System.out.println("connecting "+aws);
             SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem",null);
             System.out.println("copying package"); 
@@ -191,6 +191,7 @@ public class MiraBuild extends Script
             int killed=session.killMatching(javaCommand,1000);
             System.out.println("killed="+killed);
     
+//            artifact="/home/ec2-user/ProxyServer";
             System.out.println("Executing: "+javaCommand+" in "+artifact);
             session.execBackground(artifact,javaCommand);
         }
