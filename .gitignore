@@ -31,3 +31,4 @@
 **/bin/*
 **/target/*
 **/logs/*
+*.lz4
