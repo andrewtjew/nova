@@ -9,7 +9,6 @@ import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
-import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;

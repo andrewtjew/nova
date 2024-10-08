@@ -25,6 +25,7 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.remote.RemoteStateElement;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
@@ -37,7 +38,6 @@ import org.nova.http.server.FilterChain;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
-import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
@@ -93,8 +93,7 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
     public RemoteStateItem load(String href) throws Throwable
     {
         return load(href,null,null,true,null);
-    }    
-
+    }
 //    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
 //    {
 //        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());

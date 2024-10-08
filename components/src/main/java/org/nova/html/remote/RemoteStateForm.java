@@ -2,7 +2,6 @@ package org.nova.html.remote;
 
 import org.nova.html.ext.InputHidden;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
 
 @ContentWriters(RemoteResponseWriter.class)
