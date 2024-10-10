@@ -93,10 +93,6 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (Graph.DEBUG)
-        {
-            Debugging.log("Graph",sql);
-        }
         if (parameters != null)
         {
             rowSet = accessor.executeQuery(parent, null,parameters, sql);
@@ -104,6 +100,10 @@ public class GraphAccessor implements AutoCloseable
         else
         {
             rowSet = accessor.executeQuery(parent, null, sql);
+        }
+        if (Graph.DEBUG)
+        {
+            Debugging.log("Graph",rowSet.size()+" rows from "+sql);
         }
         
         return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
@@ -130,7 +130,7 @@ public class GraphAccessor implements AutoCloseable
         return this.accessor;
     }
     
-    public <ELEMENT extends NodeObject> ELEMENT[] getArrayElements(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
+    public <ELEMENT extends NodeObject> ELEMENT[] getArray(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {
         Long arrayNodeId=arrayObject.getNodeId();
         if (arrayNodeId==null)
@@ -156,10 +156,10 @@ public class GraphAccessor implements AutoCloseable
         {
             Row row=rowSet.getRow(i);
             int index=row.getINTEGER("_index");
-            NodeObject element = (NodeObject)elementType.newInstance();
+            NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
             for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
             {
-                columnAccessor.set(element, typeName, row);
+                columnAccessor.set(element, null, row);
             }
             Array.set(array, index, element);
         }
@@ -180,16 +180,12 @@ public class GraphAccessor implements AutoCloseable
         {
             return null;
         }
-        else if (rowSet.size()>1)
-        {
-            throw new NotImplementedException();
-        }
         GraphObjectDescriptor descriptor=this.graph.register(elementType);
         Row row=rowSet.getRow(0);
-        NodeObject element = (NodeObject)elementType.newInstance();
+        NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
         for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
         {
-            columnAccessor.set(element, typeName, row);
+            columnAccessor.set(element, null, row);
         }
         return (ELEMENT)element;
     }

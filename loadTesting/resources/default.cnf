@@ -3,5 +3,3 @@ HttpServer.private.port=51780
 
 
 Application.commentFile=.\resources\comment.txt
-
-

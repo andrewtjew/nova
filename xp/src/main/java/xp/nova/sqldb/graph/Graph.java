@@ -162,7 +162,9 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableBIGINT(getColumnName(typeName)));
+                    String columnName=getColumnName(typeName);
+                    Long value=row.getNullableBIGINT(columnName);
+                    field.set(object,value);
                     
                 }
 
@@ -880,7 +882,7 @@ public class Graph
                     ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_array",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createTable:_array"
-                        ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`arrayId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                        ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                         );
             }
             if (accessor.executeQuery(parent,"existTable:_version"

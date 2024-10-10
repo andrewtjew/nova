@@ -30,6 +30,14 @@ public class Query
     {
         return orderBy(orderBy,false);
     }
+    public Query orderBy(Class<? extends NodeObject> nodeType,boolean descending)
+    {
+        return orderBy(nodeType.getSimpleName()+"._nodeId",descending);
+    }
+    public Query orderBy(Class<? extends NodeObject> nodeType)
+    {
+        return orderBy(nodeType,false);
+    }
     public Query orderBy(String orderBy,boolean descending)
     {
         if (descending)
