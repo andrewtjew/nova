@@ -304,11 +304,10 @@ public class GraphTransaction implements AutoCloseable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
-        //The node objects are not deleted. A pruning process should go and delete all nodes.
-        //Alternative is to record meta data to store the node objects when put or createNode is called.
-        
+        this.accessor.executeUpdate(this.parent,null,"INSERT INTO _delete (nodeId,transactionId) VALUES(?,?)",nodeId,this.transactionId);
         return deleted>0;
         
+
     }
     public boolean deleteNode(NodeObject node) throws Throwable
     {
