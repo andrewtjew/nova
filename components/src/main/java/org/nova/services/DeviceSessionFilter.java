@@ -20,6 +20,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestHandler;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
+import org.nova.services.RoleSession.AccessResult;
 import org.nova.tracing.Trace;
 
 public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
@@ -124,10 +125,19 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         try
         {
             session.verifyQuery(context);
-            if (session.isAccessDenied(handler))
+            AccessResult result=session.isAccessDenied(handler);
+            if (result.denied)
             {
-              this.sessionManager.removeSession(parent, session.getToken());
-              return new Response<Redirect>(new Redirect("/"));
+              if (result.redirect!=null)
+              {
+                  session.setContinuation(context);
+                  return new Response<Redirect>(new Redirect(result.redirect));
+              }
+              else
+              {
+                  this.sessionManager.removeSession(parent, session.getToken());
+                  return new Response<Redirect>(new Redirect("/"));
+              }
             }
 
             session.setContext(context);

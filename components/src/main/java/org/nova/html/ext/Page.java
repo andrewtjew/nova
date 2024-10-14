@@ -39,9 +39,9 @@ public class Page extends Content
         this.continuationDisallowed=continuationDisallowed;
     }
     
-    public Page(boolean continuationPage)
+    public Page(boolean continuationDisallowed)
     {
-        this("html",continuationPage);
+        this("html",continuationDisallowed);
     }
     public Page()
     {

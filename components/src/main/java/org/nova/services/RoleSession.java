@@ -121,7 +121,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         if (deny==null)
         {
-            deny=isAccessDenied(handler);
+            deny=isAccessDenied(handler).denied;
             synchronized (DENY_MAP)
             {
                 DENY_MAP.put(key, deny);
@@ -131,7 +131,24 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return deny;
     }
 
-    public boolean isAccessDenied(RequestHandler handler) throws Throwable
+    static class AccessResult
+    {
+        final public String redirect;
+        final public boolean denied;
+        
+        public AccessResult(boolean denied)
+        {
+            this.denied=denied;
+            this.redirect=null;
+        }
+        public AccessResult(String redirect)
+        {
+            this.denied=true;
+            this.redirect=redirect;
+        }
+    }
+    
+    AccessResult isAccessDenied(RequestHandler handler) throws Throwable
     {
         Method method=handler.getMethod();
         ForbiddenRoles forbiddenRoles=method.getDeclaredAnnotation(ForbiddenRoles.class);
@@ -143,13 +160,13 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         {
             if (forbiddenRoles.value().length==0)
             {
-                return true; //deny all
+                return new AccessResult(true);
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return true;
+                    return new AccessResult(true);
                 }
             }
         }
@@ -169,16 +186,16 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             {
                 System.err.println("No Roles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
             }
-            return false; 
+            return new AccessResult(false);
         }
         for (String value:requiredRoles.value())
         {
             if (hasRole(value))
             {
-                return false;
+                return new AccessResult(false);
             }
         }
-        return true;
+        return new AccessResult(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

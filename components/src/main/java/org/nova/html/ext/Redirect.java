@@ -33,6 +33,7 @@ public class Redirect extends Element
     
     public Redirect(String url)
     {
+//        System.out.println("Redirect="+url);
         this.html=new html();
         head head=this.html.returnAddInner(new head());
         meta meta=head.returnAddInner(new meta());

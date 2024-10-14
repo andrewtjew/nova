@@ -140,7 +140,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     @Override
     public Object getState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(STATE_KEY);
+        String id=context.getHttpServletRequest().getParameter(getStateKey());
         return getPageState(id);
     }
     @Override
@@ -207,18 +207,17 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     
     public String setContinuation(Context context)
     {
-        this.continuation=context.getPathAndQuery();
-        return this.continuation;
+        return setContinuation(context.getPathAndQuery());
     }
     public String setRefererContinuation(Context context)
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        this.continuation=request.getHeader("Referer");
-        return this.continuation;
+        return setContinuation(request.getHeader("Referer"));
     }
-    public void setContinuation(String pathAndQuery)
+    public String setContinuation(String pathAndQuery)
     {
         this.continuation=pathAndQuery;
+        return this.continuation;
     }
     public void clearContinuation()
     {
@@ -235,6 +234,11 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
 //        this.activeContinuation=this.continuation;
 //        return this.continuationPage;
 //    }
+    
+    public String getContinuation()
+    {
+        return this.continuation;
+    }
     
     public String useContinuation()
     {
