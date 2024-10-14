@@ -155,6 +155,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         catch (Throwable t)
         {
+            context.seeOther("/");
             parent.close(t);
         }
         finally

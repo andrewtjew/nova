@@ -12,6 +12,6 @@ public class FormInputCheckbox extends FormInput<InputCheckbox>
     }
     public FormInputCheckbox(FormCol col,String labelText,String name)
     {
-        this(col,labelText,name,true);
+        this(col,labelText,name,false);
     }
 }

@@ -303,8 +303,11 @@ public class GraphTransaction implements AutoCloseable
     public boolean deleteNode(long nodeId) throws Throwable
     {
         int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM _node WHERE id=?",nodeId);
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
-        this.accessor.executeUpdate(this.parent,null,"INSERT INTO _delete (nodeId,transactionId) VALUES(?,?)",nodeId,this.transactionId);
+        if (deleted>0)
+        {
+            this.accessor.executeUpdate(this.parent,null,"DELETE FROM _link WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
+            this.accessor.executeUpdate(this.parent,null,"INSERT IGNORE INTO _delete (nodeId,transactionId) VALUES(?,?)",nodeId,this.transactionId);
+        }
         return deleted>0;
         
 
