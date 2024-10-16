@@ -138,7 +138,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     }
 
     @Override
-    public Object getState(Context context) throws Throwable
+    public <T> T getRemoteCaller(Context context) throws Throwable
     {
         String id=context.getHttpServletRequest().getParameter(getStateKey());
         return getPageState(id);

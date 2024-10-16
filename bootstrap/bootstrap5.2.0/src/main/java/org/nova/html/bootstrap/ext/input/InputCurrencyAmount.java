@@ -35,7 +35,7 @@ public class InputCurrencyAmount extends InputNumber
         if (outer==false)
         {
             outer=true;
-            Item group=new Item().input_group();
+            Item group=new Item().input_group().d(Display.flex);
             group.returnAddInner(new Span()).input_group_text().addInner(this.currencyCode.getValue().symbol);
             group.returnAddInner(this);
             composer.compose(group);

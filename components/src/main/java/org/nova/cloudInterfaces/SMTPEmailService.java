@@ -36,6 +36,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.nova.html.elements.Element;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.tracing.Trace;
@@ -146,6 +147,12 @@ public class SMTPEmailService extends EmailService
                 transport.close();
             }
         }        
+    }
+    @Override
+    public void send(Trace parent, String to, String subject, String plainText, Element html) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        
     }
     
 }

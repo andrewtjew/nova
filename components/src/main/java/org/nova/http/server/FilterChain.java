@@ -686,7 +686,7 @@ public class FilterChain
     		        {
     		            if (binding instanceof RemoteStateBinding)
     		            {
-    		                object=((RemoteStateBinding)binding).getState(context);
+    		                object=((RemoteStateBinding)binding).getRemoteCaller(context);
     		            }
     		        }
     		        if (object==null)

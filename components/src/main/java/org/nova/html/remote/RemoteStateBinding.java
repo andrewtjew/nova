@@ -17,7 +17,8 @@ import org.nova.security.QuerySecurity;
  */
 public interface RemoteStateBinding
 {
-    public Object getState(Context context) throws Throwable;
+    //The remote element doing the calling for example using RemoteForm.js_post(). The handler calls this method to get the remote element.
+    public <T> T getRemoteCaller(Context context) throws Throwable;
 
     //Stores the ssso.
     public void setState(String id,Object state) throws Throwable;

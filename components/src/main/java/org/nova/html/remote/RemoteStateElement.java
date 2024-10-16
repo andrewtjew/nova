@@ -1,7 +1,11 @@
 package org.nova.html.remote;
 
 import org.nova.html.elements.Composer;
+import org.nova.html.elements.FormElement;
+import org.nova.html.enums.enctype;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
+import org.nova.html.tags.form;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.client.SecurePathAndQuery;
@@ -40,7 +44,26 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     {
         pathAndQuery.addQuery(binding.getStateKey(),id());
         return Remote.js_postStatic(pathAndQuery.toString());
-    }    
+    }
+//    public String js_post(form form) throws Throwable
+//    {
+//        return js_post(form,form.action());
+//    }
+    public String js_post(FormElement<?> form,PathAndQuery pathAndQuery) throws Throwable
+    {
+        pathAndQuery.addQuery(binding.getStateKey(),id());
+        String action=pathAndQuery.toString();
+        if (form.enctype()==enctype.data)
+        {
+            return HtmlUtils.js_call("nova.remote.postFormData",form.id(),action);
+        }
+        else
+        {
+            return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);
+        }
+                
+    }
+    
     public void addScript(RemoteResponse response,String js_script)
     {
         if (response!=null)

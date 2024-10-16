@@ -22,6 +22,7 @@ import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
 import org.nova.services.RoleSession.AccessResult;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
 public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
@@ -128,7 +129,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             AccessResult result=session.isAccessDenied(handler);
             if (result.denied)
             {
-              if (result.redirect!=null)
+              if (TypeUtils.isNullOrEmpty(result.redirect)==false)
               {
                   session.setContinuation(context);
                   return new Response<Redirect>(new Redirect(result.redirect));
