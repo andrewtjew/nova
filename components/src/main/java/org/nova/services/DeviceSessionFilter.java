@@ -43,6 +43,11 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         this.debugSession=session;
     }
 
+    public void setState(Trace parent,Context context,SESSION session) throws Throwable
+    {
+        session.setContext(context);
+        context.setState(session);
+    }
     
     private COOKIESTATE getCookieState(HttpServletRequest request)
     {
@@ -141,8 +146,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
               }
             }
 
-            session.setContext(context);
-            context.setState(session);
+            setState(parent,context,session);
             Response<?> response=context.next(parent);
             if (response!=null)
             {

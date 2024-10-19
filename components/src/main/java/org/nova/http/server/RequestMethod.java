@@ -146,10 +146,7 @@ public class RequestMethod
                             {
                             }
                         }
-                        CookieStateParam cookieStateParam=(CookieStateParam)parameterInfo.getAnnotation();
-                        CookieState cookieState=new CookieState(cookieStateParam,parameterInfo,object);
                         parameters[i]=object;
-                        context.setCookieState(cookieState);
                     }
                     catch (Throwable t)
                     {

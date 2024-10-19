@@ -52,7 +52,6 @@ public class Context
 	private DecoderContext decoderContext;
 	private EncoderContext encoderContext;
 	final private FilterChain filterChain;
-	private HashMap<String,CookieState> cookieStates;
 	private LocalTextResolver resolver;
 	
 	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
@@ -63,7 +62,6 @@ public class Context
 		this.httpServletResponse=servletResponse;
 		this.decoderContext=decoderContext;
 		this.encoderContext=encoderContext;
-		this.cookieStates=new HashMap<String, CookieState>();
 	}
 
 	public Response<?> next(Trace parent) throws Throwable
@@ -122,27 +120,6 @@ public class Context
 	{
 		this.contentWriter = contentWriter;
 	}
-	public void setCookieState(CookieState cookieState)
-	{
-		this.cookieStates.put(cookieState.cookieStateParam.value(), cookieState);
-	}
-//	public Map<String,CookieState> getCookieStates()
-//	{
-//		return this.cookieStates;
-//	}
-//	public ObjectBox getCookieState(String name)
-//	{
-//		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
-//		for (int i=0;i<infos.length;i++)
-//		{
-//			ParameterInfo info=infos[i];
-//			if ((info.getAnnotation() instanceof CookieStateParam)&&(info.getName().equals(name)))
-//			{
-//				return new ObjectBox(this.filterChain.parameters[i]);
-//			}
-//		}
-//		return null;
-//	}
     @SuppressWarnings("unchecked")
     public <OBJECT> OBJECT  getCookieState(String name)
     {

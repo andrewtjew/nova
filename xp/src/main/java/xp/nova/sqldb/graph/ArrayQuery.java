@@ -5,86 +5,46 @@ import java.util.HashMap;
 
 import org.nova.utils.TypeUtils;
 
-public class Query
+public class ArrayQuery
 {
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
 
-    String expression;
     Object[] parameters;
-    String orderBy;
-    Integer limit;
-    Integer offset;
+    Integer startIndex;
+    Integer endIndex;
     
     private ArrayList<LinkQuery> linkQueries;
 
-    public Query()
+    public ArrayQuery()
     {
     }
-    public Query where(String expression)
-    {
-        this.expression=expression;
-        return this;
-    }
-    public Query orderBy(String orderBy)
-    {
-        return orderBy(orderBy,false);
-    }
-    public Query orderBy(Class<? extends NodeObject> nodeType,boolean descending)
-    {
-        return orderBy(nodeType.getSimpleName()+"._nodeId",descending);
-    }
-    public Query orderBy(Class<? extends NodeObject> nodeType)
-    {
-        return orderBy(nodeType,false);
-    }
-    public Query orderBy(String orderBy,boolean descending)
-    {
-        if (descending)
-        {
-            this.orderBy=orderBy+" DESC";
-        }
-        else
-        {
-            this.orderBy=orderBy;
-        }
-        return this;
-    }
-    public Query limit(int limit)
-    {
-        this.limit=limit;
-        return this;
-    }
-    public Query limit(int limit,int offset)
-    {
-        this.limit=limit;
-        this.offset=offset;
-        return this;
-    }
-
-    public Query where(String expression, Object... parameters)
-    {
-        GraphAccessor.translateParameters(parameters);
-        this.parameters=parameters;
-        this.expression=expression;
-        return this;
-    }
-    
     @SafeVarargs
-    final public Query select(Class<? extends NodeObject>... nodeTypes)
+    final public ArrayQuery select(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
+    final public ArrayQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
         return this;
     }
 
-    public Query traverse(LinkQuery linkQuery)
+    public ArrayQuery start(Integer index)
+    {
+        this.startIndex=index;
+        return this;
+    }
+    public ArrayQuery end(Integer index)
+    {
+        this.endIndex=index;
+        return this;
+    }
+
+    public ArrayQuery traverse(LinkQuery linkQuery)
     {
         if (this.linkQueries == null)
         {
@@ -190,34 +150,6 @@ public class Query
                 break;
             }
 
-//            if (linkQuery.selectLink)
-//            {
-//                String on = " ON " + linkAlias + ".nodeId=";
-//                Class<? extends NodeObject> type = LinkObject.class;
-//                GraphObjectDescriptor descriptor = state.graph.register(type);
-//                state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
-//                String typeName = descriptor.getTypeName();
-//                String table = descriptor.getTableName();
-//
-//                String as=" ";
-//                String alias=table;
-//                if (linkQuery.linkNamespace!=null)
-//                {
-//                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
-//                    as=" AS "+alias+" ";
-//                }
-//
-//                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
-//                {
-//                    String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
-//                    String tableColumnName = columnAccessor.getColumnName(linkAlias);
-//                    if (state.select.length()>0)
-//                    {
-//                        state.select.append(',');
-//                    }
-//                    state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
-//                }
-//            }
             if (linkQuery.linkTypes != null)
             {
                 String on = " ON " + linkAlias + ".nodeId=";
@@ -361,107 +293,6 @@ public class Query
         }
     }
 
-    static class PreparedQuery
-    {
-        String sql;
-        String start;
-        String orderBy;
-        String countSql;
-        String limit;
-        Object[] parameters;
-        HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
-        
-        @Override
-        public final int hashCode()
-        {
-            int code=sql.hashCode();
-            if (start!=null)
-            {
-                code+=start.hashCode();
-            }
-            if (orderBy!=null)
-            {
-                code+=orderBy.hashCode();
-            }
-            if (countSql!=null)
-            {
-                code+=countSql.hashCode();
-            }
-            if (limit!=null)
-            {
-                code+=limit.hashCode();
-            }
-            if (parameters!=null)
-            {
-                for (Object parameter:this.parameters)
-                {
-                    if (parameter!=null)
-                    {
-                        code+=parameter.hashCode();
-                    }
-                }
-            }
-            return code;
-        }
-        @Override
-        public boolean equals(Object o) 
-        {
-            if (o == this)
-            {
-                return true;
-            }
-            if (!(o instanceof PreparedQuery))
-            {
-                return false;
-            }
-            
-            PreparedQuery other = (PreparedQuery) o;
-            if (TypeUtils.equals(this.sql,other.sql)==false)
-            {
-                return false;
-            }
-            if (TypeUtils.equals(this.start,other.start)==false)
-            {
-                return false;
-            }
-            if (TypeUtils.equals(this.orderBy,other.orderBy)==false)
-            {
-                return false;
-            }
-            if (TypeUtils.equals(this.countSql,other.countSql)==false)
-            {
-                return false;
-            }
-            if (TypeUtils.equals(this.limit,other.limit)==false)
-            {
-                return false;
-            }
-            if ((this.parameters!=null)&&(other.parameters==null))
-            {
-                return false;
-            }
-            if ((this.parameters==null)&&(other.parameters!=null))
-            {
-                return false;
-            }
-            if ((this.parameters!=null)&&(other.parameters!=null))
-            {
-                if (this.parameters.length!=other.parameters.length)
-                {
-                    return false;
-                }
-                for (int i=0;i<this.parameters.length;i++)
-                {
-                    if (this.parameters[i]!=other.parameters[i])
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }        
-    }
-    
     PreparedQuery preparedQuery=null;
     
     public PreparedQuery build(Graph graph) throws Throwable
@@ -478,16 +309,16 @@ public class Query
         String on=null;
         if (on==null)
         {
-            if (this.expression==null)
-            {
-                preparedQuery.start=" WHERE _node.id=";
-            }
-            else
-            {
-                preparedQuery.start=" AND _node.id=";
-            }
-            on=" ON _node.id=";
-            sources.append(" _node");
+//            if (this.expression==null)
+//            {
+//                preparedQuery.start=" WHERE _node.id=";
+//            }
+//            else
+//            {
+//                preparedQuery.start=" AND _node.id=";
+//            }
+//            on=" ON _node.id=";
+//            sources.append(" _node");
         }
         
         if (this.nodeTypes != null)
@@ -541,30 +372,15 @@ public class Query
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
         preparedQuery.countSql="SELECT count(*) FROM" + sources;
 
-        if (this.expression!=null)
-        {
-            query.append(" WHERE ("+this.expression+")");
-        }
-        if (list.size()>0)
-        {
-            preparedQuery.parameters=list.toArray(new Object[list.size()]);
-        }
+//        if (this.expression!=null)
+//        {
+//            query.append(" WHERE ("+this.expression+")");
+//        }
+//        if (list.size()>0)
+//        {
+//            preparedQuery.parameters=list.toArray(new Object[list.size()]);
+//        }
         preparedQuery.sql=query.toString();
-        if (this.orderBy!=null)
-        {
-            preparedQuery.orderBy=" ORDER BY "+this.orderBy;
-        }
-        if (this.limit!=null)
-        {
-            if (this.offset!=null)
-            {
-                preparedQuery.limit=" LIMIT "+this.limit+" OFFSET "+this.offset;
-            }
-            else
-            {
-                preparedQuery.limit=" LIMIT "+this.limit;
-            }
-        }
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }
@@ -586,12 +402,12 @@ public class Query
         {
             return true;
         }
-        if (!(o instanceof Query))
+        if (!(o instanceof ArrayQuery))
         {
             return false;
         }
         
-        Query other = (Query) o;
+        ArrayQuery other = (ArrayQuery) o;
         if (other.preparedQuery==null)
         {
             throw new RuntimeException();

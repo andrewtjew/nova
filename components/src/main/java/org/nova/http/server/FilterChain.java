@@ -461,7 +461,6 @@ public class FilterChain
                     CookieStateParam cookieStateParam=(CookieStateParam)parameterInfo.getAnnotation();
                     CookieState cookieState=new CookieState(cookieStateParam,parameterInfo,object);
                     this.parameters[i]=object;
-                    context.setCookieState(cookieState);
                 }
                 catch (Throwable t)
                 {
