@@ -3387,9 +3387,9 @@ public class ServerOperatorPages
             case QUERY:
                 queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
                 break;
-            case SECURE_QUERY:
-                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
-                break;                
+//            case SECURE_QUERY:
+//                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
+//                break;                
             }
         }
 
@@ -3667,10 +3667,10 @@ public class ServerOperatorPages
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
             ParameterSource source=info.getSource();
-            if (source==ParameterSource.SECURE_QUERY)
-            {
-                source=ParameterSource.QUERY;
-            }
+//            if (source==ParameterSource.SECURE_QUERY)
+//            {
+//                source=ParameterSource.QUERY;
+//            }
             return source == filter;
         }).count() == 0)
         {
@@ -3685,10 +3685,10 @@ public class ServerOperatorPages
         for (ParameterInfo info : handler.getParameterInfos())
         {
             ParameterSource source=info.getSource();
-            if (source==ParameterSource.SECURE_QUERY)
-            {
-                source=ParameterSource.QUERY;
-            }
+//            if (source==ParameterSource.SECURE_QUERY)
+//            {
+//                source=ParameterSource.QUERY;
+//            }
             if (source == filter)
             {
                 Parameter parameter = method.getParameters()[info.getIndex()];

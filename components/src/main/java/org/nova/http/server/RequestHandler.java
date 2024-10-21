@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.nova.collections.RingBuffer;
+import org.nova.http.server.RequestHandlerMap.FragmentIndexMap;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
 
@@ -72,11 +73,14 @@ public class RequestHandler
     final private HashSet<String> hiddenParameters;
     final private long runtimeKey;
     
+    final private FragmentIndexMap fragmentIndexMap;
+    
     static private AtomicLong RUNTIME_KEY_GENERATOR=new AtomicLong();
     
 	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
         this.runtimeKey=RUNTIME_KEY_GENERATOR.getAndIncrement();
+        this.fragmentIndexMap=new FragmentIndexMap();
 	    Class<?> stateType=null;
 	    for (ParameterInfo info:parameterInfos)
 	    {
@@ -130,6 +134,12 @@ public class RequestHandler
         }
         this.test=annotations.test!=null;
    }
+	
+	public FragmentIndexMap getFragmentIndexMap()
+	{
+	    return this.fragmentIndexMap;
+	}
+	
 	public long getRunTimeKey()
 	{
 	    //It is not expected that this key will roll over as runtime RequestHandlers are not expected to be dynamic.

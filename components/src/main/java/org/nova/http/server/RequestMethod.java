@@ -202,20 +202,20 @@ public class RequestMethod
                         throw new AbnormalException(Abnormal.BAD_QUERY,t);
                     }
                     break;
-                case SECURE_QUERY:
-                    try
-                    {
-                        DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
-                        String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
-                        decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
-                        parameters[i]=FilterChain.parseParameter(parameterInfo,parameter);
-                        
-                    }
-                    catch (Throwable t)
-                    {
-                        throw new AbnormalException(Abnormal.BAD_QUERY,t);
-                    }
-                    break;
+//                case SECURE_QUERY:
+//                    try
+//                    {
+//                        DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
+//                        String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
+//                        decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
+//                        parameters[i]=FilterChain.parseParameter(parameterInfo,parameter);
+//                        
+//                    }
+//                    catch (Throwable t)
+//                    {
+//                        throw new AbnormalException(Abnormal.BAD_QUERY,t);
+//                    }
+//                    break;
                 case CONTEXT:
                     contextParameterIndex=i;
                     parameters[i]=context;

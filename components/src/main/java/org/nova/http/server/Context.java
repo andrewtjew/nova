@@ -40,7 +40,7 @@ import org.nova.utils.FileUtils;
 
 public class Context
 {
-	private RequestHandler requestHandler;
+	private RequestHandlerWithParameters requestHandler;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	private ContentReader contentReader;
@@ -54,7 +54,7 @@ public class Context
 	final private FilterChain filterChain;
 	private LocalTextResolver resolver;
 	
-	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandler requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
+	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandlerWithParameters requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
 	    this.filterChain=filterChain;
 		this.requestHandler=requestHandler;
@@ -82,12 +82,12 @@ public class Context
 	}
 	public RequestHandler getRequestHandler()
 	{
-		return requestHandler;
+		return requestHandler.requestHandler;
 	}
-	public void setRequestHandler(RequestHandler requestHandler)
-	{
-		this.requestHandler = requestHandler;
-	}
+//	public void setRequestHandler(RequestHandler requestHandler)
+//	{
+//		this.requestHandler = requestHandler;
+//	}
 	public HttpServletRequest getHttpServletRequest()
 	{
 		return httpServletRequest;
@@ -123,7 +123,7 @@ public class Context
     @SuppressWarnings("unchecked")
     public <OBJECT> OBJECT  getCookieState(String name)
     {
-        ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+        ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
         for (int i=0;i<infos.length;i++)
         {
             ParameterInfo info=infos[i];
@@ -138,7 +138,7 @@ public class Context
 	
 	public ObjectBox getQueryParameter(String name)
 	{
-		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+		ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
 		for (int i=0;i<infos.length;i++)
 		{
 			ParameterInfo info=infos[i];
@@ -151,7 +151,7 @@ public class Context
 	}
 	public ObjectBox getPathParameter(String name)
 	{
-		ParameterInfo[] infos=this.requestHandler.getParameterInfos();
+		ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
 		for (int i=0;i<infos.length;i++)
 		{
 			ParameterInfo info=infos[i];
@@ -162,6 +162,15 @@ public class Context
 		}
 		return null;
 	}
+    public String getPathParameterFragment(String name)
+    {
+        Integer index=this.requestHandler.requestHandler.getFragmentIndexMap().get(name);
+        if (index==null)
+        {
+            return null;
+        }
+        return this.requestHandler.parameters[index];
+    }
     public LocalTextResolver getLocalTextResolver()
     {
         return this.resolver;

@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ParamName;
+import org.nova.http.server.RequestHandlerMap.FragmentIndexMap;
 import org.nova.http.server.annotations.Attributes;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -64,24 +65,15 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
+import jcifs.dcerpc.msrpc.netdfs;
+
 //TODO!!! Resolve Consumes and ContentReaders just like produces and contentwriters
 
 class RequestHandlerMap
 {
-	static class Map extends HashMap<String, Node>
+	static class Map extends HashMap<String, PathNode>
 	{
 		private static final long serialVersionUID = -4908433415114984382L;
-	}
-
-	static class Node
-	{
-		final Map map;
-		RequestHandler requestHandler;
-
-		Node()
-		{
-			map = new Map();
-		}
 	}
 
 	final private Map patchMap;
@@ -905,7 +897,6 @@ class RequestHandlerMap
         }
 	    Filter[] bottomFilters=bottomHandlerFilters.toArray(new Filter[bottomHandlerFilters.size()]);
 	    Filter[] topFilters=topHandlerFilters.toArray(new Filter[topHandlerFilters.size()]);
-	    
         RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters
                 ,parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap
                 ,contentEncoderList.toArray(new ContentEncoder[contentEncoderList.size()]), contentReaderMap, contentWriterMap,
@@ -920,6 +911,10 @@ class RequestHandlerMap
         
 	}
 	
+	static public class FragmentIndexMap extends HashMap<String,Integer>
+	{
+        private static final long serialVersionUID = -3883360549423832556L;
+	}
 
 	void add(String method, String path, RequestHandler requestHandler) throws Exception
 	{
@@ -933,8 +928,8 @@ class RequestHandlerMap
 		{
 			throw new Exception("Path must start with root / character. Site=" + requestHandler.getMethod().getName());
 		}
-		Node node = null;
-		HashMap<String, Integer> indexMap = new HashMap<>();
+		PathNode node = null;
+		FragmentIndexMap indexMap = requestHandler.getFragmentIndexMap();
 		int index = 0;
 		for (int i = 1; i < fragments.length; i++)
 		{
@@ -964,7 +959,7 @@ class RequestHandlerMap
 			node = map.get(key);
 			if (node == null)
 			{
-				node = new Node();
+				node = new PathNode();
 				map.put(key, node);
 			}
 			if (PathParam.AT_LEAST_ONE_SEGMENT.equals(key))
@@ -973,13 +968,14 @@ class RequestHandlerMap
 			}
 			map = node.map;
 		}
-		if (node.requestHandler != null)
+		RequestHandler nodeRequestHandler=node.getRequestHandler();
+		if (nodeRequestHandler != null)
 		{
 
             if (requestHandler.getObject()!=null)
 		    {
     			throw new Exception(
-    			        "Path conflict with incompatible types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+    			        "Path conflict with incompatible types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestHandler=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
     							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
 		    }
 //            if (TypeUtils.isDerivedFrom(node.requestHandler.getMethod().getDeclaringClass(), requestHandler.getMethod().getDeclaringClass())==false)
@@ -988,10 +984,10 @@ class RequestHandlerMap
 //                        "Path conflict with incompatible state types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
 //                                 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
 //            }
-            if (node.requestHandler.getMethod().equals(requestHandler.getMethod())==false)
+            if (nodeRequestHandler.getMethod().equals(requestHandler.getMethod())==false)
             {
                 throw new Exception(
-                        "Path conflict types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
+                        "Path conflict types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestHandler=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
                                  +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
             }
             
@@ -1023,7 +1019,7 @@ class RequestHandlerMap
 			return null;
 		}
 		String[] fragments = Utils.split(path, '/');
-		Node node = null;
+		PathNode node = null;
 		String[] parameters = new String[fragments.length];
 		int index = 0;
 		for (int i = 1; i < fragments.length; i++)
@@ -1055,10 +1051,11 @@ class RequestHandlerMap
 			}
 			map = node.map;
 		}
-		if (node.requestHandler == null)
+		RequestHandler nodeRequestHander=node.getRequestHandler();
+		if (nodeRequestHander == null)
 		{
 			return null;
 		}
-		return new RequestHandlerWithParameters(node.requestHandler, parameters);
+		return new RequestHandlerWithParameters(nodeRequestHander, parameters);
 	}
 }

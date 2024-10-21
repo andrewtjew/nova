@@ -478,7 +478,7 @@ public class HttpServer
     		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, requesthandler))
     		        {
                         FilterChain chain = new FilterChain(requestHandlerWithParameters);
-                        Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters.requestHandler, servletRequest, servletResponse);
+                        Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters, servletRequest, servletResponse);
                         try 
             			{
             				context.setContentReader(findContentReader(servletRequest.getContentType(), requesthandler));

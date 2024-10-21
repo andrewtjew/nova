@@ -93,6 +93,28 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
+        if (Graph.DEBUG)
+        {
+            StringBuilder debug=new StringBuilder(sql);
+            if ((parameters!=null)&&(parameters.length>0))
+            {
+                debug.append("(");
+                for (int i=0;i<parameters.length;i++)
+                {
+                    if (i==0)
+                    {
+                        debug.append('(');
+                    }
+                    else
+                    {
+                        debug.append(',');
+                    }
+                    debug.append(parameters[i]);
+                }
+                debug.append(")");
+            }
+            Debugging.log(sql);
+        }
         if (parameters != null)
         {
             rowSet = accessor.executeQuery(parent, null,parameters, sql);
@@ -103,7 +125,7 @@ public class GraphAccessor implements AutoCloseable
         }
         if (Graph.DEBUG)
         {
-            Debugging.log("Graph",rowSet.size()+" rows from "+sql);
+            Debugging.log("Graph",rowSet.size());
         }
         
         return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
@@ -140,6 +162,10 @@ public class GraphAccessor implements AutoCloseable
         String typeName=elementType.getSimpleName();
         String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=?";
         RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId);
+        if (rowSet.size()==0)
+        {
+            return null;
+        }
         int largestArrayIndex=0;
         for (int i=0;i<rowSet.size();i++)
         {

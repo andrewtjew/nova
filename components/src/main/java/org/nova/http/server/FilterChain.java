@@ -516,20 +516,20 @@ public class FilterChain
                     throw new AbnormalException(Abnormal.BAD_QUERY,t);
                 }
                 break;
-            case SECURE_QUERY:
-                try
-                {
-                    DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
-                    String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
-                    decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
-                    parameters[i]=parseParameter(parameterInfo,parameter);
-                    
-                }
-                catch (Throwable t)
-                {
-                    throw new AbnormalException(Abnormal.BAD_QUERY,t);
-                }
-                break;
+//            case SECURE_QUERY:
+//                try
+//                {
+//                    DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
+//                    String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
+//                    decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
+//                    parameters[i]=parseParameter(parameterInfo,parameter);
+//                    
+//                }
+//                catch (Throwable t)
+//                {
+//                    throw new AbnormalException(Abnormal.BAD_QUERY,t);
+//                }
+//                break;
             case CONTEXT:
                 this.contentParameterIndex=i;
                 parameters[i]=context;

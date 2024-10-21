@@ -85,14 +85,14 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public <ELEMENT extends NodeObject> void createArray(NodeObject arrayObject,ELEMENT[] elements) throws Throwable
+    public <NODE extends NodeObject> void putArray(NodeObject arrayObject,NODE[] elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        deleteArray(arrayObject,(Class<ELEMENT>)elements.getClass().getComponentType());
+        deleteArray(arrayObject,(Class<NODE>)elements.getClass().getComponentType());
         for (int i=0;i<elements.length;i++)
         {
             NodeObject element=elements[i];
@@ -102,6 +102,23 @@ public class GraphTransaction implements AutoCloseable
                 Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
             }
         }
+    }
+
+    public void appendToArray(NodeObject arrayObject,NodeObject element) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        long elementId=createNode(element);
+        int index=0;
+        var row=Select.source("_array").columns("index").orderBy("index DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
+        if (row!=null)
+        {
+            index=row.getINTEGER(0)+1;
+        }
+        Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",index).execute(parent, this.accessor);
     }
     public int deleteArray(NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {
@@ -173,7 +190,25 @@ public class GraphTransaction implements AutoCloseable
             String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
             if (Graph.DEBUG)
             {
-                Debugging.log("Graph",sql);
+                StringBuilder sb=new StringBuilder(sql);
+                if (insertParameters.length>0)
+                {
+                    sb.append("(");
+                    for (int i=0;i<insertParameters.length;i++)
+                    {
+                        if (i==0)
+                        {
+                            sb.append('(');
+                        }
+                        else
+                        {
+                            sb.append(',');
+                        }
+                        sb.append(insertParameters[i]);
+                    }
+                    sb.append(")");
+                }
+                Debugging.log("Graph",sb.toString());
             }
             if (object instanceof IdentityNodeObject)
             {
@@ -187,11 +222,29 @@ public class GraphTransaction implements AutoCloseable
         else if (rowSet.size()==1)
         {
             String sql="UPDATE "+table+" SET "+update+" WHERE _nodeId=?";
-            accessor.executeUpdate(parent, null, sql, updateParameters);
             if (Graph.DEBUG)
             {
-                Debugging.log("Graph",sql);
+                StringBuilder sb=new StringBuilder(sql);
+                if (updateParameters.length>0)
+                {
+                    sb.append("(");
+                    for (int i=0;i<updateParameters.length;i++)
+                    {
+                        if (i==0)
+                        {
+                            sb.append('(');
+                        }
+                        else
+                        {
+                            sb.append(',');
+                        }
+                        sb.append(updateParameters[i]);
+                    }
+                    sb.append(")");
+                }
+                Debugging.log("Graph",sb.toString());
             }
+            accessor.executeUpdate(parent, null, sql, updateParameters);
         }
         else
         {
