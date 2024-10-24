@@ -43,8 +43,6 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.util.security.CertificateUtils;
 import org.nova.utils.FileUtils;
 import org.nova.utils.Utils;
 

@@ -21,13 +21,11 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.bootstrap.Modal;
 import org.nova.html.bootstrap.ModalBody;
 import org.nova.html.bootstrap.ModalContent;
 import org.nova.html.bootstrap.ModalDialog;
 import org.nova.html.bootstrap.ModalFooter;
 import org.nova.html.bootstrap.ModalHeader;
-import org.nova.html.elements.Composer;
 
 public class ModalDialogDocument extends ModalDialog
 {

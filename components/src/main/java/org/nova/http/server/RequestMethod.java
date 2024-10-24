@@ -10,7 +10,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.http.server.annotations.ContentReaders;
-import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;

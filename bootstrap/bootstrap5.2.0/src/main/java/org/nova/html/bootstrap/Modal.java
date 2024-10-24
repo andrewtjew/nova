@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Size;
 import org.nova.html.tags.script;
 
 public class Modal extends StyleComponent<Modal>

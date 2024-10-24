@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.nova.http.client;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
-import org.nova.core.NameString;
-import org.nova.html.ext.JsObject;
-import org.nova.json.ObjectMapper;
 import org.nova.security.QuerySecurity;
 
 //public class SessionPathAndQuery

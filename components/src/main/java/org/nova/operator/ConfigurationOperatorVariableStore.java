@@ -27,8 +27,6 @@ import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
 import org.nova.configuration.ConfigurationSource;
 import org.nova.operations.OperatorVariableStore;
-import org.nova.operations.ValidationResult;
-import org.nova.operations.Validation;
 import org.nova.operations.VariableInstance;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;

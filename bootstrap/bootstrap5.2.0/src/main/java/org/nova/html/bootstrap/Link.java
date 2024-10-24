@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.enums.target;
-import org.nova.html.tags.a;
 
 public class Link extends ButtonComponent<Link>
 {

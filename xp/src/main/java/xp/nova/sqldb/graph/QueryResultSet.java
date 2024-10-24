@@ -74,6 +74,56 @@ public class QueryResultSet
         return this.results[0].get((Class<OBJECT>)type);
     }
 
+    @Override
+    public boolean equals(Object o) 
+    {
+        if (o == this)
+        {
+            return true;
+        }
+        if (!(o instanceof QueryResultSet))
+        {
+            return false;
+        }
+        
+        QueryResultSet other = (QueryResultSet) o;
+        if (this.results.length!=other.results.length)
+        {
+            return false;
+        }
+        for (int i=0;i<this.results.length;i++)
+        {
+            var thisRow=this.results[i].row;
+            var otherRow=other.results[i].row;
+            if (thisRow.getColumns()!=otherRow.getColumns())
+            {
+                return false;
+            }
+            for (int j=0;j<thisRow.getColumns();j++)
+            {
+                Object thisObject=thisRow.getObjects()[j];
+                Object otherObject=otherRow.getObjects()[j];
+                
+                if ((thisObject==null)&&(otherObject==null))
+                {
+                    continue;
+                }
+                else if ((thisObject==null)&&(otherObject!=null))
+                {
+                    return false;
+                }
+                else if ((thisObject!=null)&&(otherObject==null))
+                {
+                    return false;
+                }
+                if (thisObject.equals(otherObject)==false)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }        
     
 }
 

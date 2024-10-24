@@ -1,37 +1,22 @@
 package org.nova.services;
 
-import static org.nova.services.DeviceSession.generateSecretKey;
-
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.nova.core.NameObject;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
-import org.nova.html.tags.sub;
-import org.nova.html.tags.time;
 import org.nova.http.server.Context;
-import org.nova.json.ObjectMapper;
-import org.nova.localization.CountryCode;
-import org.nova.localization.CurrencyCode;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
-import org.nova.tracing.Trace;
 
 
 public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity

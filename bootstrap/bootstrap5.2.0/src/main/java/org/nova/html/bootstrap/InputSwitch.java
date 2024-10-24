@@ -21,12 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Position;
-import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.InputType;
-import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.div;
 
 public class InputSwitch extends InputComponent<InputSwitch>
 {

@@ -1,21 +1,10 @@
 package org.nova.html.bootstrap.ext.input;
 
-import org.nova.html.bootstrap.Button;
-import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.InputNumber;
-import org.nova.html.bootstrap.InputPassword;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
-import org.nova.html.bootstrap.classes.Position;
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.ext.Content;
-import org.nova.html.ext.HtmlUtils;
 import org.nova.localization.CurrencyCode;
 
 public class InputCurrencyAmount extends InputNumber

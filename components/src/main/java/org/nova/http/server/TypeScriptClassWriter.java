@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.nova.annotations.Description;
-import org.nova.frameworks.InteropTarget;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 

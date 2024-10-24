@@ -6,8 +6,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
-import java.util.Queue;
-
 import org.nova.concurrent.Synchronization;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;

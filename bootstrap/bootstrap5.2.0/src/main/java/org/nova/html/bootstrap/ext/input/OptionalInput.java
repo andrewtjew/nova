@@ -1,22 +1,13 @@
 package org.nova.html.bootstrap.ext.input;
 
-import java.time.LocalDate;
-
 import org.nova.html.bootstrap.InputCheckbox;
 import org.nova.html.bootstrap.InputComponent;
-import org.nova.html.bootstrap.InputSwitch;
-import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
-import org.nova.html.bootstrap.Select;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.option;
-import org.nova.localization.CountryCode;
-import org.nova.localization.CurrencyCode;
-import org.nova.utils.TypeUtils;
 
 public class OptionalInput<INPUT extends InputComponent<?>> extends Item
 {

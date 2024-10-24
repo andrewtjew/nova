@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
 import org.nova.html.enums.character_set;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.enums.link_rel;
@@ -30,9 +28,6 @@ import org.nova.html.enums.name;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.DocType;
-import org.nova.html.ext.Head;
-import org.nova.html.tags.body;
-import org.nova.html.tags.html;
 import org.nova.html.tags.link;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.script;

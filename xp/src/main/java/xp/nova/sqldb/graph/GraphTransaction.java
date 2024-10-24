@@ -3,15 +3,12 @@ package xp.nova.sqldb.graph;
 import java.sql.Timestamp;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Insert;
-import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
-
-import xp.nova.sqldb.graph.Query.PreparedQuery;
 
 public class GraphTransaction implements AutoCloseable
 {
@@ -113,7 +110,7 @@ public class GraphTransaction implements AutoCloseable
         }
         long elementId=createNode(element);
         int index=0;
-        var row=Select.source("_array").columns("index").orderBy("index DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
+        var row=Select.source("_array").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
         if (row!=null)
         {
             index=row.getINTEGER(0)+1;

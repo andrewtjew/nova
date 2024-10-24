@@ -3,10 +3,8 @@ package org.nova.html.remote;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
-import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
 //Use this to populate content by calling back to server.

@@ -10,7 +10,6 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Text;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>

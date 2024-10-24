@@ -9,7 +9,6 @@ import org.nova.html.attributes.border_style;
 import org.nova.html.attributes.unit;
 import org.nova.html.attributes.BorderStyleRect;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.tags.style;
 
 public class Spinner extends GlobalEventTagElement<Spinner> 
 {

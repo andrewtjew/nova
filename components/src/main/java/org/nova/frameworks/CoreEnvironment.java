@@ -29,7 +29,6 @@ import org.nova.concurrent.TimerScheduler;
 import org.nova.configuration.Configuration;
 import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
-import org.nova.http.server.FileCache;
 import org.nova.logging.ConsoleWriter;
 import org.nova.logging.HighPerformanceLogger;
 import org.nova.logging.HighPerformanceConfiguration;

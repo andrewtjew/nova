@@ -21,10 +21,8 @@
  ******************************************************************************/
 package org.nova.http.client;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.nova.html.ext.JsObject;
 import org.nova.json.ObjectMapper;
 
 public class PathAndQuery
