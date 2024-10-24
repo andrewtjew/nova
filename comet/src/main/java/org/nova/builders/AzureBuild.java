@@ -79,8 +79,8 @@ public class AzureBuild extends Script
                 CometUtils.exec("c:\\dependencies\\nova\\components","mvn clean install");
                 CometUtils.exec("c:\\dependencies\\nova\\services","mvn clean install");
                 CometUtils.exec("c:\\dependencies\\nova\\bootstrap\\bootstrap"+bootstrapVersion,"mvn clean install");
-                CometUtils.exec(libDir+"messaging","mvn clean install");
-                CometUtils.exec(libDir+"common","mvn clean install");
+//                CometUtils.exec(libDir+"messaging","mvn clean install");
+//                CometUtils.exec(libDir+"common","mvn clean install");
                 CometUtils.exec(libDir+"common-ui-bootstrap"+bootstrapVersion,"mvn clean install");
             }
             CometUtils.deleteFile(destDir);

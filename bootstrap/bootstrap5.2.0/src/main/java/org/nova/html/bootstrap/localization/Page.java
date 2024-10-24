@@ -1,6 +1,3 @@
-/*******************************************************************************
- * Talisman Kore © 2017 Evolve Softworks
- *******************************************************************************/
 package org.nova.html.bootstrap.localization;
 
 import org.nova.html.bootstrap.BootStrapPage;

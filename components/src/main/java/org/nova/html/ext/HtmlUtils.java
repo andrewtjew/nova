@@ -454,6 +454,10 @@ public class HtmlUtils
     {
         return "document.getElementById(\""+id+"\").classList.remove("+"'"+class_+"')";
     }  
+    public static String js_style(String id,String style,String value)
+    {
+        return "document.getElementById(\""+id+"\").style."+style+"="+"'"+value+"'";
+    }  
     public static String js_classList_add(TagElement<?> element,String class_)
     {
         return js_classList_add(element.id(), class_);
@@ -471,24 +475,6 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').getAttribute('"+attribute+"')";
     }  
-//    public static String js_call(String id,String function,Object...parameters)
-//    {
-//        return js_call("document.getElementById('"+id+"')."+function,parameters);
-//    }  
-    
-//    public static String js_elementCall(String id,String function,Object...parameters)
-//    {
-//        return js_call("document.getElementById('"+id+"')."+function,parameters);
-//    }  
-//    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
-//    {
-//        return js_elementCall(element.id(), function, parameters);
-//    }  
-//    public static String js_call(TagElement<?> element,String function,Object...parameters)
-//    {
-//        return js_call(element.id(), function, parameters);
-//    }  
-    
     public static String js_jqueryCall(String id,String function,Object...parameters)
     {
         return js_call("$","#"+id)+"."+js_call(function,parameters);
