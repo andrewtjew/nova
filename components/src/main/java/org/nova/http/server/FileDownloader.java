@@ -158,24 +158,18 @@ public class FileDownloader extends ServletHandler
             byte[] bytes=this.cache.getValueFromCache(key);
             if (bytes!=null)
             {
-                if (Debugging.ENABLE)
+                if (Debugging.ENABLE && DEBUG)
                 {
-                    if (DEBUG)
-                    {
-                        Debugging.log("FileDownloadHandler:cache="+filePath);
-                    }
+                    Debugging.log("FileDownloadHandler:cache="+filePath);
                 }
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);
                 return true;
             }
         }
-        if (Debugging.ENABLE)
+        if (Debugging.ENABLE && DEBUG)
         {
-            if (DEBUG)
-            {
-                Debugging.log("FileDownloadHandler:load="+filePath);
-            }
+            Debugging.log("FileDownloadHandler:load="+filePath);
         }
         
         

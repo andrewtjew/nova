@@ -156,7 +156,7 @@ public class ArrayQuery
                 for (int i = 0; i < linkQuery.linkTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.linkTypes[i];
-                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
                     state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
@@ -326,7 +326,7 @@ public class ArrayQuery
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
-                GraphObjectDescriptor descriptor = graph.register(type);
+                GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();

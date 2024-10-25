@@ -27,7 +27,7 @@ public abstract class Debugging
 
     private static Debugging DEBUGGING=new ConsoleOutTesting();
 
-    final public static boolean ENABLE=true;
+    final public static boolean ENABLE=false;
     
     public static void set(Debugging debuging)
     {
@@ -36,13 +36,13 @@ public abstract class Debugging
     
     public static void log(Object object)
     {
-        DEBUGGING._log(LogLevel.INFO,null,object);
+        DEBUGGING._log(LogLevel.INFO,"DEBUG",object);
     }
     public static void log(String category,Object object)
     {
         DEBUGGING._log(LogLevel.INFO,category,object);
     }
-    public static void log(LogLevel logLevel,String category,Object object)
+    public static void log(String category,Object object,LogLevel logLevel)
     {
         DEBUGGING._log(logLevel,category,object);
     }

@@ -6,6 +6,7 @@ import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
+import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 
 import xp.nova.sqldb.graph.Query.PreparedQuery;
@@ -61,6 +62,7 @@ public class GraphAccessor implements AutoCloseable
             }
         }
     }
+    
     public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
@@ -76,6 +78,38 @@ public class GraphAccessor implements AutoCloseable
         {
             translateParameters(parameters);
         }
+        QueryKey key=new QueryKey(startNodeId, query, parameters);
+        var valueSize=this.graph.getFromCache(key);
+        if (valueSize!=null)
+        {
+            if (Debugging.ENABLE && Graph.DEBUG)
+            {
+                QueryResultSet queryResultSet=execute(parent, preparedQuery,parameters,startNodeId,query);
+                if (queryResultSet.equals(valueSize.value())==false)
+                {
+                    throw new Exception();
+                }
+                Debugging.log("Graph","cache hit");
+            }
+            
+            return valueSize.value();
+        }
+        try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
+        {
+            QueryResultSet queryResultSet=execute(trace, preparedQuery,parameters,startNodeId,query);
+            if (Debugging.ENABLE && Graph.DEBUG)
+            {
+                Debugging.log("Graph","cache miss",LogLevel.WARNING);
+            }
+            trace.close();
+            long duration=trace.getDurationMs();
+            this.graph.updateCache(parent, key, queryResultSet,duration);
+            return queryResultSet;
+        }
+    }        
+        
+    public QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId,Query query) throws Throwable
+    {
         StringBuilder sb=new StringBuilder(preparedQuery.sql);
         if (startNodeId!=null)
         {
@@ -91,7 +125,7 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (Graph.DEBUG)
+        if (Debugging.ENABLE && Graph.DEBUG)
         {
             StringBuilder debug=new StringBuilder(sql);
             if ((parameters!=null)&&(parameters.length>0))
@@ -111,7 +145,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log(sql);
+            Debugging.log("GraphAccessor",sql);
         }
         if (parameters != null)
         {
@@ -121,9 +155,9 @@ public class GraphAccessor implements AutoCloseable
         {
             rowSet = accessor.executeQuery(parent, null, sql);
         }
-        if (Graph.DEBUG)
+        if (Debugging.ENABLE && Graph.DEBUG)
         {
-            Debugging.log("Graph",rowSet.size());
+            Debugging.log("GraphAccessor",rowSet.size());
         }
         
         return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
@@ -134,11 +168,6 @@ public class GraphAccessor implements AutoCloseable
     }
     public QueryResultSet execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
     {
-        PreparedQuery preparedQuery=query.build(this.graph);
-//        if (preparedQuery.startType!=startNodeObject.getClass())
-//        {
-//            throw new Exception("Expected="+preparedQuery.startType.getName()+", actual="+startNodeObject.getClass().getName());
-//        }
         return execute(parent,parameters,startNodeObject.getNodeId(),query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
@@ -174,7 +203,7 @@ public class GraphAccessor implements AutoCloseable
                 largestArrayIndex=index;
             }
         }
-        GraphObjectDescriptor descriptor=this.graph.register(elementType);
+        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
         Object array=Array.newInstance(elementType,largestArrayIndex+1);
         for (int i=0;i<rowSet.size();i++)
         {
@@ -204,7 +233,7 @@ public class GraphAccessor implements AutoCloseable
         {
             return null;
         }
-        GraphObjectDescriptor descriptor=this.graph.register(elementType);
+        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
         Row row=rowSet.getRow(0);
         NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
         for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())

@@ -224,7 +224,7 @@ public class Query
                 for (int i = 0; i < linkQuery.linkTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.linkTypes[i];
-                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
                     state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
@@ -361,7 +361,7 @@ public class Query
         }
     }
 
-    static class PreparedQuery
+    public static class PreparedQuery
     {
         String sql;
         String start;
@@ -370,6 +370,22 @@ public class Query
         String limit;
         Object[] parameters;
         HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
+    
+        public String getSql()
+        {
+            StringBuilder sb=new StringBuilder(sql);
+            if (orderBy!=null)
+            {
+                sb.append(' ');
+                sb.append(orderBy);
+            }
+            if (limit!=null)
+            {
+                sb.append(' ');
+                sb.append(limit);
+            }
+            return sb.toString();
+        }
         
         @Override
         public final int hashCode()
@@ -495,7 +511,7 @@ public class Query
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
-                GraphObjectDescriptor descriptor = graph.register(type);
+                GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();

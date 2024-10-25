@@ -237,6 +237,18 @@ public class ServerOperatorPages
         }
     }
 
+    static public class ClipTitleText extends td
+    {
+        public ClipTitleText(String text)
+        {
+            this.style("width:300px;");
+             div div=this.returnAddInner(new div()).addInner(text);
+             div.style("overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:300px;");
+             div.title(text);
+            this.onclick(HtmlUtils.js_writeTextToClipboard(text));
+        }
+    }
+
     static public class WideTable extends Table
     {
         public WideTable(Head head)
@@ -1372,12 +1384,12 @@ public class ServerOperatorPages
     }
     */
     
-    static String format_3(double value)
+    public static String format_3(double value)
     {
         return String.format("%.3f", value);
     }
     
-    static String format_2(double value)
+    public static String format_2(double value)
     {
         return String.format("%.2f", value);
     }
@@ -1451,7 +1463,7 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
    //         row.add("&#128462;");
-            row.add(new TitleText(sample.getCategory(),80));
+            row.add(new ClipTitleText(sample.getCategory()));
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1938,7 +1950,7 @@ public class ServerOperatorPages
         header.add(new th_title("Ct","Sample count"));
 
         header.add(new th_title(new LiteralHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Ave0rage trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Average trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
