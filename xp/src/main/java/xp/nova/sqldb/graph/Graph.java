@@ -845,7 +845,7 @@ public class Graph
     private void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
     {
         if (accessor.executeQuery(parent,"existTable:"+tableName
-                ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_transaction",catalog).getRow(0).getBIGINT(0)==0)
+                ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",tableName,catalog).getRow(0).getBIGINT(0)==0)
         {
             accessor.executeUpdate(parent, "createTable:"+tableName,sql);
         }
