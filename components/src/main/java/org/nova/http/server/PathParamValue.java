@@ -1,7 +1,5 @@
 package org.nova.http.server;
 
-import org.nova.http.server.annotations.CookieStateParam;
-
 public class PathParamValue
 {
     final ParameterInfo parameterInfo;

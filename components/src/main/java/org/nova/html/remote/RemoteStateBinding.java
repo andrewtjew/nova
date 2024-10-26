@@ -1,8 +1,6 @@
 package org.nova.html.remote;
 
-import org.nova.html.elements.TagElement;
 import org.nova.http.server.Context;
-import org.nova.security.QuerySecurity;
 
 /* A page may contain per session remote element. A remote element bound to a server side state object.
  * The ssso is created by the application and it's lifetime is determined by the application. 

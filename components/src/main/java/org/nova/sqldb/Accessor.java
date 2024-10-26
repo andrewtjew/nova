@@ -52,7 +52,7 @@ public class Accessor extends Resource
     private StackTraceElement[] retireStackTrace;
     private String connectionCatalog;
 	
-    Accessor(Pool<Accessor> pool, Connector connector, long connectionIdleTimeoutMs)
+    Accessor(Pool<Accessor> pool, Connector connector, long connectionIdleTimeoutMs) throws Throwable
 	{
 		super(pool);
 		this.connectionIdleTimeoutMs = connectionIdleTimeoutMs;
@@ -69,7 +69,6 @@ public class Accessor extends Resource
         }
     }
 	
-
 	public Transaction beginTransaction(String traceCategory) throws Throwable
 	{
 		synchronized (this)

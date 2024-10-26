@@ -64,13 +64,11 @@ import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.div;
-import org.nova.html.tags.em;
 import org.nova.html.tags.fieldset;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
-import org.nova.html.tags.i;
 import org.nova.html.tags.input_checkbox;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
@@ -129,7 +127,6 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.elements.NodeElement;
-import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.http_equiv;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Content;
@@ -168,10 +165,7 @@ import org.nova.html.operator.TableHeader;
 import org.nova.html.operator.TableRow;
 import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
-import org.nova.html.remote.RemoteForm;
-import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.remoting.Inputs;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -213,8 +207,6 @@ import org.nova.metrics.ThreadExecutionProfiler;
 import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
 import org.nova.operations.OperatorVariable;
-import org.nova.operations.Status;
-import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
 import org.nova.testing.Debugging;
@@ -242,6 +234,18 @@ public class ServerOperatorPages
         {
             super(head);
             this.lengthMenu(-1,20,30,40,50);
+        }
+    }
+
+    static public class ClipTitleText extends td
+    {
+        public ClipTitleText(String text)
+        {
+            this.style("width:300px;");
+             div div=this.returnAddInner(new div()).addInner(text);
+             div.style("overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:300px;");
+             div.title(text);
+            this.onclick(HtmlUtils.js_writeTextToClipboard(text));
         }
     }
 
@@ -1380,12 +1384,12 @@ public class ServerOperatorPages
     }
     */
     
-    static String format_3(double value)
+    public static String format_3(double value)
     {
         return String.format("%.3f", value);
     }
     
-    static String format_2(double value)
+    public static String format_2(double value)
     {
         return String.format("%.2f", value);
     }
@@ -1459,7 +1463,7 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
    //         row.add("&#128462;");
-            row.add(new TitleText(sample.getCategory(),80));
+            row.add(new ClipTitleText(sample.getCategory()));
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1946,7 +1950,7 @@ public class ServerOperatorPages
         header.add(new th_title("Ct","Sample count"));
 
         header.add(new th_title(new LiteralHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Ave0rage trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Average trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
@@ -5213,6 +5217,7 @@ public class ServerOperatorPages
                 }
                 else if (type==boolean.class)
                 {
+                    form.addInner(new InputHidden("checkbox",true));
                     row.add("","","");
                     row.add(input_td.addInner(new input_checkbox().name("value").checked((boolean)value)));
                     
@@ -5260,9 +5265,13 @@ public class ServerOperatorPages
 
     @POST
     @Path("/operator/variable")
-    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
+    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
     {
-        var validationResult=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
+        if (checkbox)
+        {
+            value=Boolean.toString(value==null?false:true);
+        }
+        var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
         context.seeOther("/operator/variables/modify");
     }
 

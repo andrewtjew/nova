@@ -2,8 +2,6 @@ package org.nova.loadTesting.sample;
 
 import java.util.Random;
 
-import org.nova.frameworks.ServerApplicationRunner;
-import org.nova.html.ext.Text;
 import org.nova.loadTesting.Actor;
 import org.nova.loadTesting.Actor.Act;
 import org.nova.loadTesting.LoadTestService;

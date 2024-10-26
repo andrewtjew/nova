@@ -23,7 +23,6 @@ package org.nova.html.elements;
 
 import java.util.Stack;
 
-import org.nova.html.ext.LocalText;
 import org.nova.localization.LocalTextResolver;
 
 public abstract class Composer

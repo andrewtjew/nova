@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.nova.http.client;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
-import org.nova.core.NameString;
-import org.nova.html.ext.JsObject;
-import org.nova.json.ObjectMapper;
 import org.nova.security.QuerySecurity;
 
 //public class SessionPathAndQuery
@@ -107,7 +100,6 @@ public class SecurePathAndQuery extends PathAndQuery
             }
             String path=pathAndQuery.substring(0,index+1);
             String query=pathAndQuery.substring(index+1);
-            System.out.println("Query="+query);
             return path+security.signQuery(query);
         }
         catch (Throwable t)

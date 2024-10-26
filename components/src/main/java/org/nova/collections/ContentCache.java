@@ -76,6 +76,10 @@ abstract public class ContentCache<KEY,VALUE>
             this.value=value;
             this.size=0;
         }
+        public VALUE value()
+        {
+            return this.value;
+        }
 	}
 
 	public ContentCache()
@@ -178,12 +182,9 @@ abstract public class ContentCache<KEY,VALUE>
                 remove(key);
             }
         }
-        if (Debugging.ENABLE)
+        if (Debugging.ENABLE && DEBUG)
         {
-            if (DEBUG)
-            {
-                Debugging.log("Cache miss:"+key+",size="+this.entries.size());
-            }
+            Debugging.log("Cache miss:"+key+",size="+this.entries.size());
         }
         this.misses.increment();
         return null;
@@ -197,12 +198,9 @@ abstract public class ContentCache<KEY,VALUE>
 		    return null;
 		}
 		VALUE value=put(parent,key,valueSize);
-        if (Debugging.ENABLE)
+        if (Debugging.ENABLE && DEBUG)
         {
-	        if (DEBUG)
-	        {
-	            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
-	        }
+            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
         }
         return value;
 	}
@@ -319,12 +317,9 @@ abstract public class ContentCache<KEY,VALUE>
 				node.next.previous=node.previous;
 			}
 			
-			if (Debugging.ENABLE)
+			if (Debugging.ENABLE && DEBUG)
 			{
-    	        if (DEBUG)
-    	        {
-    	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
-    	        }
+  	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
 			}
 			return node.valueSize.value;
 		}
@@ -381,7 +376,10 @@ abstract public class ContentCache<KEY,VALUE>
 	}
 	public Collection<Entry<KEY, VALUE>> getAllFromCache()
 	{
-	    return this.entries.values();
+	    synchronized(this)
+	    {
+	        return this.entries.values();
+	    }
 	}
 	
 	

@@ -1,11 +1,7 @@
 package org.nova.builders;
 
-import java.io.File;
-
 import org.nova.comet.CometUtils;
 import org.nova.comet.SshSession;
-
-import com.google.common.io.Files;
 
 public class AzureBuild extends Script
 {
@@ -83,8 +79,8 @@ public class AzureBuild extends Script
                 CometUtils.exec("c:\\dependencies\\nova\\components","mvn clean install");
                 CometUtils.exec("c:\\dependencies\\nova\\services","mvn clean install");
                 CometUtils.exec("c:\\dependencies\\nova\\bootstrap\\bootstrap"+bootstrapVersion,"mvn clean install");
-                CometUtils.exec(libDir+"messaging","mvn clean install");
-                CometUtils.exec(libDir+"common","mvn clean install");
+//                CometUtils.exec(libDir+"messaging","mvn clean install");
+//                CometUtils.exec(libDir+"common","mvn clean install");
                 CometUtils.exec(libDir+"common-ui-bootstrap"+bootstrapVersion,"mvn clean install");
             }
             CometUtils.deleteFile(destDir);

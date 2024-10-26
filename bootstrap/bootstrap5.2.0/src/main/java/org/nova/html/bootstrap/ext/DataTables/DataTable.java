@@ -29,7 +29,6 @@ import org.nova.html.bootstrap.TableHead;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
-import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.link;
@@ -41,8 +40,8 @@ public class DataTable  extends StyleComponent<DataTable>
     final private TableBody body;
     final private TableFoot footer;
     
-    public static script SCRIPT=new script().src("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.js");
-    public static link CSS=new link().rel(link_rel.stylesheet).type("text/css").href("https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.css");
+    public static script SCRIPT=new script().src("https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js");
+    public static link CSS=new link().rel(link_rel.stylesheet).href("https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css");
     
     final private DataTableOptions options;
 

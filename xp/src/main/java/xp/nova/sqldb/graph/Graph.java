@@ -2,25 +2,24 @@
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
 
+import org.nova.collections.ContentCache.ValueSize;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
+import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -585,8 +584,6 @@ public class Graph
         return this.connector;
     }
 
-    
-    
     protected GraphObjectDescriptor register(Class<? extends NodeObject> type) throws Exception
     {
         GraphObjectDescriptor descriptor=null;
@@ -655,25 +652,45 @@ public class Graph
         String simpleTypeName=type.getSimpleName();
         return descriptorMap.get(simpleTypeName);
     }
+    protected GraphObjectDescriptor getGraphObjectDescriptor(String simpleTypeName) throws Exception
+    {
+        return descriptorMap.get(simpleTypeName);
+    }
     
     
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
+    final PerformanceMonitor performanceMonitor;
+    final private String catalog;
+
+    private boolean caching;
+    final private QueryCache cache;
+    final private HashMap<String,HashSet<QueryKey>> cacheSets; 
     
-    public Graph(Connector connector)
+    
+    public Graph(Connector connector,String catalog,boolean caching,PerformanceMonitor performanceMonitor) throws Throwable
     {
+        this.caching=caching;
         this.connector=connector;
+        this.performanceMonitor=performanceMonitor;
+        this.catalog=catalog;
+        this.cache=new QueryCache();
+        this.cacheSets=new HashMap<String, HashSet<QueryKey>>();
     }
     
+    public String getCatalog()
+    {
+        return this.catalog;
+    }
     public Map<String,GraphObjectDescriptor> getGraphObjectDescriptorMap()
     {
         return this.descriptorMap;
     }
     
-    public GraphAccessor openGraphAcessor(Trace parent,String catalog) throws Throwable
+    public GraphAccessor openGraphAcessor(Trace parent) throws Throwable
     {
-        return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
+        return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
 
     public void setDebugUpgradeWatchType(Class<? extends NodeObject> debugUpgradeWatchType)
@@ -683,7 +700,7 @@ public class Graph
 
     Class<? extends NodeObject> debugUpgradeType;
 
-    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends NodeObject> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends NodeObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         GraphObjectDescriptor descriptor=this.register(type);
@@ -718,7 +735,7 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (DEBUG)
+            if (Debugging.ENABLE && DEBUG)
             {
                 Debugging.log("Graph",sql);
             }
@@ -732,7 +749,7 @@ public class Graph
             String after="_transactionId";
             Stack<String> alters=new Stack<String>();
 
-            if (Graph.DEBUG)
+            if (Debugging.ENABLE && DEBUG)
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
@@ -809,7 +826,7 @@ public class Graph
                         if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
-                            if (DEBUG)
+                            if (Debugging.ENABLE && DEBUG)
                             {
                                 Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
                             }
@@ -833,7 +850,7 @@ public class Graph
                     
                 }
                 sql.append(';');
-                if (DEBUG)
+                if (Debugging.ENABLE && DEBUG)
                 {
                     Debugging.log("Graph",sql);
                 }
@@ -852,7 +869,7 @@ public class Graph
         
     }
     
-    public void createCatalog(Trace parent,String catalog) throws Throwable
+    public void createCatalog(Trace parent) throws Throwable
     {
         try (Accessor accessor=this.connector.openAccessor(parent))
         {
@@ -861,7 +878,7 @@ public class Graph
                 accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE `"+catalog+'`');
             }
         }
-        try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))
+        try (Accessor accessor=this.connector.openAccessor(parent,null,this.getCatalog()))
         {
             createTable(parent,accessor,catalog,"_transaction"
                     ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
@@ -883,4 +900,90 @@ public class Graph
                         );
             }
     }
+    
+    ValueSize<QueryResultSet> getFromCache(QueryKey key) throws Throwable
+    {
+        synchronized(this)
+        {
+            if (caching==false)
+            {
+                return null;
+            }
+            return this.cache.getFromCache(key);
+        }
+    }
+    
+    void updateCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
+    {
+        this.performanceMonitor.updateSlowQuery(duration, key.query,getCatalog());
+        
+        synchronized(this)
+        {
+            if (caching==false)
+            {
+                return;
+            }
+            
+            int size=0;
+            for (var result:queryResultSet.results)
+            {
+                size+=result.row.getColumns();
+                for (var entry:result.map.entrySet())
+                {
+                    String name=entry.getValue().getTypeName();
+                    HashSet<QueryKey> set=this.cacheSets.get(name);
+                    if (set==null)
+                    {
+                        set=new HashSet<QueryKey>();
+                        this.cacheSets.put(name,set);
+                    }
+                    set.add(key);
+                }
+            }
+            this.cache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
+        }
+    }
+    void invalidateCacheLine(Trace parent,GraphObjectDescriptor...descriptors) throws Exception
+    {
+        synchronized(this)
+        {
+            if (caching==false)
+            {
+                return;
+            }
+            for (var descriptor:descriptors)
+            {
+                HashSet<QueryKey> set=this.cacheSets.get(descriptor.getTypeName());
+                for (var item:set)
+                {
+                    this.cache.remove(item);
+                }
+                set.clear();
+            }
+        }
+    }
+    public void clearCache()
+    {
+        synchronized(this)
+        {
+            this.cacheSets.clear();
+            this.cache.clear();
+        }
+    }
+    public void setCaching(boolean caching)
+    {
+        synchronized(this)
+        {
+            this.caching=caching;
+            if (caching==false)
+            {
+                clearCache();
+            }
+        }
+    }
+    public PerformanceMonitor getPerformanceCollector()
+    {
+        return this.performanceMonitor;
+    }
+    
 }

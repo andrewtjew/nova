@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.TipComponent.Delay;
-import org.nova.html.bootstrap.TipComponent.Options;
 import org.nova.html.bootstrap.classes.Boundary;
 import org.nova.html.bootstrap.classes.Placement;
 import org.nova.html.bootstrap.classes.Trigger;
@@ -30,7 +28,6 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.StringComposer;
-import org.nova.html.elements.TagElement;
 
 public class PopoverButton extends ButtonComponent<PopoverButton>
 {

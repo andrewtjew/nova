@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import java.util.Map.Entry;
 
-import org.nova.core.NameObject;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.div;
 

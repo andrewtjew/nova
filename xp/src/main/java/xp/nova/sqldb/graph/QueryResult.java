@@ -1,13 +1,11 @@
 package xp.nova.sqldb.graph;
 
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.nova.sqldb.Row;
 
 public class QueryResult
 {
-    final private Row row;
+    final Row row;
     final Map<String,GraphObjectDescriptor> map;
     
     QueryResult(Row row,Map<String,GraphObjectDescriptor> map) throws Exception

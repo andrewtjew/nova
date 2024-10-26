@@ -1,6 +1,5 @@
 package org.nova.html.bootstrap.ext.input;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class FormInputGroup12HoursFormatTime extends FormInput<InputGroup12HoursFormatTime>

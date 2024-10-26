@@ -32,14 +32,14 @@ public class VariableInstance
 	private final Object object;
 	private final Field field;
 	private long modified;
-	private final Validation validation;
-	VariableInstance(Validation validation,OperatorVariable variable,Object object,Field field) throws Throwable
+	private final Applicator applicator;
+	VariableInstance(Applicator applicator,OperatorVariable variable,Object object,Field field) throws Throwable
 	{
 		field.setAccessible(true);
 		this.variable=variable;
 		this.field=field;
 		this.object=object;
-		this.validation=validation;
+		this.applicator=applicator;
 	}
 	
 	void setOperatorVariable(OperatorVariable variable)
@@ -116,14 +116,14 @@ public class VariableInstance
         return value;
 	}
 	
-	public ValidationResult set(String valueText) throws Throwable
+	public ApplicationResult set(String valueText) throws Throwable
 	{
         Class<?> type = this.field.getType();
         Object value=parse(valueText);
         
         try
         {
-            ValidationResult result=this.validation.validate(this, value);
+            ApplicationResult result=this.applicator.apply(this, value);
             if (result.getStatus()!=Status.SUCCESS)
             {
                 return result;
@@ -132,7 +132,8 @@ public class VariableInstance
         }
         catch (Throwable t)
         {
-            return new ValidationResult(Status.VALIDATION_FAILED,null,t.getMessage());
+            t.printStackTrace();
+            return new ApplicationResult(Status.VALIDATION_FAILED,null,t.getMessage());
         }
                 
         
@@ -313,7 +314,7 @@ public class VariableInstance
                     int maximum = Integer.parseInt(variable.maximum());
                     if (typeValue > maximum)
                     {
-                        return new ValidationResult(Status.SET_FAILED,null,"Out of range: maximum="+maximum+", value="+typeValue);
+                        return new ApplicationResult(Status.SET_FAILED,null,"Out of range: maximum="+maximum+", value="+typeValue);
                     }
                 }
                 if (variable.minimum().length() > 0)
@@ -321,7 +322,7 @@ public class VariableInstance
                     int minimum = Integer.parseInt(variable.minimum());
                     if (typeValue < minimum)
                     {
-                        return new ValidationResult(Status.SET_FAILED,null,"Out of range: minimum="+minimum+", value="+typeValue);
+                        return new ApplicationResult(Status.SET_FAILED,null,"Out of range: minimum="+minimum+", value="+typeValue);
                     }
                 }
                 ((AtomicInteger) this.field.get(this.object)).set(typeValue);
@@ -337,7 +338,7 @@ public class VariableInstance
                     long maximum = Long.parseLong(variable.maximum());
                     if (typeValue > maximum)
                     {
-                        return new ValidationResult(Status.SET_FAILED,null,"Out of range: maximum="+maximum+", value="+typeValue);
+                        return new ApplicationResult(Status.SET_FAILED,null,"Out of range: maximum="+maximum+", value="+typeValue);
                     }
                 }
                 if (variable.minimum().length() > 0)
@@ -345,14 +346,14 @@ public class VariableInstance
                     long minimum = Long.parseLong(variable.minimum());
                     if (typeValue < minimum)
                     {
-                        return new ValidationResult(Status.SET_FAILED,null,"Out of range: minimum="+minimum+", value="+typeValue);
+                        return new ApplicationResult(Status.SET_FAILED,null,"Out of range: minimum="+minimum+", value="+typeValue);
                     }
                 }
                 ((AtomicLong) this.field.get(this.object)).set(typeValue);
             }
         }
         this.modified=System.currentTimeMillis();
-        return new ValidationResult(Status.SUCCESS);
+        return new ApplicationResult(Status.SUCCESS);
 	}
 	@SuppressWarnings("unchecked")
 	public void setEnumValue(String value) throws Throwable

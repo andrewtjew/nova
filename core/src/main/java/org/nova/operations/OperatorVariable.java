@@ -36,5 +36,5 @@ public @interface OperatorVariable
 	String maximum() default "";
     String[] options() default "";
 	String alias() default "";
-	Class<? extends Validation> validation() default NullValidation.class;
+	Class<? extends Applicator> applicator() default DefaultApplicator.class;
 }

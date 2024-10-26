@@ -5,10 +5,8 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.enums.enctype;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
-import org.nova.html.tags.form;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.client.SecurePathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -17,7 +15,6 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
-import org.nova.security.QuerySecurity;
 import org.nova.services.DeviceSessionFilter;
 
 @ContentWriters(RemoteResponseWriter.class)
@@ -45,10 +42,6 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         pathAndQuery.addQuery(binding.getStateKey(),id());
         return Remote.js_postStatic(pathAndQuery.toString());
     }
-//    public String js_post(form form) throws Throwable
-//    {
-//        return js_post(form,form.action());
-//    }
     public String js_post(FormElement<?> form,PathAndQuery pathAndQuery) throws Throwable
     {
         pathAndQuery.addQuery(binding.getStateKey(),id());

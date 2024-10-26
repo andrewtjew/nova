@@ -19,16 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.validation;
+package org.nova.operations;
 
-public enum Violation
+public class DefaultApplicator extends Applicator
 {
-    REQUIRED,
-    MIN,
-    MAX,
-    MIN_LENGTH,
-    MAX_LENGTH,
-    PATTERN,
-    OPTIONS,
-    OTHER,
+    @Override
+    public ApplicationResult apply(VariableInstance instance, Object value) throws Throwable
+    {
+        return new ApplicationResult(value);
+    }
 }

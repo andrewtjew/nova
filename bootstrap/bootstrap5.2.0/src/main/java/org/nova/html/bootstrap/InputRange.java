@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
-import org.nova.html.enums.autocomplete;
 
 public class InputRange extends InputComponent<InputRange>
 {

@@ -21,26 +21,26 @@
  ******************************************************************************/
 package org.nova.operations;
 
-public class ValidationResult
+public class ApplicationResult
 {
     final Object result;
     final Status status;
     final String message;
-    public ValidationResult(Status status,Object result,String message)
+    public ApplicationResult(Status status,Object result,String message)
     {
         this.status=status;
         this.result=result;
         this.message=message;
     }
-    public ValidationResult()
+    public ApplicationResult()
     {
         this(Status.SUCCESS,null,null);
     }
-    public ValidationResult(Object result)
+    public ApplicationResult(Object result)
     {
         this(Status.SUCCESS,result,null);
     }
-    public ValidationResult(String message)
+    public ApplicationResult(String message)
     {
         this(Status.VALIDATION_FAILED,null,message);
     }

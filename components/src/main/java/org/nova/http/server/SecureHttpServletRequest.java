@@ -2,8 +2,6 @@ package org.nova.http.server;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 

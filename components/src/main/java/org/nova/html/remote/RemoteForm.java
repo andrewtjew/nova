@@ -6,7 +6,6 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
-import org.nova.http.client.PathAndQuery;
 import org.nova.html.enums.enctype;
 
 public class RemoteForm extends FormElement<RemoteForm> 

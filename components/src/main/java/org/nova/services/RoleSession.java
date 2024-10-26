@@ -29,12 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.nova.core.NameObject;
-import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.http.server.RequestHandler;
 import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public abstract class RoleSession <ROLE extends Enum> extends Session

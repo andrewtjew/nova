@@ -3,7 +3,6 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.Text;
-import org.nova.html.bootstrap.ext.Icon;
 
 public class CancelButton extends Button 
 {

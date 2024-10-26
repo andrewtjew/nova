@@ -22,14 +22,11 @@
 package org.nova.html.elements;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.nova.core.NameObject;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
 import org.nova.testing.Debugging;

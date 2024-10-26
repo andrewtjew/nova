@@ -31,16 +31,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nova.annotations.Alias;
 import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
 
 public class ObjectMapper
 {

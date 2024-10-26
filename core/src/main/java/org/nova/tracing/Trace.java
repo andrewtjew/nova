@@ -251,6 +251,10 @@ public class Trace implements AutoCloseable
 			return this.duration;
 		}
 	}
+    public long getDurationMs()
+    {
+        return getDurationNs()/1000000;
+    }
 	public long getActiveNs()
 	{
 		synchronized(this)

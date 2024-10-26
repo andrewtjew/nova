@@ -12,9 +12,7 @@ import org.nova.html.attributes.overflow;
 import org.nova.html.attributes.position;
 import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.QuotationMark;
 import org.nova.html.tags.div;
-import org.nova.html.tags.script;
 import org.nova.html.tags.style;
 
 public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>

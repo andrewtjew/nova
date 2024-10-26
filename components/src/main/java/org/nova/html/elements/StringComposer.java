@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.elements;
 
-import org.nova.html.ext.LocalText;
 import org.nova.localization.LocalTextResolver;
 
 public class StringComposer extends Composer
