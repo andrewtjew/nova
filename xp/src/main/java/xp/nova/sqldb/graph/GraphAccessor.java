@@ -9,8 +9,6 @@ import org.nova.testing.Debugging;
 import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 
-import xp.nova.sqldb.graph.Query.PreparedQuery;
-
 public class GraphAccessor implements AutoCloseable
 {
     final Accessor accessor;

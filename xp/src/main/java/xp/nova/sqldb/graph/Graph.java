@@ -23,8 +23,6 @@ import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-import xp.nova.sqldb.graph.Query.PreparedQuery;
-
 public class Graph
 {
     static final boolean DEBUG=true;

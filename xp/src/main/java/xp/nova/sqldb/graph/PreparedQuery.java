@@ -8,7 +8,6 @@ public class PreparedQuery
     String sql;
     String start;
     String orderBy;
-    String countSql;
     String limit;
     Object[] parameters;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
@@ -40,10 +39,6 @@ public class PreparedQuery
         if (orderBy!=null)
         {
             code+=orderBy.hashCode();
-        }
-        if (countSql!=null)
-        {
-            code+=countSql.hashCode();
         }
         if (limit!=null)
         {
@@ -86,37 +81,10 @@ public class PreparedQuery
         {
             return false;
         }
-        if (TypeUtils.equals(this.countSql,other.countSql)==false)
-        {
-            return false;
-        }
         if (TypeUtils.equals(this.limit,other.limit)==false)
         {
             return false;
         }
-        if ((this.parameters!=null)&&(other.parameters==null))
-        {
-            return false;
-        }
-        if ((this.parameters==null)&&(other.parameters!=null))
-        {
-            return false;
-        }
-        if ((this.parameters!=null)&&(other.parameters!=null))
-        {
-            if (this.parameters.length!=other.parameters.length)
-            {
-                return false;
-            }
-            for (int i=0;i<this.parameters.length;i++)
-            {
-                if (this.parameters[i]!=other.parameters[i])
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return TypeUtils.equals(this.parameters,other.parameters);
     }        
 }
-

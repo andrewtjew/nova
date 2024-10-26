@@ -370,7 +370,6 @@ public class ArrayQuery
         State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,list);
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
-        preparedQuery.countSql="SELECT count(*) FROM" + sources;
 
 //        if (this.expression!=null)
 //        {
