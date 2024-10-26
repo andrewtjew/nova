@@ -8,10 +8,9 @@ import java.util.TreeMap;
 import org.nova.collections.RingBuffer;
 import org.nova.metrics.LongValueMeter;
 import org.nova.operations.OperatorVariable;
-import org.nova.validation.LongValidator;
 
 
-public class PerformanceCollector
+public class PerformanceMonitor
 {
     static public record QueryCatalogKey(Query query,String catalog)
     {
@@ -37,14 +36,19 @@ public class PerformanceCollector
     
 
     HashMap<QueryCatalogKey,StackAndMeter> slowQueries;
-    
-    @OperatorVariable
+
+    @OperatorVariable(description="ms")
     long minimumDuration;
     
-    public PerformanceCollector(long minimumDuration)
+    public PerformanceMonitor(long minimumDuration)
+    {
+        this.slowQueries=new HashMap<QueryCatalogKey, StackAndMeter>();
+        setMimimumDuration(minimumDuration);
+    }
+    
+    public void setMimimumDuration(long minimumDuration)
     {
         this.minimumDuration=minimumDuration;
-        this.slowQueries=new HashMap<QueryCatalogKey, StackAndMeter>();
     }
     
     public void updateSlowQuery(long duration,Query query,String catalog)

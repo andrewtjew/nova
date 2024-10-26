@@ -376,7 +376,10 @@ abstract public class ContentCache<KEY,VALUE>
 	}
 	public Collection<Entry<KEY, VALUE>> getAllFromCache()
 	{
-	    return this.entries.values();
+	    synchronized(this)
+	    {
+	        return this.entries.values();
+	    }
 	}
 	
 	

@@ -1,10 +1,9 @@
 package xp.nova.sqldb.graph;
 
 import java.util.HashMap;
-
 import org.nova.utils.TypeUtils;
 
-class PreparedQuery
+public class PreparedQuery
 {
     String sql;
     String start;
@@ -13,6 +12,22 @@ class PreparedQuery
     String limit;
     Object[] parameters;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
+
+    public String getSql()
+    {
+        StringBuilder sb=new StringBuilder(sql);
+        if (orderBy!=null)
+        {
+            sb.append(' ');
+            sb.append(orderBy);
+        }
+        if (limit!=null)
+        {
+            sb.append(' ');
+            sb.append(limit);
+        }
+        return sb.toString();
+    }
     
     @Override
     public final int hashCode()
@@ -95,19 +110,7 @@ class PreparedQuery
             }
             for (int i=0;i<this.parameters.length;i++)
             {
-                if (this.parameters[i]==other.parameters[i])
-                {
-                    continue;
-                }
-                if ((this.parameters[i]!=null)&&(other.parameters[i]==null))
-                {
-                    return false;
-                }
-                if ((this.parameters[i]==null)&&(other.parameters[i]!=null))
-                {
-                    return false;
-                }
-                if (this.parameters[i].equals(other.parameters[i])==false)
+                if (this.parameters[i]!=other.parameters[i])
                 {
                     return false;
                 }
@@ -116,3 +119,4 @@ class PreparedQuery
         return true;
     }        
 }
+

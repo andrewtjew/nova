@@ -19,10 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.validation;
+package org.nova.operations;
 
-public abstract class Validator<TYPE>
+public abstract class Applicator
 {
-    public abstract ValidationViolation validate(TYPE value) throws Throwable;
-
+    abstract public ApplicationResult apply(VariableInstance instance,Object value) throws Throwable;
 }

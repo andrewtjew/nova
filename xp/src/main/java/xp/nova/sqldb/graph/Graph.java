@@ -663,16 +663,24 @@ public class Graph
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
-    final PerformanceCollector performanceCollector;
+    final PerformanceMonitor performanceMonitor;
     final private String catalog;
+
+    private boolean caching;
+    final private QueryCache cache;
+    final private HashMap<String,HashSet<QueryKey>> cacheSets; 
     
-    public Graph(Connector connector,String catalog,PerformanceCollector performanceCollector) throws Throwable
+    
+    public Graph(Connector connector,String catalog,boolean caching,PerformanceMonitor performanceMonitor) throws Throwable
     {
+        this.caching=caching;
         this.connector=connector;
-        this.cache=new QueryCache();
-        this.performanceCollector=performanceCollector;
+        this.performanceMonitor=performanceMonitor;
         this.catalog=catalog;
+        this.cache=new QueryCache();
+        this.cacheSets=new HashMap<String, HashSet<QueryKey>>();
     }
+    
     public String getCatalog()
     {
         return this.catalog;
@@ -895,33 +903,30 @@ public class Graph
             }
     }
     
-    final QueryCache cache;
-    
-    HashMap<String,HashSet<QueryKey>> cacheSets=new HashMap<String, HashSet<QueryKey>>(); 
-    
-    final static boolean CACHING=true;
-    
     ValueSize<QueryResultSet> getFromCache(QueryKey key) throws Throwable
     {
-        if (CACHING==false)
+        synchronized(this)
         {
-            return null;
+            if (caching==false)
+            {
+                return null;
+            }
+            return this.cache.getFromCache(key);
         }
-        return this.cache.getFromCache(key);
     }
     
     void updateCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
-        this.performanceCollector.updateSlowQuery(duration, key.query,getCatalog());
+        this.performanceMonitor.updateSlowQuery(duration, key.query,getCatalog());
         
-        if (CACHING==false)
-        {
-            return;
-        }
-        
-        int size=0;
         synchronized(this)
         {
+            if (caching==false)
+            {
+                return;
+            }
+            
+            int size=0;
             for (var result:queryResultSet.results)
             {
                 size+=result.row.getColumns();
@@ -942,12 +947,12 @@ public class Graph
     }
     void invalidateCacheLine(Trace parent,GraphObjectDescriptor...descriptors) throws Exception
     {
-        if (CACHING==false)
-        {
-            return;
-        }
         synchronized(this)
         {
+            if (caching==false)
+            {
+                return;
+            }
             for (var descriptor:descriptors)
             {
                 HashSet<QueryKey> set=this.cacheSets.get(descriptor.getTypeName());
@@ -961,19 +966,26 @@ public class Graph
     }
     public void clearCache()
     {
-        if (CACHING==false)
-        {
-            return;
-        }
         synchronized(this)
         {
             this.cacheSets.clear();
             this.cache.clear();
         }
     }
-    public PerformanceCollector getPerformanceCollector()
+    public void setCaching(boolean caching)
     {
-        return this.performanceCollector;
+        synchronized(this)
+        {
+            this.caching=caching;
+            if (caching==false)
+            {
+                clearCache();
+            }
+        }
+    }
+    public PerformanceMonitor getPerformanceCollector()
+    {
+        return this.performanceMonitor;
     }
     
 }

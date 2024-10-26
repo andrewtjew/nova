@@ -33,19 +33,19 @@ import org.nova.tracing.Trace;
 public class OperatorVariableManager
 {
 	final private HashMap<String, HashMap<String, VariableInstance>> map;
-	final private HashMap<String,Validation> validators;
+	final private HashMap<String,Applicator> applicators;
 	final private OperatorVariableStore store;
 	
 	public OperatorVariableManager(OperatorVariableStore store)
 	{
 		this.map=new HashMap<>();
-		this.validators=new HashMap<>();
-		registerValidator(new NullValidation());
+		this.applicators=new HashMap<>();
+		registerApplicators(new DefaultApplicator());
 		this.store=store;
 	}
-    public void registerValidator(Validation validator) 
+    public void registerApplicators(Applicator applicator) 
     {
-        this.validators.put(validator.getClass().getName(),validator);
+        this.applicators.put(applicator.getClass().getName(),applicator);
     }
 	public void register(Trace parent,Object object) throws Throwable
 	{
@@ -80,13 +80,13 @@ public class OperatorVariableManager
 			{
 				throw new Exception("OperatorVariable already registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
 			}
-			Validation validation=this.validators.get(variable.validation().getName());
-            if (validation==null)
+			Applicator applicator=this.applicators.get(variable.applicator().getName());
+            if (applicator==null)
             {
                 throw new Exception("No validator registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
             }
 			
-			var instance=new VariableInstance(validation,variable, object, field);
+			var instance=new VariableInstance(applicator,variable, object, field);
 			if ((this.store!=null)&&(parent!=null))
 			{
 			    String valueText=this.store.load(parent, category, instance);
@@ -112,25 +112,29 @@ public class OperatorVariableManager
 		}
 	}
 	
-    public ValidationResult setOperatorVariable(Trace parent,String category,String key,String value) throws Throwable
+    public ApplicationResult setOperatorVariable(Trace parent,String category,String key,String value) throws Throwable
     {
         synchronized (this)
         {
             HashMap<String, VariableInstance> variables=this.map.get(category);
             if (variables==null)
             {
-                return new ValidationResult(Status.CATEGORY_NOT_FOUND);
+                return new ApplicationResult(Status.CATEGORY_NOT_FOUND);
             }
             VariableInstance instance=variables.get(key);
             if (instance==null)
             {
-                return new ValidationResult(Status.KEY_NOT_FOUND);
+                return new ApplicationResult(Status.KEY_NOT_FOUND);
             }
-            if (this.store!=null)
+            ApplicationResult result=instance.set(value);
+            if (result.status==Status.SUCCESS)
             {
-                this.store.save(parent, category,instance, value);
+                if (this.store!=null)
+                {
+                    this.store.save(parent, category,instance, value);
+                }
             }
-            return instance.set(value);
+            return result;
         }
     }
 	public String[] getCategories()
