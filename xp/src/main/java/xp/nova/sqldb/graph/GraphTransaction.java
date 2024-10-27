@@ -142,7 +142,7 @@ public class GraphTransaction implements AutoCloseable
         if (rowSet.size()==0)
         {
             String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
-            if (Graph.DEBUG)
+            if (Graph.DEBUG_QUERY)
             {
                 StringBuilder sb=new StringBuilder(sql);
                 if (insertParameters.length>0)
@@ -176,7 +176,7 @@ public class GraphTransaction implements AutoCloseable
         else if (rowSet.size()==1)
         {
             String sql="UPDATE "+table+" SET "+update+" WHERE _nodeId=?";
-            if (Graph.DEBUG)
+            if (Graph.DEBUG_QUERY)
             {
                 StringBuilder sb=new StringBuilder(sql);
                 if (updateParameters.length>0)

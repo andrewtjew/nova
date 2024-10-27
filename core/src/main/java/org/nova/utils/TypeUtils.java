@@ -843,9 +843,13 @@ public class TypeUtils
     }
     static public boolean equals(Object[] a,Object[] b)
     {
-        if ((a!=null)&&(a!=null))
+        if (a!=null)
         {
-            if (a.length!=a.length)
+            if (b==null)
+            {
+                return false;
+            }
+            if (a.length!=b.length)
             {
                 return false;
             }
@@ -853,25 +857,21 @@ public class TypeUtils
             {
                 Object oa=a[i];
                 Object ob=b[i];
-                if ((oa==null)&&(ob!=null))
+                if (oa==null)
                 {
-                    return false;
+                    if (ob!=null)
+                    {
+                        return false;
+                    }
                 }
-                if (oa.equals(ob)==false)
+                else if (oa.equals(ob)==false)
                 {
                     return false;
                 }
             }
+            return true;
         }
-        if ((a!=null)&&(b==null))
-        {
-            return false;
-        }
-        if ((b==null)&&(a!=null))
-        {
-            return false;
-        }
-        return true;
+        return b==null;
     }
     
 }

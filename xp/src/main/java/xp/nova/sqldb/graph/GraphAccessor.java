@@ -61,21 +61,35 @@ public class GraphAccessor implements AutoCloseable
         }
     }
     
+    
+    private void debugPrint(QueryResultSet set)
+    {
+        if (set==null)
+        {
+            Debugging.log("null set");
+            return;
+        }
+        for (int i=0;i<set.results.length;i++)
+        {
+            var result=set.results[i];
+            StringBuilder sb=new StringBuilder();
+            sb.append(i);
+            int seperator='[';
+            for (Object item:result.row.getObjects())
+            {
+                sb.append(seperator+(item==null?"null":item.toString()));
+                seperator=',';
+            }
+            sb.append(']');
+            Debugging.log(sb.toString());
+        }
+        
+    }
+    
     public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
-        if (query.parameters!=null)
-        {
-            if (parameters.length!=0)
-            {
-                throw new Exception();
-            }
-            parameters=query.parameters;
-        }
-        else
-        {
-            translateParameters(parameters);
-        }
+        translateParameters(parameters);
         QueryKey key=new QueryKey(startNodeId, query, parameters);
         var valueSize=this.graph.getFromCache(key);
         if (valueSize!=null)
@@ -83,11 +97,17 @@ public class GraphAccessor implements AutoCloseable
             if (Debugging.ENABLE && Graph.DEBUG)
             {
                 QueryResultSet queryResultSet=execute(parent, preparedQuery,parameters,startNodeId,query);
-                if (queryResultSet.equals(valueSize.value())==false)
+                QueryResultSet cachedResultSet=valueSize.value();
+                if (queryResultSet.equals(cachedResultSet)==false)
                 {
+                    debugPrint(queryResultSet);
+                    debugPrint(cachedResultSet);
                     throw new Exception();
                 }
-                Debugging.log("Graph","cache hit");
+                if (Graph.DEBUG_CACHING)
+                {
+                    Debugging.log("Graph","cache hit");
+                }
             }
             
             return valueSize.value();
@@ -95,7 +115,7 @@ public class GraphAccessor implements AutoCloseable
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             QueryResultSet queryResultSet=execute(trace, preparedQuery,parameters,startNodeId,query);
-            if (Debugging.ENABLE && Graph.DEBUG)
+            if (Debugging.ENABLE && Graph.DEBUG_CACHING)
             {
                 Debugging.log("Graph","cache miss",LogLevel.WARNING);
             }
@@ -123,7 +143,7 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (Debugging.ENABLE && Graph.DEBUG)
+        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
         {
             StringBuilder debug=new StringBuilder(sql);
             if ((parameters!=null)&&(parameters.length>0))
@@ -153,7 +173,7 @@ public class GraphAccessor implements AutoCloseable
         {
             rowSet = accessor.executeQuery(parent, null, sql);
         }
-        if (Debugging.ENABLE && Graph.DEBUG)
+        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
         {
             Debugging.log("GraphAccessor",rowSet.size());
         }
@@ -172,6 +192,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,null,query);
     }
+    
+    
+    
     public Accessor getAccessor()
     {
         return this.accessor;

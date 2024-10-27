@@ -32,6 +32,10 @@ class QueryKey
                 }
             }
         }
+        if (this.nodeId!=null)
+        {
+            hashCode+=this.nodeId.hashCode();
+        }
         return hashCode;
     }
 
@@ -52,47 +56,10 @@ class QueryKey
         {
             return false;
         }
-
-        if ((this.parameters==null)&&(other.parameters!=null))
-        {
-            return false;
-        }
-        if ((this.parameters!=null)&&(other.parameters==null))
-        {
-            return false;
-        }
-        if ((this.parameters!=null)&&(other.parameters!=null))
-        {
-            if ((this.parameters.length!=other.parameters.length))
-            {
-                return false;
-            }
-            for (int i=0;i<this.parameters.length;i++)
-            {
-                var thisParameter=this.parameters[i];
-                var otherParameter=other.parameters[i];
-                if ((thisParameter==null)&&(otherParameter!=null))
-                {
-                    return false;
-                }
-                if ((thisParameter!=null)&&(otherParameter==null))
-                {
-                    return false;
-                }
-                if ((thisParameter!=null)&&(otherParameter!=null))
-                {
-                    if (thisParameter.equals(otherParameter)==false)
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-
         if (this.query.equals(other.query)==false)
         {
             return false;
         }
-        return true;
+        return TypeUtils.equals(this.parameters, other.parameters);
     }        
 }

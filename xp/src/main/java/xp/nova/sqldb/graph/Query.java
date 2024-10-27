@@ -11,12 +11,12 @@ public class Query
     Class<? extends NodeObject>[] optionalNodeTypes;
 
     String expression;
-    Object[] parameters;
+ //   Object[] parameters;
     String orderBy;
     Integer limit;
     Integer offset;
     
-    private ArrayList<LinkQuery> linkQueries;
+    ArrayList<LinkQuery> linkQueries;
 
     public Query()
     {
@@ -62,13 +62,13 @@ public class Query
         return this;
     }
 
-    public Query where(String expression, Object... parameters)
-    {
-        GraphAccessor.translateParameters(parameters);
-        this.parameters=parameters;
-        this.expression=expression;
-        return this;
-    }
+//    public Query where(String expression, Object... parameters)
+//    {
+//        GraphAccessor.translateParameters(parameters);
+//        this.parameters=parameters;
+//        this.expression=expression;
+//        return this;
+//    }
     
     @SafeVarargs
     final public Query select(Class<? extends NodeObject>... nodeTypes)
@@ -100,18 +100,18 @@ public class Query
         final HashMap<String,GraphObjectDescriptor> map;
         final StringBuilder sources;
         final StringBuilder select;
-        final ArrayList<Object> parameters;
+//        final ArrayList<Object> parameters;
 //        Class<? extends NodeObject>[] nodeTypes;
         int aliasIndex=0;
         
         
-        public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,ArrayList<Object> parameters)
+        public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select)
         {
             this.graph=graph;
             this.map=map;
             this.sources=sources;
             this.select=select;
-            this.parameters=parameters;
+//            this.parameters=parameters;
         }
     }    
     
@@ -123,7 +123,7 @@ public class Query
         }
         for (LinkQuery linkQuery : linkQueries)
         {
-            TypeUtils.addToList(state.parameters,linkQuery.parameters);
+//            TypeUtils.addToList(state.parameters,linkQuery.parameters);
             String linkAlias = "_link" + state.aliasIndex;
             String nodeAlias=null;
             String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
@@ -434,9 +434,9 @@ public class Query
                 }
             }
         }
-        ArrayList<Object> list=new ArrayList<Object>();
-        TypeUtils.addToList(list, this.parameters);
-        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,list);
+//        ArrayList<Object> list=new ArrayList<Object>();
+//        TypeUtils.addToList(list, this.parameters);
+        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
 
@@ -444,10 +444,10 @@ public class Query
         {
             query.append(" WHERE ("+this.expression+")");
         }
-        if (list.size()>0)
-        {
-            preparedQuery.parameters=list.toArray(new Object[list.size()]);
-        }
+//        if (list.size()>0)
+//        {
+//            preparedQuery.parameters=list.toArray(new Object[list.size()]);
+//        }
         preparedQuery.sql=query.toString();
         if (this.orderBy!=null)
         {

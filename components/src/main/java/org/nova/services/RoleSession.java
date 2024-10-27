@@ -37,6 +37,7 @@ import org.nova.utils.Utils;
 
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
+    static final boolean DEBUG=false;
     static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
 
     private HashMap<Long,Boolean> denyMap;
@@ -180,7 +181,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         if (requiredRoles.value().length==0)
         {
-            if (Debugging.ENABLE)
+            if (Debugging.ENABLE && DEBUG)
             {
                 System.err.println("No Roles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
             }

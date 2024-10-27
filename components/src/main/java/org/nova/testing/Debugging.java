@@ -27,7 +27,7 @@ public abstract class Debugging
 
     private static Debugging DEBUGGING=new ConsoleOutTesting();
 
-    final public static boolean ENABLE=false;
+    final public static boolean ENABLE=true;
     
     public static void set(Debugging debuging)
     {

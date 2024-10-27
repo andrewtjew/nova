@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.nova.collections.ContentCache.ValueSize;
+import org.nova.html.tags.link;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
@@ -26,6 +28,8 @@ import org.nova.utils.TypeUtils;
 public class Graph
 {
     static final boolean DEBUG=true;
+    static final boolean DEBUG_QUERY=true;
+    static final boolean DEBUG_CACHING=false;
     
     private int defaultVARCHARLength=45;
     
@@ -735,7 +739,7 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (Debugging.ENABLE && DEBUG)
+            if (Debugging.ENABLE && DEBUG_QUERY)
             {
                 Debugging.log("Graph",sql);
             }
@@ -749,7 +753,7 @@ public class Graph
             String after="_transactionId";
             Stack<String> alters=new Stack<String>();
 
-            if (Debugging.ENABLE && DEBUG)
+            if (Debugging.ENABLE && DEBUG_QUERY)
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
@@ -826,7 +830,7 @@ public class Graph
                         if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
-                            if (Debugging.ENABLE && DEBUG)
+                            if (Debugging.ENABLE && DEBUG_QUERY)
                             {
                                 Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
                             }
@@ -850,7 +854,7 @@ public class Graph
                     
                 }
                 sql.append(';');
-                if (Debugging.ENABLE && DEBUG)
+                if (Debugging.ENABLE && DEBUG_QUERY)
                 {
                     Debugging.log("Graph",sql);
                 }
@@ -859,7 +863,7 @@ public class Graph
         }
     }
 
-    private void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
+    private static void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
     {
         if (accessor.executeQuery(parent,"existTable:"+tableName
                 ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",tableName,catalog).getRow(0).getBIGINT(0)==0)
@@ -869,16 +873,16 @@ public class Graph
         
     }
     
-    public void createCatalog(Trace parent) throws Throwable
+    public static void setup(Trace parent,Connector connector,String catalog) throws Throwable
     {
-        try (Accessor accessor=this.connector.openAccessor(parent))
+        try (Accessor accessor=connector.openAccessor(parent))
         {
             if (accessor.executeQuery(parent,"existCatalog:"+catalog,"SELECT count(*) FROM information_schema.schemata WHERE SCHEMA_NAME=?",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE `"+catalog+'`');
             }
         }
-        try (Accessor accessor=this.connector.openAccessor(parent,null,this.getCatalog()))
+        try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
             createTable(parent,accessor,catalog,"_transaction"
                     ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
@@ -907,9 +911,73 @@ public class Graph
         {
             if (caching==false)
             {
+                if (Debugging.ENABLE && DEBUG_CACHING)
+                {
+                    Debugging.log("Graph Cache:not found : "+key.query.preparedQuery.sql);
+                }
                 return null;
             }
-            return this.cache.getFromCache(key);
+            ValueSize<QueryResultSet> valueSize=this.cache.getFromCache(key);
+            if (Debugging.ENABLE && DEBUG_CACHING)
+            {
+                if (valueSize==null)
+                {
+                    Debugging.log("Graph Cache:not found : "+key.query.preparedQuery.sql);
+                }
+                else
+                {
+                    Debugging.log("Graph Cache:found     : "+key.query.preparedQuery.sql);
+                }
+            }
+            return valueSize;
+        }
+    }
+
+    private void updateCacheSets(QueryKey key,Class<? extends NodeObject>[] types) throws Exception
+    {
+        if (types==null)
+        {
+            return;
+        }
+        for (var type:types)
+        {
+            GraphObjectDescriptor descriptor=this.getGraphObjectDescriptor(type);
+            String name=descriptor.getTypeName();
+            HashSet<QueryKey> set=this.cacheSets.get(name);
+            if (set==null)
+            {
+                set=new HashSet<QueryKey>();
+                this.cacheSets.put(name,set);
+            }
+            if (Debugging.ENABLE && DEBUG_CACHING)
+            {
+                Debugging.log("Graph Cache:cache set :  "+name);
+                for (var setKey:set)
+                {
+                    Debugging.log("Graph Cache:in set     : "+setKey.query.preparedQuery.sql);
+                }
+            }
+            set.add(key);
+            if (Debugging.ENABLE && DEBUG_CACHING)
+            {
+                Debugging.log("Graph Cache:added in set:"+key.query.preparedQuery.sql+":"+set.size());
+            }
+        }
+    }
+    
+    private void updateLinkQueryCacheSets(QueryKey key,List<LinkQuery> linkQueries) throws Throwable
+    {
+        if (linkQueries==null)
+        {
+            return;
+        }
+        for (LinkQuery linkQuery:linkQueries)
+        {
+            updateCacheSets(key,linkQuery.nodeTypes);
+            updateCacheSets(key,linkQuery.optionalNodeTypes);
+            updateCacheSets(key,linkQuery.linkTypes);
+            updateCacheSets(key,linkQuery.optionalLinkTypes);
+            updateLinkQueryCacheSets(key,linkQuery.linkQueries);
         }
     }
     
@@ -925,22 +993,15 @@ public class Graph
             }
             
             int size=0;
-            for (var result:queryResultSet.results)
-            {
-                size+=result.row.getColumns();
-                for (var entry:result.map.entrySet())
-                {
-                    String name=entry.getValue().getTypeName();
-                    HashSet<QueryKey> set=this.cacheSets.get(name);
-                    if (set==null)
-                    {
-                        set=new HashSet<QueryKey>();
-                        this.cacheSets.put(name,set);
-                    }
-                    set.add(key);
-                }
-            }
+            Query query=key.query;
+            updateCacheSets(key,query.nodeTypes);
+            updateCacheSets(key,query.optionalNodeTypes);
+            updateLinkQueryCacheSets(key,query.linkQueries);
             this.cache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
+            if (Debugging.ENABLE && DEBUG_CACHING)
+            {
+                Debugging.log("Graph Cache:added line: "+query.preparedQuery.sql);
+            }
         }
     }
     void invalidateCacheLine(Trace parent,GraphObjectDescriptor...descriptors) throws Exception
@@ -953,12 +1014,24 @@ public class Graph
             }
             for (var descriptor:descriptors)
             {
-                HashSet<QueryKey> set=this.cacheSets.get(descriptor.getTypeName());
-                for (var item:set)
+                String name=descriptor.getTypeName();
+                HashSet<QueryKey> set=this.cacheSets.get(name);
+                if (Debugging.ENABLE && DEBUG_CACHING)
                 {
-                    this.cache.remove(item);
+                    Debugging.log("Graph Cache:invalidate cached table "+name);
                 }
-                set.clear();
+                if (set!=null)
+                {
+                    for (var key:set)
+                    {
+                        this.cache.remove(key);
+                        if (Debugging.ENABLE && DEBUG_CACHING)
+                        {
+                            Debugging.log("Graph Cache:invalidated="+key.query.preparedQuery.sql);
+                        }
+                    }
+                    set.clear();
+                }
             }
         }
     }

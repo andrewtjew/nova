@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import org.nova.sqldb.RowSet;
+import org.nova.utils.TypeUtils;
 
 public class QueryResultSet
 {
@@ -95,32 +96,11 @@ public class QueryResultSet
         {
             var thisRow=this.results[i].row;
             var otherRow=other.results[i].row;
-            if (thisRow.getColumns()!=otherRow.getColumns())
+            if (TypeUtils.equals(thisRow.getObjects(),otherRow.getObjects())==false)
             {
                 return false;
             }
-            for (int j=0;j<thisRow.getColumns();j++)
-            {
-                Object thisObject=thisRow.getObjects()[j];
-                Object otherObject=otherRow.getObjects()[j];
-                
-                if ((thisObject==null)&&(otherObject==null))
-                {
-                    continue;
-                }
-                else if ((thisObject==null)&&(otherObject!=null))
-                {
-                    return false;
-                }
-                else if ((thisObject!=null)&&(otherObject==null))
-                {
-                    return false;
-                }
-                if (thisObject.equals(otherObject)==false)
-                {
-                    return false;
-                }
-            }
+            
         }
         return true;
     }        
