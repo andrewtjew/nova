@@ -90,7 +90,7 @@ public class GraphAccessor implements AutoCloseable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
         translateParameters(parameters);
-        QueryKey key=new QueryKey(startNodeId, query, parameters);
+        QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
         var valueSize=this.graph.getFromCache(key);
         if (valueSize!=null)
         {
@@ -132,14 +132,6 @@ public class GraphAccessor implements AutoCloseable
         if (startNodeId!=null)
         {
             sb.append(preparedQuery.start+startNodeId);
-        }
-        if (preparedQuery.orderBy!=null)
-        {
-            sb.append(preparedQuery.orderBy);
-        }
-        if (preparedQuery.limit!=null)
-        {
-            sb.append(preparedQuery.limit);
         }
         String sql=sb.toString();
         RowSet rowSet;
@@ -193,12 +185,58 @@ public class GraphAccessor implements AutoCloseable
         return execute(parent,parameters,null,query);
     }
     
-    
-    
     public Accessor getAccessor()
     {
         return this.accessor;
     }
+
+    public QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId,ArrayQuery query) throws Throwable
+    {
+        StringBuilder sb=new StringBuilder(preparedQuery.sql);
+        if (startNodeId!=null)
+        {
+            sb.append(preparedQuery.start+startNodeId);
+        }
+        String sql=sb.toString();
+        RowSet rowSet;
+        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
+        {
+            StringBuilder debug=new StringBuilder(sql);
+            if ((parameters!=null)&&(parameters.length>0))
+            {
+                debug.append("(");
+                for (int i=0;i<parameters.length;i++)
+                {
+                    if (i==0)
+                    {
+                        debug.append('(');
+                    }
+                    else
+                    {
+                        debug.append(',');
+                    }
+                    debug.append(parameters[i]);
+                }
+                debug.append(")");
+            }
+            Debugging.log("GraphAccessor",sql);
+        }
+        if (parameters != null)
+        {
+            rowSet = accessor.executeQuery(parent, null,parameters, sql);
+        }
+        else
+        {
+            rowSet = accessor.executeQuery(parent, null, sql);
+        }
+        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
+        {
+            Debugging.log("GraphAccessor",rowSet.size());
+        }
+        
+        return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
+    }
+    
     
     public <ELEMENT extends NodeObject> ELEMENT[] getArray(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {

@@ -1,5 +1,6 @@
 package xp.nova.sqldb.graph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.nova.utils.TypeUtils;
 
@@ -7,24 +8,13 @@ public class PreparedQuery
 {
     String sql;
     String start;
-    String orderBy;
-    String limit;
     Object[] parameters;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
+    ArrayList<GraphObjectDescriptor> descriptors;
 
     public String getSql()
     {
         StringBuilder sb=new StringBuilder(sql);
-        if (orderBy!=null)
-        {
-            sb.append(' ');
-            sb.append(orderBy);
-        }
-        if (limit!=null)
-        {
-            sb.append(' ');
-            sb.append(limit);
-        }
         return sb.toString();
     }
     
@@ -35,14 +25,6 @@ public class PreparedQuery
         if (start!=null)
         {
             code+=start.hashCode();
-        }
-        if (orderBy!=null)
-        {
-            code+=orderBy.hashCode();
-        }
-        if (limit!=null)
-        {
-            code+=limit.hashCode();
         }
         if (parameters!=null)
         {
@@ -74,14 +56,6 @@ public class PreparedQuery
             return false;
         }
         if (TypeUtils.equals(this.start,other.start)==false)
-        {
-            return false;
-        }
-        if (TypeUtils.equals(this.orderBy,other.orderBy)==false)
-        {
-            return false;
-        }
-        if (TypeUtils.equals(this.limit,other.limit)==false)
         {
             return false;
         }

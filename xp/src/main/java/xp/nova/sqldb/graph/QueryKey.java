@@ -4,20 +4,20 @@ import org.nova.utils.TypeUtils;
 
 class QueryKey
 {
-    final Query query;
+    final PreparedQuery preparedQuery;
     final Long nodeId;
     final Object[] parameters;
     
-    public QueryKey(Long nodeId,Query query,Object...parameters)
+    public QueryKey(Long nodeId,PreparedQuery query,Object...parameters)
     {
-        this.query=query;
+        this.preparedQuery=query;
         this.nodeId=nodeId;
         this.parameters=parameters;
     }
     @Override
     public final int hashCode()
     {
-        int hashCode=this.query.hashCode();
+        int hashCode=this.preparedQuery.hashCode();
         if (nodeId!=null)
         {
             hashCode+=nodeId.hashCode();
@@ -56,7 +56,7 @@ class QueryKey
         {
             return false;
         }
-        if (this.query.equals(other.query)==false)
+        if (this.preparedQuery.equals(other.preparedQuery)==false)
         {
             return false;
         }

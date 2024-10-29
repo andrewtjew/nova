@@ -29,7 +29,7 @@ public class Graph
 {
     static final boolean DEBUG=true;
     static final boolean DEBUG_QUERY=true;
-    static final boolean DEBUG_CACHING=false;
+    static final boolean DEBUG_CACHING=true;
     
     private int defaultVARCHARLength=45;
     
@@ -913,7 +913,7 @@ public class Graph
             {
                 if (Debugging.ENABLE && DEBUG_CACHING)
                 {
-                    Debugging.log("Graph Cache:not found : "+key.query.preparedQuery.sql);
+                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
                 }
                 return null;
             }
@@ -922,68 +922,20 @@ public class Graph
             {
                 if (valueSize==null)
                 {
-                    Debugging.log("Graph Cache:not found : "+key.query.preparedQuery.sql);
+                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
                 }
                 else
                 {
-                    Debugging.log("Graph Cache:found     : "+key.query.preparedQuery.sql);
+                    Debugging.log("Graph Cache:found     : "+key.preparedQuery.sql);
                 }
             }
             return valueSize;
         }
     }
 
-    private void updateCacheSets(QueryKey key,Class<? extends NodeObject>[] types) throws Exception
-    {
-        if (types==null)
-        {
-            return;
-        }
-        for (var type:types)
-        {
-            GraphObjectDescriptor descriptor=this.getGraphObjectDescriptor(type);
-            String name=descriptor.getTypeName();
-            HashSet<QueryKey> set=this.cacheSets.get(name);
-            if (set==null)
-            {
-                set=new HashSet<QueryKey>();
-                this.cacheSets.put(name,set);
-            }
-            if (Debugging.ENABLE && DEBUG_CACHING)
-            {
-                Debugging.log("Graph Cache:cache set :  "+name);
-                for (var setKey:set)
-                {
-                    Debugging.log("Graph Cache:in set     : "+setKey.query.preparedQuery.sql);
-                }
-            }
-            set.add(key);
-            if (Debugging.ENABLE && DEBUG_CACHING)
-            {
-                Debugging.log("Graph Cache:added in set:"+key.query.preparedQuery.sql+":"+set.size());
-            }
-        }
-    }
-    
-    private void updateLinkQueryCacheSets(QueryKey key,List<LinkQuery> linkQueries) throws Throwable
-    {
-        if (linkQueries==null)
-        {
-            return;
-        }
-        for (LinkQuery linkQuery:linkQueries)
-        {
-            updateCacheSets(key,linkQuery.nodeTypes);
-            updateCacheSets(key,linkQuery.optionalNodeTypes);
-            updateCacheSets(key,linkQuery.linkTypes);
-            updateCacheSets(key,linkQuery.optionalLinkTypes);
-            updateLinkQueryCacheSets(key,linkQuery.linkQueries);
-        }
-    }
-    
     void updateCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
-        this.performanceMonitor.updateSlowQuery(duration, key.query,getCatalog());
+        this.performanceMonitor.updateSlowQuery(duration, key.preparedQuery,getCatalog());
         
         synchronized(this)
         {
@@ -993,14 +945,34 @@ public class Graph
             }
             
             int size=0;
-            Query query=key.query;
-            updateCacheSets(key,query.nodeTypes);
-            updateCacheSets(key,query.optionalNodeTypes);
-            updateLinkQueryCacheSets(key,query.linkQueries);
+            for (var descriptor:key.preparedQuery.descriptors)
+            {
+                String name=descriptor.getTypeName();
+                HashSet<QueryKey> set=this.cacheSets.get(name);
+                if (set==null)
+                {
+                    set=new HashSet<QueryKey>();
+                    this.cacheSets.put(name,set);
+                }
+                if (Debugging.ENABLE && DEBUG_CACHING)
+                {
+                    Debugging.log("Graph Cache:cache set :  "+name);
+                    for (var setKey:set)
+                    {
+                        Debugging.log("Graph Cache:in set     : "+setKey.preparedQuery.getSql());
+                    }
+                }
+                set.add(key);
+                if (Debugging.ENABLE && DEBUG_CACHING)
+                {
+                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.getSql()+":"+set.size());
+                }
+                
+            }
             this.cache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
             if (Debugging.ENABLE && DEBUG_CACHING)
             {
-                Debugging.log("Graph Cache:added line: "+query.preparedQuery.sql);
+                Debugging.log("Graph Cache:added line: "+key.preparedQuery.getSql());
             }
         }
     }
@@ -1027,7 +999,7 @@ public class Graph
                         this.cache.remove(key);
                         if (Debugging.ENABLE && DEBUG_CACHING)
                         {
-                            Debugging.log("Graph Cache:invalidated="+key.query.preparedQuery.sql);
+                            Debugging.log("Graph Cache:invalidated="+key.preparedQuery.getSql());
                         }
                     }
                     set.clear();

@@ -12,7 +12,7 @@ import org.nova.operations.OperatorVariable;
 
 public class PerformanceMonitor
 {
-    static public record QueryCatalogKey(Query query,String catalog)
+    static public record QueryCatalogKey(PreparedQuery preparedQuery,String catalog)
     {
         @Override
         public boolean equals(Object obj) 
@@ -26,11 +26,11 @@ public class PerformanceMonitor
             return false;
           }
           QueryCatalogKey other = (QueryCatalogKey) obj;
-          return query.equals(other.query) && catalog.equals(other.catalog);
+          return preparedQuery.equals(other.preparedQuery) && catalog.equals(other.catalog);
         }
         public int hashCode() 
         {
-            return query.hashCode()+catalog.hashCode();
+            return preparedQuery.hashCode()+catalog.hashCode();
         }
     }
     
@@ -51,7 +51,7 @@ public class PerformanceMonitor
         this.minimumDuration=minimumDuration;
     }
     
-    public void updateSlowQuery(long duration,Query query,String catalog)
+    public void updateSlowQuery(long duration,PreparedQuery query,String catalog)
     {
         if (duration<this.minimumDuration)
         {

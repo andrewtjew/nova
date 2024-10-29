@@ -3,6 +3,7 @@ package xp.nova.sqldb.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.nova.html.tags.pre;
 import org.nova.utils.TypeUtils;
 
 public class Query
@@ -101,7 +102,7 @@ public class Query
         final StringBuilder sources;
         final StringBuilder select;
 //        final ArrayList<Object> parameters;
-//        Class<? extends NodeObject>[] nodeTypes;
+        final ArrayList<GraphObjectDescriptor> descriptors;
         int aliasIndex=0;
         
         
@@ -111,7 +112,7 @@ public class Query
             this.map=map;
             this.sources=sources;
             this.select=select;
-//            this.parameters=parameters;
+            this.descriptors=new ArrayList<GraphObjectDescriptor>();
         }
     }    
     
@@ -190,34 +191,6 @@ public class Query
                 break;
             }
 
-//            if (linkQuery.selectLink)
-//            {
-//                String on = " ON " + linkAlias + ".nodeId=";
-//                Class<? extends NodeObject> type = LinkObject.class;
-//                GraphObjectDescriptor descriptor = state.graph.register(type);
-//                state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
-//                String typeName = descriptor.getTypeName();
-//                String table = descriptor.getTableName();
-//
-//                String as=" ";
-//                String alias=table;
-//                if (linkQuery.linkNamespace!=null)
-//                {
-//                    alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
-//                    as=" AS "+alias+" ";
-//                }
-//
-//                for (FieldDescriptor columnAccessor : descriptor.getColumnAccessors())
-//                {
-//                    String fieldColumnName = linkNamespace + columnAccessor.getColumnName(typeName);
-//                    String tableColumnName = columnAccessor.getColumnName(linkAlias);
-//                    if (state.select.length()>0)
-//                    {
-//                        state.select.append(',');
-//                    }
-//                    state.select.append(tableColumnName + " AS '" + fieldColumnName + '\'');
-//                }
-//            }
             if (linkQuery.linkTypes != null)
             {
                 String on = " ON " + linkAlias + ".nodeId=";
@@ -225,6 +198,7 @@ public class Query
                 {
                     Class<? extends NodeObject> type = linkQuery.linkTypes[i];
                     GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
+                    state.descriptors.add(descriptor);
                     state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
@@ -265,7 +239,8 @@ public class Query
                     break;
                 }
                 Class<? extends NodeObject> type = linkQuery.targetNodeType;
-                GraphObjectDescriptor descriptor = state.graph.register(type);
+                GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
+                state.descriptors.add(descriptor );
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
 
@@ -295,10 +270,11 @@ public class Query
                 for (int i = 0; i < linkQuery.nodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
-                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
                     state.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
+                    state.descriptors.add(descriptor);
 
                     String as=" ";
                     String alias=table;
@@ -338,10 +314,11 @@ public class Query
                 for (int i = 0; i < linkQuery.optionalNodeTypes.length; i++)
                 {
                     Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
-                    GraphObjectDescriptor descriptor = state.graph.register(type);
+                    GraphObjectDescriptor descriptor = state.graph.getGraphObjectDescriptor(type);
                     state.map.put(descriptor.getNamespaceTypeName(linkQuery.nodeNamespace), descriptor);
                     String typeName = descriptor.getTypeName();
                     String table = descriptor.getTableName();
+                    state.descriptors.add(descriptor);
                     String alias = descriptor.getTableAlias(linkQuery.nodeNamespace);
                     state.sources.append(" LEFT JOIN " + table + "AS " + alias + on + alias + "._nodeId");
                     for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
@@ -370,10 +347,14 @@ public class Query
         {
             return this.preparedQuery;
         }
+        
+        
         PreparedQuery preparedQuery=new PreparedQuery();
         preparedQuery.typeDescriptorMap=new HashMap<String, GraphObjectDescriptor>();
+        preparedQuery.descriptors=new ArrayList<GraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
+        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
 
         String on=null;
         if (on==null)
@@ -397,6 +378,7 @@ public class Query
                 Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
+                state.descriptors.add(descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
                 {
@@ -418,7 +400,8 @@ public class Query
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
             {
                 Class<? extends NodeObject> type = this.optionalNodeTypes[i];
-                GraphObjectDescriptor descriptor = graph.register(type);
+                GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
+                state.descriptors.add(descriptor);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 String table = descriptor.getTableName();
@@ -436,7 +419,7 @@ public class Query
         }
 //        ArrayList<Object> list=new ArrayList<Object>();
 //        TypeUtils.addToList(list, this.parameters);
-        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
+//        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
         addLinkQueries(state,this.linkQueries, on);
         StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
 
@@ -444,26 +427,22 @@ public class Query
         {
             query.append(" WHERE ("+this.expression+")");
         }
-//        if (list.size()>0)
-//        {
-//            preparedQuery.parameters=list.toArray(new Object[list.size()]);
-//        }
-        preparedQuery.sql=query.toString();
         if (this.orderBy!=null)
         {
-            preparedQuery.orderBy=" ORDER BY "+this.orderBy;
+            query.append(" ORDER BY "+this.orderBy);
         }
         if (this.limit!=null)
         {
             if (this.offset!=null)
             {
-                preparedQuery.limit=" LIMIT "+this.limit+" OFFSET "+this.offset;
+                query.append(" LIMIT "+this.limit+" OFFSET "+this.offset);
             }
             else
             {
-                preparedQuery.limit=" LIMIT "+this.limit;
+                query.append(" LIMIT "+this.limit);
             }
         }
+        preparedQuery.sql=query.toString();
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }
