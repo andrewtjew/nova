@@ -28,7 +28,7 @@ public class QueryResult
         {
             return null;
         }
-        NodeObject nodeObject = (NodeObject) type.newInstance();
+        NodeObject nodeObject = (NodeObject) type.getDeclaredConstructor().newInstance();
         for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
         {
             columnAccessor.set(nodeObject, typeName, row);

@@ -12,12 +12,6 @@ public class PreparedQuery
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
     ArrayList<GraphObjectDescriptor> descriptors;
 
-    public String getSql()
-    {
-        StringBuilder sb=new StringBuilder(sql);
-        return sb.toString();
-    }
-    
     @Override
     public final int hashCode()
     {

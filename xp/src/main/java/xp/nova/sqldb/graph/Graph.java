@@ -935,7 +935,7 @@ public class Graph
 
     void updateCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
-        this.performanceMonitor.updateSlowQuery(duration, key.preparedQuery,getCatalog());
+        this.performanceMonitor.updateSlowQuery(duration, queryResultSet,getCatalog());
         
         synchronized(this)
         {
@@ -959,20 +959,20 @@ public class Graph
                     Debugging.log("Graph Cache:cache set :  "+name);
                     for (var setKey:set)
                     {
-                        Debugging.log("Graph Cache:in set     : "+setKey.preparedQuery.getSql());
+                        Debugging.log("Graph Cache:in set     : "+setKey.preparedQuery.sql);
                     }
                 }
                 set.add(key);
                 if (Debugging.ENABLE && DEBUG_CACHING)
                 {
-                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.getSql()+":"+set.size());
+                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+set.size());
                 }
                 
             }
             this.cache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
             if (Debugging.ENABLE && DEBUG_CACHING)
             {
-                Debugging.log("Graph Cache:added line: "+key.preparedQuery.getSql());
+                Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
             }
         }
     }
@@ -999,7 +999,7 @@ public class Graph
                         this.cache.remove(key);
                         if (Debugging.ENABLE && DEBUG_CACHING)
                         {
-                            Debugging.log("Graph Cache:invalidated="+key.preparedQuery.getSql());
+                            Debugging.log("Graph Cache:invalidated="+key.preparedQuery.sql);
                         }
                     }
                     set.clear();

@@ -1,7 +1,9 @@
 package xp.nova.sqldb.graph;
 
 import java.lang.reflect.Array;
+import java.time.LocalDate;
 
+import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
@@ -62,7 +64,7 @@ public class GraphAccessor implements AutoCloseable
     }
     
     
-    private void debugPrint(QueryResultSet set)
+    private void debugPrint(QueryResultSet set) throws Throwable
     {
         if (set==null)
         {
@@ -73,14 +75,10 @@ public class GraphAccessor implements AutoCloseable
         {
             var result=set.results[i];
             StringBuilder sb=new StringBuilder();
-            sb.append(i);
-            int seperator='[';
-            for (Object item:result.row.getObjects())
-            {
-                sb.append(seperator+(item==null?"null":item.toString()));
-                seperator=',';
-            }
-            sb.append(']');
+            sb.append(i+":");
+            sb.append(ObjectMapper.writeObjectToString(result.row.getObjects()));
+            
+            
             Debugging.log(sb.toString());
         }
         
@@ -102,6 +100,7 @@ public class GraphAccessor implements AutoCloseable
                 {
                     debugPrint(queryResultSet);
                     debugPrint(cachedResultSet);
+                    var again=queryResultSet.equals(cachedResultSet);
                     throw new Exception();
                 }
                 if (Graph.DEBUG_CACHING)
@@ -170,7 +169,7 @@ public class GraphAccessor implements AutoCloseable
             Debugging.log("GraphAccessor",rowSet.size());
         }
         
-        return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
+        return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap,sql,startNodeId,parameters);
     }
     public QueryResultSet execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {
@@ -190,53 +189,6 @@ public class GraphAccessor implements AutoCloseable
         return this.accessor;
     }
 
-    public QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId,ArrayQuery query) throws Throwable
-    {
-        StringBuilder sb=new StringBuilder(preparedQuery.sql);
-        if (startNodeId!=null)
-        {
-            sb.append(preparedQuery.start+startNodeId);
-        }
-        String sql=sb.toString();
-        RowSet rowSet;
-        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
-        {
-            StringBuilder debug=new StringBuilder(sql);
-            if ((parameters!=null)&&(parameters.length>0))
-            {
-                debug.append("(");
-                for (int i=0;i<parameters.length;i++)
-                {
-                    if (i==0)
-                    {
-                        debug.append('(');
-                    }
-                    else
-                    {
-                        debug.append(',');
-                    }
-                    debug.append(parameters[i]);
-                }
-                debug.append(")");
-            }
-            Debugging.log("GraphAccessor",sql);
-        }
-        if (parameters != null)
-        {
-            rowSet = accessor.executeQuery(parent, null,parameters, sql);
-        }
-        else
-        {
-            rowSet = accessor.executeQuery(parent, null, sql);
-        }
-        if (Debugging.ENABLE && Graph.DEBUG_QUERY)
-        {
-            Debugging.log("GraphAccessor",rowSet.size());
-        }
-        
-        return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap);
-    }
-    
     
     public <ELEMENT extends NodeObject> ELEMENT[] getArray(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {

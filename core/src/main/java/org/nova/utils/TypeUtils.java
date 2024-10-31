@@ -23,6 +23,7 @@ package org.nova.utils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.nova.core.ObjectBox;
@@ -841,7 +842,7 @@ public class TypeUtils
         }
         return (int)value;
     }
-    static public boolean equals(Object[] a,Object[] b)
+    static public boolean equals(Object[] a,Object[] b) 
     {
         if (a!=null)
         {
@@ -866,7 +867,51 @@ public class TypeUtils
                 }
                 else if (oa.equals(ob)==false)
                 {
-                    return false;
+                    Class<?> ta=oa.getClass();
+                    if (ta.isArray()==false)
+                    {
+                        return false;
+                    }
+                    Class<?> tb=ob.getClass();
+                    Class<?> tca=ta.getComponentType();
+                    Class<?> tcb=tb.getComponentType();
+                    if (tca!=tcb)
+                    {
+                        return false;
+                    }
+                    if (tca==byte.class)
+                    {
+                        return Arrays.equals((byte[])oa,(byte[])ob);
+                    }
+                    else if (tca==char.class)
+                    {
+                        return Arrays.equals((char[])oa,(char[])ob);
+                    }
+                    else if (tca==int.class)
+                    {
+                        return Arrays.equals((int[])oa,(int[])ob);
+                    }
+                    else if (tca==long.class)
+                    {
+                        return Arrays.equals((long[])oa,(long[])ob);
+                    }
+                    else if (tca==boolean.class)
+                    {
+                        return Arrays.equals((boolean[])oa,(boolean[])ob);
+                    }
+                    else if (tca==double.class)
+                    {
+                        return Arrays.equals((double[])oa,(double[])ob);
+                    }
+                    else if (tca==float.class)
+                    {
+                        return Arrays.equals((float[])oa,(float[])ob);
+                    }
+                    else if (tca==short.class)
+                    {
+                        return Arrays.equals((short[])oa,(short[])ob);
+                    }
+                    throw new RuntimeException();
                 }
             }
             return true;

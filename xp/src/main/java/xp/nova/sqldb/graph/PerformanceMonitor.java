@@ -12,37 +12,14 @@ import org.nova.operations.OperatorVariable;
 
 public class PerformanceMonitor
 {
-    static public record QueryCatalogKey(PreparedQuery preparedQuery,String catalog)
-    {
-        @Override
-        public boolean equals(Object obj) 
-        {
-          if (this == obj) 
-          {
-            return true;
-          }
-          if (obj == null || getClass() != obj.getClass()) 
-          {
-            return false;
-          }
-          QueryCatalogKey other = (QueryCatalogKey) obj;
-          return preparedQuery.equals(other.preparedQuery) && catalog.equals(other.catalog);
-        }
-        public int hashCode() 
-        {
-            return preparedQuery.hashCode()+catalog.hashCode();
-        }
-    }
-    
-
-    HashMap<QueryCatalogKey,StackAndMeter> slowQueries;
+    HashMap<String,QueryPerformance> slowQueries;
 
     @OperatorVariable(description="ms")
     long minimumDuration;
     
     public PerformanceMonitor(long minimumDuration)
     {
-        this.slowQueries=new HashMap<QueryCatalogKey, StackAndMeter>();
+        this.slowQueries=new HashMap<String, QueryPerformance>();
         setMimimumDuration(minimumDuration);
     }
     
@@ -51,7 +28,7 @@ public class PerformanceMonitor
         this.minimumDuration=minimumDuration;
     }
     
-    public void updateSlowQuery(long duration,PreparedQuery query,String catalog)
+    public void updateSlowQuery(long duration,QueryResultSet resultSet,String catalog)
     {
         if (duration<this.minimumDuration)
         {
@@ -59,14 +36,14 @@ public class PerformanceMonitor
         }
         synchronized(this)
         {
-            QueryCatalogKey key=new QueryCatalogKey(query,catalog);
-            StackAndMeter stackAndMeter=slowQueries.get(key);
-            if (stackAndMeter==null)
+            String key='`'+catalog+"`."+resultSet.sql;
+            QueryPerformance queryPerformance=slowQueries.get(key);
+            if (queryPerformance==null)
             {
-                stackAndMeter=new StackAndMeter(Thread.currentThread().getStackTrace(),new LongValueMeter());
-                this.slowQueries.put(key, stackAndMeter);
+                queryPerformance=new QueryPerformance(Thread.currentThread().getStackTrace(),new LongValueMeter(),resultSet);
+                this.slowQueries.put(key, queryPerformance);
             }
-            stackAndMeter.meter().update(duration);
+            queryPerformance.meter().update(duration);
         }
     }
     public void clear()
@@ -76,11 +53,11 @@ public class PerformanceMonitor
             this.slowQueries.clear();
         }
     }
-    public Map<QueryCatalogKey,StackAndMeter> getSnapshot()
+    public Map<String,QueryPerformance> getSnapshot()
     {
         synchronized (this)
         {
-            return (HashMap<QueryCatalogKey,StackAndMeter>)this.slowQueries.clone();
+            return (HashMap<String,QueryPerformance>)this.slowQueries.clone();
         }
     }
 }

@@ -31,6 +31,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +46,8 @@ public class ObjectMapper
 {
     //To support non standard JSON.
     static public boolean PERMIT_ELEMENT_AS_ARRAY=false;
+    static final Options DEFAULT_OPTIONS=new Options();
+    
     
     
     final static private HashMap<String, FieldWriter[]> FIELD_WRITERS=new HashMap<>();
@@ -72,6 +77,37 @@ public class ObjectMapper
         void write(WriteState writeState,Object object)
         {
             writeState.writeEscapedString((String)object);
+        }
+    }
+    static class LocalDateWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            if (object==null)
+            {
+                writeState.writeNull();
+            }
+            else
+            {
+                LocalDate date=(LocalDate)object;
+                writeState.write(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
+            }
+        }
+    }
+    final static private DateTimeFormatter ISO8601_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss:SSS");
+    static class LocalDateTimeWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            if (object==null)
+            {
+                writeState.writeNull();
+            }
+            else
+            {
+                LocalDateTime dateTime=(LocalDateTime)object;
+                writeState.write(ISO8601_DATETIME_FORMATTER.format(dateTime));
+            }
         }
     }
     static class EnumWriter extends  Writer
@@ -170,6 +206,14 @@ public class ObjectMapper
             else if (type == java.lang.Enum.class)
             {
                 writer=new EnumWriter();
+            }
+            else if (type==LocalDate.class)
+            {
+                writer=new LocalDateWriter();
+            }
+            else if (type==LocalDateTime.class)
+            {
+                writer=new LocalDateTimeWriter();
             }
             else if (type == BigDecimal.class)
             {
@@ -2055,8 +2099,6 @@ public class ObjectMapper
         return classReader;
     }
 
-    static final Options DEFAULT_OPTIONS=new Options();
-    
     static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type) throws Throwable
     {
         return readObjectFromFile(fileName,type,DEFAULT_OPTIONS);

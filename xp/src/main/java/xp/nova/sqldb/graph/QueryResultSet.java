@@ -10,16 +10,35 @@ public class QueryResultSet
 {
     final QueryResult[] results;
     final private Map<String,GraphObjectDescriptor> map;
-//    final Class<? extends GraphObject> one;
+    final String sql;
+    final Object[] parameters;
+    final Long nodeId;
     
-    QueryResultSet(RowSet rowSet,Map<String,GraphObjectDescriptor> map) throws Exception
+    QueryResultSet(RowSet rowSet,Map<String,GraphObjectDescriptor> map,String sql,Long nodeId,Object[] parameters) throws Exception
     {
+        this.sql=sql;
+        this.parameters=parameters;
+        this.nodeId=nodeId;
+       
         this.results=new QueryResult[rowSet.size()];
         for (int i=0;i<results.length;i++)
         {
             results[i]=new QueryResult(rowSet.getRow(i), map);
         }
         this.map=map;
+    }
+    
+    public String getSql()
+    {
+        return this.sql;
+    }
+    public Long getNodeId()
+    {
+        return this.nodeId;
+    }
+    public Object[] getParameters()
+    {
+        return this.parameters;
     }
     
     public QueryResult[] getResults()
