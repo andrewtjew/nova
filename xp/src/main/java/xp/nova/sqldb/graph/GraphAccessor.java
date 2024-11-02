@@ -3,6 +3,7 @@ package xp.nova.sqldb.graph;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 
+import org.nova.html.tags.pre;
 import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Row;
@@ -62,6 +63,10 @@ public class GraphAccessor implements AutoCloseable
             }
         }
     }
+    public Accessor getAccessor()
+    {
+        return this.accessor;
+    }
     
     
     private void debugPrint(QueryResultSet set) throws Throwable
@@ -83,18 +88,37 @@ public class GraphAccessor implements AutoCloseable
         }
         
     }
+
+    public QueryResultSet execute(Trace parent,Object[] parameters,long startNodeId,ArrayQuery query) throws Throwable
+    {
+        PreparedQuery preparedQuery=query.build(this.graph);
+        translateParameters(parameters);
+        return execute(parent,preparedQuery,parameters,startNodeId);
+    }
+    public QueryResultSet execute(Trace parent,long startNodeId,ArrayQuery query,Object...parameters) throws Throwable
+    {
+        return execute(parent,parameters,startNodeId,query);
+    }
+    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,ArrayQuery query,Object...parameters) throws Throwable
+    {
+        return execute(parent,parameters,startNodeObject.getNodeId(),query);
+    }
     
     public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph);
         translateParameters(parameters);
+        return execute(parent,preparedQuery,parameters,startNodeId);
+    }
+    public QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
+    {
         QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
         var valueSize=this.graph.getFromCache(key);
         if (valueSize!=null)
         {
             if (Debugging.ENABLE && Graph.DEBUG)
             {
-                QueryResultSet queryResultSet=execute(parent, preparedQuery,parameters,startNodeId,query);
+                QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
                 QueryResultSet cachedResultSet=valueSize.value();
                 if (queryResultSet.equals(cachedResultSet)==false)
                 {
@@ -113,7 +137,7 @@ public class GraphAccessor implements AutoCloseable
         }
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
-            QueryResultSet queryResultSet=execute(trace, preparedQuery,parameters,startNodeId,query);
+            QueryResultSet queryResultSet=_execute(trace, preparedQuery,parameters,startNodeId);
             if (Debugging.ENABLE && Graph.DEBUG_CACHING)
             {
                 Debugging.log("Graph","cache miss",LogLevel.WARNING);
@@ -125,12 +149,20 @@ public class GraphAccessor implements AutoCloseable
         }
     }        
         
-    public QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId,Query query) throws Throwable
+    private QueryResultSet _execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
         StringBuilder sb=new StringBuilder(preparedQuery.sql);
         if (startNodeId!=null)
         {
             sb.append(preparedQuery.start+startNodeId);
+        }
+        if (preparedQuery.limit!=null)
+        {
+            sb.append(" LIMIT "+preparedQuery.limit);
+            if (preparedQuery.offset!=null)
+            {
+                sb.append(" OFFSET "+preparedQuery.offset);
+            }
         }
         String sql=sb.toString();
         RowSet rowSet;
@@ -168,7 +200,6 @@ public class GraphAccessor implements AutoCloseable
         {
             Debugging.log("GraphAccessor",rowSet.size());
         }
-        
         return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap,sql,startNodeId,parameters);
     }
     public QueryResultSet execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
@@ -184,75 +215,69 @@ public class GraphAccessor implements AutoCloseable
         return execute(parent,parameters,null,query);
     }
     
-    public Accessor getAccessor()
-    {
-        return this.accessor;
-    }
-
-    
-    public <ELEMENT extends NodeObject> ELEMENT[] getArray(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
-    {
-        Long arrayNodeId=arrayObject.getNodeId();
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        String typeName=elementType.getSimpleName();
-        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=?";
-        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId);
-        if (rowSet.size()==0)
-        {
-            return null;
-        }
-        int largestArrayIndex=0;
-        for (int i=0;i<rowSet.size();i++)
-        {
-            Row row=rowSet.getRow(i);
-            int index=row.getINTEGER("_index");
-            if (index>largestArrayIndex)
-            {
-                largestArrayIndex=index;
-            }
-        }
-        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
-        Object array=Array.newInstance(elementType,largestArrayIndex+1);
-        for (int i=0;i<rowSet.size();i++)
-        {
-            Row row=rowSet.getRow(i);
-            int index=row.getINTEGER("_index");
-            NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
-            for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
-            {
-                columnAccessor.set(element, null, row);
-            }
-            Array.set(array, index, element);
-        }
-        return (ELEMENT[]) array;
-    }
-
-    public <ELEMENT extends NodeObject> ELEMENT getArrayElement(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType,int index) throws Throwable
-    {
-        Long arrayNodeId=arrayObject.getNodeId();
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        String typeName=elementType.getSimpleName();
-        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=? AND _array.index=?";
-        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId,index);
-        if (rowSet.size()==0)
-        {
-            return null;
-        }
-        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
-        Row row=rowSet.getRow(0);
-        NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
-        for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
-        {
-            columnAccessor.set(element, null, row);
-        }
-        return (ELEMENT)element;
-    }
+//    public <ELEMENT extends NodeObject> ELEMENT[] getArray(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
+//    {
+//        Long arrayNodeId=arrayObject.getNodeId();
+//        if (arrayNodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        String typeName=elementType.getSimpleName();
+//        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=?";
+//        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId);
+//        if (rowSet.size()==0)
+//        {
+//            return null;
+//        }
+//        int largestArrayIndex=0;
+//        for (int i=0;i<rowSet.size();i++)
+//        {
+//            Row row=rowSet.getRow(i);
+//            int index=row.getINTEGER("_index");
+//            if (index>largestArrayIndex)
+//            {
+//                largestArrayIndex=index;
+//            }
+//        }
+//        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
+//        Object array=Array.newInstance(elementType,largestArrayIndex+1);
+//        for (int i=0;i<rowSet.size();i++)
+//        {
+//            Row row=rowSet.getRow(i);
+//            int index=row.getINTEGER("_index");
+//            NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
+//            for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
+//            {
+//                columnAccessor.set(element, null, row);
+//            }
+//            Array.set(array, index, element);
+//        }
+//        return (ELEMENT[]) array;
+//    }
+//
+//    public <ELEMENT extends NodeObject> ELEMENT getArrayElement(Trace parent,NodeObject arrayObject,Class<? extends NodeObject> elementType,int index) throws Throwable
+//    {
+//        Long arrayNodeId=arrayObject.getNodeId();
+//        if (arrayNodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        String typeName=elementType.getSimpleName();
+//        String sql="SELECT "+typeName+".*,_array.index as _index FROM _array JOIN "+typeName+" ON _array.elementId="+typeName+"._nodeId WHERE _array.nodeId=? AND _array.index=?";
+//        RowSet rowSet=this.accessor.executeQuery(parent, null, sql,arrayNodeId,index);
+//        if (rowSet.size()==0)
+//        {
+//            return null;
+//        }
+//        GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(elementType);
+//        Row row=rowSet.getRow(0);
+//        NodeObject element = (NodeObject)elementType.getDeclaredConstructor().newInstance();
+//        for (FieldDescriptor columnAccessor : descriptor.getFieldDescriptors())
+//        {
+//            columnAccessor.set(element, null, row);
+//        }
+//        return (ELEMENT)element;
+//    }
 
 
     

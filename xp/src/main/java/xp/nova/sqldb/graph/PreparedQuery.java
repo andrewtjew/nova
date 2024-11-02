@@ -9,6 +9,8 @@ public class PreparedQuery
     String sql;
     String start;
     Object[] parameters;
+    Integer limit;
+    Integer offset;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
     ArrayList<GraphObjectDescriptor> descriptors;
 
@@ -19,6 +21,14 @@ public class PreparedQuery
         if (start!=null)
         {
             code+=start.hashCode();
+        }
+        if (offset!=null)
+        {
+            code+=offset.hashCode();
+        }
+        if (limit!=null)
+        {
+            code+=limit.hashCode();
         }
         if (parameters!=null)
         {
@@ -43,8 +53,16 @@ public class PreparedQuery
         {
             return false;
         }
-        
         PreparedQuery other = (PreparedQuery) o;
+        if (TypeUtils.equals(this.offset, other.offset)==false)
+        {
+            return false;
+        }
+        if (TypeUtils.equals(this.limit, other.limit)==false)
+        {
+            return false;
+        }
+        
         if (TypeUtils.equals(this.sql,other.sql)==false)
         {
             return false;

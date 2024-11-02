@@ -101,7 +101,6 @@ public class Query
         final HashMap<String,GraphObjectDescriptor> map;
         final StringBuilder sources;
         final StringBuilder select;
-//        final ArrayList<Object> parameters;
         final ArrayList<GraphObjectDescriptor> descriptors;
         int aliasIndex=0;
         
@@ -427,21 +426,24 @@ public class Query
         {
             query.append(" WHERE ("+this.expression+")");
         }
-        if (this.orderBy!=null)
-        {
-            query.append(" ORDER BY "+this.orderBy);
-        }
-        if (this.limit!=null)
-        {
-            if (this.offset!=null)
-            {
-                query.append(" LIMIT "+this.limit+" OFFSET "+this.offset);
-            }
-            else
-            {
-                query.append(" LIMIT "+this.limit);
-            }
-        }
+        preparedQuery.offset=this.offset;
+        preparedQuery.limit=this.limit;
+        
+//        if (this.orderBy!=null)
+//        {
+//            query.append(" ORDER BY "+this.orderBy);
+//        }
+//        if (this.limit!=null)
+//        {
+//            if (this.offset!=null)
+//            {
+//                query.append(" LIMIT "+this.limit+" OFFSET "+this.offset);
+//            }
+//            else
+//            {
+//                query.append(" LIMIT "+this.limit);
+//            }
+//        }
         preparedQuery.sql=query.toString();
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
