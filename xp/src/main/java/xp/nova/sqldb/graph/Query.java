@@ -2,9 +2,12 @@ package xp.nova.sqldb.graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.nova.html.tags.pre;
 import org.nova.utils.TypeUtils;
+
+import xp.nova.sqldb.graph.Query.State;
 
 public class Query
 {
@@ -101,17 +104,17 @@ public class Query
         final HashMap<String,GraphObjectDescriptor> map;
         final StringBuilder sources;
         final StringBuilder select;
-        final ArrayList<GraphObjectDescriptor> descriptors;
+        final List<GraphObjectDescriptor> descriptors;
         int aliasIndex=0;
         
         
-        public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select)
+        public State(Graph graph,HashMap<String,GraphObjectDescriptor> map,StringBuilder sources,StringBuilder select,List<GraphObjectDescriptor> descriptors)
         {
             this.graph=graph;
             this.map=map;
             this.sources=sources;
             this.select=select;
-            this.descriptors=new ArrayList<GraphObjectDescriptor>();
+            this.descriptors=descriptors;
         }
     }    
     
@@ -353,7 +356,7 @@ public class Query
         preparedQuery.descriptors=new ArrayList<GraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
-        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
+        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
 
         String on=null;
         if (on==null)

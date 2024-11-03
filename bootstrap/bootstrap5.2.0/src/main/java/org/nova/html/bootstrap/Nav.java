@@ -21,23 +21,20 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.tags.a;
+import org.nova.html.bootstrap.classes.BreakPoint;
+import org.nova.html.bootstrap.classes.NavbarPlacement;
+import org.nova.html.bootstrap.classes.ThemeColor;
 
-public class BreadcrumbItem extends StyleComponent<BreadcrumbItem>
+public class Nav extends StyleComponent<Nav>
 {
-    public BreadcrumbItem(String label,String href)
-    { 
-        super("li","breadcrumb-item");
-        returnAddInner(new a()).href(href).addInner(label);
-    }
-    public BreadcrumbItem(String label)
-    { 
-        this(label,null);
+    public Nav()
+    {
+        super("nav");
     }
     
-    public BreadcrumbItem active()
-    { 
-        addClass("active");
+    public Nav divider(String divider)
+    {
+        attr("style","--bs-breadcrumb-divider:'"+divider+"'");
         return this;
     }
 }

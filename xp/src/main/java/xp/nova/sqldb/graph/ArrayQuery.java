@@ -300,7 +300,7 @@ public class ArrayQuery
         preparedQuery.descriptors=new ArrayList<GraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
-        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
+        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
         
         String on=null;
         if (on==null)

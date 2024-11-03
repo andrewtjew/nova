@@ -29,7 +29,7 @@ public class Graph
 {
     static final boolean DEBUG=true;
     static final boolean DEBUG_QUERY=true;
-    static final boolean DEBUG_CACHING=false;
+    static final boolean DEBUG_CACHING=true;
     
     private int defaultVARCHARLength=45;
     
