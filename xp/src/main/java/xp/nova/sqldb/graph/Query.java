@@ -431,6 +431,7 @@ public class Query
         }
         preparedQuery.offset=this.offset;
         preparedQuery.limit=this.limit;
+        preparedQuery.orderBy=this.orderBy;
         
 //        if (this.orderBy!=null)
 //        {

@@ -3,6 +3,7 @@ package xp.nova.sqldb.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.nova.html.tags.pre;
 import org.nova.utils.TypeUtils;
 
 import xp.nova.sqldb.graph.Query.State;
@@ -378,6 +379,7 @@ public class ArrayQuery
         {
             query.append(" WHERE _array.index>="+this.offset);
         }
+        preparedQuery.orderBy=this.orderBy;
         preparedQuery.limit=this.limit;
         preparedQuery.sql=query.toString();
         this.preparedQuery=preparedQuery;

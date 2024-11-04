@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.bootstrap.classes.Placement;
 
 public class Button extends ButtonComponent<Button>
 {
@@ -39,8 +40,16 @@ public class Button extends ButtonComponent<Button>
     public Button popover(String title,String content)
     {
         this.attr("data-bs-toggle","popover");        
-        this.attr("title",title);
+        this.attr("data-bs-title",title);
         this.attr("data-bs-content",content);
+        return this;
+    }
+    
+    public Button tooltip(String title,Placement placement)
+    {
+        this.attr("data-bs-toggle","tooltip");        
+        this.attr("data-bs-title",title);
+        this.attr("data-bs-placement",placement.toString());
         return this;
     }
 

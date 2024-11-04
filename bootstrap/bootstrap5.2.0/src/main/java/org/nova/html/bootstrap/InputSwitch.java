@@ -31,6 +31,7 @@ public class InputSwitch extends InputComponent<InputSwitch>
     {
         super(InputType.checkbox);
         this.outer=new Item().form_check().form_switch();
+//        this.outer.px(0);
         this.outer.addInner(this);
         addClass("form-check-input");
     }

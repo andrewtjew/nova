@@ -11,6 +11,7 @@ public class PreparedQuery
     Object[] parameters;
     Integer limit;
     Integer offset;
+    String orderBy;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
     ArrayList<GraphObjectDescriptor> descriptors;
 
@@ -29,6 +30,10 @@ public class PreparedQuery
         if (limit!=null)
         {
             code+=limit.hashCode();
+        }
+        if (orderBy!=null)
+        {
+            code+=orderBy.hashCode();
         }
         if (parameters!=null)
         {
@@ -64,6 +69,10 @@ public class PreparedQuery
         }
         
         if (TypeUtils.equals(this.sql,other.sql)==false)
+        {
+            return false;
+        }
+        if (TypeUtils.equals(this.orderBy,other.orderBy)==false)
         {
             return false;
         }

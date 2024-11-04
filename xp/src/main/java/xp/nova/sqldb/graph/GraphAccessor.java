@@ -3,6 +3,7 @@ package xp.nova.sqldb.graph;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 
+import org.nova.html.tags.p;
 import org.nova.html.tags.pre;
 import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
@@ -155,6 +156,10 @@ public class GraphAccessor implements AutoCloseable
         if (startNodeId!=null)
         {
             sb.append(preparedQuery.start+startNodeId);
+        }
+        if (preparedQuery.orderBy!=null)
+        {
+            sb.append(" ORDER BY "+preparedQuery.orderBy);
         }
         if (preparedQuery.limit!=null)
         {
