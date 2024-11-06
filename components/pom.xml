@@ -123,6 +123,11 @@
 			<artifactId>commons-httpclient</artifactId>
 			<version>20020423</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.azure</groupId>
+		    <artifactId>azure-communication-email</artifactId>
+		    <version>1.0.17</version>
+		</dependency>
 	</dependencies>
 
 	<build>

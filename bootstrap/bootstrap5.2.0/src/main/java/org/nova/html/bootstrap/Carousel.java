@@ -30,7 +30,7 @@ import org.nova.html.tags.span;
 
 public class Carousel extends StyleComponent<Carousel>
 {
-    private div inner;
+    private Item inner;
     private boolean indicators;
     private boolean controls;
     
@@ -38,9 +38,12 @@ public class Carousel extends StyleComponent<Carousel>
     {
         super("div","carousel");
         attr("data-bs-ride","carousel");
-        this.inner=returnAddInner(new div()).addClass("carousel-inner");
+        this.inner=returnAddInner(new Item()).addClass("carousel-inner");
     }
-    
+    public Item inner()
+    {
+        return this.inner;
+    }
     public Carousel slide()
     {
         addClass("slide");
