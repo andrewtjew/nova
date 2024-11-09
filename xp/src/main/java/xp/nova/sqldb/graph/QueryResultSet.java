@@ -13,19 +13,21 @@ public class QueryResultSet
     final String sql;
     final Object[] parameters;
     final Long nodeId;
+    final PreparedQuery query;
     
-    QueryResultSet(RowSet rowSet,Map<String,GraphObjectDescriptor> map,String sql,Long nodeId,Object[] parameters) throws Exception
+    QueryResultSet(RowSet rowSet,PreparedQuery query,String sql,Long nodeId,Object[] parameters) throws Exception
     {
+        this.query=query;
         this.sql=sql;
         this.parameters=parameters;
         this.nodeId=nodeId;
        
         this.results=new QueryResult[rowSet.size()];
+        this.map=query.typeDescriptorMap;
         for (int i=0;i<results.length;i++)
         {
-            results[i]=new QueryResult(rowSet.getRow(i), map);
+            results[i]=new QueryResult(rowSet.getRow(i), this.map);
         }
-        this.map=map;
     }
     
     public String getSql()

@@ -10,9 +10,11 @@ import xp.nova.sqldb.graph.QueryResultSet;
 
 public class QueryCache extends ContentCache<QueryKey, QueryResultSet>
 {
-    public QueryCache() throws Throwable
+    final private Graph graph;
+    public QueryCache(Graph graph) throws Throwable
     {
         super(0,0,0,0);
+        this.graph=graph;
     }
 
     @Override
@@ -24,6 +26,7 @@ public class QueryCache extends ContentCache<QueryKey, QueryResultSet>
     @Override
     protected void onEvict(Trace parent, QueryKey key, QueryResultSet value) throws Throwable
     {
+        this.graph.evict(parent,key,value);
     }
 
 }
