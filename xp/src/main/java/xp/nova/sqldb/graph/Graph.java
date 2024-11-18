@@ -10,18 +10,16 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.nova.collections.ContentCache.ValueSize;
-import org.nova.html.tags.link;
+import org.nova.metrics.CountMeter;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
-import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -672,7 +670,8 @@ public class Graph
     final private QueryCache cache;
     final private HashMap<String,HashSet<QueryKey>> typeNameQueryKeyCacheSets;
     final private HashMap<Long,HashSet<String>> nodeTypeNameCacheSets; 
-    
+    static final public CountMeter hits=new CountMeter();
+    static final public CountMeter misses=new CountMeter();
     
     public Graph(Connector connector,String catalog,boolean caching,PerformanceMonitor performanceMonitor) throws Throwable
     {
@@ -680,6 +679,7 @@ public class Graph
         this.connector=connector;
         this.performanceMonitor=performanceMonitor;
         this.catalog=catalog;
+
         this.cache=new QueryCache(this);
         this.typeNameQueryKeyCacheSets=new HashMap<String, HashSet<QueryKey>>();
         this.nodeTypeNameCacheSets=new HashMap<Long, HashSet<String>>();
@@ -931,6 +931,14 @@ public class Graph
                     Debugging.log("Graph Cache:found     : "+key.preparedQuery.sql);
                 }
             }
+            if (valueSize!=null)
+            {
+                this.hits.increment();
+            }
+            else
+            {
+                this.misses.increment();
+            }
             return valueSize;
         }
     }
@@ -1036,13 +1044,16 @@ public class Graph
     void invalidateCacheLines(Trace parent,long nodeId) throws Throwable
     {
         var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
-        for (String typeName:typeNameSet)
+        if (typeNameSet!=null)
         {
-            if (Debugging.ENABLE && DEBUG_CACHING)
+            for (String typeName:typeNameSet)
             {
-                Debugging.log("invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                if (Debugging.ENABLE && DEBUG_CACHING)
+                {
+                    Debugging.log("invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                }
+                invalidateCacheLines(parent,typeName);
             }
-            invalidateCacheLines(parent,typeName);
         }
     }
     void evict(Trace parent, QueryKey key,QueryResultSet queryResultSet) throws Throwable
@@ -1062,14 +1073,17 @@ public class Graph
             String table=namespaceDescriptor.getNamespaceTypeName();
             for (QueryResult result:queryResultSet.results)
             {
-                long nodeId=result.row.getBIGINT(table+"._nodeId");
-                HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
-                if (typeNameSet!=null)
+                Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
+                if (nodeId!=null)
                 {
-                    typeNameSet.remove(typeName);
-                    if (typeNameSet.size()==0)
+                    HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+                    if (typeNameSet!=null)
                     {
-                        this.nodeTypeNameCacheSets.remove(nodeId);
+                        typeNameSet.remove(typeName);
+                        if (typeNameSet.size()==0)
+                        {
+                            this.nodeTypeNameCacheSets.remove(nodeId);
+                        }
                     }
                 }
             }

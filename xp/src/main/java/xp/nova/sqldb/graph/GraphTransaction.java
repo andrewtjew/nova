@@ -1,8 +1,6 @@
 package xp.nova.sqldb.graph;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;
@@ -316,7 +314,7 @@ public class GraphTransaction implements AutoCloseable
             {
                 long fromNodeId=row.getBIGINT("fromNodeId");
                 long toNodeId=row.getBIGINT("toNodeId");
-                int relationValue=row.getINTEGER("relationValue");
+                long relationValue=row.getBIGINT("relationValue");
                 deleted+=deleteLink(fromNodeId,toNodeId,relationValue);
             }
         }

@@ -1,13 +1,7 @@
 package xp.nova.sqldb.graph;
 
-import java.lang.reflect.Array;
-import java.time.LocalDate;
-
-import org.nova.html.tags.p;
-import org.nova.html.tags.pre;
 import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
-import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
 import org.nova.testing.LogLevel;

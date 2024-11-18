@@ -230,7 +230,7 @@ public class TimerScheduler
 	
 	public TimerTask[] getTimerTaskSnapshot()
 	{
-	    ArrayList<TimerTask> tasks=new ArrayList();
+	    ArrayList<TimerTask> tasks=new ArrayList<TimerTask>();
 		synchronized(this)
 		{
             tasks.addAll(this.runningTasks.values());

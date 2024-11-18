@@ -21,10 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-import org.nova.html.bootstrap.classes.NavbarPlacement;
-import org.nova.html.bootstrap.classes.ThemeColor;
-
 public class Nav extends StyleComponent<Nav>
 {
     public Nav()

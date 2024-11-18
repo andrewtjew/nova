@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Align;
-
 public class TableData extends StyleComponent<TableData>
 {
     public TableData()

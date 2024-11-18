@@ -1,7 +1,9 @@
 package org.nova.cloudInterfaces;
 
+import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.html.elements.Element;
 import org.nova.tracing.Trace;
+import org.nova.tracing.TraceRunnable;
 
 import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.EmailClientBuilder;
@@ -16,11 +18,14 @@ public class AzureEmailService extends EmailService
 //    final private String connectionString = "endpoint=https://clicknow-communication.asiapacific.communication.azure.com/;accesskey=1qeZm3VQqidFlEuIMW32XrpUTVorJw93yTUnHCa4YAu50llXAKOaJQQJ99AJACULyCpw9eeDAAAAAZCSuBZ9";
     final private EmailClient emailClient;
     final private String senderAddress;
+    final private MultiTaskScheduler scheduler;
 
-    public AzureEmailService(String connectionString,String senderAddress)
+    public AzureEmailService(MultiTaskScheduler scheduler,String connectionString,String senderAddress)
     {
         this.emailClient = new EmailClientBuilder().connectionString(connectionString).buildClient();
         this.senderAddress=senderAddress;
+        this.scheduler=scheduler;
+        
         
     }
     
@@ -35,14 +40,26 @@ public class AzureEmailService extends EmailService
             .setSubject(subject)
             .setBodyPlainText(content)
             .setBodyHtml(content);
-        SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
-        PollResponse<EmailSendResult> result = poller.waitForCompletion();
+        send(parent,emailMessage);
+    }
+    
+    void send(Trace parent,EmailMessage emailMessage)
+    {
+        this.scheduler.schedule(parent, "AzureEmailService", new TraceRunnable()
+        {
+
+            @Override
+            public void run(Trace parent) throws Throwable
+            {
+                SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
+                PollResponse<EmailSendResult> result = poller.waitForCompletion();
+            }
+        });
     }
 
     @Override
     public void send(Trace parent, String to, String subject, String content, String mediaType, String attachementMediaType, String filename, byte[] attachment) throws Throwable
     {
-        // TODO Auto-generated method stub
         
     }
 
@@ -64,8 +81,7 @@ public class AzureEmailService extends EmailService
             String htmlText=""+html.toString()+"";
             emailMessage.setBodyHtml(htmlText);
         }
-        SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
-        PollResponse<EmailSendResult> result = poller.waitForCompletion();
+        send(parent,emailMessage);
     }
 
 }

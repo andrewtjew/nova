@@ -3,11 +3,6 @@ package xp.nova.sqldb.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.nova.html.tags.pre;
-import org.nova.utils.TypeUtils;
-
-import xp.nova.sqldb.graph.Query.State;
-
 public class ArrayQuery
 {
     Class<? extends NodeObject>[] nodeTypes;
@@ -79,7 +74,7 @@ public class ArrayQuery
         preparedQuery.descriptors=new ArrayList<NamespaceGraphObjectDescriptor>();
         StringBuilder select = new StringBuilder();
         StringBuilder sources = new StringBuilder();
-        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
+        PrepareState state=new PrepareState(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
         
         String on=null;
         if (on==null)

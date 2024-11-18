@@ -27,7 +27,7 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
 
-public abstract class DeviceSessionService<SESSION extends DeviceSession> extends ServerApplication
+public abstract class DeviceSessionService<SESSION extends DeviceSession<?>> extends ServerApplication
 {
     final private TokenGenerator tokenGenerator;
     final private SessionManager<SESSION> sessionManager;

@@ -16,6 +16,6 @@ public record NamespaceGraphObjectDescriptor(String namespace,GraphObjectDescrip
         {
             return this.descriptor.getTypeName();
         }
-        return this.descriptor.getNamespaceTypeName(this.namespace);
+        return this.namespace+this.descriptor.getTypeName();
     }
 }
