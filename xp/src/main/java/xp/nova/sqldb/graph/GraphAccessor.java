@@ -1,13 +1,7 @@
 package xp.nova.sqldb.graph;
 
-import java.lang.reflect.Array;
-import java.time.LocalDate;
-
-import org.nova.html.tags.p;
-import org.nova.html.tags.pre;
 import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
-import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
 import org.nova.testing.Debugging;
 import org.nova.testing.LogLevel;
@@ -205,7 +199,7 @@ public class GraphAccessor implements AutoCloseable
         {
             Debugging.log("GraphAccessor",rowSet.size());
         }
-        return new QueryResultSet(rowSet,preparedQuery.typeDescriptorMap,sql,startNodeId,parameters);
+        return new QueryResultSet(rowSet,preparedQuery,sql,startNodeId,parameters);
     }
     public QueryResultSet execute(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {

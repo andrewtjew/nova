@@ -13,7 +13,7 @@ public class PreparedQuery
     Integer offset;
     String orderBy;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
-    ArrayList<GraphObjectDescriptor> descriptors;
+    ArrayList<NamespaceGraphObjectDescriptor> descriptors;
 
     @Override
     public final int hashCode()

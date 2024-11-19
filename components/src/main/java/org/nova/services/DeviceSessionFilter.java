@@ -128,7 +128,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         boolean keepStateAlive=false; 
         try
         {
-            session.verifyQuery(context);
+            if (session.verifyQuery(context)==false)
+            {
+                return handleInvalidQuery(parent, context);
+            }
             AccessResult result=session.isAccessDenied(handler);
             if (result.denied)
             {
@@ -163,13 +166,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                     }
                     logPage(parent,session,context,page);
                 }
-                return response;
             }
+            return response;
         }
         catch (Throwable t)
         {
             context.seeOther("/");
             parent.close(t);
+            return handleException(parent, context, parent.getThrowable());
         }
         finally
         {
@@ -180,9 +184,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Expires", "0");
         }
-        return handleException(parent, context, parent.getThrowable());
+
 	}
 	
+    abstract protected Response<?> handleInvalidQuery(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;

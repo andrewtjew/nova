@@ -1,11 +1,7 @@
 package xp.nova.sqldb.graph;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.TreeMap;
-
-import org.nova.collections.RingBuffer;
 import org.nova.metrics.LongValueMeter;
 import org.nova.operations.OperatorVariable;
 

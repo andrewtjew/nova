@@ -47,6 +47,19 @@ public class FormInputNumber extends FormInput<InputNumber>
     {
         this(col, labelText, name,value,false);
     }
+    public FormInputNumber(FormCol col, String labelText,String name,Short value,boolean required)
+    {
+        super(col, labelText, new InputNumber(), null);
+        input().name(name).required(required);
+        if (value!=null)
+        {
+            input().value(value);
+        }
+    }
+    public FormInputNumber(FormCol col, String labelText,String name,Short value)
+    {
+        this(col, labelText, name,value,false);
+    }
    
 //    public FormInputNumber(String labelText,String name,Double value,boolean required)
 //    {

@@ -154,7 +154,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     }
 
     @Override
-    public void verifyQuery(Context context) throws Throwable
+    public boolean verifyQuery(Context context) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
         String code=request.getParameter(getSecurityQueryKey());
@@ -165,11 +165,9 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            if (code.equals(computed)==false)
-            {
-                throw new Exception();
-            }
+            return code.equals(computed);
         }
+        return true;
     }
     @Override
     public String signQuery(String query) throws Throwable
@@ -208,17 +206,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     {
         this.continuation=null;
     }
-
-//    public void setContinuationPage(Context context)
-//    {
-//        this.continuationPage=this.getPathAndQuery(context);
-//    }
-
-//    public String activateContination()
-//    {
-//        this.activeContinuation=this.continuation;
-//        return this.continuationPage;
-//    }
     
     public String getContinuation()
     {
