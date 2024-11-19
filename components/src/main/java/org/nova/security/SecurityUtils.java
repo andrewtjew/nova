@@ -281,7 +281,7 @@ public class SecurityUtils
         }
     }
     
-    final static String USER_CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
+    final static String USER_CODE_ALPHABET = "ACDEFGHJKLMNPQRTVWXYZ234679";
 
     public static byte[] generateRandomBytes(int length)
     {

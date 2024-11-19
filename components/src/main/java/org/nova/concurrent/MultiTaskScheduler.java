@@ -53,14 +53,7 @@ public class MultiTaskScheduler
         this(traceManager,maximumThreads>0?Executors.newFixedThreadPool(maximumThreads):Executors.newVirtualThreadPerTaskExecutor(),logger);
         if (MIGRATE_VIRTUAL_THREADS)
         {
-            if (maximumThreads<=0)
-            {
-                System.err.println("MIGRATE: MultiTaskScheduler is using virtual threads");
-            }
-            else
-            {
-                System.err.println("MIGRATE: MultiTaskScheduler max threads: "+maximumThreads);
-            }
+            System.err.println("MIGRATE: MultiTaskScheduler max threads: "+maximumThreads);
         }
     }
     public MultiTaskScheduler(TraceManager traceManager,Logger logger)

@@ -6,14 +6,15 @@ import org.nova.tracing.Trace;
 import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.EmailClientBuilder;
 import com.azure.communication.email.models.EmailAddress;
+import com.azure.communication.email.models.EmailAttachment;
 import com.azure.communication.email.models.EmailMessage;
 import com.azure.communication.email.models.EmailSendResult;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
 
 public class AzureEmailService extends EmailService
 {
-//    final private String connectionString = "endpoint=https://clicknow-communication.asiapacific.communication.azure.com/;accesskey=1qeZm3VQqidFlEuIMW32XrpUTVorJw93yTUnHCa4YAu50llXAKOaJQQJ99AJACULyCpw9eeDAAAAAZCSuBZ9";
     final private EmailClient emailClient;
     final private String senderAddress;
 
@@ -28,7 +29,6 @@ public class AzureEmailService extends EmailService
     public void send(Trace parent, String to, String subject, String content, String mediaType) throws Throwable
     {
         EmailAddress toAddress = new EmailAddress(to);
-
         EmailMessage emailMessage = new EmailMessage()
             .setSenderAddress(this.senderAddress)
             .setToRecipients(toAddress)
@@ -42,8 +42,17 @@ public class AzureEmailService extends EmailService
     @Override
     public void send(Trace parent, String to, String subject, String content, String mediaType, String attachementMediaType, String filename, byte[] attachment) throws Throwable
     {
-        // TODO Auto-generated method stub
-        
+        EmailAddress toAddress = new EmailAddress(to);
+        EmailMessage emailMessage = new EmailMessage()
+            .setSenderAddress(this.senderAddress)
+            .setToRecipients(toAddress)
+            .setSubject(subject)
+            .setBodyPlainText(content)
+            .setBodyHtml(content);
+        EmailAttachment emailAttachement=new EmailAttachment(filename,attachementMediaType,BinaryData.fromBytes(attachment));
+        emailMessage.setAttachments(emailAttachement);
+        SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
+        PollResponse<EmailSendResult> result = poller.waitForCompletion();
     }
 
     @Override

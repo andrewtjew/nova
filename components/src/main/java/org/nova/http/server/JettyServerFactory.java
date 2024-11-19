@@ -59,11 +59,7 @@ public class JettyServerFactory
     {
         if (MIGRATE_VIRTUAL_THREADS)
         {
-            if (threads<=0)
-            {
-                System.err.println("MIGRATE: Jetty is using virtual threads");
-            }
-            else
+            if (threads>0)
             {
                 System.err.println("MIGRATE: Jetty max threads: "+threads);
             }
