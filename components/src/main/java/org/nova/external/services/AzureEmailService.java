@@ -1,4 +1,4 @@
-package org.nova.cloudInterfaces;
+package org.nova.external.services;
 
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.html.elements.Element;
@@ -17,13 +17,13 @@ import com.azure.core.util.polling.SyncPoller;
 
 public class AzureEmailService extends EmailService
 {
-    final private EmailClient emailClient;
+    final private EmailClient client;
     final private String senderAddress;
     final private MultiTaskScheduler scheduler;
 
     public AzureEmailService(MultiTaskScheduler scheduler,String connectionString,String senderAddress)
     {
-        this.emailClient = new EmailClientBuilder().connectionString(connectionString).buildClient();
+        this.client = new EmailClientBuilder().connectionString(connectionString).buildClient();
         this.senderAddress=senderAddress;
         this.scheduler=scheduler;
         
@@ -51,7 +51,7 @@ public class AzureEmailService extends EmailService
             @Override
             public void run(Trace parent) throws Throwable
             {
-                SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
+                SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
                 PollResponse<EmailSendResult> result = poller.waitForCompletion();
             }
         });
@@ -69,7 +69,7 @@ public class AzureEmailService extends EmailService
             .setBodyHtml(content);
         EmailAttachment emailAttachement=new EmailAttachment(filename,attachementMediaType,BinaryData.fromBytes(attachment));
         emailMessage.setAttachments(emailAttachement);
-        SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage, null);
+        SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
         PollResponse<EmailSendResult> result = poller.waitForCompletion();
     }
 

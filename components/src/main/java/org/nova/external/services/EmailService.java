@@ -19,11 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.cloudInterfaces;
+package org.nova.external.services;
 
+import org.nova.html.elements.Element;
 import org.nova.tracing.Trace;
 
-public abstract class SMSService
+public abstract class EmailService
 {
-    public abstract String send(Trace parent,String phoneNumber, String message);
+    public abstract void send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable;
+    public abstract void send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable;
+    public abstract void send(Trace parent,String to,String subject,String plainText,Element html) throws Throwable;
 }

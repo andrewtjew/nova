@@ -105,4 +105,11 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         
     }
 
+    @Override
+    protected Response<?> handleInvalidQuery(Trace parent, Context context) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
