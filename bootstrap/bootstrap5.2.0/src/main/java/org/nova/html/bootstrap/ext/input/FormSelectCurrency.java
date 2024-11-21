@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.localization.CurrencyCode;
 
-public class FormSelectCurrency extends FormInput<SelectCurrency>
+public class FormSelectCurrency extends FormSelectComponent<SelectCurrency>
 {
     public FormSelectCurrency(FormCol col, String labelText,String name,CurrencyCode[] currencyCodes,CurrencyCode value,boolean required)
     {

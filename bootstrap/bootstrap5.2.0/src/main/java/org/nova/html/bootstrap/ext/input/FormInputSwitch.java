@@ -3,7 +3,7 @@ package org.nova.html.bootstrap.ext.input;
 import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.classes.AlignSelf;
 
-public class FormInputSwitch extends FormInput<InputSwitch>
+public class FormInputSwitch extends FormInputComponent<InputSwitch>
 {
     public FormInputSwitch(FormCol col, String labelText,String name,boolean checked)
     {

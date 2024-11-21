@@ -3,10 +3,10 @@ package xp.nova.sqldb.graph;
 import org.nova.collections.ContentCache;
 import org.nova.tracing.Trace;
 
-public class QueryCache extends ContentCache<QueryKey, QueryResultSet>
+public class QueryResultSetCache extends ContentCache<QueryKey, QueryResultSet>
 {
     final private Graph graph;
-    public QueryCache(Graph graph) throws Throwable
+    public QueryResultSetCache(Graph graph) throws Throwable
     {
         super(0,0,0,0);
         this.graph=graph;

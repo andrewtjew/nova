@@ -27,7 +27,8 @@ public class Graph
 {
     static final boolean DEBUG=true;
     static final boolean DEBUG_QUERY=true;
-    static final boolean DEBUG_CACHING=true;
+    static final boolean DEBUG_CACHING=false;
+    static final boolean DEBUG_VERIFY_CACHING=true;
     
     private int defaultVARCHARLength=45;
     
@@ -663,24 +664,26 @@ public class Graph
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
-    final PerformanceMonitor performanceMonitor;
+    final GraphPerformanceMonitor performanceMonitor;
     final private String catalog;
 
     private boolean caching;
-    final private QueryCache cache;
+    final private QueryResultSetCache queryResultSetCache;
+    final private CountCache countCache;
     final private HashMap<String,HashSet<QueryKey>> typeNameQueryKeyCacheSets;
     final private HashMap<Long,HashSet<String>> nodeTypeNameCacheSets; 
     static final public CountMeter hits=new CountMeter();
     static final public CountMeter misses=new CountMeter();
     
-    public Graph(Connector connector,String catalog,boolean caching,PerformanceMonitor performanceMonitor) throws Throwable
+    public Graph(Connector connector,String catalog,boolean caching,GraphPerformanceMonitor performanceMonitor) throws Throwable
     {
         this.caching=caching;
         this.connector=connector;
         this.performanceMonitor=performanceMonitor;
         this.catalog=catalog;
 
-        this.cache=new QueryCache(this);
+        this.countCache=new CountCache(this);
+        this.queryResultSetCache=new QueryResultSetCache(this);
         this.typeNameQueryKeyCacheSets=new HashMap<String, HashSet<QueryKey>>();
         this.nodeTypeNameCacheSets=new HashMap<Long, HashSet<String>>();
     }
@@ -741,7 +744,7 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (Debugging.ENABLE && DEBUG_QUERY)
+            if (Debugging.ENABLE && DEBUG)
             {
                 Debugging.log("Graph",sql);
             }
@@ -755,7 +758,7 @@ public class Graph
             String after="_transactionId";
             Stack<String> alters=new Stack<String>();
 
-            if (Debugging.ENABLE && DEBUG_QUERY)
+            if (Debugging.ENABLE && DEBUG)
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
@@ -832,7 +835,7 @@ public class Graph
                         if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
-                            if (Debugging.ENABLE && DEBUG_QUERY)
+                            if (Debugging.ENABLE && DEBUG)
                             {
                                 Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
                             }
@@ -856,7 +859,7 @@ public class Graph
                     
                 }
                 sql.append(';');
-                if (Debugging.ENABLE && DEBUG_QUERY)
+                if (Debugging.ENABLE && DEBUG)
                 {
                     Debugging.log("Graph",sql);
                 }
@@ -913,14 +916,14 @@ public class Graph
         {
             if (caching==false)
             {
-                if (Debugging.ENABLE && DEBUG_CACHING)
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
                 }
                 return null;
             }
-            ValueSize<QueryResultSet> valueSize=this.cache.getFromCache(key);
-            if (Debugging.ENABLE && DEBUG_CACHING)
+            ValueSize<QueryResultSet> valueSize=this.queryResultSetCache.getFromCache(key);
+            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 if (valueSize==null)
                 {
@@ -942,10 +945,9 @@ public class Graph
             return valueSize;
         }
     }
-
-    void updateCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
+    void updateQueryResultSetCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
-        this.performanceMonitor.updateSlowQuery(duration, queryResultSet,getCatalog());
+        this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
         
         synchronized(this)
         {
@@ -965,15 +967,7 @@ public class Graph
                     typeNameCacheSet=new HashSet<QueryKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
                 }
-//                if (Debugging.ENABLE && DEBUG_CACHING)
-//                {
-//                    Debugging.log("Graph Cache:cache set :  "+name);
-//                    for (var setKey:set)
-//                    {
-//                        Debugging.log("Graph Cache:in set     : "+setKey.preparedQuery.sql);
-//                    }
-//                }
-                if (Debugging.ENABLE && DEBUG_CACHING)
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
                 }
@@ -995,8 +989,8 @@ public class Graph
                     }
                 }
             }
-            this.cache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
-            if (Debugging.ENABLE && DEBUG_CACHING)
+            this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
+            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
             }
@@ -1024,7 +1018,7 @@ public class Graph
     void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
         var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
-        if (Debugging.ENABLE && DEBUG_CACHING)
+        if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
         {
             Debugging.log("Graph Cache:invalidate cached table "+typeName);
         }
@@ -1032,23 +1026,25 @@ public class Graph
         {
             for (QueryKey key:typeNameCacheSet)
             {
-                QueryResultSet resultSet=this.cache.remove(key);
+                QueryResultSet resultSet=this.queryResultSetCache.remove(key);
                 evict(parent,key,resultSet);
-                if (Debugging.ENABLE && DEBUG_CACHING)
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("invalidateCacheLines: sql="+key.preparedQuery.sql);
                 }
+                this.nodeTypeNameCacheSets.remove(key);
             }
         }
     }
     void invalidateCacheLines(Trace parent,long nodeId) throws Throwable
     {
+        this.countCache.clear();
         var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
         if (typeNameSet!=null)
         {
             for (String typeName:typeNameSet)
             {
-                if (Debugging.ENABLE && DEBUG_CACHING)
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
                 }
@@ -1070,19 +1066,22 @@ public class Graph
                     this.typeNameQueryKeyCacheSets.remove(typeName);
                 }
             }
-            String table=namespaceDescriptor.getNamespaceTypeName();
-            for (QueryResult result:queryResultSet.results)
+            if (queryResultSet!=null)
             {
-                Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
-                if (nodeId!=null)
+                String table=namespaceDescriptor.getNamespaceTypeName();
+                for (QueryResult result:queryResultSet.results)
                 {
-                    HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
-                    if (typeNameSet!=null)
+                    Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
+                    if (nodeId!=null)
                     {
-                        typeNameSet.remove(typeName);
-                        if (typeNameSet.size()==0)
+                        HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+                        if (typeNameSet!=null)
                         {
-                            this.nodeTypeNameCacheSets.remove(nodeId);
+                            typeNameSet.remove(typeName);
+                            if (typeNameSet.size()==0)
+                            {
+                                this.nodeTypeNameCacheSets.remove(nodeId);
+                            }
                         }
                     }
                 }
@@ -1096,7 +1095,8 @@ public class Graph
         {
             this.typeNameQueryKeyCacheSets.clear();
             this.nodeTypeNameCacheSets.clear();
-            this.cache.clear();
+            this.queryResultSetCache.clear();
+            this.countCache.clear();
         }
     }
     public void setCaching(boolean caching)
@@ -1110,9 +1110,79 @@ public class Graph
             }
         }
     }
-    public PerformanceMonitor getPerformanceCollector()
+    public GraphPerformanceMonitor getPerformanceCollector()
     {
         return this.performanceMonitor;
+    }
+    ValueSize<Long> getFromCountCache(QueryKey key) throws Throwable
+    {
+        synchronized(this)
+        {
+            if (caching==false)
+            {
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                {
+                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
+                }
+                return null;
+            }
+            ValueSize<Long> valueSize=this.countCache.getFromCache(key);
+            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                if (valueSize==null)
+                {
+                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
+                }
+                else
+                {
+                    Debugging.log("Graph Cache:found     : "+key.preparedQuery.sql);
+                }
+            }
+            if (valueSize!=null)
+            {
+                this.hits.increment();
+            }
+            else
+            {
+                this.misses.increment();
+            }
+            return valueSize;
+        }
+    }
+
+    void updateCountCache(Trace parent,QueryKey key,long count,long duration) throws Throwable
+    {
+        this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
+        
+        synchronized(this)
+        {
+            if (caching==false)
+            {
+                return;
+            }
+            
+            for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
+            {
+                String typeName=namespaceDescriptor.descriptor().getTypeName();
+                HashSet<QueryKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                
+                if (typeNameCacheSet==null)
+                {
+                    typeNameCacheSet=new HashSet<QueryKey>();
+                    this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
+                }
+                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                {
+                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
+                }
+                typeNameCacheSet.add(key);
+            }
+            this.countCache.put(parent,key, new ValueSize<Long>(count));
+            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
+            }
+        }
     }
     
 }

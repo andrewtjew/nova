@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import java.time.LocalDate;
 
-public class FormInputGroupDate extends FormInput<InputGroupDate>
+public class FormInputGroupDate extends FormInputComponent<InputGroupDate>
 {
     public FormInputGroupDate(FormCol col, String labelText,String namePrefix,int baseYear,int years,LocalDate value,boolean required)
     {

@@ -4,7 +4,7 @@ import org.nova.html.elements.Element;
 import org.nova.localization.CurrencyCode;
 
 
-public class FormInputCurrencyAmount extends FormInput<InputCurrencyAmount>
+public class FormInputCurrencyAmount extends FormInputComponent<InputCurrencyAmount>
 {
     public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required,Element right)
     {

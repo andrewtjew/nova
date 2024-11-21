@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputNumber;
 
-public class FormInputNumber extends FormInput<InputNumber>
+public class FormInputNumber extends FormInputComponent<InputNumber>
 {
     public FormInputNumber(FormCol col, String labelText,String name,Double value,boolean required)
     {

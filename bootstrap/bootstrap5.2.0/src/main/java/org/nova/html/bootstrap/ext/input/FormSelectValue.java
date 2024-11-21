@@ -1,6 +1,6 @@
 package org.nova.html.bootstrap.ext.input;
 
-public class FormSelectValue extends FormInput<SelectValue>
+public class FormSelectValue extends FormSelectComponent<SelectValue>
 {
     public FormSelectValue(FormCol col, String labelText,String name,String unit,int start,int end,int increment,String none,Integer value,boolean required)
     {
