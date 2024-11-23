@@ -85,7 +85,7 @@ public class JettyServerFactory
     {
         return createHttpsServer(port, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
     }
-    static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
+    static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,boolean requireServerNameIndication)
     {
         HttpConfiguration config=new HttpConfiguration();
         config.setOutputBufferSize(65536);
@@ -94,13 +94,20 @@ public class JettyServerFactory
         config.setSecurePort(port);
         
         config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-        return createHttpsServer(createThreadPool(threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+
+        SecureRequestCustomizer customizer=new SecureRequestCustomizer();
+        if (requireServerNameIndication==false)
+        {
+            customizer.setSniHostCheck(false);
+        }
+        return createHttpsServer(createThreadPool(threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword,customizer);
     }
     
-    static private Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
+    static private Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,SecureRequestCustomizer customizer)
     {
         Server server = new Server(threadPool);
-        config.addCustomizer(new SecureRequestCustomizer());
+        config.addCustomizer(customizer);
+        
         SslContextFactory.Server sslContextFactoryServer = new SslContextFactory.Server();
         if ((serverCertificateKeyPassword!=null)&&(serverCertificateKeyStorePath!=null))
         {
@@ -115,7 +122,6 @@ public class JettyServerFactory
         }
 
         
-        sslContextFactoryServer.setKeyManagerPassword(keyManagerPassword);
 //        sslContextFactory.setTrustAll(true);
 //        sslContextFactory.setRenegotiationAllowed(true);
         ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactoryServer, "http/1.1"), new HttpConnectionFactory(config));

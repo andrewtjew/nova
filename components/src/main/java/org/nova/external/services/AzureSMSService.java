@@ -25,7 +25,7 @@ public class AzureSMSService extends SMSService
         this.senderPhoneNumber=senderPhoneNumber;
     }
     @Override
-    public void send(Trace parent, String phoneNumber, String message)
+    public String send(Trace parent, String phoneNumber, String message)
     {
         this.scheduler.schedule(parent, "AzureSMSService", new TraceRunnable()
         {
@@ -35,6 +35,6 @@ public class AzureSMSService extends SMSService
                 client.send(senderPhoneNumber,phoneNumber,message);
             }
         });
-        
+        return null;
     }
 }

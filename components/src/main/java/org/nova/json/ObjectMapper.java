@@ -2077,6 +2077,7 @@ public class ObjectMapper
                             continue;
                         }
                         field.setAccessible(true);
+                  
                         Reader reader=getReader(fieldType);
                         Alias alias=field.getAnnotation(Alias.class);
                         if (alias!=null)

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplicationRunner;
+import org.nova.html.ext.Text;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.FileDownloader;
@@ -26,6 +27,7 @@ public class Service extends DeviceSessionService<UserSession>
     public Service(CoreEnvironment coreEnvironment,HttpTransport transport) throws Throwable
     {
         super("Sample", coreEnvironment,transport);
+        Text.SAFE_ESCAPE=true;
         
         boolean cache=!isTest();
         this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", cache, cache?"public":null,1000000,0);

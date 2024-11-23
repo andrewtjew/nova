@@ -25,5 +25,5 @@ import org.nova.tracing.Trace;
 
 public abstract class SMSService
 {
-    public abstract void send(Trace parent,String phoneNumber, String message);
+    public abstract String send(Trace parent,String phoneNumber, String message);
 }
