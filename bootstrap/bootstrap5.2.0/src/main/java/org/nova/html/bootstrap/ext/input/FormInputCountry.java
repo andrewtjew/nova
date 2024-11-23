@@ -5,7 +5,7 @@ import org.nova.html.tags.datalist;
 import org.nova.html.tags.option;
 import org.nova.localization.CountryCode;
 
-public class FormInputCountry extends FormInput<InputText>
+public class FormInputCountry extends FormInputComponent<InputText>
 {
     public FormInputCountry(FormCol col, String labelText,String name,String value,boolean required)
     {

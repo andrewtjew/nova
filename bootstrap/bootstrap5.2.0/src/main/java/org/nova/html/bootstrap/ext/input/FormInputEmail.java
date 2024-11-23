@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputEmail;
 
-public class FormInputEmail extends FormInput<InputEmail>
+public class FormInputEmail extends FormInputComponent<InputEmail>
 {
     public FormInputEmail(FormCol col, String labelText,String name,String value,boolean required)
     {

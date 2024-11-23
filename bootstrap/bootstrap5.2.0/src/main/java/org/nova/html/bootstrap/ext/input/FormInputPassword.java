@@ -4,7 +4,7 @@ import org.nova.html.bootstrap.InputPassword;
 import org.nova.html.elements.Element;
 
 
-public class FormInputPassword extends FormInput<InputPassword>
+public class FormInputPassword extends FormInputComponent<InputPassword>
 {
     public FormInputPassword(FormCol col, String labelText,String name,String value,boolean required,Element right)
     {

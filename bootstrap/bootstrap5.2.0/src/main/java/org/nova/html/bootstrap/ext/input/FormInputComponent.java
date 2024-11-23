@@ -14,12 +14,12 @@ import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
-public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<INPUT>>
+public class FormInputComponent<INPUT extends Element> extends StyleComponent<FormInputComponent<INPUT>>
 {
     private INPUT input;
     final private Item validationMessage;
     
-    public FormInput(FormCol formCol,String labelText,INPUT input,Element right)
+    public FormInputComponent(FormCol formCol,String labelText,INPUT input,Element right)
     {
         super("div");
         id();
@@ -133,7 +133,7 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
         mb(3);
     }
     
-    public FormInput(FormCol col,String labelText,INPUT input)
+    public FormInputComponent(FormCol col,String labelText,INPUT input)
     {
         this(col,labelText,input,null);
     }
@@ -143,7 +143,7 @@ public class FormInput<INPUT extends Element> extends StyleComponent<FormInput<I
         return this.input;
     }
     
-    public FormInput<INPUT> setInput(INPUT input)
+    public FormInputComponent<INPUT> setInput(INPUT input)
     {
         this.input=input;
         return this;

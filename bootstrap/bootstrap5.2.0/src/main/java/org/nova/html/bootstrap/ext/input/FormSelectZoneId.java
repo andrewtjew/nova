@@ -3,7 +3,7 @@ package org.nova.html.bootstrap.ext.input;
 import java.time.ZoneId;
 
 
-public class FormSelectZoneId extends FormInput<SelectZoneId>
+public class FormSelectZoneId extends FormSelectComponent<SelectZoneId>
 {
     public FormSelectZoneId(FormCol col, String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
     {

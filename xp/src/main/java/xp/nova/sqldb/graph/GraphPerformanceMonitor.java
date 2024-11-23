@@ -6,14 +6,14 @@ import org.nova.metrics.LongValueMeter;
 import org.nova.operations.OperatorVariable;
 
 
-public class PerformanceMonitor
+public class GraphPerformanceMonitor
 {
     HashMap<String,QueryPerformance> slowQueries;
 
     @OperatorVariable(description="ms")
     long minimumDuration;
     
-    public PerformanceMonitor(long minimumDuration)
+    public GraphPerformanceMonitor(long minimumDuration)
     {
         this.slowQueries=new HashMap<String, QueryPerformance>();
         setMimimumDuration(minimumDuration);
@@ -24,7 +24,7 @@ public class PerformanceMonitor
         this.minimumDuration=minimumDuration;
     }
     
-    public void updateSlowQuery(long duration,QueryResultSet resultSet,String catalog)
+    public void updateSlowQuery(long duration,String catalog,QueryKey queryKey)
     {
         if (duration<this.minimumDuration)
         {
@@ -32,11 +32,11 @@ public class PerformanceMonitor
         }
         synchronized(this)
         {
-            String key='`'+catalog+"`."+resultSet.sql;
+            String key='`'+catalog+"`."+queryKey.preparedQuery.sql;
             QueryPerformance queryPerformance=slowQueries.get(key);
             if (queryPerformance==null)
             {
-                queryPerformance=new QueryPerformance(Thread.currentThread().getStackTrace(),new LongValueMeter(),resultSet);
+                queryPerformance=new QueryPerformance(Thread.currentThread().getStackTrace(),new LongValueMeter(),queryKey);
                 this.slowQueries.put(key, queryPerformance);
             }
             queryPerformance.meter().update(duration);

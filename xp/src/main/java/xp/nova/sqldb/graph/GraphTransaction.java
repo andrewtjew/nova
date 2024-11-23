@@ -348,6 +348,7 @@ public class GraphTransaction implements AutoCloseable
     }
     public void rollback() throws Throwable
     {
+        this.graph.clearCache();
         this.transaction.rollback();
     }
     

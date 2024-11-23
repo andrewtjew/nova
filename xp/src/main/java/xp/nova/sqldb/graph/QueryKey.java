@@ -2,7 +2,7 @@ package xp.nova.sqldb.graph;
 
 import org.nova.utils.TypeUtils;
 
-class QueryKey
+public class QueryKey
 {
     final PreparedQuery preparedQuery;
     final Long nodeId;
@@ -62,4 +62,12 @@ class QueryKey
         }
         return TypeUtils.equals(this.parameters, other.parameters);
     }        
+    public Long getNodeId()
+    {
+        return this.nodeId;
+    }
+    public Object[] getParameters()
+    {
+        return this.parameters;
+    }
 }

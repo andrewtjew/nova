@@ -9,7 +9,6 @@ public class Query
     Class<? extends NodeObject>[] optionalNodeTypes;
 
     String expression;
- //   Object[] parameters;
     String orderBy;
     Integer limit;
     Integer offset;
@@ -21,6 +20,7 @@ public class Query
     }
     public Query where(String expression)
     {
+        this.preparedQuery=null;
         this.expression=expression;
         return this;
     }
@@ -38,6 +38,7 @@ public class Query
     }
     public Query orderBy(String orderBy,boolean descending)
     {
+        this.preparedQuery=null;
         if (descending)
         {
             this.orderBy=orderBy+" DESC";
@@ -50,11 +51,13 @@ public class Query
     }
     public Query limit(int limit)
     {
+        this.preparedQuery=null;
         this.limit=limit;
         return this;
     }
     public Query limit(int limit,int offset)
     {
+        this.preparedQuery=null;
         this.limit=limit;
         this.offset=offset;
         return this;
@@ -71,6 +74,7 @@ public class Query
     @SafeVarargs
     final public Query select(Class<? extends NodeObject>... nodeTypes)
     {
+        this.preparedQuery=null;
         this.nodeTypes = nodeTypes;
         return this;
     }
@@ -78,12 +82,14 @@ public class Query
     @SafeVarargs
     final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
+        this.preparedQuery=null;
         this.optionalNodeTypes= nodeTypes;
         return this;
     }
 
     public Query traverse(LinkQuery linkQuery)
     {
+        this.preparedQuery=null;
         if (this.linkQueries == null)
         {
             this.linkQueries = new ArrayList<>();
@@ -94,7 +100,7 @@ public class Query
 
     PreparedQuery preparedQuery=null;
     
-    public PreparedQuery build(Graph graph) throws Throwable
+    public PreparedQuery build(Graph graph,boolean count) throws Throwable
     {
         if (this.preparedQuery!=null)
         {
@@ -168,11 +174,8 @@ public class Query
                 }
             }
         }
-//        ArrayList<Object> list=new ArrayList<Object>();
-//        TypeUtils.addToList(list, this.parameters);
-//        State state=new State(graph,preparedQuery.typeDescriptorMap,sources,select);
         state.addLinkQueries(this.linkQueries, on);
-        StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
+        StringBuilder query = count?new StringBuilder("SELECT COUNT(*) FROM" + sources):new StringBuilder("SELECT " + select + " FROM" + sources);
 
         if (this.expression!=null)
         {
@@ -182,21 +185,6 @@ public class Query
         preparedQuery.limit=this.limit;
         preparedQuery.orderBy=this.orderBy;
         
-//        if (this.orderBy!=null)
-//        {
-//            query.append(" ORDER BY "+this.orderBy);
-//        }
-//        if (this.limit!=null)
-//        {
-//            if (this.offset!=null)
-//            {
-//                query.append(" LIMIT "+this.limit+" OFFSET "+this.offset);
-//            }
-//            else
-//            {
-//                query.append(" LIMIT "+this.limit);
-//            }
-//        }
         preparedQuery.sql=query.toString();
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;

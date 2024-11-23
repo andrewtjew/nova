@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputCheckbox;
 
-public class FormInputCheckbox extends FormInput<InputCheckbox>
+public class FormInputCheckbox extends FormInputComponent<InputCheckbox>
 {
     public FormInputCheckbox(FormCol col, String labelText,String name,boolean checked)
     {

@@ -21,6 +21,7 @@ public class ArrayQuery
     }
     public ArrayQuery where(String expression)
     {
+        this.preparedQuery=null;
         this.expression=expression;
         return this;
     }
@@ -63,7 +64,7 @@ public class ArrayQuery
     
     PreparedQuery preparedQuery=null;
     
-    public PreparedQuery build(Graph graph) throws Throwable
+    public PreparedQuery build(Graph graph,boolean count) throws Throwable
     {
         if (this.preparedQuery!=null)
         {
@@ -138,7 +139,7 @@ public class ArrayQuery
             }
         }
         state.addLinkQueries(this.linkQueries, on);
-        StringBuilder query = new StringBuilder("SELECT " + select + " FROM" + sources);
+        StringBuilder query = count?new StringBuilder("SELECT COUNT(*) FROM" + sources):new StringBuilder("SELECT " + select + " FROM" + sources);
 
         if (this.expression!=null)
         {

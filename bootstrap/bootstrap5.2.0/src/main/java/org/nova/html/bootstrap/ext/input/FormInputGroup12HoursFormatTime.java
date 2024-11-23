@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import java.time.LocalTime;
 
-public class FormInputGroup12HoursFormatTime extends FormInput<InputGroup12HoursFormatTime>
+public class FormInputGroup12HoursFormatTime extends FormInputComponent<InputGroup12HoursFormatTime>
 {
     public FormInputGroup12HoursFormatTime(FormCol col, String labelText,String namePrefix,int minuteStep,Integer secondStep,LocalTime value,boolean required)
     {

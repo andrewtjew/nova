@@ -2,7 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.localization.CountryCode;
 
-public class FormSelectCountry extends FormInput<SelectCountry>
+public class FormSelectCountry extends FormSelectComponent<SelectCountry>
 {
     public FormSelectCountry(FormCol col, String labelText,String name,CountryCode[] countryCodes,CountryCode value,boolean required)
     {

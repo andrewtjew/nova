@@ -3,7 +3,7 @@ package org.nova.html.bootstrap.ext.input;
 import org.nova.html.elements.Element;
 
 
-public class FormInputPasswordWithToggle extends FormInput<InputPasswordWithToggle>
+public class FormInputPasswordWithToggle extends FormInputComponent<InputPasswordWithToggle>
 {
     public FormInputPasswordWithToggle(FormCol col, String labelText,String name,String value,boolean required,Element right)
     {
