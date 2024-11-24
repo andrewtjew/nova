@@ -168,7 +168,12 @@ public class JSONClient
                 this.lastRequestInstantMs=now;
             }
         }
-	    return new DisruptorTraceContext(parent, this.traceManager, this.logger, this.disruptor, traceCategoryOverride!=null?traceCategoryOverride:pathAndQuery,this.endPoint);
+        if (traceCategoryOverride==null)
+        {
+            int index=pathAndQuery.indexOf('?');
+            traceCategoryOverride="JSONClient:"+pathAndQuery.substring(0,index);
+        }
+	    return new DisruptorTraceContext(parent, this.traceManager, this.logger, this.disruptor, traceCategoryOverride,this.endPoint);
 	}
 	/*
     public <TYPE> JSONResponse<TYPE> get(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType) throws Throwable
