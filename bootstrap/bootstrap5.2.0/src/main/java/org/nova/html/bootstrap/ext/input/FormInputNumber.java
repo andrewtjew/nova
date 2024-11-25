@@ -13,6 +13,10 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
             input().value(value);
         }
     }
+    public FormInputNumber(FormCol col, String labelText,String name,boolean required)
+    {
+        this(col,labelText,name,(Double)null,required);
+    }
     public FormInputNumber(FormCol col, String labelText,String name,Double value)
     {
         this(col, labelText, name,value,false);

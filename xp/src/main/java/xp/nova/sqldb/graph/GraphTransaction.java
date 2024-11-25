@@ -371,21 +371,28 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public void appendToArray(NodeObject arrayObject,NodeObject element) throws Throwable
+    public <NODE extends NodeObject> void appendToArray(NodeObject arrayObject,NODE[] elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        long elementId=createNode(element);
-        int index=0;
+        int base=0;
         var row=Select.source("_array").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
         if (row!=null)
         {
-            index=row.getINTEGER(0)+1;
+            base=row.getINTEGER(0)+1;
         }
-        Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",index).execute(parent, this.accessor);
+        for (int i=0;i<elements.length;i++)
+        {
+            NodeObject element=elements[i];
+            if (element!=null)
+            {
+                long elementId=createNode(element);
+                Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+            }
+        }
     }
     public int deleteArray(NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {
