@@ -117,7 +117,7 @@ public class QueryResultSet
         {
             var thisRow=this.results[i].row;
             var otherRow=other.results[i].row;
-            if (TypeUtils.equals(thisRow.getObjects(),otherRow.getObjects())==false)
+            if (PreparedQuery.equals(thisRow.getObjects(),otherRow.getObjects())==false)
             {
                 return false;
             }

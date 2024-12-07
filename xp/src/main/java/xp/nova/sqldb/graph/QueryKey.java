@@ -60,7 +60,7 @@ public class QueryKey
         {
             return false;
         }
-        return TypeUtils.equals(this.parameters, other.parameters);
+        return PreparedQuery.equals(this.parameters, other.parameters);
     }        
     public Long getNodeId()
     {

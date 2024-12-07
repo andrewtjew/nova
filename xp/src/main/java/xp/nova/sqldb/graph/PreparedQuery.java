@@ -1,6 +1,7 @@
 package xp.nova.sqldb.graph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import org.nova.utils.TypeUtils;
 
@@ -80,6 +81,84 @@ public class PreparedQuery
         {
             return false;
         }
-        return TypeUtils.equals(this.parameters,other.parameters);
-    }        
+        return equals(this.parameters,other.parameters);
+    }     
+    
+    static public boolean equals(Object[] a,Object[] b) 
+    {
+        if (a!=null)
+        {
+            if (b==null)
+            {
+                return false;
+            }
+            if (a.length!=b.length)
+            {
+                return false;
+            }
+            for (int i=0;i<a.length;i++)
+            {
+                Object oa=a[i];
+                Object ob=b[i];
+                if (oa==null)
+                {
+                    if (ob!=null)
+                    {
+                        return false;
+                    }
+                }
+                else if (oa.equals(ob)==false)
+                {
+                    Class<?> ta=oa.getClass();
+                    if (ta.isArray()==false)
+                    {
+                        return false;
+                    }
+                    Class<?> tb=ob.getClass();
+                    Class<?> tca=ta.getComponentType();
+                    Class<?> tcb=tb.getComponentType();
+                    if (tca!=tcb)
+                    {
+                        return false;
+                    }
+                    if (tca==byte.class)
+                    {
+                        return Arrays.equals((byte[])oa,(byte[])ob);
+                    }
+                    else if (tca==char.class)
+                    {
+                        return Arrays.equals((char[])oa,(char[])ob);
+                    }
+                    else if (tca==int.class)
+                    {
+                        return Arrays.equals((int[])oa,(int[])ob);
+                    }
+                    else if (tca==long.class)
+                    {
+                        return Arrays.equals((long[])oa,(long[])ob);
+                    }
+                    else if (tca==boolean.class)
+                    {
+                        return Arrays.equals((boolean[])oa,(boolean[])ob);
+                    }
+                    else if (tca==double.class)
+                    {
+                        return Arrays.equals((double[])oa,(double[])ob);
+                    }
+                    else if (tca==float.class)
+                    {
+                        return Arrays.equals((float[])oa,(float[])ob);
+                    }
+                    else if (tca==short.class)
+                    {
+                        return Arrays.equals((short[])oa,(short[])ob);
+                    }
+                    throw new RuntimeException();
+                }
+            }
+            return true;
+        }
+        return b==null;
+    }
+
 }

@@ -98,9 +98,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
-        var operatorVariables=configuration.getValue("ServerApplication.operatorVariables",null);
+        var operatorVariableStoreFileName=configuration.getValue("Environment.operatorVariableStoreFileName",null);
         
-        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariables,configuration));
+        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariableStoreFileName,configuration));
 		this.typeMappings=ExtensionToContentTypeMappings.fromDefault();
 
         int operatorPort=this.operatorTransport.getPorts()[0];
@@ -289,9 +289,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         }
 
         this.menuBar=new MenuBar();
-        String namespace=configuration.getValue("ServerApplication.APIDefinitionNamespace","");
         this.operatorTransport.getHttpServer().getTransformers().add(new RemoteResponseWriter());
-        this.operatorTransport.getHttpServer().registerHandlers(new ServerOperatorPages(this,namespace));
+        this.operatorTransport.getHttpServer().registerHandlers(new ServerOperatorPages(this));
         
         //Build template and start operator server so we can monitor the rest of the startup.
         this.template=OperatorPage.buildTemplate(this.menuBar,this.getName(),this.hostName); 

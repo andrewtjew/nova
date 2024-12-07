@@ -289,8 +289,6 @@ public class Configuration
 			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
 		}
 	}
-
-	
 	public long getLongValue(String name,long defaultValue) throws Exception
 	{
 		try
@@ -360,7 +358,6 @@ public class Configuration
 		}			
 
     }
-
     public int getIntegerValue(String name,int defaultValue) throws Exception
     {
     	try

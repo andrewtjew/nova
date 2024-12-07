@@ -56,7 +56,7 @@ public class CoreEnvironment
 	final HashMap<String,Logger> loggers;
 	final SourceQueue<LogEntry> logSourceQueue;
 	final private LogDirectoryManager logDirectoryManager;
-	final private int logCategoryBufferSize;
+	final private int logEntryBufferSize;
     final private Vault vault;
     final public static SourceEventBoard SOURCE_EVENT_BOARD=new SourceEventBoard();
 	
@@ -66,9 +66,9 @@ public class CoreEnvironment
         String directory=configuration.getValue("Environment.Logger.logDirectory","logs");
 		long maxFiles=configuration.getIntegerValue("Environment.Logger.logDirectory.maxFiles",0);
 		long reserve=configuration.getLongValue("Environment.Logger.logDirectory.reserveSpace",2_000_000_000L);
-		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",10_000_000_000L);
+		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",1_000_000_000L);
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);
-		this.logCategoryBufferSize=configuration.getIntegerValue("Environment.Logger.logCategoryBufferSize",10);
+		this.logEntryBufferSize=configuration.getIntegerValue("Environment.Logger.logEntryBufferSize",10);
         int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",200);
 
         this.meterStore=new MeterStore();
@@ -148,7 +148,7 @@ public class CoreEnvironment
 		    Logger logger=this.loggers.get(category);
 			if (logger==null)
 			{
-				logger=new SourceQueueLogger(this.logCategoryBufferSize,category, this.logSourceQueue);
+				logger=new SourceQueueLogger(this.logEntryBufferSize,category, this.logSourceQueue);
 				this.loggers.put(category, logger);
 			}
 			return logger;

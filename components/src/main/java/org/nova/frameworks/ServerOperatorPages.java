@@ -258,22 +258,25 @@ public class ServerOperatorPages
         }
     }
     final static LiteralHtml WARNING=new LiteralHtml("&#9888;");
-    
-    public final ServerApplication serverApplication;
-
-    @org.nova.operations.OperatorVariable(description = "Sampling duration (seconds)", minimum = "0.1")
-    private double rateSamplingDuration;
-
     final private FileCache fileCache;
 
-    public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
+    public final ServerApplication serverApplication;
+
+    @OperatorVariable(description = "Sampling duration (seconds)", minimum = "0.1")
+    private double rateSamplingDuration;
+
+    @OperatorVariable(description="Client namespace")
+    String namespace;
+    
+    public ServerOperatorPages(ServerApplication serverApplication) throws Throwable
     {
         Configuration configuration=serverApplication.getConfiguration();
         FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
         this.fileCache=new FileCache(fileCacheConfiguration);
         
-        this.namespace=namespace;
-        this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue("ServerOperatorPages.meters.rateSamplingDuration", 10);
+        
+        this.namespace=serverApplication.getConfiguration().getValue(this.getClass().getSimpleName()+".client.namespace", null);
+        this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue(this.getClass().getSimpleName()+".meters.rateSamplingDuration", 10);
         this.serverApplication = serverApplication;
 
         MenuBar menuBar=serverApplication.getMenuBar();
@@ -4221,8 +4224,6 @@ public class ServerOperatorPages
         }
     }
     
-    private String namespace;
-
     @GET
     @Path("/operator/httpServer/classDefinitions/{server}")
     public Element classDefinitions(Context context,@PathParam("server") String server) throws Throwable
