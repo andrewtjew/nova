@@ -27,13 +27,23 @@ import org.nova.html.elements.InputType;
 public class InputSwitch extends InputComponent<InputSwitch>
 {
     private Item outer;
-    public InputSwitch()
+    private Label label;
+    public InputSwitch(String label)
     {
         super(InputType.checkbox);
         this.outer=new Item().form_check().form_switch();
-//        this.outer.px(0);
         this.outer.addInner(this);
+        if (label!=null)
+        {
+            this.me(2);
+            this.outer.addInner(new Label().addInner(label));
+        }
         addClass("form-check-input");
+    }
+    
+    public InputSwitch()
+    {
+        this(null);
     }
     public InputSwitch checked() 
     {
