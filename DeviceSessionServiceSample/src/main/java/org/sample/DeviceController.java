@@ -106,55 +106,6 @@ public class DeviceController
     public DeviceSessionResult createDeviceSession(Trace parent, CookieState userState, HttpServletRequest request) throws Throwable
     {
         DeviceSessionResult result = new DeviceSessionResult();
-//        Timestamp now = Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC));
-//        String userAgent = request.getHeader("User-Agent");
-//        String remote = request.getRemoteHost();
-//        try (Accessor accessor = this.service.getConnector().openAccessor(parent))
-//        {
-//            Long deviceId = null;
-//            Row row = Select.source("devicesession JOIN device ON device.id=devicesession.deviceId").columns("devicesession.id","devicesession.keepLoggedIn","userId","deviceId", "remote", "userAgent").where("token=?", userState.token).executeOne(parent, accessor);
-//            if (row != null)
-//            {
-//                String sessionRemote = row.getVARCHAR("remote");
-//                String deviceUserAgent = row.getVARCHAR("userAgent");
-//                if (TypeUtils.equals(remote, sessionRemote) && TypeUtils.equals(userAgent, deviceUserAgent))
-//                {
-//                    result.deviceSessionId = row.getBIGINT("id");
-//                    deviceId = row.getBIGINT("deviceId");
-//                    result.userId=row.getNullableBIGINT("userId");
-//                    if (result.userId!=null)
-//                    {
-//                        result.remembered=row.getTIMESTAMP("keepLoggedIn").toLocalDateTime();
-//                    }
-//                }
-//            }
-//
-//            if (deviceId == null)
-//            {
-//                try (Transaction transaction = accessor.beginTransaction("createDeviceSession"))
-//                {
-//                    deviceId = Insert.table("device").value("created", now).value("userAgent", userAgent).executeAndReturnLongKey(parent, accessor);
-//                    for (int i = 0; true; i++)
-//                    {
-//                        userState.token = this.service.generateToken();
-//                        try
-//                        {
-//                            result.deviceSessionId = Insert.table("devicesession").value("deviceId", deviceId).value("token", userState.token).value("loggedInDays", remote).value("created", now)
-////                                    .value("latitude", latitude).value("longitude", longitude).value("country", country)
-//                                    .executeAndReturnLongKey(parent, accessor);
-//                            transaction.commit();
-//                            break;
-//                        } catch (Throwable t)
-//                        {
-//                            if (i == 10)
-//                            {
-//                                throw t;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
         result.deviceSessionId=0L;
         result.lastLoggedIn=LocalDateTime.now().minusDays(this.loggedInDays-1);
         result.userId=0L;

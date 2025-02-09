@@ -24,11 +24,11 @@ package org.nova.html.bootstrap;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.enums.target;
 
-public class Link extends ButtonComponent<Link>
+public class Link extends StyleComponent<Link>
 {
     public Link()
     {
-        super("a",null);
+        super("a");
     }
     public Link(String label,String href)
     {

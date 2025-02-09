@@ -27,7 +27,6 @@ import org.nova.html.elements.InputType;
 public class InputSwitch extends InputComponent<InputSwitch>
 {
     private Item outer;
-    private Label label;
     public InputSwitch(String label)
     {
         super(InputType.checkbox);
