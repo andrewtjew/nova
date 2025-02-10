@@ -2,6 +2,8 @@ package org.nova.localization;
 
 import java.util.HashMap;
 
+import org.nova.utils.TypeUtils;
+
 public enum PhoneCountryCode
 {
     CA(new PhoneCountry("1",CountryCode.CA)),
@@ -25,6 +27,10 @@ public enum PhoneCountryCode
  
     public static PhoneCountryCode fromPhoneNumber(String phoneNumber)
     {
+        if (TypeUtils.isNullOrEmpty(phoneNumber))
+        {
+            return null;
+        }
         for (var item:PhoneCountryCode.values())
         {
             if (phoneNumber.startsWith(item.value.phoneCountryCode))
