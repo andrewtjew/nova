@@ -177,17 +177,28 @@ public class FileDownloader extends ServletHandler
         File file = new File(rootFilePath);
         if (file.isDirectory())
         {
+            if (Debugging.ENABLE && DEBUG)
+            {
+                Debugging.log("FileDownloadHandler:File is directory. file="+filePath);
+            }
 //            response.setStatus(HttpStatus.FORBIDDEN_403);
             return false;
         }
         if (file.exists() == false)
         {
+            if (Debugging.ENABLE && DEBUG)
+            {
+                Debugging.log("FileDownloadHandler:File not found. file="+filePath);
+            }
 //            response.setStatus(HttpStatus.NOT_FOUND_404);
             return false;
         }
         if (file.getCanonicalPath().startsWith(this.root) == false)
         {
-//            response.setStatus(HttpStatus.FORBIDDEN_403);
+            if (Debugging.ENABLE && DEBUG)
+            {
+                Debugging.log("FileDownloadHandler:File is not valid. file="+filePath);
+            }
             return false;
         }
         {
