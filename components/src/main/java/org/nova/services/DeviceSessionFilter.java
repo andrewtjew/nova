@@ -43,7 +43,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
 
     public void setState(Trace parent,Context context,SESSION session) throws Throwable
     {
-        session.setContext(context);
+        session.setContext(parent,context);
         context.setState(session);
     }
     

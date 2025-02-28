@@ -24,10 +24,14 @@ public class RemoteStateFormSpinnerButton extends SpinnerButton
     public RemoteStateFormSpinnerButton(RemoteForm form,String label) throws Throwable
     {
         super(new SpinnerLabel(label),SpinnerType.border,null);
-//        this.disabled();
-//        style("height:2.5em;");
         color(StyleColor.primary);
         onclick("if (document.getElementById('"+form.id()+"').reportValidity()){"+form.js_post()+";}else{"+js_reset()+";}");
+    }
+
+    public RemoteStateFormSpinnerButton(String label) throws Throwable
+    {
+        super(new SpinnerLabel(label),SpinnerType.border,null);
+        color(StyleColor.primary);
     }
     
     

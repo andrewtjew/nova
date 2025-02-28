@@ -151,6 +151,10 @@ public class RemoteResponse
         String code=HtmlUtils.js_location(pathAndQuery);
         return script(code);
     }
+    public RemoteResponse reload() throws UnsupportedEncodingException
+    {
+        return script("window.location.reload()");
+    }
     
     public RemoteResponse clear()
     {
