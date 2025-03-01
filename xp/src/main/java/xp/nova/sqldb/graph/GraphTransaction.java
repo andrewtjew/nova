@@ -89,6 +89,10 @@ public class GraphTransaction implements AutoCloseable
         object._nodeId=nodeId;
         Class<? extends NodeObject> type=object.getClass();
         GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(type);
+        if (descriptor==null)
+        {
+            throw new Exception("Type not registered:"+type.getSimpleName());
+        }
         this.graph.invalidateCacheLines(parent, descriptor);
         
         String table=descriptor.getTableName();
