@@ -1,8 +1,6 @@
 package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputRadio;
-import org.nova.html.bootstrap.InputSwitch;
-import org.nova.html.bootstrap.classes.AlignSelf;
 
 public class FormInputRadio extends FormInputComponent<InputRadio>
 {

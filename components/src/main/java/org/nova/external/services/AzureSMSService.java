@@ -4,11 +4,8 @@ import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
 
-import com.azure.communication.email.models.EmailSendResult;
 import com.azure.communication.sms.SmsClient;
 import com.azure.communication.sms.SmsClientBuilder;
-import com.azure.core.util.polling.PollResponse;
-import com.azure.core.util.polling.SyncPoller;
 
 
 public class AzureSMSService extends SMSService

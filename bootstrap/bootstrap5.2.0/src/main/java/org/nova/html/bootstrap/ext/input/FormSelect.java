@@ -1,7 +1,6 @@
 package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Select;
-import org.nova.html.bootstrap.classes.AlignSelf;
 
 public class FormSelect extends FormSelectComponent<Select>
 {

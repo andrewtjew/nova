@@ -1,7 +1,5 @@
 package org.nova.localization;
 
-import java.util.HashMap;
-
 import org.nova.utils.TypeUtils;
 
 public enum PhoneCountryCode
