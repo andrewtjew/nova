@@ -98,7 +98,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
-        var operatorVariableStoreFileName=configuration.getValue("Environment.operatorVariableStoreFileName",null);
+        var operatorVariableStoreFileName=this.getBaseDirectory()+"\\resources\\"+configuration.getValue("Environment.operatorVariableStoreFileName",null);
         
         this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariableStoreFileName,configuration));
 		this.typeMappings=ExtensionToContentTypeMappings.fromDefault();

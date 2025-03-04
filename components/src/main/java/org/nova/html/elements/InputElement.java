@@ -66,6 +66,10 @@ public class InputElement<ELEMENT extends InputElement<ELEMENT>> extends GlobalE
         {
             return attr("disabled");
         }
+        else
+        {
+            this.getAttributes().remove("disabled");
+        }
         return (ELEMENT)this;
     }
     public ELEMENT form(String form_id)

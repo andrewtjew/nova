@@ -88,7 +88,7 @@ public class AzureEmailService extends EmailService
         }
         if (html!=null)
         {
-            String htmlText=""+html.toString()+"";
+            String htmlText=html.toString();
             emailMessage.setBodyHtml(htmlText);
         }
         send(parent,emailMessage);

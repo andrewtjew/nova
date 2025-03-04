@@ -23,7 +23,7 @@ public class InputPasswordWithToggle extends InputPassword
             Button button=group.returnAddInner(new Button()).tabindex(-1).border(0).position(Position.absolute);
             Icon icon=button.returnAddInner(new Icon("eye-fill"));
             button.onclick(HtmlUtils.js_call("nova.ui.password.toggleVisibility",this.id(),icon.id()));
-            button.style("top:0.75em;right:0.75em;z-index:1;margin:0;padding:0;");
+            button.style("top:0.50em;right:0.75em;z-index:1;margin:0;padding:0;");
             composer.compose(group);
         }
         else

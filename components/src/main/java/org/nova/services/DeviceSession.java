@@ -18,6 +18,7 @@ import org.nova.http.server.Context;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
+import org.nova.tracing.Trace;
 
 
 public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
@@ -80,12 +81,10 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.zoneId;
     }
     
-    @Deprecated
-    protected void setContext(Context context)
+    protected void setContext(Trace parent,Context context)  throws Throwable
     {
         this.context=context;
     }
-    @Deprecated
     public Context getContext()
     {
         return this.context;

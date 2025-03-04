@@ -945,6 +945,7 @@ public class Graph
             return valueSize;
         }
     }
+    @SuppressWarnings("unused")
     void updateQueryResultSetCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
         this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);

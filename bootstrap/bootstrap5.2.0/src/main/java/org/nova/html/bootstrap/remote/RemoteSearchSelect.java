@@ -114,7 +114,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     
     @POST
     @Path(PATH+"/select")
-    public RemoteResponse memberSelect(Trace parent,
+    public RemoteResponse select(Trace parent,
             @StateParam STATE state,
         @QueryParam("index") int index 
         ) throws Throwable

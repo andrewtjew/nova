@@ -72,7 +72,7 @@ public class QueryResultSet
         Object array=Array.newInstance(type, this.results.length);
         for (int i=0;i<this.results.length;i++)
         {
-            Array.set(array, i, this.results[i].get(namespace,type));
+            Array.set(array, i, this.results[i].getObject(namespace,type));
         }
         return (OBJECT[]) array;
     }
@@ -92,7 +92,7 @@ public class QueryResultSet
             throw new Exception("Length:"+this.results.length);
         }
         Class<? extends NodeObject> type=map.values().iterator().next().getType();
-        return this.results[0].get((Class<OBJECT>)type);
+        return this.results[0].getObject((Class<OBJECT>)type);
     }
 
     @Override

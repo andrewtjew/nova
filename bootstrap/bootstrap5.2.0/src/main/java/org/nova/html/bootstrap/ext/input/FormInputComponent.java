@@ -2,6 +2,7 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputCheckbox;
 import org.nova.html.bootstrap.InputComponent;
+import org.nova.html.bootstrap.InputRadio;
 import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
@@ -93,6 +94,25 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
             {
                 this.input=row.returnAddInner(input);
                 row.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputCheckbox).form_check_label().ps(2);
+            }
+        }
+        else if (input instanceof InputRadio)
+        {
+            this.align_self(AlignSelf.end).pb(2);
+            InputRadio inputRadio=(InputRadio)input;
+            Item row=returnAddInner(new Item()).d(Display.flex);
+            if (right!=null)
+            {
+                row.justify_content(Justify.between);
+                Item left=row.returnAddInner(new Item());
+                this.input=left.returnAddInner(input);
+                left.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputRadio).form_check_label().ps(2);
+                row.returnAddInner(right);
+            }
+            else
+            {
+                this.input=row.returnAddInner(input);
+                row.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputRadio).form_check_label().ps(2);
             }
         }
         else if (input instanceof InputComponent<?>)

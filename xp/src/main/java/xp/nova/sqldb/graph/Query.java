@@ -134,6 +134,10 @@ public class Query
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
+                if (descriptor==null)
+                {
+                    throw new Exception("Type not registered: type="+type.getCanonicalName());
+                }
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 state.descriptors.add(new NamespaceGraphObjectDescriptor(null,descriptor));
                 String typeName = descriptor.getTypeName();

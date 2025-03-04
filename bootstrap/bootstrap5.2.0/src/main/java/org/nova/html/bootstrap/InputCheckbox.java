@@ -22,6 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
+import org.nova.utils.TypeUtils;
 
 public class InputCheckbox extends InputComponent<InputCheckbox>
 {
@@ -35,14 +36,12 @@ public class InputCheckbox extends InputComponent<InputCheckbox>
     }
     public InputCheckbox checked(Boolean checked)
     {
-        if (checked==null)
-        {
-            return this;
-        }
-        if (checked)
+        if (TypeUtils.isTrue(checked))
         {
             attr("checked");
+            return this;
         }
+        this.getAttributes().remove("checked");
         return this;
     }
     public InputCheckbox required()

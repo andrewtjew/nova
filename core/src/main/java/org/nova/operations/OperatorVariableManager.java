@@ -85,8 +85,12 @@ public class OperatorVariableManager
             {
                 throw new Exception("No validator registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
             }
+            if (applicator instanceof DefaultApplicator==false)
+            {
+                System.out.println("Applicatior:"+applicator.getClass().getSimpleName());
+            }
 			
-			var instance=new VariableInstance(applicator,variable, object, field);
+            VariableInstance instance=new VariableInstance(applicator,variable, object, field);
 			if ((this.store!=null)&&(parent!=null))
 			{
 			    String valueText=this.store.load(parent, category, instance);

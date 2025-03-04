@@ -43,7 +43,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
 
     public void setState(Trace parent,Context context,SESSION session) throws Throwable
     {
-        session.setContext(context);
+        session.setContext(parent,context);
         context.setState(session);
     }
     
@@ -154,14 +154,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 Object content=response.getContent();
                 if (content instanceof Page)
                 {
-                    keepStateAlive=true;
                     Page page=(Page)content;
+                    keepStateAlive=true;
                     if (page.isContinuationDisallowed()==false)
                     {
                         String action=session.useContinuation();
                         if (action!=null)
                         {
-                            page.body().returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_postStatic(action)));
+                            page.body().returnAddInner(new script()).addInner(new LiteralHtml(action));
                         }
                     }
                     logPage(parent,session,context,page);
