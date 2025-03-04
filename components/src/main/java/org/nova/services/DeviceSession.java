@@ -1,6 +1,7 @@
 package org.nova.services;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashMap;
@@ -48,6 +49,15 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return secret;
     }   
     
+    public LocalDateTime toLocalDateTime(LocalDateTime utcDateTime)
+    {
+        return utcDateTime;
+    }
+    
+    public LocalDateTime toUtcDateTime(LocalDateTime localDateTime)
+    {
+        return localDateTime;
+    }
     
     public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
     {

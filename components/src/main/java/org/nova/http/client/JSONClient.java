@@ -171,7 +171,14 @@ public class JSONClient
         if (traceCategoryOverride==null)
         {
             int index=pathAndQuery.indexOf('?');
-            traceCategoryOverride="JSONClient:"+pathAndQuery.substring(0,index);
+            if (index<0)
+            {
+                traceCategoryOverride="JSONClient:"+pathAndQuery;
+            }
+            else
+            {
+                traceCategoryOverride="JSONClient:"+pathAndQuery.substring(0,index);
+            }
         }
 	    return new DisruptorTraceContext(parent, this.traceManager, this.logger, this.disruptor, traceCategoryOverride,this.endPoint);
 	}

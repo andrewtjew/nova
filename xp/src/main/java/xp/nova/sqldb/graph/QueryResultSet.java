@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import org.nova.sqldb.RowSet;
-import org.nova.utils.TypeUtils;
 
 public class QueryResultSet
 {

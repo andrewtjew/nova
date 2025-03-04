@@ -267,7 +267,7 @@ public class Trace implements AutoCloseable
 				}
 				return System.nanoTime()-this.start-this.wait;
 			}
-			return this.duration;
+			return this.duration-this.wait;
 		}
 	}
 	public long getWaitNs()

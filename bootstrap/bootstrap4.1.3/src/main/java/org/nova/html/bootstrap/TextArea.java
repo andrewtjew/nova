@@ -21,38 +21,18 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.TagElement;
-import org.nova.html.tags.td;
+import org.nova.html.elements.InputType;
 
-public class TableRow extends StyleComponent<TableRow>
+public class TextArea extends InputComponent<TextArea>
 {
-    public TableRow()
+    public TextArea()
     {
-        super("tr",null);
+        super("textarea",InputType.textarea);
     }
-    
-    public TableRow add(Object...objects)
+    public TextArea rows(int value) 
     {
-        for (Object object:objects)
-        {
-            if (object instanceof TagElement<?>)
-            {
-                TagElement<?> tagElement=(TagElement<?>)object;
-                if (tagElement.getTag().equals("td"))
-                {
-                    addInner(tagElement);
-                    continue;
-                }
-            }
-            addInner(new td().addInner(object));
-        }
-        return this;
+        return attr("rows",value);
     }
-    
-    public TableRow table_color(StyleColor value)
-    {
-        addClass("table",value);
-        return this;
-    }
+
 }
+

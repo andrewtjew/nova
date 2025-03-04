@@ -1,12 +1,10 @@
 package org.samples;
 
-import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.html.tags.h1;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.services.WebController;
-import org.nova.services.WebSessionController;
 import org.nova.tracing.Trace;
 
 public class OpenController extends WebController<Service>

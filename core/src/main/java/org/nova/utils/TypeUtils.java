@@ -23,7 +23,6 @@ package org.nova.utils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.nova.core.ObjectBox;
@@ -720,6 +719,33 @@ public class TypeUtils
         }
         return string.trim();
     }
+
+    static public boolean equals(short[] a,short[] b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        if (a.length!=b.length)
+        {
+            return false;
+        }
+        for (int i=0;i<a.length;i++)
+        {
+            if (a[i]!=b[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    
+    
     static public boolean equals(Integer a,Integer b)
     {
         if ((a==null)&&(b==null))

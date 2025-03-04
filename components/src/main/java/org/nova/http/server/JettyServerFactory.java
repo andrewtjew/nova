@@ -23,6 +23,7 @@ package org.nova.http.server;
 
 import java.util.concurrent.Executors;
 
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -43,8 +44,13 @@ public class JettyServerFactory
     {
         Server server = new Server(threadPool);
         HttpConfiguration config = new HttpConfiguration();
+        config.setRequestHeaderSize(8192);
+        config.setResponseHeaderSize(8192);
+        
         config.setOutputBufferSize(65536);
         config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+        UriCompliance specViolatingCompliance = UriCompliance.from("RFC3986,AMBIGUOUS_PATH_ENCODING");
+        config.setUriCompliance(specViolatingCompliance);
 
         ServerConnector connector = new ServerConnector(server,new HttpConnectionFactory(config));
         connector.setIdleTimeout(30*60*1000);
@@ -94,6 +100,8 @@ public class JettyServerFactory
         config.setSecurePort(port);
         
         config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+        UriCompliance specViolatingCompliance = UriCompliance.from("RFC3986,AMBIGUOUS_PATH_ENCODING");
+        config.setUriCompliance(specViolatingCompliance);
 
         SecureRequestCustomizer customizer=new SecureRequestCustomizer();
         if (requireServerNameIndication==false)

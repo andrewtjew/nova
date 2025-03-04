@@ -273,10 +273,9 @@ public class ServerOperatorPages
         Configuration configuration=serverApplication.getConfiguration();
         FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
         this.fileCache=new FileCache(fileCacheConfiguration);
-        
-        
-        this.namespace=serverApplication.getConfiguration().getValue(this.getClass().getSimpleName()+".client.namespace", null);
-        this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue(this.getClass().getSimpleName()+".meters.rateSamplingDuration", 10);
+
+        this.namespace=configuration.getValue(this.getClass().getSimpleName()+".namespace", null);
+        this.rateSamplingDuration = configuration.getDoubleValue(this.getClass().getSimpleName()+".meters.rateSamplingDuration", 10);
         this.serverApplication = serverApplication;
 
         MenuBar menuBar=serverApplication.getMenuBar();

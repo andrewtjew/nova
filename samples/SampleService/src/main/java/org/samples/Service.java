@@ -2,7 +2,6 @@ package org.samples;
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplicationRunner;
-import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;

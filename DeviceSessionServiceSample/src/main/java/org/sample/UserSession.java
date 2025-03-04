@@ -1,17 +1,8 @@
 package org.sample;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Base64;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.nova.core.NameObject;
-import org.nova.http.server.Context;
-import org.nova.security.SecurityUtils;
 import org.nova.services.DeviceSession;
 import org.nova.tracing.Trace;
 

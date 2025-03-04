@@ -8,11 +8,9 @@ import org.nova.html.ext.Text;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.FileDownloader;
-import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.DeviceSessionService;
 import org.nova.services.FavIconController;
-import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;
 
 public class Service extends DeviceSessionService<UserSession>

@@ -272,6 +272,19 @@ public class Utils
         }
         return sb.toString();
     }
+    public static String combine(short[] items,String seperator)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (short item:items)
+        {
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(item);
+        }
+        return sb.toString();
+    }
     public static String combine(String seperator,String...items)
     {
         StringBuilder sb=new StringBuilder();
