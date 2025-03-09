@@ -1,5 +1,7 @@
 package org.nova.html.bootstrap.ext.input;
 
+import java.time.LocalDate;
+
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.utils.TypeUtils;
@@ -45,6 +47,23 @@ public class InputGroupDate extends Item
         this.selectYear.set(yearValue);
         this.selectMonth.set(monthValue);
         this.selectDay.set(dayValue);
+        
+        return this;
+    }    
+    public InputGroupDate set(LocalDate date)
+    {
+        if (date!=null)
+        {
+            this.selectYear.set(date.getYear());
+            this.selectMonth.set(date.getMonthValue());
+            this.selectDay.set(date.getDayOfMonth());
+        }
+        else
+        {
+            this.selectYear.set(null);
+            this.selectMonth.set((Integer)null);
+            this.selectDay.set(null);
+        }
         
         return this;
     }    

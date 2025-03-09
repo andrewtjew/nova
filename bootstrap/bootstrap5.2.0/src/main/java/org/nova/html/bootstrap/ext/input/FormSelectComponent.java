@@ -5,19 +5,19 @@ import org.nova.html.elements.Element;
 
 public class FormSelectComponent<SELECT extends Select> extends FormInputComponent<SELECT>
 {
-    public FormSelectComponent(FormCol formCol,String labelText,SELECT input,Element right)
+    public FormSelectComponent(FormCol formCol,String labelText,SELECT select,Element right)
     {
-        super(formCol,labelText,input,right);
+        super(formCol,labelText,select,right);
     }
     
-    public FormSelectComponent(FormCol col,String labelText,SELECT input)
+    public FormSelectComponent(FormCol col,String labelText,SELECT select)
     {
-        this(col,labelText,input,null);
+        this(col,labelText,select,null);
     }
 
-    public SELECT select()
-    {
-        return this.input();
-    }
+//    public SELECT select()
+//    {
+//        return this.input();
+//    }
     
 }

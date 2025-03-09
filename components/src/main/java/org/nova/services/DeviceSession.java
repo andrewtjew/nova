@@ -105,6 +105,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         }
     }
 
+    @SuppressWarnings("unused")
     public <T> T getPageState(String key)
     {
         if (Debugging.ENABLE && DEBUG)
