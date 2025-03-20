@@ -22,10 +22,12 @@
 package org.nova.html.bootstrap.ext.DataTables;
 
 import org.nova.html.DataTables.DataTableOptions;
+import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.TableBody;
 import org.nova.html.bootstrap.TableFoot;
 import org.nova.html.bootstrap.TableHead;
+import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
@@ -57,7 +59,15 @@ public class DataTable  extends StyleComponent<DataTable>
         this.body=returnAddInner(new TableBody());
         this.footer=returnAddInner(new TableFoot());
     }    
+    public DataTable(DataTableOptions options,Object...columnNames) 
+    {
+        this(options);
+        TableHeadRow row=new TableHeadRow();
+        row.add(columnNames);
+        header().addInner(row);
+    }
 
+    
     public TableHead header()
     {
         return this.header;
