@@ -81,11 +81,11 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         return response;
     }
     
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        render(null);
-        super.compose(composer);
-    }
+//    @Override
+//    public void compose(Composer composer) throws Throwable
+//    {
+//        render(null);
+//        super.compose(composer);
+//    }
     
 }

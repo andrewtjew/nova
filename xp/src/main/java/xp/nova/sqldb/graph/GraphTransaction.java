@@ -375,7 +375,7 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public <NODE extends NodeObject> void appendToArray(NodeObject arrayObject,NODE[] elements) throws Throwable
+    public <NODE extends NodeObject> void appendToArray(NODE[] elements,NodeObject arrayObject) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -397,6 +397,10 @@ public class GraphTransaction implements AutoCloseable
                 Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
         }
+    }
+    public <NODE extends NodeObject> void appendToArray(NodeObject arrayObject,NODE...elements) throws Throwable
+    {
+        appendToArray(elements,arrayObject);
     }
     public int deleteArray(NodeObject arrayObject,Class<? extends NodeObject> elementType) throws Throwable
     {

@@ -510,7 +510,7 @@ public class HttpServer
             						servletResponse.setStatus(response.getStatusCode());
             						ContentWriter writer = context.getContentWriter();
             						if (writer != null)
-            						{
+            						{ 
                                         if (servletResponse.getContentType()==null)
                                         {
                                             servletResponse.setContentType(writer.getMediaType());

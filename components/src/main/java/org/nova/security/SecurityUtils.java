@@ -290,18 +290,14 @@ public class SecurityUtils
         return bytes;
     }
     
+    final static String QR_CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRTSTUVXYZ0123456789abcdefghijklmnopqrstuvwxyz";
     
-    public static String generateVerificationCode(int length)
+    public static String generateMachineVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
-        bytes[0] = (byte) (RANDOM.nextInt(26) + 'A');
-        for (int i = 1; i < length; i++)
+        for (int i = 0; i < length; i++)
         {
-            do
-            {
-                bytes[i] = (byte) (RANDOM.nextInt(26) + 'A');
-            }
-            while (bytes[i] == bytes[i - 1]);
+            bytes[i] = (byte) (USER_CODE_ALPHABET.charAt(RANDOM.nextInt(USER_CODE_ALPHABET.length())));
         }
         return new String(bytes, StandardCharsets.ISO_8859_1);
     }

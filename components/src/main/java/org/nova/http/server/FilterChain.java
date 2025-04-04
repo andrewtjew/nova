@@ -691,7 +691,7 @@ public class FilterChain
     		        if (object==null)
     		        {
     		            RequestHandler handler=context.getRequestHandler();
-    		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing.");
+    		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic.");
     		        }
 		        }
 		    }

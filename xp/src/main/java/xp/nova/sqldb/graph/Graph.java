@@ -537,13 +537,55 @@ public class Graph
                             {
                                 return null;
                             }
-                            return ((ShortEnummerable)object).getValue();
+                            return ((IntegerEnummerable)object).getValue();
                         }
 
                         @Override
                         public SqlType getSqlType() throws Throwable
                         {
                             return new SqlType("INT",true);
+                        }
+                    };
+                }
+                else if (LongEnummerable.class==interfaceType)
+                {
+                    descriptor=new FieldDescriptor(field)
+                    {
+                        @Override
+                        public void set(Object object, String typeName, Row row) throws Throwable
+                        {
+                            Long value=row.getNullableBIGINT(getColumnName(typeName));
+                            Object enumValue=null;
+                            if (value!=null)
+                            {
+                                for (Object enumConstantObject:type.getEnumConstants())
+                                {
+                                    if (((IntegerEnummerable)enumConstantObject).getValue()==value)
+                                    {
+                                        enumValue=enumConstantObject;
+                                        break;
+                                    }
+                                }
+                            }
+                            field.set(object, enumValue);
+                        }
+
+                        @Override
+                        public Object get(Object object) throws Throwable
+                        {
+                            
+                            object=field.get(object);
+                            if (object==null)
+                            {
+                                return null;
+                            }
+                            return ((LongEnummerable)object).getValue();
+                        }
+
+                        @Override
+                        public SqlType getSqlType() throws Throwable
+                        {
+                            return new SqlType("BIGINT",true);
                         }
                     };
                 }

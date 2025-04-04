@@ -202,7 +202,6 @@ public class FileDownloader extends ServletHandler
             return false;
         }
         {
-
             byte[] bytes = this.cache.get(parent, key);
             if (bytes != null)
             {
