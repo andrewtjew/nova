@@ -339,6 +339,7 @@ public class FilterChain
 	
     public void decodeParameters(Trace trace,Context context) throws Throwable
     {
+        this.requestHandler=this.requestHandlerWithParameters.requestHandler;
         String[] pathParameters=this.requestHandlerWithParameters.parameters;
         ParameterInfo[] parameterInfos=requestHandler.getParameterInfos();
         this.parameters=new Object[parameterInfos.length];
@@ -599,7 +600,6 @@ public class FilterChain
 		{
 	        if (this.requestHandler==null)
 	        {
-	            this.requestHandler=this.requestHandlerWithParameters.requestHandler;
 	            decodeParameters(trace, context);
 	        }
 		}

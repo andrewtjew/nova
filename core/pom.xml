@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.nova</groupId>
 	<artifactId>nova-core</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version> 
 	<build>
 		<plugins>
-			<plugin>
+			<plugin> 
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.2</version>
