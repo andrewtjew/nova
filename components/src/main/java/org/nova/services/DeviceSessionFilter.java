@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
 import org.nova.html.ext.Page;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
 import org.nova.html.remote.Remote;
@@ -19,11 +20,13 @@ import org.nova.http.server.RequestHandler;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
 import org.nova.services.RoleSession.AccessResult;
+import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
 public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
+    
     final private SessionManager<SESSION> sessionManager;
     private SESSION debugSession;
     final private Class<COOKIESTATE> coookieStateType;
@@ -122,8 +125,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
             {
                 return handleNoLock(parent, context);
             }
+            session.beginSessionProcessing(lock);
         }
-        session.beginSessionProcessing(lock);
         
         boolean keepStateAlive=false; 
         try

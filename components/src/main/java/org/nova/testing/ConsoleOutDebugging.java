@@ -1,8 +1,8 @@
 package org.nova.testing;
 
-public class ConsoleOutTesting extends Debugging
+public class ConsoleOutDebugging extends Debugging
 {
-    public ConsoleOutTesting()
+    public ConsoleOutDebugging()
     {
     }
     

@@ -22,7 +22,10 @@ import org.nova.tracing.Trace;
 
 public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
+    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     final static boolean DEBUG=false;
+    final static boolean DEBUG_PAGESTATE=false;
+    
     protected HashMap<String,Object> pageStates;
     protected HashMap<String,Object> newPageStates;
     
@@ -108,14 +111,14 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     @SuppressWarnings("unused")
     public <T> T getPageState(String key)
     {
-        if (Debugging.ENABLE && DEBUG)
+        if (Debugging.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
             if (this.pageStates.containsKey(key)==false)
             {
-                System.err.println("No Page State for key="+key);
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
                 for (Entry<String, Object> entry:this.pageStates.entrySet())
                 {
-                    System.err.println(entry.getKey()+":"+entry.getValue());
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
                 }
             }
         }
@@ -141,7 +144,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
             this.pageStates.put(key, state);
             if (Debugging.ENABLE && DEBUG)
             {
-                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
             }            
         }
     }
@@ -153,6 +156,8 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return "_";
     }
 
+    
+    
     @Override
     public boolean verifyQuery(Context context) throws Throwable
     {
@@ -167,6 +172,7 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             return code.equals(computed);
         }
+        else
         return true;
     }
     @Override

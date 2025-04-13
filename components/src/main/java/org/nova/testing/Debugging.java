@@ -25,7 +25,7 @@ public abstract class Debugging
 {
     abstract public void _log(LogLevel logLevel,String category,Object object);
 
-    private static Debugging DEBUGGING=new ConsoleOutTesting();
+    private static Debugging DEBUGGING=new ConsoleOutDebugging();
 
     final public static boolean ENABLE=true;
     

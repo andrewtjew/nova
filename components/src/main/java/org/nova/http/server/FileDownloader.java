@@ -21,7 +21,6 @@ import com.nixxcode.jvmbrotli.common.BrotliLoader;
 
 public class FileDownloader extends ServletHandler
 {
-    //CR000054453
     final private String root;
     final private String cacheControl;
     final private long maxAge;
@@ -65,6 +64,7 @@ public class FileDownloader extends ServletHandler
         this.cache.clear();
     }
     static public boolean DEBUG=false;
+    static public String LOG_DEBUG_CATEGORY=FileDownloader.class.getSimpleName();
 
     final private HashSet<String> doNotCompressFileExtensions;
     final private ExtensionToContentTypeMappings mappings;
@@ -160,18 +160,17 @@ public class FileDownloader extends ServletHandler
             {
                 if (Debugging.ENABLE && DEBUG)
                 {
-                    Debugging.log("FileDownloadHandler:cache="+filePath);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"From cache:filePath="+filePath+", length="+bytes.length);
                 }
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);
+                if (Debugging.ENABLE && DEBUG)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
+                }
                 return true;
             }
         }
-        if (Debugging.ENABLE && DEBUG)
-        {
-            Debugging.log("FileDownloadHandler:load="+filePath);
-        }
-        
         
         String rootFilePath = root+filePath;
         File file = new File(rootFilePath);
@@ -179,25 +178,23 @@ public class FileDownloader extends ServletHandler
         {
             if (Debugging.ENABLE && DEBUG)
             {
-                Debugging.log("FileDownloadHandler:File is directory. file="+filePath);
+                Debugging.log(LOG_DEBUG_CATEGORY,"File is directory:filePath="+filePath);
             }
-//            response.setStatus(HttpStatus.FORBIDDEN_403);
             return false;
         }
         if (file.exists() == false)
         {
             if (Debugging.ENABLE && DEBUG)
             {
-                Debugging.log("FileDownloadHandler:File not found. file="+filePath);
+                Debugging.log(LOG_DEBUG_CATEGORY,"Not found:filePath="+filePath);
             }
-//            response.setStatus(HttpStatus.NOT_FOUND_404);
             return false;
         }
         if (file.getCanonicalPath().startsWith(this.root) == false)
         {
             if (Debugging.ENABLE && DEBUG)
             {
-                Debugging.log("FileDownloadHandler:File is not valid. file="+filePath);
+                Debugging.log(LOG_DEBUG_CATEGORY,"Invalid file:filePath="+filePath);
             }
             return false;
         }
@@ -205,13 +202,26 @@ public class FileDownloader extends ServletHandler
             byte[] bytes = this.cache.get(parent, key);
             if (bytes != null)
             {
+                if (this.enableLocalCaching==false)
+                {
+                    this.cache.remove(key);
+                }            
+                if (Debugging.ENABLE && DEBUG)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Load:filePath="+filePath+", lenght="+bytes.length);
+                }
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);
+                if (Debugging.ENABLE && DEBUG)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
+                }
             }
-            if (this.enableLocalCaching==false)
+            else if (Debugging.ENABLE && DEBUG)
             {
-                this.cache.remove(key);
-            }            
+                Debugging.log(LOG_DEBUG_CATEGORY,"Not in cache:filePath="+filePath);
+            }
+                
             response.setStatus(HttpStatus.OK_200);
         }
         return true;
