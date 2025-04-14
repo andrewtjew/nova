@@ -950,5 +950,17 @@ public class HtmlUtils
         byte[] bytes = java.util.Base64.getDecoder().decode(data.substring(data.indexOf(",") + 1));
         FileUtils.writeBinaryFile(directory+"\\"+overrideFileName, bytes);
     }
-    
+    public static String getRequestPathAndQuery(HttpServletRequest request)
+    {
+        String query=request.getQueryString();
+        if (query==null)
+        {
+            return request.getRequestURI();
+        }
+        return request.getRequestURI()+"?"+query;
+    }
+    public static String getRequestPathAndQuery(Context context)
+    {
+        return getRequestPathAndQuery(context.getHttpServletRequest());
+    }
 }
