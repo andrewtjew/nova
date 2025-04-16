@@ -78,7 +78,22 @@ public class FileDownloader extends ServletHandler
         set.add("mp3");
         return set;
     }
-    
+    private void write(Trace parent, byte[] bytes, HttpServletResponse response) throws Throwable
+    {
+        try
+        {
+            response.setStatus(HttpStatus.OK_200);
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+        }
+        catch (Throwable t)
+        {
+            if (Debugging.ENABLE && DEBUG)
+            {
+                t.printStackTrace();
+            }
+        }
+    }    
     public boolean download(Trace parent, String filePath, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
         filePath=FileUtils.toNativePath(filePath);
@@ -162,8 +177,7 @@ public class FileDownloader extends ServletHandler
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"From cache:filePath="+filePath+", length="+bytes.length);
                 }
-                response.setContentLength(bytes.length);
-                response.getOutputStream().write(bytes);
+                write(parent, bytes, response);
                 if (Debugging.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
@@ -210,8 +224,7 @@ public class FileDownloader extends ServletHandler
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Load:filePath="+filePath+", lenght="+bytes.length);
                 }
-                response.setContentLength(bytes.length);
-                response.getOutputStream().write(bytes);
+                write(parent, bytes, response);
                 if (Debugging.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
@@ -222,7 +235,6 @@ public class FileDownloader extends ServletHandler
                 Debugging.log(LOG_DEBUG_CATEGORY,"Not in cache:filePath="+filePath);
             }
                 
-            response.setStatus(HttpStatus.OK_200);
         }
         return true;
     }
