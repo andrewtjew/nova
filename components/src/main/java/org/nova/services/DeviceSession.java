@@ -32,7 +32,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     
     final protected ZoneId zoneId;
     final private long deviceSessionId;
-    private Context context;
     final protected SecretKey secretKey;
     final private String querySecurityPathPrefix;
 
@@ -72,15 +71,6 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
     public ZoneId getZoneId()
     {
         return this.zoneId;
-    }
-    
-    protected void setContext(Trace parent,Context context)  throws Throwable
-    {
-        this.context=context;
-    }
-    public Context getContext()
-    {
-        return this.context;
     }
     
     public void setPageState(TagElement<?> element) throws Throwable
