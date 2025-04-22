@@ -120,16 +120,16 @@ public class AjaxQueryResultWriter extends ContentWriter
 	}
 
 	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public boolean writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
-		// TODO Auto-generated method stub
+        return false;
 		
 	}
 
 	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public boolean writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
-		// TODO Auto-generated method stub
+		return false;
 		
 	}
 

@@ -3441,19 +3441,19 @@ public class ServerOperatorPages
             }
             if (requestHandler.getContentWriters().size() > 0)
             {
-                HashMap<String, ContentWriterList> lists = new HashMap<>();
+                HashMap<String, TypeContentWriter> lists = new HashMap<>();
                 for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
+                    TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
-                        types = new ContentWriterList(entry.getValue());
+                        types = new TypeContentWriter(entry.getValue());
                         lists.put(entry.getValue().getMediaType(), types);
                     }
                     types.types.add(entry.getKey());
                 }
 
-                for (ContentWriterList list : lists.values())
+                for (TypeContentWriter list : lists.values())
                 {
                     if (innerReturnType == null)
                     {
@@ -4141,12 +4141,12 @@ public class ServerOperatorPages
         return page;
     }
 
-    static class ContentWriterList
+    static class TypeContentWriter
     {
         ContentWriter contentWriter;
         ArrayList<String> types;
 
-        public ContentWriterList(ContentWriter contentWriter)
+        public TypeContentWriter(ContentWriter contentWriter)
         {
             this.contentWriter = contentWriter;
             this.types = new ArrayList<>();
@@ -4359,7 +4359,7 @@ public class ServerOperatorPages
 
 
         Class<?> returnType = method.getReturnType();
-        Type innerReturnType = null;
+        Type unknownReturnType = null;
         if (returnType != void.class)
         {
             Panel2 responsePanel=page.content().returnAddInner(new Panel2(page.head(), "Response"));
@@ -4370,16 +4370,16 @@ public class ServerOperatorPages
             if (returnType == Response.class)
             {
                 ParameterizedType type = (ParameterizedType) method.getGenericReturnType();
-                innerReturnType = type.getActualTypeArguments()[0];
-                String typeName = innerReturnType.getTypeName();
+                unknownReturnType = type.getActualTypeArguments()[0];
+                String typeName = unknownReturnType.getTypeName();
                 if (typeName.equals("?"))
                 {
                     parameterWriter.write(returnType);
                 }
                 else
                 {
-                    returnType = (Class<?>) innerReturnType;
-                    innerReturnType = null;
+                    returnType = (Class<?>) unknownReturnType;
+                    unknownReturnType = null;
                     parameterWriter.write(returnType);
                 }
             }
@@ -4390,13 +4390,13 @@ public class ServerOperatorPages
 
             if (requestHandler.getContentWriters().size() > 0)
             {
-                HashMap<String, ContentWriterList> lists = new HashMap<>();
+                HashMap<String, TypeContentWriter> lists = new HashMap<>();
                 for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
+                    TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
-                        types = new ContentWriterList(entry.getValue());
+                        types = new TypeContentWriter(entry.getValue());
                         lists.put(entry.getValue().getMediaType(), types);
                     }
                     types.types.add(entry.getKey());
@@ -4404,21 +4404,32 @@ public class ServerOperatorPages
 
                 responsePanel.content().addInner(new p());
                 Panel3 contentWriterPanel=responsePanel.content().returnAddInner(new Panel3(page.head(),"Content Writers"));
-                for (ContentWriterList list : lists.values())
+                for (TypeContentWriter typeContentWriter : lists.values())
                 {
+                    
                     WideTable table=contentWriterPanel.content().returnAddInner(new WideTable(page.head()));
                     table.setHeader("Class","Media Type","Accept Types");
-                    table.addRow(new TableRow().add(list.contentWriter.getClass().getName(),list.contentWriter.getMediaType(),Utils.combine(list.types, ", ")));
+                    table.addRow(new TableRow().add(typeContentWriter.contentWriter.getClass().getName(),typeContentWriter.contentWriter.getMediaType(),Utils.combine(typeContentWriter.types, ", ")));
 
-                    if (innerReturnType==null)
+
+                    if (unknownReturnType==null)
                     {
+                        Class<?> contentType=typeContentWriter.contentWriter.getContentType();
+                        if (TypeUtils.isDerivedFrom(returnType,Element.class)&&(contentType==Object.class))
+                        {
+                            continue;
+                        }       
+                        if (TypeUtils.isDerivedFrom(returnType,contentType)==false)
+                        {
+                            continue;
+                        }       
                         contentWriterPanel.content().addInner(new p());
                         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                        list.contentWriter.writeSchema(byteOutputStream, returnType);
+                        typeContentWriter.contentWriter.writeSchema(byteOutputStream, returnType);
                         String schema = new String(byteOutputStream.toByteArray());
     
                         byteOutputStream.reset();
-                        list.contentWriter.writeExample(byteOutputStream, returnType);
+                        typeContentWriter.contentWriter.writeExample(byteOutputStream, returnType);
                         String example = new String(byteOutputStream.toByteArray());
                         if (schema.length() > 0)
                         {

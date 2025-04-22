@@ -44,15 +44,17 @@ public class JSONContentWriter extends ContentWriter
 	}
 
 	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public boolean writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
-		SchemaWriter.writeSchema(outputStream, contentType);		
+		SchemaWriter.writeSchema(outputStream, contentType);
+		return true;
 	}
 
 	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public boolean writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
 	{
 		ObjectExample.write(outputStream, contentType);
+		return true;
 	}
 
     @Override

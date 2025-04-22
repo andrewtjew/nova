@@ -44,7 +44,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         this.debugSession=session;
     }
 
-    abstract public Response<?> verifySession(Trace parent,Context context,SESSION session) throws Throwable;
+    abstract public Response<?> bindSession(Trace parent,Context context,SESSION session) throws Throwable;
 //    {
 //        session.setContext(parent,context);
 //        context.setState(session);
@@ -151,7 +151,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
               }
             }
 
-            Response<?> stateResponse=verifySession(parent,context,session);
+            Response<?> stateResponse=bindSession(parent,context,session);
             if (stateResponse!=null)
             {
                 return stateResponse; 

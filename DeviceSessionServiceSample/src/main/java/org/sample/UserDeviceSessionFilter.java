@@ -83,7 +83,7 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     }
 
     @Override
-    public Response<?> verifySession(Trace parent, Context context, UserSession session) throws Throwable
+    public Response<?> bindSession(Trace parent, Context context, UserSession session) throws Throwable
     {
         context.setState(session);
         return null;

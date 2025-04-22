@@ -281,7 +281,7 @@ public class SecurityUtils
         }
     }
     
-    final static String USER_CODE_ALPHABET = "ACDEFGHJKLMNPQRTVWXYZ234679";
+    final static String USER_CODE_ALPHABET = "ACDEFGHJKLMNPQRTUVWXYZ23456789";
 
     public static byte[] generateRandomBytes(int length)
     {
@@ -290,7 +290,6 @@ public class SecurityUtils
         return bytes;
     }
     
-    final static String QR_CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRTSTUVXYZ0123456789abcdefghijklmnopqrstuvwxyz";
     
     public static String generateMachineVerificationCode(int length)
     {
@@ -301,6 +300,20 @@ public class SecurityUtils
         }
         return new String(bytes, StandardCharsets.ISO_8859_1);
     }
+    public static String generateVerificationCode(int length)
+    {
+        byte[] bytes = new byte[length];
+        bytes[0] = (byte) (RANDOM.nextInt(26) + 'A');
+        for (int i = 1; i < length; i++)
+        {
+            do
+            {
+                bytes[i] = (byte) (RANDOM.nextInt(26) + 'A');
+            }
+            while (bytes[i] == bytes[i - 1]);
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
+    }    
     
     public static String generateUserFixedUnique(long number,int length) throws Exception
     {

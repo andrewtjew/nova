@@ -23,7 +23,7 @@ package org.nova.html.ext;
 import org.nova.html.tags.html;
 import org.nova.html.tags.body;
 
-public class Page<ROLE> extends Content
+public class Page extends Content
 {
     final private html html;
     final private Head head;

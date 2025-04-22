@@ -50,15 +50,17 @@ public class TextContentWriter extends ContentWriter
         context.writeContent((String)content, StandardCharsets.UTF_8);
 	}
 
-	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-	}
+    @Override
+    public boolean writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
+    {
+        return false;
+    }
 
-	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-	}
+    @Override
+    public boolean writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
+    {
+        return false;
+    }
 
     @Override
     public Class<?> getContentType()
