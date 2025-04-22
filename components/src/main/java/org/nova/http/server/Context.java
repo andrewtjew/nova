@@ -188,10 +188,6 @@ public class Context
         this.state = state;
     }
 
-//    public void setStateParameter(Object state)
-//    {
-//        this.filterChain.setStateParameter(state);
-//    }
     public void setContentParameter(Object content)
     {
         this.filterChain.setContentParameter(content);
