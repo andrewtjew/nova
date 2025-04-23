@@ -1649,6 +1649,9 @@ public class ObjectMapper
     }
     static class EnumReader extends Reader
     {
+        @SuppressWarnings({
+                "unchecked", "rawtypes"
+        })
         @Override
         Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {

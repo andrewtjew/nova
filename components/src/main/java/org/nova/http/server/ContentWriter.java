@@ -28,7 +28,7 @@ public abstract class ContentWriter
     abstract public String getMediaType();
     abstract public Class<?> getContentType();
 	abstract public void write(Context context,Object content) throws Throwable;
-	abstract public boolean writeSchema(OutputStream outputStream,Class<?> contentType) throws Throwable;;
-	abstract public boolean writeExample(OutputStream outputStream,Class<?> contentType) throws Throwable;;
+	abstract public String writeSchema(Class<?> contentType) throws Throwable;;
+	abstract public String writeExample(Class<?> contentType) throws Throwable;;
 	
 }

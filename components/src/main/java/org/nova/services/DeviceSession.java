@@ -21,7 +21,7 @@ import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     final static boolean DEBUG=false;

@@ -53,16 +53,15 @@ public class RemoteResponseWriter extends ContentWriter
 	    }
 	}
 
-    @Override
-    public boolean writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
+    public String writeSchema(Class<?> contentType) throws Throwable
     {
-        return false;
+        return null;
     }
 
     @Override
-    public boolean writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
+    public String writeExample(Class<?> contentType) throws Throwable
     {
-        return false;
+        return null;
     }
 
     @Override

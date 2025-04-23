@@ -59,6 +59,8 @@ import org.nova.http.server.annotations.Required;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.http.server.annotations.TRACE;
 import org.nova.http.server.annotations.Test;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
@@ -161,6 +163,14 @@ class RequestHandlerMap
     			{
     				classAnnotations.contentDecoders = (ContentDecoders) annotation;
     			}
+                else if (type == RequiredRoles.class)
+                {
+                    classAnnotations.requiredRoles = (RequiredRoles) annotation;
+                }
+                else if (type == ForbiddenRoles.class)
+                {
+                    classAnnotations.forbiddenRoles = (ForbiddenRoles) annotation;
+                }
                 else if (type == Filters.class)
                 {
                     classAnnotations.filters = (Filters) annotation;
@@ -383,6 +393,14 @@ class RequestHandlerMap
 			{
 			    handlerAnnotations.contentDecoders = (ContentDecoders) annotation;
 			}
+            else if (type == RequiredRoles.class)
+            {
+                handlerAnnotations.requiredRoles = (RequiredRoles) annotation;
+            }
+            else if (type == ForbiddenRoles.class)
+            {
+                handlerAnnotations.forbiddenRoles = (ForbiddenRoles) annotation;
+            }
 			else if (type == Filters.class)
 			{
 			    handlerAnnotations.filters = (Filters) annotation;

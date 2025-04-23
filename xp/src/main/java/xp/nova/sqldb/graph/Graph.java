@@ -1193,6 +1193,7 @@ public class Graph
         }
     }
 
+    @SuppressWarnings("unused")
     void updateCountCache(Trace parent,QueryKey key,long count,long duration) throws Throwable
     {
         this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);

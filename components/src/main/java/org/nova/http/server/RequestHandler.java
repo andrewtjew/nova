@@ -33,6 +33,8 @@ import org.nova.collections.RingBuffer;
 import org.nova.http.server.RequestHandlerMap.FragmentIndexMap;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -58,6 +60,8 @@ public class RequestHandler
     final private boolean logResponseHeaders;
     final private boolean logResponseContent;
     final private boolean logLastRequestsInMemory;
+    final private RequiredRoles requiredRoles;
+    final private ForbiddenRoles forbiddenRoles;
 	final int cookieParamCount;
 	
 	final private HashMap<Integer,LongValueMeter> meters;
@@ -119,7 +123,9 @@ public class RequestHandler
         this.logResponseContent=logResponseContent;
         this.logLastRequestsInMemory=logLastRequestsInMemory;
         this.lastRequestsLogEntries=new RingBuffer<>(new RequestLogEntry[bufferSize]);
-        
+
+        this.requiredRoles=annotations.requiredRoles;
+        this.forbiddenRoles=annotations.forbiddenRoles;
         if (annotations.attributes!=null)
         {
             this.attributes=new HashSet<String>();
@@ -153,6 +159,15 @@ public class RequestHandler
 	public Method getMethod()
 	{
 		return method;
+	}
+	
+	public RequiredRoles getRequiredRoles()
+	{
+	    return this.requiredRoles;
+	}
+	public ForbiddenRoles getForbiddenRoles()
+	{
+	    return this.forbiddenRoles;
 	}
 	
 	public HashSet<String> getHiddenParameters()

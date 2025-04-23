@@ -119,19 +119,16 @@ public class AjaxQueryResultWriter extends ContentWriter
 		context.writeContent(sb.toString(), StandardCharsets.UTF_8);
 	}
 
-	@Override
-	public boolean writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-        return false;
-		
-	}
+    public String writeSchema(Class<?> contentType) throws Throwable
+    {
+        return null;
+    }
 
-	@Override
-	public boolean writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-		return false;
-		
-	}
+    @Override
+    public String writeExample(Class<?> contentType) throws Throwable
+    {
+        return null;
+    }
 
     @Override
     public Class<?> getContentType()

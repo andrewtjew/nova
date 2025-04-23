@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
+import org.nova.http.server.RequestHandler;
 import org.nova.tracing.Trace;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session
@@ -51,15 +52,15 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     
     boolean isAccessDenied(Context context)
     {
-        Method method=context.getRequestHandler().getMethod();
-        ForbiddenRoles denyGroups=method.getDeclaredAnnotation(ForbiddenRoles.class);
-        if (denyGroups!=null)
+        RequestHandler requestHandler=context.getRequestHandler();
+        ForbiddenRoles forbiddenGroups=requestHandler.getForbiddenRoles();
+        if (forbiddenGroups!=null)
         {
-            if (denyGroups.value().length==0)
+            if (forbiddenGroups.value().length==0)
             {
                 return true; //deny all
             }
-            for (String value:denyGroups.value())
+            for (String value:forbiddenGroups.value())
             {
                 if (isInGroup(value))
                 {
@@ -68,16 +69,16 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
             }
         }
 
-        RequiredRoles allowGroups=method.getDeclaredAnnotation(RequiredRoles.class);
-        if (allowGroups==null)
+        RequiredRoles requiredRoles=requestHandler.getRequiredRoles();
+        if (requiredRoles==null)
         {
             return true; //deny all
         }
-        if (allowGroups.value().length==0)
+        if (requiredRoles.value().length==0)
         {
             return false; //allow all
         }
-        for (String value:allowGroups.value())
+        for (String value:requiredRoles.value())
         {
             if (isInGroup(value))
             {

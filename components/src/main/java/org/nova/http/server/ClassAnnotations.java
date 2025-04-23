@@ -31,6 +31,8 @@ import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.Test;
 import org.nova.services.AllowNoSession;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 
 public class ClassAnnotations
 {
@@ -39,11 +41,13 @@ public class ClassAnnotations
 	ContentReaders contentReaders = null;
 	ContentEncoders contentEncoders=null;
 	ContentDecoders contentDecoders=null;
-	AllowNoSession allowNoSession=null;
 	Attributes attributes=null;
 	Test test=null;
 	Filters filters = null;
 	Log log=null;
+    RequiredRoles requiredRoles=null;
+    ForbiddenRoles forbiddenRoles=null;
+	
 	
     ClassAnnotations()
     {
@@ -59,8 +63,9 @@ public class ClassAnnotations
 	    this.filters = that.filters;
 	    this.log=that.log;
 	    this.test=that.test;
-	    this.allowNoSession=that.allowNoSession;
 	    this.attributes=that.attributes;
+	    this.requiredRoles=that.requiredRoles;
+	    this.forbiddenRoles=that.forbiddenRoles;
 	}
 
 }

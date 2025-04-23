@@ -24,7 +24,7 @@ import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
+public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
     
     final private SessionManager<SESSION> sessionManager;

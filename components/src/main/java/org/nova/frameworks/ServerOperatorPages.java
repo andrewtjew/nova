@@ -209,6 +209,8 @@ import org.nova.metrics.TraceSample;
 import org.nova.operations.OperatorVariable;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 import org.nova.testing.Debugging;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
@@ -3457,9 +3459,7 @@ public class ServerOperatorPages
                 {
                     if (innerReturnType == null)
                     {
-                        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                        list.contentWriter.writeSchema(byteOutputStream, returnType);
-                        String schema = new String(byteOutputStream.toByteArray());
+                        String schema = list.contentWriter.writeSchema(returnType);
                         if (schema.length()==0)
                         {
                             schema=null;
@@ -3844,13 +3844,13 @@ public class ServerOperatorPages
         void write(Class<?> type)
         {
             String typeName=type.isArray()?type.getComponentType().getName():type.getName();
-            String displayTypeName=type.isArray()?type.getComponentType().getSimpleName()+"[]":type.getSimpleName();
+            String displayTypeName=type.isArray()?type.getComponentType().getName()+"[]":type.getName();
             if (this.shownClasses.contains(typeName))
             {
                 return;
             }
             this.shownClasses.add(typeName);
-            Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,"Type: "+displayTypeName));
+            Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,displayTypeName));
             if (TypeUtils.isDerivedFrom(type,Element.class))
             {
                 return;
@@ -4313,6 +4313,7 @@ public class ServerOperatorPages
         writeParameterInfos(page.head(),requestPanel, "Header Parameters", requestHandler, ParameterSource.HEADER);
         writeParameterInfos(page.head(),requestPanel, "Cookie Parameters", requestHandler, ParameterSource.COOKIE);
         ParameterInfo contentParameterInfo = findContentParameter(requestHandler);
+
         if (contentParameterInfo != null)
         {
             Panel3 contentParameterPanel=requestPanel.content().returnAddInner(new Panel3(page.head(),"Content Parameter"));
@@ -4424,20 +4425,15 @@ public class ServerOperatorPages
                             continue;
                         }       
                         contentWriterPanel.content().addInner(new p());
-                        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                        typeContentWriter.contentWriter.writeSchema(byteOutputStream, returnType);
-                        String schema = new String(byteOutputStream.toByteArray());
-    
-                        byteOutputStream.reset();
-                        typeContentWriter.contentWriter.writeExample(byteOutputStream, returnType);
-                        String example = new String(byteOutputStream.toByteArray());
-                        if (schema.length() > 0)
+                        String schema=typeContentWriter.contentWriter.writeSchema(returnType);
+                        String example=typeContentWriter.contentWriter.writeExample(returnType);
+                        if (TypeUtils.isNullOrEmpty(schema)==false)
                         {
                             Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Schema"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(schema, "\r")+1));
                             area.addInner(schema);
                         }
-                        if (example.length() > 0)
+                        if (TypeUtils.isNullOrEmpty(example)==false)
                         {
                             Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Example"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(example,"\r")+1));
@@ -4449,6 +4445,17 @@ public class ServerOperatorPages
             }
             page.content().addInner(new p());
         }
+        
+        ForbiddenRoles forbiddenRoles=requestHandler.getForbiddenRoles();
+        RequiredRoles requiredRoles=requestHandler.getRequiredRoles();
+        if ((forbiddenRoles!=null)||(requiredRoles!=null))
+        {
+            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Access Control"));
+            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+            table.setHeader("RequiredRoles","ForbiddenRoles");
+            table.addRow(new TableRow().add(requiredRoles!=null?"Values: "+Utils.combine(requiredRoles.value(),", "):"",forbiddenRoles!=null?"Values: "+Utils.combine(forbiddenRoles.value(),", "):""));
+        }
+        
         
         
 

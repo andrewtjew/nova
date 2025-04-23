@@ -740,7 +740,8 @@ public class Configuration
 		}
 	}
 	
-	public <OBJECT> OBJECT getNamespaceObject(String namespace,Class<OBJECT> type) throws Throwable
+	@SuppressWarnings("unchecked")
+    public <OBJECT> OBJECT getNamespaceObject(String namespace,Class<OBJECT> type) throws Throwable
 	{
 	    OBJECT object=type.newInstance();
 	    for (Field field:type.getDeclaredFields())
