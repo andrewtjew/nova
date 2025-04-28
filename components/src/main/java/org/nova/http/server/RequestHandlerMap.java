@@ -698,11 +698,6 @@ class RequestHandlerMap
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
-//            else if (secureQueryParam != null)
-//            {
-//                parameterInfos.add(new ParameterInfo(ParameterSource.SECURE_QUERY, secureQueryParam, secureQueryParam.value(), parameterIndex, parameterType,
-//                        getDefaultValue(method, defaultValue, parameterType),required!=null));
-//            }
 			else if (headerParam != null)
 			{
 				if (isSimpleParameterType(parameterType) == false)

@@ -30,7 +30,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.nova.collections.RingBuffer;
+import org.nova.core.ObjectBox;
 import org.nova.http.server.RequestHandlerMap.FragmentIndexMap;
+import org.nova.http.server.annotations.QueryParam;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;
 import org.nova.services.ForbiddenRoles;
@@ -78,21 +80,42 @@ public class RequestHandler
     final private long runtimeKey;
     
     final private FragmentIndexMap fragmentIndexMap;
+    final private boolean isSecurityVerificationRequired;
     
+    
+//    final HashMap<String,ParameterInfo> queryParameterInfos;
+//    final HashMap<String,ParameterInfo> pathParameterInfos;
+
     static private AtomicLong RUNTIME_KEY_GENERATOR=new AtomicLong();
-    
-	RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
+
+    RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
         this.runtimeKey=RUNTIME_KEY_GENERATOR.getAndIncrement();
         this.fragmentIndexMap=new FragmentIndexMap();
-	    Class<?> stateType=null;
+	    
+//        this.queryParameterInfos=new HashMap<String, ParameterInfo>();
+  //      this.pathParameterInfos=new HashMap<String, ParameterInfo>();
+        Class<?> stateType=null;
+        int queryParameterInfos=0;
 	    for (ParameterInfo info:parameterInfos)
 	    {
-	        if (info.getSource()==ParameterSource.STATE)
+	        switch(info.getSource())
 	        {
+	            case ParameterSource.STATE:
 	            stateType=info.getType();
-	        }
+	            break;
+	            
+                case ParameterSource.QUERY:
+                queryParameterInfos++;
+                break;
+
+                default:
+                break;
+            }
 	    }
+	    
+	    
+	    
 	    this.stateType=stateType;
 	    
 		this.cookieParamCount=cookieParamCount;
@@ -139,8 +162,14 @@ public class RequestHandler
             this.attributes=null;
         }
         this.test=annotations.test!=null;
+        this.isSecurityVerificationRequired=(queryParameterInfos>0)&&(((this.requiredRoles!=null)&&this.requiredRoles.value().length>0))||((this.forbiddenRoles!=null)&&(this.forbiddenRoles.value().length>0));        
    }
-	
+
+    public boolean isSecurityVerificationRequired()
+    {
+        return this.isSecurityVerificationRequired;
+    }
+    
 	public FragmentIndexMap getFragmentIndexMap()
 	{
 	    return this.fragmentIndexMap;
@@ -189,8 +218,12 @@ public class RequestHandler
 
 	public ParameterInfo[] getParameterInfos()
 	{
-		return parameterInfos;
+		return this.parameterInfos;
 	}
+//	public Map<String,ParameterInfo> getQueryParameterInfos()
+//	{
+//	    return this.queryParameterInfos;
+//	}
 
 	public String getKey()
 	{

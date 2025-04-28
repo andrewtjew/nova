@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -299,11 +300,6 @@ public class FilterChain
 //        throw new Exception("Unable to parse parameter "+parameterInfo.getName()+", value="+value);
 	}
 	
-	
-	
-	
-    
-
     void setStateParameter(Object state)
     {
         if (this.stateParameterIndex>=0)
@@ -459,8 +455,6 @@ public class FilterChain
                         {
                         }
                     }
-                    CookieStateParam cookieStateParam=(CookieStateParam)parameterInfo.getAnnotation();
-                    CookieState cookieState=new CookieState(cookieStateParam,parameterInfo,object);
                     this.parameters[i]=object;
                 }
                 catch (Throwable t)
@@ -489,7 +483,7 @@ public class FilterChain
                 {
                     try
                     {
-                        parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()]);
+                        parameter=URLDecoder.decode(pathParameters[parameterInfo.getPathIndex()],StandardCharsets.UTF_8);
                     }
                     catch (Throwable tt)
                     {
@@ -517,20 +511,6 @@ public class FilterChain
                     throw new AbnormalException(Abnormal.BAD_QUERY,t);
                 }
                 break;
-//            case SECURE_QUERY:
-//                try
-//                {
-//                    DecodingHttpServletRequest decodingHttpServletRequest =(DecodingHttpServletRequest)request;
-//                    String parameter=decodingHttpServletRequest.decodeParameter(parameterInfo.getName());
-//                    decodingHttpServletRequest.setParameter(parameterInfo.getName(),parameter);
-//                    parameters[i]=parseParameter(parameterInfo,parameter);
-//                    
-//                }
-//                catch (Throwable t)
-//                {
-//                    throw new AbnormalException(Abnormal.BAD_QUERY,t);
-//                }
-//                break;
             case CONTEXT:
                 this.contentParameterIndex=i;
                 parameters[i]=context;
@@ -700,13 +680,13 @@ public class FilterChain
 			{
 				if (result==null)
 				{
-					return new Response(context.getHttpServletResponse().getStatus());
+					return new Response<>(context.getHttpServletResponse().getStatus());
 				}
 				else if (result.getClass()==Response.class)
 				{
 					return (Response<?>)result;
 				}
-				return new Response(HttpStatus.OK_200,result);
+				return new Response<>(HttpStatus.OK_200,result);
 			}
 			return null;
 		}

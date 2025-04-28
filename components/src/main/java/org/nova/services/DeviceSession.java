@@ -15,6 +15,7 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
+import org.nova.http.server.RequestHandler;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
@@ -26,6 +27,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_SECURITY=true;
     
     protected HashMap<String,Object> pageStates;
     protected HashMap<String,Object> newPageStates;
@@ -157,11 +159,35 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     }
 
     
-    
     @Override
     public boolean verifyQuery(Context context) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
+        RequestHandler handler=context.getRequestHandler();
+        if (handler.isSecurityVerificationRequired())
+        {
+            //Also require session to provide condition
+            if (getSecurityQueryKey()!=null)
+            {
+                //Require 
+                var map=context.getHttpServletRequest().getParameterMap();
+                int ignore=map.containsKey(getStateKey())?1:0;
+                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
+                {
+                    if (DEBUG_SECURITY)
+                    {
+                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+handler.getMethod().getDeclaringClass().getName()+"."+handler.getMethod().getName());
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        
+        
         String code=request.getParameter(getSecurityQueryKey());
         if (code!=null)
         {

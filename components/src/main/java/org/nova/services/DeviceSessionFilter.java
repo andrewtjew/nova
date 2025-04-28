@@ -74,6 +74,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         }
         return null;
     }
+    
+    final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
+    final static boolean DEBUG=true;
+    final static boolean DEBUG_WARN_SECURITY=true;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -136,6 +140,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             {
                 return handleInvalidQuery(parent, context);
             }
+            
             AccessResult result=session.isAccessDenied(handler);
             if (result.denied)
             {
