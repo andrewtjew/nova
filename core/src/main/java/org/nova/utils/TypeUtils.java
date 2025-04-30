@@ -192,9 +192,9 @@ public class TypeUtils
         return distance;
     }
 
-    public static boolean isDerivedFrom(Class<?> type,Class<?> from)
+    public static boolean isDerivedFrom(Class<?> type,Class<?> baseType)
     {
-        while (type!=from)
+        while (type!=baseType)
         {
             type=type.getSuperclass();
             if (type==null)

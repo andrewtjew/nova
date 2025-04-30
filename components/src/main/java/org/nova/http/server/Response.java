@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import jakarta.servlet.http.Cookie;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.html.elements.Element;
 import org.nova.http.Header;
 
-public class Response<CONTENT>
+//The class is made final to force http method handlers to specify the parametized content type which is needed to map to the proper content writer. 
+public final class Response<CONTENT>
 {
 	final private CONTENT content;
 	final private int statusCode;
@@ -92,5 +94,38 @@ public class Response<CONTENT>
         this.cookies.add(cookie);
     }
 	
+    public static Response<Void> movedPermanently(String url)
+    {
+        Response<Void> response=new Response<Void>(HttpStatus.MOVED_PERMANENTLY_301);
+        response.addHeader("Location",url);
+        return response;
+    }
+    public static Response<Void> movedTemporarily(String url)
+    {
+        Response<Void> response=new Response<Void>(HttpStatus.MOVED_TEMPORARILY_302);
+        response.addHeader("Location",url);
+        return response;
+    }
+    public static Response<Element> seeOther(String url)
+    {
+        Response<Element> response=new Response<Element>(HttpStatus.SEE_OTHER_303);
+        response.addHeader("Location",url);
+        return response;
+    }
+
+    public static Response<Element> temporaryRedirect(String url)
+    {
+        Response<Element> response=new Response<Element>(HttpStatus.TEMPORARY_REDIRECT_307);
+        response.addHeader("Location",url);
+        return response;
+    }
+
+    public static Response<Element> permanentRedirect(String url)
+    {
+        Response<Element> response=new Response<Element>(HttpStatus.PERMANENT_REDIRECT_308);
+        response.addHeader("Location",url);
+        return response;
+    }
+
 
 }

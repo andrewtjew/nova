@@ -46,6 +46,7 @@ import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
+import org.nova.http.server.Response;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
@@ -140,10 +141,10 @@ public class SessionOperatorPages<SESSION extends Session>
 
     @POST
     @Path("/operator/session/delete")
-    public void deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
+    public Response<Element> deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
     {
         this.sessionManager.removeSession(parent, token);
-        context.seeOther("/operator/sessions");
+        return Response.seeOther("/operator/sessions");
     }   
 
 }

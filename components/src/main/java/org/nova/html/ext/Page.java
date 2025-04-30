@@ -28,24 +28,18 @@ public class Page extends Content
     final private html html;
     final private Head head;
     final private body body;
-    final private boolean continuationDisallowed;
     
-    public Page(String docType,boolean continuationDisallowed)
+    public Page(String docType)
     {
         addInner(new DocType(docType));
         this.html=returnAddInner(new html());
         this.head=this.html.returnAddInner(new Head());
         this.body=this.html.returnAddInner(new body());
-        this.continuationDisallowed=continuationDisallowed;
     }
     
-    public Page(boolean continuationDisallowed)
-    {
-        this("html",continuationDisallowed);
-    }
     public Page()
     {
-        this(false);
+        this("html");
     }
     
     public Head head()
@@ -60,9 +54,4 @@ public class Page extends Content
     {
         return this.html;
     }
-    public boolean isContinuationDisallowed()
-    {
-        return this.continuationDisallowed;
-    }
-    
 }

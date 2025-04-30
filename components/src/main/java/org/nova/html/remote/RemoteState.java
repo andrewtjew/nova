@@ -2,21 +2,23 @@ package org.nova.html.remote;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.nova.html.elements.HtmlElementWriter;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
+import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
 import org.nova.services.DeviceSessionFilter;
 
-@ContentWriters(RemoteResponseWriter.class)
-@ContentReaders({JSONContentReader.class})
-@ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
-@Filters({DeviceSessionFilter.class})
+@ContentWriters({ HtmlElementWriter.class, RemoteResponseWriter.class, JSONContentWriter.class })
+@ContentReaders({ JSONContentReader.class })
+@ContentEncoders({ BrotliContentEncoder.class, DeflaterContentEncoder.class, GzipContentEncoder.class })
+@Filters({ DeviceSessionFilter.class })
 public class RemoteState
 {
     final private RemoteStateBinding binding;

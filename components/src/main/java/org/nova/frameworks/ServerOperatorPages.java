@@ -5290,7 +5290,7 @@ public class ServerOperatorPages
             value=Boolean.toString(value==null?false:true);
         }
         var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
-        context.seeOther("/operator/variables/modify");
+        Response.seeOther("/operator/variables/modify");
     }
 
 }

@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.testing;
 
+import java.lang.reflect.Method;
+
 public abstract class Debugging
 {
     abstract public void _log(LogLevel logLevel,String category,Object object);
@@ -45,5 +47,10 @@ public abstract class Debugging
     public static void log(String category,Object object,LogLevel logLevel)
     {
         DEBUGGING._log(logLevel,category,object);
+    }
+    
+    public static String toString(Method method)
+    {
+        return method.getDeclaringClass().getName()+"."+method.getName();
     }
 }

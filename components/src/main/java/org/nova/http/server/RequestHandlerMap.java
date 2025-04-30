@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -366,6 +367,15 @@ class RequestHandlerMap
 	    
 	}
 	
+    static String toSite(Object object,Method method)
+    {
+        return object.getClass().getName()+"."+method.getName();
+    }
+    static String toSite(Method method)
+    {
+        return method.getDeclaringClass()+"."+method.getName();
+    }
+	
 	private void registerMethod(String root, Object object, Method method, ClassAnnotations handlerAnnotations, Transformers transformers) throws Throwable
 	{
 	    Class<?> objectType=method.getDeclaringClass().getClass();
@@ -475,7 +485,7 @@ class RequestHandlerMap
 		}
 		if (verbs > 1)
 		{
-			throw new Exception("Multiple Http verbs. Site=" + objectType.getCanonicalName() + "." + method.getName());
+			throw new Exception("Multiple Http verbs. Site=" + toSite(object,method));
 		}
 
 		// filters
@@ -499,7 +509,7 @@ class RequestHandlerMap
 					}
 					else
 					{
-						throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + objectType.getCanonicalName() + "." + method.getName());
+						throw new Exception("No instance of requested filter " + type.getName()+ ". Site=" + toSite(object,method));
 					}
 				}
 			}
@@ -634,7 +644,7 @@ class RequestHandlerMap
             }
 			if (params.size() > 1)
 			{
-				throw new Exception("Only one param annotation allowed. Site=" + objectType.getCanonicalName() + "." + method.getName());
+				throw new Exception("Only one param annotation allowed. Site=" + toSite(object,method));
 			}
 //			else if (params.size() == 0)
 //			{
@@ -688,7 +698,7 @@ class RequestHandlerMap
 			{
 				if (isSimpleParameterType(parameterType) == false)
 				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + objectType.getCanonicalName() + "." + method.getName());
+					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
@@ -702,7 +712,7 @@ class RequestHandlerMap
 			{
 				if (isSimpleParameterType(parameterType) == false)
 				{
-					throw new Exception("Only simple types allowed for parameter. Site=" + objectType.getCanonicalName() + "." + method.getName());
+					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.HEADER, headerParam, headerParam.value(), parameterIndex, parameterType,
 						getDefaultValue(method, defaultValue, parameterType),required!=null));
@@ -719,8 +729,7 @@ class RequestHandlerMap
                     rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
     			    if (parameterType!=boolean.class)
     			    {
-    		            throw new Exception("When the startsWith field is false for Param name only the boolean type is allowed for parameter "+parameter.getName()+" in "+objectType.getCanonicalName() + "."
-    		                    + method.getName());
+    		            throw new Exception("When the startsWith field is false for Param name only the boolean type is allowed for parameter "+parameter.getName()+". Site="+toSite(object,method));
     			    }
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
                             null,true));
@@ -740,8 +749,7 @@ class RequestHandlerMap
 		{
 			if (returnType != void.class)
 			{
-				throw new Exception("Method return type is not void. @ContentWriters annotation missing. Site="
-						+ objectType.getCanonicalName() + "." + method.getName());
+				throw new Exception("Method return type is not void. @ContentWriters annotation missing. Site="+toSite(object,method));
 			}
 		}
 		else 
@@ -752,10 +760,15 @@ class RequestHandlerMap
 		        if (genericReturnType instanceof ParameterizedType)
 		        {
 		            returnType=((ParameterizedType)genericReturnType).getActualTypeArguments()[0];
+		            if (returnType instanceof WildcardType)
+		            {
+                        throw new Exception("Need to specify response type: "+", Site="+ toSite(object,method));
+//                        throw new Exception("Need to specify response type: "+", Site="+ objectType.getCanonicalName() + "." + method.getName());
+		            }
 		        }
 		        else
 		        {
-		            returnType=Object.class;
+		            returnType=void.class;
 		        }
 		    }
 		    
@@ -767,7 +780,7 @@ class RequestHandlerMap
     				ContentWriter writer=transformers.getContentWriter(type);
     				if (writer==null)
     				{
-                        throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ objectType.getCanonicalName() + "." + method.getName());
+                        throw new Exception("Need to register ContentWriter: "+type.getName()+", Site="+ toSite(object,method));
     				}
 				    try
 				    {
@@ -783,8 +796,8 @@ class RequestHandlerMap
 				    }
 				    catch (Throwable t)
 				    {
-	                    throw new Exception("Cannot match return type with suitable content writer. Generic return type?. "
-	                            + objectType.getCanonicalName() + "." + method.getName(),t);
+	                    throw new Exception("Cannot match return type with suitable content writer. Generic return type?. Site="
+	                            + toSite(object,method),t);
 				        
 				    }
     			}
@@ -795,8 +808,8 @@ class RequestHandlerMap
     			
     			if (contentWriterMap.size()==0)
     			{
-                    throw new Exception("No suitable ContentWriter found. "
-                            + objectType.getCanonicalName() + "." + method.getName());
+                    throw new Exception("No suitable ContentWriter found. Site="
+                            + toSite(method));
     			}
 		    }
 		}
@@ -823,7 +836,7 @@ class RequestHandlerMap
 				if (decoder==null)
 				{
 					throw new Exception(
-							"No ContentEncoder of type "+type.getName()+" is supplied. Site=" + objectType.getCanonicalName() + "." + method.getName());
+							"No ContentEncoder of type "+type.getName()+" is supplied. Site=" + toSite(object,method));
 					
 				}
 				contentDecoderMap.put(decoder.getCoding(),decoder);
@@ -839,7 +852,7 @@ class RequestHandlerMap
 				if (encoder==null)
 				{
 					throw new Exception(
-							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + objectType.getCanonicalName() + "." + method.getName());
+							"No ContentDecoder of type "+type.getName()+" is supplied. Site=" + toSite(object,method));
 					
 				}
                 contentEncoderList.add(encoder);
@@ -872,7 +885,7 @@ class RequestHandlerMap
         String fullPath = path.toString();
         if (fullPath.length()==0)
         {
-            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + objectType.getCanonicalName() + "." + method.getName());
+            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + toSite(object,method));
         }
 	    if (handlerAnnotations.log!=null)
 	    {

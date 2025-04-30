@@ -13,6 +13,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
 import org.nova.html.remote.Remote;
+import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
@@ -77,7 +78,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
-    final static boolean DEBUG_WARN_SECURITY=true;
+    final static boolean DEBUG_ACCESS=true;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -144,16 +145,18 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             AccessResult result=session.isAccessDenied(handler);
             if (result.denied)
             {
-              if (TypeUtils.isNullOrEmpty(result.redirect)==false)
-              {
-                  session.setContinuation(context);
-                  return new Response<Redirect>(new Redirect(result.redirect));
-              }
-              else
-              {
-                  this.sessionManager.removeSession(parent, session.getToken());
-                  return new Response<Redirect>(new Redirect("/"));
-              }
+                if (Debugging.ENABLE && DEBUG && DEBUG_ACCESS)
+                {
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+handler.getKey()+", method="+Debugging.toString(handler.getMethod()));
+                }
+                if (TypeUtils.isNullOrEmpty(result.redirect)==false)
+                {
+                    return Response.seeOther(result.redirect);
+                }
+                else
+                {
+                    return Response.seeOther("/");
+                }
             }
 
             Response<?> stateResponse=bindSession(parent,context,session);
@@ -169,14 +172,6 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 {
                     Page page=(Page)content;
                     keepStateAlive=true;
-                    if (page.isContinuationDisallowed()==false)
-                    {
-                        String action=session.useContinuation();
-                        if (action!=null)
-                        {
-                            page.body().returnAddInner(new script()).addInner(new LiteralHtml(action));
-                        }
-                    }
                     logPage(parent,session,context,page);
                 }
             }
@@ -184,7 +179,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         }
         catch (Throwable t)
         {
-            context.seeOther("/");
+            Response.seeOther("/");
             parent.close(t);
             return handleException(parent, context, parent.getThrowable());
         }
