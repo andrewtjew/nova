@@ -6,15 +6,19 @@ import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Stack;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
+import org.nova.http.server.RequestHandler;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.testing.Debugging;
@@ -26,10 +30,11 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_SECURITY=true;
     
     protected HashMap<String,Object> pageStates;
     protected HashMap<String,Object> newPageStates;
-    
+    protected Stack<String> continuations;
     
     final protected ZoneId zoneId;
     final private long deviceSessionId;
@@ -157,11 +162,35 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     }
 
     
-    
     @Override
     public boolean verifyQuery(Context context) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
+        RequestHandler handler=context.getRequestHandler();
+        if (handler.isSecurityVerificationRequired())
+        {
+            //Also require session to provide condition
+            if (getSecurityQueryKey()!=null)
+            {
+                //Require 
+                var map=context.getHttpServletRequest().getParameterMap();
+                int ignore=map.containsKey(getStateKey())?1:0;
+                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
+                {
+                    if (DEBUG_SECURITY)
+                    {
+                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+handler.getMethod().getDeclaringClass().getName()+"."+handler.getMethod().getName());
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        
+        
         String code=request.getParameter(getSecurityQueryKey());
         if (code!=null)
         {
@@ -191,41 +220,44 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return STATE_KEY;
     }
     
-//    private String continuationPage;
-    private String continuation;
-    
-    public String setContinuation(Context context)
+    public String pushContinuation(String action)
     {
-        return setContinuation(context.getPathAndQuery());
-    }
-    public String setRefererContinuation(Context context)
-    {
-        HttpServletRequest request=context.getHttpServletRequest();
-        return setContinuation(request.getHeader("Referer"));
-    }
-    public String setContinuation(String pathAndQuery)
-    {
-        this.continuation=pathAndQuery;
-        return this.continuation;
-    }
-    public void clearContinuation()
-    {
-        this.continuation=null;
-    }
-    
-    public String getContinuation()
-    {
-        return this.continuation;
-    }
-    
-    public String useContinuation()
-    {
-        String continuation=this.continuation;
-        if (continuation!=null)
+        if (this.continuations==null)
         {
-            this.continuation=null;
+            this.continuations=new Stack<String>();
         }
-        return continuation;
+        this.continuations.push(action);
+        return action;
+    }
+//    public String pushContinuation(Context context)
+//    {
+//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
+//    }
+//    public String pushRefererContinuation(Context context)
+//    {
+//        HttpServletRequest request=context.getHttpServletRequest();
+//        return pushContinuation(request.getHeader("Referer"));
+//    }
+    
+    public void clearContinuations()
+    {
+        if (this.continuations!=null)
+        {
+            this.continuations.clear();
+        }
+    }
+    
+    public String popContinuation()
+    {
+        if (this.continuations==null)
+        {
+            return null;
+        }
+        if (this.continuations.size()==0)
+        {
+            return null;
+        }
+        return this.continuations.pop();
     }
     
      

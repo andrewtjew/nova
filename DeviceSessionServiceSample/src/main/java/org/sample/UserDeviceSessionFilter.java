@@ -1,5 +1,7 @@
 package org.sample;
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.nova.html.elements.Element;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Redirect;
 import org.nova.http.client.PathAndQuery;
@@ -31,12 +33,11 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         {
             String queryString = request.getQueryString();
             String redirect = TypeUtils.isNullOrSpace(queryString) ? URI : URI + "?" + queryString;
-            return new Response<Redirect>(new Redirect(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString()));
+            return Response.seeOther(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString());
         }
         else
         {
-            context.seeOther("/");
-            return null;
+            return Response.seeOther("/");
         }
     }
 
@@ -64,8 +65,7 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     @Override
     protected Response<?> handleException(Trace parent, Context context, Throwable t) throws Throwable
     {
-        context.seeOther("/");
-        return null;
+        return Response.seeOther("/");
     }
 
     @Override

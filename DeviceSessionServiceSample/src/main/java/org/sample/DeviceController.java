@@ -18,6 +18,7 @@ import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
+import org.nova.http.server.Response;
 import org.nova.http.server.ValueQ;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
@@ -101,7 +102,7 @@ public class DeviceController
 
     @GET
     @Path("/session")
-    public Element session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) CookieState cookieState,
+    public Response<Element> session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) CookieState cookieState,
             @QueryParam("timeZone") String timeZone, @QueryParam("redirect") String redirect) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
@@ -124,15 +125,15 @@ public class DeviceController
             }
         }
         this.service.getSessionManager().addSession(parent, session);
-        return new Redirect(redirect);
+        return Response.seeOther(redirect);
     }
 
     @GET
     @Path("/debug/clear")
-    public Element clear(Trace parent, @CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState) throws Throwable
+    public Response<Element> clear(Trace parent, Context context,@CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState) throws Throwable
     {
         cookieState.setToken(null);
-        return new Redirect("/");
+        return Response.seeOther("/");
     }
 
 }

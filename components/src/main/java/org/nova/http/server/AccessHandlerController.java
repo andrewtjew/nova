@@ -53,10 +53,10 @@ public class AccessHandlerController extends AccessHandler
 
     @POST
     @Path("/access/status")
-    public void status(Trace parent,Context context,@QueryParam("online") boolean online) throws Throwable
+    public Response<?> status(Trace parent,Context context,@QueryParam("online") boolean online) throws Throwable
     {
         setOnline(online);
-        context.seeOther(new PathAndQuery("/access/status").addQuery("message",online?"Server is now online.":"Server is now offline.").toString());;
+        return Response.seeOther(new PathAndQuery("/access/status").addQuery("message",online?"Server is now online.":"Server is now offline.").toString());
     }
     
 }
