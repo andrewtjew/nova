@@ -4451,13 +4451,19 @@ public class ServerOperatorPages
         if ((forbiddenRoles!=null)||(requiredRoles!=null))
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Access Control"));
-            WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
-            table.setHeader("RequiredRoles","ForbiddenRoles");
-            table.addRow(new TableRow().add(requiredRoles!=null?"Values: "+Utils.combine(requiredRoles.value(),", "):"",forbiddenRoles!=null?"Values: "+Utils.combine(forbiddenRoles.value(),", "):""));
+            if (requiredRoles!=null)
+            {
+                WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+                table.setHeader("RequiredRoles","Redirect");
+                table.addRow(new TableRow().add(Utils.combine(requiredRoles.value(),", "),requiredRoles.redirect()));
+            }
+            if (forbiddenRoles!=null)
+            {
+                WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+                table.setHeader("ForbiddenRoles");
+                table.addRow(new TableRow().add(Utils.combine(forbiddenRoles.value(),"")));
+            }
         }
-        
-        
-        
 
         if (requestHandler.getContentDecoders().size() > 0)
         {

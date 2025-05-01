@@ -71,12 +71,6 @@ public class HttpServer
 	public HttpServer(TraceManager traceManager, Logger logger,boolean test,HttpServerConfiguration configuration) throws Exception
 	{
 	    this.logger=logger;
-//	    this.ports=new int[servers.length];
-//	    for (int i=0;i<servers.length;i++)
-//	    {
-//	        this.ports[i]=((ServerConnector)((servers[i].getConnectors())[0])).getPort();
-//	    }
-//        this.servers = servers;
 		this.categoryPrefix=configuration.categoryPrefix+"@";
 		this.requestHandlerMap = new RequestHandlerMap(test,configuration.requestLastRequestLogEntryBufferSize);
 		this.traceManager = traceManager;
@@ -167,10 +161,6 @@ public class HttpServer
         }
     }
 
-//    public int[] getPorts()
-//    {
-//        return this.ports;
-//    }
 	public Transformers getTransformers()
 	{
 	    return this.transformers;

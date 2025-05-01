@@ -90,6 +90,10 @@ public class Trace implements AutoCloseable
     {
         this(parent.traceManager,parent,category,waiting);
     }
+    public Trace(Trace parent,String category,String details)
+    {
+        this(parent.traceManager,parent,category,details);
+    }
     public Trace(Trace parent,String category,boolean waiting,boolean log)
     {
         this(parent.traceManager,parent,category,null,waiting,log);

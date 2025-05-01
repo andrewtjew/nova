@@ -224,9 +224,18 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                         httpPort=operatorPort+3;
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
+                    //Testing
                 }
                 this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
+                if (websocket)
+                {
+                    this.websocketPublicTransport=new WebSocketTransport("/ws_hello", this.publicServer, servers);
+                }
+                else
+                {
+                    this.websocketPublicTransport=null;
+                }
                 int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
                 int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
                 for (Server server:servers)
@@ -257,16 +266,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
-                //Testing
-                if (websocket)
-                {
-                    Server server=JettyServerFactory.createServer(threads, 8080);
-                    this.websocketPublicTransport=new WebSocketTransport("/ws_hello", this.publicServer, server);
-                }
-                else
-                {
-                    this.websocketPublicTransport=null;
-                }
             }
             else
             {

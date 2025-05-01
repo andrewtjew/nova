@@ -107,10 +107,9 @@ public class WebSocketTransport
 	final private HashMap<Integer,Listener> listeners;
 	final private HttpServer httpServer;
 	final private Creator creator;
-	Server server;
 
 	
-	public WebSocketTransport(String path,HttpServer httpServer,Server server) throws Exception
+	public WebSocketTransport(String path,HttpServer httpServer,Server[] servers) throws Exception
 	{
 	    this.path=path;
 	    this.listeners=new HashMap<>();
@@ -126,10 +125,10 @@ public class WebSocketTransport
             }
     
         };
-        server.setHandler(handler);
-        
-	    this.server=server;
-        server.start();
+        for (Server server:servers)
+        {
+            server.setHandler(handler);
+        }
 	}
 	
 
