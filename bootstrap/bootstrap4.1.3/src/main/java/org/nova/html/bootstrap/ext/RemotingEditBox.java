@@ -21,9 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Popover;
@@ -42,6 +40,8 @@ import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
+import org.nova.html.properties.Display;
+import org.nova.html.properties.Size;
 import org.nova.http.client.PathAndQuery;
 
 public class RemotingEditBox extends StyleComponent<RemotingEditBox>   
@@ -72,7 +72,7 @@ public class RemotingEditBox extends StyleComponent<RemotingEditBox>
 		String showVariable=this.id()+"_show";
 		
 		
-		editButton.style(new Style().display(display.none));
+		editButton.style(new Style().display(Display.none));
 		editButton.onclick("document.getElementById("+mark+editButton.id()+mark+").style.display="+mark+"none"+mark+";"
 				+pop.js_popover(TipOption.show)+";"
 				+"document.getElementById("+mark+inputElement.id()+mark+").focus();"

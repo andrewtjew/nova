@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Button;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Popover;
@@ -37,6 +36,7 @@ import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
+import org.nova.html.properties.Size;
 import org.nova.http.client.PathAndQuery;
 
 

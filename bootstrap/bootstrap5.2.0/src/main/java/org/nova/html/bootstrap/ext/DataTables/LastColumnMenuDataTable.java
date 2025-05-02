@@ -2,9 +2,9 @@ package org.nova.html.bootstrap.ext.DataTables;
 
 import org.nova.html.DataTables.ColumnDef;
 import org.nova.html.DataTables.DataTableOptions;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.TableHeadRow;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 
 public class LastColumnMenuDataTable extends DataTable 
 {

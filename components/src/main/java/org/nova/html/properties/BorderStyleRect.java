@@ -19,25 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum text_align
+public class BorderStyleRect
 {
-    left("left"),
-    right("right"),
-    center("center"),
-    justify("justify"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    text_align(String value)
+    final private String value;
+    
+    public BorderStyleRect(BorderStyle top,BorderStyle right,BorderStyle bottom,BorderStyle left)
     {
-        this.value=value;
+        if (right!=null)
+        {
+            if (bottom!=null)
+            {
+                if (left!=null)
+                {
+                    this.value=top+" "+right+" "+bottom+" "+left;
+                    return;
+                }
+                this.value=top+" "+right+" "+bottom; 
+                return;
+            }
+            this.value=top+" "+right; 
+            return;
+        }
+        this.value=top.toString(); 
+    }
+    public BorderStyleRect(BorderStyle top,BorderStyle right,BorderStyle bottom)
+    {
+        this(top,right,bottom,null);
+    }
+    public BorderStyleRect(BorderStyle top,BorderStyle right)
+    {
+        this(top,right,null);
+    }
+    public BorderStyleRect(BorderStyle value)
+    {
+        this(value,null);
     }
     @Override
     public String toString()
     {
         return this.value;
     }
+    
 }

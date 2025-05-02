@@ -19,35 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum input_type
+public enum FlexBasis
 {
-    button("button"),
-    checkbox("checkbox"),
-    color("color"),
-    date("date"),
-    datetime_local("datetime-local"),
-    email("email"),
-    file("file"),
-    hidden("hidden"),
-    image("image"),
-    month("month"),
-    number("number"),
-    password("password"),
-    radio("radio"),
-    range("range"),
-    reset("reset"),
-    search("search"),
-    submit("submit"),
-    tel("tel"),
-    text("text"),
-    time("time"),
-    url("url"),
-    week("week"),
-        ;
+    auto("auto"),
+    initial("initial"),
+    inherit("inherit")
+    ;
     final String value;
-    input_type(String value)
+    FlexBasis(String value)
     {
         this.value=value;
     }

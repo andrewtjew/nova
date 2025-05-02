@@ -19,44 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public class Size
+public class padding_top extends SizeProperty
 {
-    final unit unit;
-    final double value;
-    public Size(int value,unit unit)
+    public padding_top(Size size)
     {
-        this.value=value;
-        this.unit=unit;
+        super("padding-top",size);
     }
-    public Size(double value,unit unit)
+    public padding_top(double size,unit unit)
     {
-        this.value=value;
-        this.unit=unit;
+        this(new Size(size,unit));
     }
-    @Override
-    public String toString()
+    public padding_top(double size)
     {
-        return this.value+this.unit.toString();
+        this(new Size(size,null));
     }
-    public double value()
-    {
-        return value;
-    }
-    public unit unit()
-    {
-        return unit;
-    }
-    
-    /*
-    static public Size rem(double size)
-    {
-    	return new Size(size,org.nova.html.properties.unit.rem);
-    }
-    static public Size px(double size)
-    {
-        return new Size(size,org.nova.html.properties.unit.px);
-    }
-    */
 }

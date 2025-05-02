@@ -24,16 +24,16 @@ package org.nova.html.operator;
 import java.util.ArrayList;
 
 import org.nova.core.NameValue;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.border_style;
-import org.nova.html.attributes.text_align;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.ext.Text;
+import org.nova.html.properties.BorderStyle;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.TextAlign;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.div;
 
 public class NameValueList extends GlobalEventTagElement<NameValueList>
@@ -90,7 +90,7 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
        int width=(int)(this.longest*0.7f+1);
        Size size=this.leftWidth!=null?this.leftWidth:new Size(width,unit.em);
        Style valueStyle=new Style()
-       .text_align(text_align.left)
+       .text_align(TextAlign.left)
        .width(new Size(100,unit.percent))
 //       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
        .margin_right(new Size(0.25,unit.em))
@@ -131,7 +131,7 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                        (
                            new Style()
                            .width(size)
-                           .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
+                           .border_right(new Size(0.1,unit.em),BorderStyle.solid,Color.rgb(176, 176, 176))
                            .margin_right(new Size(0.25,unit.em))
                            .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em))
                        )

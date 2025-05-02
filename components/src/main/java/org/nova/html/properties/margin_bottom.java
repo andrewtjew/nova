@@ -19,24 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum float_
+public class margin_bottom extends SizeProperty
 {
-    none("none"),
-    left("left"),
-    right("right"),
-    initial("initial"),
-    inherit("inherit"),
-    ;
-    final String value;
-    float_(String value)
+    public margin_bottom(Size size)
     {
-        this.value=value;
+        super("margin-bottom",size);
     }
-    @Override
-    public String toString()
+    public margin_bottom(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    public margin_bottom(double size)
+    {
+        this(new Size(size,null));
     }
 }

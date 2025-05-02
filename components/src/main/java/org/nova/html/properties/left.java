@@ -19,23 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum flex_direction
+public class left extends PositionProperty
 {
-    row("row"),
-    row_reverse("row-reverse"),
-    column("column"),
-    column_reverse("column-reverse"),
-        ;
-    final String value;
-    flex_direction(String value)
+    public left(Size size)
     {
-        this.value=value;
+        super("left",size);
     }
-    @Override
-    public String toString()
+    public left(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    
+    public left(double size)
+    {
+        this(new Size(size,null));
     }
 }

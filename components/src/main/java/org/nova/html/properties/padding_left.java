@@ -19,29 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum vertical_align
+public class padding_left extends SizeProperty
 {
-    baseline("baseline"),
-    sub("sub"),
-    super_("super"),
-    top("top"),
-    text_top("text-top"),
-    middle("middle"),
-    bottom("bottom"),
-    text_bottom("text-bottom"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    vertical_align(String value)
+    public padding_left(Size size)
     {
-        this.value=value;
+        super("padding-left",size);
     }
-    @Override
-    public String toString()
+    public padding_left(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    public padding_left(double size)
+    {
+        this(new Size(size,null));
     }
 }

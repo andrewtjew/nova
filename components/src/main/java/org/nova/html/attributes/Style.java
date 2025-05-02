@@ -21,6 +21,24 @@
  ******************************************************************************/
 package org.nova.html.attributes;
 
+import org.nova.html.properties.BorderStyle;
+import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.Display;
+import org.nova.html.properties.FlexBasis;
+import org.nova.html.properties.FlexDirection;
+import org.nova.html.properties.Float_;
+import org.nova.html.properties.FontWeight;
+import org.nova.html.properties.ListStyle;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.TextAlign;
+import org.nova.html.properties.TextDecoration;
+import org.nova.html.properties.VerticalAlign;
+import org.nova.html.properties.WhiteSpace;
+
+//Use attribute classes instead, like Width for width
+@Deprecated
 public class Style
 {
     final private StringBuilder sb;
@@ -63,42 +81,42 @@ public class Style
         sb.append("border:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_left(Size size,border_style borderStyle,Color color)
+    public Style border_left(Size size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-left:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_top(Size size,border_style borderStyle,Color color)
+    public Style border_top(Size size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-top:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_right(Size size,border_style borderStyle,Color color)
+    public Style border_right(Size size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-right:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_bottom(Size size,border_style borderStyle,Color color)
+    public Style border_bottom(Size size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-bottom:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_left(Size size,border_style borderStyle)
+    public Style border_left(Size size,BorderStyle borderStyle)
     {
         sb.append("border-left:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_top(Size size,border_style borderStyle)
+    public Style border_top(Size size,BorderStyle borderStyle)
     {
         sb.append("border-top:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_right(Size size,border_style borderStyle)
+    public Style border_right(Size size,BorderStyle borderStyle)
     {
         sb.append("border-right:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_bottom(Size size,border_style borderStyle)
+    public Style border_bottom(Size size,BorderStyle borderStyle)
     {
         sb.append("border-bottom:"+size+" "+borderStyle+";");
         return this;
@@ -206,7 +224,7 @@ public class Style
         return this;
     }
 
-    public Style display(display value)
+    public Style display(Display value)
     {
         sb.append("display:"+value.toString()+";");
         return this;
@@ -226,7 +244,7 @@ public class Style
         sb.append("flex-basis:"+value.toString()+";");
         return this;
     }
-    public Style flex_basis(flex_basis value)
+    public Style flex_basis(FlexBasis value)
     {
         sb.append("flex-basis:"+value.toString()+";");
         return this;
@@ -238,12 +256,12 @@ public class Style
         return this;
     }
     */
-    public Style flex_direction(flex_direction value)
+    public Style flex_direction(FlexDirection value)
     {
         sb.append("flex-direction:"+value.toString()+";");
         return this;
     }
-    public Style flex_wrap(flex_wrap value)
+    public Style flex_wrap(FlexWrap value)
     {
         sb.append("flex-wrap:"+value.toString()+";");
         return this;
@@ -254,12 +272,12 @@ public class Style
         sb.append("position:"+value+";");
         return this;
     }
-    public Style float_(float_ value)
+    public Style float_(Float_ value)
     {
         sb.append("float:"+value+";");
         return this;
     }
-    public Style vertical_align(vertical_align value)
+    public Style vertical_align(VerticalAlign value)
     {
         sb.append("vertical-align:"+value+";");
         return this;
@@ -269,22 +287,22 @@ public class Style
         sb.append("vertical-align:"+value+";");
         return this;
     }
-    public Style text_decoration(text_decoration value)
+    public Style text_decoration(TextDecoration value)
     {
         sb.append("text-decoration:"+value+";");
         return this;
     }
-    public Style text_align(text_align value)
+    public Style text_align(TextAlign value)
     {
         sb.append("text-align:"+value+";");
         return this;
     }
-    public Style text_align_last(text_align value)
+    public Style text_align_last(TextAlign value)
     {
         sb.append("text-align-last:"+value+";");
         return this;
     }
-    public Style list_style(list_style value)
+    public Style list_style(ListStyle value)
     {
         sb.append("list-style:"+value+";");
         return this;
@@ -304,7 +322,7 @@ public class Style
         sb.append("left:"+value+";");
         return this;
     }
-    public Style font_weight(font_weight value)
+    public Style font_weight(FontWeight value)
     {
         sb.append("font-weight:"+value+";");
         return this;
@@ -314,22 +332,22 @@ public class Style
         sb.append("font-size:"+value+";");
         return this;
     }
-    public Style overflow(overflow value)
+    public Style overflow(Overflow value)
     {
         sb.append("overflow:"+value+";");
         return this;
     }
-    public Style overflow_x(overflow value)
+    public Style overflow_x(Overflow value)
     {
         sb.append("overflow-x:"+value+";");
         return this;
     }
-    public Style overflow_y(overflow value)
+    public Style overflow_y(Overflow value)
     {
         sb.append("overflow-y:"+value+";");
         return this;
     }
-    public Style white_space(white_space value)
+    public Style white_space(WhiteSpace value)
     {
         sb.append("white-space:"+value+";");
         return this;

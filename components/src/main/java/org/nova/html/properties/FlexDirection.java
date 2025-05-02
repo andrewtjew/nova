@@ -19,31 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum unit
+public enum FlexDirection
 {
-
-    em("em"),
-    ex("ex"),
-    percent("%"),
-    px("px"),
-    cm("cm"),
-    mm("mm"),
-    in("in"),
-    pt("pt"),
-    pc("pc"),
-
-    ch("ch"),
-    rem("rem"),
-    vw("vw"),
-    vh("vh"),
-    vmin("vmin"),
-    vmax("vmax"),
-    ;
-
-    private String value;
-    unit(String value)
+    row("row"),
+    row_reverse("row-reverse"),
+    column("column"),
+    column_reverse("column-reverse"),
+        ;
+    final String value;
+    FlexDirection(String value)
     {
         this.value=value;
     }
@@ -51,6 +37,5 @@ public enum unit
     public String toString()
     {
         return this.value;
-    }    
-    
+    }
 }

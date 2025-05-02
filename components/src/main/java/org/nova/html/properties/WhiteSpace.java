@@ -19,47 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public class BorderStyleRect
+public enum WhiteSpace
 {
-    final private String value;
-    
-    public BorderStyleRect(border_style top,border_style right,border_style bottom,border_style left)
+    normal("normal"),
+    nowrap("nowrap"),
+    pre("pre"),
+    pre_line("pre-line"),
+    pre_wrap("pre-wrap"),
+    ;
+    final String value;
+    WhiteSpace(String value)
     {
-        if (right!=null)
-        {
-            if (bottom!=null)
-            {
-                if (left!=null)
-                {
-                    this.value=top+" "+right+" "+bottom+" "+left;
-                    return;
-                }
-                this.value=top+" "+right+" "+bottom; 
-                return;
-            }
-            this.value=top+" "+right; 
-            return;
-        }
-        this.value=top.toString(); 
-    }
-    public BorderStyleRect(border_style top,border_style right,border_style bottom)
-    {
-        this(top,right,bottom,null);
-    }
-    public BorderStyleRect(border_style top,border_style right)
-    {
-        this(top,right,null);
-    }
-    public BorderStyleRect(border_style value)
-    {
-        this(value,null);
+        this.value=value;
     }
     @Override
     public String toString()
     {
         return this.value;
     }
-    
 }

@@ -1,10 +1,10 @@
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.StyleColor;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 
 public class ApplyButton extends SpinnerButton 
 {

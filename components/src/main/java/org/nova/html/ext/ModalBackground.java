@@ -20,15 +20,15 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.html.ext;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.overflow;
+import org.nova.html.attributes.Overflow;
 import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.QuotationMark;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.Display;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.div;
 
 public class ModalBackground extends GlobalEventTagElement<div>
@@ -44,15 +44,15 @@ public class ModalBackground extends GlobalEventTagElement<div>
            		.top(new Size(0,unit.px))
         		.width(new Size(100,unit.percent))
            		.height(new Size(100,unit.percent))
-           		.overflow(overflow.auto)
+           		.overflow(Overflow.auto)
            		.background_color(color);
         if (show)
         {
-        	style.display(display.block);
+        	style.display(Display.block);
         }
         else
         {
-        	style.display(display.none);
+        	style.display(Display.none);
         }
         this.style(style);
         this.z_index=z_index;

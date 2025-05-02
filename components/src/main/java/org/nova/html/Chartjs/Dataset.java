@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.Chartjs;
 
-import org.nova.html.attributes.Color;
+import org.nova.html.properties.Color;
 
 public class Dataset
 {

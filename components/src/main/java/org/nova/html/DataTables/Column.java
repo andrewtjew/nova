@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.DataTables;
 
-import org.nova.html.attributes.Size;
+import org.nova.html.properties.Size;
 
 public class Column
 {

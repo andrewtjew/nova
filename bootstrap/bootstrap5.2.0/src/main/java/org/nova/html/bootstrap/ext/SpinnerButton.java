@@ -1,7 +1,5 @@
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.unit;
 import org.nova.html.bootstrap.ButtonComponent;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.Spinner;
@@ -11,6 +9,8 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.Text;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
 {

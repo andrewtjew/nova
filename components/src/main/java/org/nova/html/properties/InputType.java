@@ -19,18 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum white_space
+public enum InputType
 {
-    normal("normal"),
-    nowrap("nowrap"),
-    pre("pre"),
-    pre_line("pre-line"),
-    pre_wrap("pre-wrap"),
-    ;
+    button("button"),
+    checkbox("checkbox"),
+    color("color"),
+    date("date"),
+    datetime_local("datetime-local"),
+    email("email"),
+    file("file"),
+    hidden("hidden"),
+    image("image"),
+    month("month"),
+    number("number"),
+    password("password"),
+    radio("radio"),
+    range("range"),
+    reset("reset"),
+    search("search"),
+    submit("submit"),
+    tel("tel"),
+    text("text"),
+    time("time"),
+    url("url"),
+    week("week"),
+        ;
     final String value;
-    white_space(String value)
+    InputType(String value)
     {
         this.value=value;
     }

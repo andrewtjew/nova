@@ -19,23 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum flex_wrap
+public class height extends SizeProperty
 {
-    wrap("wrap"),
-    nowrap("nowrap"),
-    wrap_reverse("wrap-reverse"),
-    inherit("inherit"),
-    ;
-    final String value;
-    flex_wrap(String value)
+    public height(Size size)
     {
-        this.value=value;
+        super("height",size);
     }
-    @Override
-    public String toString()
+    public height(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    public height(double size)
+    {
+        this(new Size(size,null));
     }
 }

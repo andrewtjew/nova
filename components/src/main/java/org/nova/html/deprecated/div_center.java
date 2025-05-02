@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
 import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 
 public class div_center extends GlobalEventTagElement<div_center>
 {

@@ -19,22 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum flex_basis
+public class padding_right extends SizeProperty
 {
-    auto("auto"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    flex_basis(String value)
+    public padding_right(Size size)
     {
-        this.value=value;
+        super("padding-right",size);
     }
-    @Override
-    public String toString()
+    public padding_right(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    public padding_right(double size)
+    {
+        this(new Size(size,null));
     }
 }

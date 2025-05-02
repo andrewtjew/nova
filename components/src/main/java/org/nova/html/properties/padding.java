@@ -19,51 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.google;
+package org.nova.html.properties;
 
-import java.util.ArrayList;
-
-import org.nova.html.attributes.Style;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.properties.Size;
-import org.nova.html.tags.div;
-import org.nova.html.tags.script;
-
-public class GoogleMap extends Element
+public class padding extends SizeProperty
 {
-    final div div;
-    final double lattitude;
-    final double longtitude;
-    final double zoom;
-    final ArrayList<GoogleMapCircle> circles;
-    
-    public static script api_script(String key)
+    public padding(Size size)
     {
-    	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
+        super("padding",size);
     }
-    
-    public GoogleMap(Size width,Size height,double lattitude,double longtitude,double zoom)
+    public padding(double size,unit unit)
     {
-        this.div=new div();
-        this.div.id();
-        div.style(new Style().width(width).height(height));
-        this.lattitude=lattitude;
-        this.longtitude=longtitude;
-        this.zoom=zoom;
-        this.circles=new ArrayList<>();
+        this(new Size(size,unit));
     }
-    
-    public void add(GoogleMapCircle circle)
+    public padding(double size)
     {
-        this.circles.add(circle);
+        this(new Size(size,null));
     }
-
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        composer.compose(this.div);
-    }
-    
-
 }

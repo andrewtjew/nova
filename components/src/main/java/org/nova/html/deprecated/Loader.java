@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.unit;
 import org.nova.html.ext.Head;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.div;
 import org.nova.html.tags.style;
 

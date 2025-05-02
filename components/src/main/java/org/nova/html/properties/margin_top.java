@@ -19,25 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum text_decoration
+public class margin_top extends SizeProperty
 {
-    none("none"),
-    underline("underline"),
-    overline("overline"),
-    line_through("line-through"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    text_decoration(String value)
+    public margin_top(Size size)
     {
-        this.value=value;
+        super("margin-top",size);
     }
-    @Override
-    public String toString()
+    public margin_top(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    public margin_top(double size)
+    {
+        this(new Size(size,null));
     }
 }

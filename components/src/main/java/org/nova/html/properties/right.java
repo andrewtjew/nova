@@ -19,34 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum font_weight
+public class right extends PositionProperty
 {
-    normal("normal"),
-    bold("bold"),
-    bolder("bolder"),
-    lighter("lighter"),
-    _100("100"),
-    _200("200"),
-    _300("300"),
-    _400("400"),
-    _500("500"),
-    _600("600"),
-    _700("700"),
-    _800("800"),
-    _900("900"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    font_weight(String value)
+    public right(Size size)
     {
-        this.value=value;
+        super("right",size);
     }
-    @Override
-    public String toString()
+    public right(double size,unit unit)
     {
-        return this.value;
+        this(new Size(size,unit));
+    }
+    
+    public right(double size)
+    {
+        this(new Size(size,null));
     }
 }

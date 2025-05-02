@@ -19,51 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.google;
+package org.nova.html.properties;
 
-import java.util.ArrayList;
-
-import org.nova.html.attributes.Style;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.properties.Size;
-import org.nova.html.tags.div;
-import org.nova.html.tags.script;
-
-public class GoogleMap extends Element
+public enum FontWeight
 {
-    final div div;
-    final double lattitude;
-    final double longtitude;
-    final double zoom;
-    final ArrayList<GoogleMapCircle> circles;
-    
-    public static script api_script(String key)
+    normal("normal"),
+    bold("bold"),
+    bolder("bolder"),
+    lighter("lighter"),
+    _100("100"),
+    _200("200"),
+    _300("300"),
+    _400("400"),
+    _500("500"),
+    _600("600"),
+    _700("700"),
+    _800("800"),
+    _900("900"),
+    initial("initial"),
+    inherit("inherit")
+    ;
+    final String value;
+    FontWeight(String value)
     {
-    	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
+        this.value=value;
     }
-    
-    public GoogleMap(Size width,Size height,double lattitude,double longtitude,double zoom)
-    {
-        this.div=new div();
-        this.div.id();
-        div.style(new Style().width(width).height(height));
-        this.lattitude=lattitude;
-        this.longtitude=longtitude;
-        this.zoom=zoom;
-        this.circles=new ArrayList<>();
-    }
-    
-    public void add(GoogleMapCircle circle)
-    {
-        this.circles.add(circle);
-    }
-
     @Override
-    public void compose(Composer composer) throws Throwable
+    public String toString()
     {
-        composer.compose(this.div);
+        return this.value;
     }
-    
-
 }

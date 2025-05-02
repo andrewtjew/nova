@@ -24,15 +24,15 @@ package org.nova.html.operator;
 import java.util.ArrayList;
 
 import org.nova.core.NameValue;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.font_weight;
-import org.nova.html.attributes.text_align;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.Text;
+import org.nova.html.properties.Display;
+import org.nova.html.properties.FontWeight;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.TextAlign;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.div;
 
 public class NameInputValueList extends div
@@ -94,11 +94,11 @@ public class NameInputValueList extends div
            {
                label+=":";
            }
-           line.addInner(new div().style(new Style().width(leftWidth).padding_right(new Size(0.5,unit.em)).margin_left(new Size(0.5,unit.em)).font_weight(font_weight.bold)).addInner(label));
+           line.addInner(new div().style(new Style().width(leftWidth).padding_right(new Size(0.5,unit.em)).margin_left(new Size(0.5,unit.em)).font_weight(FontWeight.bold)).addInner(label));
                    //"width:"+width+"em;padding-right:0.5em;margin-left:0.5em;font-weight:bold;").addInner(label));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
-           line.addInner(new div().style(new Style().width(rightWidth).text_align(text_align.left).display(display.block)).addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
+           line.addInner(new div().style(new Style().width(rightWidth).text_align(TextAlign.left).display(Display.block)).addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
        }
        super.compose(builder);
     }

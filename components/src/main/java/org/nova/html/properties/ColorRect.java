@@ -19,51 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.google;
+package org.nova.html.properties;
 
-import java.util.ArrayList;
-
-import org.nova.html.attributes.Style;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.properties.Size;
-import org.nova.html.tags.div;
-import org.nova.html.tags.script;
-
-public class GoogleMap extends Element
+public class ColorRect
 {
-    final div div;
-    final double lattitude;
-    final double longtitude;
-    final double zoom;
-    final ArrayList<GoogleMapCircle> circles;
+    final private String value;
     
-    public static script api_script(String key)
+    public ColorRect(Color top,Color right,Color bottom,Color left)
     {
-    	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
+        if (right!=null)
+        {
+            if (bottom!=null)
+            {
+                if (left!=null)
+                {
+                    this.value=top+" "+right+" "+bottom+" "+left;
+                    return;
+                }
+                this.value=top+" "+right+" "+bottom; 
+                return;
+            }
+            this.value=top+" "+right; 
+            return;
+        }
+        this.value=top.toString(); 
     }
-    
-    public GoogleMap(Size width,Size height,double lattitude,double longtitude,double zoom)
+    public ColorRect(Color top,Color right,Color bottom)
     {
-        this.div=new div();
-        this.div.id();
-        div.style(new Style().width(width).height(height));
-        this.lattitude=lattitude;
-        this.longtitude=longtitude;
-        this.zoom=zoom;
-        this.circles=new ArrayList<>();
+        this(top,right,bottom,null);
     }
-    
-    public void add(GoogleMapCircle circle)
+    public ColorRect(Color top,Color right)
     {
-        this.circles.add(circle);
+        this(top,right,null);
     }
-
+    public ColorRect(Color value)
+    {
+        this(value,null);
+    }
     @Override
-    public void compose(Composer composer) throws Throwable
+    public String toString()
     {
-        composer.compose(this.div);
+        return this.value;
     }
     
-
 }

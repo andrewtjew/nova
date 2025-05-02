@@ -1,7 +1,7 @@
 package org.nova.html.ext;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.unit;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.script;
 
 public class NextPageSlowIndicator extends Content

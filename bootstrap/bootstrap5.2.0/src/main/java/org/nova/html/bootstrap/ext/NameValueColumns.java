@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap.ext;
 
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleTemplate;
@@ -32,6 +31,7 @@ import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.LiteralHtml;
+import org.nova.html.properties.Size;
 
 public class NameValueColumns extends Item
 {

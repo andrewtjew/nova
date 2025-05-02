@@ -1,17 +1,17 @@
 package org.nova.html.ext;
 
 import org.nova.html.StyleBuilder;
-import org.nova.html.attributes.BorderStyleRect;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.ColorRect;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.border_style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.overflow;
+import org.nova.html.attributes.Overflow;
 import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.properties.BorderStyle;
+import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.Display;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 import org.nova.html.tags.div;
 import org.nova.html.tags.style;
 
@@ -42,9 +42,9 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 	           		.top(new Size(0,unit.px))
 	        		.width(new Size(100,unit.percent))
 	           		.height(new Size(100,unit.percent))
-	           		.overflow(overflow.auto)
+	           		.overflow(Overflow.auto)
 	           		.background_color(modalBackground);
-	        		style.display(display.none);
+	        		style.display(Display.none);
 	        
 			sb.begin("."+this.rootName);
 			sb.add(style);
@@ -53,9 +53,9 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 		}
 		{
 			Style style=new Style();
-			style.border(spinnerBorderSize,new BorderStyleRect(border_style.solid),new ColorRect(spinnerBackground));
+			style.border(spinnerBorderSize,new BorderStyleRect(BorderStyle.solid),new ColorRect(spinnerBackground));
 			style.border_radius(new Size(50.0f,unit.percent));
-			style.border_top(spinnerBorderSize,border_style.solid,spinnerColor);
+			style.border_top(spinnerBorderSize,BorderStyle.solid,spinnerColor);
 			style.width(spinnerSize);
 			style.height(spinnerSize);
 			String key=this.rootName+"-spin";

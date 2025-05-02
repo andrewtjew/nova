@@ -19,47 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public class ColorRect
+public class Position
 {
-    final private String value;
-    
-    public ColorRect(Color top,Color right,Color bottom,Color left)
+    final unit unit;
+    final double value;
+    public Position(double value,unit unit)
     {
-        if (right!=null)
-        {
-            if (bottom!=null)
-            {
-                if (left!=null)
-                {
-                    this.value=top+" "+right+" "+bottom+" "+left;
-                    return;
-                }
-                this.value=top+" "+right+" "+bottom; 
-                return;
-            }
-            this.value=top+" "+right; 
-            return;
-        }
-        this.value=top.toString(); 
+        this.value=value;
+        this.unit=unit;
     }
-    public ColorRect(Color top,Color right,Color bottom)
-    {
-        this(top,right,bottom,null);
-    }
-    public ColorRect(Color top,Color right)
-    {
-        this(top,right,null);
-    }
-    public ColorRect(Color value)
+    public Position(double value)
     {
         this(value,null);
     }
     @Override
     public String toString()
     {
-        return this.value;
+        if (unit!=null)
+        {
+            return this.value+this.unit.toString();
+        }
+        return Double.toString(this.value);
+        
+    }
+    public double value()
+    {
+        return value;
+    }
+    public unit unit()
+    {
+        return unit;
     }
     
+    /*
+    static public Size rem(double size)
+    {
+    	return new Size(size,org.nova.html.properties.unit.rem);
+    }
+    static public Size px(double size)
+    {
+        return new Size(size,org.nova.html.properties.unit.px);
+    }
+    */
 }

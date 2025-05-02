@@ -1,14 +1,14 @@
 package org.nova.html.ext;
 
 import org.nova.html.StyleBuilder;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.ColorRect;
-import org.nova.html.attributes.Size;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.border_style;
-import org.nova.html.attributes.unit;
-import org.nova.html.attributes.BorderStyleRect;
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.properties.BorderStyle;
+import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.Color;
+import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.Size;
+import org.nova.html.properties.unit;
 
 public class Spinner extends GlobalEventTagElement<Spinner> 
 {
@@ -58,9 +58,9 @@ public class Spinner extends GlobalEventTagElement<Spinner>
     {
         StyleBuilder sb=new StyleBuilder();
         Style style=new Style();
-        style.border(borderSize,new BorderStyleRect(border_style.solid),new ColorRect(background));
+        style.border(borderSize,new BorderStyleRect(BorderStyle.solid),new ColorRect(background));
         style.border_radius(new Size(50.0f,unit.percent));
-        style.border_top(borderSize,border_style.solid,color);
+        style.border_top(borderSize,BorderStyle.solid,color);
         style.width(size);
         style.height(size);
         String key=id()+"-spin";

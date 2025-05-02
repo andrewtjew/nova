@@ -19,35 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public class Color
+public enum TextDecoration
 {
-    final private String color;
-    public Color(String color)
+    none("none"),
+    underline("underline"),
+    overline("overline"),
+    line_through("line-through"),
+    initial("initial"),
+    inherit("inherit")
+    ;
+    final String value;
+    TextDecoration(String value)
     {
-        this.color=color;
+        this.value=value;
     }
-    static public Color rgba(int red,int green,int blue,float opacity)
-    {
-        return new Color("rgba("+red+","+green+","+blue+","+opacity+")");
-    }
-    static public Color rgb(int red,int green,int blue)
-    {
-        return new Color("rgb("+red+","+green+","+blue+")");
-    }
-    static public Color hsla(int hue,int saturation,int lightness,float opacity)
-    {
-        return new Color("hsla("+hue+","+saturation+"%,"+lightness+"%,"+opacity+")");
-    }
-    static public Color hsl(int hue,int saturation,int lightness)
-    {
-        return new Color("hsl("+hue+","+saturation+"%,"+lightness+"%)");
-    }
-    
     @Override
     public String toString()
     {
-        return this.color;
+        return this.value;
     }
 }

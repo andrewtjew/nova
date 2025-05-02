@@ -22,13 +22,13 @@
 package org.nova.html.bootstrap.ext;
 
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.properties.Size;
 import org.nova.html.tags.hr;
 
 public class NameValueList extends Item
