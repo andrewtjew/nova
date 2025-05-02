@@ -27,7 +27,7 @@ public class padding extends SizeProperty
     {
         super("padding",size);
     }
-    public padding(double size,unit unit)
+    public padding(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

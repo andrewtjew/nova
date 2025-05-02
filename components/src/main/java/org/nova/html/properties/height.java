@@ -27,7 +27,7 @@ public class height extends SizeProperty
     {
         super("height",size);
     }
-    public height(double size,unit unit)
+    public height(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

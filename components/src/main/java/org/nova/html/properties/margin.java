@@ -27,7 +27,7 @@ public class margin extends SizeProperty
     {
         super("margin",size);
     }
-    public margin(double size,unit unit)
+    public margin(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

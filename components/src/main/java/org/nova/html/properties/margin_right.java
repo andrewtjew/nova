@@ -27,7 +27,7 @@ public class margin_right extends SizeProperty
     {
         super("margin-right",size);
     }
-    public margin_right(double size,unit unit)
+    public margin_right(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

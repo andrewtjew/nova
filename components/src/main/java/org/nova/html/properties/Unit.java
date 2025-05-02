@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum unit
+public enum Unit
 {
 
     em("em"),
@@ -43,7 +43,7 @@ public enum unit
     ;
 
     private String value;
-    unit(String value)
+    Unit(String value)
     {
         this.value=value;
     }

@@ -33,7 +33,7 @@ import org.nova.html.properties.BorderStyle;
 import org.nova.html.properties.Color;
 import org.nova.html.properties.Size;
 import org.nova.html.properties.TextAlign;
-import org.nova.html.properties.unit;
+import org.nova.html.properties.Unit;
 import org.nova.html.tags.div;
 
 public class NameValueList extends GlobalEventTagElement<NameValueList>
@@ -88,13 +88,13 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
     public void compose(Composer builder) throws Throwable
     {
        int width=(int)(this.longest*0.7f+1);
-       Size size=this.leftWidth!=null?this.leftWidth:new Size(width,unit.em);
+       Size size=this.leftWidth!=null?this.leftWidth:new Size(width,Unit.em);
        Style valueStyle=new Style()
        .text_align(TextAlign.left)
-       .width(new Size(100,unit.percent))
+       .width(new Size(100,Unit.percent))
 //       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
-       .margin_right(new Size(0.25,unit.em))
-       .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em));
+       .margin_right(new Size(0.25,Unit.em))
+       .padding(new Size(0.6,Unit.em),new Size(0.2,Unit.em),new Size(0.2,Unit.em),new Size(0,Unit.em));
 
        for (int i=0;i<this.list.size();i++)
        {
@@ -131,9 +131,9 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                        (
                            new Style()
                            .width(size)
-                           .border_right(new Size(0.1,unit.em),BorderStyle.solid,Color.rgb(176, 176, 176))
-                           .margin_right(new Size(0.25,unit.em))
-                           .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em))
+                           .border_right(new Size(0.1,Unit.em),BorderStyle.solid,Color.rgb(176, 176, 176))
+                           .margin_right(new Size(0.25,Unit.em))
+                           .padding(new Size(0.6,Unit.em),new Size(0.2,Unit.em),new Size(0.2,Unit.em),new Size(0,Unit.em))
                        )
                        .addInner(label));
            }
@@ -143,8 +143,8 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                        (
                            new Style()
                            .width(size)
-                           .margin_right(new Size(0.25,unit.em))
-                           .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em))
+                           .margin_right(new Size(0.25,Unit.em))
+                           .padding(new Size(0.6,Unit.em),new Size(0.2,Unit.em),new Size(0.2,Unit.em),new Size(0,Unit.em))
                        )
                        .addInner(label));
            }

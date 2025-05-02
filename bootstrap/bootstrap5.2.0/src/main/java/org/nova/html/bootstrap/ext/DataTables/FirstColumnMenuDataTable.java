@@ -6,7 +6,7 @@ import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.DataTables.DataTableOrder;
 import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.properties.Size;
-import org.nova.html.properties.unit;
+import org.nova.html.properties.Unit;
 
 public class FirstColumnMenuDataTable extends DataTable 
 {
@@ -43,12 +43,12 @@ public class FirstColumnMenuDataTable extends DataTable
 
 	public FirstColumnMenuDataTable(Object...columnNames) 
 	{
-		this(new Size(1,unit.em),columnNames);
+		this(new Size(1,Unit.em),columnNames);
 	}
 
 	public FirstColumnMenuDataTable(DataTableOptions options,Object...columnNames) 
     {
-        this(options,new Size(1,unit.em),columnNames);
+        this(options,new Size(1,Unit.em),columnNames);
     }
 
 

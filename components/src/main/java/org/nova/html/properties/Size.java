@@ -28,7 +28,7 @@ public class Size extends Position
     {
         super(value);
     }
-    public Size(double value,unit unit)
+    public Size(double value,Unit unit)
     {
         super(value,unit);
     }

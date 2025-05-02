@@ -27,7 +27,7 @@ public class padding_right extends SizeProperty
     {
         super("padding-right",size);
     }
-    public padding_right(double size,unit unit)
+    public padding_right(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

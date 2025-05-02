@@ -27,7 +27,7 @@ public class width extends SizeProperty
     {
         super("width",size);
     }
-    public width(double size,unit unit)
+    public width(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

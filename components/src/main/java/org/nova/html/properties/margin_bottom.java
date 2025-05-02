@@ -27,7 +27,7 @@ public class margin_bottom extends SizeProperty
     {
         super("margin-bottom",size);
     }
-    public margin_bottom(double size,unit unit)
+    public margin_bottom(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

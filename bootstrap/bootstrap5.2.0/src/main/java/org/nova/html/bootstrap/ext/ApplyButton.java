@@ -4,7 +4,7 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.properties.Size;
-import org.nova.html.properties.unit;
+import org.nova.html.properties.Unit;
 
 public class ApplyButton extends SpinnerButton 
 {
@@ -19,7 +19,7 @@ public class ApplyButton extends SpinnerButton
 
     public ApplyButton(String label)
     {
-        super(new SpinnerLabel(label), SpinnerType.border,new Size(label.length()+1,unit.em));
+        super(new SpinnerLabel(label), SpinnerType.border,new Size(label.length()+1,Unit.em));
         color(StyleColor.primary);
     }
     public ApplyButton() 

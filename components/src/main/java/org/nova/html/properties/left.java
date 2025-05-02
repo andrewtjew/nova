@@ -27,7 +27,7 @@ public class left extends PositionProperty
     {
         super("left",size);
     }
-    public left(double size,unit unit)
+    public left(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

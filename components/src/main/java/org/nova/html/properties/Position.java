@@ -23,9 +23,9 @@ package org.nova.html.properties;
 
 public class Position
 {
-    final unit unit;
+    final Unit unit;
     final double value;
-    public Position(double value,unit unit)
+    public Position(double value,Unit unit)
     {
         this.value=value;
         this.unit=unit;
@@ -48,7 +48,7 @@ public class Position
     {
         return value;
     }
-    public unit unit()
+    public Unit unit()
     {
         return unit;
     }

@@ -25,14 +25,14 @@ import org.nova.html.attributes.Style;
 import org.nova.html.attributes.position;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.properties.Size;
-import org.nova.html.properties.unit;
+import org.nova.html.properties.Unit;
 
 public class div_center extends GlobalEventTagElement<div_center>
 {
     public div_center(Size width)
     {
         super("div");
-        style(new Style().position(position.relative).left(new Size(50,unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
+        style(new Style().position(position.relative).left(new Size(50,Unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
     }
     
 }

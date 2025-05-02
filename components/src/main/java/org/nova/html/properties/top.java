@@ -27,7 +27,7 @@ public class top extends PositionProperty
     {
         super("top",size);
     }
-    public top(double size,unit unit)
+    public top(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

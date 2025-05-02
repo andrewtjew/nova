@@ -27,7 +27,7 @@ public class padding_top extends SizeProperty
     {
         super("padding-top",size);
     }
-    public padding_top(double size,unit unit)
+    public padding_top(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

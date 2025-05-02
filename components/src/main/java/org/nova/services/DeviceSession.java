@@ -229,15 +229,15 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         this.continuations.push(action);
         return action;
     }
-//    public String pushContinuation(Context context)
-//    {
-//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
-//    }
-//    public String pushRefererContinuation(Context context)
-//    {
-//        HttpServletRequest request=context.getHttpServletRequest();
-//        return pushContinuation(request.getHeader("Referer"));
-//    }
+    public String pushContinuation(Context context)
+    {
+        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
+    }
+    public String pushRefererContinuation(Context context)
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        return pushContinuation(request.getHeader("Referer"));
+    }
     
     public void clearContinuations()
     {

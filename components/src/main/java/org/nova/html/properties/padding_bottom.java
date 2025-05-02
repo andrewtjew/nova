@@ -27,7 +27,7 @@ public class padding_bottom extends SizeProperty
     {
         super("padding-bottom",size);
     }
-    public padding_bottom(double size,unit unit)
+    public padding_bottom(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

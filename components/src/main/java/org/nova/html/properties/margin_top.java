@@ -27,7 +27,7 @@ public class margin_top extends SizeProperty
     {
         super("margin-top",size);
     }
-    public margin_top(double size,unit unit)
+    public margin_top(double size,Unit unit)
     {
         this(new Size(size,unit));
     }

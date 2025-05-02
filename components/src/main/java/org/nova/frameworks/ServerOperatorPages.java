@@ -164,7 +164,7 @@ import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
 import org.nova.html.properties.Color;
 import org.nova.html.properties.Size;
-import org.nova.html.properties.unit;
+import org.nova.html.properties.Unit;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
@@ -2354,7 +2354,7 @@ public class ServerOperatorPages
     private void writeTraceSample(Head head,NodeElement<?> content,TraceSample sample) throws Exception
     {
         Panel3 panel=content.returnAddInner(new Panel3(head,"Stats"));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,Unit.em)));
         list.add("Rate", String.format("%.3f", sample.getRate())+" per second");
         list.add("Count", sample.getCount());
         list.add("Average Duration", divFormatNsToMs(sample.getAverageDurationNs()));
@@ -2402,7 +2402,7 @@ public class ServerOperatorPages
     static public void writeTrace(Head head,NodeElement<?> content,String title,Trace trace) throws Exception
     {
         Panel4 panel=content.returnAddInner(new Panel4(head,title));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,Unit.em)));
         list.add("Number",trace.getNumber());
         list.add("Category",trace.getCategory());
         list.add("Thread (id:name)", trace.getThread().getId()+":"+trace.getThread().getName());
