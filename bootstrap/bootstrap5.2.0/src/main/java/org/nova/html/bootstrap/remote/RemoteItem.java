@@ -7,6 +7,7 @@ import org.nova.html.bootstrap.Styling;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.remote.RemoteElement;
 import org.nova.html.remote.RemoteResponseWriter;
@@ -21,7 +22,7 @@ public class RemoteItem extends RemoteElement<RemoteItem> implements Styling<Rem
     }
     
     @Override
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this;
     }

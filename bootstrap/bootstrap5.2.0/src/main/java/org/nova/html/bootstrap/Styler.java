@@ -21,18 +21,19 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 
 public class Styler implements Styling<Styler>
 {
-    final private TagElement<?> element;
+    final private GlobalTagElement<?> element;
 
-    static public Styler style(TagElement<?> element)
+    static public Styler style(GlobalTagElement<?> element)
     {
         return new Styler(element);
     }
 
-    public Styler(TagElement<?> element)
+    public Styler(GlobalTagElement<?> element)
     {
         this.element=element;
     }
@@ -59,7 +60,7 @@ public class Styler implements Styling<Styler>
     }
 
     @Override
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this.element;
     }

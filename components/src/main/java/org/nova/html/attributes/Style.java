@@ -22,9 +22,9 @@
 package org.nova.html.attributes;
 
 import org.nova.html.properties.BorderStyle;
-import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.BorderBoxStyle;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.BoxColor;
 import org.nova.html.properties.Display;
 import org.nova.html.properties.FlexBasis;
 import org.nova.html.properties.FlexDirection;
@@ -71,12 +71,12 @@ public class Style
         sb.append("background-color:"+color+";");
         return this;
     }
-    public Style border(Size size,BorderStyleRect borderStyle,ColorRect color)
+    public Style border(Size size,BorderBoxStyle borderStyle,BoxColor color)
     {
         sb.append("border:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border(Size size,BorderStyleRect borderStyle)
+    public Style border(Size size,BorderBoxStyle borderStyle)
     {
         sb.append("border:"+size+" "+borderStyle+";");
         return this;

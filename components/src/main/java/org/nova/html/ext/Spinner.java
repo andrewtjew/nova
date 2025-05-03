@@ -4,9 +4,9 @@ import org.nova.html.StyleBuilder;
 import org.nova.html.attributes.Style;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.properties.BorderStyle;
-import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.BorderBoxStyle;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.BoxColor;
 import org.nova.html.properties.Size;
 import org.nova.html.properties.Unit;
 
@@ -58,7 +58,7 @@ public class Spinner extends GlobalEventTagElement<Spinner>
     {
         StyleBuilder sb=new StyleBuilder();
         Style style=new Style();
-        style.border(borderSize,new BorderStyleRect(BorderStyle.solid),new ColorRect(background));
+        style.border(borderSize,new BorderBoxStyle(BorderStyle.solid),new BoxColor(background));
         style.border_radius(new Size(50.0f,Unit.percent));
         style.border_top(borderSize,BorderStyle.solid,color);
         style.width(size);

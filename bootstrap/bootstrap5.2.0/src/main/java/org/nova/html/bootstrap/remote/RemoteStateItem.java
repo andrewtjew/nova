@@ -7,6 +7,7 @@ import org.nova.html.bootstrap.Styling;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.remote.RemoteStateElement;
@@ -23,7 +24,7 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
     }
     
     @Override
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this;
     }

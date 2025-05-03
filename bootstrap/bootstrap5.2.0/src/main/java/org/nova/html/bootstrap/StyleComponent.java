@@ -23,6 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 
 public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> extends GlobalEventTagElement<ELEMENT> implements Styling<ELEMENT>
@@ -50,7 +51,7 @@ public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> ex
     
     
     
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this;
     }    

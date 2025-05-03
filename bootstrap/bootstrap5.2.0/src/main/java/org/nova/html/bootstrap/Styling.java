@@ -41,13 +41,14 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 
 public interface Styling<ELEMENT>
 {
 //    final private TagElement<?> element;
     public ELEMENT addClass(Object class_,Object...fragments);
-    public TagElement<?> getElement();
+    public GlobalTagElement<?> getElement();
 
 
     public default ELEMENT col(BreakPoint breakPoint,int columns)
@@ -145,6 +146,11 @@ public interface Styling<ELEMENT>
     public default ELEMENT valid_feedback()
     {
         return addClass("valid-feedback");
+    }
+    public default ELEMENT bg(StyleColor value,double opacity)
+    {
+        getElement().style("--bs-bg-opacity:"+opacity+";");
+        return addClass("bg",value);
     }
     public default ELEMENT bg(StyleColor value)
     {

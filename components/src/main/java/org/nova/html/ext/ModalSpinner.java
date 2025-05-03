@@ -6,9 +6,9 @@ import org.nova.html.attributes.Overflow;
 import org.nova.html.attributes.position;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.properties.BorderStyle;
-import org.nova.html.properties.BorderStyleRect;
+import org.nova.html.properties.BorderBoxStyle;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.ColorRect;
+import org.nova.html.properties.BoxColor;
 import org.nova.html.properties.Display;
 import org.nova.html.properties.Size;
 import org.nova.html.properties.Unit;
@@ -53,7 +53,7 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 		}
 		{
 			Style style=new Style();
-			style.border(spinnerBorderSize,new BorderStyleRect(BorderStyle.solid),new ColorRect(spinnerBackground));
+			style.border(spinnerBorderSize,new BorderBoxStyle(BorderStyle.solid),new BoxColor(spinnerBackground));
 			style.border_radius(new Size(50.0f,Unit.percent));
 			style.border_top(spinnerBorderSize,BorderStyle.solid,spinnerColor);
 			style.width(spinnerSize);

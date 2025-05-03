@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class BorderStyleRect
+public class BoxColor
 {
     final private String value;
     
-    public BorderStyleRect(BorderStyle top,BorderStyle right,BorderStyle bottom,BorderStyle left)
+    public BoxColor(Color top,Color right,Color bottom,Color left)
     {
         if (right!=null)
         {
@@ -44,15 +44,15 @@ public class BorderStyleRect
         }
         this.value=top.toString(); 
     }
-    public BorderStyleRect(BorderStyle top,BorderStyle right,BorderStyle bottom)
+    public BoxColor(Color top,Color right,Color bottom)
     {
         this(top,right,bottom,null);
     }
-    public BorderStyleRect(BorderStyle top,BorderStyle right)
+    public BoxColor(Color top,Color right)
     {
         this(top,right,null);
     }
-    public BorderStyleRect(BorderStyle value)
+    public BoxColor(Color value)
     {
         this(value,null);
     }
