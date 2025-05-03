@@ -19,39 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.properties;
+package org.nova.html.bootstrap;
 
-public class Color
+public class FormRow extends StyleComponent<FormRow>
 {
-    final private String color;
-    public Color(String color)
+    public FormRow()
     {
-        this.color=color;
-    }
-    static public Color rgba(int red,int green,int blue,float opacity)
-    {
-        return new Color("rgba("+red+","+green+","+blue+","+opacity+")");
-    }
-    static public Color rgb(int red,int green,int blue)
-    {
-        return new Color("rgb("+red+","+green+","+blue+")");
-    }
-    static public Color hsla(int hue,int saturation,int lightness,float opacity)
-    {
-        return new Color("hsla("+hue+","+saturation+"%,"+lightness+"%,"+opacity+")");
-    }
-    static public Color hsl(int hue,int saturation,int lightness)
-    {
-        return new Color("hsl("+hue+","+saturation+"%,"+lightness+"%)");
-    }
-    static public Color value(String value)
-    {
-        return new Color(value);
-    }
-    
-    @Override
-    public String toString()
-    {
-        return this.color;
+        super("div","form-row");
     }
 }

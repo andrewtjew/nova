@@ -99,9 +99,18 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
     {
         return attr("style",value.toString());
     }
-    public ELEMENT style(Property property)
+    public ELEMENT style(Property...properties)
     {
-        return attr("style",property.toString());
+        if (properties.length==0)
+        {
+            return (ELEMENT)this;
+        }
+        StringBuilder sb=new StringBuilder();
+        for (Property property:properties)
+        {
+            sb.append(property);
+        }
+        return attr("style",sb);
     }
     public ELEMENT tabindex(int value)
     {
