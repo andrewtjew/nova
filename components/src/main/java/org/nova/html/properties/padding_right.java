@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class padding_right extends SizeProperty
+public class padding_right extends LengthProperty
 {
-    public padding_right(Size size)
+    public padding_right(Length size)
     {
         super("padding-right",size);
     }
     public padding_right(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public padding_right(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class padding extends SizeProperty
+public class padding extends LengthProperty
 {
-    public padding(Size size)
+    public padding(Length size)
     {
         super("padding",size);
     }
     public padding(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public padding(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

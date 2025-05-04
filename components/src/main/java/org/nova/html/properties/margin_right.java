@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class margin_right extends SizeProperty
+public class margin_right extends LengthProperty
 {
-    public margin_right(Size size)
+    public margin_right(Length size)
     {
         super("margin-right",size);
     }
     public margin_right(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public margin_right(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

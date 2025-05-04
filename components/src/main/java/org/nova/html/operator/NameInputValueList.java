@@ -30,7 +30,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.ext.Text;
 import org.nova.html.properties.Display;
 import org.nova.html.properties.FontWeight;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.TextAlign;
 import org.nova.html.properties.Unit;
 import org.nova.html.tags.div;
@@ -39,15 +39,15 @@ public class NameInputValueList extends div
 {
     final private ArrayList<NameValue<Element>> list;
     private int longest;
-    final private Size leftWidth;
-    final private Size rightWidth;
+    final private Length leftWidth;
+    final private Length rightWidth;
     
 
     public NameInputValueList()
     {
         this(null,null);
     }
-    public NameInputValueList(Size leftWidth,Size rightWidth)
+    public NameInputValueList(Length leftWidth,Length rightWidth)
     {
         style("display:block;");
         this.list=new ArrayList<>();
@@ -78,8 +78,8 @@ public class NameInputValueList extends div
     @Override
     public void compose(Composer builder) throws Throwable
     {
-        Size leftWidth=this.leftWidth==null?new Size((int)((this.longest+2)),Unit.em):this.leftWidth;
-        Size rightWidth=this.rightWidth==null?new Size(100,Unit.percent):this.rightWidth;
+        Length leftWidth=this.leftWidth==null?new Length((int)((this.longest+2)),Unit.em):this.leftWidth;
+        Length rightWidth=this.rightWidth==null?new Length(100,Unit.percent):this.rightWidth;
        for (int i=0;i<this.list.size();i++)
        {
            NameValue<Element> item=this.list.get(i);
@@ -94,7 +94,7 @@ public class NameInputValueList extends div
            {
                label+=":";
            }
-           line.addInner(new div().style(new Style().width(leftWidth).padding_right(new Size(0.5,Unit.em)).margin_left(new Size(0.5,Unit.em)).font_weight(FontWeight.bold)).addInner(label));
+           line.addInner(new div().style(new Style().width(leftWidth).padding_right(new Length(0.5,Unit.em)).margin_left(new Length(0.5,Unit.em)).font_weight(FontWeight.bold)).addInner(label));
                    //"width:"+width+"em;padding-right:0.5em;margin-left:0.5em;font-weight:bold;").addInner(label));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));

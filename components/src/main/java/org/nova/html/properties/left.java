@@ -21,19 +21,19 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class left extends PositionProperty
+public class left extends LengthProperty
 {
-    public left(Size size)
+    public left(Length length)
     {
-        super("left",size);
+        super("left",length);
     }
-    public left(double size,Unit unit)
+    public left(double length,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(length,unit));
     }
     
-    public left(double size)
+    public left(double length)
     {
-        this(new Size(size,null));
+        this(new Length(length,null));
     }
 }

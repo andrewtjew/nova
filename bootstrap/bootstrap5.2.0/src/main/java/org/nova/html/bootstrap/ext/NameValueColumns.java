@@ -31,7 +31,7 @@ import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.LiteralHtml;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 
 public class NameValueColumns extends Item
 {
@@ -40,7 +40,7 @@ public class NameValueColumns extends Item
     final private Element divider;
     final private TextAlign nameAlign;
     
-    public NameValueColumns(Size nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
+    public NameValueColumns(Length nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
     {
         d(Display.flex);
         this.names=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);
@@ -57,11 +57,11 @@ public class NameValueColumns extends Item
         }
         this.divider=divider;
     }
-    public NameValueColumns(Size nameSize,TextAlign nameAlign,Element divider)
+    public NameValueColumns(Length nameSize,TextAlign nameAlign,Element divider)
     {
         this(nameSize,nameAlign,null,divider);
     }
-    public NameValueColumns(Size nameSize,TextAlign nameAlign)
+    public NameValueColumns(Length nameSize,TextAlign nameAlign)
     {
         this(nameSize,nameAlign,new LiteralHtml("&nbsp;:&nbsp;"));
     }

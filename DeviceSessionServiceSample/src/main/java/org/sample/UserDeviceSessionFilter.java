@@ -2,8 +2,8 @@ package org.sample;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.html.elements.Element;
-import org.nova.html.ext.Page;
 import org.nova.html.ext.Redirect;
+import org.nova.html.ext.DeviceSessionPage;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
@@ -69,7 +69,7 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     }
 
     @Override
-    protected void logPage(Trace parent, UserSession session, Context context, Page page) throws Throwable
+    protected void logPage(Trace parent, UserSession session, Context context, DeviceSessionPage page) throws Throwable
     {
         // TODO Auto-generated method stub
         

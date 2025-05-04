@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
@@ -43,7 +43,7 @@ public class GoogleMap extends Element
     	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
     }
     
-    public GoogleMap(Size width,Size height,double lattitude,double longtitude,double zoom)
+    public GoogleMap(Length width,Length height,double lattitude,double longtitude,double zoom)
     {
         this.div=new div();
         this.div.id();

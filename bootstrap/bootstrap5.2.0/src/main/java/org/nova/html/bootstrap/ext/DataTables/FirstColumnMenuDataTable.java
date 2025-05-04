@@ -5,12 +5,12 @@ import org.nova.html.DataTables.DataTableColumnOrder;
 import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.DataTables.DataTableOrder;
 import org.nova.html.bootstrap.TableHeadRow;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 
 public class FirstColumnMenuDataTable extends DataTable 
 {
-	static private DataTableOptions addOptions(DataTableOptions options,Size menuWidth,int target)
+	static private DataTableOptions addOptions(DataTableOptions options,Length menuWidth,int target)
 	{
 	    ColumnDef menuColumnDefs=new ColumnDef(target);
 	    menuColumnDefs.orderable=false;
@@ -25,7 +25,7 @@ public class FirstColumnMenuDataTable extends DataTable
 	    return options;
 	}
     
-	public FirstColumnMenuDataTable(DataTableOptions options,Size menuWidth,Object...columnNames) 
+	public FirstColumnMenuDataTable(DataTableOptions options,Length menuWidth,Object...columnNames) 
     {
         super(addOptions(options,menuWidth,0));
         
@@ -36,19 +36,19 @@ public class FirstColumnMenuDataTable extends DataTable
     }
 	
 	
-	public FirstColumnMenuDataTable(Size menuWidth,Object...columnNames) 
+	public FirstColumnMenuDataTable(Length menuWidth,Object...columnNames) 
 	{
 	    this(new DataTableOptions(),menuWidth,columnNames);
 	}
 
 	public FirstColumnMenuDataTable(Object...columnNames) 
 	{
-		this(new Size(1,Unit.em),columnNames);
+		this(new Length(1,Unit.em),columnNames);
 	}
 
 	public FirstColumnMenuDataTable(DataTableOptions options,Object...columnNames) 
     {
-        this(options,new Size(1,Unit.em),columnNames);
+        this(options,new Length(1,Unit.em),columnNames);
     }
 
 

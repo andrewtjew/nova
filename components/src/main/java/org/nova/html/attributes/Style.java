@@ -21,17 +21,20 @@
  ******************************************************************************/
 package org.nova.html.attributes;
 
-import org.nova.html.properties.BorderStyle;
 import org.nova.html.properties.BorderBoxStyle;
-import org.nova.html.properties.Color;
+import org.nova.html.properties.BorderStyle;
 import org.nova.html.properties.BoxColor;
+import org.nova.html.properties.Color;
 import org.nova.html.properties.Display;
 import org.nova.html.properties.FlexBasis;
 import org.nova.html.properties.FlexDirection;
+import org.nova.html.properties.FlexWrap;
 import org.nova.html.properties.Float_;
 import org.nova.html.properties.FontWeight;
 import org.nova.html.properties.ListStyle;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Overflow;
+import org.nova.html.properties.Position;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.TextAlign;
 import org.nova.html.properties.TextDecoration;
 import org.nova.html.properties.VerticalAlign;
@@ -46,7 +49,7 @@ public class Style
     {
         this.sb=new StringBuilder();
     }
-    public Style width(Size size)
+    public Style width(Length size)
     {
         sb.append("width:"+size+";");
         return this;
@@ -56,7 +59,7 @@ public class Style
         sb.append(text);
         return this;
     }
-    public Style height(Size size)
+    public Style height(Length size)
     {
         sb.append("height:"+size+";");
         return this;
@@ -71,94 +74,94 @@ public class Style
         sb.append("background-color:"+color+";");
         return this;
     }
-    public Style border(Size size,BorderBoxStyle borderStyle,BoxColor color)
+    public Style border(Length size,BorderBoxStyle borderStyle,BoxColor color)
     {
         sb.append("border:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border(Size size,BorderBoxStyle borderStyle)
+    public Style border(Length size,BorderBoxStyle borderStyle)
     {
         sb.append("border:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_left(Size size,BorderStyle borderStyle,Color color)
+    public Style border_left(Length size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-left:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_top(Size size,BorderStyle borderStyle,Color color)
+    public Style border_top(Length size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-top:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_right(Size size,BorderStyle borderStyle,Color color)
+    public Style border_right(Length size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-right:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_bottom(Size size,BorderStyle borderStyle,Color color)
+    public Style border_bottom(Length size,BorderStyle borderStyle,Color color)
     {
         sb.append("border-bottom:"+size+" "+borderStyle+" "+color+";");
         return this;
     }
-    public Style border_left(Size size,BorderStyle borderStyle)
+    public Style border_left(Length size,BorderStyle borderStyle)
     {
         sb.append("border-left:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_top(Size size,BorderStyle borderStyle)
+    public Style border_top(Length size,BorderStyle borderStyle)
     {
         sb.append("border-top:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_right(Size size,BorderStyle borderStyle)
+    public Style border_right(Length size,BorderStyle borderStyle)
     {
         sb.append("border-right:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_bottom(Size size,BorderStyle borderStyle)
+    public Style border_bottom(Length size,BorderStyle borderStyle)
     {
         sb.append("border-bottom:"+size+" "+borderStyle+";");
         return this;
     }
-    public Style border_left(Size size)
+    public Style border_left(Length size)
     {
         sb.append("border-left:"+size+";");
         return this;
     }
-    public Style border_top(Size size)
+    public Style border_top(Length size)
     {
         sb.append("border-top:"+size+";");
         return this;
     }
-    public Style border_right(Size size)
+    public Style border_right(Length size)
     {
         sb.append("border-right:"+size+";");
         return this;
     }
-    public Style border_bottom(Size size)
+    public Style border_bottom(Length size)
     {
         sb.append("border-bottom:"+size+";");
         return this;
     }
 
-    public Style border(Size size)
+    public Style border(Length size)
     {
         sb.append("border:"+size+";");
         return this;
     }
-    public Style border_radius(Size size)
+    public Style border_radius(Length size)
     {
         sb.append("border-radius:"+size+";");
         return this;
     }
 
-    public Style margin(Size size)
+    public Style margin(Length size)
     {
         sb.append("margin:"+size+";");
         return this;
     }
-    public Style margin_auto(Size size)
+    public Style margin_auto(Length size)
     {
         sb.append("margin:"+size+" auto;");
         return this;
@@ -168,57 +171,57 @@ public class Style
         sb.append("margin:0 auto;");
         return this;
     }
-    public Style margin_top(Size size)
+    public Style margin_top(Length size)
     {
         sb.append("margin-top:"+size+";");
         return this;
     }
-    public Style margin_right(Size size)
+    public Style margin_right(Length size)
     {
         sb.append("margin-right:"+size+";");
         return this;
     }
-    public Style margin_bottom(Size size)
+    public Style margin_bottom(Length size)
     {
         sb.append("margin-bottom:"+size+";");
         return this;
     }
-    public Style margin_left(Size size)
+    public Style margin_left(Length size)
     {
         sb.append("margin-left:"+size+";");
         return this;
     }
-    public Style margin(Size top,Size right,Size bottom,Size left)
+    public Style margin(Length top,Length right,Length bottom,Length left)
     {
         sb.append("margin:"+top+" "+right+" "+bottom+" "+left+";");
         return this;
     }
-    public Style padding(Size size)
+    public Style padding(Length size)
     {
         sb.append("padding:"+size+";");
         return this;
     }
-    public Style padding_top(Size size)
+    public Style padding_top(Length size)
     {
         sb.append("padding-top:"+size+";");
         return this;
     }
-    public Style padding_right(Size size)
+    public Style padding_right(Length size)
     {
         sb.append("padding-right:"+size+";");
         return this;
     }
-    public Style padding_bottom(Size size)
+    public Style padding_bottom(Length size)
     {
         sb.append("padding-bottom:"+size+";");
         return this;
     }
-    public Style padding_left(Size size)
+    public Style padding_left(Length size)
     {
         sb.append("padding-left:"+size+";");
         return this;
     }
-    public Style padding(Size top,Size right,Size bottom,Size left)
+    public Style padding(Length top,Length right,Length bottom,Length left)
     {
         sb.append("padding:"+top+" "+right+" "+bottom+" "+left+";");
         return this;
@@ -239,7 +242,7 @@ public class Style
         sb.append("flex-shrink:"+value+";");
         return this;
     }
-    public Style flex_basis(Size value)
+    public Style flex_basis(Length value)
     {
         sb.append("flex-basis:"+value.toString()+";");
         return this;
@@ -267,7 +270,7 @@ public class Style
         return this;
     }
     
-    public Style position(position value)
+    public Style position(Position value)
     {
         sb.append("position:"+value+";");
         return this;
@@ -282,7 +285,7 @@ public class Style
         sb.append("vertical-align:"+value+";");
         return this;
     }
-    public Style vertical_align(Size value)
+    public Style vertical_align(Length value)
     {
         sb.append("vertical-align:"+value+";");
         return this;
@@ -312,12 +315,12 @@ public class Style
         sb.append("z-index:"+value+";");
         return this;
     }
-    public Style top(Size value)
+    public Style top(Length value)
     {
         sb.append("top:"+value+";");
         return this;
     }
-    public Style left(Size value)
+    public Style left(Length value)
     {
         sb.append("left:"+value+";");
         return this;
@@ -327,7 +330,7 @@ public class Style
         sb.append("font-weight:"+value+";");
         return this;
     }
-    public Style font_size(Size value)
+    public Style font_size(Length value)
     {
         sb.append("font-size:"+value+";");
         return this;

@@ -21,13 +21,13 @@
  ******************************************************************************/
 package org.nova.html.ext;
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.Overflow;
-import org.nova.html.attributes.position;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.properties.Color;
 import org.nova.html.properties.Display;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Overflow;
+import org.nova.html.properties.Position;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 import org.nova.html.tags.div;
 
@@ -38,12 +38,12 @@ public class ModalBackground extends GlobalEventTagElement<div>
     {
         super("div");
         Style style=new Style()
-        		.position(position.fixed)
+        		.position(Position.fixed)
         		.z_index(z_index)
-        		.left(new Size(0,Unit.px))
-           		.top(new Size(0,Unit.px))
-        		.width(new Size(100,Unit.percent))
-           		.height(new Size(100,Unit.percent))
+        		.left(new Length(0,Unit.px))
+           		.top(new Length(0,Unit.px))
+        		.width(new Length(100,Unit.percent))
+           		.height(new Length(100,Unit.percent))
            		.overflow(Overflow.auto)
            		.background_color(color);
         if (show)

@@ -32,7 +32,7 @@ import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.TableRow;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.tags.link;
 import org.nova.html.tags.script;
 

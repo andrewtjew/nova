@@ -22,17 +22,17 @@
 package org.nova.html.deprecated;
 
 import org.nova.html.attributes.Style;
-import org.nova.html.attributes.position;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Position;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 
 public class div_center extends GlobalEventTagElement<div_center>
 {
-    public div_center(Size width)
+    public div_center(Length width)
     {
         super("div");
-        style(new Style().position(position.relative).left(new Size(50,Unit.percent)).width(width).margin_left(new Size(-width.value()/2,width.unit())));
+        style(new Style().position(Position.relative).left(new Length(50,Unit.percent)).width(width).margin_left(new Length(-width.value()/2,width.unit())));
     }
     
 }

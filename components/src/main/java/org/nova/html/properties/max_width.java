@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class max_width extends SizeProperty
+public class max_width extends LengthProperty
 {
-    public max_width(Size size)
+    public max_width(Length size)
     {
         super("max-width",size);
     }
     public max_width(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public max_width(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

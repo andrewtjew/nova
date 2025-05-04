@@ -19,23 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum FlexWrap
+public class Length extends Property 
 {
-    wrap("wrap"),
-    nowrap("nowrap"),
-    wrap_reverse("wrap-reverse"),
-    inherit("inherit"),
-    ;
-    final String value;
-    FlexWrap(String value)
+    final private double value;
+    final private Unit unit;
+    public Length(double value,Unit unit,boolean important)
     {
+        if (important)
+        {
+            this.string=value+(unit!=null?unit.toString():"")+" !important";
+        }
+        else
+        {
+            this.string=value+(unit!=null?unit.toString():"");
+        }
         this.value=value;
+        this.unit=unit;
     }
-    @Override
-    public String toString()
+    public Length(double value,boolean important)
+    {
+        this(value,null,important);
+    }
+    public Length(double value)
+    {
+        this(value,false);
+    }
+    public Length(double value,Unit unit)
+    {
+        this(value,unit,false);
+    }
+    public double value()
     {
         return this.value;
+    }
+    public Unit unit()
+    {
+        return this.unit;
     }
 }

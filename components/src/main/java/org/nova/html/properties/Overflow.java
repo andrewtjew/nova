@@ -19,17 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.properties;
 
-public enum position
+public enum Overflow
 {
-    static_("static"),
-    relative("relative"),
-    fixed("fixed"),
-    absolute("absolute"),
-    ;
+    overflow("overflow"),
+    hidden("hidden"),
+    auto("auto"),
+    visible("visible"),
+    initial("initial"),
+    inherit("inherit"),
+        ;
     final String value;
-    position(String value)
+    Overflow(String value)
     {
         this.value=value;
     }

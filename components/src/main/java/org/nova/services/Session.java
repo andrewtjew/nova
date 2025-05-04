@@ -62,7 +62,7 @@ public abstract class Session
         this.user=user;
     }
     
-    public void beginSessionProcessing(Lock<String> lock)
+    public void lock(Lock<String> lock)
     {
         synchronized(this)
         {
@@ -80,7 +80,7 @@ public abstract class Session
             return lock;
         }
     }
-    public void endSessionProcessing()
+    public void unlock()
     {
         synchronized (this)
         {

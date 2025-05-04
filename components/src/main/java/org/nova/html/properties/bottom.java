@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class bottom extends PositionProperty
+public class bottom extends LengthProperty
 {
-    public bottom(Size size)
+    public bottom(Length length)
     {
-        super("bottom",size);
+        super("bottom",length);
     }
-    public bottom(double size,Unit unit)
+    public bottom(double length,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(length,unit));
     }
-    public bottom(double size)
+    public bottom(double length)
     {
-        this(new Size(size,null));
+        this(new Length(length,null));
     }
 }

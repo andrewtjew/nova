@@ -110,7 +110,7 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
         {
             sb.append(property);
         }
-        return attr("style",sb);
+        return attr("style",sb.toString());
     }
     public ELEMENT tabindex(int value)
     {

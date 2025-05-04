@@ -59,7 +59,7 @@ public class Graph
                 public SqlType getSqlType() throws Throwable
                 {
                     long value=defaultVARCHARLength;
-                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    MaxLength length=this.field.getDeclaredAnnotation(MaxLength.class);
                     if (length!=null)
                     {
                         value=length.value();
@@ -450,7 +450,7 @@ public class Graph
                 public SqlType getSqlType() throws Throwable
                 {
                     long value=defaultVARCHARLength;
-                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    MaxLength length=this.field.getDeclaredAnnotation(MaxLength.class);
                     if (length!=null)
                     {
                         value=length.value();

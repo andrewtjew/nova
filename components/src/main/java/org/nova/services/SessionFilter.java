@@ -204,7 +204,7 @@ public class SessionFilter extends Filter
                     return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
                 }
             }
-            session.beginSessionProcessing(lock);
+            session.lock(lock);
             try
             {
                 if (session.isAccessDenied(parent,context))
@@ -216,7 +216,7 @@ public class SessionFilter extends Filter
             }
             finally
             {
-                session.endSessionProcessing();
+                session.unlock();
             }
         }
         finally

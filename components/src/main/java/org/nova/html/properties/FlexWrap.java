@@ -21,40 +21,21 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-//Just the same as position but works better with properties like width and height.
-public class Size extends Position
+public enum FlexWrap
 {
-    final private boolean important;
-    public Size(double value,boolean important)
+    wrap("wrap"),
+    nowrap("nowrap"),
+    wrap_reverse("wrap-reverse"),
+    inherit("inherit"),
+    ;
+    final String value;
+    FlexWrap(String value)
     {
-        super(value);
-        this.important=important;
-    }
-    public Size(double value)
-    {
-        this(value,false);
-    }
-    public Size(double value,Unit unit,boolean important)
-    {
-        super(value,unit);
-        this.important=important;
-    }
-    public Size(double value,Unit unit)
-    {
-        this(value,unit,false);
-    }
-    public boolean important()
-    {
-        return this.important;
+        this.value=value;
     }
     @Override
     public String toString()
     {
-        if (this.important)
-        {
-            return super.toString()+" !important";
-        }
-        return super.toString();
-        
+        return this.value;
     }
 }

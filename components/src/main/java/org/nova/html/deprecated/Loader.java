@@ -23,14 +23,14 @@ package org.nova.html.deprecated;
 
 import org.nova.html.ext.Head;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 import org.nova.html.tags.div;
 import org.nova.html.tags.style;
 
 public class Loader extends div
 {
-    public Loader(Head head,Size size,Color topColor,Color bottomColor)
+    public Loader(Head head,Length size,Color topColor,Color bottomColor)
     {
         
         String key=Loader.class.getCanonicalName();
@@ -40,6 +40,6 @@ public class Loader extends div
     }
     public Loader(Head head)
     {
-        this(head,new Size(80,Unit.px),Color.rgb(0, 0, 0),Color.rgb(220, 220, 220));
+        this(head,new Length(80,Unit.px),Color.rgb(0, 0, 0),Color.rgb(220, 220, 220));
     }
 }

@@ -19,25 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.attributes;
+package org.nova.html.ext;
+import org.nova.html.tags.html;
+import org.nova.http.server.Context;
+import org.nova.http.server.Response;
+import org.nova.services.DeviceSession;
+import org.nova.tracing.Trace;
+import org.nova.html.tags.body;
 
-public enum Overflow
+public abstract class DeviceSessionPage<SESSION extends DeviceSession<?>> extends Page
 {
-    overflow("overflow"),
-    hidden("hidden"),
-    auto("auto"),
-    visible("visible"),
-    initial("initial"),
-    inherit("inherit"),
-        ;
-    final String value;
-    Overflow(String value)
+    public DeviceSessionPage()
     {
-        this.value=value;
+        super("html");
     }
-    @Override
-    public String toString()
-    {
-        return this.value;
-    }
+    public abstract Response<?> end(Trace parent,Context context,SESSION session) throws Throwable;
 }

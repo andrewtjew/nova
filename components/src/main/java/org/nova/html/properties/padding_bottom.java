@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class padding_bottom extends SizeProperty
+public class padding_bottom extends LengthProperty
 {
-    public padding_bottom(Size size)
+    public padding_bottom(Length size)
     {
         super("padding-bottom",size);
     }
     public padding_bottom(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public padding_bottom(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

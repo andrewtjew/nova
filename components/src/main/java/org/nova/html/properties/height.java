@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class height extends SizeProperty
+public class height extends LengthProperty
 {
-    public height(Size size)
+    public height(Length size)
     {
         super("height",size);
     }
     public height(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public height(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

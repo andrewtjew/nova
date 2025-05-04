@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class width extends SizeProperty
+public class width extends LengthProperty
 {
-    public width(Size size)
+    public width(Length length)
     {
-        super("width",size);
+        super("width",length);
     }
-    public width(double size,Unit unit)
+    public width(double length,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(length,unit));
     }
-    public width(double size)
+    public width(double length)
     {
-        this(new Size(size,null));
+        this(new Length(length,null));
     }
 }

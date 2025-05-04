@@ -9,7 +9,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.Text;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 
 public class SpinnerButton extends ButtonComponent<SpinnerButton>
@@ -17,7 +17,7 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     final private Spinner spinner;
     final private Span labelSpan;
 
-    public SpinnerButton(Element labelElement,SpinnerType type,Size width)
+    public SpinnerButton(Element labelElement,SpinnerType type,Length width)
     { 
         super("button");
         id();
@@ -34,7 +34,7 @@ public class SpinnerButton extends ButtonComponent<SpinnerButton>
     }
     public SpinnerButton(String label,SpinnerType type)
     {
-        this(new Text(label),type,new Size(label.length()+1,Unit.em));
+        this(new Text(label),type,new Length(label.length()+1,Unit.em));
     }
     public SpinnerButton(String label)
     {

@@ -7,7 +7,7 @@ import org.nova.html.properties.BorderStyle;
 import org.nova.html.properties.BorderBoxStyle;
 import org.nova.html.properties.Color;
 import org.nova.html.properties.BoxColor;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
 
 public class Spinner extends GlobalEventTagElement<Spinner> 
@@ -54,12 +54,12 @@ public class Spinner extends GlobalEventTagElement<Spinner>
 //
 //		return new style().addInner(sb.toString());
 //	}
-    public String style(Size size,Color color,Color background,Size borderSize,float speed)
+    public String style(Length size,Color color,Color background,Length borderSize,float speed)
     {
         StyleBuilder sb=new StyleBuilder();
         Style style=new Style();
         style.border(borderSize,new BorderBoxStyle(BorderStyle.solid),new BoxColor(background));
-        style.border_radius(new Size(50.0f,Unit.percent));
+        style.border_radius(new Length(50.0f,Unit.percent));
         style.border_top(borderSize,BorderStyle.solid,color);
         style.width(size);
         style.height(size);
@@ -85,9 +85,9 @@ public class Spinner extends GlobalEventTagElement<Spinner>
 //        return new style().addInner(sb.toString());
     }
 	
-	public String style(Size size)
+	public String style(Length size)
 	{
-		return style(size,new Color("#3498db"),new Color("#f3f3f3"),new Size(1.0f,Unit.em),2.0f);
+		return style(size,new Color("#3498db"),new Color("#f3f3f3"),new Length(1.0f,Unit.em),2.0f);
 	}
 	
 }

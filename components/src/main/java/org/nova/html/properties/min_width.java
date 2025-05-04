@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class min_width extends SizeProperty
+public class min_width extends LengthProperty
 {
-    public min_width(Size size)
+    public min_width(Length size)
     {
         super("min-width",size);
     }
     public min_width(double size,Unit unit)
     {
-        this(new Size(size,unit));
+        this(new Length(size,unit));
     }
     public min_width(double size)
     {
-        this(new Size(size,null));
+        this(new Length(size,null));
     }
 }

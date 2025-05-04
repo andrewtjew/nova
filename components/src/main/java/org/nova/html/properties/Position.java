@@ -21,46 +21,21 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class Position
+public enum Position
 {
-    final Unit unit;
-    final double value;
-    public Position(double value,Unit unit)
+    static_("static"),
+    relative("relative"),
+    fixed("fixed"),
+    absolute("absolute"),
+    ;
+    final String value;
+    Position(String value)
     {
         this.value=value;
-        this.unit=unit;
-    }
-    public Position(double value)
-    {
-        this(value,null);
     }
     @Override
     public String toString()
     {
-        if (unit!=null)
-        {
-            return this.value+this.unit.toString();
-        }
-        return Double.toString(this.value);
-        
+        return this.value;
     }
-    public double value()
-    {
-        return value;
-    }
-    public Unit unit()
-    {
-        return unit;
-    }
-    
-    /*
-    static public Size rem(double size)
-    {
-    	return new Size(size,org.nova.html.properties.unit.rem);
-    }
-    static public Size px(double size)
-    {
-        return new Size(size,org.nova.html.properties.unit.px);
-    }
-    */
 }
