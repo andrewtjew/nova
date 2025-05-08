@@ -25,8 +25,9 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.nova.annotations.Description;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.metrics.CountMeter;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 abstract public class ContentCache<KEY,VALUE>
@@ -182,7 +183,7 @@ abstract public class ContentCache<KEY,VALUE>
                 remove(key);
             }
         }
-        if (Debugging.ENABLE && DEBUG)
+        if (Debug.ENABLE && DEBUG)
         {
             Debugging.log("Cache miss:"+key+",size="+this.entries.size());
         }
@@ -198,7 +199,7 @@ abstract public class ContentCache<KEY,VALUE>
 		    return null;
 		}
 		VALUE value=put(parent,key,valueSize);
-        if (Debugging.ENABLE && DEBUG)
+        if (Debug.ENABLE && DEBUG)
         {
             Debugging.log("Cache fill:"+key+",size="+this.entries.size());
         }
@@ -317,7 +318,7 @@ abstract public class ContentCache<KEY,VALUE>
 				node.next.previous=node.previous;
 			}
 			
-			if (Debugging.ENABLE && DEBUG)
+			if (Debug.ENABLE && DEBUG)
 			{
   	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
 			}

@@ -10,8 +10,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.html.ExtensionToContentTypeMappings;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
@@ -88,7 +89,7 @@ public class FileDownloader extends ServletHandler
         }
         catch (Throwable t)
         {
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 t.printStackTrace();
             }
@@ -173,12 +174,12 @@ public class FileDownloader extends ServletHandler
             byte[] bytes=this.cache.getValueFromCache(key);
             if (bytes!=null)
             {
-                if (Debugging.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"From cache:filePath="+filePath+", length="+bytes.length);
                 }
                 write(parent, bytes, response);
-                if (Debugging.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
                 }
@@ -190,7 +191,7 @@ public class FileDownloader extends ServletHandler
         File file = new File(rootFilePath);
         if (file.isDirectory())
         {
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"File is directory:filePath="+filePath);
             }
@@ -198,7 +199,7 @@ public class FileDownloader extends ServletHandler
         }
         if (file.exists() == false)
         {
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"Not found:filePath="+filePath);
             }
@@ -206,7 +207,7 @@ public class FileDownloader extends ServletHandler
         }
         if (file.getCanonicalPath().startsWith(this.root) == false)
         {
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"Invalid file:filePath="+filePath);
             }
@@ -220,17 +221,17 @@ public class FileDownloader extends ServletHandler
                 {
                     this.cache.remove(key);
                 }            
-                if (Debugging.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Load:filePath="+filePath+", lenght="+bytes.length);
                 }
                 write(parent, bytes, response);
-                if (Debugging.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
                 }
             }
-            else if (Debugging.ENABLE && DEBUG)
+            else if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"Not in cache:filePath="+filePath);
             }

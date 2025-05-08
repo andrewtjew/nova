@@ -19,23 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.ext;
-import org.nova.html.tags.html;
-import org.nova.http.server.Context;
-import org.nova.http.server.Response;
-import org.nova.services.DeviceSession;
-import org.nova.tracing.Trace;
-import org.nova.html.tags.body;
+package org.nova.debug;
 
-public class DeviceSessionPage<SESSION extends DeviceSession<?>> extends Page
+import java.lang.reflect.Method;
+
+public abstract class Debugging
 {
-    public DeviceSessionPage()
+    abstract public void _log(LogLevel logLevel,String category,Object object);
+
+    private static Debugging DEBUGGING=new ConsoleOutDebugging();
+
+    public static void set(Debugging debuging)
     {
-        super("html");
+        DEBUGGING=debuging;
     }
-    public Response<?> end(Trace parent,Context context,SESSION session) throws Throwable
+    
+    public static void log(Object object)
     {
-        session.clearLastPageStates();
-        return null;
+        DEBUGGING._log(LogLevel.INFO,"DEBUG",object);
+    }
+    public static void log(String category,Object object)
+    {
+        DEBUGGING._log(LogLevel.INFO,category,object);
+    }
+    public static void log(String category,Object object,LogLevel logLevel)
+    {
+        DEBUGGING._log(logLevel,category,object);
+    }
+    
+    public static String toString(Method method)
+    {
+        return method.getDeclaringClass().getName()+"."+method.getName();
     }
 }

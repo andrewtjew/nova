@@ -19,38 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.testing;
+package org.nova.debug;
 
-import java.lang.reflect.Method;
+import org.nova.http.client.JSONClient;
+import org.nova.tracing.TraceManager;
 
-public abstract class Debugging
+public class TraceClient
 {
-    abstract public void _log(LogLevel logLevel,String category,Object object);
+	public static String SERVER="http://localhost:9111";
+	
+	private final JSONClient client; 
+	
+	public TraceClient(String serverEndPoint) throws Throwable
+	{
+		this.client=new JSONClient(new TraceManager(), null,serverEndPoint);
+	}
 
-    private static Debugging DEBUGGING=new ConsoleOutDebugging();
-
-    final public static boolean ENABLE=true;
-    
-    public static void set(Debugging debuging)
-    {
-        DEBUGGING=debuging;
-    }
-    
-    public static void log(Object object)
-    {
-        DEBUGGING._log(LogLevel.INFO,"DEBUG",object);
-    }
-    public static void log(String category,Object object)
-    {
-        DEBUGGING._log(LogLevel.INFO,category,object);
-    }
-    public static void log(String category,Object object,LogLevel logLevel)
-    {
-        DEBUGGING._log(logLevel,category,object);
-    }
-    
-    public static String toString(Method method)
-    {
-        return method.getDeclaringClass().getName()+"."+method.getName();
-    }
+	public void log(String text)
+	{
+		try
+		{
+			this.client.put(null, null, "/log", text);
+			
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

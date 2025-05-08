@@ -1,4 +1,4 @@
-package org.nova.testing;
+package org.nova.debug;
 
 public class ConsoleOutDebugging extends Debugging
 {

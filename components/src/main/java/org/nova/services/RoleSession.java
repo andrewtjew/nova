@@ -29,9 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.nova.core.NameObject;
+import org.nova.debug.Debugging;
 import org.nova.http.server.Context;
 import org.nova.http.server.RequestHandler;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -177,7 +177,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         if (requiredRoles.value().length==0)
         {
-//            if (Debugging.ENABLE && DEBUG)
+//            if (Debug.ENABLE && DEBUG)
 //            {
 //                System.err.println("No Roles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
 //            }

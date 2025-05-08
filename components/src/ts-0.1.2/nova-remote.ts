@@ -490,6 +490,22 @@ namespace nova.remote
                         document.getElementById(parameters[0]).innerText=parameters[1];
                         break;
                                 
+                        case "prepend":
+                        document.getElementById(parameters[0]).prepend(parameters[1]);
+                        break;
+                                
+                        case "append":
+                        document.getElementById(parameters[0]).append(parameters[1]);
+                        break;
+                                
+                        case "before":
+                        document.getElementById(parameters[0]).before(parameters[1]);
+                        break;
+                                
+                        case "after":
+                        document.getElementById(parameters[0]).after(parameters[1]);
+                        break;
+                                
                         case "value":
                             (document.getElementById(parameters[0]) as HTMLInputElement).value=parameters[1];
                             break;

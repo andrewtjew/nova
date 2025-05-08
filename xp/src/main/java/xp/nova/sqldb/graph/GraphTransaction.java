@@ -1,6 +1,8 @@
 package xp.nova.sqldb.graph;
 
 import java.sql.Timestamp;
+
+import org.nova.debug.Debugging;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;
@@ -8,7 +10,6 @@ import org.nova.sqldb.RowSet;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.sqldb.Transaction;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 public class GraphTransaction implements AutoCloseable

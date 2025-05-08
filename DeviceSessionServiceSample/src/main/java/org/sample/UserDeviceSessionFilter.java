@@ -69,13 +69,6 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     }
 
     @Override
-    protected void logPage(Trace parent, UserSession session, Context context, DeviceSessionPage page) throws Throwable
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     protected Response<?> handleInvalidQuery(Trace parent, Context context) throws Throwable
     {
         // TODO Auto-generated method stub

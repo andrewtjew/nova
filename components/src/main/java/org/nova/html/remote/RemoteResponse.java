@@ -123,6 +123,30 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
         return this;
     }
+    public RemoteResponse prepend(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.prepend,id,text));
+        return this;
+    }
+    public RemoteResponse append(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.append,id,text));
+        return this;
+    }
+    public RemoteResponse before(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.before,id,text));
+        return this;
+    }
+    public RemoteResponse after(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.after,id,text));
+        return this;
+    }
     public RemoteResponse script(String script)
     {
         if (script!=null)

@@ -27,9 +27,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
-import org.nova.testing.Debugging;
 
 
 public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement<ELEMENT>
@@ -51,7 +52,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
         this.attributes=new HashMap<>();
-        if (Debugging.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
+        if (Debug.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
         {
             StackTraceElement[] stackTraceElements=Thread.currentThread().getStackTrace();
             StringBuilder sb=new StringBuilder();

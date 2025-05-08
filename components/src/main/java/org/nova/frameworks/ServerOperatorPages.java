@@ -58,6 +58,8 @@ import org.nova.concurrent.Progress;
 import org.nova.concurrent.TimerTask;
 import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.flow.Tapper;
 import org.nova.html.tags.a;
 import org.nova.html.tags.br;
@@ -211,7 +213,6 @@ import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
-import org.nova.testing.Debugging;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -4950,7 +4951,7 @@ public class ServerOperatorPages
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
         .add("Base Directory",this.serverApplication.getBaseDirectory())
         .add("SAFE_ESCAPE",Text.SAFE_ESCAPE)
-        .add("Debugging.ENABLE",Debugging.ENABLE)
+        .add("Debug.ENABLE",Debug.ENABLE)
         .add("OS",System.getProperty("os.name"));
      
         try

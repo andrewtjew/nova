@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.nova.debug.Debugging;
 import org.nova.logging.Logger;
 import org.nova.metrics.LongValueMeter;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
