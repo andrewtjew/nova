@@ -36,13 +36,13 @@ import org.nova.html.remoting.CallBuilder;
 import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.http.client.PathAndQuery;
 
 
 public class RemotingInputPopover extends Popover    
 {
-	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Size width,PathAndQuery pathAndQuery,InputElement<?> inputElement,GlobalEventTagElement<?> acceptButton,GlobalEventTagElement<?> dismissButton,Placement placement) throws Throwable
+	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Length width,PathAndQuery pathAndQuery,InputElement<?> inputElement,GlobalEventTagElement<?> acceptButton,GlobalEventTagElement<?> dismissButton,Placement placement) throws Throwable
 	{
 		super(toggler);
 		RemotingInputPopover container=this;//.returnAddInner(new Item());
@@ -85,7 +85,7 @@ public class RemotingInputPopover extends Popover
         toggler.addInner(new script().addInner(shownScript));
 		
 	}
-	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Size width,PathAndQuery pathAndQuery,InputElement<?> inputElement,Placement placement) throws Throwable
+	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Length width,PathAndQuery pathAndQuery,InputElement<?> inputElement,Placement placement) throws Throwable
 	{
 		this(toggler,background,width,pathAndQuery,inputElement
 				,new Button().ml(1).color(StyleColor.success).addInner("&#x2713;")
@@ -93,7 +93,7 @@ public class RemotingInputPopover extends Popover
 				,placement
 				);
 	}
-	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Size width,PathAndQuery pathAndQuery,InputElement<?> inputElement) throws Throwable
+	public RemotingInputPopover(TagElement<?> toggler,ModalBackground background,Length width,PathAndQuery pathAndQuery,InputElement<?> inputElement) throws Throwable
 	{
 		this(toggler,background,width,pathAndQuery,inputElement,Placement.right);
 	}

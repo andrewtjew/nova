@@ -40,8 +40,6 @@ import org.nova.html.properties.TextDecoration;
 import org.nova.html.properties.VerticalAlign;
 import org.nova.html.properties.WhiteSpace;
 
-//Use attribute classes instead, like Width for width
-@Deprecated
 public class Style
 {
     final private StringBuilder sb;

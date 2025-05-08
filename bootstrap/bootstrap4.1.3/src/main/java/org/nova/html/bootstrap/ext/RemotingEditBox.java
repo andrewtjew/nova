@@ -41,12 +41,12 @@ import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
 import org.nova.html.properties.Display;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.http.client.PathAndQuery;
 
 public class RemotingEditBox extends StyleComponent<RemotingEditBox>   
 {
-	public RemotingEditBox(ModalBackground background,Size width,StyleComponent<?> valueElement,PathAndQuery pathAndQuery,InputElement<?> inputElement,GlobalEventTagElement<?> editButton,GlobalEventTagElement<?> acceptButton,GlobalEventTagElement<?> dismissButton,boolean editBottom) throws Throwable
+	public RemotingEditBox(ModalBackground background,Length width,StyleComponent<?> valueElement,PathAndQuery pathAndQuery,InputElement<?> inputElement,GlobalEventTagElement<?> editButton,GlobalEventTagElement<?> acceptButton,GlobalEventTagElement<?> dismissButton,boolean editBottom) throws Throwable
 	{
         super("div",null);
 //		style(new Style().z_index(background.z_index()+1).width(width));
@@ -117,7 +117,7 @@ public class RemotingEditBox extends StyleComponent<RemotingEditBox>
 
 
 	}
-	public RemotingEditBox(ModalBackground background,Size width,StyleComponent<?> valueElement,PathAndQuery pathAndQuery,InputElement<?> inputElement,boolean editBottom) throws Throwable
+	public RemotingEditBox(ModalBackground background,Length width,StyleComponent<?> valueElement,PathAndQuery pathAndQuery,InputElement<?> inputElement,boolean editBottom) throws Throwable
 	{
 		this(background,width,valueElement,pathAndQuery,inputElement
 				,new Button().ml(1).color(StyleColor.secondary).addInner("&#x270F;")
@@ -126,7 +126,7 @@ public class RemotingEditBox extends StyleComponent<RemotingEditBox>
 				,editBottom
 				);
 	}
-	public RemotingEditBox(ModalBackground background,Size width,Object value,PathAndQuery pathAndQuery,InputElement<?> inputElement) throws Throwable
+	public RemotingEditBox(ModalBackground background,Length width,Object value,PathAndQuery pathAndQuery,InputElement<?> inputElement) throws Throwable
 	{
 		this(background,width,new Item().m(2).text(TextStyle.truncate).addInner(value),pathAndQuery,inputElement,false);
 	}

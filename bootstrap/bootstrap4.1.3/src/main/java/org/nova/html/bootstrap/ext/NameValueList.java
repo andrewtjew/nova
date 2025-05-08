@@ -27,15 +27,15 @@ import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
-import org.nova.html.properties.Size;
+import org.nova.html.properties.Length;
 import org.nova.html.tags.b;
 
 
 public class NameValueList extends StyleComponent<NameValueList>
 {
-    final private Size width;
+    final private Length width;
 
-    public NameValueList(Size width)
+    public NameValueList(Length width)
     {
         super("div",null);
         this.width=width;
