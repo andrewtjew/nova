@@ -12,6 +12,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
@@ -21,7 +23,6 @@ import org.nova.http.server.Context;
 import org.nova.http.server.RequestHandler;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
@@ -35,6 +36,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     protected HashMap<String,Object> pageStates;
     protected HashMap<String,Object> newPageStates;
     protected Stack<String> continuations;
+    protected Stack<String> newContinuations;
     
     final protected ZoneId zoneId;
     final private long deviceSessionId;
@@ -76,6 +78,8 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         this.zoneId=zoneId;
         this.pageStates=new HashMap<String, Object>();
         this.newPageStates=null;
+        this.continuations=new Stack<String>();
+        this.newContinuations=null;
     }
     
     public long getDeviceSessionId()
@@ -97,26 +101,24 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         setState(element.id(), element);
     }
     
-    public void updateStates(boolean pageRequest)
+    public void clearLastPageStates()
     {
-        if (pageRequest)
+        if (this.newPageStates!=null)
         {
-            if (this.newPageStates!=null)
-            {
-                this.pageStates=this.newPageStates;
-                this.newPageStates=null;
-            }
-        }
-        else
-        {
+            this.pageStates=this.newPageStates;
             this.newPageStates=null;
+        }
+        if (this.newContinuations!=null)
+        {
+            this.continuations=this.newContinuations;
+            this.newContinuations=null;
         }
     }
 
     @SuppressWarnings("unused")
     public <T> T getPageState(String key)
     {
-        if (Debugging.ENABLE && DEBUG && DEBUG_PAGESTATE)
+        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
             if (this.pageStates.containsKey(key)==false)
             {
@@ -147,7 +149,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             }
             this.newPageStates.put(key, state);
             this.pageStates.put(key, state);
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
             }            
@@ -220,14 +222,15 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return STATE_KEY;
     }
     
-    public String pushContinuation(String action)
+    public String pushContinuation(String script)
     {
-        if (this.continuations==null)
+        if (this.newContinuations==null)
         {
-            this.continuations=new Stack<String>();
+            this.newContinuations=new Stack<String>();
         }
-        this.continuations.push(action);
-        return action;
+        this.newContinuations.push(script);
+        this.continuations.push(script);
+        return script;
     }
     public String pushContinuation(Context context)
     {
@@ -241,18 +244,12 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     
     public void clearContinuations()
     {
-        if (this.continuations!=null)
-        {
-            this.continuations.clear();
-        }
+        this.continuations.clear();
+        this.newContinuations=null;
     }
     
     public String popContinuation()
     {
-        if (this.continuations==null)
-        {
-            return null;
-        }
         if (this.continuations.size()==0)
         {
             return null;

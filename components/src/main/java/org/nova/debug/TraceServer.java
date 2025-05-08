@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.testing;
+package org.nova.debug;
 
 import javax.ws.rs.POST;
 
@@ -37,12 +37,12 @@ import org.nova.http.server.annotations.Path;
 import org.nova.logging.LogUtils;
 import org.nova.tracing.TraceManager;
 
-public class TestTraceServer
+public class TraceServer
 {
 	final private HttpServer server;
 	final private int maximumMessages;
 	
-	public TestTraceServer(int maximumMessages,int threads,int port) throws Throwable
+	public TraceServer(int maximumMessages,int threads,int port) throws Throwable
 	{
 		this.maximumMessages=maximumMessages;
         this.server=new HttpServer(new TraceManager(), LogUtils.createConsoleLogger(),false,new HttpServerConfiguration());
@@ -58,7 +58,7 @@ public class TestTraceServer
 		httpTransport.start();
 	}
 
-	public TestTraceServer() throws Throwable
+	public TraceServer() throws Throwable
 	{
 		this(10000,10,9111);
 	}

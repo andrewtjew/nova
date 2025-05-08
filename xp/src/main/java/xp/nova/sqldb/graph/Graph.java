@@ -14,12 +14,13 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.nova.collections.ContentCache.ValueSize;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.metrics.CountMeter;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -786,7 +787,7 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log("Graph",sql);
             }
@@ -800,7 +801,7 @@ public class Graph
             String after="_transactionId";
             Stack<String> alters=new Stack<String>();
 
-            if (Debugging.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG)
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
@@ -877,7 +878,7 @@ public class Graph
                         if (rowIndex<=rowSet.size()-1)
                         {
                             rowIndex++;
-                            if (Debugging.ENABLE && DEBUG)
+                            if (Debug.ENABLE && DEBUG)
                             {
                                 Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
                             }
@@ -901,7 +902,7 @@ public class Graph
                     
                 }
                 sql.append(';');
-                if (Debugging.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log("Graph",sql);
                 }
@@ -958,14 +959,14 @@ public class Graph
         {
             if (caching==false)
             {
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
                 }
                 return null;
             }
             ValueSize<QueryResultSet> valueSize=this.queryResultSetCache.getFromCache(key);
-            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 if (valueSize==null)
                 {
@@ -1010,7 +1011,7 @@ public class Graph
                     typeNameCacheSet=new HashSet<QueryKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
                 }
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
                 }
@@ -1033,7 +1034,7 @@ public class Graph
                 }
             }
             this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
-            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
             }
@@ -1061,7 +1062,7 @@ public class Graph
     void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
         var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
-        if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+        if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
         {
             Debugging.log("Graph Cache:invalidate cached table "+typeName);
         }
@@ -1071,7 +1072,7 @@ public class Graph
             {
                 QueryResultSet resultSet=this.queryResultSetCache.remove(key);
                 evict(parent,key,resultSet);
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("invalidateCacheLines: sql="+key.preparedQuery.sql);
                 }
@@ -1087,7 +1088,7 @@ public class Graph
         {
             for (String typeName:typeNameSet)
             {
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
                 }
@@ -1163,14 +1164,14 @@ public class Graph
         {
             if (caching==false)
             {
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
                 }
                 return null;
             }
             ValueSize<Long> valueSize=this.countCache.getFromCache(key);
-            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 if (valueSize==null)
                 {
@@ -1215,14 +1216,14 @@ public class Graph
                     typeNameCacheSet=new HashSet<QueryKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
                 }
-                if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
                 }
                 typeNameCacheSet.add(key);
             }
             this.countCache.put(parent,key, new ValueSize<Long>(count));
-            if (Debugging.ENABLE && DEBUG && DEBUG_CACHING)
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
             }

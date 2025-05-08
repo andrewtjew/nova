@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
@@ -21,7 +23,6 @@ import org.nova.http.server.RequestHandler;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
 import org.nova.services.RoleSession.AccessResult;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -129,7 +130,6 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             session.lock(lock);
         }
         
-        boolean keepStateAlive=false; 
         try
         {
             if (session.verifyQuery(context)==false)
@@ -140,7 +140,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             AccessResult result=session.isAccessDenied(handler);
             if (result.denied)
             {
-                if (Debugging.ENABLE && DEBUG && DEBUG_ACCESS)
+                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
                     Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+handler.getKey()+", method="+Debugging.toString(handler.getMethod()));
                 }
@@ -168,21 +168,17 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                     @SuppressWarnings("unchecked")
                     DeviceSessionPage<SESSION> page=(DeviceSessionPage<SESSION>)content;
                     page.end(parent, context, session);
-                    keepStateAlive=true;
-                    logPage(parent,session,context,page);
                 }
             }
             return response;
         }
         catch (Throwable t)
         {
-            Response.seeOther("/");
             parent.close(t);
             return handleException(parent, context, parent.getThrowable());
         }
         finally
         {
-            session.updateStates(keepStateAlive);
             session.unlock();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
@@ -196,8 +192,4 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;
-	abstract protected void logPage(Trace parent,SESSION session,Context context,DeviceSessionPage page) throws Throwable;
-	
-	
-	
 }

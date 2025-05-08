@@ -19,34 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.testing;
+package org.nova.debug;
 
-import org.nova.http.client.JSONClient;
-import org.nova.tracing.TraceManager;
 
-public class TestTraceClient
+public class Debug
 {
-	public static String SERVER="http://localhost:9111";
-	
-	private final JSONClient client; 
-	
-	public TestTraceClient(String serverEndPoint) throws Throwable
-	{
-		this.client=new JSONClient(new TraceManager(), null,serverEndPoint);
-	}
-
-	public void log(String text)
-	{
-		try
-		{
-			this.client.put(null, null, "/log", text);
-			
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	
+    //ENABLE can be changed by build tools
+    final public static boolean ENABLE=true;
 }

@@ -1,10 +1,11 @@
 package xp.nova.sqldb.graph;
 
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.json.ObjectMapper;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.RowSet;
-import org.nova.testing.Debugging;
-import org.nova.testing.LogLevel;
 import org.nova.tracing.Trace;
 
 public class GraphAccessor implements AutoCloseable
@@ -102,7 +103,7 @@ public class GraphAccessor implements AutoCloseable
         var valueSize=this.graph.getFromCache(key);
         if (valueSize!=null)
         {
-            if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
             {
                 QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
                 QueryResultSet cachedResultSet=valueSize.value();
@@ -119,7 +120,7 @@ public class GraphAccessor implements AutoCloseable
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             QueryResultSet queryResultSet=_execute(trace, preparedQuery,parameters,startNodeId);
-            if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
+            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
                 Debugging.log("Graph","cache miss",LogLevel.WARNING);
             }
@@ -151,7 +152,7 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
+        if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
             StringBuilder debug=new StringBuilder(sql);
             if ((parameters!=null)&&(parameters.length>0))
@@ -181,7 +182,7 @@ public class GraphAccessor implements AutoCloseable
         {
             rowSet = accessor.executeQuery(parent, null, sql);
         }
-        if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
+        if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
             Debugging.log("GraphAccessor.query.rows",rowSet.size());
         }
@@ -229,7 +230,7 @@ public class GraphAccessor implements AutoCloseable
         var valueSize=this.graph.getFromCountCache(key);
         if (valueSize!=null)
         {
-            if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
             {
                 long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
                 if (count==valueSize.value()==false)
@@ -244,7 +245,7 @@ public class GraphAccessor implements AutoCloseable
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             long count=_executeCount(trace, preparedQuery,parameters,startNodeId);
-            if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
+            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
                 Debugging.log("Graph","cache miss",LogLevel.WARNING);
             }
@@ -276,7 +277,7 @@ public class GraphAccessor implements AutoCloseable
         }
         String sql=sb.toString();
         RowSet rowSet;
-        if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
+        if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
             StringBuilder debug=new StringBuilder(sql);
             if ((parameters!=null)&&(parameters.length>0))
@@ -306,7 +307,7 @@ public class GraphAccessor implements AutoCloseable
         {
             rowSet = accessor.executeQuery(parent, null, sql);
         }
-        if (Debugging.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
+        if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
             Debugging.log("GraphAccessor.count.value",rowSet.size());
         }

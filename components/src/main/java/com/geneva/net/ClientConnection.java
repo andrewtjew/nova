@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import org.nova.concurrent.Synchronization;
-import org.nova.testing.Debugging;
+import org.nova.debug.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 

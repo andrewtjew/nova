@@ -30,6 +30,10 @@ public class img extends GlobalEventTagElement<img>
     {
         super("img",true);
     }
+    public img(boolean noEndTag)
+    {
+        super("img",noEndTag);
+    }
     
     public img alt(String text)
     {
