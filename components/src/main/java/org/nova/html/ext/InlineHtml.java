@@ -25,15 +25,15 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
 //The literal html text is added. No translations, eg tags in text appear as html elements 
-public class LiteralHtml extends Element
+public class InlineHtml extends Element
 {
     final private String html;
-    public LiteralHtml(String html)
+    public InlineHtml(String html)
     {
         super();
         this.html=html;
     }
-    public LiteralHtml(Object object)
+    public InlineHtml(Object object)
     {
         super();
         if (object!=null)

@@ -4,7 +4,7 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.FormElement;
 import org.nova.html.enums.enctype;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.InlineHtml;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.BrotliContentEncoder;
@@ -69,7 +69,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         }
         else
         {
-            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
+            returnAddInner(new script()).addInner(new InlineHtml(js_script));
         }
     }
     public RemoteResponse render(RemoteResponse response) throws Throwable

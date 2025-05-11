@@ -23,7 +23,7 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.InlineHtml;
 import org.nova.html.tags.script;
 
 public class Popover extends TipComponent<Popover> 
@@ -42,7 +42,7 @@ public class Popover extends TipComponent<Popover>
     }
     public script script_popover(TipOption option)
     {
-        return new script().addInner(new LiteralHtml(js_popover(option)));
+        return new script().addInner(new InlineHtml(js_popover(option)));
     }
     public String js_popover()
     {
@@ -51,12 +51,12 @@ public class Popover extends TipComponent<Popover>
 
     public script script_popover()
     {
-        return new script().addInner(new LiteralHtml(js_popover()));
+        return new script().addInner(new InlineHtml(js_popover()));
     }
     
     public static script script_readyAll()
     {
-        return new script().addInner(new LiteralHtml(js_readyAll()));
+        return new script().addInner(new InlineHtml(js_readyAll()));
     }
     public static String js_readyAll()
     {
@@ -64,7 +64,7 @@ public class Popover extends TipComponent<Popover>
     }
     public static script script_dismiss()
     {
-        return new script().addInner(new LiteralHtml("var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {trigger: 'focus'});"));
+        return new script().addInner(new InlineHtml("var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {trigger: 'focus'});"));
     }
 
     

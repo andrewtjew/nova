@@ -230,7 +230,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
                 if (websocket)
                 {
-                    this.websocketPublicTransport=new WebSocketTransport("/ws_hello", this.publicServer, servers);
+                    this.websocketPublicTransport=new WebSocketTransport("/wstest", this.publicServer, servers);
                 }
                 else
                 {

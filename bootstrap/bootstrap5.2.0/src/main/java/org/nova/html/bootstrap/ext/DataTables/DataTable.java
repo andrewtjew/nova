@@ -30,7 +30,7 @@ import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
-import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.InlineHtml;
 import org.nova.html.ext.TableRow;
 import org.nova.html.properties.Length;
 import org.nova.html.tags.link;
@@ -116,7 +116,7 @@ public class DataTable  extends StyleComponent<DataTable>
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        script script=new script().addInner(new LiteralHtml(js_ready()));
+        script script=new script().addInner(new InlineHtml(js_ready()));
         composer.getStringBuilder().append(script.getHtml());
         super.compose(composer);
     }

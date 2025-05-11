@@ -131,7 +131,7 @@ import org.nova.html.ext.Content;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.InlineHtml;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.Refresher;
@@ -260,7 +260,7 @@ public class ServerOperatorPages
             table().style("width:100%;");
         }
     }
-    final static LiteralHtml WARNING=new LiteralHtml("&#9888;");
+    final static InlineHtml WARNING=new InlineHtml("&#9888;");
     final private FileCache fileCache;
 
     public final ServerApplication serverApplication;
@@ -647,7 +647,7 @@ public class ServerOperatorPages
         input_checkbox checkBox=label.returnAddInner(new input_checkbox());
         checkBox.name("overwrite");
         label.addInner("Overwrite");
-        form.addInner(new LiteralHtml("Buffer capacity:&nbsp;"));
+        form.addInner(new InlineHtml("Buffer capacity:&nbsp;"));
         input_number capacityInput=form.returnAddInner(new input_number());
         capacityInput.name("capacity");
         capacityInput.min(1).max(1000).value(capacity);
@@ -686,7 +686,7 @@ public class ServerOperatorPages
             td td=new td();
             String name=file.getName();
             input_checkbox checkbox=td.returnAddInner(new input_checkbox().name("file_"+name));
-            td.addInner(new label().addInner(new LiteralHtml("&nbsp;"+name)).for_(checkbox));
+            td.addInner(new label().addInner(new InlineHtml("&nbsp;"+name)).for_(checkbox));
             row.add(td);
             
             if (index==4)
@@ -722,7 +722,7 @@ public class ServerOperatorPages
             {
                 SourceQueueLogger sourceQueueLogger=(SourceQueueLogger)item;
                 div div=new div();
-                div.addInner(new LiteralHtml(sourceQueueLogger.isActive()+"&nbsp;"));
+                div.addInner(new InlineHtml(sourceQueueLogger.isActive()+"&nbsp;"));
                 if (sourceQueueLogger.isActive())
                 {
                     div.addInner(new button_button()
@@ -1289,11 +1289,11 @@ public class ServerOperatorPages
             {
                 if (nodeActiveNs==hotActiveNs)
                 {                
-                    content.addInner(new span().addInner(new LiteralHtml("&#128293; ")));
+                    content.addInner(new span().addInner(new InlineHtml("&#128293; ")));
                 }
                 if (nodeWaitNs==hotWaitNs)
                 {
-                    content.addInner(new span().addInner(new LiteralHtml("&#x1F4A4; ")));
+                    content.addInner(new span().addInner(new InlineHtml("&#x1F4A4; ")));
                 }
             }
         }
@@ -1615,7 +1615,7 @@ public class ServerOperatorPages
         }
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new InlineHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new InlineHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 
         return page;
     }
@@ -1676,14 +1676,14 @@ public class ServerOperatorPages
         }
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new InlineHtml("&nbsp;")).addInner(new input_submit().value("Set")).addInner(new InlineHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 
         if (traceManager.isEnableLastTraceWatching())
         {
             form_post disableForm=page.content().returnAddInner(new form_post()).action("/operator/tracing/watchList/disable");
             fieldset disableFieldset=disableForm.returnAddInner(new fieldset());
             disableFieldset.addInner(new legend().addInner("Disable trace watching"));
-            disableFieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new LiteralHtml("&nbsp;")).addInner(new input_submit().value("Disable"));
+            disableFieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new InlineHtml("&nbsp;")).addInner(new input_submit().value("Disable"));
         }        
         return page;
     }
@@ -1954,19 +1954,19 @@ public class ServerOperatorPages
         header.add(new th_title("Rate","Trace rate (per second)"));
         header.add(new th_title("Ct","Sample count"));
 
-        header.add(new th_title(new LiteralHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Average trace duration in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
-        header.add(new th_title(new LiteralHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
-        header.add(new th_title(new LiteralHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
+        header.add(new th_title(new InlineHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
+        header.add(new th_title(new InlineHtml("Ave&#x23F1;"),"Average trace duration in milliseconds"));
+        header.add(new th_title(new InlineHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
+        header.add(new th_title(new InlineHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
+        header.add(new th_title(new InlineHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
 
-        header.add(new th_title(new LiteralHtml("Tot&#8987;"),"Total trace wait in category in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Ave&#8987;"),"Average trace wait in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Std&#8987;"),"Standard deviation of trace wait in milliseconds"));
-        header.add(new th_title(new LiteralHtml("min&#8987;"),"Minimum trace wait in milliseconds"));
-        header.add(new th_title(new LiteralHtml("max&#8987;"),"Maximum trace wait in milliseconds"));
+        header.add(new th_title(new InlineHtml("Tot&#8987;"),"Total trace wait in category in milliseconds"));
+        header.add(new th_title(new InlineHtml("Ave&#8987;"),"Average trace wait in milliseconds"));
+        header.add(new th_title(new InlineHtml("Std&#8987;"),"Standard deviation of trace wait in milliseconds"));
+        header.add(new th_title(new InlineHtml("min&#8987;"),"Minimum trace wait in milliseconds"));
+        header.add(new th_title(new InlineHtml("max&#8987;"),"Maximum trace wait in milliseconds"));
 
-        header.add(new th_title(new LiteralHtml("&#9888;"),"Exception count and rate (in popup)"));
+        header.add(new th_title(new InlineHtml("&#9888;"),"Exception count and rate (in popup)"));
     }
     
     static final Style ATTENTION_STYLE=new Style().background_color(Color.rgb(255, 255, 192));
@@ -2149,12 +2149,12 @@ public class ServerOperatorPages
         }
         form.addInner(new hr());
         form.returnAddInner(new input_checkbox()).name("checkSelected");
-        form.addInner(new LiteralHtml("&nbsp;"));
+        form.addInner(new InlineHtml("&nbsp;"));
         form.returnAddInner(new input_submit()).value("Reset Selected Meters").name("resetSelected");
-        form.addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+        form.addInner(new InlineHtml("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 
         form.returnAddInner(new input_checkbox()).name("checkAll");
-        form.addInner(new LiteralHtml("&nbsp;"));
+        form.addInner(new InlineHtml("&nbsp;"));
         form.returnAddInner(new input_submit()).value("Reset All Meters").name("resetAll");
         
         
@@ -2523,7 +2523,7 @@ public class ServerOperatorPages
         addInner(" ms. Performance overhead depends on number of traces logged and ranges from minimal to high.");
         
         fieldset.returnAddInner(new hr());
-        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new input_submit().value("Change")).addInner(new LiteralHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
+        fieldset.returnAddInner(new p()).addInner(new input_checkbox().name("change")).addInner(new input_submit().value("Change")).addInner(new InlineHtml("&nbsp;&nbsp;&nbsp;")).addInner(new input_reset());
 //        fieldset.returnAddInner(new p()).addInner(new input_checkbox().checked(traceManager.isEnableWatchListLastTraces()).name("isEnableWatchListLastTraces").addInner(("Enable watch list of last traces. Performance overhead: Low")));
         return page;
     }
@@ -2589,14 +2589,14 @@ public class ServerOperatorPages
         page.content().addInner(new a().addInner("View settings.").href("/operator/tracing/settings")
     */
     
-    private LiteralHtml toLiteralHtml(StackTraceElement[] elements, int start)
+    private InlineHtml toLiteralHtml(StackTraceElement[] elements, int start)
     {
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < elements.length; i++)
         {
             sb.append("at " + elements[i].toString() + "<br/>");
         }
-        return new LiteralHtml(sb.toString());
+        return new InlineHtml(sb.toString());
     }
 
 
@@ -3133,7 +3133,7 @@ public class ServerOperatorPages
 //        {
 //            text=HtmlUtils.toHtmlText(text);
 //        }
-        textAccodion.content().addInner(new textarea().readonly().style("width:100%;").addInner(new LiteralHtml(text)).rows(rows));
+        textAccodion.content().addInner(new textarea().readonly().style("width:100%;").addInner(new InlineHtml(text)).rows(rows));
     }
     
 //    private void writeRequest(OperatorDataTable dataTable,OperatorPage page,RequestLogEntry entry) throws Exception
@@ -4270,7 +4270,7 @@ public class ServerOperatorPages
         textarea.id();
         String id=textarea.id();
         
-        button_button button=new button_button().addInner(new LiteralHtml("&#128203;")).title("Copy to clipboard");
+        button_button button=new button_button().addInner(new InlineHtml("&#128203;")).title("Copy to clipboard");
         button.onclick("var copyText=document.getElementById('"+id+"');copyText.select();document.execCommand('Copy');");
         
         
