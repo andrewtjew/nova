@@ -21,16 +21,28 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.IOException;
 import java.util.HashMap;
+
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.nova.html.tags.body;
+import org.nova.html.tags.h1;
+import org.nova.html.tags.html;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class WebSocketTransport 
 {
@@ -91,7 +103,7 @@ public class WebSocketTransport
             factory.setMaxTextMessageSize(1048576);
 
             // Add the WebSocket endpoint.
-            factory.addMapping("/ws/someURI", (upgradeRequest, upgradeResponse) ->
+            factory.addMapping("/ws/echo", (upgradeRequest, upgradeResponse) ->
             {
                 // Possibly inspect the upgrade request and modify the upgrade response.
 
@@ -100,20 +112,45 @@ public class WebSocketTransport
             });
         }
     }	
+    
+    static class TestHandler extends AbstractHandler
+    {
+
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
+        {
+            if ("/hello".equals(target))
+            {
+                html html=new html();
+                body body=html.returnAddInner(new body());
+                body.returnAddInner(new h1()).addInner("Hello:"+System.currentTimeMillis());
+                
+            }
+        }
+        
+    }
+    
 	public WebSocketTransport(String path,HttpServer httpServer,Server[] servers) throws Exception
 	{
 	 // Create a Server with a ServerConnector listening on port 8080.
-	    Server server = new Server(8080);
+	    Server server = new Server(18080);
 
 	    // Create a ServletContextHandler with the given context path.
-	    ServletContextHandler handler = new ServletContextHandler(server, "/ctx");
+	    ServletContextHandler handler = new ServletContextHandler(server, "/");
 	    server.setHandler(handler);
 
-	    // Setup the JettyWebSocketServerContainer to initialize WebSocket components.
-	    JettyWebSocketServletContainerInitializer.configure(handler, null);
+	    JettyWebSocketServletContainerInitializer.configure(handler, (servletContext, container) ->
+	    {
+	        // Configure the ServerContainer.
+	        container.setMaxTextMessageSize(128 * 1024);
 
-	    // Add your WebSocketServlet subclass to the ServletContextHandler.
-	    handler.addServlet(MyJettyWebSocketServlet.class, "/ws/*");
+	        // Use JettyWebSocketCreator to have more control on the WebSocket endpoint creation.
+	        container.addMapping("/ws/echo", (upgradeRequest, upgradeResponse) ->
+	        {
+	            // Create the new WebSocket endpoint.
+	            return new Listener(null);
+	        });
+	    });
 
 	    // Starting the Server will start the ServletContextHandler.
 	    server.start();	}
