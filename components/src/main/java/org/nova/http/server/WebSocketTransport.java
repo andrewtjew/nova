@@ -28,19 +28,24 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.body;
 import org.nova.html.tags.h1;
 import org.nova.html.tags.html;
+import org.nova.html.tags.script;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -63,6 +68,9 @@ public class WebSocketTransport
         public void onWebSocketConnect(Session session)
         {
             this.session=session;
+            var headers=session.getUpgradeRequest().getHeaders();
+            var cookies=session.getUpgradeRequest().getCookies();
+            System.out.println(session.getUpgradeRequest().getCookies());
         }
 
         @Override
@@ -121,10 +129,21 @@ public class WebSocketTransport
         {
             if ("/hello".equals(target))
             {
+                Cookie cookie = new Cookie("X-WS-TEST", "Hello2");
+                cookie.setPath("/");
+                response.addCookie(cookie);
                 html html=new html();
                 body body=html.returnAddInner(new body());
                 body.returnAddInner(new h1()).addInner("Hello:"+System.currentTimeMillis());
                 
+                body.returnAddInner(new script()).addInner(new LiteralHtml("var webSocket = new WebSocket('ws://localhost:18080/ws/echo');webSocket.onopen = function () { webSocket.send(JSON.stringify('hello'));}"));
+                response.getWriter().write(html.toString());
+
+                baseRequest.setHandled(true);
+            }
+            else
+            {
+                baseRequest.setHandled(false);
             }
         }
         
@@ -135,9 +154,14 @@ public class WebSocketTransport
 	 // Create a Server with a ServerConnector listening on port 8080.
 	    Server server = new Server(18080);
 
+	    TestHandler testHandler=new TestHandler();
+	    HandlerCollection collection=new HandlerCollection(); 
 	    // Create a ServletContextHandler with the given context path.
 	    ServletContextHandler handler = new ServletContextHandler(server, "/");
-	    server.setHandler(handler);
+	    
+	    collection.addHandler(testHandler);
+	    collection.addHandler(handler);
+	    server.setHandler(collection);
 
 	    JettyWebSocketServletContainerInitializer.configure(handler, (servletContext, container) ->
 	    {
@@ -145,7 +169,7 @@ public class WebSocketTransport
 	        container.setMaxTextMessageSize(128 * 1024);
 
 	        // Use JettyWebSocketCreator to have more control on the WebSocket endpoint creation.
-	        container.addMapping("/ws/echo", (upgradeRequest, upgradeResponse) ->
+	        container.addMapping("/ws/*", (upgradeRequest, upgradeResponse) ->
 	        {
 	            // Create the new WebSocket endpoint.
 	            return new Listener(null);

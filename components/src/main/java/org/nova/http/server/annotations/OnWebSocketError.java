@@ -19,29 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.http.server.annotations;
 
-import org.nova.html.ext.LiteralHtml;
-import org.nova.html.tags.button_button;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class Alert extends StyleComponent<Alert>
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface OnWebSocketError
 {
-    public Alert()
-    {
-        super("div","alert");
-    }
-
-    public Alert dismissible()
-    {
-        addClass("alert-dismissible");
-        addInner(new button_button().addClass("close").attr("data-dismiss","alert").addInner(new LiteralHtml("&times;")));
-        return this;
-    }
-
-    public Alert fade()
-    {
-        addClass("fade show");
-        return this;
-    }
-
 }

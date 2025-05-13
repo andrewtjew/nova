@@ -30,7 +30,7 @@ import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
-import org.nova.html.ext.InlineHtml;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.properties.Length;
 
 public class NameValueColumns extends Item
@@ -63,7 +63,7 @@ public class NameValueColumns extends Item
     }
     public NameValueColumns(Length nameSize,TextAlign nameAlign)
     {
-        this(nameSize,nameAlign,new InlineHtml("&nbsp;:&nbsp;"));
+        this(nameSize,nameAlign,new LiteralHtml("&nbsp;:&nbsp;"));
     }
     public NameValueColumns()
     {

@@ -11,7 +11,7 @@ import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.InlineHtml;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.DeviceSessionPage;
 import org.nova.html.remote.Remote;

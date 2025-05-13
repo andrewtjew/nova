@@ -4,7 +4,7 @@ package org.nova.html.remote;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.InlineHtml;
+import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 
 //Use this to populate content by calling back to server.
@@ -38,7 +38,7 @@ public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> exten
         }
         else
         {
-            returnAddInner(new script()).addInner(new InlineHtml(Remote.js_getRemote(id(),href)));
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
         }
         return this;
     }    
@@ -50,7 +50,7 @@ public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> exten
         }
         else
         {
-            returnAddInner(new script()).addInner(new InlineHtml(js_script));
+            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
         }
     }
     public RemoteResponse render(RemoteResponse response) throws Throwable

@@ -26,7 +26,7 @@ import java.util.HashMap;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.Content;
-import org.nova.html.ext.InlineHtml;
+import org.nova.html.ext.LiteralHtml;
 
 public class Instance extends Element
 {
@@ -48,7 +48,7 @@ public class Instance extends Element
             }
             else
             {
-                this.content.addInner(new InlineHtml(element));
+                this.content.addInner(new LiteralHtml(element));
             }
         }
     }
