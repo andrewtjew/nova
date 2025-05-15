@@ -23,6 +23,7 @@ package org.nova.http.server;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jakarta.servlet.http.Cookie;
@@ -189,7 +190,18 @@ public class HttpServer
 	{
 		this.requestHandlerMap.registerObjectMethod(root, object, method, this.transformers);
 	}
-
+	
+	HashMap<String,WebSocketHandlerInstancer<?,?>> webSocketHandlerInstancers=new HashMap<String, WebSocketHandlerInstancer<?,?>>();
+	
+	public void registerWebSocket(WebSocketHandlerInstancer<?,?> instancer)
+	{
+	    this.webSocketHandlerInstancers.put(instancer.webSocketPath, instancer);
+	}
+	
+	Map<String,WebSocketHandlerInstancer<?,?>> getWebSocketHandlerInstancers()
+	{
+	    return this.webSocketHandlerInstancers;
+	}
 	public RequestHandler[] getRequestHandlers()
 	{
 		return this.requestHandlerMap.getRequestHandlers();
@@ -199,6 +211,7 @@ public class HttpServer
 		return this.requestHandlerMap.getRequestHandler(key);
 	}
 
+	
 	private ContentReader findContentReader(String contentType, RequestHandler handler)
 	{
 		if ((contentType == null) || (contentType.length() == 0))

@@ -62,7 +62,7 @@ public abstract class Session
         this.user=user;
     }
     
-    public void lock(Lock<String> lock)
+    public void captureLock(Lock<String> lock)
     {
         synchronized(this)
         {

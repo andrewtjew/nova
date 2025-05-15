@@ -3,6 +3,8 @@ package org.nova.services;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,15 +42,25 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         this.coookieStateType=cookieStateType;
         this.cookieStateName=cookieStateName;
     }
-
     public void setDebugSession(SESSION session)
     {
         this.debugSession=session;
     }
-
+    public String getCookieStateName()
+    {
+        return this.cookieStateName;
+    }
+    public Class<COOKIESTATE> getCookieStateType()
+    {
+        return this.coookieStateType;
+    }
+    public SessionManager<SESSION> getSessionManager()
+    {
+        return this.sessionManager;
+    }
     abstract public Response<?> bindSession(Trace parent,Context context,SESSION session) throws Throwable;
     
-    private COOKIESTATE getCookieState(HttpServletRequest request)
+    public COOKIESTATE getCookieState(HttpServletRequest request)
     {
         try
         {
@@ -127,7 +139,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             {
                 return handleNoLock(parent, context);
             }
-            session.lock(lock);
+            session.captureLock(lock);
         }
         
         try

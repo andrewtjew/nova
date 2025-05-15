@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import org.nova.http.server.annotations.ParamName;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.http.server.annotations.Attributes;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -210,127 +211,6 @@ class RequestHandlerMap
 		return (type == int.class) || (type == Integer.class) || (type == long.class) || (type == Long.class) || (type == short.class) || (type == short.class)
 				|| (type == float.class) || (type == Float.class) || (type == double.class) || (type == Double.class) || (type == boolean.class)
 				|| (type == Boolean.class) || (type == String.class) || type.isEnum()||type==BigDecimal.class;
-	}
-
-	@SuppressWarnings(
-	{ "unchecked", "rawtypes" })
-	private Object getDefaultValue(Method method, DefaultValue defaultValue, Class<?> type) throws Exception
-	{
-		if (defaultValue == null)
-		{
-			return null;
-		}
-		try
-		{
-            if (type == int.class)
-            {
-                return Integer.parseInt(defaultValue.value());
-            }
-            else if (type == Integer.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Integer.parseInt(defaultValue.value());
-            }
-            else if (type == long.class)
-            {
-                return Long.parseLong(defaultValue.value());
-            }
-            else if (type == Long.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Long.parseLong(defaultValue.value());
-            }
-            else if (type == short.class)
-            {
-                return Short.parseShort(defaultValue.value());
-            }
-            else if (type == Short.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Short.parseShort(defaultValue.value());
-            }
-            else if (type == float.class)
-            {
-                return Float.parseFloat(defaultValue.value());
-            }
-            else if (type == Float.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Float.parseFloat(defaultValue.value());
-            }
-            else if (type == double.class)
-            {
-                return Double.parseDouble(defaultValue.value());
-            }
-            else if (type == Double.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Double.parseDouble(defaultValue.value());
-            }
-			else if (type == boolean.class)
-			{
-				String value = defaultValue.value().toLowerCase();
-				if (value.equals("true"))
-				{
-					return true;
-				}
-				if (value.equals("false"))
-				{
-					return false;
-				}
-			}
-            else if (type == Boolean.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                String value = defaultValue.value().toLowerCase();
-                if (value.equals("true"))
-                {
-                    return true;
-                }
-                if (value.equals("false"))
-                {
-                    return false;
-                }
-            }
-			else if (type == String.class)
-			{
-				return defaultValue.value();
-			}
-            else if (type == BigDecimal.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return new BigDecimal(Long.parseLong(defaultValue.value()));
-            }
-			else if (type.isEnum())
-			{
-				return Enum.valueOf((Class<Enum>) type, defaultValue.value());
-			}
-		}
-		catch (Throwable t)
-		{
-		}
-		throw new Exception("Unable to parse @DefaultValue value. Value=" + defaultValue.value() + ". Site=" + method.getName());
 	}
 
 	static class DistanceContentWriter
@@ -686,13 +566,13 @@ class RequestHandlerMap
 			else if (cookieParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE, cookieParam, cookieParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+						HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (cookieStateParam != null)
 			{
 				cookieStateParamCount++;
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE_STATE, cookieStateParam, cookieStateParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (pathParam != null)
 			{
@@ -701,12 +581,12 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (queryParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (headerParam != null)
 			{
@@ -715,14 +595,14 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.HEADER, headerParam, headerParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (paramName!=null)
 			{
                 if (paramName.startsWith())
                 {
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
-                            getDefaultValue(method, defaultValue, parameterType),required!=null));
+                            HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
                 }
                 else
                 {

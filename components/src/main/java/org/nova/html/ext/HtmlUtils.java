@@ -22,6 +22,7 @@
 package org.nova.html.ext;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,12 +42,134 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
+import org.nova.http.server.annotations.DefaultValue;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
 public class HtmlUtils
 {
+    @SuppressWarnings(
+    { "unchecked", "rawtypes" })
+    public static Object getDefaultValue(Method method, DefaultValue defaultValue, Class<?> type) throws Exception
+    {
+        if (defaultValue == null)
+        {
+            return null;
+        }
+        try
+        {
+            if (type == int.class)
+            {
+                return Integer.parseInt(defaultValue.value());
+            }
+            else if (type == Integer.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Integer.parseInt(defaultValue.value());
+            }
+            else if (type == long.class)
+            {
+                return Long.parseLong(defaultValue.value());
+            }
+            else if (type == Long.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Long.parseLong(defaultValue.value());
+            }
+            else if (type == short.class)
+            {
+                return Short.parseShort(defaultValue.value());
+            }
+            else if (type == Short.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Short.parseShort(defaultValue.value());
+            }
+            else if (type == float.class)
+            {
+                return Float.parseFloat(defaultValue.value());
+            }
+            else if (type == Float.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Float.parseFloat(defaultValue.value());
+            }
+            else if (type == double.class)
+            {
+                return Double.parseDouble(defaultValue.value());
+            }
+            else if (type == Double.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Double.parseDouble(defaultValue.value());
+            }
+            else if (type == boolean.class)
+            {
+                String value = defaultValue.value().toLowerCase();
+                if (value.equals("true"))
+                {
+                    return true;
+                }
+                if (value.equals("false"))
+                {
+                    return false;
+                }
+            }
+            else if (type == Boolean.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                String value = defaultValue.value().toLowerCase();
+                if (value.equals("true"))
+                {
+                    return true;
+                }
+                if (value.equals("false"))
+                {
+                    return false;
+                }
+            }
+            else if (type == String.class)
+            {
+                return defaultValue.value();
+            }
+            else if (type == BigDecimal.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return new BigDecimal(Long.parseLong(defaultValue.value()));
+            }
+            else if (type.isEnum())
+            {
+                return Enum.valueOf((Class<Enum>) type, defaultValue.value());
+            }
+        }
+        catch (Throwable t)
+        {
+        }
+        throw new Exception("Unable to parse @DefaultValue value. Value=" + defaultValue.value() + ". Site=" + method.getName());
+    }
+    
     @Deprecated
     public static String returnFunction(String function,Object...parameters)
     {
@@ -927,7 +1050,7 @@ public class HtmlUtils
     public static void writeFile(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+//        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {
@@ -939,7 +1062,7 @@ public class HtmlUtils
     public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+//        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {

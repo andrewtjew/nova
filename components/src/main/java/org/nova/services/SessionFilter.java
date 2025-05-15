@@ -204,7 +204,7 @@ public class SessionFilter extends Filter
                     return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
                 }
             }
-            session.lock(lock);
+            session.captureLock(lock);
             try
             {
                 if (session.isAccessDenied(parent,context))
@@ -248,5 +248,19 @@ public class SessionFilter extends Filter
     {
         return cookieTokenKey;
     }
-
+    
+    public Cookie createSessionCookie(String token,Integer maxAge,String path)
+    {
+        Cookie cookie = new Cookie(this.cookieTokenKey, token);
+        if (maxAge!=null)
+        {
+            cookie.setMaxAge(maxAge);
+        }
+        cookie.setPath(path);
+        return cookie;
+    }
+    public Cookie createSessionCookie(String token)
+    {
+        return createSessionCookie(token, null, null);
+    }
 }
