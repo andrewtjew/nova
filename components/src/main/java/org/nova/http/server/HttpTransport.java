@@ -68,7 +68,7 @@ public class HttpTransport
 
 	public void start() throws Exception
 	{
-	    Map<String,WebSocketHandlerInstancer<?,?>> instancers=this.httpServer.getWebSocketHandlerInstancers();
+	    Map<String,WebSocketInitializer<?>> webSocketInitializers=this.httpServer.getWebSocketInitializers();
 	    try
 	    {
     		for (Server server:this.servers)
@@ -101,7 +101,7 @@ public class HttpTransport
     	                }
     	            }
     	        };
-    	        if (instancers.size()==0)
+    	        if (webSocketInitializers.size()==0)
     	        {
         	        server.setHandler(handler);
     	        }
@@ -117,11 +117,12 @@ public class HttpTransport
                         // Configure the ServerContainer.
                         container.setMaxTextMessageSize(128 * 1024);
 
-                        for (var entry:instancers.entrySet())
+                        for (var entry:webSocketInitializers.entrySet())
                         {
                             container.addMapping(entry.getKey(), (upgradeRequest, upgradeResponse) ->
                             {
-                                return entry.getValue().createInstance();
+                                WebSocketInitializer<?> initializer=(WebSocketInitializer<?>)entry.getValue();
+                                return new WebSocketResponder(this.httpServer.getTraceManager(), this.httpServer.getLogger(), initializer);
                             });
                         }
                     });

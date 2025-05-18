@@ -1,5 +1,7 @@
 package org.nova.http.server;
 
+import java.io.InterruptedIOException;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.nova.logging.Logger;
@@ -7,21 +9,19 @@ import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
-public abstract class WebSocketServer<STATE> implements WebSocketListener
+public class WebSocketResponder implements WebSocketListener
 {
     final private TraceManager traceManager;
     final private Logger logger;
-    private WebSocketHandlerState<STATE> handlerState;
-    protected STATE session;
+    final private WebSocketInitializer<?> initializer;
+    final private WebSocketHandling handler;
     
-
-    abstract protected WebSocketHandlerState<STATE> createWebSocketHandlerState(Trace parent,Session session) throws Throwable;
-    abstract protected boolean handle(String text) throws Throwable;
-    
-    public WebSocketServer(TraceManager traceManager,Logger logger)
+    public WebSocketResponder(TraceManager traceManager,Logger logger,WebSocketInitializer<?> initializer)
     {
         this.traceManager=traceManager;
         this.logger=logger;
+        this.initializer=initializer;
+        this.handler=initializer.createWebSocketHandler();
     }
     
     @Override
@@ -31,8 +31,8 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         {
             try
             {
-                this.handlerState=createWebSocketHandlerState(trace,session);
-                this.handlerState.websocketHandler().onWebSocketConnect(trace);
+                WebSocketContext context=new WebSocketContext(session,this.initializer.getState(trace, session));
+                this.handler.onWebSocketConnect(trace,context);
             }
             catch (Throwable t)
             {
@@ -48,7 +48,7 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         {
             try
             {
-                this.handlerState.websocketHandler().onWebSocketClose(trace,statusCode,reason);
+                this.handler.onWebSocketClose(trace,statusCode,reason);
             }
             catch (Throwable t)
             {
@@ -64,7 +64,7 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         {
             try
             {
-                this.handlerState.websocketHandler().onWebSocketError(trace,throwable);
+                this.handler.onWebSocketError(trace,throwable);
             }
             catch (Throwable t)
             {
@@ -80,7 +80,7 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         {
             try
             {
-                this.handlerState.websocketHandler().onWebSocketBinary(trace,bytes,offset,length);
+                this.handler.onWebSocketBinary(trace,bytes,offset,length);
             }
             catch (Throwable t)
             {
@@ -89,6 +89,14 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         }
     }
 
+    
+    static class CommandMessage
+    {
+        public String path;
+        public String query;
+        public String content;
+    }
+    
     @Override
     public void onWebSocketText(String text)
     {
@@ -96,7 +104,8 @@ public abstract class WebSocketServer<STATE> implements WebSocketListener
         {
             try
             {
-                handle(this.handlerState.websocketHandler().onWebSocketText(trace, text));
+                String commandMessage=this.handler.onWebSocketText(trace, text);
+                System.out.println("commandMessage:"+commandMessage);
             }
             catch (Throwable t)
             {

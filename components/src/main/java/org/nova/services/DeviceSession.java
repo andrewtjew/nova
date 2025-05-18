@@ -169,7 +169,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     {
         HttpServletRequest request=context.getHttpServletRequest();
         RequestHandler handler=context.getRequestHandler();
-        if (handler.isSecurityVerificationRequired())
+        if (handler.isQueryVerificationRequired())
         {
             //Also require session to provide condition
             if (getSecurityQueryKey()!=null)

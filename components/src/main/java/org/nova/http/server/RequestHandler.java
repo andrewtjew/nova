@@ -80,17 +80,17 @@ public class RequestHandler
     final private long runtimeKey;
     
     final private FragmentIndexMap fragmentIndexMap;
-    final private boolean isSecurityVerificationRequired;
+    final private boolean isQueryVerificationRequired;
     
     
 //    final HashMap<String,ParameterInfo> queryParameterInfos;
 //    final HashMap<String,ParameterInfo> pathParameterInfos;
 
-    static private AtomicLong RUNTIME_KEY_GENERATOR=new AtomicLong();
+
 
     RequestHandler(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
-        this.runtimeKey=RUNTIME_KEY_GENERATOR.getAndIncrement();
+        this.runtimeKey=HttpServer.RUNTIME_KEY_GENERATOR.getAndIncrement();
         this.fragmentIndexMap=new FragmentIndexMap();
 	    
 //        this.queryParameterInfos=new HashMap<String, ParameterInfo>();
@@ -162,12 +162,12 @@ public class RequestHandler
             this.attributes=null;
         }
         this.test=annotations.test!=null;
-        this.isSecurityVerificationRequired=(queryParameterInfos>0)&&(((this.requiredRoles!=null)&&this.requiredRoles.value().length>0))||((this.forbiddenRoles!=null)&&(this.forbiddenRoles.value().length>0));        
+        this.isQueryVerificationRequired=(queryParameterInfos>0)&&(((this.requiredRoles!=null)&&this.requiredRoles.value().length>0))||((this.forbiddenRoles!=null)&&(this.forbiddenRoles.value().length>0));        
    }
 
-    public boolean isSecurityVerificationRequired()
+    public boolean isQueryVerificationRequired()
     {
-        return this.isSecurityVerificationRequired;
+        return this.isQueryVerificationRequired;
     }
     
 	public FragmentIndexMap getFragmentIndexMap()

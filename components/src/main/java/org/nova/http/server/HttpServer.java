@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,6 +48,8 @@ import org.nova.utils.Utils;
 
 public class HttpServer 
 {
+    static AtomicLong RUNTIME_KEY_GENERATOR=new AtomicLong();
+    
 	final private RequestHandlerMap requestHandlerMap;
 	final private TraceManager traceManager;
 	final private IdentityContentDecoder identityContentDecoder;
@@ -191,16 +195,16 @@ public class HttpServer
 		this.requestHandlerMap.registerObjectMethod(root, object, method, this.transformers);
 	}
 	
-	HashMap<String,WebSocketHandlerInstancer<?,?>> webSocketHandlerInstancers=new HashMap<String, WebSocketHandlerInstancer<?,?>>();
+	HashMap<String,WebSocketInitializer<?>> webSocketInitializers=new HashMap<String, WebSocketInitializer<?>>();
 	
-	public void registerWebSocket(WebSocketHandlerInstancer<?,?> instancer)
+	public void registerWebSocket(WebSocketInitializer<?> initializer)
 	{
-	    this.webSocketHandlerInstancers.put(instancer.webSocketPath, instancer);
+	    this.webSocketInitializers.put(initializer.getWebSocketPath(), initializer);
 	}
 	
-	Map<String,WebSocketHandlerInstancer<?,?>> getWebSocketHandlerInstancers()
+	Map<String,WebSocketInitializer<?>> getWebSocketInitializers()
 	{
-	    return this.webSocketHandlerInstancers;
+	    return this.webSocketInitializers;
 	}
 	public RequestHandler[] getRequestHandlers()
 	{
