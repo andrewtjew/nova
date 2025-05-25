@@ -84,7 +84,7 @@ public class LatencyFilter extends Filter
         {
             if (this.enabled)
             {
-                RequestHandlerLatencyTracker tracker=this.trackers.get(context.getRequestHandler().getKey());
+                RequestHandlerLatencyTracker tracker=this.trackers.get(context.getRequestMethod().getKey());
                 if (tracker!=null)
                 {
                     LatencyDescriptor descriptor=(this.overrideLatencyDescriptor!=null)&&(this.overrideLatencyDescriptor.isEnabled())?this.overrideLatencyDescriptor:tracker.getLatencyDescriptor();
@@ -126,9 +126,9 @@ public class LatencyFilter extends Filter
     }
 
     @Override
-    public void onRegister(RequestHandler requestHandler)
+    public void onRegister(RequestMethod requestMethod)
     {
-        this.trackers.put(requestHandler.getKey(), new RequestHandlerLatencyTracker(requestHandler));
+        this.trackers.put(requestMethod.getKey(), new RequestHandlerLatencyTracker(requestMethod));
     }
     
     synchronized public RequestHandlerLatencyTracker[] getSnapshot()

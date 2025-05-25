@@ -31,7 +31,7 @@ import java.util.Set;
 
 import org.nova.collections.RingBuffer;
 import org.nova.core.ObjectBox;
-import org.nova.http.server.RequestHandlerMap.FragmentIndexMap;
+import org.nova.http.server.RequestMethodMap.FragmentIndexMap;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.metrics.LongValueMeter;
 import org.nova.metrics.LongValueSample;

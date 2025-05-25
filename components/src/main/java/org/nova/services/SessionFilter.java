@@ -34,7 +34,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 
 
 public class SessionFilter extends Filter
@@ -156,8 +156,8 @@ public class SessionFilter extends Filter
         {
             String token=getToken(context.getHttpServletRequest());
             Session session=this.sessionManager.getSessionByToken(token);
-            RequestHandler handler=context.getRequestHandler();
-            Method method=handler.getMethod();
+            RequestMethod handlerMethod=context.getRequestMethod();
+            Method method=handlerMethod.getMethod();
             if (method.getAnnotation(AllowNoSession.class)!=null)
             {
                 if (session==null)
@@ -186,7 +186,7 @@ public class SessionFilter extends Filter
                     session=this.debugSession;
                 }
             }
-            Class<?> handlerSessionType=handler.getStateType();
+            Class<?> handlerSessionType=handlerMethod.getStateType();
             if (handlerSessionType!=null)
             {
                 if (TypeUtils.isDerivedFrom(session.getClass(),handlerSessionType)==false)

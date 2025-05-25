@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-class RequestHandlerWithParameters
+public record RequestMethodWithParameters(RequestMethod requestMethod,String[] parameters)
 {
-	final RequestHandler requestHandler;
-	final String[] parameters;
-	RequestHandlerWithParameters(RequestHandler requestHandler,String[] parameters)
-	{
-		this.requestHandler=requestHandler;
-		this.parameters=parameters;
-	}
 }

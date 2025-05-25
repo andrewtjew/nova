@@ -31,7 +31,7 @@ import java.util.List;
 import org.nova.core.NameObject;
 import org.nova.debug.Debugging;
 import org.nova.http.server.Context;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -127,9 +127,9 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     @Override
     synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
-        return isAccessDenied(context.getRequestHandler()).denied;
+        return isAccessDenied(context.getRequestMethod()).denied;
     }
-    AccessResult isAccessDenied(RequestHandler handler) throws Throwable
+    AccessResult isAccessDenied(RequestMethod handler) throws Throwable
     {
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
         RequiredRoles requiredRoles=handler.getRequiredRoles();

@@ -44,21 +44,15 @@ import org.nova.tracing.Trace;
 
 public class FilterChain
 {
-    private int filterIndex=0;
-    private final RequestHandlerWithParameters requestHandlerWithParameters;
-    private final Filter[] bottomFilters;
-    private final Filter[] topFilters;
-    RequestHandler requestHandler;
+    private final RequestMethodWithParameters requestMethodWithParameters;
     Object[] parameters;
     int stateParameterIndex=-1;
     int contentParameterIndex=-1;
     static HashMap<String,Integer> cookieMaxAgeMap=new HashMap<String, Integer>();
     
-    FilterChain(RequestHandlerWithParameters requestHandlerWithParameters)
+    FilterChain(RequestMethodWithParameters requestMethodWithParameters)
 	{
-		this.requestHandlerWithParameters=requestHandlerWithParameters;
-		this.bottomFilters=requestHandlerWithParameters.requestHandler.getBottomFilters();
-		this.topFilters=this.requestHandlerWithParameters.requestHandler.getTopFilters();
+		this.requestMethodWithParameters=requestMethodWithParameters;
 		this.parameters=null;
 	}
 	
@@ -98,9 +92,9 @@ public class FilterChain
 	
     public void decodeParameters(Trace trace,Context context) throws Throwable
     {
-        this.requestHandler=this.requestHandlerWithParameters.requestHandler;
-        String[] pathParameters=this.requestHandlerWithParameters.parameters;
-        ParameterInfo[] parameterInfos=requestHandler.getParameterInfos();
+        RequestMethod requestMethod=this.requestMethodWithParameters.requestMethod();
+        String[] pathParameters=this.requestMethodWithParameters.parameters();
+        ParameterInfo[] parameterInfos=requestMethod.getParameterInfos();
         this.parameters=new Object[parameterInfos.length];
         HttpServletRequest request=context.getHttpServletRequest();
         ContentReader reader=null;
@@ -331,37 +325,38 @@ public class FilterChain
      * BottomFilterD
      */
     
+    int filterIndex;
     
 	public Response<?> next(Trace trace,Context context) throws Throwable
 	{
 		int index=this.filterIndex++;
-		if (index<this.bottomFilters.length)
+		var bottomFilters=this.requestMethodWithParameters.requestMethod().getBottomFilters();
+        var topFilters=this.requestMethodWithParameters.requestMethod().getTopFilters();
+		if (index<bottomFilters.length)
 		{
-			return this.bottomFilters[index].executeNext(trace,context);
+			return bottomFilters[index].executeNext(trace,context);
 		}
-		if (index==this.bottomFilters.length)
+		if (index==bottomFilters.length)
 		{
-	        if (this.requestHandler==null)
-	        {
-	            decodeParameters(trace, context);
-	        }
+	        decodeParameters(trace, context);
 		}
 		Response<?> response=null;
-		if (index-this.bottomFilters.length<this.topFilters.length)
+		if (index-bottomFilters.length<topFilters.length)
 		{
-			response=this.topFilters[index-this.bottomFilters.length].executeNext(trace,context);
+			response=topFilters[index-bottomFilters.length].executeNext(trace,context);
 		}
-		else if (index==this.bottomFilters.length+this.topFilters.length)
+		else if (index==bottomFilters.length+topFilters.length)
 		{
 			response=invoke(context);
 		}
-		if (index==this.bottomFilters.length)
+		if (index==bottomFilters.length)
 		{
 			if (context.isCaptured()==false)
 			{
 				HttpServletResponse servletResponse=context.getHttpServletResponse();
-		        ParameterInfo[] parameterInfos=this.requestHandler.getParameterInfos();
-				if (requestHandler.cookieParamCount>0)
+				RequestMethod requestMethod=this.requestMethodWithParameters.requestMethod();
+		        ParameterInfo[] parameterInfos=requestMethod.getParameterInfos();
+				if (requestMethod.cookieParamCount>0)
 				{
 					for (int i=0;i<parameterInfos.length;i++)
 					{
@@ -414,10 +409,11 @@ public class FilterChain
 	
 	Response<?> invoke(Context context) throws Throwable
 	{
-        ParameterInfo[] parameterInfos=this.requestHandler.getParameterInfos();
+	    RequestMethod requestMethod=this.requestMethodWithParameters.requestMethod();
+        ParameterInfo[] parameterInfos=requestMethod.getParameterInfos();
 		try
 		{
-		    Object object=requestHandler.getObject();
+		    Object object=requestMethod.getObject();
 		    if (object==null)
 		    {
 		        ObjectBox box=context.getStateParameter();
@@ -433,12 +429,12 @@ public class FilterChain
     		        }
     		        if (object==null)
     		        {
-    		            RequestHandler handler=context.getRequestHandler();
+    		            RequestMethod handler=context.getRequestMethod();
     		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
     		        }
 		        }
 		    }
-			Object result=requestHandler.getMethod().invoke(object, parameters);
+			Object result=requestMethod.getMethod().invoke(object, parameters);
 			if (context.isCaptured()==false)
 			{
 				if (result==null)
@@ -455,7 +451,7 @@ public class FilterChain
 		}
         catch (IllegalArgumentException e)
         {
-            StringBuilder sb=new StringBuilder("IllegalArguments for "+context.getRequestHandler().getKey());
+            StringBuilder sb=new StringBuilder("IllegalArguments for "+context.getRequestMethod().getKey());
             for (int i=0;i<parameterInfos.length;i++)
             {
                 ParameterInfo parameterInfo=parameterInfos[i];

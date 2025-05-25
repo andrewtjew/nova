@@ -21,7 +21,7 @@ import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
 import org.nova.services.RoleSession.AccessResult;
@@ -107,8 +107,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
 	{
 		String token=getToken(parent,context);
 		SESSION session=this.sessionManager.getSessionByToken(token);
-        RequestHandler handler=context.getRequestHandler();
-        Method method=handler.getMethod();
+        RequestMethod requestMethod=context.getRequestMethod();
+        Method method=requestMethod.getMethod();
         if (session==null)
         {
             if (method.getAnnotation(AllowNoSession.class)!=null)
@@ -149,12 +149,12 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 return handleInvalidQuery(parent, context);
             }
             
-            AccessResult result=session.isAccessDenied(handler);
+            AccessResult result=session.isAccessDenied(requestMethod);
             if (result.denied)
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+handler.getKey()+", method="+Debugging.toString(handler.getMethod()));
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()));
                 }
                 if (TypeUtils.isNullOrEmpty(result.redirect)==false)
                 {

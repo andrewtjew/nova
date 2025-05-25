@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.http.server.RequestHandlerMap.DistanceContentWriter;
+import org.nova.http.server.RequestMethodMap.DistanceContentWriter;
 import org.nova.http.server.annotations.Attributes;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;

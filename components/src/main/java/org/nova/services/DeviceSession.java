@@ -20,7 +20,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.tracing.Trace;
@@ -168,8 +168,8 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     public boolean verifyQuery(Context context) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        RequestHandler handler=context.getRequestHandler();
-        if (handler.isQueryVerificationRequired())
+        RequestMethod requestMethod=context.getRequestMethod();
+        if (requestMethod.isQueryVerificationRequired())
         {
             //Also require session to provide condition
             if (getSecurityQueryKey()!=null)
@@ -181,7 +181,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 {
                     if (DEBUG_SECURITY)
                     {
-                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+handler.getMethod().getDeclaringClass().getName()+"."+handler.getMethod().getName());
+                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName());
                     }
                     else
                     {

@@ -45,7 +45,7 @@ import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.LatencyDescriptor;
 import org.nova.http.server.LatencyFilter;
 import org.nova.http.server.LatencyStatistics;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.RequestHandlerLatencyTracker;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -115,7 +115,7 @@ public class LatencyFilterController
             RequestHandlerLatencyTracker[] trackers=this.latencyFilter.getSnapshot();
             for (RequestHandlerLatencyTracker tracker:trackers)
             {
-                RequestHandler requestHandler=tracker.getRequestHandler();
+                RequestMethod requestMethod=tracker.getRequestMethod();
                 TableRow tr=table.returnAddRow();
 
                 LatencyDescriptor descriptor=tracker.getLatencyDescriptor();
@@ -125,8 +125,8 @@ public class LatencyFilterController
                 }
                 
                 LatencyStatistics stats=tracker.getLatencyStatistics();
-                tr.add(requestHandler.getHttpMethod());
-                tr.add(requestHandler.getPath());
+                tr.add(requestMethod.getHttpMethod());
+                tr.add(requestMethod.getPath());
                 tr.add(stats.getUpdateCount());
                 tr.add(stats.getTotalBeforeExecuteLatencyMs());
                 tr.add(stats.getTotalAfterExecuteLatencyMs());
@@ -135,7 +135,7 @@ public class LatencyFilterController
                 tr.add(descriptor.getBeforeExecuteMaximumMs());
                 tr.add(descriptor.getAfterExecuteMinimumMs());
                 tr.add(descriptor.getAfterExecuteMaximumMs());
-                tr.add(new MoreButton(page.head(), new PathAndQuery("/operator/latency/set").addQuery("key", requestHandler.getKey()).toString()));
+                tr.add(new MoreButton(page.head(), new PathAndQuery("/operator/latency/set").addQuery("key", requestMethod.getKey()).toString()));
             }
         }        
         return page;
@@ -194,8 +194,8 @@ public class LatencyFilterController
     public Element set(Trace parent,@QueryParam("key") String key) throws Throwable
     {
         RequestHandlerLatencyTracker tracker=this.latencyFilter.getRequestHandlerLatencyTracker(key);
-        RequestHandler requestHandler=tracker.getRequestHandler();
-        OperatorPage page=this.application.buildOperatorPage("Set Latency: "+requestHandler.getHttpMethod()+" "+requestHandler.getPath());
+        RequestMethod requestMethod=tracker.getRequestMethod();
+        OperatorPage page=this.application.buildOperatorPage("Set Latency: "+requestMethod.getHttpMethod()+" "+requestMethod.getPath());
 
         LatencyDescriptor descriptor=tracker.getLatencyDescriptor();
         if (descriptor==null)
@@ -229,8 +229,8 @@ public class LatencyFilterController
             ) throws Throwable
     {
         RequestHandlerLatencyTracker tracker=this.latencyFilter.getRequestHandlerLatencyTracker(key);
-        RequestHandler requestHandler=tracker.getRequestHandler();
-        OperatorPage page=this.application.buildOperatorPage("Set Latency: "+requestHandler.getHttpMethod()+" "+requestHandler.getPath());
+        RequestMethod requestMethod=tracker.getRequestMethod();
+        OperatorPage page=this.application.buildOperatorPage("Set Latency: "+requestMethod.getHttpMethod()+" "+requestMethod.getPath());
         LatencyDescriptor descriptor=new LatencyDescriptor(enable, beforeExecuteMinimumLatencyMs, beforeExecuteMaximumLatencyMs, afterExecuteMinimumLatencyMs, afterExecuteMaximumLatencyMs);
         tracker.setLatencyDescriptor(descriptor);
 

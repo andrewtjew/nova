@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session
@@ -41,19 +41,19 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     @Override
     public boolean isAccessDenied(Trace trace, Context context) throws Throwable
     {
-        Boolean deny=this.denyMap.get(context.getRequestHandler().getKey());
+        Boolean deny=this.denyMap.get(context.getRequestMethod().getKey());
         if (deny==null)
         {
             deny=isAccessDenied(context);
-            this.denyMap.put(context.getRequestHandler().getKey(),deny);
+            this.denyMap.put(context.getRequestMethod().getKey(),deny);
         }
         return deny;
     }
     
     boolean isAccessDenied(Context context)
     {
-        RequestHandler requestHandler=context.getRequestHandler();
-        ForbiddenRoles forbiddenGroups=requestHandler.getForbiddenRoles();
+        RequestMethod requestMethod=context.getRequestMethod();
+        ForbiddenRoles forbiddenGroups=requestMethod.getForbiddenRoles();
         if (forbiddenGroups!=null)
         {
             if (forbiddenGroups.value().length==0)
@@ -69,7 +69,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
             }
         }
 
-        RequiredRoles requiredRoles=requestHandler.getRequiredRoles();
+        RequiredRoles requiredRoles=requestMethod.getRequiredRoles();
         if (requiredRoles==null)
         {
             return true; //deny all
