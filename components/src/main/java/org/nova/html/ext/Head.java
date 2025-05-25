@@ -34,9 +34,9 @@ import org.nova.html.tags.script;
 public class Head extends GlobalEventTagElement<Head>
 {
     private HashSet<String> styleSet;
-    private HashSet<String> baseSet;
+//    private HashSet<String> baseSet;
     private HashSet<String> linkSet;
-    private HashSet<String> metaSet;
+//    private HashSet<String> metaSet;
     private HashSet<String> scriptSet;
 
     public Head()
@@ -57,18 +57,18 @@ public class Head extends GlobalEventTagElement<Head>
         return this;
     }
 
-    public Head add(String key, base base)
-    {
-        if (this.baseSet == null)
-        {
-            this.baseSet = new HashSet<>();
-        }
-        if (this.baseSet.add(key))
-        {
-            this.addInner(base);
-        }
-        return this;
-    }
+//    public Head add(String key, base base)
+//    {
+//        if (this.baseSet == null)
+//        {
+//            this.baseSet = new HashSet<>();
+//        }
+//        if (this.baseSet.add(key))
+//        {
+//            this.addInner(base);
+//        }
+//        return this;
+//    }
 
     public Head add(String key, link link)
     {
@@ -83,18 +83,18 @@ public class Head extends GlobalEventTagElement<Head>
         return this;
     }
 
-    public Head add(String key, meta meta)
-    {
-        if (this.metaSet == null)
-        {
-            this.metaSet = new HashSet<>();
-        }
-        if (this.metaSet.add(key))
-        {
-            this.addInner(meta);
-        }
-        return this;
-    }
+//    public Head add(String key, meta meta)
+//    {
+//        if (this.metaSet == null)
+//        {
+//            this.metaSet = new HashSet<>();
+//        }
+//        if (this.metaSet.add(key))
+//        {
+//            this.addInner(meta);
+//        }
+//        return this;
+//    }
 
     public Head add(String key, script script)
     {

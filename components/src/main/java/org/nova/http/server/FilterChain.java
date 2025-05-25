@@ -62,243 +62,6 @@ public class FilterChain
 		this.parameters=null;
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static Object parseParameter(ParameterInfo parameterInfo,String value) throws Exception 
-	{
-        if (value==null)
-        {
-            if (parameterInfo.getDefaultValue()!=null)
-            {
-                return parameterInfo.getDefaultValue();
-            }
-            if (parameterInfo.isRequired())
-            {
-                throw new Exception("Request does not provide required value for parameter "+parameterInfo.getName());
-            }
-        }
-	    try
-	    {
-    		Class<?> type=parameterInfo.getType();
-    		if (type==String.class)
-    		{
-    			return value;
-    		}
-    		if (type==int.class)
-    		{
-    		    if (value==null)
-    		    {
-    		        return 0;//
-    		    }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-    			return Integer.parseInt(value);
-    		}
-            if (type==Integer.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Integer.parseInt(value);
-            }
-    		if (type==long.class)
-    		{
-                if (value==null)
-                {
-                    return 0L;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-    			return Long.parseLong(value);
-    		}
-            if (type==Long.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Long.parseLong(value);
-            }
-    		if (type==short.class)
-    		{
-                if (value==null)
-                {
-                    return (short)0;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-    			return Short.parseShort(value);
-    		}
-            if (type==Short.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Short.parseShort(value);
-            }
-    		if (type==float.class)
-    		{
-                if (value==null)
-                {
-                    return 0.0f;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-    			return Float.parseFloat(value);
-    		}
-            if (type==Float.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Float.parseFloat(value);
-            }
-    		if (type==double.class)
-    		{
-                if (value==null)
-                {
-                    return 0.0;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-    			return Double.parseDouble(value);
-    		}
-            if (type==Double.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Double.parseDouble(value);
-            }
-    		if (type==boolean.class)
-    		{
-                if (value==null)
-                {
-                    return false;
-                }
-                value=value.trim().toLowerCase();
-                if (value.length()==0)
-                {
-                    if (parameterInfo.getDefaultValue()!=null)
-                    {
-                        return parameterInfo.getDefaultValue();
-                    }
-                }
-                if ("on".equals(value))
-                {
-                    return true;
-                }
-    		    return "true".equals(value);
-    		}
-            if (type==Boolean.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim().toLowerCase();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                if ("on".equals(value))
-                {
-                    return true;
-                }
-                return !("false".equals(value));
-            }
-            if (type.isEnum())
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return Enum.valueOf((Class<Enum>)type, value);
-            }
-            if (type==BigDecimal.class)
-            {
-                if (value==null)
-                {
-                    return null;
-                }
-                value=value.trim();
-                if (value.length()==0)
-                {
-                    return null;
-                }
-                return new BigDecimal(value);
-            }
-            return ObjectMapper.readObject(value, type);
-	    }
-	    catch (Throwable t)
-	    {
-            throw new Exception("Error parsing parameter "+parameterInfo.getName()+", value="+value,t);
-	    }
-//        throw new Exception("Unable to parse parameter "+parameterInfo.getName()+", value="+value);
-	}
 	
     void setStateParameter(Object state)
     {
@@ -394,11 +157,11 @@ public class FilterChain
                     }
                     else if (cookie!=null)
                     {
-                        parameters[i]=parseParameter(parameterInfo,cookie.getValue());
+                        parameters[i]=HttpServer.parseParameter(parameterInfo,cookie.getValue());
                     }
                     else
                     {
-                        parameters[i]=parseParameter(parameterInfo,null);
+                        parameters[i]=HttpServer.parseParameter(parameterInfo,null);
                     }
                 }
                 catch (Throwable t)
@@ -465,7 +228,7 @@ public class FilterChain
             case HEADER:
                 try
                 {
-                    parameters[i]=parseParameter(parameterInfo,request.getHeader(parameterInfo.getName()));
+                    parameters[i]=HttpServer.parseParameter(parameterInfo,request.getHeader(parameterInfo.getName()));
                 }
                 catch (Throwable t)
                 {
@@ -492,7 +255,7 @@ public class FilterChain
                 }
                 try
                 {
-                    parameters[i]=parseParameter(parameterInfo,parameter);
+                    parameters[i]=HttpServer.parseParameter(parameterInfo,parameter);
                 }
                 catch (Throwable t)
                 {
@@ -504,7 +267,7 @@ public class FilterChain
                 try
                 {
                     String parameter=request.getParameter(parameterInfo.getName());
-                    parameters[i]=parseParameter(parameterInfo,parameter);
+                    parameters[i]=HttpServer.parseParameter(parameterInfo,parameter);
                 }
                 catch (Throwable t)
                 {
@@ -537,7 +300,7 @@ public class FilterChain
                         if (parameterName.startsWith(paramName.value()))
                         {
                             String value=parameterName.substring(paramName.value().length());
-                            parameters[i]=parseParameter(parameterInfo,value);
+                            parameters[i]=HttpServer.parseParameter(parameterInfo,value);
                         }
                     }
                     
@@ -550,7 +313,7 @@ public class FilterChain
             break;
             case INTERNAL:
             {
-                parameters[i]=parseParameter(parameterInfo,request.getParameter(parameterInfo.getName()));
+                parameters[i]=HttpServer.parseParameter(parameterInfo,request.getParameter(parameterInfo.getName()));
             }
             default:
                 break;

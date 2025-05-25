@@ -152,6 +152,25 @@ abstract public class WebSocketInitializer<STATE>
                 handlerAnnotations.attributes = (Attributes) annotation;
             }
         }
+        StringBuilder path=new StringBuilder();
+        if (classPath!=null)
+        {
+            path.append(classPath.value());
+        }
+        if (handlerAnnotations.path!=null)
+        {
+            path.append(handlerAnnotations.path.value());
+        }
+        else
+        {
+            return;
+        }
+        
+        String fullPath = path.toString();
+        if (fullPath.length()==0)
+        {
+            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + toSite(objectType,method));
+        }
 
         ArrayList<ParameterInfo> parameterInfos = new ArrayList<ParameterInfo>();
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -230,6 +249,12 @@ abstract public class WebSocketInitializer<STATE>
                 parameterInfos.add(new ParameterInfo(ParameterSource.TRACE, null,parameter.getName(), parameterIndex, parameterType, null,true));
                 continue;
             }
+            else if (parameterType == WebSocketContext.class)
+            {
+                rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
+                parameterInfos.add(new ParameterInfo(ParameterSource.CONTEXT, null,parameter.getName(), parameterIndex, parameterType, null,true));
+                continue;
+            }
             else if (parameterType==Queries.class)
             {
                 rejectDefaultValueAndRequired(objectType, method, parameter, defaultValue, required);
@@ -266,22 +291,6 @@ abstract public class WebSocketInitializer<STATE>
         boolean logResponseContent=true;
         boolean logRequestParameters=true;
         
-        StringBuilder path=new StringBuilder();
-        if (classPath!=null)
-        {
-            path.append(classPath.value());
-        }
-        if (handlerAnnotations.path!=null)
-        {
-            path.append(handlerAnnotations.path.value());
-        }
-        
-        
-        String fullPath = path.toString();
-        if (fullPath.length()==0)
-        {
-            throw new Exception("@Path annotation missing at method or class level or no root provided. Site=" + toSite(objectType,method));
-        }
         if (handlerAnnotations.log!=null)
         {
             log=handlerAnnotations.log.value();

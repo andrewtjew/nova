@@ -1,207 +1,44 @@
 namespace nova.remote
 {
-    //Deprecated
-    class Input 
-    {
-        name:string;
-        inputType:string;
-    }
-
     class Instruction
     {
         trace:boolean;
         command:string;
         parameters:string[];
     }
-
-
-
-    //Deprecated
-    function getInputElement(parent:Document|Element,input:Input):HTMLInputElement
+ 
+    class PathCommand
     {
-        var element=parent.querySelector("[name='"+input.name+"']") as HTMLInputElement;
-        if (element==null)
+        constructor(pathAndQuery:string,content:any)
         {
-            console.log("Element not in scope: name="+input.name);
-        }
-        return element;
-    }
-
-    //Deprecated
-    function getSelectElement(parent:Document|Element,input:Input):HTMLSelectElement
-    {
-        var element=parent.querySelector("[name='"+input.name+"']") as HTMLSelectElement;
-        if (element==null)
-        {
-            console.log("Element not in scope: name="+input.name);
-        }
-        return element;
-    }
-
-    //Deprecated
-    function toData(formID:string,text:string,trace:boolean):object
-    {
-        if (text==null)
-        {
-            return;
-        }
-        var parent=formID==null?document:document.getElementById(formID);
-        if (parent==null)
-        {
-            throw new Error("No element with id="+formID);
-        }
-
-        var data=new Object();
-        var inputs=JSON.parse(text) as Input[];
-        for (var i=0,len=inputs.length;i<len;i++)
-        {
-            var input=inputs[i];
-            if (trace==true)
+            this.pathAndQuery=pathAndQuery;
+            if (content!=null)
             {
-                console.log("remote:name="+input.name+",type="+input.inputType);
-            }
-            switch (input.inputType)
-            {
-                case "value":
-                    {
-                        var element=getInputElement(parent,input);
-                        if (element!=null)
-                        {
-                            data[input.name]=element.value;
-                        }
-                    }
-                    break;
-                
-                case "checked":
-                    {
-                        var element=getInputElement(parent,input);
-                        if (element!=null)
-                        {
-                            if (element.checked)
-                            {
-                                data[input.name]="on";
-                            }
-                        }
-                    }
-                    break;
-                
-                case "select":
-                {
-                    var select=getSelectElement(parent,input);
-                    if (select!=null)
-                    {
-                        data[input.name]=select.options[select.selectedIndex].value;
-                    }
-                }
-                break;
-
-                case "radio":
-                var radio=getInputElement(parent,input);
-                if ((radio!=null)&&(radio.checked))
-                {
-                    data[input.name]=radio.value;
-                }
-                break;
-
+                this.content=JSON.stringify(content);
             }
         }
-        return data;
+        pathAndQuery:string;
+        content:string;
     }
 
-
-    //Deprecated
-    export function post(formID:string,action:string,text:string,trace:boolean)
+    export async function postWebSocket(webSocket:WebSocket,pathAndQuery:string,content:any=null,error:Function=null)
     {
-        var data=toData(formID,text,trace);
-        call("POST",action,data);
+        webSocket.send(JSON.stringify(new PathCommand(pathAndQuery,content)));
     }
 
-    //Deprecated
-    export function get(formID:string,action:string,text:string,trace:boolean)
+    export async function bindToRemote(webSocket:WebSocket)
     {
-        var parent=formID==null?document:document.getElementById(formID)
-        var inputs=JSON.parse(text) as Input[];
-        var seperator="?";
-        for (var i=0,len=inputs.length;i<len;i++)
+        webSocket.onmessage=(ev:MessageEvent)=>
         {
-            var input=inputs[i];
-            if (trace==true)
-            {
-                console.log("input:name="+input.name+",type="+input.inputType);
-            }
-            switch (input.inputType)
-            {
-                case "value":
-                    {
-                        var element=getInputElement(parent,input);
-                        if (element!=null)
-                        {
-                            action+=seperator+input.name+"="+encodeURIComponent(element.value);
-                        }
-                    }
-                break;
-                
-                case "checked":
-                    {
-                        var element=getInputElement(parent,input);
-                        if (element!=null)
-                        {
-                            if (element.checked)
-                            {
-                                action+=seperator+input.name+"=on";
-                            }
-                        }
-                    }
-                break;
-                
-                case "select":
-                    {
-                        var select=getSelectElement(parent,input);
-                        if (select!=null)
-                        {
-                            action+=seperator+input.name+"="+encodeURIComponent(select.options[select.selectedIndex].value);
-                        }
-                    }
-                break;
-
-                case "radio":
-                    {
-                        var element=getInputElement(parent,input);
-                        if (element!=null)
-                        {
-                            action+=seperator+input.name+"="+encodeURIComponent(element.value);
-                        }
-                    }
-                break;
-
-            }
-            seperator="&";
+            let text=ev.data as string;
+            let instructions=JSON.parse(text) as Instruction[];
+            console.log(instructions);
+            run(instructions);
         }
-        call("GET",action,null);
     }
 
-    //Deprecated
-    export function call(type:string,pathAndQuery:string,data:object)
-    {
-        $.ajax(
-            {url:pathAndQuery,
-            type:type,
-            async:true,
-            dataType:"json",
-            cache: false,
-            data:data,
-            success:function(instructions:Instruction[],status,xhr)
-            {
-                run(instructions);
-            },
-            error:function(xhr)
-            {
-                alert("Error: "+xhr.status+" "+xhr.statusText);
-            }
-        }); 
-    }
-
-    export async function postCheckboxChange(evt:Event,pathAndQuery:string)
+    //Deprecate 
+    export async function onCheckboxChange(evt:Event,pathAndQuery:string)
     {
         var checkbox=evt.target as HTMLInputElement;
         return await nova.remote.postStatic(pathAndQuery+"&checked="+checkbox.checked);
@@ -360,6 +197,8 @@ namespace nova.remote
                 run(instructions);
             });
     }
+
+    //deprecated use postForm;
     export async function postFormUrlEncoded(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
@@ -388,13 +227,13 @@ namespace nova.remote
             });
     }
 
-    export async function postForm(id:string)
+    export async function postForm(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
         if (form.enctype=="data")
         {
             let data=new FormData(form);
-            return await fetch(form.action,
+            return await fetch(action!=null?action:form.action,
                 {
                     method:"POST",
                     body: new FormData(form),
@@ -419,7 +258,7 @@ namespace nova.remote
             {
                 params.append(pair[0],pair[1].toString());
             }
-            return await fetch(form.action,
+            return await fetch(action!=null?action:form.action,
                 {
                     method:"POST",
                     body: params
@@ -436,8 +275,9 @@ namespace nova.remote
                     run(instructions);
                 });
             }
-
     }
+
+    //deprecated. Use postForm
     export async function postFormData(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
@@ -488,6 +328,22 @@ namespace nova.remote
 
                         case "innerText":
                         document.getElementById(parameters[0]).innerText=parameters[1];
+                        break;
+                                
+                        case "prepend":
+                        document.getElementById(parameters[0]).prepend(parameters[1]);
+                        break;
+                                
+                        case "append":
+                        document.getElementById(parameters[0]).append(parameters[1]);
+                        break;
+                                
+                        case "before":
+                        document.getElementById(parameters[0]).before(parameters[1]);
+                        break;
+                                
+                        case "after":
+                        document.getElementById(parameters[0]).after(parameters[1]);
                         break;
                                 
                         case "value":
