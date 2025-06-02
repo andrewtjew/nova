@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public class ArrayQuery
 {
-    Class<? extends NodeObject>[] nodeTypes;
-    Class<? extends NodeObject>[] optionalNodeTypes;
+    Class<? extends Node>[] nodeTypes;
+    Class<? extends Node>[] optionalNodeTypes;
 
     String expression;
  //   Object[] parameters;
@@ -38,14 +38,14 @@ public class ArrayQuery
     }
 
     @SafeVarargs
-    final public ArrayQuery select(Class<? extends NodeObject>... nodeTypes)
+    final public ArrayQuery select(Class<? extends Node>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public ArrayQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
+    final public ArrayQuery selectOptional(Class<? extends Node>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
         return this;
@@ -96,7 +96,7 @@ public class ArrayQuery
         {
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
-                Class<? extends NodeObject> type = this.nodeTypes[i];
+                Class<? extends Node> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
@@ -120,7 +120,7 @@ public class ArrayQuery
         {
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
             {
-                Class<? extends NodeObject> type = this.optionalNodeTypes[i];
+                Class<? extends Node> type = this.optionalNodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.register(type);
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();

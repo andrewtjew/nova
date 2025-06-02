@@ -15,6 +15,7 @@ public enum Command
     prepend,
     append,
     before,
-    after
+    after,
+    remove,
     
 }

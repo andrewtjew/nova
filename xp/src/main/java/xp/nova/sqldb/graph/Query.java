@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public class Query
 {
-    Class<? extends NodeObject>[] nodeTypes;
-    Class<? extends NodeObject>[] optionalNodeTypes;
+    Class<? extends Node>[] nodeTypes;
+    Class<? extends Node>[] optionalNodeTypes;
 
     String expression;
     String orderBy;
@@ -28,11 +28,11 @@ public class Query
     {
         return orderBy(orderBy,false);
     }
-    public Query orderBy(Class<? extends NodeObject> nodeType,boolean descending)
+    public Query orderBy(Class<? extends Node> nodeType,boolean descending)
     {
         return orderBy(nodeType.getSimpleName()+"._nodeId",descending);
     }
-    public Query orderBy(Class<? extends NodeObject> nodeType)
+    public Query orderBy(Class<? extends Node> nodeType)
     {
         return orderBy(nodeType,false);
     }
@@ -72,7 +72,7 @@ public class Query
 //    }
     
     @SafeVarargs
-    final public Query select(Class<? extends NodeObject>... nodeTypes)
+    final public Query select(Class<? extends Node>... nodeTypes)
     {
         this.preparedQuery=null;
         this.nodeTypes = nodeTypes;
@@ -80,7 +80,7 @@ public class Query
     }
 
     @SafeVarargs
-    final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
+    final public Query selectOptional(Class<? extends Node>... nodeTypes)
     {
         this.preparedQuery=null;
         this.optionalNodeTypes= nodeTypes;
@@ -132,7 +132,7 @@ public class Query
         {
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
-                Class<? extends NodeObject> type = this.nodeTypes[i];
+                Class<? extends Node> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 if (descriptor==null)
                 {
@@ -160,7 +160,7 @@ public class Query
         {
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
             {
-                Class<? extends NodeObject> type = this.optionalNodeTypes[i];
+                Class<? extends Node> type = this.optionalNodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 state.descriptors.add(new NamespaceGraphObjectDescriptor(null,descriptor));
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);

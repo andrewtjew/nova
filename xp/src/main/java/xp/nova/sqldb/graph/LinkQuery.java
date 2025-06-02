@@ -6,13 +6,13 @@ public class LinkQuery
 {
     final Direction direction;
     final long relationValue;
-    final Class<? extends NodeObject> targetNodeType;
-    final NodeObject targetNode;
+    final Class<? extends Node> targetNodeType;
+    final Node targetNode;
 
-    Class<? extends NodeObject>[] nodeTypes;
-    Class<? extends NodeObject>[] optionalNodeTypes;
-    Class<? extends NodeObject>[] linkTypes;
-    Class<? extends NodeObject>[] optionalLinkTypes;
+    Class<? extends Node>[] nodeTypes;
+    Class<? extends Node>[] optionalNodeTypes;
+    Class<? extends Node>[] linkTypes;
+    Class<? extends Node>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
     
@@ -23,38 +23,24 @@ public class LinkQuery
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
-    public LinkQuery(Direction direction,Relation_ relation,NodeObject targetNode)
+    public LinkQuery(Direction direction,Relation_ relation,Node targetNode)
     {
         this.direction=direction;
         this.targetNodeType=targetNode.getClass();
         this.targetNode=targetNode;
         this.relationValue=relation.getValue();
     }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends Node> targetNodeType)
     {
         this.direction=direction;
         this.targetNodeType=targetNodeType;
         this.relationValue=relation.getValue();
         this.targetNode=null;
     }
-//    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
-//    {
-//        this(direction,relation,null,targetNodeType);
-//    }
-//    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
-//    {
-//        this(direction,relation,objectType,(Class<? extends NodeObject>)null);
-//    }
     public LinkQuery(Direction direction,Relation_ relation)
     {
-        this(direction,relation,(Class<? extends NodeObject>)null);
+        this(direction,relation,(Class<? extends Node>)null);
     }
-//    public LinkQuery(Direction direction) throws Exception
-//    {
-//        this.direction=direction;
-//        this.relation=null;
-//    }
-    
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;
@@ -67,27 +53,27 @@ public class LinkQuery
     }    
     
     @SafeVarargs
-    final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
+    final public LinkQuery select(Class<? extends Node>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public LinkQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
+    final public LinkQuery selectOptional(Class<? extends Node>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public LinkQuery selectLink(Class<? extends NodeObject>... nodeTypes)
+    final public LinkQuery selectLink(Class<? extends Node>... nodeTypes)
     {
         this.linkTypes = nodeTypes;
         return this;
     }
     @SafeVarargs
-    final public LinkQuery selectOptionalLink(Class<? extends NodeObject>... nodeTypes)
+    final public LinkQuery selectOptionalLink(Class<? extends Node>... nodeTypes)
     {
         this.optionalLinkTypes = nodeTypes;
         return this;

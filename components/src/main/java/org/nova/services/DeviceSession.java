@@ -33,7 +33,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     final static boolean DEBUG_PAGESTATE=false;
     final static boolean DEBUG_SECURITY=true;
     
-    protected HashMap<String,Object> pageStates;
+    protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
     protected Stack<String> continuations;
     protected Stack<String> newContinuations;
@@ -76,7 +76,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
         this.zoneId=zoneId;
-        this.pageStates=new HashMap<String, Object>();
+        this.states=new HashMap<String, Object>();
         this.newPageStates=null;
         this.continuations=new Stack<String>();
         this.newContinuations=null;
@@ -92,51 +92,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return this.zoneId;
     }
     
-    public void setPageState(TagElement<?> element) throws Throwable
+    public void setState(TagElement<?> element) throws Throwable
     {
         if (element instanceof FormElement<?>)
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
         setState(element.id(), element);
-    }
-    
-    public void clearLastPageStates()
-    {
-        if (this.newPageStates!=null)
-        {
-            this.pageStates=this.newPageStates;
-            this.newPageStates=null;
-        }
-        if (this.newContinuations!=null)
-        {
-            this.continuations=this.newContinuations;
-            this.newContinuations=null;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public <T> T getPageState(String key)
-    {
-        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
-        {
-            if (this.pageStates.containsKey(key)==false)
-            {
-                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
-                for (Entry<String, Object> entry:this.pageStates.entrySet())
-                {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
-                }
-            }
-        }
-        return (T)this.pageStates.get(key);
-    }
-
-    @Override
-    public <T> T getRemoteCaller(Context context) throws Throwable
-    {
-        String id=context.getHttpServletRequest().getParameter(getStateKey());
-        return getPageState(id);
     }
     @Override
     public void setState(String key,Object state) throws Throwable
@@ -148,12 +110,67 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 this.newPageStates=new HashMap<String, Object>();
             }
             this.newPageStates.put(key, state);
-            this.pageStates.put(key, state);
+            this.states.put(key, state);
             if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
             }            
         }
+    }
+    
+    public void clearLastStates()
+    {
+        if (this.newPageStates!=null)
+        {
+            this.states=this.newPageStates;
+            this.newPageStates=null;
+        }
+        if (this.newContinuations!=null)
+        {
+            this.continuations=this.newContinuations;
+            this.newContinuations=null;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public <T> T getState(String key)
+    {
+        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
+        {
+            if (this.states.containsKey(key)==false)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                for (Entry<String, Object> entry:this.states.entrySet())
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                }
+            }
+        }
+        return (T)this.states.get(key);
+    }
+    public <T> T removeState(String key)
+    {
+        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
+        {
+            if (this.states.containsKey(key)==false)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                for (Entry<String, Object> entry:this.states.entrySet())
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                }
+            }
+        }
+        this.newPageStates.remove(key);
+        return (T)this.states.remove(key);
+        
+    }
+
+    @Override
+    public <T> T getRemoteCaller(Context context) throws Throwable
+    {
+        String id=context.getHttpServletRequest().getParameter(getStateKey());
+        return getState(id);
     }
     final static public String STATE_KEY="@";
 

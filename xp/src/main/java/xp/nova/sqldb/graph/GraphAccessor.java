@@ -86,9 +86,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,ArrayQuery query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,startNodeObject.getNodeId(),query);
+        return execute(parent,parameters,startNode.getNodeId(),query);
     }
     
     public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
@@ -192,9 +192,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,startNodeObject.getNodeId(),query);
+        return execute(parent,parameters,startNode.getNodeId(),query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
     {
@@ -211,9 +211,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return executeCount(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,NodeObject startNodeObject,ArrayQuery query,Object...parameters) throws Throwable
+    public long executeCount(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeObject.getNodeId(),query);
+        return executeCount(parent,parameters,startNode.getNodeId(),query);
     }
     
     
@@ -317,9 +317,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return executeCount(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    public long executeCount(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeObject.getNodeId(),query);
+        return executeCount(parent,parameters,startNode.getNodeId(),query);
     }
     public long executeCount(Trace parent,Query query,Object...parameters) throws Throwable
     {

@@ -66,9 +66,8 @@ public class QueryResultSet
 
 
     @SuppressWarnings("unchecked")
-    public <OBJECT extends NodeObject> OBJECT[] getObjects(String namespace,Class<OBJECT> type) throws Throwable
+    public <OBJECT extends Node> OBJECT[] getObjects(String namespace,Class<OBJECT> type) throws Throwable
     {
-//        Class<? extends NodeObject> type=map.values().iterator().next().getType();
         Object array=Array.newInstance(type, this.results.length);
         for (int i=0;i<this.results.length;i++)
         {
@@ -76,12 +75,12 @@ public class QueryResultSet
         }
         return (OBJECT[]) array;
     }
-    public <OBJECT extends NodeObject> OBJECT[] getObjects(Class<OBJECT> type) throws Throwable
+    public <OBJECT extends Node> OBJECT[] getObjects(Class<OBJECT> type) throws Throwable
     {
         return getObjects(null,type);
     }
     @SuppressWarnings("unchecked")
-    public <OBJECT extends NodeObject> OBJECT getObject() throws Throwable
+    public <OBJECT extends Node> OBJECT getObject() throws Throwable
     {
         if (this.results.length==0)
         {
@@ -91,7 +90,7 @@ public class QueryResultSet
         {
             throw new Exception("Length:"+this.results.length);
         }
-        Class<? extends NodeObject> type=map.values().iterator().next().getType();
+        Class<? extends Node> type=map.values().iterator().next().getType();
         return this.results[0].getObject((Class<OBJECT>)type);
     }
 

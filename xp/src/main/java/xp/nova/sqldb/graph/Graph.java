@@ -630,7 +630,7 @@ public class Graph
         return this.connector;
     }
 
-    protected GraphObjectDescriptor register(Class<? extends NodeObject> type) throws Exception
+    protected GraphObjectDescriptor register(Class<? extends Node> type) throws Exception
     {
         GraphObjectDescriptor descriptor=null;
         String simpleTypeName=type.getSimpleName();
@@ -671,17 +671,17 @@ public class Graph
                 }
             }
             GraphObjectType objectType;
-            if (type.getSuperclass()==IdentityNodeObject.class)
+            if (type.getSuperclass()==IdentityNode.class)
             {
                 objectType=GraphObjectType.IDENTITY_NODE;
             }
-            else if (type.getSuperclass()==NodeObject.class)
+            else if (type.getSuperclass()==Node.class)
             {
                 objectType=GraphObjectType.NODE;
             }
             else
             {
-                throw new Exception(type.getName()+" needs to extend from a subclass of NodeObject.");
+                throw new Exception(type.getName()+" needs to extend from a subclass of Node.");
             }
             
             descriptor = new GraphObjectDescriptor(simpleTypeName,type,objectType,map.values().toArray(new FieldDescriptor[map.size()]));
@@ -693,7 +693,7 @@ public class Graph
         return descriptor;
     }
     
-    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends NodeObject> type) throws Exception
+    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends Node> type) throws Exception
     {
         String simpleTypeName=type.getSimpleName();
         return descriptorMap.get(simpleTypeName);
@@ -745,14 +745,14 @@ public class Graph
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
 
-    public void setDebugUpgradeWatchType(Class<? extends NodeObject> debugUpgradeWatchType)
+    public void setDebugUpgradeWatchType(Class<? extends Node> debugUpgradeWatchType)
     {
         this.debugUpgradeType=debugUpgradeWatchType;
     }
 
-    Class<? extends NodeObject> debugUpgradeType;
+    Class<? extends Node> debugUpgradeType;
 
-    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends NodeObject> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends Node> type) throws Throwable
     {
         String table=type.getSimpleName();
         GraphObjectDescriptor descriptor=this.register(type);
@@ -761,7 +761,7 @@ public class Graph
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
             StringBuilder sql=new StringBuilder();
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
             	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
@@ -779,7 +779,7 @@ public class Graph
                 sql.append(columnAccessor.getSqlType().getSql());
                 sql.append(",");
             }
-            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
                 sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }

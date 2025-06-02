@@ -301,6 +301,13 @@ namespace nova.remote
 
     }
 
+    function parseHTML(html) 
+    {
+        var t = document.createElement('template');
+        t.innerHTML = html;
+        return t.content;
+    }    
+
     function run(instructions:Instruction[])
     {
         if (instructions!=null)
@@ -330,20 +337,24 @@ namespace nova.remote
                         document.getElementById(parameters[0]).innerText=parameters[1];
                         break;
                                 
+                        case "remove":
+                        document.getElementById(parameters[0]).remove();
+                        break;
+                                
                         case "prepend":
-                        document.getElementById(parameters[0]).prepend(parameters[1]);
+                        document.getElementById(parameters[0]).prepend(parseHTML(parameters[1]));
                         break;
                                 
                         case "append":
-                        document.getElementById(parameters[0]).append(parameters[1]);
+                        document.getElementById(parameters[0]).append(parseHTML(parameters[1]));
                         break;
                                 
                         case "before":
-                        document.getElementById(parameters[0]).before(parameters[1]);
+                        document.getElementById(parameters[0]).before(parseHTML(parameters[1]));
                         break;
                                 
                         case "after":
-                        document.getElementById(parameters[0]).after(parameters[1]);
+                        document.getElementById(parameters[0]).after(parseHTML(parameters[1]));
                         break;
                                 
                         case "value":

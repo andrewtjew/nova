@@ -9,9 +9,9 @@ public class GraphObjectDescriptor
     final private GraphObjectType graphObjectType;
     final private String tableName;
     final private String typeName;
-    final private Class<? extends NodeObject> type;
+    final private Class<? extends Node> type;
     
-    GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
+    GraphObjectDescriptor(String typeName,Class<? extends Node> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
     {
         this.type=type;
         this.graphObjectType=graphObjectType;
@@ -29,7 +29,7 @@ public class GraphObjectDescriptor
         this.tableName='`'+typeName+'`';
     }
 
-    public Class<? extends NodeObject> getType()
+    public Class<? extends Node> getType()
     {
         return this.type;
     }
