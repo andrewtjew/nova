@@ -7,7 +7,7 @@ public class LinkQuery
     final Direction direction;
     final long relationValue;
     final Class<? extends Node> targetNodeType;
-    final Node targetNode;
+    final Long targetNodeId;
 
     Class<? extends Node>[] nodeTypes;
     Class<? extends Node>[] optionalNodeTypes;
@@ -25,18 +25,23 @@ public class LinkQuery
 
     public LinkQuery(Direction direction,Relation_ relation,Node targetNode)
     {
-        this.direction=direction;
-        this.targetNodeType=targetNode.getClass();
-        this.targetNode=targetNode;
-        this.relationValue=relation.getValue();
+        this(direction,relation,targetNode.getClass(),targetNode.getNodeId());
     }
     public LinkQuery(Direction direction,Relation_ relation,Class<? extends Node> targetNodeType)
+    {
+        this(direction,relation,targetNodeType,null);
+//        this.direction=direction;
+//        this.targetNodeType=targetNodeType;
+//        this.relationValue=relation.getValue();
+//        this.targetNode=null;
+    }
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends Node> targetNodeType,Long targetNodeId)
     {
         this.direction=direction;
         this.targetNodeType=targetNodeType;
         this.relationValue=relation.getValue();
-        this.targetNode=null;
-    }
+        this.targetNodeId=targetNodeId;
+    }    
     public LinkQuery(Direction direction,Relation_ relation)
     {
         this(direction,relation,(Class<? extends Node>)null);

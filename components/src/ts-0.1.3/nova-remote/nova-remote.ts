@@ -301,7 +301,7 @@ namespace nova.remote
 
     }
 
-    function parseHTML(html) 
+    export function parseHTML(html) 
     {
         var t = document.createElement('template');
         t.innerHTML = html;
@@ -338,7 +338,17 @@ namespace nova.remote
                         break;
                                 
                         case "remove":
-                        document.getElementById(parameters[0]).remove();
+                        {
+                            let element=document.getElementById(parameters[0]);
+                            if (element!=null)
+                            {
+                                element.remove();
+                            }
+                        }
+                        break;
+                        
+                        case "removeChilderen":
+                        document.getElementById(parameters[0]).replaceChildren();
                         break;
                                 
                         case "prepend":
@@ -348,6 +358,11 @@ namespace nova.remote
                         case "append":
                         document.getElementById(parameters[0]).append(parseHTML(parameters[1]));
                         break;
+
+                        case "appendChild":
+                        document.getElementById(parameters[0]).appendChild(parseHTML(parameters[1]));
+                        break;
+                                
                                 
                         case "before":
                         document.getElementById(parameters[0]).before(parseHTML(parameters[1]));

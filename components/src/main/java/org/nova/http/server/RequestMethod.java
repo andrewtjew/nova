@@ -101,11 +101,11 @@ public class RequestMethod
 	    {
 	        switch(info.getSource())
 	        {
-	            case ParameterSource.STATE:
+	            case STATE:
 	            stateType=info.getType();
 	            break;
 	            
-                case ParameterSource.QUERY:
+                case QUERY:
                 queryParameterInfos++;
                 break;
 
@@ -175,9 +175,10 @@ public class RequestMethod
 	    return this.fragmentIndexMap;
 	}
 	
+
+	//Assigned during registration and used as an optimization to look up run time info. 
 	public long getRunTimeKey()
 	{
-	    //It is not expected that this key will roll over as runtime RequestHandlers are not expected to be dynamic.
 	    return this.runtimeKey;
 	}
 	public Object getObject()

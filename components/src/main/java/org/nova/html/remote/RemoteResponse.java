@@ -169,6 +169,11 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
         return this;
     }
+    public RemoteResponse removeChilderen(String id)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.removeChilderen,id));
+        return this;
+    }
     public RemoteResponse prepend(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
@@ -199,6 +204,13 @@ public class RemoteResponse
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.after,id,text));
+        addScripts(element);
+        return this;
+    }
+    public RemoteResponse appendChild(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.appendChild,id,text));
         addScripts(element);
         return this;
     }

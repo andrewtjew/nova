@@ -73,9 +73,9 @@ class PrepareState
                     nodeAlias = " ON _link" + this.aliasIndex+".fromNodeId=";
                     this.sources.append(" _link AS " + linkAlias + source + linkAlias + ".toNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    if (linkQuery.targetNode!=null)
+                    if (linkQuery.targetNodeId!=null)
                     {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNode.getClass().getSimpleName()+"'");
+                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
                     }
                     else if (linkQuery.nodeTypes!=null)
                     {
@@ -161,7 +161,7 @@ class PrepareState
                         }
                     }
                 }
-                if ((linkQuery.targetNode!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+                if ((linkQuery.targetNodeId!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
                 {
                     String on = null;
                     switch (linkQuery.direction)
@@ -189,7 +189,7 @@ class PrepareState
                         alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
                         as=" AS "+alias+" ";
                     }
-                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNode.getNodeId());
+                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNodeId);
                 }
                 if (linkQuery.nodeTypes != null)
                 {

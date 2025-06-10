@@ -17,5 +17,6 @@ public enum Command
     before,
     after,
     remove,
-    
+    appendChild,
+    removeChilderen,
 }
