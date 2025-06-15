@@ -77,15 +77,50 @@ public class FileDownloader extends ServletHandler
         set.add("jpg");
         set.add("png");
         set.add("mp3");
+        set.add("mp4");
         return set;
     }
-    private void write(Trace parent, byte[] bytes, HttpServletResponse response) throws Throwable
+    private void write(Trace parent, byte[] bytes, HttpServletResponse response,Long rangeStart,Long rangeEnd) throws Throwable
     {
         try
         {
-            response.setStatus(HttpStatus.OK_200);
-            response.setContentLength(bytes.length);
-            response.getOutputStream().write(bytes);
+            if (rangeStart==null)
+            {
+                response.setStatus(HttpStatus.OK_200);
+                response.setContentLength(bytes.length);
+                response.getOutputStream().write(bytes);
+            }
+            else
+            {
+//                System.out.println("partial");
+                
+                if (rangeEnd==null)
+                {
+                    rangeEnd=rangeStart+1000000;
+                }
+                if (rangeEnd>=bytes.length)
+                {
+                    rangeEnd=(long)bytes.length-1;
+                }
+                int length=(int)(rangeEnd-rangeStart+1);
+                {
+                    response.setStatus(HttpStatus.PARTIAL_CONTENT_206);
+                }
+                String contentRange="bytes "+rangeStart+"-"+rangeEnd+"/"+bytes.length;
+                if (Debug.ENABLE && DEBUG)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Content-Range:"+contentRange);
+                }
+                
+//                System.out.println("length:"+length);
+//                System.out.println("contentLength:"+bytes.length);
+
+                response.setContentLength(length);
+                response.setHeader("Content-Range", contentRange);
+                response.getOutputStream().write(bytes,(int)(long)rangeStart,length);
+
+
+            }
         }
         catch (Throwable t)
         {
@@ -97,6 +132,31 @@ public class FileDownloader extends ServletHandler
     }    
     public boolean download(Trace parent, String filePath, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
+        Long rangeStart=null;
+        Long rangeEnd=null;
+        String range=request.getHeader("Range");
+        if (range!=null)
+        {
+            if (range.startsWith("bytes"))
+            {
+                int index=range.indexOf('=');
+                if (index>0)
+                {
+                    String[] parts=range.substring(index+1).split("-");
+                    if (parts.length>0)
+                    {
+                        rangeStart=Long.parseLong(parts[0]);
+                    }
+                    if (parts.length>1)
+                    {
+                        rangeEnd=Long.parseLong(parts[1]);
+                    }
+                        
+                    
+                }
+            }
+        }
+         
         filePath=FileUtils.toNativePath(filePath);
         String contentType=this.mappings.getContentType(filePath);
         String extension=Files.getFileExtension(filePath).toLowerCase();
@@ -178,7 +238,7 @@ public class FileDownloader extends ServletHandler
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"From cache:filePath="+filePath+", length="+bytes.length);
                 }
-                write(parent, bytes, response);
+                write(parent, bytes, response,rangeStart,rangeEnd);
                 if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
@@ -225,7 +285,7 @@ public class FileDownloader extends ServletHandler
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Load:filePath="+filePath+", lenght="+bytes.length);
                 }
-                write(parent, bytes, response);
+                write(parent, bytes, response,rangeStart,rangeEnd);
                 if (Debug.ENABLE && DEBUG)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Write ended:filePath="+filePath+", length="+bytes.length);
