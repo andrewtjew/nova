@@ -11,6 +11,7 @@ import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.remoting.Inputs;
+import org.nova.html.tags.script;
 
 
 public class ProceedModal extends ModalDocument
@@ -27,9 +28,9 @@ public class ProceedModal extends ModalDocument
         {
             this.id();
         }
-        this.proceedButton.id();
-        this.header().id();
-        this.body().id();
+        this.proceedButton.id(id()+"-proceed");
+        this.header().id(id()+"-header");
+        this.body().id(id()+"-body");
         
         this.header().addInner(title);
         if (message!=null)
@@ -39,7 +40,7 @@ public class ProceedModal extends ModalDocument
         this.footer().d(Display.flex).justify_content(Justify.between);
         this.footer().addInner(proceedButton).addInner(cancelButton);
         cancelButton.onclick(this.js_hide());
-
+        cancelButton.id(id()+"-cancel");
     }
 
     public ProceedModal(String id,String title,String message,String cancel,String proceed) throws Throwable
@@ -83,23 +84,23 @@ public class ProceedModal extends ModalDocument
         proceedButton.onclick(form.js_post(action));
     }
     
-    public void onProceed(Inputs inputs,String action) throws Throwable
-    {
-        proceedButton.onclick(inputs.js_post(action));
-    }
-    public void onProceed(Inputs inputs) throws Throwable
-    {
-        proceedButton.onclick(inputs.js_post());
-    }
-    public String js_showAndOnProceed(String script) throws Throwable
-    {
-        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),null,null,null,null,this.proceedButton.id(),script);
-    }
+//    public void onProceed(Inputs inputs,String action) throws Throwable
+//    {
+//        proceedButton.onclick(inputs.js_post(action));
+//    }
+//    public void onProceed(Inputs inputs) throws Throwable
+//    {
+//        proceedButton.onclick(inputs.js_post());
+//    }
+//    public String js_showAndOnProceed(String script) throws Throwable
+//    {
+//        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),null,null,null,null,this.proceedButton.id(),script);
+//    }
     public String js_showAndOnProceed(String header,String body,String script)
     {
         body=StringEscapeUtils.escapeHtml4(body);
         header=StringEscapeUtils.escapeHtml4(header); 
-        return HtmlUtils.js_call("nova.ui.modal.proceed", this.id(),this.header().id(),header,this.body().id(),body,this.proceedButton.id(),script);
+        return HtmlUtils.js_call("nova.ui.modal.proceed", id(),header,body,script);
     }
 
 }

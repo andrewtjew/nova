@@ -281,7 +281,7 @@ public class GraphTransaction implements AutoCloseable
         return value;
     }
     
-    public int deleteLink(long fromNodeId,long relationValue,long toNodeId) throws Throwable
+    private int deleteLink(long fromNodeId,long relationValue,long toNodeId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM _link WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
         if (rowSet.size()==0)
@@ -320,7 +320,7 @@ public class GraphTransaction implements AutoCloseable
                 long fromNodeId=row.getBIGINT("fromNodeId");
                 long toNodeId=row.getBIGINT("toNodeId");
                 long relationValue=row.getBIGINT("relationValue");
-                deleted+=deleteLink(fromNodeId,toNodeId,relationValue);
+                deleted+=deleteLink(fromNodeId,relationValue,toNodeId);
             }
         }
         return deleted;

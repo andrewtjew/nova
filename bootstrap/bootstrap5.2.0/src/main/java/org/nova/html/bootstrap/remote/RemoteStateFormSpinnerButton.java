@@ -16,7 +16,7 @@ public class RemoteStateFormSpinnerButton extends SpinnerButton
     {
         public SpinnerLabel(String label)
         {
-            addInner(new Icon("check").me(1));
+//            addInner(new Icon("check").me(1));
             addInner(label);
         }
     }
