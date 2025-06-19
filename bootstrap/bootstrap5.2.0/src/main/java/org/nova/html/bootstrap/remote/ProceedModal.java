@@ -32,7 +32,7 @@ public class ProceedModal extends ModalDocument
         this.header().id(id()+"-header");
         this.body().id(id()+"-body");
         
-        this.header().addInner(title);
+        this.header().addInner(title).fs(5);
         if (message!=null)
         {
             this.body().addInner(message);

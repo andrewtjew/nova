@@ -88,11 +88,12 @@ namespace nova.ui.modal
         var proceedButton=document.getElementById(id+"-proceed") as HTMLButtonElement;
         proceedButton.onclick=(event:MouseEvent) =>
         {
-            this.modal.hide();
             if (code!=null)
             {
                 eval(code);
             }
+            modal.hide();
+
         };
         // var cancelButton=document.getElementById(this.id+"-cancel") as HTMLButtonElement;
         // cancelButton.onclick=(event:MouseEvent) =>

@@ -101,7 +101,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         setState(element.id(), element);
     }
     @Override
-    public void setState(String key,Object state) throws Throwable
+    public void setState(Object key,Object state) throws Throwable
     {
         if (state!=null)
         {
@@ -109,8 +109,9 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             {
                 this.newPageStates=new HashMap<String, Object>();
             }
-            this.newPageStates.put(key, state);
-            this.states.put(key, state);
+            String _key=key.toString();
+            this.newPageStates.put(_key, state);
+            this.states.put(_key, state);
             if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
@@ -133,36 +134,38 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     }
 
     @SuppressWarnings("unused")
-    public <T> T getState(String key)
+    public <T> T getState(Object key)
     {
+        String _key=key.toString();
         if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
-            if (this.states.containsKey(key)==false)
+            if (this.states.containsKey(_key)==false)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+_key);
                 for (Entry<String, Object> entry:this.states.entrySet())
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
                 }
             }
         }
-        return (T)this.states.get(key);
+        return (T)this.states.get(_key);
     }
-    public <T> T removeState(String key)
+    public <T> T removeState(Object key)
     {
+        String _key=key.toString();        
         if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
-            if (this.states.containsKey(key)==false)
+            if (this.states.containsKey(_key)==false)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+_key);
                 for (Entry<String, Object> entry:this.states.entrySet())
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
                 }
             }
         }
-        this.newPageStates.remove(key);
-        return (T)this.states.remove(key);
+        this.newPageStates.remove(_key);
+        return (T)this.states.remove(_key);
         
     }
 

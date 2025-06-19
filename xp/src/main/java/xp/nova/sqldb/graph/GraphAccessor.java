@@ -201,30 +201,30 @@ public class GraphAccessor implements AutoCloseable
         return execute(parent,parameters,null,query);
     }
     
-    public long executeCount(Trace parent,Object[] parameters,long startNodeId,ArrayQuery query) throws Throwable
+    public long count(Trace parent,Object[] parameters,long startNodeId,ArrayQuery query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph,true);
         translateParameters(parameters);
-        return executeCount(parent,preparedQuery,parameters,startNodeId);
+        return count(parent,preparedQuery,parameters,startNodeId);
     }
-    public long executeCount(Trace parent,long startNodeId,ArrayQuery query,Object...parameters) throws Throwable
+    public long count(Trace parent,long startNodeId,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeId,query);
+        return count(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
+    public long count(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNode.getNodeId(),query);
+        return count(parent,parameters,startNode.getNodeId(),query);
     }
     
     
-    public long executeCount(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
+    public long count(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph,true);
         translateParameters(parameters);
-        return executeCount(parent,preparedQuery,parameters,startNodeId);
+        return count(parent,preparedQuery,parameters,startNodeId);
     }
     
-    private long executeCount(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
+    private long count(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
         QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
         var valueSize=this.graph.getFromCountCache(key);
@@ -313,17 +313,17 @@ public class GraphAccessor implements AutoCloseable
         }
         return rowSet.getRow(0).getBIGINT(0);
     }
-    public long executeCount(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeId,query);
+        return count(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNode.getNodeId(),query);
+        return count(parent,parameters,startNode.getNodeId(),query);
     }
-    public long executeCount(Trace parent,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,null,query);
+        return count(parent,parameters,null,query);
     }
 
     

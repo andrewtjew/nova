@@ -19,7 +19,7 @@ public interface RemoteStateBinding
     public <T> T getRemoteCaller(Context context) throws Throwable;
 
     //Stores the ssso.
-    public void setState(String id,Object state) throws Throwable;
+    public void setState(Object id,Object state) throws Throwable;
     
     //The state key is used 
     public String getStateKey();
