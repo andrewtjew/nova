@@ -92,6 +92,10 @@ public class GraphTransaction implements AutoCloseable
         GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(type);
         if (descriptor==null)
         {
+            for (String name:this.graph.getTypes())
+            {
+                System.out.println("Type="+name);
+            }
             throw new Exception("Type not registered:"+type.getSimpleName());
         }
         this.graph.invalidateCacheLines(parent, descriptor);

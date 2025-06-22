@@ -703,6 +703,10 @@ public class Graph
         return descriptorMap.get(simpleTypeName);
     }
     
+    public String[] getTypes()
+    {
+        return this.descriptorMap.keySet().toArray(new String[this.descriptorMap.size()]);
+    }
     
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
