@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
@@ -29,14 +30,14 @@ import org.nova.tracing.Trace;
 public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
-    final static boolean DEBUG=false;
+    final static boolean DEBUG=true;
     final static boolean DEBUG_PAGESTATE=false;
     final static boolean DEBUG_SECURITY=true;
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
-    protected Stack<String> continuations;
-    protected Stack<String> newContinuations;
+//    protected Stack<String> continuations;
+//    protected Stack<String> newContinuations;
     
     final protected ZoneId zoneId;
     final private long deviceSessionId;
@@ -78,8 +79,8 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         this.zoneId=zoneId;
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
-        this.continuations=new Stack<String>();
-        this.newContinuations=null;
+//        this.continuations=new Stack<String>();
+//        this.newContinuations=null;
     }
     
     public long getDeviceSessionId()
@@ -126,11 +127,11 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             this.states=this.newPageStates;
             this.newPageStates=null;
         }
-        if (this.newContinuations!=null)
-        {
-            this.continuations=this.newContinuations;
-            this.newContinuations=null;
-        }
+//        if (this.newContinuations!=null)
+//        {
+//            this.continuations=this.newContinuations;
+//            this.newContinuations=null;
+//        }
     }
 
     @SuppressWarnings("unused")
@@ -170,7 +171,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     }
 
     @Override
-    public <T> T getRemoteCaller(Context context) throws Throwable
+    public <T> T getPageState(Context context) throws Throwable
     {
         String id=context.getHttpServletRequest().getParameter(getStateKey());
         return getState(id);
@@ -188,10 +189,14 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     public boolean verifyQuery(Context context) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
+        String queryString=request.getQueryString();
+        if (queryString==null)
+        {
+            return true;
+        }
         RequestMethod requestMethod=context.getRequestMethod();
         if (requestMethod.isQueryVerificationRequired())
         {
-            //Also require session to provide condition
             if (getSecurityQueryKey()!=null)
             {
                 //Require 
@@ -201,7 +206,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 {
                     if (DEBUG_SECURITY)
                     {
-                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName());
+                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
                     }
                     else
                     {
@@ -223,8 +228,16 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             return code.equals(computed);
         }
+        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
+        {
+            String query=request.getQueryString();
+            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+            return true;
+        }
         else
-        return true;
+        {
+            return false;
+        }
     }
     @Override
     public String signQuery(String query) throws Throwable
@@ -242,40 +255,40 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return STATE_KEY;
     }
     
-    public String pushContinuation(String script)
-    {
-        if (this.newContinuations==null)
-        {
-            this.newContinuations=new Stack<String>();
-        }
-        this.newContinuations.push(script);
-        this.continuations.push(script);
-        return script;
-    }
-    public String pushContinuation(Context context)
-    {
-        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
-    }
-    public String pushRefererContinuation(Context context)
-    {
-        HttpServletRequest request=context.getHttpServletRequest();
-        return pushContinuation(request.getHeader("Referer"));
-    }
-    
-    public void clearContinuations()
-    {
-        this.continuations.clear();
-        this.newContinuations=null;
-    }
-    
-    public String popContinuation()
-    {
-        if (this.continuations.size()==0)
-        {
-            return null;
-        }
-        return this.continuations.pop();
-    }
+//    public String pushContinuation(String script)
+//    {
+//        if (this.newContinuations==null)
+//        {
+//            this.newContinuations=new Stack<String>();
+//        }
+//        this.newContinuations.push(script);
+//        this.continuations.push(script);
+//        return script;
+//    }
+//    public String pushContinuation(Context context)
+//    {
+//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
+//    }
+//    public String pushRefererContinuation(Context context)
+//    {
+//        HttpServletRequest request=context.getHttpServletRequest();
+//        return pushContinuation(request.getHeader("Referer"));
+//    }
+//    
+//    public void clearContinuations()
+//    {
+//        this.continuations.clear();
+//        this.newContinuations=null;
+//    }
+//    
+//    public String popContinuation()
+//    {
+//        if (this.continuations.size()==0)
+//        {
+//            return null;
+//        }
+//        return this.continuations.pop();
+//    }
     
      
     

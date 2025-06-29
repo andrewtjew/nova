@@ -172,11 +172,14 @@ namespace nova.remote
     export async function submit(event:Event,formId:string=null)
     {
         event.preventDefault();
+        let formEvent=event as SubmitEvent;
         let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
-        let data=new FormData(form);
+//        let data=new FormData(form,formEvent.submitter);
+        let data=new FormData(form,formEvent.submitter);
         let params=new URLSearchParams();
         for (const pair of data)
         {
+            console.log(pair[0]+":"+pair[1]);
             params.append(pair[0],pair[1].toString());
         }
 

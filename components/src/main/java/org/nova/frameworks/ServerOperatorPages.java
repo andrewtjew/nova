@@ -5289,14 +5289,14 @@ public class ServerOperatorPages
 
     @POST
     @Path("/operator/variable")
-    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
+    public Response<Element> update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
     {
         if (checkbox)
         {
             value=Boolean.toString(value==null?false:true);
         }
         var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
-        Response.seeOther("/operator/variables/modify");
+        return Response.seeOther("/operator/variables/modify");
     }
 
 }

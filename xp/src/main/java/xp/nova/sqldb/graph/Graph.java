@@ -28,9 +28,10 @@ public class Graph
 {
     static final boolean DEBUG=true;
     static final boolean DEBUG_QUERY=true;
-    static final boolean DEBUG_CACHING=false;
+    static final boolean DEBUG_CACHING=true;
     static final boolean DEBUG_VERIFY_CACHING=true;
-    
+    static final String DEBUG_CATEGORY=Graph.class.getSimpleName();
+
     private int defaultVARCHARLength=45;
     
     FieldDescriptor getColumnAccessor(Field field) throws Exception
@@ -793,7 +794,7 @@ public class Graph
             }
             if (Debug.ENABLE && DEBUG)
             {
-                Debugging.log("Graph",sql);
+                Debugging.log(DEBUG_CATEGORY,sql);
             }
             accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
         }
@@ -809,7 +810,7 @@ public class Graph
             {
                 if (type.getSimpleName().equals("AppointmentStatus"))
                 {
-                    Debugging.log("Graph","Catalog="+catalog+", type="+type.getSimpleName());
+                    Debugging.log(DEBUG_CATEGORY,"Catalog="+catalog+", type="+type.getSimpleName());
                 }
             }
             int rowIndex=0;
@@ -884,7 +885,7 @@ public class Graph
                             rowIndex++;
                             if (Debug.ENABLE && DEBUG)
                             {
-                                Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
+                                Debugging.log(DEBUG_CATEGORY,"Unused column: columnName="+columnName+", table="+table);
                             }
                             continue;
                         }
@@ -908,7 +909,7 @@ public class Graph
                 sql.append(';');
                 if (Debug.ENABLE && DEBUG)
                 {
-                    Debugging.log("Graph",sql);
+                    Debugging.log(DEBUG_CATEGORY,sql);
                 }
                 accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
             }
@@ -963,10 +964,10 @@ public class Graph
         {
             if (caching==false)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
-                {
-                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
-                }
+//                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+//                {
+//                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
+//                }
                 return null;
             }
             ValueSize<QueryResultSet> valueSize=this.queryResultSetCache.getFromCache(key);
@@ -974,11 +975,11 @@ public class Graph
             {
                 if (valueSize==null)
                 {
-                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
                 }
                 else
                 {
-                    Debugging.log("Graph Cache:found     : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache:found     : "+key.preparedQuery.sql);
                 }
             }
             if (valueSize!=null)
@@ -1017,7 +1018,7 @@ public class Graph
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
+                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
                 }
                 typeNameCacheSet.add(key);
                 
@@ -1040,7 +1041,7 @@ public class Graph
             this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
             if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
-                Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
+                Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql);
             }
         }
     }
@@ -1068,7 +1069,7 @@ public class Graph
         var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
         if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
         {
-            Debugging.log("Graph Cache:invalidate cached table "+typeName);
+            Debugging.log(DEBUG_CATEGORY,"Cache:invalidate cached table "+typeName);
         }
         if (typeNameCacheSet!=null)
         {
@@ -1078,7 +1079,7 @@ public class Graph
                 evict(parent,key,resultSet);
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log("invalidateCacheLines: sql="+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: sql="+key.preparedQuery.sql);
                 }
                 this.nodeTypeNameCacheSets.remove(key);
             }
@@ -1094,7 +1095,7 @@ public class Graph
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log("invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                    Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
                 }
                 invalidateCacheLines(parent,typeName);
             }
@@ -1170,7 +1171,7 @@ public class Graph
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
                 }
                 return null;
             }
@@ -1179,11 +1180,11 @@ public class Graph
             {
                 if (valueSize==null)
                 {
-                    Debugging.log("Graph Cache:not found : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
                 }
                 else
                 {
-                    Debugging.log("Graph Cache:found     : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache:found     : "+key.preparedQuery.sql);
                 }
             }
             if (valueSize!=null)
@@ -1222,14 +1223,14 @@ public class Graph
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log("Graph Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
+                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
                 }
                 typeNameCacheSet.add(key);
             }
             this.countCache.put(parent,key, new ValueSize<Long>(count));
             if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
-                Debugging.log("Graph Cache:added line: "+key.preparedQuery.sql);
+                Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql);
             }
         }
     }

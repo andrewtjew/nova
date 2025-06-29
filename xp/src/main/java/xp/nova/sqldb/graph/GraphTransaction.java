@@ -169,15 +169,15 @@ public class GraphTransaction implements AutoCloseable
                     }
                     sb.append(")");
                 }
-                Debugging.log("Graph",sb.toString());
+                Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
             if (object instanceof IdentityNode)
             {
-            	((IdentityNode)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
+                ((IdentityNode)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
             }
             else
             {
-            	accessor.executeUpdate(parent, null, sql, insertParameters);
+                accessor.executeUpdate(parent, null, sql, insertParameters);
             }
         }
         else if (rowSet.size()==1)
@@ -203,7 +203,7 @@ public class GraphTransaction implements AutoCloseable
                     }
                     sb.append(")");
                 }
-                Debugging.log("Graph",sb.toString());
+                Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
             accessor.executeUpdate(parent, null, sql, updateParameters);
         }
@@ -326,6 +326,10 @@ public class GraphTransaction implements AutoCloseable
                 long relationValue=row.getBIGINT("relationValue");
                 deleted+=deleteLink(fromNodeId,relationValue,toNodeId);
             }
+        }
+        if (Graph.DEBUG&&(Graph.DEBUG_CACHING))
+        {
+            Debugging.log(Graph.DEBUG_CATEGORY,"deleteNode:nodeId="+nodeId);
         }
         return deleted;
     }

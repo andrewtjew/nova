@@ -10,25 +10,24 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.remote.RemoteForm;
 import org.nova.html.tags.script;
 
-public class RemoteStateFormSpinnerButton extends SpinnerButton
+public class RemoteStateFormSubmitSpinnerButton extends SpinnerButton
 {
     static class SpinnerLabel extends Item
     {
         public SpinnerLabel(String label)
         {
-//            addInner(new Icon("check").me(1));
             addInner(label);
         }
     }
     
-    public RemoteStateFormSpinnerButton(RemoteForm form,String label) throws Throwable
+    public RemoteStateFormSubmitSpinnerButton(RemoteForm form,String label) throws Throwable
     {
         super(new SpinnerLabel(label),SpinnerType.border,null);
         color(StyleColor.primary);
         onclick("if (document.getElementById('"+form.id()+"').reportValidity()){"+form.js_post()+";}else{"+js_reset()+";}");
     }
 
-    public RemoteStateFormSpinnerButton(String label) throws Throwable
+    public RemoteStateFormSubmitSpinnerButton(String label) throws Throwable
     {
         super(new SpinnerLabel(label),SpinnerType.border,null);
         color(StyleColor.primary);

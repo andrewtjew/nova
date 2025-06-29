@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
@@ -154,7 +155,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()));
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                 }
                 if (TypeUtils.isNullOrEmpty(result.redirect)==false)
                 {

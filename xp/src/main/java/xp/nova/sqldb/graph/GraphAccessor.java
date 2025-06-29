@@ -62,7 +62,7 @@ public class GraphAccessor implements AutoCloseable
     {
         if (set==null)
         {
-            Debugging.log("null set");
+            Debugging.log(Graph.DEBUG_CATEGORY,"null set");
             return;
         }
         for (int i=0;i<set.results.length;i++)
@@ -71,7 +71,7 @@ public class GraphAccessor implements AutoCloseable
             StringBuilder sb=new StringBuilder();
             sb.append(i+":");
             sb.append(ObjectMapper.writeObjectToString(result.row.getObjects()));
-            Debugging.log(sb.toString());
+            Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
         }
         
     }
@@ -122,7 +122,7 @@ public class GraphAccessor implements AutoCloseable
             QueryResultSet queryResultSet=_execute(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log("Graph","cache miss",LogLevel.WARNING);
+                Debugging.log(Graph.DEBUG_CATEGORY,"cache miss");
             }
             trace.close();
             long duration=trace.getDurationMs();
@@ -172,7 +172,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log("GraphAccessor.query,sql",sql);
+            Debugging.log(Graph.DEBUG_CATEGORY,"sql="+sql);
         }
         if (parameters != null)
         {
@@ -184,7 +184,7 @@ public class GraphAccessor implements AutoCloseable
         }
         if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
-            Debugging.log("GraphAccessor.query.rows",rowSet.size());
+            Debugging.log(Graph.DEBUG_CATEGORY,"rows="+rowSet.size());
         }
         return new QueryResultSet(rowSet,preparedQuery,sql,startNodeId,parameters);
     }
@@ -235,7 +235,7 @@ public class GraphAccessor implements AutoCloseable
                 long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
                 if (count==valueSize.value()==false)
                 {
-                    Debugging.log("count="+count+", cached="+valueSize.value());
+                    Debugging.log(Graph.DEBUG_CATEGORY,"count="+count+", cached="+valueSize.value());
                     throw new Exception();
                 }
             }
@@ -247,7 +247,7 @@ public class GraphAccessor implements AutoCloseable
             long count=_executeCount(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log("Graph","cache miss",LogLevel.WARNING);
+                Debugging.log(Graph.DEBUG_CATEGORY,"cache miss");
             }
             trace.close();
             long duration=trace.getDurationMs();
@@ -297,7 +297,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log("GraphAccessor,count.sql",sql);
+            Debugging.log(Graph.DEBUG_CATEGORY,"count.sql="+sql);
         }
         if (parameters != null)
         {
@@ -309,7 +309,7 @@ public class GraphAccessor implements AutoCloseable
         }
         if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
-            Debugging.log("GraphAccessor.count.value",rowSet.size());
+            Debugging.log(Graph.DEBUG_CATEGORY,"count.value="+rowSet.size());
         }
         return rowSet.getRow(0).getBIGINT(0);
     }
