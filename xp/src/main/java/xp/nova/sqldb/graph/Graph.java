@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Stack;
 import org.nova.collections.ContentCache.ValueSize;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.metrics.CountMeter;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
@@ -27,10 +29,12 @@ import org.nova.utils.TypeUtils;
 public class Graph
 {
     static final boolean DEBUG=true;
+    static final boolean DEBUG_UPGRADE=true;
     static final boolean DEBUG_QUERY=true;
     static final boolean DEBUG_CACHING=true;
     static final boolean DEBUG_VERIFY_CACHING=true;
     static final String DEBUG_CATEGORY=Graph.class.getSimpleName();
+    public static Class<? extends Node> DEBUG_UPGRADETYPE=null;
 
     private int defaultVARCHARLength=45;
     
@@ -749,13 +753,12 @@ public class Graph
     {
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
+//
+//    public void setDebugUpgradeWatchType(Class<? extends Node> debugUpgradeWatchType)
+//    {
+//        this.debugUpgradeType=debugUpgradeWatchType;
+//    }
 
-    public void setDebugUpgradeWatchType(Class<? extends Node> debugUpgradeWatchType)
-    {
-        this.debugUpgradeType=debugUpgradeWatchType;
-    }
-
-    Class<? extends Node> debugUpgradeType;
 
     public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends Node> type) throws Throwable
     {
@@ -792,7 +795,7 @@ public class Graph
             {
                 sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (Debug.ENABLE && DEBUG)
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
                 Debugging.log(DEBUG_CATEGORY,sql);
             }
@@ -803,111 +806,166 @@ public class Graph
             
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
-            String after="_transactionId";
-            Stack<String> alters=new Stack<String>();
+            ArrayList<String> alters=new ArrayList<String>();
 
-            if (Debug.ENABLE && DEBUG)
-            {
-                if (type.getSimpleName().equals("AppointmentStatus"))
-                {
-                    Debugging.log(DEBUG_CATEGORY,"Catalog="+catalog+", type="+type.getSimpleName());
-                }
-            }
-            int rowIndex=0;
-            int fieldIndex=0;
-            Row[] orderedRows=new Row[rowSet.size()];
+            HashMap<String,Row> tableColumns=new HashMap<String, Row>();
             for (int i=0;i<rowSet.size();i++)
             {
                 Row row=rowSet.getRow(i);
-                int position=(int)row.getBIGINT("ORDINAL_POSITION");
-                orderedRows[position-1]=row;
-            }
-            
-            boolean debug=this.debugUpgradeType==type;
-            
-            while (fieldIndex<descriptor.fieldDescriptors.length)
-            {
-                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
-                if (fieldDescriptor.isInternal())
+                String columnName=row.getVARCHAR("COLUMN_NAME");
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
                 {
-                    fieldIndex++;
-                    rowIndex++;
+                    Debugging.log(DEBUG_CATEGORY,"columnName="+columnName);
+                }
+                if (columnName.startsWith("_"))
+                {
                     continue;
                 }
+                tableColumns.put(columnName, row);
+            }
+            
+            //Pass for when columnName==fieldName.
+            ArrayList<FieldDescriptor> notInTableDescriptors=new ArrayList<FieldDescriptor>();
+            for (int fieldIndex=0;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+            {
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
                 String fieldName=fieldDescriptor.getName();
+                Row row=tableColumns.remove(fieldName);
                 SqlType fieldSqlType=fieldDescriptor.getSqlType();
-                if (debug)
+                if (Debug.ENABLE&&DEBUG&&DEBUG_UPGRADE&&(DEBUG_UPGRADETYPE==type))
                 {
-                    System.out.println("Field:"+fieldSqlType.getType()+" "+fieldName);
+                    Debugging.log(DEBUG_CATEGORY,"fieldIndex="+fieldIndex+", field="+fieldSqlType.getType()+" "+fieldName+", exists="+(row!=null));
                 }
-                if (rowIndex<rowSet.size())
+                if (fieldDescriptor.isInternal())
                 {
-                    Row row=orderedRows[rowIndex];
-                    String columnName=row.getVARCHAR("COLUMN_NAME");
-                    if (columnName.equals("_transactionId"))
+                    continue;
+                }
+                if (row!=null)
+                {
+                    String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
+                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                    boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+                    if (fieldSqlType.isEqual(dataType, nullable, length)==false)
                     {
-                        rowIndex++;
-                        continue;
-                    }
-                    int compareResult=fieldName.compareTo(columnName);
-                    if (compareResult==0)
-                    {
-                        String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
-                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                        boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
-                         if (length==null)
-                         {
-                             
-                         }
-                        if (fieldSqlType.isEqual(dataType, nullable, length)==false)
+                        if (fieldSqlType.isLengthAcceptable(length)==false)
                         {
-                            if (fieldSqlType.isLengthAcceptable(length)==false)
-                            {
-                                throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", field length="+fieldSqlType.getLength()+", db type="+dataType+", db length="+length);
-                            }
-                            alters.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
+                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", field length="+fieldSqlType.getLength()+", db type="+dataType+", db length="+length);
                         }
- 
-                        after=columnName;
-                        fieldIndex++;
-                        rowIndex++;
-                        continue;
-                    }
-                    else if (compareResult<0)
-                    {
-                        fieldIndex++;
-                    }
-                    else
-                    {
-                        after=columnName;
-                        if (rowIndex<=rowSet.size()-1)
-                        {
-                            rowIndex++;
-                            if (Debug.ENABLE && DEBUG)
-                            {
-                                Debugging.log(DEBUG_CATEGORY,"Unused column: columnName="+columnName+", table="+table);
-                            }
-                            continue;
-                        }
+                        alters.add(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql());
                     }
                 }
                 else
                 {
-                    fieldIndex++;
+                    notInTableDescriptors.add(fieldDescriptor);
+//                    alters.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+after+'`');
                 }
-                alters.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+after+'`');
             }
+            
+            //Discover renames. 
+            ArrayList<FieldDescriptor> addFieldDescriptors=new ArrayList<FieldDescriptor>();
+            for (FieldDescriptor fieldDescriptor:notInTableDescriptors)
+            {
+                String fieldName=fieldDescriptor.getName();
+                SqlType fieldSqlType=fieldDescriptor.getSqlType();
+                Row rename=null;
+                for (Row row:tableColumns.values())
+                {
+                    String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
+                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                    boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+                    if (fieldSqlType.isEqual(dataType, nullable, length))
+                    {
+                        if (rename!=null)
+                        {
+                            throw new Exception("Rename conflict: table="+table+", fieldName="+fieldName+", candidates="+row.getVARCHAR("COLUMN_NAME")+", "+rename.getVARCHAR("COLUMN_NAME"));
+                        }
+                        rename=row;
+                    }
+                }
+                if (rename!=null)
+                {
+                    String columnName=rename.getVARCHAR("COLUMN_NAME");
+                    alters.add(" CHANGE COLUMN `"+columnName+"` `"+fieldName+"` "+fieldSqlType.getSql());
+                    tableColumns.remove(columnName);
+                }
+                else
+                {
+                    addFieldDescriptors.add(fieldDescriptor);
+                }
+            }
+
+            FieldDescriptor[] inTableFieldDescriptors=new FieldDescriptor[descriptor.fieldDescriptors.length];
+            for (int fieldIndex=0;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+            {
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                boolean inTable=true;
+                for (FieldDescriptor add:addFieldDescriptors)
+                {
+                    if (add.getName().equals(fieldDescriptor.getName()))
+                    {
+                        inTable=false;
+                        break;
+                    }
+                }
+                if (inTable)
+                {
+                    inTableFieldDescriptors[fieldIndex]=fieldDescriptor;
+                }
+            }
+            
+            //Add new columns 
+            for (FieldDescriptor addFieldDescriptor:addFieldDescriptors)
+            {
+                String fieldName=addFieldDescriptor.getName();
+                for (int fieldIndex=1;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+                {
+                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                    if (fieldName.equals(fieldDescriptor.getName()))
+                    {
+                        for (int inTableIndex=fieldIndex-1;inTableIndex>=0;inTableIndex--)
+                        {
+                            FieldDescriptor inTableFieldDescriptor=inTableFieldDescriptors[inTableIndex];
+                            if (inTableFieldDescriptor!=null)
+                            {
+                                String columnName=inTableIndex>0?inTableFieldDescriptor.getName():"_transactionId";
+                                SqlType fieldSqlType=addFieldDescriptor.getSqlType();
+                                alters.add(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+columnName+'`');
+                                inTableFieldDescriptors[fieldIndex]=fieldDescriptor;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            //Delete columns
+            for (Row row:tableColumns.values())
+            {
+                String columnName=row.getVARCHAR("COLUMN_NAME");
+                if (columnName.startsWith("_"))
+                {
+                    continue;
+                }
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"DROP column="+columnName+", table="+table,LogLevel.WARNING);
+                }
+                alters.add(" DROP COLUMN `"+columnName+"`");
+            }
+            
             if (alters.size()>0)
             {
                 StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+descriptor.getTableName());
-                sql.append(alters.pop());
-                while (alters.size()>0)
+                for (int i=0;i<alters.size();i++)
                 {
-                    sql.append(','+alters.pop());
-                    
+                    if (i>0)
+                    {
+                        sql.append(',');
+                    }
+                    sql.append(alters.get(i));
                 }
                 sql.append(';');
-                if (Debug.ENABLE && DEBUG)
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
                 {
                     Debugging.log(DEBUG_CATEGORY,sql);
                 }

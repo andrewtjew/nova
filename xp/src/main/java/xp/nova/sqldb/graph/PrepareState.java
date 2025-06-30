@@ -87,7 +87,7 @@ class PrepareState
                     }
                     else
                     {
-                        throw new Exception("Cannot infer targetNodeType. Specify targetNodeType in LinkQuery constructor.");
+                        throw new Exception("Cannot infer targetNodeType. Add select(targetNodeType) to LinkQuery.");
                     }
                     
                     break;
