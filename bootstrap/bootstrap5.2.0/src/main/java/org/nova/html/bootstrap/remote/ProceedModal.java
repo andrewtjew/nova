@@ -57,19 +57,19 @@ public class ProceedModal extends ModalDocument
     }
     public ProceedModal(String id,String title,String message) throws Throwable
     {
-        this(id,title,message,"Cancel","Proceed");
+        this(id,title,message,"No","Yes");
     }
     public ProceedModal(String title,String message) throws Throwable
     {
-        this(null,title,message,"Cancel","Proceed");
+        this(null,title,message);
     }
     public ProceedModal(String title) throws Throwable
     {
-        this(null,title,null,"Cancel","Proceed");
+        this(title,null);
     }
     public ProceedModal() throws Throwable
     {
-        this(null,null,"Cancel","Proceed");
+        this(null);
     }
     public void onProceed(String script)
     {

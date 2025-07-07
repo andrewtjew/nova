@@ -826,15 +826,15 @@ public class Graph
             
             //Pass for when columnName==fieldName.
             ArrayList<FieldDescriptor> notInTableDescriptors=new ArrayList<FieldDescriptor>();
-            for (int fieldIndex=0;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+            for (int index=0;index<descriptor.fieldDescriptors.length;index++)
             {
-                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
                 String fieldName=fieldDescriptor.getName();
                 Row row=tableColumns.remove(fieldName);
                 SqlType fieldSqlType=fieldDescriptor.getSqlType();
                 if (Debug.ENABLE&&DEBUG&&DEBUG_UPGRADE&&(DEBUG_UPGRADETYPE==type))
                 {
-                    Debugging.log(DEBUG_CATEGORY,"fieldIndex="+fieldIndex+", field="+fieldSqlType.getType()+" "+fieldName+", exists="+(row!=null));
+                    Debugging.log(DEBUG_CATEGORY,"fieldIndex="+index+", field="+fieldSqlType.getType()+" "+fieldName+", exists="+(row!=null));
                 }
                 if (fieldDescriptor.isInternal())
                 {
@@ -894,10 +894,10 @@ public class Graph
                 }
             }
 
-            FieldDescriptor[] inTableFieldDescriptors=new FieldDescriptor[descriptor.fieldDescriptors.length];
-            for (int fieldIndex=0;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+            FieldDescriptor[] inTableFieldFieldDescriptors=new FieldDescriptor[descriptor.fieldDescriptors.length];
+            for (int index=0;index<descriptor.fieldDescriptors.length;index++)
             {
-                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
                 boolean inTable=true;
                 for (FieldDescriptor add:addFieldDescriptors)
                 {
@@ -909,32 +909,7 @@ public class Graph
                 }
                 if (inTable)
                 {
-                    inTableFieldDescriptors[fieldIndex]=fieldDescriptor;
-                }
-            }
-            
-            //Add new columns 
-            for (FieldDescriptor addFieldDescriptor:addFieldDescriptors)
-            {
-                String fieldName=addFieldDescriptor.getName();
-                for (int fieldIndex=1;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
-                {
-                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
-                    if (fieldName.equals(fieldDescriptor.getName()))
-                    {
-                        for (int inTableIndex=fieldIndex-1;inTableIndex>=0;inTableIndex--)
-                        {
-                            FieldDescriptor inTableFieldDescriptor=inTableFieldDescriptors[inTableIndex];
-                            if (inTableFieldDescriptor!=null)
-                            {
-                                String columnName=inTableIndex>0?inTableFieldDescriptor.getName():"_transactionId";
-                                SqlType fieldSqlType=addFieldDescriptor.getSqlType();
-                                alters.add(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+columnName+'`');
-                                inTableFieldDescriptors[fieldIndex]=fieldDescriptor;
-                                break;
-                            }
-                        }
-                    }
+                    inTableFieldFieldDescriptors[index]=fieldDescriptor;
                 }
             }
             
@@ -951,6 +926,31 @@ public class Graph
                     Debugging.log(DEBUG_CATEGORY,"DROP column="+columnName+", table="+table,LogLevel.WARNING);
                 }
                 alters.add(" DROP COLUMN `"+columnName+"`");
+            }
+            
+            //Add new columns 
+            for (FieldDescriptor addFieldDescriptor:addFieldDescriptors)
+            {
+                String fieldName=addFieldDescriptor.getName();
+                for (int fieldIndex=1;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+                {
+                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                    if (fieldName.equals(fieldDescriptor.getName()))
+                    {
+                        for (int inTableIndex=fieldIndex-1;inTableIndex>=0;inTableIndex--)
+                        {
+                            FieldDescriptor inTableFieldDescriptor=inTableFieldFieldDescriptors[inTableIndex];
+                            if (inTableFieldDescriptor!=null)
+                            {
+                                String columnName=inTableIndex>0?inTableFieldDescriptor.getName():"_transactionId";
+                                SqlType fieldSqlType=addFieldDescriptor.getSqlType();
+                                alters.add(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+columnName+'`');
+                                inTableFieldFieldDescriptors[fieldIndex]=fieldDescriptor;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             
             if (alters.size()>0)

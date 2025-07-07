@@ -31,7 +31,6 @@ public class Breadcrumb extends StyleComponent<Breadcrumb>
     public Breadcrumb()
     {
         super("ol", "breadcrumb");
-        style("--bs-breadcrumb-divider: '>';" );
     }   
     
     public Breadcrumb addItemInline(String title,String href,boolean active)

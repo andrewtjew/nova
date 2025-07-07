@@ -58,9 +58,5 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
     {
         return load(href,null,null,true,null);
     }
-//    public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
-//    {
-//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
-//        
-//    }
+
 }

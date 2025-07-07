@@ -6,9 +6,10 @@ import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
+import org.nova.tracing.Trace;
 
 //Use this to populate dynamic content by calling back to server. The element itself is mostly a place holder.
-public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
+public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
     public RemoteElement(String tag,String id) throws Throwable
     {
@@ -42,18 +43,8 @@ public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> exten
         }
         return this;
     }    
-//    public void addScript(RemoteResponse response,String js_script)
-//    {
-//        if (response!=null)
-//        {
-//            response.script(js_script);
-//        }
-//        else
-//        {
-//            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
-//        }
-//    }
-    public RemoteResponse render(RemoteResponse response) throws Throwable
+
+    public RemoteResponse render(Trace parent,RemoteResponse response) throws Throwable
     {
         if (response!=null)
         {
@@ -61,12 +52,4 @@ public class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> exten
         }
         return response;
     }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
-    {
-        render(null);
-        super.compose(composer);
-    }    
-    
 }

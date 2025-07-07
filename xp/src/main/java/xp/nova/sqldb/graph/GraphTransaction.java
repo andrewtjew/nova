@@ -329,7 +329,7 @@ public class GraphTransaction implements AutoCloseable
         }
         if (Graph.DEBUG&&(Graph.DEBUG_CACHING))
         {
-            Debugging.log(Graph.DEBUG_CATEGORY,"deleteNode:nodeId="+nodeId);
+            Debugging.log(Graph.DEBUG_CATEGORY,"deleteNode:nodeId="+nodeId+", deleted="+deleted);
         }
         return deleted;
     }
