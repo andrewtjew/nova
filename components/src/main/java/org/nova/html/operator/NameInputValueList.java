@@ -28,7 +28,7 @@ import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.ext.Text;
-import org.nova.html.properties.Display;
+import org.nova.html.properties.Display_;
 import org.nova.html.properties.FontWeight;
 import org.nova.html.properties.Length;
 import org.nova.html.properties.TextAlign;
@@ -98,7 +98,7 @@ public class NameInputValueList extends div
                    //"width:"+width+"em;padding-right:0.5em;margin-left:0.5em;font-weight:bold;").addInner(label));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()));
 //           line.addInner(new div().style("width:100%;text-align:left;display:block;").addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
-           line.addInner(new div().style(new Style().width(rightWidth).text_align(TextAlign.left).display(Display.block)).addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
+           line.addInner(new div().style(new Style().width(rightWidth).text_align(TextAlign.left).display(Display_.block)).addInner(item.getValue()).addInner(new div().style("display:none;padding:0.5em;margin-bottom:0.5em;background-color:#fdd;")));
        }
        super.compose(builder);
     }

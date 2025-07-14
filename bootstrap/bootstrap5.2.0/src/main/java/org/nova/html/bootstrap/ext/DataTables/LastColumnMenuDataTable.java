@@ -5,10 +5,11 @@ import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.properties.Length;
 import org.nova.html.properties.Unit;
+import org.nova.html.properties.width;
 
 public class LastColumnMenuDataTable extends DataTable 
 {
-	static private DataTableOptions addOptions(DataTableOptions options,Length menuWidth,int target)
+	static private DataTableOptions addOptions(DataTableOptions options,width menuWidth,int target)
 	{
 	    ColumnDef menuColumnDefs=new ColumnDef(target);
 	    menuColumnDefs.orderable=false;
@@ -18,7 +19,7 @@ public class LastColumnMenuDataTable extends DataTable
 	    return options;
 	}
     
-	private LastColumnMenuDataTable(DataTableOptions options,Length menuWidth,Object...columnNames) 
+	private LastColumnMenuDataTable(DataTableOptions options,width menuWidth,Object...columnNames) 
     {
         super(addOptions(options,menuWidth,columnNames.length));
         
@@ -29,19 +30,19 @@ public class LastColumnMenuDataTable extends DataTable
     }
 	
 	
-	public LastColumnMenuDataTable(Length menuWidth,Object...columnNames) 
+	public LastColumnMenuDataTable(width menuWidth,Object...columnNames) 
 	{
 	    this(new DataTableOptions(),menuWidth,columnNames);
 	}
 
 	public LastColumnMenuDataTable(Object...columnNames) 
 	{
-		this(new Length(1,Unit.em),columnNames);
+		this(new width(1,Unit.em),columnNames);
 	}
 
 	public LastColumnMenuDataTable(DataTableOptions options,Object...columnNames) 
     {
-        this(options,new Length(1,Unit.em),columnNames);
+        this(options,new width(1,Unit.em),columnNames);
     }
 
 

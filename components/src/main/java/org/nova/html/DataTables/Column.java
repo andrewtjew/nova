@@ -66,7 +66,7 @@ public class Column
         this.orderable=orderable;
         return this;
     }
-    public Column width(Length width)
+    public Column width(org.nova.html.properties.width width)
     {
         this.width=width.toString();
         return this;

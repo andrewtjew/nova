@@ -25,7 +25,7 @@ import org.nova.html.properties.BorderBoxStyle;
 import org.nova.html.properties.BorderStyle;
 import org.nova.html.properties.BoxColor;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.Display;
+import org.nova.html.properties.Display_;
 import org.nova.html.properties.FlexBasis;
 import org.nova.html.properties.FlexDirection;
 import org.nova.html.properties.FlexWrap;
@@ -34,6 +34,7 @@ import org.nova.html.properties.FontWeight;
 import org.nova.html.properties.ListStyle;
 import org.nova.html.properties.Overflow;
 import org.nova.html.properties.Position;
+import org.nova.html.properties.Property;
 import org.nova.html.properties.Length;
 import org.nova.html.properties.TextAlign;
 import org.nova.html.properties.TextDecoration;
@@ -46,6 +47,14 @@ public class Style
     public Style()
     {
         this.sb=new StringBuilder();
+    }
+    public Style property(Property...properties)
+    {
+        for (Property property:properties)
+        {
+            this.sb.append(property);
+        }
+        return this;
     }
     public Style width(Length size)
     {
@@ -225,7 +234,7 @@ public class Style
         return this;
     }
 
-    public Style display(Display value)
+    public Style display(Display_ value)
     {
         sb.append("display:"+value.toString()+";");
         return this;
@@ -250,13 +259,7 @@ public class Style
         sb.append("flex-basis:"+value.toString()+";");
         return this;
     }
-    /*
-    public Style flex_flow(flex_direction direction,flex_wrap wrap)
-    {
-        sb.append("flex-flow:"+direction.toString()+" "+wrap.toString()+";");
-        return this;
-    }
-    */
+
     public Style flex_direction(FlexDirection value)
     {
         sb.append("flex-direction:"+value.toString()+";");

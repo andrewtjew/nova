@@ -21,22 +21,29 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class Length extends Property 
+public class Length 
 {
     final private double value;
     final private Unit unit;
-    public Length(double value,Unit unit,boolean important)
+    final private boolean important;
+
+    @Override
+    final public String toString()
     {
         if (important)
         {
-            this.string=value+(unit!=null?unit.toString():"")+" !important";
+            return value+(unit!=null?unit.toString():"")+" !important";
         }
         else
         {
-            this.string=value+(unit!=null?unit.toString():"");
+            return value+(unit!=null?unit.toString():"");
         }
+    }        
+    public Length(double value,Unit unit,boolean important)
+    {
         this.value=value;
         this.unit=unit;
+        this.important=important;
     }
     public Length(double value,boolean important)
     {
@@ -57,5 +64,9 @@ public class Length extends Property
     public Unit unit()
     {
         return this.unit;
+    }
+    public boolean important()
+    {
+        return this.important;
     }
 }
