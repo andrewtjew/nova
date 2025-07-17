@@ -151,6 +151,10 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         }
         return (T)this.states.get(_key);
     }
+    
+    @SuppressWarnings({
+            "unused", "unchecked"
+    })
     public <T> T removeState(Object key)
     {
         String _key=key.toString();        
@@ -165,7 +169,10 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 }
             }
         }
-        this.newPageStates.remove(_key);
+        if (this.newPageStates!=null)
+        {
+            this.newPageStates.remove(_key);
+        }
         return (T)this.states.remove(_key);
         
     }

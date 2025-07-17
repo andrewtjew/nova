@@ -719,7 +719,7 @@ public class Graph
     final GraphPerformanceMonitor performanceMonitor;
     final private String catalog;
 
-    private boolean caching;
+//    public boolean caching;
     final private QueryResultSetCache queryResultSetCache;
     final private CountCache countCache;
     final private HashMap<String,HashSet<QueryKey>> typeNameQueryKeyCacheSets;
@@ -729,7 +729,6 @@ public class Graph
     
     public Graph(Connector connector,String catalog,boolean caching,GraphPerformanceMonitor performanceMonitor) throws Throwable
     {
-        this.caching=caching;
         this.connector=connector;
         this.performanceMonitor=performanceMonitor;
         this.catalog=catalog;
@@ -1018,26 +1017,22 @@ public class Graph
     
     ValueSize<QueryResultSet> getFromCache(QueryKey key) throws Throwable
     {
+        if (this.performanceMonitor.caching==false)
+        {
+            return null;
+        }
         synchronized(this)
         {
-            if (caching==false)
-            {
-//                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
-//                {
-//                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
-//                }
-                return null;
-            }
             ValueSize<QueryResultSet> valueSize=this.queryResultSetCache.getFromCache(key);
             if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
                 if (valueSize==null)
                 {
-                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache miss:"+key.preparedQuery.sql);
                 }
                 else
                 {
-                    Debugging.log(DEBUG_CATEGORY,"Cache:found     : "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache hit: "+key.preparedQuery.sql);
                 }
             }
             if (valueSize!=null)
@@ -1058,7 +1053,7 @@ public class Graph
         
         synchronized(this)
         {
-            if (caching==false)
+            if (this.performanceMonitor.caching==false)
             {
                 return;
             }
@@ -1107,7 +1102,7 @@ public class Graph
     {
         synchronized(this)
         {
-            if (caching==false)
+            if (this.performanceMonitor.caching==false)
             {
                 return;
             }
@@ -1206,17 +1201,17 @@ public class Graph
             this.countCache.clear();
         }
     }
-    public void setCaching(boolean caching)
-    {
-        synchronized(this)
-        {
-            this.caching=caching;
-            if (caching==false)
-            {
-                clearCache();
-            }
-        }
-    }
+//    public void setCaching(boolean caching)
+//    {
+//        synchronized(this)
+//        {
+//            this.performanceMonitor.caching=caching;
+//            if (caching==false)
+//            {
+//                clearCache();
+//            }
+//        }
+//    }
     public GraphPerformanceMonitor getPerformanceCollector()
     {
         return this.performanceMonitor;
@@ -1225,14 +1220,6 @@ public class Graph
     {
         synchronized(this)
         {
-            if (caching==false)
-            {
-                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
-                {
-                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
-                }
-                return null;
-            }
             ValueSize<Long> valueSize=this.countCache.getFromCache(key);
             if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
@@ -1264,7 +1251,7 @@ public class Graph
         
         synchronized(this)
         {
-            if (caching==false)
+            if (this.performanceMonitor.caching==false)
             {
                 return;
             }

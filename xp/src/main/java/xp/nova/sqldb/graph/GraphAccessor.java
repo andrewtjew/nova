@@ -100,29 +100,34 @@ public class GraphAccessor implements AutoCloseable
     private QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
         QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
-        var valueSize=this.graph.getFromCache(key);
-        if (valueSize!=null)
+        if (this.graph.performanceMonitor.caching)
         {
-            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            var valueSize=this.graph.getFromCache(key);
+            if (valueSize!=null)
             {
-                QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
-                QueryResultSet cachedResultSet=valueSize.value();
-                if (queryResultSet.equals(cachedResultSet)==false)
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
                 {
-                    debugPrint(queryResultSet);
-                    debugPrint(cachedResultSet);
-                    var again=queryResultSet.equals(cachedResultSet);
-                    throw new Exception();
+                    QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
+                    QueryResultSet cachedResultSet=valueSize.value();
+                    if (queryResultSet.equals(cachedResultSet)==false)
+                    {
+                        debugPrint(queryResultSet);
+                        debugPrint(cachedResultSet);
+                        throw new Exception();
+                    }
                 }
+                return valueSize.value();
             }
-            return valueSize.value();
         }
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             QueryResultSet queryResultSet=_execute(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log(Graph.DEBUG_CATEGORY,"cache miss");
+                if (this.graph.performanceMonitor.caching)
+                {
+                    Debugging.log(Graph.DEBUG_CATEGORY,"cache miss:excecute");
+                }
             }
             trace.close();
             long duration=trace.getDurationMs();
@@ -227,27 +232,33 @@ public class GraphAccessor implements AutoCloseable
     private long count(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
         QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
-        var valueSize=this.graph.getFromCountCache(key);
-        if (valueSize!=null)
+        if (this.graph.performanceMonitor.caching)
         {
-            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            var valueSize=this.graph.getFromCountCache(key);
+            if (valueSize!=null)
             {
-                long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
-                if (count==valueSize.value()==false)
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
                 {
-                    Debugging.log(Graph.DEBUG_CATEGORY,"count="+count+", cached="+valueSize.value());
-                    throw new Exception();
+                    long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
+                    if (count==valueSize.value()==false)
+                    {
+                        Debugging.log(Graph.DEBUG_CATEGORY,"count="+count+", cached="+valueSize.value());
+                        throw new Exception();
+                    }
                 }
+                
+                return valueSize.value();
             }
-            
-            return valueSize.value();
         }
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             long count=_executeCount(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log(Graph.DEBUG_CATEGORY,"cache miss");
+                if (this.graph.performanceMonitor.caching)
+                {
+                    Debugging.log(Graph.DEBUG_CATEGORY,"cache miss:count");
+                }
             }
             trace.close();
             long duration=trace.getDurationMs();
