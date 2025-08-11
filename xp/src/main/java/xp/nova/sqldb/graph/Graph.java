@@ -767,14 +767,17 @@ public class Graph
         Accessor accessor=graphAccessor.accessor;
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
-            StringBuilder sql=new StringBuilder();
+            StringBuilder createTableSql=new StringBuilder();
+            StringBuilder _createTableSql=new StringBuilder();
             if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE `_"+table+"` (`_version` bigint NOT NULL AUTO_INCREMENT,`_id` bigint NOT NULL,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             else
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE `_"+table+"` (`_version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
@@ -782,23 +785,24 @@ public class Graph
                 {
                     continue;
                 }
-                sql.append("`"+columnAccessor.getName()+"` ");
-                sql.append(columnAccessor.getSqlType().getSql());
-                sql.append(",");
+                createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
+                _createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
             }
             if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
-                sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
             else
             {
-                sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
+            _createTableSql.append("PRIMARY KEY (`_version`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
-                Debugging.log(DEBUG_CATEGORY,sql);
+                Debugging.log(DEBUG_CATEGORY,createTableSql);
             }
-            accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
+            accessor.executeUpdate(parent, "createTable:"+table, createTableSql.toString());
+            accessor.executeUpdate(parent, "createTable:_"+table, _createTableSql.toString());
         }
         else
         {
@@ -968,7 +972,9 @@ public class Graph
                 {
                     Debugging.log(DEBUG_CATEGORY,sql);
                 }
+                String _sql=sql.toString().replace("`"+catalog+"`","`_"+catalog+"`");
                 accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
+                accessor.executeUpdate(parent, "alterTable:_"+table, sql.toString());
             }
         }
     }
@@ -994,24 +1000,24 @@ public class Graph
         }
         try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
+            createTable(parent,accessor,catalog,"_nodeType"
+                    ,"CREATE TABLE `_nodeType` (`nodeId` BIGINT NOT NULL,`nodeType` VARCHAR(45) NOT NULL,PRIMARY KEY (`nodeId`, `nodeType`)) ENGINE=InnoDB;"
+                    );
             createTable(parent,accessor,catalog,"_transaction"
-                    ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"_link"
-                    ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"_node"
-                    ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"_array"
-                    ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"_delete"
-                    ,"CREATE TABLE `_delete` (`nodeId` bigint NOT NULL,`transactionid` bigint DEFAULT NULL,`cleaned` datetime DEFAULT NULL,PRIMARY KEY (`nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE `_delete` (`nodeId` bigint NOT NULL,`transactionid` bigint DEFAULT NULL,`cleaned` datetime DEFAULT NULL,PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"_version"
-                        ,"CREATE TABLE `_version` (`version` varchar(50) NOT NULL,PRIMARY KEY (`version`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
             }
     }
     

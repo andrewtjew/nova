@@ -52,7 +52,7 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public long createNode(Node...objects) throws Throwable
+    public long create(Node...objects) throws Throwable
     {
         long nodeId=Insert.table("_node").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         put(nodeId,objects);
@@ -66,6 +66,10 @@ public class GraphTransaction implements AutoCloseable
             if (object==null)
             {
                 continue;
+            }
+            if ((object._nodeId!=null)&&(object._nodeId!=nodeId))
+            {
+                throw new Exception("object "+object.getClass().getSimpleName()+" belongs to another node. objectNodeId="+nodeId+", nodeId="+nodeId);
             }
             _put(object,nodeId);
         }
@@ -86,7 +90,7 @@ public class GraphTransaction implements AutoCloseable
 
     private void _put(Node object,long nodeId) throws Throwable
     {
-        //OPTIMIZE: build insert or update based on state in DB. Current insert and update are both built, then one is not used.
+        //OPTIMIZE: the sql statements can be pre-calculated. 
         object._nodeId=nodeId;
         Class<? extends Node> type=object.getClass();
         GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(type);
@@ -100,62 +104,52 @@ public class GraphTransaction implements AutoCloseable
         }
         this.graph.invalidateCacheLines(parent, descriptor);
         
-        String table=descriptor.getTableName();
-        FieldDescriptor[] columnAccessors=descriptor.getFieldDescriptors();
-
-        StringBuilder insert=new StringBuilder();
-        StringBuilder update=new StringBuilder();
-        StringBuilder values=new StringBuilder();
-
-        int length=columnAccessors.length;
-        if (descriptor.getObjectType()==GraphObjectType.NODE)
-        {
-            length++; 
-        }
-        
-        Object[] insertParameters=new Object[length];
-        int insertIndex=0;
-        insertParameters[insertIndex++]=nodeId;
-        insertParameters[insertIndex++]=this.transactionId;
-        insert.append("_nodeId,_transactionId");
-        values.append("?,?");
-        
-        Object[] updateParameters=new Object[length];
-        int updateIndex=0;
-        update.append("_transactionId=?");
-        updateParameters[updateIndex++]=this.transactionId;
-        
-        for (FieldDescriptor columnAccessor:columnAccessors)
-        {
-            if (columnAccessor.isInternal())
-            {
-                String name=columnAccessor.getName();
-                System.out.println("column skipped="+name);
-                continue;
-            }
-            String name=columnAccessor.getName();
-            Object value=columnAccessor.get(object);
-            insert.append(',');
-            insert.append('`'+name+'`');
-            values.append(",?");
-            update.append(",`"+name+"`=?");
-            insertParameters[insertIndex++]=value;
-            updateParameters[updateIndex++]=value;
-        }
-        updateParameters[updateIndex++]=nodeId;
-
-        String selectSql="SELECT * FROM "+table+" WHERE _nodeId=?";
+        String selectSql="SELECT * FROM "+descriptor.getTableName()+" WHERE _nodeId=?";
         RowSet rowSet=accessor.executeQuery(parent, null, selectSql,nodeId);
         if (rowSet.size()==0)
         {
-            String sql="INSERT INTO "+table+"("+insert+") VALUES ("+values+")";
+            FieldDescriptor[] columnAccessors=descriptor.getFieldDescriptors();
+
+            StringBuilder insertColumnNames=new StringBuilder();
+            StringBuilder insertValuePlaceholders=new StringBuilder();
+
+            int length=columnAccessors.length;
+            if (descriptor.getObjectType()==GraphObjectType.NODE)
+            {
+                length++; 
+            }
+            
+            Object[] insertValues=new Object[length];
+            int insertIndex=0;
+            insertValues[insertIndex++]=nodeId;
+            insertValues[insertIndex++]=this.transactionId;
+            insertColumnNames.append("_nodeId,_transactionId");
+            insertValuePlaceholders.append("?,?");
+            
+            for (FieldDescriptor columnAccessor:columnAccessors)
+            {
+                if (columnAccessor.isInternal())
+                {
+                    String name=columnAccessor.getName();
+                    System.out.println("column skipped="+name);
+                    continue;
+                }
+                String name=columnAccessor.getName();
+                Object value=columnAccessor.get(object);
+                insertColumnNames.append(',');
+                insertColumnNames.append('`'+name+'`');
+                insertValuePlaceholders.append(",?");
+                insertValues[insertIndex++]=value;
+            }
+
+            String sql="INSERT INTO "+descriptor.getTableName()+"("+insertColumnNames+") VALUES ("+insertValuePlaceholders+")";
             if (Graph.DEBUG_QUERY)
             {
                 StringBuilder sb=new StringBuilder(sql);
-                if (insertParameters.length>0)
+                if (insertValues.length>0)
                 {
                     sb.append("(");
-                    for (int i=0;i<insertParameters.length;i++)
+                    for (int i=0;i<insertValues.length;i++)
                     {
                         if (i==0)
                         {
@@ -165,7 +159,7 @@ public class GraphTransaction implements AutoCloseable
                         {
                             sb.append(',');
                         }
-                        sb.append(insertParameters[i]);
+                        sb.append(insertValues[i]);
                     }
                     sb.append(")");
                 }
@@ -173,23 +167,69 @@ public class GraphTransaction implements AutoCloseable
             }
             if (object instanceof IdentityNode)
             {
-                ((IdentityNode)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertParameters).getAsLong(0);
+                ((IdentityNode)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertValues).getAsLong(0);
             }
             else
             {
-                accessor.executeUpdate(parent, null, sql, insertParameters);
+                accessor.executeUpdate(parent, null, sql, insertValues);
             }
+            Insert.table("_nodeType").value("nodeId", nodeId).value("nodeType", descriptor.getTypeName()).execute(parent, accessor);
         }
         else if (rowSet.size()==1)
         {
-            String sql="UPDATE "+table+" SET "+update+" WHERE _nodeId=?";
+            StringBuilder insertColumnNames=new StringBuilder();
+            StringBuilder insertValuePlaceholders=new StringBuilder();
+            Row row=rowSet.getRow(0);
+            Object[] insertValues=new Object[row.getColumns()];
+            for (int i=0;i<insertValues.length;i++)
+            {
+                if (i>0)
+                {
+                    insertColumnNames.append(',');
+                    insertValuePlaceholders.append(',');
+                }
+                insertColumnNames.append('`'+rowSet.getColumnName(i)+'`');
+                insertValuePlaceholders.append('?');
+                insertValues[i]=row.getObjects()[i];
+            }
+
+            FieldDescriptor[] columnAccessors=descriptor.getFieldDescriptors();
+
+            StringBuilder update=new StringBuilder();
+            int length=columnAccessors.length;
+            if (descriptor.getObjectType()==GraphObjectType.NODE)
+            {
+                length++; 
+            }
+            Object[] updateValues=new Object[length];
+            int updateValueIndex=0;
+            update.append("_transactionId=?");
+            updateValues[updateValueIndex++]=this.transactionId;
+
+            
+            for (FieldDescriptor columnAccessor:columnAccessors)
+            {
+                if (columnAccessor.isInternal())
+                {
+                    String name=columnAccessor.getName();
+                    System.out.println("column skipped="+name);
+                    continue;
+                }
+                String name=columnAccessor.getName();
+                Object value=columnAccessor.get(object);
+                update.append(",`"+name+"`=?");
+                updateValues[updateValueIndex++]=value;
+            }
+            updateValues[updateValueIndex++]=nodeId;
+
+            String updateSql="UPDATE "+descriptor.getTableName()+" SET "+update+" WHERE _nodeId=?";
             if (Graph.DEBUG_QUERY)
             {
-                StringBuilder sb=new StringBuilder(sql);
-                if (updateParameters.length>0)
+                StringBuilder sb=new StringBuilder(updateSql);
+                if (updateValues.length>0)
                 {
                     sb.append("(");
-                    for (int i=0;i<updateParameters.length;i++)
+                    for (int i=0;i<updateValues.length;i++)
                     {
                         if (i==0)
                         {
@@ -199,13 +239,16 @@ public class GraphTransaction implements AutoCloseable
                         {
                             sb.append(',');
                         }
-                        sb.append(updateParameters[i]);
+                        sb.append(updateValues[i]);
                     }
                     sb.append(")");
                 }
                 Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
-            accessor.executeUpdate(parent, null, sql, updateParameters);
+            accessor.executeUpdate(parent, null, updateSql, updateValues);
+            
+            String insertSql="INSERT INTO "+descriptor.getVersionedTableName()+"("+insertColumnNames+") VALUES ("+insertValuePlaceholders+")";
+            accessor.executeUpdate(parent, null, insertSql, insertValues);
         }
         else
         {
@@ -378,7 +421,7 @@ public class GraphTransaction implements AutoCloseable
             Node element=elements[i];
             if (element!=null)
             {
-                long elementId=createNode(element);
+                long elementId=create(element);
                 Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
             }
         }
@@ -402,7 +445,7 @@ public class GraphTransaction implements AutoCloseable
             Node element=elements[i];
             if (element!=null)
             {
-                long elementId=createNode(element);
+                long elementId=create(element);
                 Insert.table("_array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
         }
