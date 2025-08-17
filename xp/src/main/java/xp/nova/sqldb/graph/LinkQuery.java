@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 public class LinkQuery
 {
+    /*
+     * Links must have fromNodeType and toNodeType because the target of a link is specified by Relation and targetNodeType
+     */
     final Direction direction;
     final long relationValue;
     final Class<? extends Node> targetNodeType;

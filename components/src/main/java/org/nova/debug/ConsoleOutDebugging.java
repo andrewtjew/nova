@@ -18,7 +18,10 @@ public class ConsoleOutDebugging extends Debugging
             break;
 
             default:
-            System.out.println(category+":"+object);
+            synchronized(this)
+            {
+                System.out.println(category+":"+object);
+            }
             break;
             
         }

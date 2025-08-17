@@ -1020,6 +1020,14 @@ public class Graph
             createTable(parent,accessor,catalog,"~array"
                     ,"CREATE TABLE `~array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB;"
                     );
+            createTable(parent,accessor,catalog,"~deletednode"
+                    ,"CREATE TABLE `~deletednode` (`id` bigint NOT NULL,`deleted` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+
+            createTable(parent,accessor,catalog,"~deletedlink"
+                    ,"CREATE TABLE `~deletedlink` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+                    );
+            
             }
     }
     
