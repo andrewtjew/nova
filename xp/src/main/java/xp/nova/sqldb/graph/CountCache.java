@@ -21,7 +21,7 @@ public class CountCache extends ContentCache<QueryKey, Long>
     @Override
     protected void onEvict(Trace parent, QueryKey key, Long value) throws Throwable
     {
-        this.graph.evict(parent,key,null);
+        this.graph.evictCacheSets(parent,key,null);
     }
 
 }

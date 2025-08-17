@@ -28,7 +28,7 @@ public class GraphObjectDescriptor
         this.fieldDescriptors=fieldDescriptors;
         this.typeName=typeName;
         this.tableName='`'+typeName+'`';
-        this.versionedTableName="`_"+typeName+'`';
+        this.versionedTableName="`~~"+typeName+'`';
     }
 
     public Class<? extends Node> getType()

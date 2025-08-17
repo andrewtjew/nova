@@ -88,8 +88,8 @@ public class ArrayQuery
             {
                 preparedQuery.start=" AND nodeId=";
             }
-            on=" ON _array.elementId=";
-            sources.append(" _array");
+            on=" ON '~array'.elementId=";
+            sources.append(" `~array`");
         }
         
         if (this.nodeTypes != null)
@@ -146,12 +146,12 @@ public class ArrayQuery
             query.append(" WHERE ("+this.expression+")");
             if (this.offset!=null)
             {
-                query.append(" AND _array.index>="+this.offset);
+                query.append(" AND `~array`.index>="+this.offset);
             }
         }
         else if (this.offset!=null)
         {
-            query.append(" WHERE _array.index>="+this.offset);
+            query.append(" WHERE `~array`.index>="+this.offset);
         }
         preparedQuery.orderBy=this.orderBy;
         preparedQuery.limit=this.limit;

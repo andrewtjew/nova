@@ -31,7 +31,7 @@ class PrepareState
             for (LinkQuery linkQuery : linkQueries)
             {
 //                TypeUtils.addToList(state.parameters,linkQuery.parameters);
-                String linkAlias = "_link" + this.aliasIndex;
+                String linkAlias = "~link" + this.aliasIndex;
                 String nodeAlias=null;
                 String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
                 String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
@@ -47,8 +47,8 @@ class PrepareState
                 switch (linkQuery.direction)
                 {
                 case FROM:
-                    nodeAlias = " ON _link" + this.aliasIndex+".toNodeId=";
-                    this.sources.append(" _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                    nodeAlias = " ON ~link" + this.aliasIndex+".toNodeId=";
+                    this.sources.append(" ~link AS " + linkAlias + source + linkAlias + ".fromNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
                     if (linkQuery.targetNodeType!=null)
                     {
@@ -70,8 +70,8 @@ class PrepareState
                     
                     break;
                 case TO:
-                    nodeAlias = " ON _link" + this.aliasIndex+".fromNodeId=";
-                    this.sources.append(" _link AS " + linkAlias + source + linkAlias + ".toNodeId");
+                    nodeAlias = " ON ~link" + this.aliasIndex+".fromNodeId=";
+                    this.sources.append(" ~link AS " + linkAlias + source + linkAlias + ".toNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
                     if (linkQuery.targetNodeId!=null)
                     {

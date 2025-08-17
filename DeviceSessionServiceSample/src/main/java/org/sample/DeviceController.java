@@ -61,7 +61,7 @@ public class DeviceController
     {
         UserPage page = new UserPage(null, null);
 //        String path=new PathAndQuery(PATH+"/session").addQuery("redirect",redirect).toString();
-        String path=PATH+"/session?redirect="+redirect;
+        String path=PATH+"/session/create?redirect="+redirect;
         page.body().onload(HtmlUtils.js_call("nova.device.initialize", path));
         return page;
     }
@@ -101,7 +101,7 @@ public class DeviceController
     }
 
     @GET
-    @Path("/session")
+    @Path("/session/create")
     public Response<Element> session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) CookieState cookieState,
             @QueryParam("timeZone") String timeZone, @QueryParam("redirect") String redirect) throws Throwable
     {

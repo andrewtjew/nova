@@ -118,16 +118,15 @@ public class Query
         {
             if (this.expression==null)
             {
-                preparedQuery.start=" WHERE _node.id=";
+                preparedQuery.start=" WHERE `~node`.id=";
             }
             else
             {
-                preparedQuery.start=" AND _node.id=";
+                preparedQuery.start=" AND `~node`.id=";
             }
-            on=" ON _node.id=";
-            sources.append(" _node");
+            on=" ON `~node`.id=";
+            sources.append(" `~node`");
         }
-        
         if (this.nodeTypes != null)
         {
             for (int i = 0; i < this.nodeTypes.length; i++)

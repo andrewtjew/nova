@@ -21,7 +21,7 @@ public class QueryResultSetCache extends ContentCache<QueryKey, QueryResultSet>
     @Override
     protected void onEvict(Trace parent, QueryKey key, QueryResultSet value) throws Throwable
     {
-        this.graph.evict(parent,key,value);
+        this.graph.evictCacheSets(parent,key,value);
     }
 
 }

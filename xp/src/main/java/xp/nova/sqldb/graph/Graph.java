@@ -727,7 +727,7 @@ public class Graph
     static final public CountMeter hits=new CountMeter();
     static final public CountMeter misses=new CountMeter();
     
-    public Graph(Connector connector,String catalog,boolean caching,GraphPerformanceMonitor performanceMonitor) throws Throwable
+    public Graph(Connector connector,String catalog,GraphPerformanceMonitor performanceMonitor) throws Throwable
     {
         this.connector=connector;
         this.performanceMonitor=performanceMonitor;
@@ -752,6 +752,11 @@ public class Graph
     {
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
+    
+    public void setCaching(boolean caching)
+    {
+        this.performanceMonitor.setCaching(caching);
+    }
 //
 //    public void setDebugUpgradeWatchType(Class<? extends Node> debugUpgradeWatchType)
 //    {
@@ -771,13 +776,13 @@ public class Graph
             StringBuilder _createTableSql=new StringBuilder();
             if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
-                createTableSql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
-                _createTableSql.append("CREATE TABLE `_"+table+"` (`_version` bigint NOT NULL AUTO_INCREMENT,`_id` bigint NOT NULL,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`~id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`~version` bigint NOT NULL AUTO_INCREMENT,`~id` bigint NOT NULL,`~nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
             }
             else
             {
-                createTableSql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
-                _createTableSql.append("CREATE TABLE `_"+table+"` (`_version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`~version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
             }
             for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
@@ -790,19 +795,19 @@ public class Graph
             }
             if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
             {
-                createTableSql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`~id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
             else
             {
                 createTableSql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            _createTableSql.append("PRIMARY KEY (`_version`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            _createTableSql.append("PRIMARY KEY (`~version`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
                 Debugging.log(DEBUG_CATEGORY,createTableSql);
             }
-            accessor.executeUpdate(parent, "createTable:"+table, createTableSql.toString());
-            accessor.executeUpdate(parent, "createTable:_"+table, _createTableSql.toString());
+            accessor.executeUpdate(parent, "createTable:"+descriptor.getTableName(), createTableSql.toString());
+            accessor.executeUpdate(parent, "createTable:"+descriptor.getVersionedTableName(), _createTableSql.toString());
         }
         else
         {
@@ -920,7 +925,7 @@ public class Graph
             for (Row row:tableColumns.values())
             {
                 String columnName=row.getVARCHAR("COLUMN_NAME");
-                if (columnName.startsWith("_"))
+                if (columnName.startsWith("~")||columnName.equals("_nodeId")||columnName.equals("_id"))
                 {
                     continue;
                 }
@@ -972,8 +977,8 @@ public class Graph
                 {
                     Debugging.log(DEBUG_CATEGORY,sql);
                 }
-                String _sql=sql.toString().replace("`"+catalog+"`","`_"+catalog+"`");
                 accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
+                String _sql=sql.toString().replace(descriptor.getTableName(),descriptor.getVersionedTableName());
                 accessor.executeUpdate(parent, "alterTable:_"+table, sql.toString());
             }
         }
@@ -1000,23 +1005,20 @@ public class Graph
         }
         try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
-            createTable(parent,accessor,catalog,"_nodeType"
-                    ,"CREATE TABLE `_nodeType` (`nodeId` BIGINT NOT NULL,`nodeType` VARCHAR(45) NOT NULL,PRIMARY KEY (`nodeId`, `nodeType`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"~nodetype"
+                    ,"CREATE TABLE `~nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"_transaction"
-                    ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"~transaction"
+                    ,"CREATE TABLE `~transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"_link"
-                    ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"~link"
+                    ,"CREATE TABLE `~link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"_node"
-                    ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"~node"
+                    ,"CREATE TABLE `~node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"_array"
-                    ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"_delete"
-                    ,"CREATE TABLE `_delete` (`nodeId` bigint NOT NULL,`transactionid` bigint DEFAULT NULL,`cleaned` datetime DEFAULT NULL,PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"~array"
+                    ,"CREATE TABLE `~array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB;"
                     );
             }
     }
@@ -1104,7 +1106,7 @@ public class Graph
             }
         }
     }
-    public void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
+    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
     {
         synchronized(this)
         {
@@ -1123,7 +1125,7 @@ public class Graph
         }
     }
 
-    void invalidateCacheLines(Trace parent,String typeName) throws Throwable
+    private void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
         var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
         if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
@@ -1134,33 +1136,36 @@ public class Graph
         {
             for (QueryKey key:typeNameCacheSet)
             {
-                QueryResultSet resultSet=this.queryResultSetCache.remove(key);
-                evict(parent,key,resultSet);
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
                     Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: sql="+key.preparedQuery.sql);
                 }
-                this.nodeTypeNameCacheSets.remove(key);
+                QueryResultSet resultSet=this.queryResultSetCache.remove(key);
+                evictCacheSets(parent,key,resultSet);
+//                this.nodeTypeNameCacheSets.remove(key);
             }
         }
     }
     void invalidateCacheLines(Trace parent,long nodeId) throws Throwable
     {
-        this.countCache.clear();
-        var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
-        if (typeNameSet!=null)
+        synchronized(this)
         {
-            for (String typeName:typeNameSet)
+            this.countCache.clear();
+            var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+            if (typeNameSet!=null)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                for (String typeName:typeNameSet.toArray(new String[typeNameSet.size()]))
                 {
-                    Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                    if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                    }
+                    invalidateCacheLines(parent,typeName);
                 }
-                invalidateCacheLines(parent,typeName);
             }
         }
     }
-    void evict(Trace parent, QueryKey key,QueryResultSet queryResultSet) throws Throwable
+    void evictCacheSets(Trace parent, QueryKey key,QueryResultSet queryResultSet) throws Throwable
     {
         for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
         {

@@ -88,6 +88,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
+    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -188,6 +189,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         catch (Throwable t)
         {
             parent.close(t);
+            if (Debug.ENABLE && DEBUG && DEBUG_EXCEPTION_PRINT_STACK_TRACE)
+            {
+                t.printStackTrace();
+            }
             return handleException(parent, context, parent.getThrowable());
         }
         finally

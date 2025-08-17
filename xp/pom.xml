@@ -9,6 +9,11 @@
 			<artifactId>nova-components</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+		    <groupId>io.github.classgraph</groupId>
+		    <artifactId>classgraph</artifactId>
+		    <version>4.8.181</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
