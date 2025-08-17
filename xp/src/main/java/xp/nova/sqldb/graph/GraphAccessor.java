@@ -177,7 +177,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log(Graph.DEBUG_CATEGORY,"sql="+sql);
+            Debugging.log(Graph.DEBUG_CATEGORY,"query="+sql);
         }
         if (parameters != null)
         {

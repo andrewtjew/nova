@@ -840,7 +840,7 @@ public class Graph
                 String fieldName=fieldDescriptor.getName();
                 Row row=tableColumns.remove(fieldName);
                 SqlType fieldSqlType=fieldDescriptor.getSqlType();
-                if (Debug.ENABLE&&DEBUG&&DEBUG_UPGRADE&&(DEBUG_UPGRADETYPE==type))
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE && (DEBUG_UPGRADETYPE==type))
                 {
                     Debugging.log(DEBUG_CATEGORY,"fieldIndex="+index+", field="+fieldSqlType.getType()+" "+fieldName+", exists="+(row!=null));
                 }

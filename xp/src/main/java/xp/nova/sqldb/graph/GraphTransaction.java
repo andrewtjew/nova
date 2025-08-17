@@ -340,16 +340,6 @@ public class GraphTransaction implements AutoCloseable
         return deleted;
     }
 
-//    static long toRelationValue(Relation_ relation,RelationObjectType_ objectType)
-//    {
-//        long value=relation.getValue();
-//        if (objectType!=null)
-//        {
-//            value=(value<<32)|objectType.getValue();
-//        }
-//        return value;
-//    }
-//    
     private int _deleteLink(long fromNodeId,long relationValue,long toNodeId) throws Throwable
     {
         RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `~link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
@@ -462,7 +452,7 @@ public class GraphTransaction implements AutoCloseable
             if (element!=null)
             {
                 long elementId=create(element);
-                Insert.table("~array").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
+                Insert.table("`~array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
             }
         }
     }
