@@ -105,7 +105,7 @@ public class GraphTransaction implements AutoCloseable
             }
             throw new Exception("Type not registered:"+type.getSimpleName());
         }
-        this.graph.invalidateCacheLines(parent, descriptor);
+        this.graph.invalidateCacheLines(parent, nodeId);
         
         String selectSql="SELECT * FROM "+descriptor.getTableName()+" WHERE _nodeId=?";
         RowSet rowSet=accessor.executeQuery(parent, null, selectSql,nodeId);
@@ -258,12 +258,14 @@ public class GraphTransaction implements AutoCloseable
     {
         for (Row row:rowSet.rows())
         {
-            Object[] insertValues=new Object[row.getColumns()];
+            Object[] insertValues=new Object[row.getColumns()+1];
             for (int i=0;i<rowSet.getColumns();i++)
             {
                 insertValues[i]=row.getObjects()[i];
             }
-            String insertSql="INSERT INTO `@deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relationValue`,`fromNodeType`,`toNodeType`) VALUES (?,?,?,?,?,?)";
+            insertValues[rowSet.getColumns()]=SqlUtils.now();
+            
+            String insertSql="INSERT INTO `@deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relationValue`,`fromNodeType`,`toNodeType`,`deleted`) VALUES (?,?,?,?,?,?,?)";
             accessor.executeUpdate(parent, null, insertSql, insertValues);
         }
     }
@@ -457,6 +459,8 @@ public class GraphTransaction implements AutoCloseable
             elementId=this.create(nodeObjects);
             this.accessor.executeUpdate(parent, null, "UPDATE `@array' SET elementId=? WHERE nodeId=? AND index=?", elementId,arrayNodeId,index);
         }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+        
     }
     
     public <NODE_OBJECT extends NodeObject> void createArray(NODE_OBJECT[] elements,NodeObject arrayObject) throws Throwable
@@ -510,6 +514,7 @@ public class GraphTransaction implements AutoCloseable
                 Insert.table("`@array`").value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
         }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
     }
     
     public <NODE_OBJECT extends NodeObject> void appendToArray(NodeObject arrayObject,NODE_OBJECT...elements) throws Throwable
@@ -524,16 +529,24 @@ public class GraphTransaction implements AutoCloseable
             throw new Exception();
         }
         int deleted=0;
-        RowSet rowSet=accessor.executeQuery(parent, null, "SELECT elementId FROM `@array` WHERE nodeId=?",arrayNodeId);
+        RowSet rowSet=accessor.executeQuery(parent, null, "SELECT `elementId`,`index` FROM `@array` WHERE nodeId=?",arrayNodeId);
+        if (rowSet.size()==0)
+        {
+            return deleted;
+        }
+        long version=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, "INSERT INTO `@deletedarray` (`deleted`,`nodeId`) VALUES (?,?)", SqlUtils.now(),arrayNodeId).getAsLong(0);
         for (Row row:rowSet.rows())
         {
-            Long elementId=row.getNullableBIGINT(0);
+            Long elementId=row.getNullableBIGINT("elementId");
             if (elementId!=null)
             {
                 deleted+=this._deleteNode(elementId);
             }
+            int index=row.getINTEGER("index");
+            accessor.executeUpdate(parent, null, "INSERT INTO `@deletedelement` (`version`,`elementId`,`index`) VALUES (?,?,?)", version,elementId,index);
         }
         this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=?",arrayNodeId);
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
         return deleted;
     }
     

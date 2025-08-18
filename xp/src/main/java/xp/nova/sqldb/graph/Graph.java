@@ -1016,31 +1016,38 @@ public class Graph
         }
         try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
-            createTable(parent,accessor,catalog,"@nodetype"
-                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
-                    );
             createTable(parent,accessor,catalog,"@transaction"
                     ,"CREATE TABLE `@transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"@link"
-                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@node"
                     ,"CREATE TABLE `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"@array"
-                    ,"CREATE TABLE `@array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NULL) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@nodetype"
+                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@link"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@deletednode"
-                    ,"CREATE TABLE `@deletednode` (`id` bigint NOT NULL,`deleted` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
 
             createTable(parent,accessor,catalog,"@deletedlink"
-                    ,"CREATE TABLE `@deletedlink` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             
             createTable(parent,accessor,catalog,"@version"
                     ,"CREATE TABLE `@version` (`id` bigint NOT NULL,`created` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+
+            createTable(parent,accessor,catalog,"@array"
+                    ,"CREATE TABLE `@array` (`elementId` bigint NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL,KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@deletedarray"
+                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT ,`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@deletedelement"
+                    ,"CREATE TABLE `@deletedelement` (`version` bigint NOT NULL,`elementId` bigint NULL,`index` int NULL) ENGINE=InnoDB;"
                     );
 
             }
@@ -1165,7 +1172,6 @@ public class Graph
                 }
                 QueryResultSet resultSet=this.queryResultSetCache.remove(key);
                 evictCacheSets(parent,key,resultSet);
-//                this.nodeTypeNameCacheSets.remove(key);
             }
         }
     }
