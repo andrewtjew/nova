@@ -10,9 +10,9 @@ public class GraphObjectDescriptor
     final private String tableName;
     final private String versionedTableName;
     final private String typeName;
-    final private Class<? extends Node> type;
+    final private Class<? extends NodeObject> type;
     
-    GraphObjectDescriptor(String typeName,Class<? extends Node> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
+    GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
     {
         this.type=type;
         this.graphObjectType=graphObjectType;
@@ -28,10 +28,10 @@ public class GraphObjectDescriptor
         this.fieldDescriptors=fieldDescriptors;
         this.typeName=typeName;
         this.tableName='`'+typeName+'`';
-        this.versionedTableName="`~~"+typeName+'`';
+        this.versionedTableName="`~"+typeName+'`';
     }
 
-    public Class<? extends Node> getType()
+    public Class<? extends NodeObject> getType()
     {
         return this.type;
     }
@@ -39,10 +39,6 @@ public class GraphObjectDescriptor
     {
         return this.fieldDescriptors;
     }
-//    String getTableAlias()
-//    {
-//        return this.tableAlias;
-//    }
     String getTableAlias(String namespace)
     {
         return '`'+getNamespaceTypeName(namespace)+'`';

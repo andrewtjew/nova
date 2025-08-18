@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public class Query
 {
-    Class<? extends Node>[] nodeTypes;
-    Class<? extends Node>[] optionalNodeTypes;
+    Class<? extends NodeObject>[] nodeTypes;
+    Class<? extends NodeObject>[] optionalNodeTypes;
 
     String expression;
     String orderBy;
@@ -28,11 +28,11 @@ public class Query
     {
         return orderBy(orderBy,false);
     }
-    public Query orderBy(Class<? extends Node> nodeType,boolean descending)
+    public Query orderBy(Class<? extends NodeObject> nodeType,boolean descending)
     {
         return orderBy(nodeType.getSimpleName()+"._nodeId",descending);
     }
-    public Query orderBy(Class<? extends Node> nodeType)
+    public Query orderBy(Class<? extends NodeObject> nodeType)
     {
         return orderBy(nodeType,false);
     }
@@ -72,7 +72,7 @@ public class Query
 //    }
     
     @SafeVarargs
-    final public Query select(Class<? extends Node>... nodeTypes)
+    final public Query select(Class<? extends NodeObject>... nodeTypes)
     {
         this.preparedQuery=null;
         this.nodeTypes = nodeTypes;
@@ -80,7 +80,7 @@ public class Query
     }
 
     @SafeVarargs
-    final public Query selectOptional(Class<? extends Node>... nodeTypes)
+    final public Query selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.preparedQuery=null;
         this.optionalNodeTypes= nodeTypes;
@@ -118,20 +118,20 @@ public class Query
         {
             if (this.expression==null)
             {
-                preparedQuery.start=" WHERE `~node`.id=";
+                preparedQuery.start=" WHERE `@node`.id=";
             }
             else
             {
-                preparedQuery.start=" AND `~node`.id=";
+                preparedQuery.start=" AND `@node`.id=";
             }
-            on=" ON `~node`.id=";
-            sources.append(" `~node`");
+            on=" ON `@node`.id=";
+            sources.append(" `@node`");
         }
         if (this.nodeTypes != null)
         {
             for (int i = 0; i < this.nodeTypes.length; i++)
             {
-                Class<? extends Node> type = this.nodeTypes[i];
+                Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 if (descriptor==null)
                 {
@@ -159,7 +159,7 @@ public class Query
         {
             for (int i = 0; i < this.optionalNodeTypes.length; i++)
             {
-                Class<? extends Node> type = this.optionalNodeTypes[i];
+                Class<? extends NodeObject> type = this.optionalNodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
                 state.descriptors.add(new NamespaceGraphObjectDescriptor(null,descriptor));
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);

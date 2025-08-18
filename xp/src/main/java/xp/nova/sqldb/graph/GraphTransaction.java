@@ -35,7 +35,7 @@ public class GraphTransaction implements AutoCloseable
 
         Timestamp created=SqlUtils.now();
         this.transactionId=this.accessor.executeUpdateAndReturnGeneratedKeys(parent,null
-                ,"INSERT INTO `~transaction` (created,creatorId,source) VALUES(?,?,?)"
+                ,"INSERT INTO `@transaction` (created,creatorId,source) VALUES(?,?,?)"
                 ,created,creatorId,source
                 ).getAsLong(0);
     }
@@ -54,16 +54,16 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public long create(Node...objects) throws Throwable
+    public long create(NodeObject...objects) throws Throwable
     {
-        long nodeId=Insert.table("`~node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
+        long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         update(nodeId,objects);
         return nodeId;
     }
 
-    public void update(long nodeId,Node...objects) throws Throwable
+    public void update(long nodeId,NodeObject...objects) throws Throwable
     {
-        for (Node object:objects)
+        for (NodeObject object:objects)
         {
             if (object==null)
             {
@@ -77,7 +77,7 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public void update(Node...objects) throws Throwable
+    public void update(NodeObject...objects) throws Throwable
     {
         if (objects.length>0)
         {
@@ -90,11 +90,12 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    private void _put(Node object,long nodeId) throws Throwable
+    private void _put(NodeObject object,long nodeId) throws Throwable
     {
         //OPTIMIZE: the sql statements can be pre-calculated. 
         object._nodeId=nodeId;
-        Class<? extends Node> type=object.getClass();
+        object._transactionId=this.transactionId;
+        Class<? extends NodeObject> type=object.getClass();
         GraphObjectDescriptor descriptor=this.graph.register(type);
         if (descriptor==null)
         {
@@ -115,7 +116,7 @@ public class GraphTransaction implements AutoCloseable
             StringBuilder insertColumnNames=new StringBuilder();
             StringBuilder insertValuePlaceholders=new StringBuilder();
 
-            int length=columnAccessors.length;
+            int length=columnAccessors.length-1;
             if (descriptor.getObjectType()==GraphObjectType.NODE)
             {
                 length++; 
@@ -125,7 +126,7 @@ public class GraphTransaction implements AutoCloseable
             int insertIndex=0;
             insertValues[insertIndex++]=nodeId;
             insertValues[insertIndex++]=this.transactionId;
-            insertColumnNames.append("_nodeId,`~transactionId`");
+            insertColumnNames.append("_nodeId,`_transactionId`");
             insertValuePlaceholders.append("?,?");
             
             for (FieldDescriptor columnAccessor:columnAccessors)
@@ -151,11 +152,7 @@ public class GraphTransaction implements AutoCloseable
                     sb.append("(");
                     for (int i=0;i<insertValues.length;i++)
                     {
-                        if (i==0)
-                        {
-                            sb.append('(');
-                        }
-                        else
+                        if (i>0)
                         {
                             sb.append(',');
                         }
@@ -165,15 +162,15 @@ public class GraphTransaction implements AutoCloseable
                 }
                 Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
-            if (object instanceof IdentityNode)
+            if (object instanceof IdentityNodeObject)
             {
-                ((IdentityNode)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertValues).getAsLong(0);
+                ((IdentityNodeObject)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertValues).getAsLong(0);
             }
             else
             {
                 accessor.executeUpdate(parent, null, sql, insertValues);
             }
-            Insert.table("`~nodetype`").value("id", nodeId).value("type", descriptor.getTypeName()).execute(parent, accessor);
+            Insert.table("`@nodetype`").value("id", nodeId).value("type", descriptor.getTypeName()).execute(parent, accessor);
         }
         else if (rowSet.size()==1)
         {
@@ -266,7 +263,7 @@ public class GraphTransaction implements AutoCloseable
             {
                 insertValues[i]=row.getObjects()[i];
             }
-            String insertSql="INSERT INTO `~deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relationValue`,`fromNodeType`,`toNodeType`) VALUES (?,?,?,?,?,?)";
+            String insertSql="INSERT INTO `@deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relationValue`,`fromNodeType`,`toNodeType`) VALUES (?,?,?,?,?,?)";
             accessor.executeUpdate(parent, null, insertSql, insertValues);
         }
     }
@@ -277,7 +274,7 @@ public class GraphTransaction implements AutoCloseable
         {
             return;
         }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT type FROM `~nodetype` WHERE id=?",nodeId);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT type FROM `@nodetype` WHERE id=?",nodeId);
         for (Row row:rowSet.rows())
         {
             GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(row.getVARCHAR(0));
@@ -286,44 +283,44 @@ public class GraphTransaction implements AutoCloseable
     }
     
     
-    private long _link(Class<? extends Node> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends Node> toNodeType,long toNodeId) throws Throwable
+    private long _link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
         long relationValue=relation.getValue();
         
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `~link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
         if (rowSet.size()==1)
         {
             return rowSet.getRow(0).getBIGINT(0);
         }
         this.graph.invalidateCacheLines(parent, fromNodeId);
         this.graph.invalidateCacheLines(parent, toNodeId);
-        long nodeId=Insert.table("`~node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
-        Insert.table("`~link`").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
+        long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
+        Insert.table("`@link`").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
                 .value("relationValue", relationValue)
                 .execute(parent, this.accessor);
         return nodeId;
     }
-    public long link(Node fromNode,Relation_ relation,Class<? extends Node> toNodeType,long toNodeId) throws Throwable
+    public long link(NodeObject fromNode,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
         return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNodeType,toNodeId);
     }
-    public long link(Node fromNode,Relation_ relation,Node toNode) throws Throwable
+    public long link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
         return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNode.getClass(),toNode.getNodeId());
     }
-    public long link(Class<? extends Node> fromNodeType,long fromNodeId,Relation_ relation,Node toNode) throws Throwable
+    public long link(Class<? extends NodeObject> fromNodeType,long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
     {
         return _link(fromNodeType,fromNodeId,relation,toNode.getClass(),toNode.getNodeId());
     }
     
-    public int deleteLinks(Direction direction,Node node,Relation_ relation) throws Throwable
+    public int deleteLinks(Direction direction,NodeObject node,Relation_ relation) throws Throwable
     {
         //Can be optimized to reduce SELECT in _deleteLink, but this function is likely not used often.
         int deleted=0;
         long nodeId=node.getNodeId();
         if (direction==Direction.FROM)
         {
-            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT toNodeId FROM `~link` WHERE fromNodeId=? AND relationValue=?",nodeId,relation);
+            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT toNodeId FROM `@link` WHERE fromNodeId=? AND relationValue=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
                 deleted+=_deleteLink(nodeId,relation.getValue(),row.getBIGINT(0));
@@ -331,7 +328,7 @@ public class GraphTransaction implements AutoCloseable
         }
         else
         {
-            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT fromNodeId FROM `~link` WHERE toNodeId=? AND relationValue=?",nodeId,relation);
+            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT fromNodeId FROM `@link` WHERE toNodeId=? AND relationValue=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
                 deleted+=_deleteLink(row.getBIGINT(0),relation.getValue(),nodeId);
@@ -342,7 +339,7 @@ public class GraphTransaction implements AutoCloseable
 
     private int _deleteLink(long fromNodeId,long relationValue,long toNodeId) throws Throwable
     {
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `~link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
         if (rowSet.size()==0)
         {
             return 0;
@@ -355,26 +352,26 @@ public class GraphTransaction implements AutoCloseable
         long linkNodeId=rowSet.getRow(0).getBIGINT("nodeId");
         this.graph.invalidateCacheLines(parent, fromNodeId);
         this.graph.invalidateCacheLines(parent, toNodeId);
-        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `~link` WHERE nodeId=?",linkNodeId);
+        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@link` WHERE nodeId=?",linkNodeId);
         deleted+=_deleteNode(linkNodeId);
         return deleted;
     }
-    public int deleteLink(Node fromNode,Relation_ relation,long toNodeId) throws Throwable
+    public int deleteLink(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
         return _deleteLink(fromNode.getNodeId(),relation.getValue(),toNodeId);
     }
-    public int deleteLink(Node fromNode,Relation_ relation,Node toNode) throws Throwable
+    public int deleteLink(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
         return _deleteLink(fromNode.getNodeId(),relation.getValue(),toNode.getNodeId());
     }
 
     private int _deleteNode(long nodeId) throws Throwable
     {
-        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `~node` WHERE id=?",nodeId);
+        int deleted=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@node` WHERE id=?",nodeId);
         if (deleted>0)
         {
             this.graph.invalidateCacheLines(parent, nodeId);
-            RowSet types=this.accessor.executeQuery(parent, null, "SELECT type FROM `~nodetype` WHERE id=?",nodeId);
+            RowSet types=this.accessor.executeQuery(parent, null, "SELECT type FROM `@nodetype` WHERE id=?",nodeId);
             for (Row row:types.rows())
             {
                 String typeName=row.getVARCHAR(0);
@@ -384,9 +381,9 @@ public class GraphTransaction implements AutoCloseable
                 versionRow(parent, descriptor, accessor, rowSet.getColumnNames(),rowSet.getRow(0));
             }
             Timestamp now=SqlUtils.now();
-            this.accessor.executeQuery(this.parent,null,"INSERT INTO `~deletednode` (id,deleted) VALUES(?,?)",nodeId,now);
+            this.accessor.executeQuery(this.parent,null,"INSERT INTO `@deletednode` (id,deleted) VALUES(?,?)",nodeId,now);
             
-            RowSet rowSet=this.accessor.executeQuery(this.parent,null,"SELECT fromNodeId,relationValue,toNodeId FROM `~link` WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
+            RowSet rowSet=this.accessor.executeQuery(this.parent,null,"SELECT fromNodeId,relationValue,toNodeId FROM `@link` WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
             for (Row row:rowSet.rows())
             {
                 long fromNodeId=row.getBIGINT("fromNodeId");
@@ -407,7 +404,7 @@ public class GraphTransaction implements AutoCloseable
         return _deleteNode(nodeId);
     }
 
-    public int deleteNode(Node node) throws Throwable
+    public int deleteNode(NodeObject node) throws Throwable
     {
         if (node!=null)
         {
@@ -418,10 +415,10 @@ public class GraphTransaction implements AutoCloseable
         }
         return 0;
     }
-    public int deleteNodes(Node...nodes) throws Throwable
+    public int deleteNodes(NodeObject...nodes) throws Throwable
     {
         int deleted=0;
-        for (Node node:nodes)
+        for (NodeObject node:nodes)
         {
             deleted+=deleteNode(node);
         }
@@ -437,27 +434,48 @@ public class GraphTransaction implements AutoCloseable
         this.graph.clearCache();
         this.transaction.rollback();
     }
-    
-    public <NODE extends Node> void putArray(Node arrayObject,NODE[] elements) throws Throwable
+
+    public <NODE_OBJECT extends NodeObject> void updateArray(NodeObject arrayObject,int index,NodeObject...nodeObjects) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        deleteArray(arrayObject,(Class<NODE>)elements.getClass().getComponentType());
-        for (int i=0;i<elements.length;i++)
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT elementId FROM `@array` WHERE nodeId=? AND index=?",arrayNodeId,index);
+        if (rowSet.size()!=1)
         {
-            Node element=elements[i];
-            if (element!=null)
-            {
-                long elementId=create(element);
-                Insert.table("`~array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i).execute(parent, this.accessor);
-            }
+            throw new Exception("Invalid index: index="+index);
+        }
+        Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
+        if (elementId!=null)
+        {
+            this.update(elementId, nodeObjects);
+        }
+        else
+        {
+            elementId=this.create(nodeObjects);
+            this.accessor.executeUpdate(parent, null, "UPDATE `@array' SET elementId=? WHERE nodeId=? AND index=?", elementId,arrayNodeId,index);
         }
     }
+    
+    public <NODE_OBJECT extends NodeObject> void createArray(NODE_OBJECT[] elements,NodeObject arrayObject) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        deleteArray(arrayObject);
+        _createArray(arrayNodeId,0,elements);
+    }
 
-    public <NODE extends Node> void appendToArray(NODE[] elements,Node arrayObject) throws Throwable
+    public <NODE_OBJECT extends NodeObject> void createArray(NodeObject arrayObject,NODE_OBJECT...elements) throws Throwable
+    {
+        createArray(elements,arrayObject);
+    }
+    
+    public <NODE_OBJECT extends NodeObject> void appendToArray(NODE_OBJECT[] elements,NodeObject arrayObject) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -465,35 +483,57 @@ public class GraphTransaction implements AutoCloseable
             throw new Exception();
         }
         int base=0;
-        var row=Select.source("`~array`").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
+        var row=Select.source("`@array`").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
         if (row!=null)
         {
             base=row.getINTEGER(0)+1;
         }
+        _createArray(arrayNodeId,base,elements);
+    }
+    
+    private <NODE_OBJECT extends NodeObject> void _createArray(long arrayNodeId,int base,NODE_OBJECT[] elements) throws Throwable
+    {
         for (int i=0;i<elements.length;i++)
         {
-            Node element=elements[i];
+            NodeObject element=elements[i];
             if (element!=null)
             {
+                if (element._nodeId!=null)
+                {
+                    throw new Exception();
+                }
                 long elementId=create(element);
-                Insert.table("`~array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+                Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+            }
+            else
+            {
+                Insert.table("`@array`").value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
         }
     }
-    public <NODE extends Node> void appendToArray(Node arrayObject,NODE...elements) throws Throwable
+    
+    public <NODE_OBJECT extends NodeObject> void appendToArray(NodeObject arrayObject,NODE_OBJECT...elements) throws Throwable
     {
         appendToArray(elements,arrayObject);
     }
-    public int deleteArray(Node arrayObject,Class<? extends Node> elementType) throws Throwable
+    public int deleteArray(NodeObject arrayObject) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        String elementTypeName=elementType.getSimpleName();
-        String deleteSql="DELETE `~node`,`~array` FROM `~node` JOIN `~array` ON `~node`.id=`~array`.elementId JOIN "+elementTypeName+" ON `~node`.id="+elementTypeName+".`~nodeId`";
-        int deleted=this.accessor.executeUpdate(this.parent,null,deleteSql);
+        int deleted=0;
+        RowSet rowSet=accessor.executeQuery(parent, null, "SELECT elementId FROM `@array` WHERE nodeId=?",arrayNodeId);
+        for (Row row:rowSet.rows())
+        {
+            Long elementId=row.getNullableBIGINT(0);
+            if (elementId!=null)
+            {
+                deleted+=this._deleteNode(elementId);
+            }
+        }
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=?",arrayNodeId);
         return deleted;
     }
     

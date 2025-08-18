@@ -86,7 +86,7 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,NodeObject startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
         return execute(parent,parameters,startNode.getNodeId(),query);
     }
@@ -197,7 +197,7 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,NodeObject startNode,Query query,Object...parameters) throws Throwable
     {
         return execute(parent,parameters,startNode.getNodeId(),query);
     }
@@ -216,7 +216,7 @@ public class GraphAccessor implements AutoCloseable
     {
         return count(parent,parameters,startNodeId,query);
     }
-    public long count(Trace parent,Node startNode,ArrayQuery query,Object...parameters) throws Throwable
+    public long count(Trace parent,NodeObject startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
         return count(parent,parameters,startNode.getNodeId(),query);
     }
@@ -328,7 +328,7 @@ public class GraphAccessor implements AutoCloseable
     {
         return count(parent,parameters,startNodeId,query);
     }
-    public long count(Trace parent,Node startNode,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,NodeObject startNode,Query query,Object...parameters) throws Throwable
     {
         return count(parent,parameters,startNode.getNodeId(),query);
     }

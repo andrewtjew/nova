@@ -34,7 +34,7 @@ public class Graph
     static final boolean DEBUG_CACHING=true;
     static final boolean DEBUG_VERIFY_CACHING=true;
     static final String DEBUG_CATEGORY=Graph.class.getSimpleName();
-    public static Class<? extends Node> DEBUG_UPGRADETYPE=null;
+    public static Class<? extends NodeObject> DEBUG_UPGRADETYPE=null;
 
     private int defaultVARCHARLength=45;
     
@@ -635,7 +635,7 @@ public class Graph
         return this.connector;
     }
 
-    protected GraphObjectDescriptor register(Class<? extends Node> type) throws Exception
+    protected GraphObjectDescriptor register(Class<? extends NodeObject> type) throws Exception
     {
         GraphObjectDescriptor descriptor=null;
         String simpleTypeName=type.getSimpleName();
@@ -676,11 +676,11 @@ public class Graph
                 }
             }
             GraphObjectType objectType;
-            if (type.getSuperclass()==IdentityNode.class)
+            if (type.getSuperclass()==IdentityNodeObject.class)
             {
                 objectType=GraphObjectType.IDENTITY_NODE;
             }
-            else if (type.getSuperclass()==Node.class)
+            else if (type.getSuperclass()==NodeObject.class)
             {
                 objectType=GraphObjectType.NODE;
             }
@@ -698,7 +698,7 @@ public class Graph
         return descriptor;
     }
     
-    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends Node> type) throws Exception
+    protected GraphObjectDescriptor getGraphObjectDescriptor(Class<? extends NodeObject> type) throws Exception
     {
         String simpleTypeName=type.getSimpleName();
         return descriptorMap.get(simpleTypeName);
@@ -764,7 +764,7 @@ public class Graph
 //    }
 
 
-    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends Node> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends NodeObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         GraphObjectDescriptor descriptor=this.register(type);
@@ -774,15 +774,15 @@ public class Graph
         {
             StringBuilder createTableSql=new StringBuilder();
             StringBuilder _createTableSql=new StringBuilder();
-            if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
-                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`~id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
-                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`~version` bigint NOT NULL AUTO_INCREMENT,`~id` bigint NOT NULL,`~nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`@version` bigint NOT NULL AUTO_INCREMENT,`_id` bigint NOT NULL,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             else
             {
-                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
-                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`~version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`~transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`@version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
@@ -793,18 +793,20 @@ public class Graph
                 createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
                 _createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
             }
-            if (TypeUtils.isDerivedFrom(type, IdentityNode.class))
+            if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
-                createTableSql.append("PRIMARY KEY (`~id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`_id`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                _createTableSql.append("PRIMARY KEY (`@version`),KEY `_idIndex` (`_id`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
             else
             {
                 createTableSql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                _createTableSql.append("PRIMARY KEY (`@version`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            _createTableSql.append("PRIMARY KEY (`~version`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
                 Debugging.log(DEBUG_CATEGORY,createTableSql);
+                Debugging.log(DEBUG_CATEGORY,_createTableSql);
             }
             accessor.executeUpdate(parent, "createTable:"+descriptor.getTableName(), createTableSql.toString());
             accessor.executeUpdate(parent, "createTable:"+descriptor.getVersionedTableName(), _createTableSql.toString());
@@ -869,72 +871,81 @@ public class Graph
                 }
             }
             
+            //In production, we only allow new columns to be added.
+            
             //Discover renames. 
             ArrayList<FieldDescriptor> addFieldDescriptors=new ArrayList<FieldDescriptor>();
-            for (FieldDescriptor fieldDescriptor:notInTableDescriptors)
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
-                String fieldName=fieldDescriptor.getName();
-                SqlType fieldSqlType=fieldDescriptor.getSqlType();
-                Row rename=null;
-                for (Row row:tableColumns.values())
+                for (FieldDescriptor fieldDescriptor:notInTableDescriptors)
                 {
-                    String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
-                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                    boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
-                    if (fieldSqlType.isEqual(dataType, nullable, length))
+                    String fieldName=fieldDescriptor.getName();
+                    SqlType fieldSqlType=fieldDescriptor.getSqlType();
+                    Row rename=null;
+                    for (Row row:tableColumns.values())
                     {
-                        if (rename!=null)
+                        String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
+                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                        boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+                        if (fieldSqlType.isEqual(dataType, nullable, length))
                         {
-                            throw new Exception("Rename conflict: table="+table+", fieldName="+fieldName+", candidates="+row.getVARCHAR("COLUMN_NAME")+", "+rename.getVARCHAR("COLUMN_NAME"));
+                            if (rename!=null)
+                            {
+                                throw new Exception("Rename conflict: table="+table+", fieldName="+fieldName+", candidates="+row.getVARCHAR("COLUMN_NAME")+", "+rename.getVARCHAR("COLUMN_NAME"));
+                            }
+                            rename=row;
                         }
-                        rename=row;
                     }
-                }
-                if (rename!=null)
-                {
-                    String columnName=rename.getVARCHAR("COLUMN_NAME");
-                    alters.add(" CHANGE COLUMN `"+columnName+"` `"+fieldName+"` "+fieldSqlType.getSql());
-                    tableColumns.remove(columnName);
-                }
-                else
-                {
-                    addFieldDescriptors.add(fieldDescriptor);
+                    if (rename!=null)
+                    {
+                        String columnName=rename.getVARCHAR("COLUMN_NAME");
+                        alters.add(" CHANGE COLUMN `"+columnName+"` `"+fieldName+"` "+fieldSqlType.getSql());
+                        tableColumns.remove(columnName);
+                    }
+                    else
+                    {
+                        addFieldDescriptors.add(fieldDescriptor);
+                    }
                 }
             }
 
             FieldDescriptor[] inTableFieldFieldDescriptors=new FieldDescriptor[descriptor.fieldDescriptors.length];
-            for (int index=0;index<descriptor.fieldDescriptors.length;index++)
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
-                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
-                boolean inTable=true;
-                for (FieldDescriptor add:addFieldDescriptors)
+                for (int index=0;index<descriptor.fieldDescriptors.length;index++)
                 {
-                    if (add.getName().equals(fieldDescriptor.getName()))
+                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
+                    boolean inTable=true;
+                    for (FieldDescriptor add:addFieldDescriptors)
                     {
-                        inTable=false;
-                        break;
+                        if (add.getName().equals(fieldDescriptor.getName()))
+                        {
+                            inTable=false;
+                            break;
+                        }
+                    }
+                    if (inTable)
+                    {
+                        inTableFieldFieldDescriptors[index]=fieldDescriptor;
                     }
                 }
-                if (inTable)
+
+                //Delete columns
+                for (Row row:tableColumns.values())
                 {
-                    inTableFieldFieldDescriptors[index]=fieldDescriptor;
+                    String columnName=row.getVARCHAR("COLUMN_NAME");
+                    if (columnName.startsWith("~")||columnName.equals("_nodeId")||columnName.equals("_id"))
+                    {
+                        continue;
+                    }
+                    if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"DROP column="+columnName+", table="+table,LogLevel.WARNING);
+                    }
+                    alters.add(" DROP COLUMN `"+columnName+"`");
                 }
             }
             
-            //Delete columns
-            for (Row row:tableColumns.values())
-            {
-                String columnName=row.getVARCHAR("COLUMN_NAME");
-                if (columnName.startsWith("~")||columnName.equals("_nodeId")||columnName.equals("_id"))
-                {
-                    continue;
-                }
-                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
-                {
-                    Debugging.log(DEBUG_CATEGORY,"DROP column="+columnName+", table="+table,LogLevel.WARNING);
-                }
-                alters.add(" DROP COLUMN `"+columnName+"`");
-            }
             
             //Add new columns 
             for (FieldDescriptor addFieldDescriptor:addFieldDescriptors)
@@ -1005,29 +1016,33 @@ public class Graph
         }
         try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
-            createTable(parent,accessor,catalog,"~nodetype"
-                    ,"CREATE TABLE `~nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@nodetype"
+                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"~transaction"
-                    ,"CREATE TABLE `~transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@transaction"
+                    ,"CREATE TABLE `@transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"~link"
-                    ,"CREATE TABLE `~link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@link"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"~node"
-                    ,"CREATE TABLE `~node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@node"
+                    ,"CREATE TABLE `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"~array"
-                    ,"CREATE TABLE `~array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@array"
+                    ,"CREATE TABLE `@array` (`elementId` bigint NOT NULL,`nodeId` bigint NOT NULL,`index` int NULL) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"~deletednode"
-                    ,"CREATE TABLE `~deletednode` (`id` bigint NOT NULL,`deleted` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@deletednode"
+                    ,"CREATE TABLE `@deletednode` (`id` bigint NOT NULL,`deleted` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
 
-            createTable(parent,accessor,catalog,"~deletedlink"
-                    ,"CREATE TABLE `~deletedlink` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@deletedlink"
+                    ,"CREATE TABLE `@deletedlink` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             
+            createTable(parent,accessor,catalog,"@version"
+                    ,"CREATE TABLE `@version` (`id` bigint NOT NULL,`created` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+
             }
     }
     

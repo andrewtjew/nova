@@ -9,13 +9,13 @@ public class LinkQuery
      */
     final Direction direction;
     final long relationValue;
-    final Class<? extends Node> targetNodeType;
+    final Class<? extends NodeObject> targetNodeType;
     final Long targetNodeId;
 
-    Class<? extends Node>[] nodeTypes;
-    Class<? extends Node>[] optionalNodeTypes;
-    Class<? extends Node>[] linkTypes;
-    Class<? extends Node>[] optionalLinkTypes;
+    Class<? extends NodeObject>[] nodeTypes;
+    Class<? extends NodeObject>[] optionalNodeTypes;
+    Class<? extends NodeObject>[] linkTypes;
+    Class<? extends NodeObject>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
     
@@ -26,11 +26,11 @@ public class LinkQuery
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
-    public LinkQuery(Direction direction,Relation_ relation,Node targetNode)
+    public LinkQuery(Direction direction,Relation_ relation,NodeObject targetNode)
     {
         this(direction,relation,targetNode.getClass(),targetNode.getNodeId());
     }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends Node> targetNodeType)
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
     {
         this(direction,relation,targetNodeType,null);
 //        this.direction=direction;
@@ -38,7 +38,7 @@ public class LinkQuery
 //        this.relationValue=relation.getValue();
 //        this.targetNode=null;
     }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends Node> targetNodeType,Long targetNodeId)
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType,Long targetNodeId)
     {
         this.direction=direction;
         this.targetNodeType=targetNodeType;
@@ -47,7 +47,7 @@ public class LinkQuery
     }    
     public LinkQuery(Direction direction,Relation_ relation)
     {
-        this(direction,relation,(Class<? extends Node>)null);
+        this(direction,relation,(Class<? extends NodeObject>)null);
     }
     public LinkQuery nodeNamespace(String namespace)
     {
@@ -61,27 +61,27 @@ public class LinkQuery
     }    
     
     @SafeVarargs
-    final public LinkQuery select(Class<? extends Node>... nodeTypes)
+    final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)
     {
         this.nodeTypes = nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public LinkQuery selectOptional(Class<? extends Node>... nodeTypes)
+    final public LinkQuery selectOptional(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalNodeTypes= nodeTypes;
         return this;
     }
 
     @SafeVarargs
-    final public LinkQuery selectLink(Class<? extends Node>... nodeTypes)
+    final public LinkQuery selectLink(Class<? extends NodeObject>... nodeTypes)
     {
         this.linkTypes = nodeTypes;
         return this;
     }
     @SafeVarargs
-    final public LinkQuery selectOptionalLink(Class<? extends Node>... nodeTypes)
+    final public LinkQuery selectOptionalLink(Class<? extends NodeObject>... nodeTypes)
     {
         this.optionalLinkTypes = nodeTypes;
         return this;

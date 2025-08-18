@@ -31,7 +31,7 @@ class PrepareState
             for (LinkQuery linkQuery : linkQueries)
             {
 //                TypeUtils.addToList(state.parameters,linkQuery.parameters);
-                String linkAlias = "`~link" + this.aliasIndex+"`";
+                String linkAlias = "`@link" + this.aliasIndex+"`";
                 String nodeAlias=null;
                 String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
                 String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
@@ -47,8 +47,8 @@ class PrepareState
                 switch (linkQuery.direction)
                 {
                 case FROM:
-                    nodeAlias = " ON `~link" + this.aliasIndex+"`.toNodeId=";
-                    this.sources.append(" `~link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                    nodeAlias = " ON `@link" + this.aliasIndex+"`.toNodeId=";
+                    this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
                     if (linkQuery.targetNodeType!=null)
                     {
@@ -70,8 +70,8 @@ class PrepareState
                     
                     break;
                 case TO:
-                    nodeAlias = " ON `~link" + this.aliasIndex+"`.fromNodeId=";
-                    this.sources.append(" `~link` AS " + linkAlias + source + linkAlias + ".toNodeId");
+                    nodeAlias = " ON `@link" + this.aliasIndex+"`.fromNodeId=";
+                    this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".toNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
                     if (linkQuery.targetNodeType!=null)
                     {
@@ -100,7 +100,7 @@ class PrepareState
                     String on = " ON " + linkAlias + ".nodeId=";
                     for (int i = 0; i < linkQuery.linkTypes.length; i++)
                     {
-                        Class<? extends Node> type = linkQuery.linkTypes[i];
+                        Class<? extends NodeObject> type = linkQuery.linkTypes[i];
                         GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
                         this.descriptors.add(new NamespaceGraphObjectDescriptor(linkNamespace,descriptor));
                         this.map.put(linkNamespace+descriptor.getTypeName(), descriptor);
@@ -133,7 +133,7 @@ class PrepareState
                     String on = " ON " + linkAlias + ".nodeId=";
                     for (int i = 0; i < linkQuery.optionalLinkTypes.length; i++)
                     {
-                        Class<? extends Node> type = linkQuery.optionalLinkTypes[i];
+                        Class<? extends NodeObject> type = linkQuery.optionalLinkTypes[i];
                         GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
                         this.descriptors.add(new NamespaceGraphObjectDescriptor(linkNamespace,descriptor));
                         this.map.put(linkNamespace+descriptor.getTypeName(), descriptor);
@@ -175,7 +175,7 @@ class PrepareState
                     default:
                         break;
                     }
-                    Class<? extends Node> type = linkQuery.targetNodeType;
+                    Class<? extends NodeObject> type = linkQuery.targetNodeType;
                     GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
 //                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
                     
@@ -207,7 +207,7 @@ class PrepareState
                     }
                     for (int i = 0; i < linkQuery.nodeTypes.length; i++)
                     {
-                        Class<? extends Node> type = linkQuery.nodeTypes[i];
+                        Class<? extends NodeObject> type = linkQuery.nodeTypes[i];
                         GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
                         this.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
                         String typeName = descriptor.getTypeName();
@@ -251,7 +251,7 @@ class PrepareState
                     }
                     for (int i = 0; i < linkQuery.optionalNodeTypes.length; i++)
                     {
-                        Class<? extends Node> type = linkQuery.optionalNodeTypes[i];
+                        Class<? extends NodeObject> type = linkQuery.optionalNodeTypes[i];
                         GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
                         this.map.put(descriptor.getNamespaceTypeName(linkQuery.nodeNamespace), descriptor);
                         String typeName = descriptor.getTypeName();
