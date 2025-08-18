@@ -25,7 +25,7 @@ public class GraphPerformanceMonitor
         this.minimumDuration=minimumDuration;
     }
     
-    public void updateSlowQuery(long duration,String catalog,QueryKey queryKey)
+    public void updateSlowQuery(long duration,String catalog,QueryCacheKey queryKey)
     {
         if (duration<this.minimumDuration)
         {

@@ -61,41 +61,46 @@ public class GraphTransaction implements AutoCloseable
         return nodeId;
     }
 
-    public void update(long nodeId,NodeObject...objects) throws Throwable
+    public long create(Node node) throws Throwable
     {
-        for (NodeObject object:objects)
+        return create(node.nodeObjects);
+    }
+
+    public void update(long nodeId,NodeObject...nodeObjects) throws Throwable
+    {
+        for (NodeObject nodeObject:nodeObjects)
         {
-            if (object==null)
+            if (nodeObject==null)
             {
                 continue;
             }
-            if ((object._nodeId!=null)&&(object._nodeId!=nodeId))
+            if ((nodeObject._nodeId!=null)&&(nodeObject._nodeId!=nodeId))
             {
-                throw new Exception("object "+object.getClass().getSimpleName()+" belongs to another node. objectNodeId="+nodeId+", nodeId="+nodeId);
+                throw new Exception("object "+nodeObject.getClass().getSimpleName()+" belongs to another node. objectNodeId="+nodeId+", nodeId="+nodeId);
             }
-            _put(object,nodeId);
+            _put(nodeId,nodeObject);
         }
     }
 
-    public void update(NodeObject...objects) throws Throwable
+    public void update(NodeObject...nodeObjects) throws Throwable
     {
-        if (objects.length>0)
+        if (nodeObjects.length>0)
         {
-            Long nodeId=objects[0]._nodeId;
+            Long nodeId=nodeObjects[0]._nodeId;
             if (nodeId==null)
             {
                 throw new Exception();
             }
-            update(nodeId,objects);
+            update(nodeId,nodeObjects);
         }
     }
 
-    private void _put(NodeObject object,long nodeId) throws Throwable
+    private void _put(long nodeId, NodeObject nodeObject) throws Throwable
     {
         //OPTIMIZE: the sql statements can be pre-calculated. 
-        object._nodeId=nodeId;
-        object._transactionId=this.transactionId;
-        Class<? extends NodeObject> type=object.getClass();
+        nodeObject._nodeId=nodeId;
+        nodeObject._transactionId=this.transactionId;
+        Class<? extends NodeObject> type=nodeObject.getClass();
         GraphObjectDescriptor descriptor=this.graph.register(type);
         if (descriptor==null)
         {
@@ -136,7 +141,7 @@ public class GraphTransaction implements AutoCloseable
                     continue;
                 }
                 String name=columnAccessor.getName();
-                Object value=columnAccessor.get(object);
+                Object value=columnAccessor.get(nodeObject);
                 insertColumnNames.append(',');
                 insertColumnNames.append('`'+name+'`');
                 insertValuePlaceholders.append(",?");
@@ -162,9 +167,9 @@ public class GraphTransaction implements AutoCloseable
                 }
                 Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
-            if (object instanceof IdentityNodeObject)
+            if (nodeObject instanceof IdentityNodeObject)
             {
-                ((IdentityNodeObject)object)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertValues).getAsLong(0);
+                ((IdentityNodeObject)nodeObject)._id=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, sql, insertValues).getAsLong(0);
             }
             else
             {
@@ -196,7 +201,7 @@ public class GraphTransaction implements AutoCloseable
                     continue;
                 }
                 String name=columnAccessor.getName();
-                Object value=columnAccessor.get(object);
+                Object value=columnAccessor.get(nodeObject);
                 update.append(",`"+name+"`=?");
                 updateValues[updateValueIndex++]=value;
             }
@@ -270,19 +275,19 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    private void invalidateNodeTables(Trace parent,long nodeId) throws Throwable
-    {
-        if (this.graph.performanceMonitor.caching==false)
-        {
-            return;
-        }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT type FROM `@nodetype` WHERE id=?",nodeId);
-        for (Row row:rowSet.rows())
-        {
-            GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(row.getVARCHAR(0));
-            this.graph.invalidateCacheLines(parent, descriptor);
-        }
-    }
+//    private void invalidateNodeTables(Trace parent,long nodeId) throws Throwable
+//    {
+//        if (this.graph.performanceMonitor.caching==false)
+//        {
+//            return;
+//        }
+//        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT type FROM `@nodetype` WHERE id=?",nodeId);
+//        for (Row row:rowSet.rows())
+//        {
+//            GraphObjectDescriptor descriptor=this.graph.getGraphObjectDescriptor(row.getVARCHAR(0));
+//            this.graph.invalidateCacheLines(parent, descriptor);
+//        }
+//    }
     
     
     private long _link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
@@ -437,7 +442,42 @@ public class GraphTransaction implements AutoCloseable
         this.transaction.rollback();
     }
 
-    public <NODE_OBJECT extends NodeObject> void updateArray(NodeObject arrayObject,int index,NodeObject...nodeObjects) throws Throwable
+    private Node[] toNodes(NodeObject...nodeObjects)
+    {
+        Node[] nodes=new Node[nodeObjects.length];
+        for (int i=0;i<nodes.length;i++)
+        {
+            NodeObject element=nodeObjects[i];
+            if (element!=null)
+            {
+                nodes[i]=new Node(element);
+            }
+        }
+        return nodes;
+    }
+    
+    public void createArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        deleteArray(arrayObject);
+        _createArray(arrayNodeId,0,toNodes(elements));
+    }
+
+    public void createArray(NodeObject arrayObject,Node...elements) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        deleteArray(arrayObject);
+        _createArray(arrayNodeId,0,elements);
+    }
+    public void updateArrayElement(NodeObject arrayObject,int index,NodeObject...nodeObjects) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -460,26 +500,12 @@ public class GraphTransaction implements AutoCloseable
             this.accessor.executeUpdate(parent, null, "UPDATE `@array' SET elementId=? WHERE nodeId=? AND index=?", elementId,arrayNodeId,index);
         }
         this.graph.invalidateCacheLines(parent, arrayNodeId);
-        
     }
-    
-    public <NODE_OBJECT extends NodeObject> void createArray(NODE_OBJECT[] elements,NodeObject arrayObject) throws Throwable
+    public void appendToArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
     {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        deleteArray(arrayObject);
-        _createArray(arrayNodeId,0,elements);
-    }
-
-    public <NODE_OBJECT extends NodeObject> void createArray(NodeObject arrayObject,NODE_OBJECT...elements) throws Throwable
-    {
-        createArray(elements,arrayObject);
-    }
-    
-    public <NODE_OBJECT extends NodeObject> void appendToArray(NODE_OBJECT[] elements,NodeObject arrayObject) throws Throwable
+        appendToArray(arrayObject,toNodes(elements));
+    }    
+    public void appendToArray(NodeObject arrayObject,Node...elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -494,19 +520,14 @@ public class GraphTransaction implements AutoCloseable
         }
         _createArray(arrayNodeId,base,elements);
     }
-    
-    private <NODE_OBJECT extends NodeObject> void _createArray(long arrayNodeId,int base,NODE_OBJECT[] elements) throws Throwable
+    private void _createArray(long arrayNodeId,int base,Node[] elements) throws Throwable
     {
         for (int i=0;i<elements.length;i++)
         {
-            NodeObject element=elements[i];
-            if (element!=null)
+            Node node=elements[i];
+            if (node!=null)
             {
-                if (element._nodeId!=null)
-                {
-                    throw new Exception();
-                }
-                long elementId=create(element);
+                long elementId=create(node);
                 Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
             else
@@ -517,10 +538,6 @@ public class GraphTransaction implements AutoCloseable
         this.graph.invalidateCacheLines(parent, arrayNodeId);
     }
     
-    public <NODE_OBJECT extends NodeObject> void appendToArray(NodeObject arrayObject,NODE_OBJECT...elements) throws Throwable
-    {
-        appendToArray(elements,arrayObject);
-    }
     public int deleteArray(NodeObject arrayObject) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;

@@ -722,7 +722,7 @@ public class Graph
 //    public boolean caching;
     final private QueryResultSetCache queryResultSetCache;
     final private CountCache countCache;
-    final private HashMap<String,HashSet<QueryKey>> typeNameQueryKeyCacheSets;
+    final private HashMap<String,HashSet<QueryCacheKey>> typeNameQueryKeyCacheSets;
     final private HashMap<Long,HashSet<String>> nodeTypeNameCacheSets; 
     static final public CountMeter hits=new CountMeter();
     static final public CountMeter misses=new CountMeter();
@@ -735,7 +735,7 @@ public class Graph
 
         this.countCache=new CountCache(this);
         this.queryResultSetCache=new QueryResultSetCache(this);
-        this.typeNameQueryKeyCacheSets=new HashMap<String, HashSet<QueryKey>>();
+        this.typeNameQueryKeyCacheSets=new HashMap<String, HashSet<QueryCacheKey>>();
         this.nodeTypeNameCacheSets=new HashMap<Long, HashSet<String>>();
     }
     
@@ -1053,7 +1053,7 @@ public class Graph
             }
     }
     
-    ValueSize<QueryResultSet> getFromCache(QueryKey key) throws Throwable
+    ValueSize<QueryResultSet> getFromCache(QueryCacheKey key) throws Throwable
     {
         if (this.performanceMonitor.caching==false)
         {
@@ -1085,7 +1085,7 @@ public class Graph
         }
     }
     @SuppressWarnings("unused")
-    void updateQueryResultSetCache(Trace parent,QueryKey key,QueryResultSet queryResultSet,long duration) throws Throwable
+    void updateQueryResultSetCache(Trace parent,QueryCacheKey key,QueryResultSet queryResultSet,long duration) throws Throwable
     {
         this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
         
@@ -1100,11 +1100,11 @@ public class Graph
             for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
             {
                 String typeName=namespaceDescriptor.descriptor().getTypeName();
-                HashSet<QueryKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
                 
                 if (typeNameCacheSet==null)
                 {
-                    typeNameCacheSet=new HashSet<QueryKey>();
+                    typeNameCacheSet=new HashSet<QueryCacheKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
@@ -1136,24 +1136,24 @@ public class Graph
             }
         }
     }
-    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
-    {
-        synchronized(this)
-        {
-            if (this.performanceMonitor.caching==false)
-            {
-                return;
-            }
-            for (var descriptor:descriptors)
-            {
-                if (descriptor!=null)
-                {
-                    invalidateCacheLines(parent,descriptor.getTypeName());
-                }
-                    
-            }
-        }
-    }
+//    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
+//    {
+//        synchronized(this)
+//        {
+//            if (this.performanceMonitor.caching==false)
+//            {
+//                return;
+//            }
+//            for (var descriptor:descriptors)
+//            {
+//                if (descriptor!=null)
+//                {
+//                    invalidateCacheLines(parent,descriptor.getTypeName());
+//                }
+//                    
+//            }
+//        }
+//    }
 
     private void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
@@ -1164,7 +1164,7 @@ public class Graph
         }
         if (typeNameCacheSet!=null)
         {
-            for (QueryKey key:typeNameCacheSet)
+            for (QueryCacheKey key:typeNameCacheSet)
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
@@ -1194,12 +1194,12 @@ public class Graph
             }
         }
     }
-    void evictCacheSets(Trace parent, QueryKey key,QueryResultSet queryResultSet) throws Throwable
+    void evictCacheSets(Trace parent, QueryCacheKey key,QueryResultSet queryResultSet) throws Throwable
     {
         for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
         {
             String typeName=namespaceDescriptor.descriptor().getTypeName();
-            HashSet<QueryKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+            HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
             if (typeNameCacheSet!=null)
             {
                 typeNameCacheSet.remove(key);
@@ -1256,7 +1256,7 @@ public class Graph
     {
         return this.performanceMonitor;
     }
-    ValueSize<Long> getFromCountCache(QueryKey key) throws Throwable
+    ValueSize<Long> getFromCountCache(QueryCacheKey key) throws Throwable
     {
         synchronized(this)
         {
@@ -1285,7 +1285,7 @@ public class Graph
     }
 
     @SuppressWarnings("unused")
-    void updateCountCache(Trace parent,QueryKey key,long count,long duration) throws Throwable
+    void updateCountCache(Trace parent,QueryCacheKey key,long count,long duration) throws Throwable
     {
         this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
         
@@ -1299,11 +1299,11 @@ public class Graph
             for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
             {
                 String typeName=namespaceDescriptor.descriptor().getTypeName();
-                HashSet<QueryKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
                 
                 if (typeNameCacheSet==null)
                 {
-                    typeNameCacheSet=new HashSet<QueryKey>();
+                    typeNameCacheSet=new HashSet<QueryCacheKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)

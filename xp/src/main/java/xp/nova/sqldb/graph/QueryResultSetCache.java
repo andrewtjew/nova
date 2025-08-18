@@ -3,7 +3,7 @@ package xp.nova.sqldb.graph;
 import org.nova.collections.ContentCache;
 import org.nova.tracing.Trace;
 
-public class QueryResultSetCache extends ContentCache<QueryKey, QueryResultSet>
+public class QueryResultSetCache extends ContentCache<QueryCacheKey, QueryResultSet>
 {
     final private Graph graph;
     public QueryResultSetCache(Graph graph) throws Throwable
@@ -13,13 +13,13 @@ public class QueryResultSetCache extends ContentCache<QueryKey, QueryResultSet>
     }
 
     @Override
-    protected ValueSize<QueryResultSet> load(Trace parent, QueryKey key) throws Throwable
+    protected ValueSize<QueryResultSet> load(Trace parent, QueryCacheKey key) throws Throwable
     {
         return null;
     }
     
     @Override
-    protected void onEvict(Trace parent, QueryKey key, QueryResultSet value) throws Throwable
+    protected void onEvict(Trace parent, QueryCacheKey key, QueryResultSet value) throws Throwable
     {
         this.graph.evictCacheSets(parent,key,value);
     }

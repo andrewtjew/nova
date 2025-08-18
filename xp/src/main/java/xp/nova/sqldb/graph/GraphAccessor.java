@@ -99,7 +99,7 @@ public class GraphAccessor implements AutoCloseable
     }
     private QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
-        QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
+        QueryCacheKey key=new QueryCacheKey(startNodeId, preparedQuery, parameters);
         if (this.graph.performanceMonitor.caching)
         {
             var valueSize=this.graph.getFromCache(key);
@@ -231,7 +231,7 @@ public class GraphAccessor implements AutoCloseable
     
     private long count(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
-        QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
+        QueryCacheKey key=new QueryCacheKey(startNodeId, preparedQuery, parameters);
         if (this.graph.performanceMonitor.caching)
         {
             var valueSize=this.graph.getFromCountCache(key);

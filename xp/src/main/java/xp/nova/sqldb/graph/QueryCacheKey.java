@@ -2,13 +2,13 @@ package xp.nova.sqldb.graph;
 
 import org.nova.utils.TypeUtils;
 
-public class QueryKey
+public class QueryCacheKey
 {
     final PreparedQuery preparedQuery;
     final Long nodeId;
     final Object[] parameters;
     
-    public QueryKey(Long nodeId,PreparedQuery query,Object...parameters)
+    public QueryCacheKey(Long nodeId,PreparedQuery query,Object...parameters)
     {
         this.preparedQuery=query;
         this.nodeId=nodeId;
@@ -46,12 +46,12 @@ public class QueryKey
         {
             return true;
         }
-        if (!(o instanceof QueryKey))
+        if (!(o instanceof QueryCacheKey))
         {
             return false;
         }
         
-        QueryKey other = (QueryKey) o;
+        QueryCacheKey other = (QueryCacheKey) o;
         if (TypeUtils.equals(this.nodeId, other.nodeId)==false)
         {
             return false;
