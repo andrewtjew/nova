@@ -78,19 +78,16 @@ public class ArrayQuery
         PrepareState state=new PrepareState(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
         
         String on=null;
-        if (on==null)
+//        if ((this.expression==null)&&(this.offset==null))
+//        {
+//            preparedQuery.start=" WHERE nodeId=";
+//        }
+//        else
         {
-            if ((this.expression==null)&&(this.offset==null))
-            {
-                preparedQuery.start=" WHERE nodeId=";
-            }
-            else
-            {
-                preparedQuery.start=" AND nodeId=";
-            }
-            on=" ON '~array'.elementId=";
-            sources.append(" `@array`");
+            preparedQuery.start=" AND `@array`.nodeId=";
         }
+        on=" ON `@array`.elementId=";
+        sources.append(" `@array`");
         
         if (this.nodeTypes != null)
         {

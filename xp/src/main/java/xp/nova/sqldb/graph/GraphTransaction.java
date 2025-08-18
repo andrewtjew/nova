@@ -110,7 +110,7 @@ public class GraphTransaction implements AutoCloseable
             }
             throw new Exception("Type not registered:"+type.getSimpleName());
         }
-        this.graph.invalidateCacheLines(parent, nodeId);
+        this.graph.invalidateCacheLines(parent, descriptor);
         
         String selectSql="SELECT * FROM "+descriptor.getTableName()+" WHERE _nodeId=?";
         RowSet rowSet=accessor.executeQuery(parent, null, selectSql,nodeId);
@@ -413,14 +413,11 @@ public class GraphTransaction implements AutoCloseable
 
     public int deleteNode(NodeObject node) throws Throwable
     {
-        if (node!=null)
+        if (node._nodeId==null)
         {
-            if (node._nodeId!=null)
-            {
-                return deleteNode(node._nodeId);
-            }
+            throw new Exception();
         }
-        return 0;
+        return deleteNode(node._nodeId);
     }
     public int deleteNodes(NodeObject...nodes) throws Throwable
     {

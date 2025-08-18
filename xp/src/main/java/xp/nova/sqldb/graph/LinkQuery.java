@@ -18,11 +18,6 @@ public class LinkQuery
     Class<? extends NodeObject>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
-    
-
-//    boolean selectLink;   
-    
-//    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
@@ -33,10 +28,6 @@ public class LinkQuery
     public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
     {
         this(direction,relation,targetNodeType,null);
-//        this.direction=direction;
-//        this.targetNodeType=targetNodeType;
-//        this.relationValue=relation.getValue();
-//        this.targetNode=null;
     }
     public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType,Long targetNodeId)
     {

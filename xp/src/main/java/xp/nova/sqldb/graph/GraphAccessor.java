@@ -58,13 +58,14 @@ public class GraphAccessor implements AutoCloseable
     }
     
     
-    private void debugPrint(QueryResultSet set) throws Throwable
+    private void debugPrint(String label,QueryResultSet set) throws Throwable
     {
         if (set==null)
         {
             Debugging.log(Graph.DEBUG_CATEGORY,"null set");
             return;
         }
+        Debugging.log(Graph.DEBUG_CATEGORY,label);
         for (int i=0;i<set.results.length;i++)
         {
             var result=set.results[i];
@@ -111,8 +112,8 @@ public class GraphAccessor implements AutoCloseable
                     QueryResultSet cachedResultSet=valueSize.value();
                     if (queryResultSet.equals(cachedResultSet)==false)
                     {
-                        debugPrint(queryResultSet);
-                        debugPrint(cachedResultSet);
+                        debugPrint("query",queryResultSet);
+                        debugPrint("cache",cachedResultSet);
                         throw new Exception();
                     }
                 }

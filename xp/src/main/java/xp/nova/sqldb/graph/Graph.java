@@ -753,15 +753,6 @@ public class Graph
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
     
-    public void setCaching(boolean caching)
-    {
-        this.performanceMonitor.setCaching(caching);
-    }
-//
-//    public void setDebugUpgradeWatchType(Class<? extends Node> debugUpgradeWatchType)
-//    {
-//        this.debugUpgradeType=debugUpgradeWatchType;
-//    }
 
 
     public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends NodeObject> type) throws Throwable
@@ -1100,33 +1091,30 @@ public class Graph
             for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
             {
                 String typeName=namespaceDescriptor.descriptor().getTypeName();
-                HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                HashSet<QueryCacheKey> typeNameQueryKeyCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
                 
-                if (typeNameCacheSet==null)
+                if (typeNameQueryKeyCacheSet==null)
                 {
-                    typeNameCacheSet=new HashSet<QueryCacheKey>();
-                    this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
+                    typeNameQueryKeyCacheSet=new HashSet<QueryCacheKey>();
+                    this.typeNameQueryKeyCacheSets.put(typeName,typeNameQueryKeyCacheSet);
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
+                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameQueryKeyCacheSet.size());
                 }
-                typeNameCacheSet.add(key);
+                typeNameQueryKeyCacheSet.add(key);
                 
                 String table=namespaceDescriptor.getNamespaceTypeName();
                 for (QueryResult result:queryResultSet.results)
                 {
-                    Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
-                    if (nodeId!=null)
+                    long nodeId=result.row.getBIGINT(table+"._nodeId");
+                    HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(nodeId);
+                    if (nodeTypeNameCacheSets==null)
                     {
-                        HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
-                        if (typeNameSet==null)
-                        {
-                            typeNameSet=new HashSet<String>();
-                            this.nodeTypeNameCacheSets.put(nodeId, typeNameSet);
-                        }
-                        typeNameSet.add(typeName);
+                        nodeTypeNameCacheSets=new HashSet<String>();
+                        this.nodeTypeNameCacheSets.put(nodeId, nodeTypeNameCacheSets);
                     }
+                    nodeTypeNameCacheSets.add(typeName);
                 }
             }
             this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
@@ -1136,24 +1124,24 @@ public class Graph
             }
         }
     }
-//    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
-//    {
-//        synchronized(this)
-//        {
-//            if (this.performanceMonitor.caching==false)
-//            {
-//                return;
-//            }
-//            for (var descriptor:descriptors)
-//            {
-//                if (descriptor!=null)
-//                {
-//                    invalidateCacheLines(parent,descriptor.getTypeName());
-//                }
-//                    
-//            }
-//        }
-//    }
+    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
+    {
+        synchronized(this)
+        {
+            if (this.performanceMonitor.caching==false)
+            {
+                return;
+            }
+            for (var descriptor:descriptors)
+            {
+                if (descriptor!=null)
+                {
+                    invalidateCacheLines(parent,descriptor.getTypeName());
+                }
+                    
+            }
+        }
+    }
 
     private void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
