@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.nova.debug.Debug;
+
 class PrepareState
     {
         final Graph graph;
@@ -44,51 +46,38 @@ class PrepareState
                 {
                     this.sources.append(" JOIN");
                 }
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_LINK_QUERY_REFACTORING)
+                {
+                    if (linkQuery.nodeTypes!=null)
+                    {
+                        if (linkQuery.targetNodeType!=linkQuery.nodeTypes[0])
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else if (linkQuery.optionalNodeTypes!=null)
+                    {
+                        if (linkQuery.targetNodeType!=linkQuery.optionalNodeTypes[0])
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                
                 switch (linkQuery.direction)
                 {
                 case FROM:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.toNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    if (linkQuery.targetNodeType!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
-                    }
-                    else if (linkQuery.nodeTypes!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
-                    }
-                    else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
-                    }
-                    else
-                    {
-                        throw new Exception("Cannot infer targetNodeType");
-                    }
-                
+                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
                     
                     break;
                 case TO:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.fromNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".toNodeId");
                     this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    if (linkQuery.targetNodeType!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
-                    }
-                    else if (linkQuery.nodeTypes!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
-                    }
-                    else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
-                    }
-                    else
-                    {
-                        throw new Exception("Cannot infer targetNodeType. Add select(targetNodeType) to LinkQuery.");
-                    }
+                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
                     
                     break;
                 default:
@@ -161,7 +150,7 @@ class PrepareState
                         }
                     }
                 }
-                if ((linkQuery.targetNodeId!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+                if (linkQuery.targetNodeId!=null)//&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
                 {
                     String on = null;
                     switch (linkQuery.direction)

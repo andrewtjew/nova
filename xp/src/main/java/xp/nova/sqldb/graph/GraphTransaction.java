@@ -54,19 +54,19 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    public long create(NodeObject...objects) throws Throwable
+    public long createNode(NodeObject...objects) throws Throwable
     {
         long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
-        update(nodeId,objects);
+        updateNode(nodeId,objects);
         return nodeId;
     }
 
-    public long create(Node node) throws Throwable
+    public long createNode(Node node) throws Throwable
     {
-        return create(node.nodeObjects);
+        return createNode(node.nodeObjects);
     }
 
-    public void update(long nodeId,NodeObject...nodeObjects) throws Throwable
+    public void updateNode(long nodeId,NodeObject...nodeObjects) throws Throwable
     {
         for (NodeObject nodeObject:nodeObjects)
         {
@@ -91,7 +91,7 @@ public class GraphTransaction implements AutoCloseable
             {
                 throw new Exception();
             }
-            update(nodeId,nodeObjects);
+            updateNode(nodeId,nodeObjects);
         }
     }
 
@@ -290,6 +290,19 @@ public class GraphTransaction implements AutoCloseable
 //    }
     
     
+    public long createLink(NodeObject fromNode,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
+    {
+        return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNodeType,toNodeId);
+    }
+    public long createLink(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
+    {
+        return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNode.getClass(),toNode.getNodeId());
+    }
+    public long createLink(Class<? extends NodeObject> fromNodeType,long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
+    {
+        return _link(fromNodeType,fromNodeId,relation,toNode.getClass(),toNode.getNodeId());
+    }
+
     private long _link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
         long relationValue=relation.getValue();
@@ -307,20 +320,8 @@ public class GraphTransaction implements AutoCloseable
                 .execute(parent, this.accessor);
         return nodeId;
     }
-    public long link(NodeObject fromNode,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
-    {
-        return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNodeType,toNodeId);
-    }
-    public long link(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
-    {
-        return _link(fromNode.getClass(),fromNode.getNodeId(),relation,toNode.getClass(),toNode.getNodeId());
-    }
-    public long link(Class<? extends NodeObject> fromNodeType,long fromNodeId,Relation_ relation,NodeObject toNode) throws Throwable
-    {
-        return _link(fromNodeType,fromNodeId,relation,toNode.getClass(),toNode.getNodeId());
-    }
     
-    public int deleteLinks(Direction direction,NodeObject node,Relation_ relation) throws Throwable
+    public int deleteNodeLinks(NodeObject node,Direction direction,Relation_ relation) throws Throwable
     {
         //Can be optimized to reduce SELECT in _deleteLink, but this function is likely not used often.
         int deleted=0;
@@ -419,15 +420,15 @@ public class GraphTransaction implements AutoCloseable
         }
         return deleteNode(node._nodeId);
     }
-    public int deleteNodes(NodeObject...nodes) throws Throwable
-    {
-        int deleted=0;
-        for (NodeObject node:nodes)
-        {
-            deleted+=deleteNode(node);
-        }
-        return deleted;
-    }
+//    public int deleteNodes(NodeObject...nodes) throws Throwable
+//    {
+//        int deleted=0;
+//        for (NodeObject node:nodes)
+//        {
+//            deleted+=deleteNode(node);
+//        }
+//        return deleted;
+//    }
     
     public void commit() throws Throwable
     {
@@ -489,11 +490,11 @@ public class GraphTransaction implements AutoCloseable
         Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
         if (elementId!=null)
         {
-            this.update(elementId, nodeObjects);
+            this.updateNode(elementId, nodeObjects);
         }
         else
         {
-            elementId=this.create(nodeObjects);
+            elementId=this.createNode(nodeObjects);
             this.accessor.executeUpdate(parent, null, "UPDATE `@array' SET elementId=? WHERE nodeId=? AND index=?", elementId,arrayNodeId,index);
         }
         this.graph.invalidateCacheLines(parent, arrayNodeId);
@@ -524,7 +525,7 @@ public class GraphTransaction implements AutoCloseable
             Node node=elements[i];
             if (node!=null)
             {
-                long elementId=create(node);
+                long elementId=createNode(node);
                 Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
             else

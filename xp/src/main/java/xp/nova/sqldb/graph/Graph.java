@@ -36,6 +36,8 @@ public class Graph
     static final String DEBUG_CATEGORY=Graph.class.getSimpleName();
     public static Class<? extends NodeObject> DEBUG_UPGRADETYPE=null;
 
+    static final boolean DEBUG_VERIFY_LINK_QUERY_REFACTORING=true; //This should go away at some point
+    
     private int defaultVARCHARLength=45;
     
     FieldDescriptor getColumnAccessor(Field field) throws Exception
@@ -1017,7 +1019,7 @@ public class Graph
                     ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@link"
-                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relationValue`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relationValue`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@deletednode"
                     ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"

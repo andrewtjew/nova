@@ -36,10 +36,10 @@ public class LinkQuery
         this.relationValue=relation.getValue();
         this.targetNodeId=targetNodeId;
     }    
-    public LinkQuery(Direction direction,Relation_ relation)
-    {
-        this(direction,relation,(Class<? extends NodeObject>)null);
-    }
+//    public LinkQuery(Direction direction,Relation_ relation)
+//    {
+//        this(direction,relation,(Class<? extends NodeObject>)null);
+//    }
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;
