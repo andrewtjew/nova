@@ -50,14 +50,14 @@ class PrepareState
                 {
                     if (linkQuery.nodeTypes!=null)
                     {
-                        if (linkQuery.targetNodeType!=linkQuery.nodeTypes[0])
+                        if (linkQuery.endNodeObjectType!=linkQuery.nodeTypes[0])
                         {
                             throw new Exception();
                         }
                     }
                     else if (linkQuery.optionalNodeTypes!=null)
                     {
-                        if (linkQuery.targetNodeType!=linkQuery.optionalNodeTypes[0])
+                        if (linkQuery.endNodeObjectType!=linkQuery.optionalNodeTypes[0])
                         {
                             throw new Exception();
                         }
@@ -69,15 +69,15 @@ class PrepareState
                 case FROM:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.toNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
-                    this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+"'");
+                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+"'");
                     
                     break;
                 case TO:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.fromNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".toNodeId");
-                    this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+",");
+                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+"'");
                     
                     break;
                 default:
@@ -150,7 +150,7 @@ class PrepareState
                         }
                     }
                 }
-                if (linkQuery.targetNodeId!=null)//&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+                if (linkQuery.endNodeId!=null)//&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
                 {
                     String on = null;
                     switch (linkQuery.direction)
@@ -164,7 +164,7 @@ class PrepareState
                     default:
                         break;
                     }
-                    Class<? extends NodeObject> type = linkQuery.targetNodeType;
+                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
                     GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
 //                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
                     
@@ -178,7 +178,7 @@ class PrepareState
                         alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
                         as=" AS "+alias+" ";
                     }
-                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNodeId);
+                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.endNodeId);
                 }
                 if (linkQuery.nodeTypes != null)
                 {

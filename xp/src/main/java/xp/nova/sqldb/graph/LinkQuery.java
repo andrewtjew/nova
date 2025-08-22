@@ -8,9 +8,9 @@ public class LinkQuery
      * Links must have fromNodeType and toNodeType because the target of a link is specified by Relation and targetNodeType
      */
     final Direction direction;
-    final long relationValue;
-    final Class<? extends NodeObject> targetNodeType;
-    final Long targetNodeId;
+    final String relationValue;
+    final Class<? extends NodeObject> endNodeObjectType;
+    final Long endNodeId;
 
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
@@ -21,20 +21,20 @@ public class LinkQuery
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
 
-    public LinkQuery(Direction direction,Relation_ relation,NodeObject targetNode)
+    public LinkQuery(Direction direction,Relation_ relation,NodeObject endNodeObject)
     {
-        this(direction,relation,targetNode.getClass(),targetNode.getNodeId());
+        this(direction,relation,endNodeObject.getClass(),endNodeObject.getNodeId());
     }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> endNodeObjectType)
     {
-        this(direction,relation,targetNodeType,null);
+        this(direction,relation,endNodeObjectType,null);
     }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType,Long targetNodeId)
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> endNodeObjectType,Long endNodeId)
     {
         this.direction=direction;
-        this.targetNodeType=targetNodeType;
+        this.endNodeObjectType=endNodeObjectType;
         this.relationValue=relation.getValue();
-        this.targetNodeId=targetNodeId;
+        this.endNodeId=endNodeId;
     }    
 //    public LinkQuery(Direction direction,Relation_ relation)
 //    {

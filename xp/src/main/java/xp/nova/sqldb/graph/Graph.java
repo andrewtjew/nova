@@ -1016,17 +1016,17 @@ public class Graph
                     ,"CREATE TABLE `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@nodetype"
-                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` VARCHAR(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` varchar(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@link"
-                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relationValue`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relationValue`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@deletednode"
                     ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
 
             createTable(parent,accessor,catalog,"@deletedlink"
-                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
             
             createTable(parent,accessor,catalog,"@version"

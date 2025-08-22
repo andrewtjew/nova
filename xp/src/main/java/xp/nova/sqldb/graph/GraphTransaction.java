@@ -270,7 +270,7 @@ public class GraphTransaction implements AutoCloseable
             }
             insertValues[rowSet.getColumns()]=SqlUtils.now();
             
-            String insertSql="INSERT INTO `@deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relationValue`,`fromNodeType`,`toNodeType`,`deleted`) VALUES (?,?,?,?,?,?,?)";
+            String insertSql="INSERT INTO `@deletedlink` (`nodeId`,`fromNodeId`,`toNodeId`,`relation`,`fromNodeType`,`toNodeType`,`deleted`) VALUES (?,?,?,?,?,?,?)";
             accessor.executeUpdate(parent, null, insertSql, insertValues);
         }
     }
@@ -305,9 +305,9 @@ public class GraphTransaction implements AutoCloseable
 
     private long _link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
-        long relationValue=relation.getValue();
+        String relationValue=relation.getValue();
         
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationValue);
         if (rowSet.size()==1)
         {
             return rowSet.getRow(0).getBIGINT(0);
@@ -316,7 +316,7 @@ public class GraphTransaction implements AutoCloseable
         this.graph.invalidateCacheLines(parent, toNodeId);
         long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         Insert.table("`@link`").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
-                .value("relationValue", relationValue)
+                .value("relation", relationValue)
                 .execute(parent, this.accessor);
         return nodeId;
     }
@@ -328,7 +328,7 @@ public class GraphTransaction implements AutoCloseable
         long nodeId=node.getNodeId();
         if (direction==Direction.FROM)
         {
-            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT toNodeId FROM `@link` WHERE fromNodeId=? AND relationValue=?",nodeId,relation);
+            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT toNodeId FROM `@link` WHERE fromNodeId=? AND relation=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
                 deleted+=_deleteLink(nodeId,relation.getValue(),row.getBIGINT(0));
@@ -336,7 +336,7 @@ public class GraphTransaction implements AutoCloseable
         }
         else
         {
-            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT fromNodeId FROM `@link` WHERE toNodeId=? AND relationValue=?",nodeId,relation);
+            RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT fromNodeId FROM `@link` WHERE toNodeId=? AND relation=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
                 deleted+=_deleteLink(row.getBIGINT(0),relation.getValue(),nodeId);
@@ -345,9 +345,9 @@ public class GraphTransaction implements AutoCloseable
         return deleted;
     }
 
-    private int _deleteLink(long fromNodeId,long relationValue,long toNodeId) throws Throwable
+    private int _deleteLink(long fromNodeId,String relationValue,long toNodeId) throws Throwable
     {
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relationValue=?",fromNodeId,toNodeId,relationValue);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationValue);
         if (rowSet.size()==0)
         {
             return 0;
@@ -391,12 +391,12 @@ public class GraphTransaction implements AutoCloseable
             Timestamp now=SqlUtils.now();
             this.accessor.executeQuery(this.parent,null,"INSERT INTO `@deletednode` (id,deleted) VALUES(?,?)",nodeId,now);
             
-            RowSet rowSet=this.accessor.executeQuery(this.parent,null,"SELECT fromNodeId,relationValue,toNodeId FROM `@link` WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
+            RowSet rowSet=this.accessor.executeQuery(this.parent,null,"SELECT fromNodeId,relation,toNodeId FROM `@link` WHERE fromNodeId=? OR toNodeId=?",nodeId,nodeId);
             for (Row row:rowSet.rows())
             {
                 long fromNodeId=row.getBIGINT("fromNodeId");
                 long toNodeId=row.getBIGINT("toNodeId");
-                long relationValue=row.getBIGINT("relationValue");
+                String relationValue=row.getVARCHAR("relation");
                 deleted+=_deleteLink(fromNodeId,relationValue,toNodeId);
             }
         }
