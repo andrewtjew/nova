@@ -1100,23 +1100,29 @@ public class Graph
                     typeNameQueryKeyCacheSet=new HashSet<QueryCacheKey>();
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameQueryKeyCacheSet);
                 }
+                typeNameQueryKeyCacheSet.add(key);
+                String table=namespaceDescriptor.getNamespaceTypeName();
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameQueryKeyCacheSet.size());
+                    Debugging.log(DEBUG_CATEGORY,"Cache:table="+table+",added in set:"+key.preparedQuery.sql+":"+typeNameQueryKeyCacheSet.size());
                 }
-                typeNameQueryKeyCacheSet.add(key);
-                
-                String table=namespaceDescriptor.getNamespaceTypeName();
                 for (QueryResult result:queryResultSet.results)
                 {
-                    long nodeId=result.row.getBIGINT(table+"._nodeId");
-                    HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(nodeId);
-                    if (nodeTypeNameCacheSets==null)
+                    Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
+                    if (nodeId!=null)
                     {
-                        nodeTypeNameCacheSets=new HashSet<String>();
-                        this.nodeTypeNameCacheSets.put(nodeId, nodeTypeNameCacheSets);
+                        HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(nodeId);
+                        if (nodeTypeNameCacheSets==null)
+                        {
+                            nodeTypeNameCacheSets=new HashSet<String>();
+                            this.nodeTypeNameCacheSets.put(nodeId, nodeTypeNameCacheSets);
+                        }
+                        nodeTypeNameCacheSets.add(typeName);
+                        if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                        {
+                            Debugging.log(DEBUG_CATEGORY,"Cache:added nodeId="+nodeId+",type="+typeName);
+                        }
                     }
-                    nodeTypeNameCacheSets.add(typeName);
                 }
             }
             this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));

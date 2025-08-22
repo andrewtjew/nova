@@ -102,7 +102,7 @@ public class DeviceController
 
     @GET
     @Path("/session/create")
-    public Response<Element> session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) CookieState cookieState,
+    public void session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) CookieState cookieState,
             @QueryParam("timeZone") String timeZone, @QueryParam("redirect") String redirect) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
@@ -125,15 +125,15 @@ public class DeviceController
             }
         }
         this.service.getSessionManager().addSession(parent, session);
-        return Response.seeOther(redirect);
+        context.seeOther(redirect);
     }
 
     @GET
     @Path("/debug/clear")
-    public Response<Element> clear(Trace parent, Context context,@CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState) throws Throwable
+    public void clear(Trace parent, Context context,@CookieStateParam(value = COOKIE_NAME, add = true) CookieState cookieState) throws Throwable
     {
         cookieState.setToken(null);
-        return Response.seeOther("/");
+        context.seeOther("/");
     }
 
 }

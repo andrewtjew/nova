@@ -33,11 +33,13 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         {
             String queryString = request.getQueryString();
             String redirect = TypeUtils.isNullOrSpace(queryString) ? URI : URI + "?" + queryString;
-            return Response.seeOther(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString());
+            context.seeOther(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString());
+            return null;
         }
         else
         {
-            return Response.seeOther("/");
+            context.seeOther("/");
+            return null;
         }
     }
 

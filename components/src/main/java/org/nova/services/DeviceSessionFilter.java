@@ -160,11 +160,13 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 }
                 if (TypeUtils.isNullOrEmpty(result.redirect)==false)
                 {
-                    return Response.seeOther(result.redirect);
+                    context.seeOther(result.redirect);
+                    return null;
                 }
                 else
                 {
-                    return Response.seeOther("/");
+                    context.seeOther("/");
+                    return null;
                 }
             }
 

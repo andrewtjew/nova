@@ -282,24 +282,32 @@ public class Context
 	{
 		this.captured = true;
 	}
-	@Deprecated
+    public void movedPermanently(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void movedTemporarily(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.MOVED_TEMPORARILY_302);
+        this.httpServletResponse.setHeader("Location",url);
+    }
     public void seeOther(String url)
     {
         this.httpServletResponse.setStatus(HttpStatus.SEE_OTHER_303);
         this.httpServletResponse.setHeader("Location",url);
     }
-//    @Deprecated
-//    public void movedPermanently(String url)
-//    {
-//        this.httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
-//        this.httpServletResponse.setHeader("Location",url);
-//    }
-//    @Deprecated
-//    public void temporaryRedirect(String url)
-//    {
-//        this.httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
-//        this.httpServletResponse.setHeader("Location",url);
-//    }
+    public void temporaryRedirect(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void permamentlyRedirect(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.PERMANENT_REDIRECT_308);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+	
 //    public String getPathAndQuery()
 //    {
 //        String pathAndQuery=this.httpServletRequest.getRequestURI();

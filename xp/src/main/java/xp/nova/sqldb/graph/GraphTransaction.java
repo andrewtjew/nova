@@ -181,7 +181,7 @@ public class GraphTransaction implements AutoCloseable
         {
             FieldDescriptor[] columnAccessors=descriptor.getFieldDescriptors();
             StringBuilder update=new StringBuilder();
-            int length=columnAccessors.length;
+            int length=columnAccessors.length-1;
             if (descriptor.getObjectType()==GraphObjectType.NODE)
             {
                 length++; 
