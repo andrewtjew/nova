@@ -20,6 +20,7 @@ public class LinkQuery
     String linkNamespace=null;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
+    boolean selectNodeId;
 
     public LinkQuery(Direction direction,Relation_ relation,NodeObject endNodeObject)
     {
@@ -35,6 +36,7 @@ public class LinkQuery
         this.endNodeObjectType=endNodeObjectType;
         this.relationValue=relation.getValue();
         this.endNodeId=endNodeId;
+        this.selectNodeId=false;
     }    
 //    public LinkQuery(Direction direction,Relation_ relation)
 //    {
@@ -50,6 +52,12 @@ public class LinkQuery
         this.linkNamespace=namespace;
         return this;
     }    
+
+    final public LinkQuery selectNodeId()
+    {
+        this.selectNodeId=true;
+        return this;
+    }
     
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)

@@ -11,6 +11,7 @@ public class GraphObjectDescriptor
     final private String versionedTableName;
     final private String typeName;
     final private Class<? extends NodeObject> type;
+    final private boolean versioningDisabled;
     
     GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
     {
@@ -29,8 +30,14 @@ public class GraphObjectDescriptor
         this.typeName=typeName;
         this.tableName='`'+typeName+'`';
         this.versionedTableName="`~"+typeName+'`';
+        this.versioningDisabled=type.getAnnotation(DisableVersioning.class)!=null;
     }
 
+    public boolean isVersioningDisabled()
+    {
+        return this.versioningDisabled;
+    }
+    
     public Class<? extends NodeObject> getType()
     {
         return this.type;

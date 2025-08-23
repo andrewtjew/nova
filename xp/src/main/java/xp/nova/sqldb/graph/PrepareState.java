@@ -180,6 +180,42 @@ class PrepareState
                     }
                     this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.endNodeId);
                 }
+                if (linkQuery.selectNodeId)
+                {
+                    String on = null;
+                    switch (linkQuery.direction)
+                    {
+                    case FROM:
+                        on = " ON " + linkAlias + ".toNodeId=";
+                        break;
+                    case TO:
+                        on = " ON " + linkAlias + ".fromNodeId=";
+                        break;
+                    default:
+                        break;
+                    }
+                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
+                    GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
+                    this.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
+                    String typeName = descriptor.getTypeName();
+                    String table = descriptor.getTableName();
+                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
+
+                    String as=" ";
+                    String alias=table;
+                    if (linkQuery.linkNamespace!=null)
+                    {
+                        alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
+                        as=" AS "+alias+" ";
+                    }
+
+                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
+                    if (this.select.length()>0)
+                    {
+                        this.select.append(',');
+                    }
+                    this.select.append(alias + "._nodeId AS '" + typeName + "._nodeId'");
+                }
                 if (linkQuery.nodeTypes != null)
                 {
                     String on = null;

@@ -57,7 +57,7 @@ public class GraphTransaction implements AutoCloseable
     public long createNode(NodeObject...objects) throws Throwable
     {
         long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
-        updateNode(nodeId,objects);
+        update(nodeId,objects);
         return nodeId;
     }
 
@@ -66,7 +66,7 @@ public class GraphTransaction implements AutoCloseable
         return createNode(node.nodeObjects);
     }
 
-    public void updateNode(long nodeId,NodeObject...nodeObjects) throws Throwable
+    public void update(long nodeId,NodeObject...nodeObjects) throws Throwable
     {
         for (NodeObject nodeObject:nodeObjects)
         {
@@ -91,7 +91,7 @@ public class GraphTransaction implements AutoCloseable
             {
                 throw new Exception();
             }
-            updateNode(nodeId,nodeObjects);
+            update(nodeId,nodeObjects);
         }
     }
 
@@ -242,6 +242,10 @@ public class GraphTransaction implements AutoCloseable
 
     private void versionRow(Trace parent,GraphObjectDescriptor descriptor,Accessor accessor,String[] columnNames,Row row) throws Throwable
     {
+        if (descriptor.isVersioningDisabled())
+        {
+            return;
+        }
         StringBuilder insertColumnNames=new StringBuilder();
         StringBuilder insertValuePlaceholders=new StringBuilder();
         Object[] insertValues=new Object[row.getColumns()];
@@ -490,7 +494,7 @@ public class GraphTransaction implements AutoCloseable
         Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
         if (elementId!=null)
         {
-            this.updateNode(elementId, nodeObjects);
+            this.update(elementId, nodeObjects);
         }
         else
         {
