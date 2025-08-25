@@ -230,7 +230,10 @@ public class GraphTransaction implements AutoCloseable
                 }
                 Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
             }
-            versionRow(parent,descriptor,accessor,rowSet.getColumnNames(),rowSet.getRow(0));
+            if (descriptor.isVersioningDisabled()==false)
+            {
+                versionRow(parent,descriptor,accessor,rowSet.getColumnNames(),rowSet.getRow(0));
+            }
             accessor.executeUpdate(parent, null, updateSql, updateValues);
             
         }
@@ -242,10 +245,6 @@ public class GraphTransaction implements AutoCloseable
 
     private void versionRow(Trace parent,GraphObjectDescriptor descriptor,Accessor accessor,String[] columnNames,Row row) throws Throwable
     {
-        if (descriptor.isVersioningDisabled())
-        {
-            return;
-        }
         StringBuilder insertColumnNames=new StringBuilder();
         StringBuilder insertValuePlaceholders=new StringBuilder();
         Object[] insertValues=new Object[row.getColumns()];
