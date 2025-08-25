@@ -69,15 +69,15 @@ class PrepareState
                 case FROM:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.toNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
-                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+"'");
-                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+"'");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+'\'');
+                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+'\'');
                     
                     break;
                 case TO:
                     nodeAlias = " ON `@link" + this.aliasIndex+"`.fromNodeId=";
                     this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".toNodeId");
-                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+",");
-                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+"'");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+'\'');
+                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+'\'');
                     
                     break;
                 default:

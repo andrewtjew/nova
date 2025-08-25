@@ -175,18 +175,12 @@ namespace nova.remote
         let formEvent=event as SubmitEvent;
         let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
 //        let data=new FormData(form,formEvent.submitter);
-        let data=new FormData(form,formEvent.submitter);
-        let params=new URLSearchParams();
-        for (const pair of data)
-        {
-            console.log(pair[0]+":"+pair[1]);
-            params.append(pair[0],pair[1].toString());
-        }
+        let formData=new FormData(form);
 
         return await fetch(form.action,
             {
                 method:"POST",
-                body: params
+                body: formData
             }
             ).then(response=>
             {
