@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import org.nova.http.server.annotations.ParamName;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.http.server.annotations.Attributes;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -68,7 +69,7 @@ import org.nova.utils.Utils;
 
 //TODO!!! Resolve Consumes and ContentReaders just like produces and contentwriters
 
-class RequestHandlerMap
+class RequestMethodMap
 {
 	static class Map extends HashMap<String, PathNode>
 	{
@@ -83,11 +84,11 @@ class RequestHandlerMap
 	final private Map optionsMap;
 	final private Map headMap;
 	final private Map traceMap;
-	final private HashMap<String, RequestHandler> requestHandlers;
+	final private HashMap<String, RequestMethod> requestMethods;
 	final private boolean test;
 	final private int bufferSize;
 
-	RequestHandlerMap(boolean test,int bufferSize)
+	RequestMethodMap(boolean test,int bufferSize)
 	{
 	    this.test=test;
 		this.putMap = new Map();
@@ -98,18 +99,18 @@ class RequestHandlerMap
 		this.headMap = new Map();
 		this.traceMap = new Map();
 		this.patchMap = new Map();
-		this.requestHandlers = new HashMap<>();
+		this.requestMethods = new HashMap<>();
 		this.bufferSize=bufferSize;
 	}
 
-	public RequestHandler[] getRequestHandlers()
+	public RequestMethod[] getRequestHandlers()
 	{
-		return this.requestHandlers.values().toArray(new RequestHandler[this.requestHandlers.size()]);
+		return this.requestMethods.values().toArray(new RequestMethod[this.requestMethods.size()]);
 	}
 
-	public RequestHandler getRequestHandler(String key)
+	public RequestMethod getRequestHandler(String key)
 	{
-		return this.requestHandlers.get(key);
+		return this.requestMethods.get(key);
 	}
 
 	private Map getMap(String method)
@@ -210,127 +211,6 @@ class RequestHandlerMap
 		return (type == int.class) || (type == Integer.class) || (type == long.class) || (type == Long.class) || (type == short.class) || (type == short.class)
 				|| (type == float.class) || (type == Float.class) || (type == double.class) || (type == Double.class) || (type == boolean.class)
 				|| (type == Boolean.class) || (type == String.class) || type.isEnum()||type==BigDecimal.class;
-	}
-
-	@SuppressWarnings(
-	{ "unchecked", "rawtypes" })
-	private Object getDefaultValue(Method method, DefaultValue defaultValue, Class<?> type) throws Exception
-	{
-		if (defaultValue == null)
-		{
-			return null;
-		}
-		try
-		{
-            if (type == int.class)
-            {
-                return Integer.parseInt(defaultValue.value());
-            }
-            else if (type == Integer.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Integer.parseInt(defaultValue.value());
-            }
-            else if (type == long.class)
-            {
-                return Long.parseLong(defaultValue.value());
-            }
-            else if (type == Long.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Long.parseLong(defaultValue.value());
-            }
-            else if (type == short.class)
-            {
-                return Short.parseShort(defaultValue.value());
-            }
-            else if (type == Short.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Short.parseShort(defaultValue.value());
-            }
-            else if (type == float.class)
-            {
-                return Float.parseFloat(defaultValue.value());
-            }
-            else if (type == Float.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Float.parseFloat(defaultValue.value());
-            }
-            else if (type == double.class)
-            {
-                return Double.parseDouble(defaultValue.value());
-            }
-            else if (type == Double.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return Double.parseDouble(defaultValue.value());
-            }
-			else if (type == boolean.class)
-			{
-				String value = defaultValue.value().toLowerCase();
-				if (value.equals("true"))
-				{
-					return true;
-				}
-				if (value.equals("false"))
-				{
-					return false;
-				}
-			}
-            else if (type == Boolean.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                String value = defaultValue.value().toLowerCase();
-                if (value.equals("true"))
-                {
-                    return true;
-                }
-                if (value.equals("false"))
-                {
-                    return false;
-                }
-            }
-			else if (type == String.class)
-			{
-				return defaultValue.value();
-			}
-            else if (type == BigDecimal.class)
-            {
-                if (defaultValue.value().length()==0)
-                {
-                    return null;
-                }
-                return new BigDecimal(Long.parseLong(defaultValue.value()));
-            }
-			else if (type.isEnum())
-			{
-				return Enum.valueOf((Class<Enum>) type, defaultValue.value());
-			}
-		}
-		catch (Throwable t)
-		{
-		}
-		throw new Exception("Unable to parse @DefaultValue value. Value=" + defaultValue.value() + ". Site=" + method.getName());
 	}
 
 	static class DistanceContentWriter
@@ -686,13 +566,13 @@ class RequestHandlerMap
 			else if (cookieParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE, cookieParam, cookieParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+						HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (cookieStateParam != null)
 			{
 				cookieStateParamCount++;
 				parameterInfos.add(new ParameterInfo(ParameterSource.COOKIE_STATE, cookieStateParam, cookieStateParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (pathParam != null)
 			{
@@ -701,12 +581,12 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.PATH, pathParam, pathParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (queryParam != null)
 			{
 				parameterInfos.add(new ParameterInfo(ParameterSource.QUERY, queryParam, queryParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (headerParam != null)
 			{
@@ -715,14 +595,14 @@ class RequestHandlerMap
 					throw new Exception("Only simple types allowed for parameter. Site=" + toSite(object,method));
 				}
 				parameterInfos.add(new ParameterInfo(ParameterSource.HEADER, headerParam, headerParam.value(), parameterIndex, parameterType,
-						getDefaultValue(method, defaultValue, parameterType),required!=null));
+				        HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
 			}
 			else if (paramName!=null)
 			{
                 if (paramName.startsWith())
                 {
                     parameterInfos.add(new ParameterInfo(ParameterSource.NAME, paramName, paramName.value(), parameterIndex, parameterType,
-                            getDefaultValue(method, defaultValue, parameterType),required!=null));
+                            HtmlUtils.getDefaultValue(method, defaultValue, parameterType),required!=null));
                 }
                 else
                 {
@@ -919,16 +799,16 @@ class RequestHandlerMap
         }
 	    Filter[] bottomFilters=bottomHandlerFilters.toArray(new Filter[bottomHandlerFilters.size()]);
 	    Filter[] topFilters=topHandlerFilters.toArray(new Filter[topHandlerFilters.size()]);
-        RequestHandler requestHandler = new RequestHandler(object, method, httpMethod, fullPath, bottomFilters,topFilters
+        RequestMethod requestMethod = new RequestMethod(object, method, httpMethod, fullPath, bottomFilters,topFilters
                 ,parameterInfos.toArray(new ParameterInfo[parameterInfos.size()]), contentDecoderMap
                 ,contentEncoderList.toArray(new ContentEncoder[contentEncoderList.size()]), contentReaderMap, contentWriterMap,
                 log,logRequestHeaders,logRequestParameters,logRequestContent,logResponseHeaders,logResponseContent,logLastRequestsInMemory,
                 this.bufferSize,cookieStateParamCount,handlerAnnotations,hiddenParameters.size()==0?null:hiddenParameters);
-        add(httpMethod, fullPath, requestHandler);
+        add(httpMethod, fullPath, requestMethod);
         
         for (Filter filter:bottomFilters)
         {
-            filter.onRegister(requestHandler);
+            filter.onRegister(requestMethod);
         }
         
 	}
@@ -938,20 +818,20 @@ class RequestHandlerMap
         private static final long serialVersionUID = -3883360549423832556L;
 	}
 
-	void add(String method, String path, RequestHandler requestHandler) throws Exception
+	void add(String method, String path, RequestMethod requestMethod) throws Exception
 	{
 		Map map = getMap(method);
 		if (map == null)
 		{
-			throw new Exception("Invalid http method=" + method + ". Site=" + requestHandler.getMethod().getName());
+			throw new Exception("Invalid http method=" + method + ". Site=" + requestMethod.getMethod().getName());
 		}
 		String[] fragments = Utils.split(path, '/');
 		if (fragments[0].length() != 0)
 		{
-			throw new Exception("Path must start with root / character. Site=" + requestHandler.getMethod().getName());
+			throw new Exception("Path must start with root / character. Site=" + requestMethod.getMethod().getName());
 		}
 		PathNode node = null;
-		FragmentIndexMap indexMap = requestHandler.getFragmentIndexMap();
+		FragmentIndexMap indexMap = requestMethod.getFragmentIndexMap();
 		int index = 0;
 		for (int i = 1; i < fragments.length; i++)
 		{
@@ -962,14 +842,14 @@ class RequestHandlerMap
 				String name = fragment.substring(1, fragment.length() - 1);
 				if (indexMap.containsKey(name))
 				{
-					throw new Exception("Path parameter names must be unique. Path=" + path + ", site=" + requestHandler.getMethod().getName());
+					throw new Exception("Path parameter names must be unique. Path=" + path + ", site=" + requestMethod.getMethod().getName());
 				}
 				indexMap.put(name, index++);
 				if (PathParam.AT_LEAST_ONE_SEGMENT.equals(name))
 				{
 					if (i != fragments.length - 1)
 					{
-						throw new Exception("Rest of path must be last path parameter. Path=" + path + ", site=" + requestHandler.getMethod().getName());
+						throw new Exception("Rest of path must be last path parameter. Path=" + path + ", site=" + requestMethod.getMethod().getName());
 					}
 					key = PathParam.AT_LEAST_ONE_SEGMENT;
 				}
@@ -990,32 +870,32 @@ class RequestHandlerMap
 			}
 			map = node.map;
 		}
-		RequestHandler nodeRequestHandler=node.getRequestHandler();
+		RequestMethod nodeRequestHandler=node.getRequestMethod();
 		if (nodeRequestHandler != null)
 		{
 
-            if (requestHandler.getObject()!=null)
+            if (requestMethod.getObject()!=null)
 		    {
     			throw new Exception(
-    			        "Path conflict with incompatible types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestHandler=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
-    							 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+    			        "Path conflict with incompatible types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestMethod=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
+    							 +", new Path=" + requestMethod.getPath() + ", new request handler=" + requestMethod.getMethod().getDeclaringClass().getName()+":"+requestMethod.getMethod().getName());
 		    }
-//            if (TypeUtils.isDerivedFrom(node.requestHandler.getMethod().getDeclaringClass(), requestHandler.getMethod().getDeclaringClass())==false)
+//            if (TypeUtils.isDerivedFrom(node.requestMethod.getMethod().getDeclaringClass(), requestMethod.getMethod().getDeclaringClass())==false)
 //            {
 //                throw new Exception(
-//                        "Path conflict with incompatible state types. Existing Path=" + node.requestHandler.getPath() + ", existing requestHandler=" + node.requestHandler.getMethod().getDeclaringClass().getName()+":"+node.requestHandler.getMethod().getName()
-//                                 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+//                        "Path conflict with incompatible state types. Existing Path=" + node.requestMethod.getPath() + ", existing requestMethod=" + node.requestMethod.getMethod().getDeclaringClass().getName()+":"+node.requestMethod.getMethod().getName()
+//                                 +", new Path=" + requestMethod.getPath() + ", new request handler=" + requestMethod.getMethod().getDeclaringClass().getName()+":"+requestMethod.getMethod().getName());
 //            }
-            if (nodeRequestHandler.getMethod().equals(requestHandler.getMethod())==false)
+            if (nodeRequestHandler.getMethod().equals(requestMethod.getMethod())==false)
             {
                 throw new Exception(
-                        "Path conflict types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestHandler=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
-                                 +", new Path=" + requestHandler.getPath() + ", new request handler=" + requestHandler.getMethod().getDeclaringClass().getName()+":"+requestHandler.getMethod().getName());
+                        "Path conflict types. Existing Path=" + nodeRequestHandler.getPath() + ", existing requestMethod=" + nodeRequestHandler.getMethod().getDeclaringClass().getName()+":"+nodeRequestHandler.getMethod().getName()
+                                 +", new Path=" + requestMethod.getPath() + ", new request handler=" + requestMethod.getMethod().getDeclaringClass().getName()+":"+requestMethod.getMethod().getName());
             }
             
             return;
 		}
-		ParameterInfo[] parameterInfos = requestHandler.getParameterInfos();
+		ParameterInfo[] parameterInfos = requestMethod.getParameterInfos();
 		for (int i = 0; i < parameterInfos.length; i++)
 		{
 			ParameterInfo parameterInfo = parameterInfos[i];
@@ -1029,11 +909,11 @@ class RequestHandlerMap
 				parameterInfos[i] = new ParameterInfo(parameterInfo, pathIndex);
 			}
 		}
-		node.requestHandler = requestHandler;
-        this.requestHandlers.put(requestHandler.getKey(), requestHandler);
+		node.requestMethod = requestMethod;
+        this.requestMethods.put(requestMethod.getKey(), requestMethod);
 	}
 
-	RequestHandlerWithParameters resolve(String method, String path)
+	RequestMethodWithParameters resolve(String method, String path)
 	{
 		Map map = getMap(method);
 		if (map == null)
@@ -1073,11 +953,11 @@ class RequestHandlerMap
 			}
 			map = node.map;
 		}
-		RequestHandler nodeRequestHander=node.getRequestHandler();
-		if (nodeRequestHander == null)
+		RequestMethod nodeRequestMethod=node.getRequestMethod();
+		if (nodeRequestMethod == null)
 		{
 			return null;
 		}
-		return new RequestHandlerWithParameters(nodeRequestHander, parameters);
+		return new RequestMethodWithParameters(nodeRequestMethod, parameters);
 	}
 }

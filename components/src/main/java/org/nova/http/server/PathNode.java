@@ -1,18 +1,18 @@
 package org.nova.http.server;
 
-import org.nova.http.server.RequestHandlerMap.Map;
+import org.nova.http.server.RequestMethodMap.Map;
 
 public class PathNode
 {
 	final Map map;
-	RequestHandler requestHandler;
+	RequestMethod requestMethod;
 
 	PathNode()
 	{
 		map = new Map();
 	}
-	RequestHandler getRequestHandler()
+	RequestMethod getRequestMethod()
 	{
-	    return this.requestHandler;
+	    return this.requestMethod;
 	}
 }

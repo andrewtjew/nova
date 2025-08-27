@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.nova.debug.Debug;
+
 class PrepareState
     {
         final Graph graph;
@@ -31,12 +33,11 @@ class PrepareState
             for (LinkQuery linkQuery : linkQueries)
             {
 //                TypeUtils.addToList(state.parameters,linkQuery.parameters);
-                String linkAlias = "_link" + this.aliasIndex;
+                String linkAlias = "`@link" + this.aliasIndex+"`";
                 String nodeAlias=null;
                 String nodeNamespace = linkQuery.nodeNamespace != null ? linkQuery.nodeNamespace + "." : "";
                 String linkNamespace = linkQuery.linkNamespace != null ? linkQuery.linkNamespace + "." : "";
 
-//                Class<? extends NodeObject> fromType=null;
                 if (linkQuery.nodeTypes==null)
                 {
                     this.sources.append(" LEFT JOIN");
@@ -45,52 +46,38 @@ class PrepareState
                 {
                     this.sources.append(" JOIN");
                 }
-      //          Class<? extends NodeObject> relationFromType=state.graph.getRelationNodeType(linkQuery.relation);
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_LINK_QUERY_REFACTORING)
+                {
+                    if (linkQuery.nodeTypes!=null)
+                    {
+                        if (linkQuery.endNodeObjectType!=linkQuery.nodeTypes[0])
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else if (linkQuery.optionalNodeTypes!=null)
+                    {
+                        if (linkQuery.endNodeObjectType!=linkQuery.optionalNodeTypes[0])
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                
                 switch (linkQuery.direction)
                 {
                 case FROM:
-                    nodeAlias = " ON _link" + this.aliasIndex+".toNodeId=";
-                    this.sources.append(" _link AS " + linkAlias + source + linkAlias + ".fromNodeId");
-                    this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    if (linkQuery.targetNodeType!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.targetNodeType.getSimpleName()+"'");
-                    }
-                    else if (linkQuery.nodeTypes!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
-                    }
-                    else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
-                    {
-                        this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
-                    }
-                    else
-                    {
-                        throw new Exception("Cannot infer targetNodeType");
-                    }
-                
+                    nodeAlias = " ON `@link" + this.aliasIndex+"`.toNodeId=";
+                    this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".fromNodeId");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+'\'');
+                    this.sources.append(" AND "+linkAlias+".toNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+'\'');
                     
                     break;
                 case TO:
-                    nodeAlias = " ON _link" + this.aliasIndex+".fromNodeId=";
-                    this.sources.append(" _link AS " + linkAlias + source + linkAlias + ".toNodeId");
-                    this.sources.append(" AND "+linkAlias+".relationValue="+linkQuery.relationValue);
-                    if (linkQuery.targetNode!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.targetNode.getClass().getSimpleName()+"'");
-                    }
-                    else if (linkQuery.nodeTypes!=null)
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.nodeTypes[0].getSimpleName()+"'");
-                    }
-                    else if ((linkQuery.optionalNodeTypes!=null)&&(linkQuery.optionalNodeTypes.length==1))
-                    {
-                        this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.optionalNodeTypes[0].getSimpleName()+"'");
-                    }
-                    else
-                    {
-                        throw new Exception("Cannot infer targetNodeType. Specify targetNodeType in LinkQuery constructor.");
-                    }
+                    nodeAlias = " ON `@link" + this.aliasIndex+"`.fromNodeId=";
+                    this.sources.append(" `@link` AS " + linkAlias + source + linkAlias + ".toNodeId");
+                    this.sources.append(" AND "+linkAlias+".relation='"+linkQuery.relationValue+'\'');
+                    this.sources.append(" AND "+linkAlias+".fromNodeType='"+linkQuery.endNodeObjectType.getSimpleName()+'\'');
                     
                     break;
                 default:
@@ -163,7 +150,7 @@ class PrepareState
                         }
                     }
                 }
-                if ((linkQuery.targetNode!=null)&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
+                if (linkQuery.endNodeId!=null)//&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
                 {
                     String on = null;
                     switch (linkQuery.direction)
@@ -177,7 +164,7 @@ class PrepareState
                     default:
                         break;
                     }
-                    Class<? extends NodeObject> type = linkQuery.targetNodeType;
+                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
                     GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
 //                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
                     
@@ -191,7 +178,43 @@ class PrepareState
                         alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
                         as=" AS "+alias+" ";
                     }
-                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.targetNode.getNodeId());
+                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.endNodeId);
+                }
+                if (linkQuery.selectNodeId)
+                {
+                    String on = null;
+                    switch (linkQuery.direction)
+                    {
+                    case FROM:
+                        on = " ON " + linkAlias + ".toNodeId=";
+                        break;
+                    case TO:
+                        on = " ON " + linkAlias + ".fromNodeId=";
+                        break;
+                    default:
+                        break;
+                    }
+                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
+                    GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
+                    this.map.put(nodeNamespace+descriptor.getTypeName(), descriptor);
+                    String typeName = descriptor.getTypeName();
+                    String table = descriptor.getTableName();
+                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
+
+                    String as=" ";
+                    String alias=table;
+                    if (linkQuery.linkNamespace!=null)
+                    {
+                        alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
+                        as=" AS "+alias+" ";
+                    }
+
+                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId");
+                    if (this.select.length()>0)
+                    {
+                        this.select.append(',');
+                    }
+                    this.select.append(alias + "._nodeId AS '" + typeName + "._nodeId'");
                 }
                 if (linkQuery.nodeTypes != null)
                 {

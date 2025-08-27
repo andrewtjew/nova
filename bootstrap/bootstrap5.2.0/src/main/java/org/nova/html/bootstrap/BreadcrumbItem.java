@@ -34,6 +34,10 @@ public class BreadcrumbItem extends StyleComponent<BreadcrumbItem>
     { 
         this(label,null);
     }
+    public BreadcrumbItem()
+    { 
+        super("li","breadcrumb-item");
+    }
     
     public BreadcrumbItem active()
     { 

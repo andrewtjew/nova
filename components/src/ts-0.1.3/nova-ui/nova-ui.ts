@@ -69,32 +69,41 @@ namespace nova.ui.validation
 
 }
 
+
+
 namespace nova.ui.modal
 {
-    export function proceed(modalId:string,headerId:string,header:string,bodyId:string,body:string,buttonId:string,code:string)
+
+    export function proceed(id:string,header:string,body:string,code:string)
     {
-        var button=document.getElementById(buttonId) as HTMLButtonElement;
-    
-        if (headerId!=null)
+        var modal=bootstrap.Modal.getOrCreateInstance(document.getElementById(id));
+        if (header!=null)
         {
-            document.getElementById(headerId).innerHTML=header;
+            document.getElementById(id+"-header").innerHTML=header;
         }
-        if (bodyId!=null)
+        if (body!=null)
         {
-            document.getElementById(bodyId).innerHTML=body;
+            document.getElementById(id+"-body").innerHTML=body;
         }
-   
-        var modal=bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId));
-        button.onclick=(event:MouseEvent) =>
+        var proceedButton=document.getElementById(id+"-proceed") as HTMLButtonElement;
+        proceedButton.onclick=(event:MouseEvent) =>
         {
-            modal.hide();
             if (code!=null)
             {
                 eval(code);
             }
+            modal.hide();
+
         };
+        // var cancelButton=document.getElementById(this.id+"-cancel") as HTMLButtonElement;
+        // cancelButton.onclick=(event:MouseEvent) =>
+        // {
+        //     this.modal.hide();
+        // };
+
         modal.show();
     }
+
 
     export function show(modalId:string)
     {

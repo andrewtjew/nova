@@ -3,6 +3,8 @@ package org.nova.services;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
@@ -19,7 +22,7 @@ import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
 import org.nova.services.RoleSession.AccessResult;
@@ -40,15 +43,25 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         this.coookieStateType=cookieStateType;
         this.cookieStateName=cookieStateName;
     }
-
     public void setDebugSession(SESSION session)
     {
         this.debugSession=session;
     }
-
+    public String getCookieStateName()
+    {
+        return this.cookieStateName;
+    }
+    public Class<COOKIESTATE> getCookieStateType()
+    {
+        return this.coookieStateType;
+    }
+    public SessionManager<SESSION> getSessionManager()
+    {
+        return this.sessionManager;
+    }
     abstract public Response<?> bindSession(Trace parent,Context context,SESSION session) throws Throwable;
     
-    private COOKIESTATE getCookieState(HttpServletRequest request)
+    public COOKIESTATE getCookieState(HttpServletRequest request)
     {
         try
         {
@@ -75,6 +88,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
+    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -95,8 +109,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
 	{
 		String token=getToken(parent,context);
 		SESSION session=this.sessionManager.getSessionByToken(token);
-        RequestHandler handler=context.getRequestHandler();
-        Method method=handler.getMethod();
+        RequestMethod requestMethod=context.getRequestMethod();
+        Method method=requestMethod.getMethod();
         if (session==null)
         {
             if (method.getAnnotation(AllowNoSession.class)!=null)
@@ -127,7 +141,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             {
                 return handleNoLock(parent, context);
             }
-            session.lock(lock);
+            session.captureLock(lock);
         }
         
         try
@@ -137,20 +151,22 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 return handleInvalidQuery(parent, context);
             }
             
-            AccessResult result=session.isAccessDenied(handler);
+            AccessResult result=session.isAccessDenied(requestMethod);
             if (result.denied)
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+handler.getKey()+", method="+Debugging.toString(handler.getMethod()));
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                 }
                 if (TypeUtils.isNullOrEmpty(result.redirect)==false)
                 {
-                    return Response.seeOther(result.redirect);
+                    context.seeOther(result.redirect);
+                    return null;
                 }
                 else
                 {
-                    return Response.seeOther("/");
+                    context.seeOther("/");
+                    return null;
                 }
             }
 
@@ -175,6 +191,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         catch (Throwable t)
         {
             parent.close(t);
+            if (Debug.ENABLE && DEBUG && DEBUG_EXCEPTION_PRINT_STACK_TRACE)
+            {
+                t.printStackTrace();
+            }
             return handleException(parent, context, parent.getThrowable());
         }
         finally

@@ -31,20 +31,20 @@ import java.util.List;
 import org.nova.core.NameObject;
 import org.nova.debug.Debugging;
 import org.nova.http.server.Context;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
 /*
  * Optimizes access deny determination based on current session roles and handler RequiredRoles and ForbiddenRoles.
- * Two maps are used for two level lookups. The maps are built dynamically.
+ * Two deny maps are used for two level lookups. The maps are built dynamically.
 */
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
     static final boolean DEBUG=false;
-    static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
+    static private HashMap<String,AccessResult> DENY_MAP=new HashMap<String, AccessResult>();
 
-    private HashMap<Long,Boolean> denyMap;
+    private HashMap<Long,AccessResult> denyMap;
     final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
     private String partialKey;
@@ -54,7 +54,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
-        this.denyMap=new HashMap<Long, Boolean>();
+        this.denyMap=new HashMap<Long, AccessResult>();
     }
     
     @SuppressWarnings("rawtypes")
@@ -106,34 +106,6 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         this.partialKey=computePartialKey();
     }
     
-    @Override
-    synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
-    {
-        RequestHandler handler=context.getRequestHandler();
-        long handlerKey=handler.getRunTimeKey();
-        Boolean deny=this.denyMap.get(handlerKey); //We assume the page request are serialized by the session filter.
-        if (deny!=null)
-        {
-            return deny;
-        }
-        String key=this.partialKey+handlerKey; 
-        
-        //We expect the combination of roles to be small so DENY_MAP won't grow too big.
-        synchronized (DENY_MAP)
-        {
-            deny=DENY_MAP.get(key);
-        }
-        if (deny==null)
-        {
-            deny=isAccessDenied(handler).denied;
-            synchronized (DENY_MAP)
-            {
-                DENY_MAP.put(key, deny);
-            }
-        }
-        this.denyMap.put(handlerKey, deny);
-        return deny;
-    }
 
     static class AccessResult
     {
@@ -152,9 +124,50 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
     }
     
-    AccessResult isAccessDenied(RequestHandler handler) throws Throwable
+    @Override
+    synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
+    {
+        return isAccessDenied(context.getRequestMethod()).denied;
+    }
+    AccessResult isAccessDenied(RequestMethod handler) throws Throwable
     {
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
+        RequiredRoles requiredRoles=handler.getRequiredRoles();
+        if (requiredRoles==null)
+        {
+            throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
+        }
+        return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
+    }    
+
+    public AccessResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    {
+        AccessResult result=this.denyMap.get(runTimeKey); //We assume the page request are serialized by the session filter.
+        if (result!=null)
+        {
+            return result;
+        }
+        String key=this.partialKey+runTimeKey; 
+        
+        //We expect the combination of roles to be small so DENY_MAP won't grow too big.
+        synchronized (DENY_MAP)
+        {
+            result=DENY_MAP.get(key);
+        }
+        if (result==null)
+        {
+            result=isAccessDenied(forbiddenRoles,requiredRoles);
+            synchronized (DENY_MAP)
+            {
+                DENY_MAP.put(key, result);
+            }
+        }
+        this.denyMap.put(runTimeKey, result);
+        return result;
+    }
+
+    private AccessResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
+    {
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
@@ -170,17 +183,8 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
             }
         }
 
-        RequiredRoles requiredRoles=handler.getRequiredRoles();
-        if (requiredRoles==null)
-        {
-            throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
-        }
         if (requiredRoles.value().length==0)
         {
-//            if (Debug.ENABLE && DEBUG)
-//            {
-//                System.err.println("No Roles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
-//            }
             return new AccessResult(false);
         }
         for (String value:requiredRoles.value())

@@ -24,7 +24,7 @@ import org.nova.html.attributes.Style;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.properties.Color;
-import org.nova.html.properties.Display;
+import org.nova.html.properties.Display_;
 import org.nova.html.properties.Overflow;
 import org.nova.html.properties.Position;
 import org.nova.html.properties.Length;
@@ -48,11 +48,11 @@ public class ModalBackground extends GlobalEventTagElement<div>
            		.background_color(color);
         if (show)
         {
-        	style.display(Display.block);
+        	style.display(Display_.block);
         }
         else
         {
-        	style.display(Display.none);
+        	style.display(Display_.none);
         }
         this.style(style);
         this.z_index=z_index;

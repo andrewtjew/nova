@@ -114,7 +114,7 @@ import org.nova.http.server.JSONPatchContentReader;
 import org.nova.http.server.ParameterInfo;
 import org.nova.http.server.ParameterSource;
 import org.nova.http.server.Queries;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.RequestHandlerNotFoundLogEntry;
 import org.nova.http.server.RequestLogEntry;
 import org.nova.http.server.Response;
@@ -2743,8 +2743,8 @@ public class ServerOperatorPages
         infoTable.addRow(DOUBLE_FORMAT.format(sample.getRate()),sample.getSamples());
         
         page.content().addInner(new p());
-        Panel requestHandlerPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
-        OperatorDataTable table=requestHandlerPanel.content().returnAddInner(new OperatorTable(page.head()));
+        Panel requestMethodPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestMethods"));
+        OperatorDataTable table=requestMethodPanel.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method")
             .add(new th_title("Count","Number of requests in last sample"))
@@ -2758,21 +2758,21 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
         HashMap<String,Map<Integer, LongValueSample>> statusResults=new HashMap<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueSample> results = requestHandler.sampleStatusMeters();
+            Map<Integer, LongValueSample> results = requestMethod.sampleStatusMeters();
             for (LongValueSample result : results.values())
             {
                 totalAll += result.getTotal();
                 totalCount += result.getSamples();
             }
-            statusResults.put(requestHandler.getKey(),results);
+            statusResults.put(requestMethod.getKey(),results);
         }
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueSample> results = statusResults.get(requestHandler.getKey());
+            Map<Integer, LongValueSample> results = statusResults.get(requestMethod.getKey());
             long total = 0;
             long count = 0;
             double rate = 0;
@@ -2784,14 +2784,14 @@ public class ServerOperatorPages
             }
 
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod() + " " + requestHandler.getPath())
+            row.add(requestMethod.getHttpMethod() + " " + requestMethod.getPath())
             .add(buildCountRatio(100, count,totalCount))
             .add(buildDurationRatio(100,(long)(total/1.0e6),(long)(totalAll/1.0e6)))
             .add(count > 0 ? DOUBLE_FORMAT.format(total / (1.0e6 * count)) : 0)
             .add(DOUBLE_FORMAT.format(rate))
-            .add(requestHandler.getRequestUncompressedContentSizeMeter().sample().getWeightedAverage(0))
-            .add(requestHandler.getResponseUncompressedContentSizeMeter().sample().getWeightedAverage());
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            .add(requestMethod.getRequestUncompressedContentSizeMeter().sample().getWeightedAverage(0))
+            .add(requestMethod.getResponseUncompressedContentSizeMeter().sample().getWeightedAverage());
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestMethod.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
             
         }
@@ -2811,8 +2811,8 @@ public class ServerOperatorPages
         infoTable.addRow(DOUBLE_FORMAT.format(sample.getRate()),sample.getSamples());
         
         page.content().addInner(new p());
-        Panel requestHandlerPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
-        OperatorDataTable table=requestHandlerPanel.content().returnAddInner(new OperatorTable(page.head()));
+        Panel requestMethodPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
+        OperatorDataTable table=requestMethodPanel.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method")
             .add(new th_title("Count","Count of total requests"))
@@ -2829,21 +2829,21 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
         HashMap<String,Map<Integer, LongValueMeter>> statusResults=new HashMap<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueMeter> results = requestHandler.getStatusMeters();
+            Map<Integer, LongValueMeter> results = requestMethod.getStatusMeters();
             for (LongValueMeter result : results.values())
             {
                 totalAll += result.getTotal();
                 totalCount += result.getTotalCount();
             }
-            statusResults.put(requestHandler.getKey(),results);
+            statusResults.put(requestMethod.getKey(),results);
         }
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requesMethodHandler : requestMethods)
         {
-            Map<Integer, LongValueMeter> results = statusResults.get(requestHandler.getKey());
+            Map<Integer, LongValueMeter> results = statusResults.get(requesMethodHandler.getKey());
             long total = 0;
             long count = 0;
             for (LongValueMeter result : results.values())
@@ -2851,11 +2851,11 @@ public class ServerOperatorPages
                 total += result.getTotal();
                 count += result.getTotalCount();
             }
-            LongValueSample requestSample=requestHandler.getRequestUncompressedContentSizeMeter().sample();
-            LongValueSample responseSample=requestHandler.getResponseUncompressedContentSizeMeter().sample();
+            LongValueSample requestSample=requesMethodHandler.getRequestUncompressedContentSizeMeter().sample();
+            LongValueSample responseSample=requesMethodHandler.getResponseUncompressedContentSizeMeter().sample();
 
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod() + " " + requestHandler.getPath())
+            row.add(requesMethodHandler.getHttpMethod() + " " + requesMethodHandler.getPath())
             .add(buildCountRatio(100, count,totalCount))
             .add(buildDurationRatio(100,(long)(total/1.0e6),(long)(totalAll/1.0e6)))
             .add(count > 0 ? DOUBLE_FORMAT.format(total / (1.0e6 * count)) : 0);
@@ -2886,7 +2886,7 @@ public class ServerOperatorPages
                 
             }
             
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requesMethodHandler.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
             
         }
@@ -3265,20 +3265,20 @@ public class ServerOperatorPages
     public Element status(@PathParam("server") String server) throws Throwable
     {
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
         OperatorPage page=buildServerOperatorPage("Server Status",server,null);
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method","Path","200","300","400","500","");
         table.setHeader(header);
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
             HashMap<Integer, Long> statusCodes = new HashMap<>();
             statusCodes.put(200, 0L);
             statusCodes.put(300, 0L);
             statusCodes.put(400, 0L);
             statusCodes.put(500, 0L);
-            Map<Integer, LongValueSample> results = requestHandler.sampleStatusMeters();
+            Map<Integer, LongValueSample> results = requestMethod.sampleStatusMeters();
             for (Entry<Integer, LongValueSample> entry : results.entrySet())
             {
                 int status = entry.getKey() / 100 * 100;
@@ -3294,14 +3294,14 @@ public class ServerOperatorPages
                 statusCodes.put(status, count);
             }
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod())
-            .add(requestHandler.getPath())
+            row.add(requestMethod.getHttpMethod())
+            .add(requestMethod.getPath())
             .add(statusCodes.get(200)
                 ,statusCodes.get(300)
                 ,statusCodes.get(400)
                 ,statusCodes.get(500)
             );
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestMethod.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
         }
         return page;
@@ -3334,7 +3334,7 @@ public class ServerOperatorPages
         }
     }
     
-    static class RequestHandlerParameterDescriptions
+    static class RequestMethodParameterDescriptions
     {
         final String method;
         final String pathSchema;
@@ -3345,7 +3345,7 @@ public class ServerOperatorPages
         final ContentTypeDescription[] requestContentTypes;
         final ContentTypeDescription[] responseContentTypes;
         
-        RequestHandlerParameterDescriptions(String method,String pathSchema,ParameterDescription[] cookieParameters,
+        RequestMethodParameterDescriptions(String method,String pathSchema,ParameterDescription[] cookieParameters,
                 ParameterDescription[] pathParameters,
                 ParameterDescription[] queryParameters,
                 ParameterDescription[] headerParameters,
@@ -3363,16 +3363,16 @@ public class ServerOperatorPages
         }
     }
     
-    private RequestHandlerParameterDescriptions extractParameterDescriptions(RequestHandler requestHandler) throws Throwable
+    private RequestMethodParameterDescriptions extractParameterDescriptions(RequestMethod requestMethod) throws Throwable
     {
-        Method method=requestHandler.getMethod();
+        Method method=requestMethod.getMethod();
         ArrayList<ParameterDescription> cookieParameters=new ArrayList<>();
         ArrayList<ParameterDescription> pathParameters=new ArrayList<>();
         ArrayList<ParameterDescription> queryParameters=new ArrayList<>();
         ArrayList<ParameterDescription> headerParameters=new ArrayList<>();
         ParameterInfo contentParameterInfo = null;
 
-        for (ParameterInfo info:requestHandler.getParameterInfos())
+        for (ParameterInfo info:requestMethod.getParameterInfos())
         {
             Parameter parameter = method.getParameters()[info.getIndex()];
             switch (info.getSource())
@@ -3406,9 +3406,9 @@ public class ServerOperatorPages
         if (contentParameterInfo != null)
         {
             Parameter contentParameter = method.getParameters()[contentParameterInfo.getIndex()];
-            if (requestHandler.getContentReaders().size() > 0)
+            if (requestMethod.getContentReaders().size() > 0)
             {
-                for (ContentReader contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestMethod.getContentReaders().values())
                 {
                     ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
                     contentReader.writeSchema(byteOutputStream, contentParameter.getType());
@@ -3442,10 +3442,10 @@ public class ServerOperatorPages
                     innerReturnType = null;
                 }
             }
-            if (requestHandler.getContentWriters().size() > 0)
+            if (requestMethod.getContentWriters().size() > 0)
             {
                 HashMap<String, TypeContentWriter> lists = new HashMap<>();
-                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
+                for (Entry<String, ContentWriter> entry : requestMethod.getContentWriters().entrySet())
                 {
                     TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
@@ -3481,30 +3481,30 @@ public class ServerOperatorPages
         ContentTypeDescription[] requestContentDescriptionArray=requestContentDescriptions.size()>0?requestContentDescriptions.toArray(new ContentTypeDescription[requestContentDescriptions.size()]):null;
         ContentTypeDescription[] responseContentDescriptionArray=responseContentDescriptions.size()>0?responseContentDescriptions.toArray(new ContentTypeDescription[responseContentDescriptions.size()]):null;
         
-        return new RequestHandlerParameterDescriptions(requestHandler.getHttpMethod(),requestHandler.getPath(),cookieParameterArray, pathParameterArray, queryParameterArray, headerParameterArray, requestContentDescriptionArray, responseContentDescriptionArray); 
+        return new RequestMethodParameterDescriptions(requestMethod.getHttpMethod(),requestMethod.getPath(),cookieParameterArray, pathParameterArray, queryParameterArray, headerParameterArray, requestContentDescriptionArray, responseContentDescriptionArray); 
     }
     
     @GET
     @ContentWriters(JSONContentWriter.class)
     @Path("/operator/httpServer/apis")
-    public RequestHandlerParameterDescriptions[] apis() throws Throwable
+    public RequestMethodParameterDescriptions[] apis() throws Throwable
     {
-        RequestHandler[] requestHandlers = this.serverApplication.getOperatorServer().getRequestHandlers();
-        ArrayList<RequestHandlerParameterDescriptions> list=new ArrayList<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        RequestMethod[] requestMethods = this.serverApplication.getOperatorServer().getRequestHandlers();
+        ArrayList<RequestMethodParameterDescriptions> list=new ArrayList<>();
+        for (RequestMethod requestMethod : requestMethods)
         {
-            list.add(extractParameterDescriptions(requestHandler));
+            list.add(extractParameterDescriptions(requestMethod));
         }
-        return list.toArray(new RequestHandlerParameterDescriptions[list.size()]);
+        return list.toArray(new RequestMethodParameterDescriptions[list.size()]);
     }
 
     @GET
     @ContentWriters(JSONContentWriter.class)
     @Path("/operator/httpServer/api")
-    public RequestHandlerParameterDescriptions api(@QueryParam("key") String key) throws Throwable
+    public RequestMethodParameterDescriptions api(@QueryParam("key") String key) throws Throwable
     {
-        RequestHandler requestHandler = this.serverApplication.getOperatorServer().getRequestHandler(key);
-        return extractParameterDescriptions(requestHandler);
+        RequestMethod requestMethod = this.serverApplication.getOperatorServer().getRequestHandler(key);
+        return extractParameterDescriptions(requestMethod);
     }    
 
     
@@ -3625,15 +3625,15 @@ public class ServerOperatorPages
     {
         HttpTransport httpTransport=getHttpTransport(server);
         OperatorPage page=buildServerOperatorPage("Methods",server,null);
-        RequestHandler[] requestHandlers = httpTransport.getHttpServer().getRequestHandlers();
+        RequestMethod[] requestMethods = httpTransport.getHttpServer().getRequestHandlers();
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         table.setHeader("Method","Path","Description","");
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            TableRow row=new TableRow().add(requestHandler.getHttpMethod());
-            row.add(requestHandler.getPath());
+            TableRow row=new TableRow().add(requestMethod.getHttpMethod());
+            row.add(requestMethod.getPath());
             
-            Method method = requestHandler.getMethod();
+            Method method = requestMethod.getMethod();
             Description description = method.getAnnotation(Description.class);
             if (description != null)
             {
@@ -3644,7 +3644,7 @@ public class ServerOperatorPages
                 row.add("");
             }
 
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/method/"+server).addQuery("key", requestHandler.getKey()).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/method/"+server).addQuery("key", requestMethod.getKey()).toString()));
             table.addRow(row);
         }
         return page;
@@ -3669,7 +3669,7 @@ public class ServerOperatorPages
         return null;
     }
 
-    private void writeParameterInfos(Head head,Panel panel, String heading, RequestHandler handler, ParameterSource filter)
+    private void writeParameterInfos(Head head,Panel panel, String heading, RequestMethod handler, ParameterSource filter)
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
@@ -3706,7 +3706,7 @@ public class ServerOperatorPages
         panel.content().addInner(new p());
     }
 
-    private void writeInputParameterInfos(Head head,NodeElement<?> container, AjaxButton button, String heading, RequestHandler handler, ParameterSource source) throws Exception
+    private void writeInputParameterInfos(Head head,NodeElement<?> container, AjaxButton button, String heading, RequestMethod handler, ParameterSource source) throws Exception
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
@@ -3763,13 +3763,12 @@ public class ServerOperatorPages
         }
     }
 
-    private ParameterInfo findContentParameter(RequestHandler requestHandler)
+    private ParameterInfo findContentParameter(RequestMethod requestMethod)
     {
-        for (ParameterInfo info : requestHandler.getParameterInfos())
+        for (ParameterInfo info : requestMethod.getParameterInfos())
         {
             if (info.getSource() == ParameterSource.CONTENT)
             {
-//                Method method = requestHandler.getMethod();
                 return info;
             }
         }
@@ -3946,9 +3945,9 @@ public class ServerOperatorPages
     {
         OperatorPage page=buildServerOperatorPage("Method: "+key, server,null);
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler requestHandler = httpServer.getRequestHandler(key);
+        RequestMethod requestMethod = httpServer.getRequestHandler(key);
 
-        Map<Integer, LongValueSample> meters = requestHandler.sampleStatusMeters();
+        Map<Integer, LongValueSample> meters = requestMethod.sampleStatusMeters();
         if (meters.size()>0)
         {
             Panel durationPanel=page.content().returnAddInner(new Panel2(page.head(),"Durations"));
@@ -4008,7 +4007,7 @@ public class ServerOperatorPages
                     ,"Total Bytes","KB","MB","GB","TB"
                     );
             
-            LongValueMeter requestMeter = requestHandler.getRequestUncompressedContentSizeMeter();
+            LongValueMeter requestMeter = requestMethod.getRequestUncompressedContentSizeMeter();
             LongValueSample result = requestMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4037,7 +4036,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter compressedRequestMeter = requestHandler.getRequestCompressedContentSizeMeter();
+            LongValueMeter compressedRequestMeter = requestMethod.getRequestCompressedContentSizeMeter();
             result = compressedRequestMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4066,7 +4065,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter responseMeter = requestHandler.getResponseUncompressedContentSizeMeter();
+            LongValueMeter responseMeter = requestMethod.getResponseUncompressedContentSizeMeter();
             result = responseMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4095,7 +4094,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter compressedResponseMeter = requestHandler.getResponseCompressedContentSizeMeter();
+            LongValueMeter compressedResponseMeter = requestMethod.getResponseCompressedContentSizeMeter();
             result = compressedResponseMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4130,7 +4129,7 @@ public class ServerOperatorPages
             list.add("Request", requestUncompressed != 0?DOUBLE_FORMAT.format((double) requestCompressed / requestUncompressed):"");
             list.add("Response",responseUncompressed != 0?DOUBLE_FORMAT.format((double) responseCompressed / responseUncompressed):"");
 
-            RequestLogEntry[] entries = requestHandler.getLastRequestLogEntries();
+            RequestLogEntry[] entries = requestMethod.getLastRequestLogEntries();
             if (entries.length>0)
             {
                 Panel logPanel=page.content().returnAddInner(new Panel2(page.head(), "Last Log Entries"));
@@ -4160,14 +4159,14 @@ public class ServerOperatorPages
         this.namespace=namespace;
         HttpServer httpServer=getHttpServer(server);
         HashMap<String,Class<?>> roots=new HashMap<>();
-        for (RequestHandler requestHandler:httpServer.getRequestHandlers())
+        for (RequestMethod requestMethod:httpServer.getRequestHandlers())
         {
-            Method method = requestHandler.getMethod();
-            ParameterInfo contentParameterInfo = findContentParameter(requestHandler);
+            Method method = requestMethod.getMethod();
+            ParameterInfo contentParameterInfo = findContentParameter(requestMethod);
 
             if (contentParameterInfo!=null)
             {
-                for (ContentReader reader:requestHandler.getContentReaders().values())
+                for (ContentReader reader:requestMethod.getContentReaders().values())
                 {
                     if (reader instanceof JSONContentReader)
                     {
@@ -4182,7 +4181,7 @@ public class ServerOperatorPages
             Type innerReturnType = null;
             if (returnType != void.class)
             {
-                for (ContentWriter writer:requestHandler.getContentWriters().values())
+                for (ContentWriter writer:requestMethod.getContentWriters().values())
                 {
                     if (writer instanceof JSONContentWriter)
                     {
@@ -4298,8 +4297,8 @@ public class ServerOperatorPages
     {
         OperatorPage page=buildServerOperatorPage("Method: "+key,server,null);
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler requestHandler = httpServer.getRequestHandler(key);
-        Method method = requestHandler.getMethod();
+        RequestMethod requestMethod = httpServer.getRequestHandler(key);
+        Method method = requestMethod.getMethod();
         String text = getDescription(method);
         if (text != null)
         {
@@ -4309,11 +4308,11 @@ public class ServerOperatorPages
         }
         
         Panel2 requestPanel=page.content().returnAddInner(new Panel2(page.head(),"Request"));
-        writeParameterInfos(page.head(),requestPanel, "Query Parameters", requestHandler, ParameterSource.QUERY);
-        writeParameterInfos(page.head(),requestPanel, "Path Parameters", requestHandler, ParameterSource.PATH);
-        writeParameterInfos(page.head(),requestPanel, "Header Parameters", requestHandler, ParameterSource.HEADER);
-        writeParameterInfos(page.head(),requestPanel, "Cookie Parameters", requestHandler, ParameterSource.COOKIE);
-        ParameterInfo contentParameterInfo = findContentParameter(requestHandler);
+        writeParameterInfos(page.head(),requestPanel, "Query Parameters", requestMethod, ParameterSource.QUERY);
+        writeParameterInfos(page.head(),requestPanel, "Path Parameters", requestMethod, ParameterSource.PATH);
+        writeParameterInfos(page.head(),requestPanel, "Header Parameters", requestMethod, ParameterSource.HEADER);
+        writeParameterInfos(page.head(),requestPanel, "Cookie Parameters", requestMethod, ParameterSource.COOKIE);
+        ParameterInfo contentParameterInfo = findContentParameter(requestMethod);
 
         if (contentParameterInfo != null)
         {
@@ -4323,11 +4322,11 @@ public class ServerOperatorPages
             ParameterWriter parameterWriter = new ParameterWriter(page.head(),contentParameterPanel);
             parameterWriter.write(contentParameter.getType());
 
-            if (requestHandler.getContentReaders().size() > 0)
+            if (requestMethod.getContentReaders().size() > 0)
             {
                 requestPanel.content().addInner(new p());
                 Panel3 contentReaderPanel=requestPanel.content().returnAddInner(new Panel3(page.head(),"Content Readers"));
-                for (ContentReader contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestMethod.getContentReaders().values())
                 {
                     WideTable table=contentReaderPanel.content().returnAddInner(new WideTable(page.head()));
                     table.setHeader("Class","Media Type");
@@ -4390,10 +4389,10 @@ public class ServerOperatorPages
                 parameterWriter.write(returnType); 
             }
 
-            if (requestHandler.getContentWriters().size() > 0)
+            if (requestMethod.getContentWriters().size() > 0)
             {
                 HashMap<String, TypeContentWriter> lists = new HashMap<>();
-                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
+                for (Entry<String, ContentWriter> entry : requestMethod.getContentWriters().entrySet())
                 {
                     TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
@@ -4447,8 +4446,8 @@ public class ServerOperatorPages
             page.content().addInner(new p());
         }
         
-        ForbiddenRoles forbiddenRoles=requestHandler.getForbiddenRoles();
-        RequiredRoles requiredRoles=requestHandler.getRequiredRoles();
+        ForbiddenRoles forbiddenRoles=requestMethod.getForbiddenRoles();
+        RequiredRoles requiredRoles=requestMethod.getRequiredRoles();
         if ((forbiddenRoles!=null)||(requiredRoles!=null))
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Access Control"));
@@ -4466,46 +4465,46 @@ public class ServerOperatorPages
             }
         }
 
-        if (requestHandler.getContentDecoders().size() > 0)
+        if (requestMethod.getContentDecoders().size() > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Decoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (Entry<String, ContentDecoder> entry : requestHandler.getContentDecoders().entrySet())
+            for (Entry<String, ContentDecoder> entry : requestMethod.getContentDecoders().entrySet())
             {
                 table.addRow(new TableRow().add(entry.getValue().getClass().getName(),entry.getValue().getCoding(),entry.getKey()));
             }
             page.content().addInner(new p());
      }
-         if (requestHandler.getContentEncoders().length> 0)
+         if (requestMethod.getContentEncoders().length> 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Encoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (ContentEncoder encoder:requestHandler.getContentEncoders())
+            for (ContentEncoder encoder:requestMethod.getContentEncoders())
             {
                 table.addRow(new TableRow().add(encoder.getClass().getName(),encoder,encoder.getCoding()));
             }
             page.content().addInner(new p());
         }
-        if (requestHandler.getTopFilters().length > 0)
+        if (requestMethod.getTopFilters().length > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Top Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
-            for (Filter filter : requestHandler.getTopFilters())
+            for (Filter filter : requestMethod.getTopFilters())
             {
                 row.add(filter.getClass().getName());
             }
             table.addRow(row);
             page.content().addInner(new p());
         }
-        if (requestHandler.getBottomFilters().length > 0)
+        if (requestMethod.getBottomFilters().length > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Bottom Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
-            for (Filter filter : requestHandler.getBottomFilters())
+            for (Filter filter : requestMethod.getBottomFilters())
             {
                 row.add(filter.getClass().getName());
             }
@@ -4516,7 +4515,7 @@ public class ServerOperatorPages
         methodPanel.content().addInner(escapeHtml(method.toGenericString()+";"));
         page.content().addInner(new p());
         
-        Set<String> attributes=requestHandler.getAttributes();
+        Set<String> attributes=requestMethod.getAttributes();
         if (attributes!=null)
         {
             String[] array=attributes.toArray(new String[attributes.size()]);
@@ -4526,25 +4525,25 @@ public class ServerOperatorPages
         }
         
         Panel2 executePanel=page.content().returnAddInner(new Panel2(page.head(),"Execute: "+key));
-        String httpMethod = requestHandler.getHttpMethod();
+        String httpMethod = requestMethod.getHttpMethod();
         {
             form_get form=executePanel.content().returnAddInner(new form_get());
             AjaxButton button = new AjaxButton("button", "Execute Call", "/operator/httpServer/method/execute/"+server);
             button.parameter("key", key);
             button.style("height:3em;width:10em;margin:10px;");
-            writeInputParameterInfos(page.head(),form, button, "Query Parameters", requestHandler, ParameterSource.QUERY);
-            writeInputParameterInfos(page.head(),form, button, "Path Parameters", requestHandler, ParameterSource.PATH);
-            writeInputParameterInfos(page.head(),form, button, "Header Parameters", requestHandler, ParameterSource.HEADER);
-            writeInputParameterInfos(page.head(),form, button, "Cookie Parameters", requestHandler, ParameterSource.COOKIE);
+            writeInputParameterInfos(page.head(),form, button, "Query Parameters", requestMethod, ParameterSource.QUERY);
+            writeInputParameterInfos(page.head(),form, button, "Path Parameters", requestMethod, ParameterSource.PATH);
+            writeInputParameterInfos(page.head(),form, button, "Header Parameters", requestMethod, ParameterSource.HEADER);
+            writeInputParameterInfos(page.head(),form, button, "Cookie Parameters", requestMethod, ParameterSource.COOKIE);
             button.async(false);
 
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)|| "PATCH".equals(httpMethod))
             {
-                for (ParameterInfo info:requestHandler.getParameterInfos())
+                for (ParameterInfo info:requestMethod.getParameterInfos())
                 {
                     if (info.getSource()==ParameterSource.CONTENT)
                     {
-                        Collection<ContentReader> readers = requestHandler.getContentReaders().values();
+                        Collection<ContentReader> readers = requestMethod.getContentReaders().values();
                         if (readers.size() > 0)
                         {
                             fieldset field=form.returnAddInner(new fieldset());
@@ -4565,7 +4564,7 @@ public class ServerOperatorPages
             NameInputValueList list=new NameInputValueList();
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod))
             {
-                Collection<ContentReader> readers = requestHandler.getContentReaders().values();
+                Collection<ContentReader> readers = requestMethod.getContentReaders().values();
                 if (readers.size() > 0)
                 {
                     HashSet<String> set=new HashSet<>();
@@ -4583,7 +4582,7 @@ public class ServerOperatorPages
                     button.val("contentType", "contentType");
                 }
             }
-            Collection<ContentWriter> writers = requestHandler.getContentWriters().values();
+            Collection<ContentWriter> writers = requestMethod.getContentWriters().values();
             if (writers.size() > 0)
             {
                 HashSet<String> set=new HashSet<>();
@@ -5297,7 +5296,7 @@ public class ServerOperatorPages
             value=Boolean.toString(value==null?false:true);
         }
         var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
-        Response.seeOther("/operator/variables/modify");
+        context.seeOther("/operator/variables/modify");
     }
 
 }

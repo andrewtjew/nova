@@ -39,7 +39,7 @@ import org.nova.utils.FileUtils;
 
 public class Context
 {
-	private RequestHandlerWithParameters requestHandler;
+	private RequestMethodWithParameters requestMethodWithParameters;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	private ContentReader contentReader;
@@ -53,10 +53,10 @@ public class Context
 	final private FilterChain filterChain;
 	private LocalTextResolver resolver;
 	
-	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestHandlerWithParameters requestHandler,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
+	Context(FilterChain filterChain,DecoderContext decoderContext,EncoderContext encoderContext,RequestMethodWithParameters requestMethodWithParameters,HttpServletRequest servletRequest,HttpServletResponse servletResponse)
 	{
 	    this.filterChain=filterChain;
-		this.requestHandler=requestHandler;
+		this.requestMethodWithParameters=requestMethodWithParameters;
 		this.httpServletRequest=servletRequest;
 		this.httpServletResponse=servletResponse;
 		this.decoderContext=decoderContext;
@@ -79,14 +79,11 @@ public class Context
 	{
 	    this.decoderContext=decoderContext;
 	}
-	public RequestHandler getRequestHandler()
+	public RequestMethod getRequestMethod()
 	{
-		return requestHandler.requestHandler;
+		return requestMethodWithParameters.requestMethod();
 	}
-//	public void setRequestHandler(RequestHandler requestHandler)
-//	{
-//		this.requestHandler = requestHandler;
-//	}
+
 	public HttpServletRequest getHttpServletRequest()
 	{
 		return httpServletRequest;
@@ -122,7 +119,7 @@ public class Context
     @SuppressWarnings("unchecked")
     public <OBJECT> OBJECT  getCookieState(String name)
     {
-        ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
+        ParameterInfo[] infos=this.requestMethodWithParameters.requestMethod().getParameterInfos();
         for (int i=0;i<infos.length;i++)
         {
             ParameterInfo info=infos[i];
@@ -137,7 +134,7 @@ public class Context
 	
 	public ObjectBox getQueryParameter(String name)
 	{
-		ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
+		ParameterInfo[] infos=this.requestMethodWithParameters.requestMethod().getParameterInfos();
 		for (int i=0;i<infos.length;i++)
 		{
 			ParameterInfo info=infos[i];
@@ -150,7 +147,7 @@ public class Context
 	}
 	public ObjectBox getPathParameter(String name)
 	{
-		ParameterInfo[] infos=this.requestHandler.requestHandler.getParameterInfos();
+		ParameterInfo[] infos=this.requestMethodWithParameters.requestMethod().getParameterInfos();
 		for (int i=0;i<infos.length;i++)
 		{
 			ParameterInfo info=infos[i];
@@ -163,12 +160,12 @@ public class Context
 	}
     public String getPathParameterFragment(String name)
     {
-        Integer index=this.requestHandler.requestHandler.getFragmentIndexMap().get(name);
+        Integer index=this.requestMethodWithParameters.requestMethod().getFragmentIndexMap().get(name);
         if (index==null)
         {
             return null;
         }
-        return this.requestHandler.parameters[index];
+        return this.requestMethodWithParameters.parameters()[index];
     }
     public LocalTextResolver getLocalTextResolver()
     {
@@ -285,24 +282,32 @@ public class Context
 	{
 		this.captured = true;
 	}
-	@Deprecated
+    public void movedPermanently(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void movedTemporarily(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.MOVED_TEMPORARILY_302);
+        this.httpServletResponse.setHeader("Location",url);
+    }
     public void seeOther(String url)
     {
         this.httpServletResponse.setStatus(HttpStatus.SEE_OTHER_303);
         this.httpServletResponse.setHeader("Location",url);
     }
-//    @Deprecated
-//    public void movedPermanently(String url)
-//    {
-//        this.httpServletResponse.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
-//        this.httpServletResponse.setHeader("Location",url);
-//    }
-//    @Deprecated
-//    public void temporaryRedirect(String url)
-//    {
-//        this.httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
-//        this.httpServletResponse.setHeader("Location",url);
-//    }
+    public void temporaryRedirect(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT_307);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+    public void permamentlyRedirect(String url)
+    {
+        this.httpServletResponse.setStatus(HttpStatus.PERMANENT_REDIRECT_308);
+        this.httpServletResponse.setHeader("Location",url);
+    }
+	
 //    public String getPathAndQuery()
 //    {
 //        String pathAndQuery=this.httpServletRequest.getRequestURI();

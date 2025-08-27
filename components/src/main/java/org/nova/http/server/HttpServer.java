@@ -22,9 +22,13 @@
 package org.nova.http.server;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,6 +38,7 @@ import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
 import org.nova.debug.Debugging;
 import org.nova.http.Header;
+import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
 import org.nova.logging.Logger;
 import org.nova.metrics.RateMeter;
@@ -45,7 +50,9 @@ import org.nova.utils.Utils;
 
 public class HttpServer 
 {
-	final private RequestHandlerMap requestHandlerMap;
+    static AtomicLong RUNTIME_KEY_GENERATOR=new AtomicLong();
+    
+	final private RequestMethodMap requestMethodMap;
 	final private TraceManager traceManager;
 	final private IdentityContentDecoder identityContentDecoder;
 	final private IdentityContentEncoder identityContentEncoder;
@@ -72,7 +79,7 @@ public class HttpServer
 	{
 	    this.logger=logger;
 		this.categoryPrefix=configuration.categoryPrefix+"@";
-		this.requestHandlerMap = new RequestHandlerMap(test,configuration.requestLastRequestLogEntryBufferSize);
+		this.requestMethodMap = new RequestMethodMap(test,configuration.requestLastRequestLogEntryBufferSize);
 		this.traceManager = traceManager;
 		this.requestRateMeter = new RateMeter();
 		this.identityContentDecoder = new IdentityContentDecoder();
@@ -173,33 +180,45 @@ public class HttpServer
 
 	public void registerHandlers(String root, Object object) throws Throwable
 	{
-		this.requestHandlerMap.registerObject(root, object, object.getClass(), this.transformers);
+		this.requestMethodMap.registerObject(root, object, object.getClass(), this.transformers);
 	}
 
 	public void registerHandlers(Class<?> objectType) throws Throwable
     {
-        this.requestHandlerMap.registerObject(null, null, objectType, this.transformers);
+        this.requestMethodMap.registerObject(null, null, objectType, this.transformers);
     }
     public void registerHandlers(String root,Class<?> objectType) throws Throwable
     {
-        this.requestHandlerMap.registerObject(root, null, objectType, this.transformers);
+        this.requestMethodMap.registerObject(root, null, objectType, this.transformers);
     }
 
 	public void registerHandler(String root, Object object, Method method) throws Throwable
 	{
-		this.requestHandlerMap.registerObjectMethod(root, object, method, this.transformers);
+		this.requestMethodMap.registerObjectMethod(root, object, method, this.transformers);
+	}
+	
+	HashMap<String,WebSocketInitializer<?>> webSocketInitializers=new HashMap<String, WebSocketInitializer<?>>();
+	
+	public void registerWebSocket(WebSocketInitializer<?> initializer)
+	{
+	    this.webSocketInitializers.put(initializer.getWebSocketPath(), initializer);
+	}
+	
+	Map<String,WebSocketInitializer<?>> getWebSocketInitializers()
+	{
+	    return this.webSocketInitializers;
+	}
+	public RequestMethod[] getRequestHandlers()
+	{
+		return this.requestMethodMap.getRequestHandlers();
+	}
+	public RequestMethod getRequestHandler(String key)
+	{
+		return this.requestMethodMap.getRequestHandler(key);
 	}
 
-	public RequestHandler[] getRequestHandlers()
-	{
-		return this.requestHandlerMap.getRequestHandlers();
-	}
-	public RequestHandler getRequestHandler(String key)
-	{
-		return this.requestHandlerMap.getRequestHandler(key);
-	}
-
-	private ContentReader findContentReader(String contentType, RequestHandler handler)
+	
+	private ContentReader findContentReader(String contentType, RequestMethod handler)
 	{
 		if ((contentType == null) || (contentType.length() == 0))
 		{
@@ -221,7 +240,7 @@ public class HttpServer
 		return handler.getContentReaders().get("*/*");
 	}
 
-	private ContentWriter findContentWriter(String accept, RequestHandler handler)
+	private ContentWriter findContentWriter(String accept, RequestMethod handler)
 	{
 		Map<String, ContentWriter> map = handler.getContentWriters();
 		if (accept != null)
@@ -253,7 +272,7 @@ public class HttpServer
 		}
 	}
 
-	private ContentDecoder getContentDecoder(String contentEncoding, RequestHandler handler) throws AbnormalException
+	private ContentDecoder getContentDecoder(String contentEncoding, RequestMethod handler) throws AbnormalException
 	{
 		if (contentEncoding == null)
 		{
@@ -267,7 +286,7 @@ public class HttpServer
 		throw new AbnormalException(Abnormal.NO_DECODER);
 	}
 
-	private ContentEncoder getContentEncoder(String acceptEncoding, RequestHandler handler) throws AbnormalException
+	private ContentEncoder getContentEncoder(String acceptEncoding, RequestMethod handler) throws AbnormalException
 	{
 		if (acceptEncoding == null)
 		{
@@ -317,10 +336,10 @@ public class HttpServer
                     return true;
                 }
             }
-			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
-			if (requestHandlerWithParameters != null)
+			RequestMethodWithParameters requestMethodWithParameters = this.requestMethodMap.resolve(method, URI);
+			if (requestMethodWithParameters != null)
 			{
-	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
+	            handle(trace, servletRequest, servletResponse, requestMethodWithParameters);
 	            return true;
 			}
 			boolean after=false;
@@ -418,7 +437,7 @@ public class HttpServer
         return true;
     }
 
-    DecoderContext openDecoderContext(HttpServletRequest servletRequest,HttpServletResponse servletResponse,RequestHandler handler) throws AbnormalException, Throwable
+    DecoderContext openDecoderContext(HttpServletRequest servletRequest,HttpServletResponse servletResponse,RequestMethod handler) throws AbnormalException, Throwable
     {
         if ("application/x-www-form-urlencoded".equalsIgnoreCase(servletRequest.getParameter("Content-Type"))==false)
         {
@@ -430,7 +449,7 @@ public class HttpServer
         }
     }
     
-	private void handle(Trace parent, HttpServletRequest servletRequest, HttpServletResponse servletResponse, RequestHandlerWithParameters requestHandlerWithParameters) throws Throwable
+	private void handle(Trace parent, HttpServletRequest servletRequest, HttpServletResponse servletResponse, RequestMethodWithParameters requestMethodWithParameters) throws Throwable
 	{
 		long responseUncompressedContentSize=0;
 		long requestUncompressedContentSize=0;
@@ -438,27 +457,27 @@ public class HttpServer
 		long requestCompressedContentSize=0;
 		String requestContentText=null;
 		String responseContentText=null;
-		RequestHandler requesthandler = requestHandlerWithParameters.requestHandler;
-		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ requesthandler.getKey());
+		RequestMethod requestMethod = requestMethodWithParameters.requestMethod();
+		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ requestMethod.getKey());
 		try
 		{
-		    if (requesthandler.isTest()&&(this.test==false))
+		    if (requestMethod.isTest()&&(this.test==false))
 		    {
 		        servletResponse.setStatus(HttpStatus.FORBIDDEN_403);
 		    }
 		    else
 		    {
-                ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), requesthandler);
+                ContentEncoder contentEncoder = getContentEncoder(servletRequest.getHeader("Accept-Encoding"), requestMethod);
                 try (EncoderContext encoderContext = contentEncoder.open(servletRequest, servletResponse))
                 {
-    		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, requesthandler))
+    		        try (DecoderContext decoderContext = openDecoderContext(servletRequest, servletResponse, requestMethod))
     		        {
-                        FilterChain chain = new FilterChain(requestHandlerWithParameters);
-                        Context context = new Context(chain,decoderContext, encoderContext,requestHandlerWithParameters, servletRequest, servletResponse);
+                        FilterChain chain = new FilterChain(requestMethodWithParameters);
+                        Context context = new Context(chain,decoderContext, encoderContext,requestMethodWithParameters, servletRequest, servletResponse);
                         try 
             			{
-            				context.setContentReader(findContentReader(servletRequest.getContentType(), requesthandler));
-            				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), requesthandler));
+            				context.setContentReader(findContentReader(servletRequest.getContentType(), requestMethod));
+            				context.setContentWriter(findContentWriter(servletRequest.getHeader("Accept"), requestMethod));
             
             				Response<?> response = chain.next(trace, context);
                             servletResponse=context.getHttpServletResponse();
@@ -496,7 +515,7 @@ public class HttpServer
             						}
             						else if (response.getContent() != null)
             						{
-            							Class<?> returnType=requestHandlerWithParameters.requestHandler.getMethod().getReturnType();
+            							Class<?> returnType=requestMethod.getMethod().getReturnType();
             							if (returnType!=void.class)
             							{
             							    throw new AbnormalException(Abnormal.NO_WRITER);
@@ -545,7 +564,7 @@ public class HttpServer
     		                encoderContext.encode(servletResponse, content, 0, content.length);
     		            }
     		            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-                        String key=requestHandlerWithParameters.requestHandler.getKey();
+                        String key=requestMethod.getKey();
                         trace.close(new Exception(key,e));
     		        }
                     finally
@@ -571,11 +590,11 @@ public class HttpServer
 		finally
 		{
 			trace.close();
-			requesthandler.update(servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
-			RequestLogEntry entry=new RequestLogEntry(trace,requesthandler,requestContentText,responseContentText,servletRequest,servletResponse);
-			if (requesthandler.isLogLastRequestsInMemory())
+			requestMethod.update(servletResponse.getStatus(), trace.getDurationNs(),requestUncompressedContentSize,responseUncompressedContentSize,requestCompressedContentSize,responseCompressedContentSize);
+			RequestLogEntry entry=new RequestLogEntry(trace,requestMethod,requestContentText,responseContentText,servletRequest,servletResponse);
+			if (requestMethod.isLogLastRequestsInMemory())
 			{
-			    requesthandler.log(entry);
+			    requestMethod.log(entry);
                 synchronized (this.lastRequestsLogEntries)
                 {
                     this.lastRequestsLogEntries.add(entry);
@@ -589,7 +608,7 @@ public class HttpServer
     			}
 			}
             ArrayList<Item> items=new ArrayList<>();
-            if (requesthandler.isLog())
+            if (requestMethod.isLog())
             {
                 items.add(new Item("remoteEndPoint",entry.remoteEndPoint));
                 items.add(new Item("request",entry.request));
@@ -597,35 +616,35 @@ public class HttpServer
                 items.add(new Item("queryString",entry.getQueryString()));
                 items.add(new Item("contentType",entry.getContentType()));
             }
-            if ((requesthandler.isLogRequestHeaders()&&entry.requestHeaders!=null))
+            if ((requestMethod.isLogRequestHeaders()&&entry.requestHeaders!=null))
             {
                 if (entry.requestHeaders!=null)
                 {
                     items.add(new Item("requestHeaders",entry.requestHeaders));
                 }
             }
-            if (requesthandler.isLogRequestContent())
+            if (requestMethod.isLogRequestContent())
             {                
                 if (entry.requestContentText!=null)
                 {
                     items.add(new Item("requestContent",entry.requestContentText));
                 }
             }
-            if (requesthandler.isLogResponseHeaders())
+            if (requestMethod.isLogResponseHeaders())
             {
                 if (entry.responseHeaders!=null)
                 {
                     items.add(new Item("responseHeaders",entry.responseHeaders));
                 }
             }
-            if (requesthandler.isLogResponseContent())
+            if (requestMethod.isLogResponseContent())
             {
                 if (entry.responseContentText!=null)
                 {
                     items.add(new Item("responseContent",entry.responseContentText));
                 }
             }
-            this.logger.log(trace,requesthandler.getKey(),Logger.toArray(items));
+            this.logger.log(trace,requestMethod.getKey(),Logger.toArray(items));
 		}
 	}
 
@@ -684,5 +703,244 @@ public class HttpServer
 	{
 		return this.requestRateMeter;
 	}
+	
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    static Object parseParameter(ParameterInfo parameterInfo,String value) throws Exception 
+    {
+        if (value==null)
+        {
+            if (parameterInfo.getDefaultValue()!=null)
+            {
+                return parameterInfo.getDefaultValue();
+            }
+            if (parameterInfo.isRequired())
+            {
+                throw new Exception("Request does not provide required value for parameter "+parameterInfo.getName());
+            }
+        }
+        try
+        {
+            Class<?> type=parameterInfo.getType();
+            if (type==String.class)
+            {
+                return value;
+            }
+            if (type==int.class)
+            {
+                if (value==null)
+                {
+                    return 0;//
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                return Integer.parseInt(value);
+            }
+            if (type==Integer.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Integer.parseInt(value);
+            }
+            if (type==long.class)
+            {
+                if (value==null)
+                {
+                    return 0L;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                return Long.parseLong(value);
+            }
+            if (type==Long.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Long.parseLong(value);
+            }
+            if (type==short.class)
+            {
+                if (value==null)
+                {
+                    return (short)0;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                return Short.parseShort(value);
+            }
+            if (type==Short.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Short.parseShort(value);
+            }
+            if (type==float.class)
+            {
+                if (value==null)
+                {
+                    return 0.0f;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                return Float.parseFloat(value);
+            }
+            if (type==Float.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Float.parseFloat(value);
+            }
+            if (type==double.class)
+            {
+                if (value==null)
+                {
+                    return 0.0;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                return Double.parseDouble(value);
+            }
+            if (type==Double.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Double.parseDouble(value);
+            }
+            if (type==boolean.class)
+            {
+                if (value==null)
+                {
+                    return false;
+                }
+                value=value.trim().toLowerCase();
+                if (value.length()==0)
+                {
+                    if (parameterInfo.getDefaultValue()!=null)
+                    {
+                        return parameterInfo.getDefaultValue();
+                    }
+                }
+                if ("on".equals(value))
+                {
+                    return true;
+                }
+                return "true".equals(value);
+            }
+            if (type==Boolean.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim().toLowerCase();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                if ("on".equals(value))
+                {
+                    return true;
+                }
+                return !("false".equals(value));
+            }
+            if (type.isEnum())
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return Enum.valueOf((Class<Enum>)type, value);
+            }
+            if (type==BigDecimal.class)
+            {
+                if (value==null)
+                {
+                    return null;
+                }
+                value=value.trim();
+                if (value.length()==0)
+                {
+                    return null;
+                }
+                return new BigDecimal(value);
+            }
+            return ObjectMapper.readObject(value, type);
+        }
+        catch (Throwable t)
+        {
+            throw new Exception("Error parsing parameter "+parameterInfo.getName()+", value="+value,t);
+        }
+//        throw new Exception("Unable to parse parameter "+parameterInfo.getName()+", value="+value);
+    }
+	
 	
 }

@@ -23,15 +23,15 @@ package org.nova.http.server;
 
 public class RequestHandlerLatencyTracker extends LatencyTracker
 {
-    final private RequestHandler requestHandler;
-    public RequestHandlerLatencyTracker(RequestHandler requestHandler)
+    final private RequestMethod requestMethod;
+    public RequestHandlerLatencyTracker(RequestMethod requestMethod)
     {
         super(new LatencyDescriptor(false,0,0,0,0));
-        this.requestHandler=requestHandler;
+        this.requestMethod=requestMethod;
     }
     
-    public RequestHandler getRequestHandler()
+    public RequestMethod getRequestMethod()
     {
-        return this.requestHandler;
+        return this.requestMethod;
     }
 }

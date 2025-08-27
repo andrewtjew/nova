@@ -2,15 +2,21 @@ package org.nova.html.remote;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.nova.html.elements.Element;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.Text;
 import org.nova.http.client.PathAndQuery;
+import org.nova.http.server.WebSocketContext;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
+import org.nova.tracing.Trace;
+import org.nova.html.tags.script;
 
 public class RemoteResponse
 {
@@ -66,7 +72,7 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.documentObject,name,text));
         return this;
     }
-    public RemoteResponse innerHtml(String id,Element element,QuotationMark mark)
+    public RemoteResponse innerHtml(String id,TagElement<?> element,QuotationMark mark)
     {
         String text=element.getHtml(mark,this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
@@ -90,26 +96,66 @@ public class RemoteResponse
         {
             String text=element.getHtml(this.resolver);
             this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
+            addScripts(element);
+            
         }
         return this;
+    }
+    
+    private void addScripts(Element element)
+    {
+        if ((element instanceof TagElement<?>)==false)
+        {
+            return;
+        }
+        List<script> scripts=findScripts((NodeElement<?>)element);
+        for (script script:scripts)
+        {
+            for (Element inner:script.getInners())
+            {
+                script(inner.toString());
+            }
+        }
+    }
+    
+    static List<script> findScripts(NodeElement<?> element)
+    {
+        ArrayList<script> scripts=new ArrayList<script>();
+        findScripts(scripts,element);
+        return scripts;
+    }
+    static void findScripts(List<script> scripts,NodeElement<?> element)
+    {
+        if (element instanceof script)
+        {
+            scripts.add((script)element);
+            return;
+        }
+        for (Element child:element.getInners())
+        {
+            if (child instanceof TagElement<?>)
+            {
+                findScripts(scripts,(NodeElement<?>)child);
+            }
+        }
     }
     public RemoteResponse outerHtml(String id,Element element,QuotationMark mark)
     {
         String text=element.getHtml(mark,this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
+        addScripts(element);
         return this;
     }
     public RemoteResponse outerHtml(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.outerHTML,id,text));
+        addScripts(element);
         return this;
     }
     public RemoteResponse outerHtml(TagElement<?> element)
     {
-        String text=element.getHtml(this.resolver);
-        this.instructions.add(new Instruction(this.trace,Command.outerHTML,element.id(),text));
-        return this;
+        return outerHtml(element.id(),element);
     }
     
     public RemoteResponse innerText(String id,Object text)
@@ -123,28 +169,49 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerText,id,text));
         return this;
     }
+    public RemoteResponse removeChilderen(String id)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.removeChilderen,id));
+        return this;
+    }
     public RemoteResponse prepend(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.prepend,id,text));
+        addScripts(element);
         return this;
     }
     public RemoteResponse append(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.append,id,text));
+        addScripts(element);
+        return this;
+    }
+    public RemoteResponse remove(String id)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.remove,id));
         return this;
     }
     public RemoteResponse before(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.before,id,text));
+        addScripts(element);
         return this;
     }
     public RemoteResponse after(String id,Element element)
     {
         String text=element.getHtml(this.resolver);
         this.instructions.add(new Instruction(this.trace,Command.after,id,text));
+        addScripts(element);
+        return this;
+    }
+    public RemoteResponse appendChild(String id,Element element)
+    {
+        String text=element.getHtml(this.resolver);
+        this.instructions.add(new Instruction(this.trace,Command.appendChild,id,text));
+        addScripts(element);
         return this;
     }
     public RemoteResponse script(String script)
@@ -155,11 +222,11 @@ public class RemoteResponse
         }
         return this;
     }
-//    public RemoteResponse alert(Object value)
-//    {
-//        this.instructions.add(new Instruction(this.trace,Command.alert,value==null?null:value.toString()));
-//        return this;
-//    }
+    public RemoteResponse alert(Object value)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.alert,value==null?null:value.toString()));
+        return this;
+    }
     public RemoteResponse log(Object value)
     {
         this.instructions.add(new Instruction(this.trace,Command.log,value==null?null:value.toString()));
@@ -180,16 +247,6 @@ public class RemoteResponse
         return script("window.location.reload()");
     }
     
-    public RemoteResponse clear()
-    {
-        this.instructions.clear();
-        return this;
-    }
-//    public RemoteResponse prop(String id,String prop,Object value) throws UnsupportedEncodingException
-//    {
-//        String code="$('#"+id+"').prop('"+prop+"',"+value+");";
-//        return script(code);
-//    }
     @Deprecated
     public RemoteResponse showModal(String id)
     {
@@ -205,25 +262,34 @@ public class RemoteResponse
         return script(code);
     }
 
-    //Allows instruction results to be reorder.
-    public int reserve()
-    {
-        this.instructions.add(null);
-        return this.instructions.size()-1;
-    }
+//    //Allows instruction results to be reorder.
+//    public int reserve()
+//    {
+//        this.instructions.add(null);
+//        return this.instructions.size()-1;
+//    }
+//    
+//    //Allows instruction results to be reorder.
+//    public void exchangeReservedWithLast(int reserved)
+//    {
+//        this.instructions.set(reserved, this.instructions.get(this.instructions.size()-1));
+//        this.instructions.remove(this.instructions.size()-1);
+//    }
+//    
+//    public void exchange(int indexA,int indexB)
+//    {
+//        Instruction t=this.instructions.get(indexA);
+//        this.instructions.set(indexA, this.instructions.get(indexB));
+//        this.instructions.set(indexB, t);
+//    }
+//    public RemoteResponse clear()
+//    {
+//        this.instructions.clear();
+//        return this;
+//    }
     
-    //Allows instruction results to be reorder.
-    public void exchangeReservedWithLast(int reserved)
+    public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
     {
-        this.instructions.set(reserved, this.instructions.get(this.instructions.size()-1));
-        this.instructions.remove(this.instructions.size()-1);
+        context.sendText(parent, ObjectMapper.writeObjectToString(this.getInstructions()));
     }
-    
-    public void exchange(int indexA,int indexB)
-    {
-        Instruction t=this.instructions.get(indexA);
-        this.instructions.set(indexA, this.instructions.get(indexB));
-        this.instructions.set(indexB, t);
-    }
-    
 }

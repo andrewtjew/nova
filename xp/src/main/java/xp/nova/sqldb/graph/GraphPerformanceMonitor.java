@@ -12,6 +12,7 @@ public class GraphPerformanceMonitor
 
     @OperatorVariable(description="ms")
     long minimumDuration;
+    boolean caching;
     
     public GraphPerformanceMonitor(long minimumDuration)
     {
@@ -24,7 +25,7 @@ public class GraphPerformanceMonitor
         this.minimumDuration=minimumDuration;
     }
     
-    public void updateSlowQuery(long duration,String catalog,QueryKey queryKey)
+    public void updateSlowQuery(long duration,String catalog,QueryCacheKey queryKey)
     {
         if (duration<this.minimumDuration)
         {
@@ -55,5 +56,9 @@ public class GraphPerformanceMonitor
         {
             return (HashMap<String,QueryPerformance>)this.slowQueries.clone();
         }
+    }
+    public void setCaching(boolean caching)
+    {
+        this.caching=caching;
     }
 }

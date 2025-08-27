@@ -4,10 +4,13 @@ import java.util.ArrayList;
 
 public class LinkQuery
 {
+    /*
+     * Links must have fromNodeType and toNodeType because the target of a link is specified by Relation and targetNodeType
+     */
     final Direction direction;
-    final long relationValue;
-    final Class<? extends NodeObject> targetNodeType;
-    final NodeObject targetNode;
+    final String relationValue;
+    final Class<? extends NodeObject> endNodeObjectType;
+    final Long endNodeId;
 
     Class<? extends NodeObject>[] nodeTypes;
     Class<? extends NodeObject>[] optionalNodeTypes;
@@ -15,46 +18,30 @@ public class LinkQuery
     Class<? extends NodeObject>[] optionalLinkTypes;
     String nodeNamespace=null;
     String linkNamespace=null;
-    
-
-//    boolean selectLink;   
-    
-//    String expression;
     Object[] parameters;
     ArrayList<LinkQuery> linkQueries;
+    boolean selectNodeId;
 
-    public LinkQuery(Direction direction,Relation_ relation,NodeObject targetNode)
+    public LinkQuery(Direction direction,Relation_ relation,NodeObject endNodeObject)
+    {
+        this(direction,relation,endNodeObject.getClass(),endNodeObject.getNodeId());
+    }
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> endNodeObjectType)
+    {
+        this(direction,relation,endNodeObjectType,null);
+    }
+    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> endNodeObjectType,Long endNodeId)
     {
         this.direction=direction;
-        this.targetNodeType=targetNode.getClass();
-        this.targetNode=targetNode;
+        this.endNodeObjectType=endNodeObjectType;
         this.relationValue=relation.getValue();
-    }
-    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
-    {
-        this.direction=direction;
-        this.targetNodeType=targetNodeType;
-        this.relationValue=relation.getValue();
-        this.targetNode=null;
-    }
-//    public LinkQuery(Direction direction,Relation_ relation,Class<? extends NodeObject> targetNodeType)
+        this.endNodeId=endNodeId;
+        this.selectNodeId=false;
+    }    
+//    public LinkQuery(Direction direction,Relation_ relation)
 //    {
-//        this(direction,relation,null,targetNodeType);
+//        this(direction,relation,(Class<? extends NodeObject>)null);
 //    }
-//    public LinkQuery(Direction direction,Relation_ relation,RelationObjectType_ objectType)
-//    {
-//        this(direction,relation,objectType,(Class<? extends NodeObject>)null);
-//    }
-    public LinkQuery(Direction direction,Relation_ relation)
-    {
-        this(direction,relation,(Class<? extends NodeObject>)null);
-    }
-//    public LinkQuery(Direction direction) throws Exception
-//    {
-//        this.direction=direction;
-//        this.relation=null;
-//    }
-    
     public LinkQuery nodeNamespace(String namespace)
     {
         this.nodeNamespace=namespace;
@@ -65,6 +52,12 @@ public class LinkQuery
         this.linkNamespace=namespace;
         return this;
     }    
+
+    final public LinkQuery selectNodeId()
+    {
+        this.selectNodeId=true;
+        return this;
+    }
     
     @SafeVarargs
     final public LinkQuery select(Class<? extends NodeObject>... nodeTypes)

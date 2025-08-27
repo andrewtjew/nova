@@ -35,7 +35,7 @@ public class DeviceSessionPage<SESSION extends DeviceSession<?>> extends Page
     }
     public Response<?> end(Trace parent,Context context,SESSION session) throws Throwable
     {
-        session.clearLastPageStates();
+        session.clearLastStates();
         return null;
     }
 }

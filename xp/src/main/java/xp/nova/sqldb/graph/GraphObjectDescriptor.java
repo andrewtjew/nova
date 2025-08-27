@@ -8,8 +8,10 @@ public class GraphObjectDescriptor
     final FieldDescriptor[] fieldDescriptors;
     final private GraphObjectType graphObjectType;
     final private String tableName;
+    final private String versionedTableName;
     final private String typeName;
     final private Class<? extends NodeObject> type;
+    final private boolean versioningDisabled;
     
     GraphObjectDescriptor(String typeName,Class<? extends NodeObject> type,GraphObjectType graphObjectType,FieldDescriptor[] fieldDescriptors)
     {
@@ -27,8 +29,15 @@ public class GraphObjectDescriptor
         this.fieldDescriptors=fieldDescriptors;
         this.typeName=typeName;
         this.tableName='`'+typeName+'`';
+        this.versionedTableName="`~"+typeName+'`';
+        this.versioningDisabled=type.getAnnotation(DisableVersioning.class)!=null;
     }
 
+    public boolean isVersioningDisabled()
+    {
+        return this.versioningDisabled;
+    }
+    
     public Class<? extends NodeObject> getType()
     {
         return this.type;
@@ -37,21 +46,21 @@ public class GraphObjectDescriptor
     {
         return this.fieldDescriptors;
     }
-//    String getTableAlias()
-//    {
-//        return this.tableAlias;
-//    }
     String getTableAlias(String namespace)
     {
         return '`'+getNamespaceTypeName(namespace)+'`';
+    }
+    GraphObjectType getObjectType()
+    {
+        return this.graphObjectType;
     }
     String getTableName()
     {
         return this.tableName;
     }
-    GraphObjectType getObjectType()
+    String getVersionedTableName()
     {
-        return this.graphObjectType;
+        return this.versionedTableName;
     }
     String getTypeName()
     {

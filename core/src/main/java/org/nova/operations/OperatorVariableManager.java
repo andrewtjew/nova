@@ -87,7 +87,7 @@ public class OperatorVariableManager
             }
             if (applicator instanceof DefaultApplicator==false)
             {
-                System.out.println("Applicatior:"+applicator.getClass().getSimpleName());
+                System.out.println("Applicator:"+applicator.getClass().getSimpleName());
             }
 			
             VariableInstance instance=new VariableInstance(applicator,variable, object, field);

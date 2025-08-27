@@ -1,5 +1,6 @@
 package xp.nova.sqldb.graph;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -153,6 +154,7 @@ public class PreparedQuery
                     {
                         return Arrays.equals((short[])oa,(short[])ob);
                     }
+                    //Need to add support for LocalDateTime
                     throw new RuntimeException();
                 }
             }

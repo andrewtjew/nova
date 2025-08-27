@@ -141,10 +141,10 @@ public class SessionOperatorPages<SESSION extends Session>
 
     @POST
     @Path("/operator/session/delete")
-    public Response<Element> deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
+    public void deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
     {
         this.sessionManager.removeSession(parent, token);
-        return Response.seeOther("/operator/sessions");
+        context.seeOther("/operator/sessions");
     }   
 
 }

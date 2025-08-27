@@ -16,10 +16,10 @@ import org.nova.http.server.Context;
 public interface RemoteStateBinding
 {
     //The remote element doing the calling for example using RemoteForm.js_post(). The handler calls this method to get the remote element.
-    public <T> T getRemoteCaller(Context context) throws Throwable;
+    public <T> T getPageState(Context context) throws Throwable;
 
     //Stores the ssso.
-    public void setState(String id,Object state) throws Throwable;
+    public void setState(Object id,Object state) throws Throwable;
     
     //The state key is used 
     public String getStateKey();

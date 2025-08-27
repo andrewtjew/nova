@@ -51,11 +51,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class WebSocketTransport 
 {
-    static class Listener implements WebSocketListener
+
+    static class TestWebSocket  implements WebSocketListener
     {
         private Session session;
         
-        Listener(WebSocketTransport webSocketTransport)
+        TestWebSocket ()
         {
         }
         
@@ -116,7 +117,7 @@ public class WebSocketTransport
                 // Possibly inspect the upgrade request and modify the upgrade response.
 
                 // Create the new WebSocket endpoint.
-                return new Listener(null);
+                return new TestWebSocket ();
             });
         }
     }	
@@ -172,7 +173,7 @@ public class WebSocketTransport
 	        container.addMapping("/ws/*", (upgradeRequest, upgradeResponse) ->
 	        {
 	            // Create the new WebSocket endpoint.
-	            return new Listener(null);
+	            return new TestWebSocket ();
 	        });
 	    });
 

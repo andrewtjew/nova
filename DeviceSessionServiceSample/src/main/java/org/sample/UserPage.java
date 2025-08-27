@@ -12,7 +12,7 @@ public class UserPage extends Page
     
     public UserPage(Service service,UserSession session) throws Throwable
     {
-        this.head().addInner(new script().src("/$/html/js/nova-device.js"));
+        this.head().addInner(new script().src("/$/html/js/nova-device/nova-device.js"));
 
         this.modal=this.body().returnAddInner(new Modal());
         this.modal.backdrop_static();

@@ -47,6 +47,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         pathAndQuery.addQuery(binding.getStateKey(),id());
         return pathAndQuery;
     }
+
     public String js_post(FormElement<?> form,PathAndQuery pathAndQuery) throws Throwable
     {
         String action=addBinding(pathAndQuery).toString();
@@ -57,30 +58,28 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         else
         {
             return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);
-        }
-                
+        }                
     }
     
     public void addScript(RemoteResponse response,String js_script)
     {
-        if (response!=null)
-        {
-            response.script(js_script);
-        }
-        else
-        {
-            returnAddInner(new script()).addInner(new LiteralHtml(js_script));
-        }
-    }
-    public RemoteResponse render(RemoteResponse response) throws Throwable
-    {
-        if (response!=null)
-        {
-            response.outerHtml(this);
-        }
-        return response;
+        response.script(js_script);
     }
     
+    public void addScript(String js_script)
+    {
+        returnAddInner(new script()).addInner(new LiteralHtml(js_script));
+    }
+    
+//    public RemoteResponse render(RemoteResponse response) throws Throwable
+//    {
+//        if (response!=null)
+//        {
+//            response.outerHtml(this);
+//        }
+//        return response;
+//    }
+//    
 //    @Override
 //    public void compose(Composer composer) throws Throwable
 //    {

@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum Display
+public enum Display_
 {
     inline("inline"),
     block("block"),
@@ -45,7 +45,7 @@ public enum Display
     inherit("inherit")
     ;
     final String value;
-    Display(String value)
+    Display_(String value)
     {
         this.value=value;
     }

@@ -58,20 +58,21 @@ public class GraphAccessor implements AutoCloseable
     }
     
     
-    private void debugPrint(QueryResultSet set) throws Throwable
+    private void debugPrint(String label,QueryResultSet set) throws Throwable
     {
         if (set==null)
         {
-            Debugging.log("null set");
+            Debugging.log(Graph.DEBUG_CATEGORY,"null set");
             return;
         }
+        Debugging.log(Graph.DEBUG_CATEGORY,label);
         for (int i=0;i<set.results.length;i++)
         {
             var result=set.results[i];
             StringBuilder sb=new StringBuilder();
             sb.append(i+":");
             sb.append(ObjectMapper.writeObjectToString(result.row.getObjects()));
-            Debugging.log(sb.toString());
+            Debugging.log(Graph.DEBUG_CATEGORY,sb.toString());
         }
         
     }
@@ -86,9 +87,9 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,ArrayQuery query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,NodeObject startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,startNodeObject.getNodeId(),query);
+        return execute(parent,parameters,startNode.getNodeId(),query);
     }
     
     public QueryResultSet execute(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
@@ -99,30 +100,35 @@ public class GraphAccessor implements AutoCloseable
     }
     private QueryResultSet execute(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
-        QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
-        var valueSize=this.graph.getFromCache(key);
-        if (valueSize!=null)
+        QueryCacheKey key=new QueryCacheKey(startNodeId, preparedQuery, parameters);
+        if (this.graph.performanceMonitor.caching)
         {
-            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            var valueSize=this.graph.getFromCache(key);
+            if (valueSize!=null)
             {
-                QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
-                QueryResultSet cachedResultSet=valueSize.value();
-                if (queryResultSet.equals(cachedResultSet)==false)
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
                 {
-                    debugPrint(queryResultSet);
-                    debugPrint(cachedResultSet);
-                    var again=queryResultSet.equals(cachedResultSet);
-                    throw new Exception();
+                    QueryResultSet queryResultSet=_execute(parent, preparedQuery,parameters,startNodeId);
+                    QueryResultSet cachedResultSet=valueSize.value();
+                    if (queryResultSet.equals(cachedResultSet)==false)
+                    {
+                        debugPrint("query",queryResultSet);
+                        debugPrint("cache",cachedResultSet);
+                        throw new Exception();
+                    }
                 }
+                return valueSize.value();
             }
-            return valueSize.value();
         }
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             QueryResultSet queryResultSet=_execute(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log("Graph","cache miss",LogLevel.WARNING);
+                if (this.graph.performanceMonitor.caching)
+                {
+                    Debugging.log(Graph.DEBUG_CATEGORY,"cache miss:excecute");
+                }
             }
             trace.close();
             long duration=trace.getDurationMs();
@@ -172,7 +178,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log("GraphAccessor.query,sql",sql);
+            Debugging.log(Graph.DEBUG_CATEGORY,"query="+sql);
         }
         if (parameters != null)
         {
@@ -184,7 +190,7 @@ public class GraphAccessor implements AutoCloseable
         }
         if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
-            Debugging.log("GraphAccessor.query.rows",rowSet.size());
+            Debugging.log(Graph.DEBUG_CATEGORY,"rows="+rowSet.size());
         }
         return new QueryResultSet(rowSet,preparedQuery,sql,startNodeId,parameters);
     }
@@ -192,62 +198,68 @@ public class GraphAccessor implements AutoCloseable
     {
         return execute(parent,parameters,startNodeId,query);
     }
-    public QueryResultSet execute(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    public QueryResultSet execute(Trace parent,NodeObject startNode,Query query,Object...parameters) throws Throwable
     {
-        return execute(parent,parameters,startNodeObject.getNodeId(),query);
+        return execute(parent,parameters,startNode.getNodeId(),query);
     }
     public QueryResultSet execute(Trace parent,Query query,Object...parameters) throws Throwable
     {
         return execute(parent,parameters,null,query);
     }
     
-    public long executeCount(Trace parent,Object[] parameters,long startNodeId,ArrayQuery query) throws Throwable
+    public long count(Trace parent,Object[] parameters,long startNodeId,ArrayQuery query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph,true);
         translateParameters(parameters);
-        return executeCount(parent,preparedQuery,parameters,startNodeId);
+        return count(parent,preparedQuery,parameters,startNodeId);
     }
-    public long executeCount(Trace parent,long startNodeId,ArrayQuery query,Object...parameters) throws Throwable
+    public long count(Trace parent,long startNodeId,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeId,query);
+        return count(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,NodeObject startNodeObject,ArrayQuery query,Object...parameters) throws Throwable
+    public long count(Trace parent,NodeObject startNode,ArrayQuery query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeObject.getNodeId(),query);
+        return count(parent,parameters,startNode.getNodeId(),query);
     }
     
     
-    public long executeCount(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
+    public long count(Trace parent,Object[] parameters,Long startNodeId,Query query) throws Throwable
     {
         PreparedQuery preparedQuery=query.build(this.graph,true);
         translateParameters(parameters);
-        return executeCount(parent,preparedQuery,parameters,startNodeId);
+        return count(parent,preparedQuery,parameters,startNodeId);
     }
     
-    private long executeCount(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
+    private long count(Trace parent,PreparedQuery preparedQuery,Object[] parameters,Long startNodeId) throws Throwable
     {
-        QueryKey key=new QueryKey(startNodeId, preparedQuery, parameters);
-        var valueSize=this.graph.getFromCountCache(key);
-        if (valueSize!=null)
+        QueryCacheKey key=new QueryCacheKey(startNodeId, preparedQuery, parameters);
+        if (this.graph.performanceMonitor.caching)
         {
-            if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
+            var valueSize=this.graph.getFromCountCache(key);
+            if (valueSize!=null)
             {
-                long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
-                if (count==valueSize.value()==false)
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_VERIFY_CACHING)
                 {
-                    Debugging.log("count="+count+", cached="+valueSize.value());
-                    throw new Exception();
+                    long count=_executeCount(parent, preparedQuery,parameters,startNodeId);
+                    if (count==valueSize.value()==false)
+                    {
+                        Debugging.log(Graph.DEBUG_CATEGORY,"count="+count+", cached="+valueSize.value());
+                        throw new Exception();
+                    }
                 }
+                
+                return valueSize.value();
             }
-            
-            return valueSize.value();
         }
         try (Trace trace=new Trace(parent,"GraphAccessor.execute"))
         {
             long count=_executeCount(trace, preparedQuery,parameters,startNodeId);
             if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
             {
-                Debugging.log("Graph","cache miss",LogLevel.WARNING);
+                if (this.graph.performanceMonitor.caching)
+                {
+                    Debugging.log(Graph.DEBUG_CATEGORY,"cache miss:count");
+                }
             }
             trace.close();
             long duration=trace.getDurationMs();
@@ -297,7 +309,7 @@ public class GraphAccessor implements AutoCloseable
                 }
                 debug.append(")");
             }
-            Debugging.log("GraphAccessor,count.sql",sql);
+            Debugging.log(Graph.DEBUG_CATEGORY,"count.sql="+sql);
         }
         if (parameters != null)
         {
@@ -309,21 +321,21 @@ public class GraphAccessor implements AutoCloseable
         }
         if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_QUERY)
         {
-            Debugging.log("GraphAccessor.count.value",rowSet.size());
+            Debugging.log(Graph.DEBUG_CATEGORY,"count.value="+rowSet.size());
         }
         return rowSet.getRow(0).getBIGINT(0);
     }
-    public long executeCount(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,long startNodeId,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeId,query);
+        return count(parent,parameters,startNodeId,query);
     }
-    public long executeCount(Trace parent,NodeObject startNodeObject,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,NodeObject startNode,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,startNodeObject.getNodeId(),query);
+        return count(parent,parameters,startNode.getNodeId(),query);
     }
-    public long executeCount(Trace parent,Query query,Object...parameters) throws Throwable
+    public long count(Trace parent,Query query,Object...parameters) throws Throwable
     {
-        return executeCount(parent,parameters,null,query);
+        return count(parent,parameters,null,query);
     }
 
     

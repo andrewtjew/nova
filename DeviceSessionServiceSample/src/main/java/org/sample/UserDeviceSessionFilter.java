@@ -33,46 +33,38 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         {
             String queryString = request.getQueryString();
             String redirect = TypeUtils.isNullOrSpace(queryString) ? URI : URI + "?" + queryString;
-            return Response.seeOther(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString());
+            context.seeOther(new PathAndQuery(DeviceController.PATH + "/initialize").addQuery("redirect", redirect).toString());
+            return null;
         }
         else
         {
-            return Response.seeOther("/");
+            context.seeOther("/");
+            return null;
         }
     }
-
-//    @Override
-//    protected String getToken(Trace parent, Context context)
-//    {
-//          CookieState userState=context.getState(); //If SessionParametesFilter is in the handler stack, get userState from SessionParametesFilter.  
-//          if (userState==null)
-//          {
-//              userState=getUserStateFromCookie(context.getHttpServletRequest());
-//          }
-//          if ((userState==null)||(userState.token==null))
-//          {
-//              return null;
-//          }
-//          return userState.token;
-//    }
 
     @Override
     protected Response<?> handleNoLock(Trace parent, Context context) throws Throwable
     {
-        return null;
+        UserPage page = new UserPage(null, null);
+        page.body().addInner("No Lock");
+        return new Response<UserPage>(page);
     }
 
     @Override
-    protected Response<?> handleException(Trace parent, Context context, Throwable t) throws Throwable
+    protected Response<UserPage> handleException(Trace parent, Context context, Throwable t) throws Throwable
     {
-        return Response.seeOther("/");
+        UserPage page = new UserPage(null, null);
+        page.body().addInner("exception");
+        return new Response<UserPage>(page);
     }
 
     @Override
     protected Response<?> handleInvalidQuery(Trace parent, Context context) throws Throwable
     {
-        // TODO Auto-generated method stub
-        return null;
+        UserPage page = new UserPage(null, null);
+        page.body().addInner("Invalid Query");
+        return new Response<UserPage>(page);
     }
 
     @Override
@@ -81,5 +73,4 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         context.setState(session);
         return null;
     }
-
 }
