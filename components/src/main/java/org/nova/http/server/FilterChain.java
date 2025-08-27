@@ -422,15 +422,22 @@ public class FilterChain
     		        Object binding=box.get();
     		        if (binding!=null)
     		        {
-    		            if (binding instanceof RemoteStateBinding)
+    		            try
     		            {
-    		                object=((RemoteStateBinding)binding).getPageState(context);
+        		            if (binding instanceof RemoteStateBinding)
+        		            {
+        		                object=((RemoteStateBinding)binding).getPageState(context);
+        		            }
+    		            }
+    		            catch (Throwable t)
+    		            {
+                            throw new Exception("Unable to bind: handler="+requestMethod.getMethod().getDeclaringClass().getCanonicalName()+"."+requestMethod.getMethod().getName()+", URL="+requestMethod.getPath());
     		            }
     		        }
     		        if (object==null)
     		        {
     		            RequestMethod handler=context.getRequestMethod();
-    		            throw new Exception("No state "+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
+    		            throw new Exception("No state: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
     		        }
 		        }
 		    }

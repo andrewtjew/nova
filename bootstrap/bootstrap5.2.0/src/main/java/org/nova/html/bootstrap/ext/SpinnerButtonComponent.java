@@ -19,7 +19,7 @@ public class SpinnerButtonComponent <ELEMENT extends SpinnerButtonComponent<ELEM
     { 
         super("button");
         id();
-        attr("type","submit");
+        attr("type","button");
         position(Position.relative);
         this.spinnerItem=returnAddInner(new Item());
         this.spinnerItem.id();

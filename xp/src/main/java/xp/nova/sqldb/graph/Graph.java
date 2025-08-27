@@ -981,9 +981,9 @@ public class Graph
                 {
                     Debugging.log(DEBUG_CATEGORY,sql);
                 }
-                accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
+                accessor.executeUpdate(parent, null , sql.toString());
                 String _sql=sql.toString().replace(descriptor.getTableName(),descriptor.getVersionedTableName());
-                accessor.executeUpdate(parent, "alterTable:_"+table, sql.toString());
+                accessor.executeUpdate(parent, null , _sql.toString());
             }
         }
     }
