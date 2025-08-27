@@ -30,6 +30,6 @@ public class Remote
     }
     public static String js_postFormUrlEncoded(FormElement<?> form) throws Throwable
     {
-        return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form,form.action());             
+        return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),form.action());             
     }
 }

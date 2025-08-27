@@ -38,6 +38,7 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
+import org.nova.html.properties.Display;
 import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
@@ -441,6 +442,10 @@ public class HtmlUtils
     public static String js_removeAttribute(TagElement<?> element,String attribute)
     {
         return js_removeAttribute(element.id(), attribute);
+    }  
+    public static String js_display(String id,Display display)
+    {
+        return "document.getElementById('"+id+"').style.display='"+display+"'";
     }  
     public static String js_removeAttribute(String id,String attribute)
     {

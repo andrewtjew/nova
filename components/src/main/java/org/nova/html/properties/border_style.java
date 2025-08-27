@@ -4,6 +4,6 @@ public class border_style extends Property
 {
     public border_style(BorderStyle borderStyle)
     {
-        this.string="border-style:"+borderStyle.toString()+";";
+        this.property="border-style:"+borderStyle.toString()+";";
     }
 }

@@ -49,7 +49,17 @@ public class SchemaWriter
         StringBuilder sb=new StringBuilder();
         writeIndent(sb,0).append("{\r\n");
         writeIndent(sb,1).append("\"$schema\":\"http://json-schema.org/draft-04/schema#\",\r\n");
-        writeObjectSchema(sb,"#",contentType,1);
+        if (contentType.isArray())
+        {
+            writeIndent(sb,1).append("\"type\":\"array\",\r\n");
+            writeIndent(sb,1).append("\"items\":{\r\n");
+            writeObjectSchema(sb,"#",contentType.getComponentType(),2);
+            writeIndent(sb,1).append("}\r\n");
+        }
+        else
+        {
+            writeObjectSchema(sb,"#",contentType,1);
+        }
         writeIndent(sb,0).append("}\r\n");
         return sb.toString();
     }
@@ -62,7 +72,6 @@ public class SchemaWriter
 		}
 		return sb;
 	}
-	
 	
 	private void writeObjectSchema(StringBuilder sb,String path,Class<?> type,int indentLevel)
 	{

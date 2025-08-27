@@ -201,6 +201,8 @@ namespace nova.remote
         }); 
     }
 
+    //Even more deprecated
+
     export async function postCheckboxChange(evt:Event,pathAndQuery:string)
     {
         var checkbox=evt.target as HTMLInputElement;

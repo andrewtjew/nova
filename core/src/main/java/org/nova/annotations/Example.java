@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017-2019 Kat Fung Tjew
+ * Copyright (C) 2016-2019 Kat Fung Tjew
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,44 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.annotations;
 
-import org.nova.html.elements.InputType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class InputRadio extends InputComponent<InputRadio>
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.TYPE,ElementType.FIELD,ElementType.PARAMETER})
+public @interface Example
 {
-    public InputRadio()
-    {
-        super(InputType.radio);
-    }
-    public InputRadio checked() //checkbox or radio
-    {
-        return attr("checked");
-    }
-    public InputRadio checked(boolean checked)
-    {
-        if (checked)
-        {
-            attr("checked");
-        }
-        return this;
-    }
-    public InputRadio required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
-    {
-        return attr("required");
-    }
-    
-    public InputRadio value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
-    {
-        return attr("value",text);
-    }
-    public InputRadio value(Object value)
-    {
-        if (value==null)
-        {
-            return this;
-        }
-        return attr("value",value.toString());
-    }
+    String value();
 }
-

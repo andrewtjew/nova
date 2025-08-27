@@ -21,24 +21,7 @@
  ******************************************************************************/
 package org.nova.html.attributes;
 
-import org.nova.html.properties.BorderBoxStyle;
-import org.nova.html.properties.BorderStyle;
-import org.nova.html.properties.BoxColor;
-import org.nova.html.properties.Color;
-import org.nova.html.properties.Display;
-import org.nova.html.properties.FlexBasis;
-import org.nova.html.properties.FlexDirection;
-import org.nova.html.properties.FlexWrap;
-import org.nova.html.properties.Float_;
-import org.nova.html.properties.FontWeight;
-import org.nova.html.properties.ListStyle;
-import org.nova.html.properties.Overflow;
-import org.nova.html.properties.Position;
-import org.nova.html.properties.Length;
-import org.nova.html.properties.TextAlign;
-import org.nova.html.properties.TextDecoration;
-import org.nova.html.properties.VerticalAlign;
-import org.nova.html.properties.WhiteSpace;
+import org.nova.html.properties.*;
 
 public class Style
 {
@@ -49,12 +32,7 @@ public class Style
     }
     public Style width(Length size)
     {
-        sb.append("width:"+size+";");
-        return this;
-    }
-    public Style text(String text)
-    {
-        sb.append(text);
+        sb.append(new width(size));
         return this;
     }
     public Style height(Length size)
@@ -67,9 +45,14 @@ public class Style
         sb.append("color:"+color+";");
         return this;
     }
+//    public Style text(String text)
+//    {
+//        sb.append(text);
+//        return this;
+//    }
     public Style background_color(Color color)
     {
-        sb.append("background-color:"+color+";");
+        sb.append(new color_(color));
         return this;
     }
     public Style border(Length size,BorderBoxStyle borderStyle,BoxColor color)

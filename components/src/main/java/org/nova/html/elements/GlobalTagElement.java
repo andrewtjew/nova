@@ -93,8 +93,6 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
         return attr("style",value);
     }
     
-    //Use style(property) instead
-    @Deprecated
     public ELEMENT style(Style value)
     {
         return attr("style",value.toString());

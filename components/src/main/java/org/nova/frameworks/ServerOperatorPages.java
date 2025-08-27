@@ -622,12 +622,15 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
             RecentSourceEventSample sample=entry.getValue().sample();
-            SourceEvent event=sample.getEvents().get(0);
+            SourceEvent event=sample.getEvents().getLast();
             Object state=event.getState();
             String type=state!=null?state.getClass().getSimpleName():"";
 
             row.add(entry.getKey());
-            row.add(new TitleText(state!=null?state.toString():"",80));
+            String stateText=state!=null?state.toString():"";
+            td td=new td().addInner(new TitleText(stateText,80));
+            td.onclick(HtmlUtils.js_call("navigator.clipboard.writeText", stateText));
+            row.add(td);
             row.add(type,DateTimeUtils.toSystemDateTimeString(event.getInstantMs()),event.getStackTrace()[event.getStackTraceStartIndex()].toString(),sample.getCount());
             table.addRow(row);
         }

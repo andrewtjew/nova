@@ -19,44 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.html.properties;
 
-import org.nova.html.elements.InputType;
-
-public class InputRadio extends InputComponent<InputRadio>
+public class z_index extends Property
 {
-    public InputRadio()
+    public z_index(int index)
     {
-        super(InputType.radio);
-    }
-    public InputRadio checked() //checkbox or radio
-    {
-        return attr("checked");
-    }
-    public InputRadio checked(boolean checked)
-    {
-        if (checked)
-        {
-            attr("checked");
-        }
-        return this;
-    }
-    public InputRadio required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
-    {
-        return attr("required");
-    }
-    
-    public InputRadio value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
-    {
-        return attr("value",text);
-    }
-    public InputRadio value(Object value)
-    {
-        if (value==null)
-        {
-            return this;
-        }
-        return attr("value",value.toString());
+        super("z-index:"+index+";");
     }
 }
-

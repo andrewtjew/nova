@@ -35,9 +35,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.nova.annotations.Alias;
 import org.nova.utils.FileUtils;
@@ -706,7 +708,7 @@ public class ObjectMapper
         }
         if (fieldWriters == null)
         {
-            HashMap<String, FieldWriter> map = new HashMap<>();
+            TreeMap<String, FieldWriter> map = new TreeMap<>(); //To confirm to canonical json format, the fields must be sorted by key.
             for (Class<?> c = type; c != null; c = c.getSuperclass())
             {
                 for (Field field : c.getDeclaredFields())

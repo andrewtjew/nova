@@ -4,6 +4,6 @@ public class LengthProperty extends Property
 {
     public LengthProperty(String label,Length size)
     {
-        this.string=label+":"+size.toString()+";";
+        super(label+":"+size.toString()+";");
     }
 }

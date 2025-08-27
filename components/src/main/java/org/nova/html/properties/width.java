@@ -33,6 +33,6 @@ public class width extends LengthProperty
     }
     public width(double length)
     {
-        this(new Length(length,null));
+        this(new Length(length,Unit.px));
     }
 }

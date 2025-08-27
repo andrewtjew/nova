@@ -23,10 +23,10 @@ package org.nova.html.properties;
 
 public class Color
 {
-    final private String color;
-    public Color(String color)
+    final private String value;
+    public Color(String value)
     {
-        this.color=color;
+        this.value=value;
     }
     static public Color rgba(int red,int green,int blue,float opacity)
     {
@@ -52,6 +52,6 @@ public class Color
     @Override
     public String toString()
     {
-        return this.color;
+        return this.value;
     }
 }

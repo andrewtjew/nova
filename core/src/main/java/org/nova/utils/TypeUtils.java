@@ -402,28 +402,32 @@ public class TypeUtils
         return false;
     }
     
-    public static long parseLong(String value,long defaultValue)
-    {
-        if (TypeUtils.isNullOrSpace(value))
-        {
-            return defaultValue;
-        }
-        return Long.parseLong(value);
-    }
-    
-    public static int parseInt(String value,int defaultValue)
-    {
-        if (TypeUtils.isNullOrSpace(value))
-        {
-            return defaultValue;
-        }
-        return Integer.parseInt(value);
-    }
+//    public static long parseLong(String value,long defaultValue)
+//    {
+//        if (TypeUtils.isNullOrSpace(value))
+//        {
+//            return defaultValue;
+//        }
+//        return Long.parseLong(value);
+//    }
+//    
+//    public static int parseInt(String value,int defaultValue)
+//    {
+//        if (TypeUtils.isNullOrSpace(value))
+//        {
+//            return defaultValue;
+//        }
+//        return Integer.parseInt(value);
+//    }
     public static Integer tryParseInt(String value)
     {
+        return tryParseInt(value,null);
+    }
+    public static Integer tryParseInt(String value,Integer defaultValue)
+    {
         if (TypeUtils.isNullOrSpace(value))
         {
-            return null;
+            return defaultValue;
         }
         try
         {
@@ -434,6 +438,40 @@ public class TypeUtils
             return null;
         }
     }
+    public static Long tryParseLong(String value)
+    {
+        return tryParseLong(value,null);
+    }
+    public static Long tryParseLong(String value,Long defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Long.parseLong(value);
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
+    }
+    public static Long tryParseLong(String value,long defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Long.parseLong(value);
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
+    }    
     public static Float tryParseFloat(String value)
     {
         return tryParseFloat(value,null);
@@ -477,7 +515,7 @@ public class TypeUtils
         long[] results=new long[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=parseLong(values[i],defaultValue);
+            results[i]=tryParseLong(values[i],defaultValue);
         }
         return results;
     }
@@ -496,7 +534,7 @@ public class TypeUtils
         int[] results=new int[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=parseInt(values[i],defaultValue);
+            results[i]=tryParseInt(values[i],defaultValue);
         }
         return results;
     }

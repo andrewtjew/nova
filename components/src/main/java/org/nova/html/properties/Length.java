@@ -29,11 +29,11 @@ public class Length extends Property
     {
         if (important)
         {
-            this.string=value+(unit!=null?unit.toString():"")+" !important";
+            this.property=value+(unit!=null?unit.toString():"")+" !important";
         }
         else
         {
-            this.string=value+(unit!=null?unit.toString():"");
+            this.property=value+(unit!=null?unit.toString():"");
         }
         this.value=value;
         this.unit=unit;

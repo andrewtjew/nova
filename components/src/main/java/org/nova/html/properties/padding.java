@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017-2019 Kat Fung Tjew
+Property.java * Copyright (C) 2017-2019 Kat Fung Tjew
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,20 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class padding extends LengthProperty
+public class padding extends Property
 {
     public padding(Length size)
     {
-        super("padding",size);
+        super("padding:"+size.toString()+";");
+    }
+    public padding(double top,double right,double bottom,double left,Unit unit)
+    {
+        super("padding-top:"+new Length(top,unit).toString()
+                +";padding-right:"+new Length(right,unit).toString()
+                +";padding-bottom:"+new Length(bottom,unit).toString()
+                +";padding-left:"+new Length(left,unit).toString()
+                +";"
+                );
     }
     public padding(double size,Unit unit)
     {
