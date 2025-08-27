@@ -19,41 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.ext;
-import org.nova.html.tags.html;
-import org.nova.html.tags.script;
-import org.nova.html.tags.body;
+package org.nova.http.server.annotations;
 
-public class Page extends Content
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface OnWebSocketText
 {
-    final private html html;
-    final private Head head;
-    final private body body;
-    
-    public Page(String docType)
-    {
-        addInner(new DocType(docType));
-        this.html=returnAddInner(new html());
-        this.head=this.html.returnAddInner(new Head());
-        this.body=this.html.returnAddInner(new body());
-    }
-    
-    public Page()
-    {
-        this("html");
-    }
-    
-    public Head head()
-    {
-        return this.head;
-    }
-    public body body()
-    {
-        return this.body;
-    }
-    public html html()
-    {
-        return this.html;
-    }
-    
+	String value();
 }

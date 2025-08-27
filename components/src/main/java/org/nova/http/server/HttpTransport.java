@@ -30,6 +30,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public class HttpTransport 
@@ -91,20 +92,29 @@ public class HttpTransport
        return this.ports;
     }
  	
-	public void handleRequest(String string, Request request, HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+	public void handleRequest(String target, Request request, HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws IOException, ServletException
 	{
 		try
 		{
-			this.httpServer.handle(servletRequest, servletResponse);
+            if (this.httpServer.handle(target,servletRequest, servletResponse))
+            {
+                String connection=servletRequest.getHeader("Connection");
+                if (TypeUtils.containsIgnoreCase(connection, "keep-alive"))
+                {
+                    servletResponse.setHeader("Connection", "keep-alive");
+                }
+                request.setHandled(true);
+            }
+            else
+            {
+                request.setHandled(false);
+            }
 		}
 		catch (Throwable t)
 		{
 		    this.httpServer.getLogger().log(t);
-		}
-		finally
-		{
-            request.setHandled(true);
+            request.setHandled(true); //Exception implies handler activity.
 		}
 	}
 

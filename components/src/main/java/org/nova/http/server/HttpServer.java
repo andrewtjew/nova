@@ -302,59 +302,45 @@ public class HttpServer
 
     final static boolean TESTING=false;
     
-	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
+	public boolean handle(String URI,HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
 	{
 		try (Trace trace = new Trace(this.traceManager, "HttpServer.handle"))
 		{
 		    this.requestRateMeter.increment();
-			String URI = servletRequest.getRequestURI();
 			String method = servletRequest.getMethod();
-			String connection=servletRequest.getHeader("Connection");
-			if (TypeUtils.containsIgnoreCase(connection, "keep-alive"))
-			{
-			    servletResponse.setHeader("Connection", "keep-alive");
-			}
             boolean before=false;
             for (ServletHandler handler:this.frontServletHandlers)
             {
                 before=handle(trace,handler,method, URI,servletRequest,servletResponse);
                 if (before)
                 {
-                    break;
+                    return true;
                 }
             }
-            if (before==false)
-            {
-    			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
-    			if (requestHandlerWithParameters != null)
-    			{
-    	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
-    			}
-    			else
-    	        {
-    				boolean after=false;
-    	            for (ServletHandler handler:this.backServletHandlers)
-    				{
-    					after=handle(trace,handler,method, URI,servletRequest,servletResponse);
-    					if (after)
-    					{
-    						break;
-    					}
-    				}
-    				if ((after==false)||(servletResponse.getStatus()==HttpStatus.NOT_FOUND_404))
-    				{
-    					if (TESTING)
-    					{
-    						Debugging.log(method+" "+URI+": No Handler");
-    					}
-    					servletResponse.setStatus(HttpStatus.NOT_FOUND_404);
-    					synchronized (this.lastRequestHandlerNotFoundLogEntries)
-    					{
-    						this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
-    					}
-    				}
-    			}
-            }
+			RequestHandlerWithParameters requestHandlerWithParameters = this.requestHandlerMap.resolve(method, URI);
+			if (requestHandlerWithParameters != null)
+			{
+	            handle(trace, servletRequest, servletResponse, requestHandlerWithParameters);
+	            return true;
+			}
+			boolean after=false;
+            for (ServletHandler handler:this.backServletHandlers)
+			{
+				after=handle(trace,handler,method, URI,servletRequest,servletResponse);
+				if (after)
+				{
+				    return true;
+				}
+			}
+			if (TESTING)
+			{
+				Debugging.log(method+" "+URI+": No Handler");
+			}
+			synchronized (this.lastRequestHandlerNotFoundLogEntries)
+			{
+				this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,servletRequest));
+			}
+			return false;
 		}
 	}
     private boolean handle(Trace parent, ServletHandler handler,String method, String URI, HttpServletRequest request, HttpServletResponse response) throws Throwable
@@ -456,7 +442,7 @@ public class HttpServer
 		Trace trace = new Trace(traceManager,parent,this.categoryPrefix+ requesthandler.getKey());
 		try
 		{
-		    if (requesthandler.isTest())
+		    if (requesthandler.isTest()&&(this.test==false))
 		    {
 		        servletResponse.setStatus(HttpStatus.FORBIDDEN_403);
 		    }

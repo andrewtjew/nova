@@ -21,41 +21,56 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.IOException;
 import java.util.HashMap;
+
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.server.WebSocketHandler;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
+import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.nova.html.ext.LiteralHtml;
+import org.nova.html.tags.body;
+import org.nova.html.tags.h1;
+import org.nova.html.tags.html;
+import org.nova.html.tags.script;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class WebSocketTransport 
 {
     static class Listener implements WebSocketListener
     {
         private Session session;
-        final private WebSocketTransport webSocketTransport;
         
         Listener(WebSocketTransport webSocketTransport)
         {
-            this.webSocketTransport=webSocketTransport;
         }
         
         @Override
         public void onWebSocketClose(int arg0, String arg1)
         {
-            this.webSocketTransport.removeListener(this);
         }
 
         @Override
         public void onWebSocketConnect(Session session)
         {
             this.session=session;
-            this.webSocketTransport.addListener(this);
+            var headers=session.getUpgradeRequest().getHeaders();
+            var cookies=session.getUpgradeRequest().getCookies();
+            System.out.println(session.getUpgradeRequest().getCookies());
         }
 
         @Override
@@ -74,7 +89,6 @@ public class WebSocketTransport
             try
             {
                 System.out.println("rec:"+text);
-                this.webSocketTransport.handle(this,text);
             }
             catch (Throwable e)
             {
@@ -87,117 +101,84 @@ public class WebSocketTransport
         }
     }
     
-    static public class Creator implements WebSocketCreator
+
+    public class MyJettyWebSocketServlet extends JettyWebSocketServlet
     {
-        final private WebSocketTransport webSocketTransport;
-        
-        Creator(WebSocketTransport webSocketTransport)
+        @Override
+        protected void configure(JettyWebSocketServletFactory factory)
         {
-            this.webSocketTransport=webSocketTransport;
+            // At most 1 MiB text messages.
+            factory.setMaxTextMessageSize(1048576);
+
+            // Add the WebSocket endpoint.
+            factory.addMapping("/ws/echo", (upgradeRequest, upgradeResponse) ->
+            {
+                // Possibly inspect the upgrade request and modify the upgrade response.
+
+                // Create the new WebSocket endpoint.
+                return new Listener(null);
+            });
         }
+    }	
+    
+    static class TestHandler extends AbstractHandler
+    {
 
         @Override
-        public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp)
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
         {
-            return new Listener(this.webSocketTransport);
-        }
-    }   
-    
-    final private String path;
-	final private HashMap<Integer,Listener> listeners;
-	final private HttpServer httpServer;
-	final private Creator creator;
+            if ("/hello".equals(target))
+            {
+                Cookie cookie = new Cookie("X-WS-TEST", "Hello2");
+                cookie.setPath("/");
+                response.addCookie(cookie);
+                html html=new html();
+                body body=html.returnAddInner(new body());
+                body.returnAddInner(new h1()).addInner("Hello:"+System.currentTimeMillis());
+                
+                body.returnAddInner(new script()).addInner(new LiteralHtml("var webSocket = new WebSocket('ws://localhost:18080/ws/echo');webSocket.onopen = function () { webSocket.send(JSON.stringify('hello'));}"));
+                response.getWriter().write(html.toString());
 
-	
+                baseRequest.setHandled(true);
+            }
+            else
+            {
+                baseRequest.setHandled(false);
+            }
+        }
+        
+    }
+    
 	public WebSocketTransport(String path,HttpServer httpServer,Server[] servers) throws Exception
 	{
-	    this.path=path;
-	    this.listeners=new HashMap<>();
-	    this.httpServer=httpServer;
-	    this.creator=new Creator(this);
+	 // Create a Server with a ServerConnector listening on port 8080.
+	    Server server = new Server(18080);
 
-	    WebSocketHandler handler = new WebSocketHandler()
-        {
-            @Override
-            public void configure(WebSocketServletFactory factory)
-            {
-                factory.setCreator(creator);
-            }
-    
-        };
-        for (Server server:servers)
-        {
-            server.setHandler(handler);
-        }
-	}
-	
+	    TestHandler testHandler=new TestHandler();
+	    HandlerCollection collection=new HandlerCollection(); 
+	    // Create a ServletContextHandler with the given context path.
+	    ServletContextHandler handler = new ServletContextHandler(server, "/");
+	    
+	    collection.addHandler(testHandler);
+	    collection.addHandler(handler);
+	    server.setHandler(collection);
 
-	
-	void addListener(Listener listener)
-	{
-	    Session session=listener.getSession();
-	    int port=session.getLocalAddress().getPort();
-	    synchronized(this.listeners)
+	    JettyWebSocketServletContainerInitializer.configure(handler, (servletContext, container) ->
 	    {
-	        this.listeners.put(port, listener);
-	    }
-	}
-    void removeListener(Listener listener)
-    {
-        Session session=listener.getSession();
-        int port=session.getLocalAddress().getPort();
-        synchronized(this.listeners)
-        {
-            this.listeners.remove(port);
-        }
-    }
+	        // Configure the ServerContainer.
+	        container.setMaxTextMessageSize(128 * 1024);
+
+	        // Use JettyWebSocketCreator to have more control on the WebSocket endpoint creation.
+	        container.addMapping("/ws/*", (upgradeRequest, upgradeResponse) ->
+	        {
+	            // Create the new WebSocket endpoint.
+	            return new Listener(null);
+	        });
+	    });
+
+	    // Starting the Server will start the ServletContextHandler.
+	    server.start();	}
 	
-    static public class NovaWsHttpResponse
-    {
-        //The names map to javascript 
-        public int statusCode;
-        public String data;
-    }
 
-    public void handle(Listener listener,String text) throws Throwable
-    {
-        
-        try (Trace trace=new Trace(this.httpServer.getTraceManager(),"NOVA-WS-HTTP")) 
-        {
-            try
-            {
-                WebSocketHttpServletResponse response=new WebSocketHttpServletResponse();
-                response.setStatus(200);
-                Session session=listener.getSession();
-                try
-                {
-                    WebSocketHttpServletRequest request=new WebSocketHttpServletRequest(session, text);
-                    this.httpServer.handle(request, response);
-        //            byte[] contentBytes=response.getContent();
-        //            if (contentBytes!=null)
-        //            {
-        //                ByteBuffer buffer=ByteBuffer.allocate(contentBytes.length);
-        //                buffer.put(contentBytes);
-        //                buffer.flip();
-        //                session.getRemote().sendBytes(buffer);
-        //            }
-                    
-                }
-                catch (Throwable t)
-                {
-                    trace.close(t);
-                    response.setStatus(500);
-                }
-                NovaWsHttpResponse r=new NovaWsHttpResponse();
-                r.data=response.getResponseText();
-                r.statusCode=response.getStatus();
-                session.getRemote().sendString(ObjectMapper.writeObjectToString(r));
-            }
-            catch (Throwable t)
-            {
-                trace.close(t);
-            }
-        }
-    }
-
+	
 }
