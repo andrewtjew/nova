@@ -24,6 +24,8 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.Container;
 import org.nova.html.bootstrap.Row;
+import org.nova.html.bootstrap.classes.AlignItems;
+import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.DeviceClass;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Font;
@@ -64,7 +66,7 @@ public class NameValueContainer extends Container
 
     private void addName(Row row, Object name)
     {
-        row.returnAddInner(new Col(this.deviceClass, this.nameSize)).pt(1).text(TextAlign.right).font(Font.weight_bold).addInner(name);
+        row.returnAddInner(new Col(this.deviceClass, this.nameSize)).mt(2).text(TextAlign.right).font(Font.weight_bold).addInner(name);
 
     }
 

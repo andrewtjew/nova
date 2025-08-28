@@ -2,8 +2,8 @@ package org.nova.html.properties;
 
 class LengthProperty extends Property
 {
-    public LengthProperty(String label,Length size)
+    protected LengthProperty(String label,Length_ size)
     {
-        this.string=label+":"+size.toString()+";";
+        super(label+":"+size.toString()+";");
     }
 }

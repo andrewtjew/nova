@@ -120,7 +120,6 @@ import org.nova.http.server.RequestLogEntry;
 import org.nova.http.server.Response;
 import org.nova.http.server.TypeScriptClassWriter;
 import org.nova.http.server.HtmlContentWriter;
-import org.nova.html.attributes.Style;
 import org.nova.html.deprecated.th_title;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
@@ -164,9 +163,11 @@ import org.nova.html.operator.TableHeader;
 import org.nova.html.operator.TableRow;
 import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
-import org.nova.html.properties.Color;
-import org.nova.html.properties.Length;
-import org.nova.html.properties.Unit;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
@@ -622,12 +623,15 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
             RecentSourceEventSample sample=entry.getValue().sample();
-            SourceEvent event=sample.getEvents().get(0);
+            SourceEvent event=sample.getEvents().getLast();
             Object state=event.getState();
             String type=state!=null?state.getClass().getSimpleName():"";
 
             row.add(entry.getKey());
-            row.add(new TitleText(state!=null?state.toString():"",80));
+            String stateText=state!=null?state.toString():"";
+            td td=new td().addInner(new TitleText(stateText,80));
+            td.onclick(HtmlUtils.js_call("navigator.clipboard.writeText", stateText));
+            row.add(td);
             row.add(type,DateTimeUtils.toSystemDateTimeString(event.getInstantMs()),event.getStackTrace()[event.getStackTraceStartIndex()].toString(),sample.getCount());
             table.addRow(row);
         }
@@ -1969,8 +1973,8 @@ public class ServerOperatorPages
         header.add(new th_title(new LiteralHtml("&#9888;"),"Exception count and rate (in popup)"));
     }
     
-    static final Style ATTENTION_STYLE=new Style().background_color(Color.rgb(255, 255, 192));
-    static final Style EXCEPTION_STYLE=new Style().background_color(Color.rgb(255, 216, 216));
+    static final Style ATTENTION_STYLE=new Style().background_color(Color_.rgb(255, 255, 192));
+    static final Style EXCEPTION_STYLE=new Style().background_color(Color_.rgb(255, 216, 216));
     void writeTraceSample(SlowTraceSampleDetector detector,TableRow row,TraceSample sample)
     {
         row.add(format_2(sample.getRate()));
@@ -2355,7 +2359,7 @@ public class ServerOperatorPages
     private void writeTraceSample(Head head,NodeElement<?> content,TraceSample sample) throws Exception
     {
         Panel3 panel=content.returnAddInner(new Panel3(head,"Stats"));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length(20,Unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length_(20,Unit_.em)));
         list.add("Rate", String.format("%.3f", sample.getRate())+" per second");
         list.add("Count", sample.getCount());
         list.add("Average Duration", divFormatNsToMs(sample.getAverageDurationNs()));
@@ -2403,7 +2407,7 @@ public class ServerOperatorPages
     static public void writeTrace(Head head,NodeElement<?> content,String title,Trace trace) throws Exception
     {
         Panel4 panel=content.returnAddInner(new Panel4(head,title));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length(20,Unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length_(20,Unit_.em)));
         list.add("Number",trace.getNumber());
         list.add("Category",trace.getCategory());
         list.add("Thread (id:name)", trace.getThread().getId()+":"+trace.getThread().getName());
@@ -2758,7 +2762,7 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         HashMap<String,Map<Integer, LongValueSample>> statusResults=new HashMap<>();
         for (RequestMethod requestMethod : requestMethods)
         {
@@ -2829,7 +2833,7 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         HashMap<String,Map<Integer, LongValueMeter>> statusResults=new HashMap<>();
         for (RequestMethod requestMethod : requestMethods)
         {
@@ -3265,7 +3269,7 @@ public class ServerOperatorPages
     public Element status(@PathParam("server") String server) throws Throwable
     {
         HttpServer httpServer=getHttpServer(server);
-        RequestMethod[] requestMethods = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         OperatorPage page=buildServerOperatorPage("Server Status",server,null);
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
@@ -3489,7 +3493,7 @@ public class ServerOperatorPages
     @Path("/operator/httpServer/apis")
     public RequestMethodParameterDescriptions[] apis() throws Throwable
     {
-        RequestMethod[] requestMethods = this.serverApplication.getOperatorServer().getRequestHandlers();
+        RequestMethod[] requestMethods = this.serverApplication.getOperatorServer().getRequestMethods();
         ArrayList<RequestMethodParameterDescriptions> list=new ArrayList<>();
         for (RequestMethod requestMethod : requestMethods)
         {
@@ -3625,7 +3629,7 @@ public class ServerOperatorPages
     {
         HttpTransport httpTransport=getHttpTransport(server);
         OperatorPage page=buildServerOperatorPage("Methods",server,null);
-        RequestMethod[] requestMethods = httpTransport.getHttpServer().getRequestHandlers();
+        RequestMethod[] requestMethods = httpTransport.getHttpServer().getRequestMethods();
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         table.setHeader("Method","Path","Description","");
         for (RequestMethod requestMethod : requestMethods)
@@ -4159,7 +4163,7 @@ public class ServerOperatorPages
         this.namespace=namespace;
         HttpServer httpServer=getHttpServer(server);
         HashMap<String,Class<?>> roots=new HashMap<>();
-        for (RequestMethod requestMethod:httpServer.getRequestHandlers())
+        for (RequestMethod requestMethod:httpServer.getRequestMethods())
         {
             Method method = requestMethod.getMethod();
             ParameterInfo contentParameterInfo = findContentParameter(requestMethod);

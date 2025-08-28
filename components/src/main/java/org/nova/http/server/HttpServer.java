@@ -208,7 +208,7 @@ public class HttpServer
 	{
 	    return this.webSocketInitializers;
 	}
-	public RequestMethod[] getRequestHandlers()
+	public RequestMethod[] getRequestMethods()
 	{
 		return this.requestMethodMap.getRequestHandlers();
 	}

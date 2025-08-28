@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class margin_bottom extends LengthProperty
 {
-    public margin_bottom(Length size)
+    public margin_bottom(Length_ size)
     {
         super("margin-bottom",size);
     }
-    public margin_bottom(double size,Unit unit)
+    public margin_bottom(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public margin_bottom(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

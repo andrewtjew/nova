@@ -28,12 +28,13 @@ import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
-import org.nova.html.properties.Length;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.hr;
 
 public class NameValueList extends Item
 {
-	final private Length nameSize;
+	final private Length_ nameSize;
     final private StyleTemplate nameTemplate;
     final private StyleTemplate valueTemplate;
     final private Integer lineSpace;
@@ -41,7 +42,7 @@ public class NameValueList extends Item
     private int lines;
     
     
-    public NameValueList(Length nameSize,StyleTemplate nameTemplate,Object divider,StyleTemplate valueTemplate,Integer lineSpace)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,Object divider,StyleTemplate valueTemplate,Integer lineSpace)
     {
     	this.nameSize=nameSize;
         this.nameTemplate=nameTemplate;
@@ -49,23 +50,23 @@ public class NameValueList extends Item
         this.lineSpace=lineSpace;
         this.divider=divider;
     }
-    public NameValueList(Length nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
     {
         this(nameSize,nameTemplate,null,valueTemplate,lineSpace);
     }
-    public NameValueList(Length nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
     {
         this(nameSize,nameTemplate,null,valueTemplate,null);
     }
-    public NameValueList(Length nameSize,Integer lineSpace)
+    public NameValueList(Length_ nameSize,Integer lineSpace)
     {
         this(nameSize,null,null,null,lineSpace);
     }
-    public NameValueList(Length nameSize)
+    public NameValueList(Length_ nameSize)
     {
         this(nameSize,null,null,null,null);
     }
-    public NameValueList(Length nameSize,Object divider)
+    public NameValueList(Length_ nameSize,Object divider)
     {
         this(nameSize,null,divider,null,null);
     }

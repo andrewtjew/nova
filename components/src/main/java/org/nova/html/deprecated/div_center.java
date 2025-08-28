@@ -21,18 +21,19 @@
  ******************************************************************************/
 package org.nova.html.deprecated;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.properties.Position;
-import org.nova.html.properties.Length;
-import org.nova.html.properties.Unit;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Position_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 
 public class div_center extends GlobalEventTagElement<div_center>
 {
-    public div_center(Length width)
+    public div_center(Length_ width)
     {
         super("div");
-        style(new Style().position(Position.relative).left(new Length(50,Unit.percent)).width(width).margin_left(new Length(-width.value()/2,width.unit())));
+        style(new Style().position(Position_.relative).left(new Length_(50,Unit_.percent)).width(width).margin_left(new Length_(-width.value()/2,width.unit())));
     }
     
 }

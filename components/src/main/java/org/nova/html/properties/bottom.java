@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class bottom extends LengthProperty
 {
-    public bottom(Length length)
+    public bottom(Length_ length)
     {
         super("bottom",length);
     }
-    public bottom(double length,Unit unit)
+    public bottom(double length,Unit_ unit)
     {
-        this(new Length(length,unit));
+        this(new Length_(length,unit));
     }
     public bottom(double length)
     {
-        this(new Length(length,null));
+        this(new Length_(length,null));
     }
 }

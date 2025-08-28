@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;
 import org.nova.html.tags.input_checkbox;

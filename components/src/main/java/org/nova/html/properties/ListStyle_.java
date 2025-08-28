@@ -21,16 +21,33 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum WhiteSpace
+public enum ListStyle_
 {
-    normal("normal"),
-    nowrap("nowrap"),
-    pre("pre"),
-    pre_line("pre-line"),
-    pre_wrap("pre-wrap"),
+    disc("hidden"),
+    armenian("dotted"),
+    circle("dashed"),
+    cjk_ideographic("cjk-ideographic"),  
+    decimal("decimal"),   
+    decimal_leading_zero("decimal-leading-zero"),        
+    georgian("georgian"),        
+    hebrew("hebrew"),    
+    hiragana_iroha("hiragana-iroha"),    
+    katakana("katakana"),        
+    katakana_iroha("katakana-iroha"),    
+    lower_alpha("lower-alpha"),  
+    lower_greek("lower-greek"),    
+    lower_latin("lower-latin"),  
+    lower_roman("lower-roman"),  
+    none("none"),      
+    square("square"),    
+    upper_alpha("upper-alpha"),      
+    upper_greek("upper-greek"),    
+    upper_latin("upper-latin"),  
+    upperroman("upper-roman"),  
+    inherit("inherit"),
     ;
     final String value;
-    WhiteSpace(String value)
+    ListStyle_(String value)
     {
         this.value=value;
     }

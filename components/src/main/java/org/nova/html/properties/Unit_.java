@@ -21,15 +21,29 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum Position
+public enum Unit_
 {
-    static_("static"),
-    relative("relative"),
-    fixed("fixed"),
-    absolute("absolute"),
+
+    em("em"),
+    ex("ex"),
+    percent("%"),
+    px("px"),
+    cm("cm"),
+    mm("mm"),
+    in("in"),
+    pt("pt"),
+    pc("pc"),
+
+    ch("ch"),
+    rem("rem"),
+    vw("vw"),
+    vh("vh"),
+    vmin("vmin"),
+    vmax("vmax"),
     ;
-    final String value;
-    Position(String value)
+
+    private String value;
+    Unit_(String value)
     {
         this.value=value;
     }
@@ -37,5 +51,6 @@ public enum Position
     public String toString()
     {
         return this.value;
-    }
+    }    
+    
 }

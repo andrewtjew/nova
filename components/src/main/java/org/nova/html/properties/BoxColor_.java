@@ -21,23 +21,45 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum Overflow
+public class BoxColor_
 {
-    overflow("overflow"),
-    hidden("hidden"),
-    auto("auto"),
-    visible("visible"),
-    initial("initial"),
-    inherit("inherit"),
-        ;
-    final String value;
-    Overflow(String value)
+    final private String value;
+    
+    public BoxColor_(Color_ top,Color_ right,Color_ bottom,Color_ left)
     {
-        this.value=value;
+        if (right!=null)
+        {
+            if (bottom!=null)
+            {
+                if (left!=null)
+                {
+                    this.value=top+" "+right+" "+bottom+" "+left;
+                    return;
+                }
+                this.value=top+" "+right+" "+bottom; 
+                return;
+            }
+            this.value=top+" "+right; 
+            return;
+        }
+        this.value=top.toString(); 
+    }
+    public BoxColor_(Color_ top,Color_ right,Color_ bottom)
+    {
+        this(top,right,bottom,null);
+    }
+    public BoxColor_(Color_ top,Color_ right)
+    {
+        this(top,right,null);
+    }
+    public BoxColor_(Color_ value)
+    {
+        this(value,null);
     }
     @Override
     public String toString()
     {
         return this.value;
     }
+    
 }

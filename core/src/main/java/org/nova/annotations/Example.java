@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017-2019 Kat Fung Tjew
+ * Copyright (C) 2016-2019 Kat Fung Tjew
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,22 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.properties;
+package org.nova.annotations;
 
-public enum FlexBasis
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.TYPE,ElementType.FIELD,ElementType.PARAMETER})
+public @interface Example
 {
-    auto("auto"),
-    initial("initial"),
-    inherit("inherit")
-    ;
-    final String value;
-    FlexBasis(String value)
-    {
-        this.value=value;
-    }
-    @Override
-    public String toString()
-    {
-        return this.value;
-    }
+    String value();
 }

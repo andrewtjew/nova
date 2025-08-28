@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.enums.link_rel;
 import org.nova.html.ext.Head;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.link;
 import org.nova.html.tags.table;
 import org.nova.html.tags.tbody;

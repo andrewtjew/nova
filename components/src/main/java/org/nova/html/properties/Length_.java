@@ -21,39 +21,52 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum InputType
+public class Length_ 
 {
-    button("button"),
-    checkbox("checkbox"),
-    color("color"),
-    date("date"),
-    datetime_local("datetime-local"),
-    email("email"),
-    file("file"),
-    hidden("hidden"),
-    image("image"),
-    month("month"),
-    number("number"),
-    password("password"),
-    radio("radio"),
-    range("range"),
-    reset("reset"),
-    search("search"),
-    submit("submit"),
-    tel("tel"),
-    text("text"),
-    time("time"),
-    url("url"),
-    week("week"),
-        ;
-    final String value;
-    InputType(String value)
+    final private double value;
+    final private Unit_ unit;
+    final private boolean important;
+
+    @Override
+    final public String toString()
+    {
+        if (important)
+        {
+            return value+(unit!=null?unit.toString():"")+" !important";
+        }
+        else
+        {
+            return value+(unit!=null?unit.toString():"");
+        }
+    }        
+    public Length_(double value,Unit_ unit,boolean important)
     {
         this.value=value;
+        this.unit=unit;
+        this.important=important;
     }
-    @Override
-    public String toString()
+    public Length_(double value,boolean important)
+    {
+        this(value,null,important);
+    }
+    public Length_(double value)
+    {
+        this(value,false);
+    }
+    public Length_(double value,Unit_ unit)
+    {
+        this(value,unit,false);
+    }
+    public double value()
     {
         return this.value;
+    }
+    public Unit_ unit()
+    {
+        return this.unit;
+    }
+    public boolean important()
+    {
+        return this.important;
     }
 }

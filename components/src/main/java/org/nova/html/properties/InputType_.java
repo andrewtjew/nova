@@ -21,17 +21,33 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum TextDecoration
+public enum InputType_
 {
-    none("none"),
-    underline("underline"),
-    overline("overline"),
-    line_through("line-through"),
-    initial("initial"),
-    inherit("inherit")
-    ;
+    button("button"),
+    checkbox("checkbox"),
+    color("color"),
+    date("date"),
+    datetime_local("datetime-local"),
+    email("email"),
+    file("file"),
+    hidden("hidden"),
+    image("image"),
+    month("month"),
+    number("number"),
+    password("password"),
+    radio("radio"),
+    range("range"),
+    reset("reset"),
+    search("search"),
+    submit("submit"),
+    tel("tel"),
+    text("text"),
+    time("time"),
+    url("url"),
+    week("week"),
+        ;
     final String value;
-    TextDecoration(String value)
+    InputType_(String value)
     {
         this.value=value;
     }

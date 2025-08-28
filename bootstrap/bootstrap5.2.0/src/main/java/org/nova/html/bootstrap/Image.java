@@ -44,6 +44,16 @@ public class Image extends StyleComponent<Image>
         attr("src",src);
         attr("alt",alt);
     }
+    public Image width(int width)
+    {
+        attr("width",width);
+        return this;
+    }
+    public Image height(int height)
+    {
+        attr("height",height);
+        return this;
+    }
 
 
     public Image(String src)

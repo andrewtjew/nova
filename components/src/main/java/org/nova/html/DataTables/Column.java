@@ -21,7 +21,8 @@
  ******************************************************************************/
 package org.nova.html.DataTables;
 
-import org.nova.html.properties.Length;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
 
 public class Column
 {
@@ -66,7 +67,7 @@ public class Column
         this.orderable=orderable;
         return this;
     }
-    public Column width(org.nova.html.properties.width width)
+    public Column width(Length_ width)
     {
         this.width=width.toString();
         return this;

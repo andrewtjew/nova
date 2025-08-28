@@ -2,8 +2,8 @@ package org.nova.html.properties;
 
 public class ColorProperty extends Property
 {
-    public ColorProperty(String label,Color color)
+    protected ColorProperty(String label,Color_ color)
     {
-        this.string=label+":"+color.toString()+";";
+        super(label+":"+color.toString()+";");
     }
 }

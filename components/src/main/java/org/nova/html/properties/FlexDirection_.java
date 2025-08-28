@@ -21,37 +21,21 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class Color
+public enum FlexDirection_
 {
-    final private String color;
-    public Color(String color)
+    row("row"),
+    row_reverse("row-reverse"),
+    column("column"),
+    column_reverse("column-reverse"),
+        ;
+    final String value;
+    FlexDirection_(String value)
     {
-        this.color=color;
+        this.value=value;
     }
-    static public Color rgba(int red,int green,int blue,float opacity)
-    {
-        return new Color("rgba("+red+","+green+","+blue+","+opacity+")");
-    }
-    static public Color rgb(int red,int green,int blue)
-    {
-        return new Color("rgb("+red+","+green+","+blue+")");
-    }
-    static public Color hsla(int hue,int saturation,int lightness,float opacity)
-    {
-        return new Color("hsla("+hue+","+saturation+"%,"+lightness+"%,"+opacity+")");
-    }
-    static public Color hsl(int hue,int saturation,int lightness)
-    {
-        return new Color("hsl("+hue+","+saturation+"%,"+lightness+"%)");
-    }
-    static public Color value(String value)
-    {
-        return new Color(value);
-    }
-    
     @Override
     public String toString()
     {
-        return this.color;
+        return this.value;
     }
 }

@@ -21,45 +21,23 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class BoxColor
+public enum TextAlign_
 {
-    final private String value;
-    
-    public BoxColor(Color top,Color right,Color bottom,Color left)
+    left("left"),
+    right("right"),
+    center("center"),
+    justify("justify"),
+    initial("initial"),
+    inherit("inherit")
+    ;
+    final String value;
+    TextAlign_(String value)
     {
-        if (right!=null)
-        {
-            if (bottom!=null)
-            {
-                if (left!=null)
-                {
-                    this.value=top+" "+right+" "+bottom+" "+left;
-                    return;
-                }
-                this.value=top+" "+right+" "+bottom; 
-                return;
-            }
-            this.value=top+" "+right; 
-            return;
-        }
-        this.value=top.toString(); 
-    }
-    public BoxColor(Color top,Color right,Color bottom)
-    {
-        this(top,right,bottom,null);
-    }
-    public BoxColor(Color top,Color right)
-    {
-        this(top,right,null);
-    }
-    public BoxColor(Color value)
-    {
-        this(value,null);
+        this.value=value;
     }
     @Override
     public String toString()
     {
         return this.value;
     }
-    
 }

@@ -21,15 +21,21 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum FlexDirection
+public enum VerticalAlign_
 {
-    row("row"),
-    row_reverse("row-reverse"),
-    column("column"),
-    column_reverse("column-reverse"),
-        ;
+    baseline("baseline"),
+    sub("sub"),
+    super_("super"),
+    top("top"),
+    text_top("text-top"),
+    middle("middle"),
+    bottom("bottom"),
+    text_bottom("text-bottom"),
+    initial("initial"),
+    inherit("inherit")
+    ;
     final String value;
-    FlexDirection(String value)
+    VerticalAlign_(String value)
     {
         this.value=value;
     }

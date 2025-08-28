@@ -75,7 +75,7 @@ public class ServerApplicationRunner //
         
         operatorServer.addContentDecoders(new GzipContentDecoder());
         operatorServer.addContentEncoders(new DeflaterContentEncoder(),new GzipContentEncoder());
-        operatorServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+        operatorServer.addContentReaders(new JSONContentReader());
         operatorServer.addContentWriters(new HtmlContentWriter(),new HtmlElementWriter(),new JSONContentWriter(),new AjaxQueryResultWriter());
         HttpTransport operatorTransport=new HttpTransport(operatorServer, JettyServerFactory.createServer(threads, operatorPort));
         operatorTransport.start();

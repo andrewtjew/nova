@@ -21,36 +21,37 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum Unit
+public class Color_
 {
-
-    em("em"),
-    ex("ex"),
-    percent("%"),
-    px("px"),
-    cm("cm"),
-    mm("mm"),
-    in("in"),
-    pt("pt"),
-    pc("pc"),
-
-    ch("ch"),
-    rem("rem"),
-    vw("vw"),
-    vh("vh"),
-    vmin("vmin"),
-    vmax("vmax"),
-    ;
-
-    private String value;
-    Unit(String value)
+    final private String value;
+    public Color_(String value)
     {
         this.value=value;
     }
+    static public Color_ rgba(int red,int green,int blue,float opacity)
+    {
+        return new Color_("rgba("+red+","+green+","+blue+","+opacity+")");
+    }
+    static public Color_ rgb(int red,int green,int blue)
+    {
+        return new Color_("rgb("+red+","+green+","+blue+")");
+    }
+    static public Color_ hsla(int hue,int saturation,int lightness,float opacity)
+    {
+        return new Color_("hsla("+hue+","+saturation+"%,"+lightness+"%,"+opacity+")");
+    }
+    static public Color_ hsl(int hue,int saturation,int lightness)
+    {
+        return new Color_("hsl("+hue+","+saturation+"%,"+lightness+"%)");
+    }
+    static public Color_ value(String value)
+    {
+        return new Color_(value);
+    }
+    
     @Override
     public String toString()
     {
         return this.value;
-    }    
-    
+    }
 }

@@ -23,17 +23,17 @@ package org.nova.html.properties;
 
 public class top extends LengthProperty
 {
-    public top(Length length)
+    public top(Length_ length)
     {
         super("top",length);
     }
-    public top(double length,Unit unit)
+    public top(double length,Unit_ unit)
     {
-        this(new Length(length,unit));
+        this(new Length_(length,unit));
     }
     
     public top(double length)
     {
-        this(new Length(length,null));
+        this(new Length_(length,null));
     }
 }

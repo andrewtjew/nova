@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class margin_left extends LengthProperty
 {
-    public margin_left(Length size)
+    public margin_left(Length_ size)
     {
         super("margin-left",size);
     }
-    public margin_left(double size,Unit unit)
+    public margin_left(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public margin_left(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

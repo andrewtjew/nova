@@ -21,18 +21,27 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class margin extends LengthProperty
+public class margin extends Property
 {
-    public margin(Length size)
+    public margin(Length_ size)
     {
-        super("margin",size);
+        super("margin:"+size.toString()+";");
     }
-    public margin(double size,Unit unit)
+    public margin(double top,double right,double bottom,double left,Unit_ unit)
     {
-        this(new Length(size,unit));
+        super("margin-top:"+new Length_(top,unit).toString()
+                +";margin-right:"+new Length_(right,unit).toString()
+                +";margin-bottom:"+new Length_(bottom,unit).toString()
+                +";margin-left:"+new Length_(left,unit).toString()
+                +";"
+                );
+    }
+    public margin(double size,Unit_ unit)
+    {
+        this(new Length_(size,unit));
     }
     public margin(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

@@ -21,17 +21,16 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum TextAlign
+public enum WhiteSpace_
 {
-    left("left"),
-    right("right"),
-    center("center"),
-    justify("justify"),
-    initial("initial"),
-    inherit("inherit")
+    normal("normal"),
+    nowrap("nowrap"),
+    pre("pre"),
+    pre_line("pre-line"),
+    pre_wrap("pre-wrap"),
     ;
     final String value;
-    TextAlign(String value)
+    WhiteSpace_(String value)
     {
         this.value=value;
     }

@@ -1,14 +1,15 @@
 package org.nova.html.ext;
 
 import org.nova.html.StyleBuilder;
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.properties.BorderStyle;
-import org.nova.html.properties.BorderBoxStyle;
-import org.nova.html.properties.Color;
-import org.nova.html.properties.BoxColor;
-import org.nova.html.properties.Length;
-import org.nova.html.properties.Unit;
+import org.nova.html.properties.BorderStyle_;
+import org.nova.html.properties.BorderBoxStyle_;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.BoxColor_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 
 public class Spinner extends GlobalEventTagElement<Spinner> 
 {
@@ -54,13 +55,13 @@ public class Spinner extends GlobalEventTagElement<Spinner>
 //
 //		return new style().addInner(sb.toString());
 //	}
-    public String style(Length size,Color color,Color background,Length borderSize,float speed)
+    public String style(Length_ size,Color_ color,Color_ background,Length_ borderSize,float speed)
     {
         StyleBuilder sb=new StyleBuilder();
         Style style=new Style();
-        style.border(borderSize,new BorderBoxStyle(BorderStyle.solid),new BoxColor(background));
-        style.border_radius(new Length(50.0f,Unit.percent));
-        style.border_top(borderSize,BorderStyle.solid,color);
+        style.border(borderSize,new BorderBoxStyle_(BorderStyle_.solid),new BoxColor_(background));
+        style.border_radius(new Length_(50.0f,Unit_.percent));
+        style.border_top(borderSize,BorderStyle_.solid,color);
         style.width(size);
         style.height(size);
         String key=id()+"-spin";
@@ -85,9 +86,9 @@ public class Spinner extends GlobalEventTagElement<Spinner>
 //        return new style().addInner(sb.toString());
     }
 	
-	public String style(Length size)
+	public String style(Length_ size)
 	{
-		return style(size,new Color("#3498db"),new Color("#f3f3f3"),new Length(1.0f,Unit.em),2.0f);
+		return style(size,new Color_("#3498db"),new Color_("#f3f3f3"),new Length_(1.0f,Unit_.em),2.0f);
 	}
 	
 }

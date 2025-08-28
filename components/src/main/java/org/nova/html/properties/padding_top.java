@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class padding_top extends LengthProperty
 {
-    public padding_top(Length size)
+    public padding_top(Length_ size)
     {
         super("padding-top",size);
     }
-    public padding_top(double size,Unit unit)
+    public padding_top(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public padding_top(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

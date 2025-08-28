@@ -21,45 +21,29 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class BorderBoxStyle
+public enum BorderStyle_
 {
-    final private String value;
-    
-    public BorderBoxStyle(BorderStyle top,BorderStyle right,BorderStyle bottom,BorderStyle left)
+    hidden("hidden"),
+    dotted("dotted"),
+    dashed("dashed"),
+    solid("solid"),
+    double_("double"),
+    groove("groove"),
+    ridge("ridge"),
+    inset("inset"),
+    outset("outset"),
+    none("none"),
+    initial("initial"),
+    inherit("inherit")
+    ;
+    final String value;
+    BorderStyle_(String value)
     {
-        if (right!=null)
-        {
-            if (bottom!=null)
-            {
-                if (left!=null)
-                {
-                    this.value=top+" "+right+" "+bottom+" "+left;
-                    return;
-                }
-                this.value=top+" "+right+" "+bottom; 
-                return;
-            }
-            this.value=top+" "+right; 
-            return;
-        }
-        this.value=top.toString(); 
-    }
-    public BorderBoxStyle(BorderStyle top,BorderStyle right,BorderStyle bottom)
-    {
-        this(top,right,bottom,null);
-    }
-    public BorderBoxStyle(BorderStyle top,BorderStyle right)
-    {
-        this(top,right,null);
-    }
-    public BorderBoxStyle(BorderStyle value)
-    {
-        this(value,null);
+        this.value=value;
     }
     @Override
     public String toString()
     {
         return this.value;
     }
-    
 }

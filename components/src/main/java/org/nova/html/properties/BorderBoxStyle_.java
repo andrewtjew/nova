@@ -21,52 +21,45 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public class Length 
+public class BorderBoxStyle_
 {
-    final private double value;
-    final private Unit unit;
-    final private boolean important;
-
+    final private String value;
+    
+    public BorderBoxStyle_(BorderStyle_ top,BorderStyle_ right,BorderStyle_ bottom,BorderStyle_ left)
+    {
+        if (right!=null)
+        {
+            if (bottom!=null)
+            {
+                if (left!=null)
+                {
+                    this.value=top+" "+right+" "+bottom+" "+left;
+                    return;
+                }
+                this.value=top+" "+right+" "+bottom; 
+                return;
+            }
+            this.value=top+" "+right; 
+            return;
+        }
+        this.value=top.toString(); 
+    }
+    public BorderBoxStyle_(BorderStyle_ top,BorderStyle_ right,BorderStyle_ bottom)
+    {
+        this(top,right,bottom,null);
+    }
+    public BorderBoxStyle_(BorderStyle_ top,BorderStyle_ right)
+    {
+        this(top,right,null);
+    }
+    public BorderBoxStyle_(BorderStyle_ value)
+    {
+        this(value,null);
+    }
     @Override
-    final public String toString()
-    {
-        if (important)
-        {
-            return value+(unit!=null?unit.toString():"")+" !important";
-        }
-        else
-        {
-            return value+(unit!=null?unit.toString():"");
-        }
-    }        
-    public Length(double value,Unit unit,boolean important)
-    {
-        this.value=value;
-        this.unit=unit;
-        this.important=important;
-    }
-    public Length(double value,boolean important)
-    {
-        this(value,null,important);
-    }
-    public Length(double value)
-    {
-        this(value,false);
-    }
-    public Length(double value,Unit unit)
-    {
-        this(value,unit,false);
-    }
-    public double value()
+    public String toString()
     {
         return this.value;
     }
-    public Unit unit()
-    {
-        return this.unit;
-    }
-    public boolean important()
-    {
-        return this.important;
-    }
+    
 }

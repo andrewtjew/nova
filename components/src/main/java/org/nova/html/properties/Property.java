@@ -2,10 +2,15 @@ package org.nova.html.properties;
 
 public class Property
 {
-    protected String string;
+    protected String property;
+    
+    public Property(String property)
+    {
+        this.property=property;
+    }
     @Override
     final public String toString()
     {
-        return string;
+        return property;
     }    
 }

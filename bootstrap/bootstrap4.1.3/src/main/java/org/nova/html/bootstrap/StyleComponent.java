@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.bootstrap.classes.Align;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
@@ -40,6 +39,7 @@ import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.TextStyle;
 import org.nova.html.elements.Composer;
 import org.nova.html.properties.Property;
+import org.nova.html.properties.Style;
 
 public abstract class StyleComponent<ELEMENT extends StyleComponent<ELEMENT>> extends Component<ELEMENT> 
 {

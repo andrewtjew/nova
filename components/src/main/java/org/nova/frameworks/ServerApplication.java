@@ -163,7 +163,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
-                this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+                this.privateServer.addContentReaders(new JSONContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter());
             }
             else
@@ -246,7 +246,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.publicServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.publicServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
-                this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+                this.publicServer.addContentReaders(new JSONContentReader());
                 this.publicServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());

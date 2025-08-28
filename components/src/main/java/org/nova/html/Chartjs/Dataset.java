@@ -21,15 +21,15 @@
  ******************************************************************************/
 package org.nova.html.Chartjs;
 
-import org.nova.html.properties.Color;
+import org.nova.html.properties.Color_;
 
 public class Dataset
 {
     public String xAxisID;
     public String yAxisID;
     public String label;
-    public Color[] backgroundColor;
-    public Color[] borderColor;
+    public Color_[] backgroundColor;
+    public Color_[] borderColor;
 //    public double[] data;
     public Long borderWidth;
     public Object fill;

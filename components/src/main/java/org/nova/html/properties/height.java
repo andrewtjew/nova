@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class height extends LengthProperty
 {
-    public height(Length size)
+    public height(Length_ size)
     {
         super("height",size);
     }
-    public height(double size,Unit unit)
+    public height(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public height(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

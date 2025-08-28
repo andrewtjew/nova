@@ -21,23 +21,14 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum BorderStyle
+public enum FlexBasis_
 {
-    hidden("hidden"),
-    dotted("dotted"),
-    dashed("dashed"),
-    solid("solid"),
-    double_("double"),
-    groove("groove"),
-    ridge("ridge"),
-    inset("inset"),
-    outset("outset"),
-    none("none"),
+    auto("auto"),
     initial("initial"),
     inherit("inherit")
     ;
     final String value;
-    BorderStyle(String value)
+    FlexBasis_(String value)
     {
         this.value=value;
     }

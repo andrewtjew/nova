@@ -21,21 +21,15 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum VerticalAlign
+public enum FlexWrap_
 {
-    baseline("baseline"),
-    sub("sub"),
-    super_("super"),
-    top("top"),
-    text_top("text-top"),
-    middle("middle"),
-    bottom("bottom"),
-    text_bottom("text-bottom"),
-    initial("initial"),
-    inherit("inherit")
+    wrap("wrap"),
+    nowrap("nowrap"),
+    wrap_reverse("wrap-reverse"),
+    inherit("inherit"),
     ;
     final String value;
-    VerticalAlign(String value)
+    FlexWrap_(String value)
     {
         this.value=value;
     }

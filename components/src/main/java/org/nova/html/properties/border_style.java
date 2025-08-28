@@ -2,8 +2,8 @@ package org.nova.html.properties;
 
 public class border_style extends Property
 {
-    public border_style(BorderStyle borderStyle)
+    public border_style(BorderStyle_ borderStyle)
     {
-        this.string="border-style:"+borderStyle.toString()+";";
+        super("border-style:"+borderStyle.toString()+";");
     }
 }

@@ -21,15 +21,17 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum FlexWrap
+public enum TextDecoration_
 {
-    wrap("wrap"),
-    nowrap("nowrap"),
-    wrap_reverse("wrap-reverse"),
-    inherit("inherit"),
+    none("none"),
+    underline("underline"),
+    overline("overline"),
+    line_through("line-through"),
+    initial("initial"),
+    inherit("inherit")
     ;
     final String value;
-    FlexWrap(String value)
+    TextDecoration_(String value)
     {
         this.value=value;
     }

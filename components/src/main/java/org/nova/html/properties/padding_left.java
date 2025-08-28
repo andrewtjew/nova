@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class padding_left extends LengthProperty
 {
-    public padding_left(Length size)
+    public padding_left(Length_ size)
     {
         super("padding-left",size);
     }
-    public padding_left(double size,Unit unit)
+    public padding_left(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public padding_left(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

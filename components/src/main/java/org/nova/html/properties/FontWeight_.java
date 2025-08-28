@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum FontWeight
+public enum FontWeight_
 {
     normal("normal"),
     bold("bold"),
@@ -40,7 +40,7 @@ public enum FontWeight
     inherit("inherit")
     ;
     final String value;
-    FontWeight(String value)
+    FontWeight_(String value)
     {
         this.value=value;
     }

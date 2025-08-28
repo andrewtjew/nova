@@ -1,6 +1,6 @@
 package org.nova.html;
 
-import org.nova.html.attributes.Style;
+import org.nova.html.properties.Style;
 
 public class StyleBuilder 
 {

@@ -23,17 +23,17 @@ package org.nova.html.properties;
 
 public class right extends LengthProperty
 {
-    public right(Length length)
+    public right(Length_ length)
     {
         super("right",length);
     }
-    public right(double length,Unit unit)
+    public right(double length,Unit_ unit)
     {
-        this(new Length(length,unit));
+        this(new Length_(length,unit));
     }
     
     public right(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }

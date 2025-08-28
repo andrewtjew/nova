@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class width extends LengthProperty
 {
-    public width(Length length)
+    public width(Length_ length)
     {
         super("width",length);
     }
-    public width(double length,Unit unit)
+    public width(double length,Unit_ unit)
     {
-        this(new Length(length,unit));
+        this(new Length_(length,unit));
     }
     public width(double length)
     {
-        this(new Length(length,null));
+        this(new Length_(length,Unit_.px));
     }
 }

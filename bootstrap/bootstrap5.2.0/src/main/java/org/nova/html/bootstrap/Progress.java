@@ -28,10 +28,10 @@ public class Progress extends StyleComponent<Progress>
         super("div","progress");
     }
     
-    public Progress width(int widthPercentage)
-    {
-        addInner(new ProgressBar().width(widthPercentage));
-        return this;
-    }
+//    public Progress width(int widthPercentage)
+//    {
+//        addInner(new ProgressBar().width(widthPercentage));
+//        return this;
+//    }
     
 }

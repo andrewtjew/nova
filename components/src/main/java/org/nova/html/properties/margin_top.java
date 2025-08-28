@@ -23,16 +23,16 @@ package org.nova.html.properties;
 
 public class margin_top extends LengthProperty
 {
-    public margin_top(Length size)
+    public margin_top(Length_ size)
     {
         super("margin-top",size);
     }
-    public margin_top(double size,Unit unit)
+    public margin_top(double size,Unit_ unit)
     {
-        this(new Length(size,unit));
+        this(new Length_(size,unit));
     }
     public margin_top(double size)
     {
-        this(new Length(size,null));
+        this(new Length_(size,null));
     }
 }
