@@ -6,6 +6,7 @@ import org.nova.html.bootstrap.Label;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
+@Deprecated
 public class FloatingLabel extends Item
 {
     final private String label;

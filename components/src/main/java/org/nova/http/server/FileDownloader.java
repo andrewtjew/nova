@@ -29,6 +29,11 @@ public class FileDownloader extends ServletHandler
     final private FileCache cache;
     final private boolean enableLocalCaching;
     final private HashSet<String> supportedEncodings;
+    final private HashSet<String> doNotCompressFileExtensions;
+    final private ExtensionToContentTypeMappings mappings;
+
+    static public boolean DEBUG=false;
+    static public String LOG_DEBUG_CATEGORY=FileDownloader.class.getSimpleName();
 
     public FileDownloader(String rootDirectory, boolean enableLocalCaching, String cacheControl, long maxAge, long maxSize, long freeMemory) throws Throwable
     {
@@ -64,12 +69,6 @@ public class FileDownloader extends ServletHandler
     {
         this.cache.clear();
     }
-    static public boolean DEBUG=false;
-    static public String LOG_DEBUG_CATEGORY=FileDownloader.class.getSimpleName();
-
-    final private HashSet<String> doNotCompressFileExtensions;
-    final private ExtensionToContentTypeMappings mappings;
-
     public static HashSet<String> defaultDoNotCompressFileExtensions()
     {
         HashSet<String> set=new HashSet<String>();

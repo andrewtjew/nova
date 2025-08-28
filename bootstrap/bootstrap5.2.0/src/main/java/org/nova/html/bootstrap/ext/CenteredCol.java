@@ -7,7 +7,7 @@ import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.elements.Composer;
 
-
+@Deprecated
 public class CenteredCol extends StyleComponent<CenteredCol>
 {
     final private Integer sideCol;
