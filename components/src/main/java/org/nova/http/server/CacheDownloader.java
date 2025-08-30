@@ -23,6 +23,7 @@ import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;
 
+import com.github.luben.zstd.Zstd;
 import com.google.common.io.Files;
 import com.nixxcode.jvmbrotli.common.BrotliLoader;
 import com.nixxcode.jvmbrotli.enc.BrotliOutputStream;
@@ -59,6 +60,7 @@ public abstract class CacheDownloader<KEY>
         gzip,
         deflate,
         br,
+        zstd,
         ;
         static public Encoding tryValueOf(String contentEncoding)
         {
@@ -92,11 +94,12 @@ public abstract class CacheDownloader<KEY>
         this.cacheControl=cacheControl;
         this.enableLocalCaching=enableLocalCaching;
         this.supportedEncodings = new HashSet<String>();
-        this.supportedEncodings.add("deflate");
-        this.supportedEncodings.add("gzip");
+        this.supportedEncodings.add(Encoding.deflate.toString());
+        this.supportedEncodings.add(Encoding.gzip.toString());
+        this.supportedEncodings.add(Encoding.zstd.toString());
         if (BrotliLoader.isBrotliAvailable())
         {
-            this.supportedEncodings.add("br");
+            this.supportedEncodings.add(Encoding.br.toString());
         }
         this.doNotCompressFileExtensions=defaultDoNotCompressFileExtensions();
         this.mappings=ExtensionToContentTypeMappings.fromDefault();
@@ -168,7 +171,7 @@ public abstract class CacheDownloader<KEY>
     }
     private CacheValue encode(Encoding encoding,CacheValue value) throws Throwable
     {
-        byte[] bytes=null;
+        byte[] encoded=null;
         switch (encoding)
         {
             case gzip:
@@ -180,7 +183,7 @@ public abstract class CacheDownloader<KEY>
                    encodingOutputStream.close();
                 }
                 byteArrayOutputStream.close();
-                bytes= byteArrayOutputStream.toByteArray();
+                encoded= byteArrayOutputStream.toByteArray();
             }
             break;
             
@@ -193,7 +196,7 @@ public abstract class CacheDownloader<KEY>
                    encodingOutputStream.close();
                 }
                 byteArrayOutputStream.close();
-                bytes= byteArrayOutputStream.toByteArray();
+                encoded= byteArrayOutputStream.toByteArray();
             }
             break;
             
@@ -207,13 +210,19 @@ public abstract class CacheDownloader<KEY>
                    encodingOutputStream.close();
                 }
                 byteArrayOutputStream.close();
-                bytes= byteArrayOutputStream.toByteArray();
+                encoded= byteArrayOutputStream.toByteArray();
             }
+            break;
             
+            case zstd:
+            encoded = Zstd.compress(value.bytes);
+            break;
+    
+                
             default:
             return null;
         }
-        return new CacheValue(value.fileName,bytes);
+        return new CacheValue(value.fileName,encoded);
     }
 
     static record CacheResult(String contentEncoding,CacheValue cacheValue)

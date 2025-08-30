@@ -7,7 +7,7 @@ import org.nova.frameworks.ServerApplicationRunner;
 import org.nova.html.ext.Text;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;
-import org.nova.http.server.FileDownloader;
+import org.nova.http.server.FileDownloadHandler;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.DeviceSessionService;
 import org.nova.services.FavIconController;
@@ -15,7 +15,7 @@ import org.nova.tracing.Trace;
 
 public class Service extends DeviceSessionService<UserSession>
 {
-    private FileDownloader fileDownloader;
+    private FileDownloadHandler fileDownloader;
 
     public static void main(String[] args) throws Throwable
     {
@@ -28,7 +28,7 @@ public class Service extends DeviceSessionService<UserSession>
         Text.SAFE_ESCAPE=true;
         
         boolean cache=!isTest();
-        this.fileDownloader=new FileDownloader(getBaseDirectory()+File.separatorChar+"client", cache, cache?"public":null,1000000,0);
+        this.fileDownloader=new FileDownloadHandler(getBaseDirectory()+File.separatorChar+"client", cache, cache?"public":null,1000000,0);
         this.getPublicServer().registerBackServletHandlers(this.fileDownloader);
         this.getPrivateServer().registerBackServletHandlers(this.fileDownloader);
         
