@@ -980,6 +980,9 @@ public class HtmlUtils
             case "jpeg":
             case "jpg":
             return "jpeg";
+
+            case "webp":
+            return "webp";
             
             default:
                 return null;

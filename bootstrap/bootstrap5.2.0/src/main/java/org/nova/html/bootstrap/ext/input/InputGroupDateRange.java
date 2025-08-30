@@ -2,11 +2,12 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Span;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.utils.TypeUtils;
 
-public class InputGroupDateRange extends Item
+public class InputGroupDateRange extends StyleComponent<InputGroupDateRange>
 {
     final private SelectYear selectYearStart;
     final private SelectMonth selectMonthStart;
@@ -18,6 +19,7 @@ public class InputGroupDateRange extends Item
 
     public InputGroupDateRange(String namePrefix,int baseYear,int years,Integer yearStartValue,Integer monthStartValue,Integer dayStartValue,Integer yearEndValue,Integer monthEndValue,Integer dayEndValue)
     {
+        super("div",null);
         input_group().d(Display.flex);
 
         namePrefix=TypeUtils.isNullOrEmpty(namePrefix)?"":namePrefix+"-";

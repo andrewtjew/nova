@@ -23,6 +23,10 @@ public class FormInputPassword extends FormInputComponent<InputPassword>
     {
         this(col, labelText, name,value,false);
     }
+    public FormInputPassword(FormCol col, String labelText,String name)
+    {
+        this(col, labelText, name,null);
+    }
 //    public FormInputPassword(String labelText,String name,String value,boolean required)
 //    {
 //        this(null,labelText,name,value,required);

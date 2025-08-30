@@ -4,17 +4,19 @@ import org.nova.html.bootstrap.InputCheckbox;
 import org.nova.html.bootstrap.InputComponent;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.ext.HtmlUtils;
 
-public class OptionalInput<INPUT extends InputComponent<?>> extends Item
+public class OptionalInput<INPUT extends InputComponent<?>> extends StyleComponent<OptionalInput<INPUT>>
 {
     final private INPUT input;
 
     public OptionalInput(String checkboxText,String namePrefix,INPUT input,boolean checked,boolean reversed)
     {
+        super("div",null);
         d(Display.flex);
         this.input=input;
         Item checkboxContainer=returnAddInner(new Item()).form_check().pt(2).me(2);

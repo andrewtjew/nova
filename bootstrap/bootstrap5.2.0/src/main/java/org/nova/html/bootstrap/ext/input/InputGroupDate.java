@@ -3,10 +3,11 @@ package org.nova.html.bootstrap.ext.input;
 import java.time.LocalDate;
 
 import org.nova.html.bootstrap.Item;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.utils.TypeUtils;
 
-public class InputGroupDate extends Item
+public class InputGroupDate extends StyleComponent<InputGroupDate>
 {
     final private SelectYear selectYear;
     final private SelectMonth selectMonth;
@@ -14,6 +15,7 @@ public class InputGroupDate extends Item
 
     public InputGroupDate(String namePrefix,int baseYear,int years,Integer yearValue,Integer monthValue,Integer dayValue)
     {
+        super("div",null);
         input_group().d(Display.flex);
 
         namePrefix=TypeUtils.isNullOrEmpty(namePrefix)?"":namePrefix+"-";

@@ -210,12 +210,24 @@ public class FileUtils
     }
     public static String getFileNameWithExtension(String fullFilePath)
     {
-        int index=fullFilePath.lastIndexOf(File.separatorChar);
+        String nativePath=toNativePath(fullFilePath);
+        int index=nativePath.lastIndexOf(File.separatorChar);
         if (index<0)
         {
             index=0;
         }
         return fullFilePath.substring(index);
+    }
+    public static String getFileExtension(String fullFilePath)
+    {
+        String nativePath=toNativePath(fullFilePath);
+        int extensionIndex=nativePath.lastIndexOf('.');
+        int seperator=fullFilePath.lastIndexOf(File.separatorChar);
+        if (extensionIndex<=seperator)
+        {
+            return null;
+        }
+        return fullFilePath.substring(extensionIndex+1);
     }
 
 }

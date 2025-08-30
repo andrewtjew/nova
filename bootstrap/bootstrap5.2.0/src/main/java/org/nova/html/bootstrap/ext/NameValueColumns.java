@@ -24,6 +24,7 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
@@ -34,7 +35,7 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.properties.Length_;
 import org.nova.html.properties.Style;
 
-public class NameValueColumns extends Item
+public class NameValueColumns extends StyleComponent<NameValueColumns>
 {
     final private Item names;
     final private Item values;
@@ -43,6 +44,7 @@ public class NameValueColumns extends Item
     
     public NameValueColumns(Length_ nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
     {
+        super("div",null);
         d(Display.flex);
         this.names=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);
         this.values=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);

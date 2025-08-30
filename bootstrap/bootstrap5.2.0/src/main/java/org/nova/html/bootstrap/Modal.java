@@ -22,6 +22,7 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.tags.script;
+import org.nova.json.ObjectMapper;
 
 public class Modal extends StyleComponent<Modal>
 {
@@ -99,5 +100,11 @@ public class Modal extends StyleComponent<Modal>
     public static String js_toggle(String id)
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
+    }
+    //not working
+    public static String js_create(String id,ModalOptions options) throws Throwable
+    {
+        String text=ObjectMapper.writeObjectToString(options);
+        return "new bootstrap.Modal(document.getElementById('"+id+"'),"+text+");";
     }
 }

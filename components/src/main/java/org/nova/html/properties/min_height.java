@@ -19,11 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.remoting;
+package org.nova.html.properties;
 
-@Deprecated
-public enum ModalOption
+public class min_height extends LengthProperty
 {
-    hide,
-    show,
+    public min_height(Length_ size)
+    {
+        super("min-height",size);
+    }
+    public min_height(double size,Unit_ unit)
+    {
+        this(new Length_(size,unit));
+    }
+    public min_height(double size)
+    {
+        this(new Length_(size,null));
+    }
 }

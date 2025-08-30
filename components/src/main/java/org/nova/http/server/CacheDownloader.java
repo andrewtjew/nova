@@ -30,9 +30,9 @@ import com.nixxcode.jvmbrotli.enc.Encoder;
 
 public abstract class CacheDownloader<KEY> 
 {
-    public abstract CacheValue load(Trace parent,KEY key);
+    public abstract CacheValue load(Trace parent,KEY key) throws Throwable;
     
-    static public record CacheValue(String contentType,String fileExtension,byte[] bytes)
+    static public record CacheValue(String fileName,byte[] bytes)
     {
     }
     static public record CacheKey<KEY>(Encoding encoding,KEY key)
@@ -59,6 +59,18 @@ public abstract class CacheDownloader<KEY>
         gzip,
         deflate,
         br,
+        ;
+        static public Encoding tryValueOf(String contentEncoding)
+        {
+            try
+            {
+                return Encoding.valueOf(contentEncoding.toLowerCase());
+            }
+            catch (Throwable t)
+            {
+            }            
+            return null;
+        }
     }
     final private String cacheControl;
     final private long maxAge;
@@ -201,7 +213,79 @@ public abstract class CacheDownloader<KEY>
             default:
             return null;
         }
-        return new CacheValue(value.contentType,value.fileExtension,bytes);
+        return new CacheValue(value.fileName,bytes);
+    }
+
+    static record CacheResult(String contentEncoding,CacheValue cacheValue)
+    {
+        
+    }
+    
+    CacheResult getCacheValue(Trace parent,KEY key,HttpServletRequest request) throws Throwable
+    {
+        String acceptableEncoding=null;
+        String accepts = request.getHeader("Accept-Encoding");
+        if (accepts!=null)
+        {
+            List<ValueQ> values = ValueQ.sortDescending(accepts);
+            for (ValueQ value : values)
+            {
+                if (value.value != null)
+                {
+                    String accept = value.value.toLowerCase();
+                    if (this.supportedEncodings.contains(accept))
+                    {
+                        Encoding encoding=Encoding.tryValueOf(accept);
+                        if (encoding!=null)
+                        {
+                            if (acceptableEncoding==null)
+                            {
+                                acceptableEncoding=accept;
+                            }
+                            CacheKey<KEY> ck=new CacheKey<KEY>(encoding,key);
+                            CacheValue cv=this.cache.getValueFromCache(ck);
+                            if (cv!=null)
+                            {
+                                return new CacheResult(accept, cv);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        CacheValue cv=this.cache.getValueFromCache(new CacheKey<KEY>(null,key));
+        if (cv==null)
+        {
+            cv=load(parent,key);
+        }
+        if (cv==null)
+        {
+            return null;
+        }
+
+        //cv is now uncompressed and not in cache.
+        
+        String extension=FileUtils.getFileExtension(cv.fileName);
+        boolean allowCompression=this.doNotCompressFileExtensions.contains(extension.toLowerCase())==false;
+        Encoding encoding=null;
+        if (allowCompression==false)
+        {
+            acceptableEncoding=null;
+        }
+        else
+        {
+            encoding=Encoding.tryValueOf(acceptableEncoding);
+            if (encoding!=null)
+            {
+                cv=encode(encoding,cv);
+            }
+            else
+            {
+                acceptableEncoding=null;
+            }
+        }
+        this.cache.put(parent, new CacheKey<KEY>(encoding,key), cv);
+        return new CacheResult(acceptableEncoding,cv);
     }
     
     
@@ -242,70 +326,16 @@ public abstract class CacheDownloader<KEY>
             }
         }
 
-        String contentEncoding = null;
-        String accepts = request.getHeader("Accept-Encoding");
-        if (accepts!=null)
-        {
-            List<ValueQ> values = ValueQ.sortDescending(accepts);
-            for (ValueQ value : values)
-            {
-                if (value.value != null)
-                {
-                    String accept = value.value.toLowerCase();
-
-                    if (this.supportedEncodings.contains(accept))
-                    {
-                        response.setHeader("Content-Encoding", value.value);
-                        contentEncoding = accept;
-                        break;
-                    }
-                }
-            }
-        }
+        CacheResult cacheResult=getCacheValue(parent, key, request);
         
-        
-        CacheValue notEncodedCacheValue=this.cache.getValueFromCache(new CacheKey<KEY>(null,key));
-        if (notEncodedCacheValue==null)
+        if (cacheResult==null)
         {
-            notEncodedCacheValue=load(parent,key);
-            if (notEncodedCacheValue==null)
-            {
-                response.setStatus(HttpStatus.NOT_FOUND_404);
-                return false;
-            }
+            response.setStatus(HttpStatus.NOT_FOUND_404);
+            return false;
         }
-
-        Encoding encoding=null;
-        boolean allowCompression=this.doNotCompressFileExtensions.contains(notEncodedCacheValue.fileExtension)==false;
-        if (allowCompression)
+        if (cacheResult.contentEncoding!=null)
         {
-            try
-            {
-                encoding=Encoding.valueOf(contentEncoding.toLowerCase());
-            }
-            catch (Throwable t)
-            {
-                encoding=null;
-            }
-        }
-        
-        CacheValue cacheValue=notEncodedCacheValue;
-        if (encoding!=null)
-        {
-            CacheKey<KEY> cacheKey=new CacheKey<KEY>(encoding,key);
-            var encodedCacheValue=this.cache.getValueFromCache(cacheKey);
-            if (encodedCacheValue==null)
-            {
-                encodedCacheValue=encode(encoding, notEncodedCacheValue);
-                if (encodedCacheValue!=null)
-                {
-                    this.cache.put(parent, cacheKey, new ValueSize<CacheValue>(cacheValue,cacheValue.bytes.length));
-                }
-            }
-            if (encodedCacheValue!=null)
-            {
-                cacheValue=encodedCacheValue;
-            }
+            response.setHeader("Content-Encoding", cacheResult.contentEncoding);
         }
 
         boolean browserCachingEnabled = this.cacheControl != null;
@@ -349,7 +379,9 @@ public abstract class CacheDownloader<KEY>
             }
             response.setHeader("Expires", "0");
         }
-        response.setContentType(cacheValue.contentType);
+        CacheValue cacheValue=cacheResult.cacheValue;
+        String contentType=this.mappings.getContentType(cacheValue.fileName);
+        response.setContentType(contentType);
         if (Debug.ENABLE && DEBUG)
         {
             Debugging.log(LOG_DEBUG_CATEGORY,"Write start:key="+key+", length="+cacheValue.bytes.length);

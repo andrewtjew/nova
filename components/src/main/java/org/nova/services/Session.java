@@ -62,35 +62,35 @@ public abstract class Session
         this.user=user;
     }
     
-    public void captureLock(Lock<String> lock)
-    {
-        synchronized(this)
-        {
-            this.lock=lock;
-            this.lastAccess=System.currentTimeMillis();
-            this.accessRateMeter.increment();
-        }
-    }
-    public Lock<String> freeLock()
-    {
-        synchronized (this)
-        {
-            Lock<String> lock=this.lock;
-            this.lock=null;
-            return lock;
-        }
-    }
-    public void unlock()
-    {
-        synchronized (this)
-        {
-            if (this.lock!=null)
-            {
-                this.lock.close();
-            }
-            this.lock=null;
-        }
-    }
+//    public void captureLock(Lock<String> lock)
+//    {
+//        synchronized(this)
+//        {
+//            this.lock=lock;
+//            this.lastAccess=System.currentTimeMillis();
+//            this.accessRateMeter.increment();
+//        }
+//    }
+//    public Lock<String> freeLock()
+//    {
+//        synchronized (this)
+//        {
+//            Lock<String> lock=this.lock;
+//            this.lock=null;
+//            return lock;
+//        }
+//    }
+//    public void unlock()
+//    {
+//        synchronized (this)
+//        {
+//            if (this.lock!=null)
+//            {
+//                this.lock.close();
+//            }
+//            this.lock=null;
+//        }
+//    }
     public long getLastAccess()
     {
         return lastAccess;
