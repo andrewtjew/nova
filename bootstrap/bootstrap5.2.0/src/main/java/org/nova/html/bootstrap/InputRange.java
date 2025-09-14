@@ -46,5 +46,13 @@ public class InputRange extends InputComponent<InputRange>
     {
         return attr("step",number);
     }
+    public InputRange value(double value)
+    {
+        return attr("value",value);
+    }
+    public InputRange value(Double value)
+    {
+        return attr("value",value);
+    }
 }
 

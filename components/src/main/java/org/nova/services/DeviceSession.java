@@ -29,15 +29,13 @@ import org.nova.tracing.Trace;
 
 public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
-    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_PAGESTATE=false;
     final static boolean DEBUG_SECURITY=true;
+    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
-//    protected Stack<String> continuations;
-//    protected Stack<String> newContinuations;
     
     final protected ZoneId zoneId;
     final private long deviceSessionId;
@@ -79,8 +77,6 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         this.zoneId=zoneId;
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
-//        this.continuations=new Stack<String>();
-//        this.newContinuations=null;
     }
     
     public long getDeviceSessionId()
@@ -93,16 +89,22 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return this.zoneId;
     }
     
-    public void setState(TagElement<?> element) throws Throwable
+    public void setPageState(TagElement<?> element) throws Throwable
     {
         if (element instanceof FormElement<?>)
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
-        setState(element.id(), element);
+        setPageState(element.id(), element);
     }
+
+    public void setPageState(long key,Object state) throws Throwable
+    {
+        setPageState(Long.toString(key),state);
+    }
+
     @Override
-    public void setState(Object key,Object state) throws Throwable
+    public void setPageState(String key,Object state) throws Throwable
     {
         if (state!=null)
         {
@@ -110,9 +112,8 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             {
                 this.newPageStates=new HashMap<String, Object>();
             }
-            String _key=key.toString();
-            this.newPageStates.put(_key, state);
-            this.states.put(_key, state);
+            this.newPageStates.put(key, state);
+            this.states.put(key, state);
             if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
@@ -127,42 +128,56 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             this.states=this.newPageStates;
             this.newPageStates=null;
         }
-//        if (this.newContinuations!=null)
-//        {
-//            this.continuations=this.newContinuations;
-//            this.newContinuations=null;
-//        }
     }
 
     @SuppressWarnings("unused")
-    public <T> T getState(Object key)
+    public <T> T getPageState(String key)
     {
-        String _key=key.toString();
         if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
-            if (this.states.containsKey(_key)==false)
+            if (this.states.containsKey(key)==false)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+_key);
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
                 for (Entry<String, Object> entry:this.states.entrySet())
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
                 }
             }
         }
-        return (T)this.states.get(_key);
+        @SuppressWarnings("unchecked")
+        T state=(T)this.states.get(key);
+        if (state!=null)
+        {
+            //As long as the handler refers to the state, we keep it alive.
+            if (this.newPageStates==null)
+            {
+                this.newPageStates=new HashMap<String, Object>();
+            }
+            this.newPageStates.put(key, state);
+        }
+        return state;
+    }
+
+    @SuppressWarnings("unused")
+    public <T> T getPageState(long key)
+    {
+        return getPageState(Long.toString(key));
     }
     
-    @SuppressWarnings({
-            "unused", "unchecked"
-    })
-    public <T> T removeState(Object key)
+    @SuppressWarnings({"unused", "unchecked"})
+    public <T> T removePageState(long key)
     {
-        String _key=key.toString();        
+        return removePageState(Long.toString(key));
+    }    
+    
+    @SuppressWarnings({"unused", "unchecked"})
+    public <T> T removePageState(String key)
+    {
         if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
-            if (this.states.containsKey(_key)==false)
+            if (this.states.containsKey(key)==false)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+_key);
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
                 for (Entry<String, Object> entry:this.states.entrySet())
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
@@ -171,9 +186,9 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         }
         if (this.newPageStates!=null)
         {
-            this.newPageStates.remove(_key);
+            this.newPageStates.remove(key);
         }
-        return (T)this.states.remove(_key);
+        return (T)this.states.remove(key);
         
     }
 
@@ -181,7 +196,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     public <T> T getPageState(Context context) throws Throwable
     {
         String id=context.getHttpServletRequest().getParameter(getStateKey());
-        return getState(id);
+        return getPageState(id);
     }
     final static public String STATE_KEY="@";
 
@@ -193,13 +208,20 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
 
     
     @Override
-    public boolean verifyQuery(Context context) throws Throwable
+    public AbnormalAccept acceptRequest(Trace parent,Context context) throws Throwable
     {
+        {
+            AbnormalAccept abnormalAccept=super.acceptRequest(parent, context);
+            if (abnormalAccept!=null)
+            {
+                return abnormalAccept;
+            }
+        }
         HttpServletRequest request=context.getHttpServletRequest();
         String queryString=request.getQueryString();
         if (queryString==null)
         {
-            return true;
+            return null;
         }
         RequestMethod requestMethod=context.getRequestMethod();
         if (requestMethod.isQueryVerificationRequired())
@@ -217,13 +239,11 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                     }
                     else
                     {
-                        return false;
+                        return new AbnormalAccept();
                     }
                 }
             }
         }
-        
-        
         
         String code=request.getParameter(getSecurityQueryKey());
         if (code!=null)
@@ -233,18 +253,14 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed);
+            return code.equals(computed)?null:new AbnormalAccept();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {
             String query=request.getQueryString();
             Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
-            return true;
         }
-        else
-        {
-            return false;
-        }
+        return null;
     }
     @Override
     public String signQuery(String query) throws Throwable

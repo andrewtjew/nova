@@ -32,7 +32,7 @@ public class RemoteState
             id="RemoteState_"+ID.getAndIncrement();
         }
         this.id=id;
-        binding.setState(id,this);
+        binding.setPageState(id,this);
         this.binding=binding;
     }
     public RemoteState(RemoteStateBinding binding) throws Throwable

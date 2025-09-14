@@ -2,9 +2,9 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputEmail;
 
-public class FormInputEmail extends FormInputComponent<InputEmail>
+public class FormInputEmailAddress extends FormInputComponent<InputEmail>
 {
-    public FormInputEmail(FormCol col, String labelText,String name,String value,boolean required)
+    public FormInputEmailAddress(FormCol col, String labelText,String name,String value,boolean required)
     {
         super(col, labelText, new InputEmail(), null);
         input().name(name).required(required);
@@ -13,11 +13,11 @@ public class FormInputEmail extends FormInputComponent<InputEmail>
             input().value(value);
         }
     }
-    public FormInputEmail(FormCol col, String labelText,String name,String value)
+    public FormInputEmailAddress(FormCol col, String labelText,String name,String value)
     {
         this(col, labelText, name,value,false);
     }
-    public FormInputEmail(FormCol col, String labelText,String name)
+    public FormInputEmailAddress(FormCol col, String labelText,String name)
     {
         this(col, labelText, name,null);
     }

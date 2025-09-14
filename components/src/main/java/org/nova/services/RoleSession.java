@@ -41,10 +41,14 @@ import org.nova.utils.Utils;
 */
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
+    static record AbnormalAcceptBox(AbnormalAccept abnormalAccept)
+    {
+    }
+    
     static final boolean DEBUG=false;
-    static private HashMap<String,AccessResult> DENY_MAP=new HashMap<String, AccessResult>();
+    static private HashMap<String,AbnormalAcceptBox> DENY_MAP=new HashMap<String, AbnormalAcceptBox>();
 
-    private HashMap<Long,AccessResult> denyMap;
+    private HashMap<Long,AbnormalAcceptBox> denyMap;
     final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
     private String partialKey;
@@ -54,7 +58,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
-        this.denyMap=new HashMap<Long, AccessResult>();
+        this.denyMap=new HashMap<Long, AbnormalAcceptBox>();
     }
     
     @SuppressWarnings("rawtypes")
@@ -125,12 +129,9 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     }
     
     @Override
-    synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
+    synchronized public AbnormalAccept acceptRequest(Trace trace, Context context) throws Throwable
     {
-        return isAccessDenied(context.getRequestMethod()).denied;
-    }
-    AccessResult isAccessDenied(RequestMethod handler) throws Throwable
-    {
+        RequestMethod handler=context.getRequestMethod();
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
         RequiredRoles requiredRoles=handler.getRequiredRoles();
         if (requiredRoles==null)
@@ -140,12 +141,14 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
     }    
 
-    public AccessResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    public AbnormalAccept isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
     {
-        AccessResult result=this.denyMap.get(runTimeKey); //We assume the page request are serialized by the session filter.
+        //Implements two level of caching, first per session using this.denyMap, then global using DENY_MAP.
+        
+        AbnormalAcceptBox result=this.denyMap.get(runTimeKey); //We assume the page request are serialized by the session filter.
         if (result!=null)
         {
-            return result;
+            return result.abnormalAccept;
         }
         String key=this.partialKey+runTimeKey; 
         
@@ -156,45 +159,45 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
         if (result==null)
         {
-            result=isAccessDenied(forbiddenRoles,requiredRoles);
+            result=new AbnormalAcceptBox(isAccessDenied(forbiddenRoles,requiredRoles));
             synchronized (DENY_MAP)
             {
                 DENY_MAP.put(key, result);
             }
         }
         this.denyMap.put(runTimeKey, result);
-        return result;
+        return result.abnormalAccept;
     }
 
-    private AccessResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
+    private AbnormalAccept isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
     {
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
             {
-                return new AccessResult(true);
+                return new AbnormalAccept();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return new AccessResult(true);
+                    return new AbnormalAccept();
                 }
             }
         }
 
         if (requiredRoles.value().length==0)
         {
-            return new AccessResult(false);
+            return null;
         }
         for (String value:requiredRoles.value())
         {
             if (hasRole(value))
             {
-                return new AccessResult(false);
+                return null;
             }
         }
-        return new AccessResult(requiredRoles.redirect());
+        return new AbnormalAccept(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

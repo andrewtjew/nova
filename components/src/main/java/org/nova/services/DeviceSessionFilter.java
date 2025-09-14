@@ -59,7 +59,6 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     {
         return this.sessionManager;
     }
-    abstract public Response<?> bindSession(Trace parent,Context context,SESSION session) throws Throwable;
     
     public COOKIESTATE getCookieState(HttpServletRequest request)
     {
@@ -145,35 +144,25 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         
         try
         {
-            if (session.verifyQuery(context)==false)
-            {
-                return handleInvalidQuery(parent, context);
-            }
-            
-            AccessResult result=session.isAccessDenied(requestMethod);
-            if (result.denied)
+            AbnormalAccept abnormalAccept=session.acceptRequest(parent, context);
+            if (abnormalAccept!=null)
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
                     Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                 }
-                if (TypeUtils.isNullOrEmpty(result.redirect)==false)
+                if (abnormalAccept.statusCode()!=null)
                 {
-                    context.seeOther(result.redirect);
+                    context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                }
+                if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                {
+                    context.seeOther(abnormalAccept.seeOther());
                     return null;
                 }
-                else
-                {
-                    context.seeOther("/");
-                    return null;
-                }
+                return handleInvalidQuery(parent, context);
             }
 
-            Response<?> stateResponse=bindSession(parent,context,session);
-            if (stateResponse!=null)
-            {
-                return stateResponse; 
-            }
             Response<?> response=context.next(parent);
             if (response!=null)
             {

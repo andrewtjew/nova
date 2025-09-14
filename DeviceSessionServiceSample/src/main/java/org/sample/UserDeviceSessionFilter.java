@@ -67,10 +67,4 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
         return new Response<UserPage>(page);
     }
 
-    @Override
-    public Response<?> bindSession(Trace parent, Context context, UserSession session) throws Throwable
-    {
-        context.setState(session);
-        return null;
-    }
 }

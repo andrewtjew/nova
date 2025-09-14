@@ -26,20 +26,4 @@ public class FormInputText extends FormInputComponent<InputText>
     {
         this(col, labelText, name,null);
     }
-//    public FormInputText(String labelText,String name,String value,boolean required)
-//    {
-//        this(null,labelText,name,value,required);
-//    }
-//    public FormInputText(String labelText,String name,String value)
-//    {
-//        this(labelText, name,value,false);
-//    }
-//    public FormInputText(String labelText,String name,boolean required)
-//    {
-//        this(labelText, name,null,required);
-//    }
-//    public FormInputText(String labelText,String name)
-//    {
-//        this(labelText,name,null);
-//    }
 }

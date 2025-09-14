@@ -81,12 +81,6 @@ public class RequestMethod
     
     final private FragmentIndexMap fragmentIndexMap;
     final private boolean isQueryVerificationRequired;
-    
-    
-//    final HashMap<String,ParameterInfo> queryParameterInfos;
-//    final HashMap<String,ParameterInfo> pathParameterInfos;
-
-
 
     RequestMethod(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{

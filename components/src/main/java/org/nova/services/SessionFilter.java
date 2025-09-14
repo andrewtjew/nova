@@ -206,8 +206,18 @@ public class SessionFilter extends Filter
             }
             try
             {
-                if (session.isAccessDenied(parent,context))
+                var abnormalAccept=session.acceptRequest(parent,context);
+                if (abnormalAccept!=null)
                 {
+                    if (abnormalAccept.statusCode()!=null)
+                    {
+                        context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                    }
+                    if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                    {
+                        context.seeOther(abnormalAccept.seeOther());
+                        return null;
+                    }
                     return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
                 }
                 context.setState(session);

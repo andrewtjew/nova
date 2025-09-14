@@ -28,7 +28,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     public RemoteStateElement(String tag,String id,RemoteStateBinding binding) throws Throwable
     {
         super(tag,id);
-        binding.setState(id(),this);
+        binding.setPageState(id(),this);
         this.binding=binding;
     }
     

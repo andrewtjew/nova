@@ -25,7 +25,7 @@ public class RemoteForm extends FormElement<RemoteForm>
         {
             RemoteStateBinding binding=remoteStateElement.getRemoteStateBinding();
             addInner(new InputHidden(binding.getStateKey(),id()));
-            binding.setState(id(), remoteStateElement);
+            binding.setPageState(id(), remoteStateElement);
         }
         this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
     }
