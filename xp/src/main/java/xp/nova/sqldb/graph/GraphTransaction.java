@@ -23,6 +23,7 @@ public class GraphTransaction implements AutoCloseable
     private Long transactionId;
     final private Graph graph;
     final private boolean autoCloseGraphAccessor;
+    private boolean closed=false;
 
     GraphTransaction(Trace parent,GraphAccessor graphAccessor,String source,long creatorId,boolean autoCloseGraphAccessor) throws Throwable
     {
@@ -47,6 +48,11 @@ public class GraphTransaction implements AutoCloseable
     @Override
     public void close() throws Exception
     {
+        if (this.closed==false)
+        {
+            this.graph.clearCache();
+            this.closed=true;
+        }
         this.transaction.close();
         if (this.autoCloseGraphAccessor)
         {
@@ -436,11 +442,13 @@ public class GraphTransaction implements AutoCloseable
     public void commit() throws Throwable
     {
         this.transaction.commit();
+        this.closed=true;
     }
     public void rollback() throws Throwable
     {
         this.graph.clearCache();
         this.transaction.rollback();
+        this.closed=true;
     }
 
     private Node[] toNodes(NodeObject...nodeObjects)

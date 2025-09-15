@@ -383,16 +383,6 @@ public class HttpServer
         {
             trace.close();
         }
-            /*
-            int status=response.getStatus();
-            if ((status>=400)&&(status<500))
-            {
-                synchronized (this.lastRequestHandlerNotFoundLogEntries)
-                {
-                    this.lastRequestHandlerNotFoundLogEntries.add(new RequestHandlerNotFoundLogEntry(trace,request));
-                }
-            }
-            */
         RequestLogEntry entry=new RequestLogEntry(trace,null,null,null,request,response);
         if (this.logRequestHandlersOnly==false)
         {

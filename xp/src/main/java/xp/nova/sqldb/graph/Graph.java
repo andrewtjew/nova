@@ -721,13 +721,13 @@ public class Graph
     final GraphPerformanceMonitor performanceMonitor;
     final private String catalog;
 
+    static final public CountMeter hits=new CountMeter();
+    static final public CountMeter misses=new CountMeter();
 //    public boolean caching;
     final private QueryResultSetCache queryResultSetCache;
     final private CountCache countCache;
     final private HashMap<String,HashSet<QueryCacheKey>> typeNameQueryKeyCacheSets;
     final private HashMap<Long,HashSet<String>> nodeTypeNameCacheSets; 
-    static final public CountMeter hits=new CountMeter();
-    static final public CountMeter misses=new CountMeter();
     
     public Graph(Connector connector,String catalog,GraphPerformanceMonitor performanceMonitor) throws Throwable
     {
