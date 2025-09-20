@@ -130,6 +130,7 @@ public class TimerTask
 	            if (key==null)
 	            {
 	                this.executeStatus=TaskStatus.COMPLETED;
+	                this.timerScheduler.end(runningKey);
 	                return;
 	            }
 	            this.executeStatus=TaskStatus.READY;

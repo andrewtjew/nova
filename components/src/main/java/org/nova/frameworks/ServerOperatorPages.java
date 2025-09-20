@@ -2342,10 +2342,6 @@ public class ServerOperatorPages
         }
 
     }
-    
-    
-    
-    
     private div formatNsToMsWithInstantMsAsDiv(long ns,long instantMs)
     {
         double ms=ns/1.0e6;
@@ -3260,6 +3256,12 @@ public class ServerOperatorPages
             Panel panel=page.content().returnAddInner(new Panel3(page.head(),title));
             writeTrace(page.head(),panel.content(),trace,true);
             writeHeaders(page.head(),"Request Headers",panel.content(),entry.getRequestHeaders());
+//            private void writeContent(Head head,String heading,NodeElement<?> content,String text,String contentType)
+
+            if (entry.getContent()!=null)
+            {
+                writeContent(page.head(),"Content", panel.content(), entry.getContent(),null);
+            }
         }
         return page;
     }

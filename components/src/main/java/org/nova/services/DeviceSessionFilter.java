@@ -2,6 +2,7 @@ package org.nova.services;
 
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -83,6 +84,21 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         }
         return null;
     }
+    public void setCookieState(HttpServletResponse response,COOKIESTATE state) throws Throwable
+    {
+        String json=ObjectMapper.writeObjectToString(state);
+        String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
+        Cookie cookie=new Cookie(getCookieStateName(), value);
+        cookie.setPath("/");
+        response.addCookie(cookie);    
+     }    
+    
+    public Cookie encodeCookieState(COOKIESTATE state) throws Throwable
+    {
+        String json=ObjectMapper.writeObjectToString(state);
+        String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
+        return new Cookie(getCookieStateName(), value);
+    }    
     
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
@@ -162,6 +178,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 }
                 return handleInvalidQuery(parent, context);
             }
+            context.setState(session);
 
             Response<?> response=context.next(parent);
             if (response!=null)

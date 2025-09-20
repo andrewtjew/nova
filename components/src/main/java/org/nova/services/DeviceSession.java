@@ -37,7 +37,6 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
     
-    final protected ZoneId zoneId;
     final private long deviceSessionId;
     final protected SecretKey secretKey;
     final private String querySecurityPathPrefix;
@@ -68,13 +67,12 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return localDateTime;
     }
     
-    public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
+    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
-        this.zoneId=zoneId;
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
     }
@@ -82,11 +80,6 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     public long getDeviceSessionId()
     {
         return this.deviceSessionId;
-    }
-    
-    public ZoneId getZoneId()
-    {
-        return this.zoneId;
     }
     
     public void setPageState(TagElement<?> element) throws Throwable

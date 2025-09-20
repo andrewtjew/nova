@@ -67,10 +67,10 @@ public class InputNumber extends InputComponent<InputNumber>
         }
         return this;
     }
-//    public InputNumber value(String value)
-//    {
-//        return attr("value",value);
-//    }
+    public InputNumber value(String value)
+    {
+        return attr("value",value);
+    }
     public InputNumber value(Double value)
     {
         return attr("value",value);

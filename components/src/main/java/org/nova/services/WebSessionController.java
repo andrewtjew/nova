@@ -25,6 +25,7 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.annotations.Filters;
 
 @Filters(SessionFilter.class)
+@Deprecated
 public class WebSessionController<SERVICE extends ServerApplication> extends WebController<SERVICE>
 {
 	public WebSessionController(SERVICE service) 

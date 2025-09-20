@@ -22,7 +22,12 @@
 package org.nova.http.server;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
+
 import org.nova.tracing.Trace;
+import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 public class RequestHandlerNotFoundLogEntry
 {
@@ -32,7 +37,8 @@ public class RequestHandlerNotFoundLogEntry
 	final private String queryString;
 	final private Trace trace;
 	final private String remoteEndPoint;
-	public RequestHandlerNotFoundLogEntry(Trace trace,HttpServletRequest request)
+	final private String content;
+	public RequestHandlerNotFoundLogEntry(Trace trace,HttpServletRequest request) throws Throwable
 	{
 		this.trace=trace;
 		this.requestHeaders=WsUtils.getRequestHeaders(request,null);
@@ -40,6 +46,23 @@ public class RequestHandlerNotFoundLogEntry
 		this.URI=request.getRequestURI();
 		this.queryString=request.getQueryString();
 		this.remoteEndPoint=request.getRemoteHost()+":"+request.getRemotePort();
+		String contentType=request.getContentType();
+		if (TypeUtils.isNullOrSpace(contentType)==false)
+		{
+		    contentType=contentType.toLowerCase();
+		    if (contentType.startsWith("text/")||contentType.endsWith("/json"))
+		    {
+		        this.content=FileUtils.readString(request.getInputStream());
+		    }
+		    else
+		    {
+		        this.content=null;
+		    }
+		}
+		else 
+		{
+		    this.content=null;
+        }
 	}
 	public String getRequestHeaders()
 	{
@@ -65,5 +88,8 @@ public class RequestHandlerNotFoundLogEntry
 	{
 		return remoteEndPoint;
 	}
-	
+	public String getContent()
+	{
+	    return this.content;
+	}
 }

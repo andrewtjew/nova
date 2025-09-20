@@ -21,7 +21,9 @@ public class Service extends DeviceSessionService<UserSession>
     {
         new ServerApplicationRunner().run(args,(coreEnvironment,operatorServer)->{return new Service(coreEnvironment,operatorServer);});
     }
-
+    
+    private UserDeviceSessionFilter userDeviceSessionFilter;
+    
     public Service(CoreEnvironment coreEnvironment,HttpTransport transport) throws Throwable
     {
         super("Sample", coreEnvironment,transport);
@@ -40,11 +42,15 @@ public class Service extends DeviceSessionService<UserSession>
         this.getPrivateServer().addContentWriters(new RemoteResponseWriter());
         this.getPublicServer().addContentWriters(new RemoteResponseWriter());
 
-        this.getPublicServer().addTopFilters(new UserDeviceSessionFilter(this));
+        this.userDeviceSessionFilter=new UserDeviceSessionFilter(this);
+        this.getPublicServer().addTopFilters(this.userDeviceSessionFilter);
         this.getPublicServer().registerHandlers(new UserController(this));
         this.getPublicServer().registerHandlers(new DeviceController(this));
     }
-    
+    public UserDeviceSessionFilter getUserDeviceSessionFilter()
+    {
+        return this.userDeviceSessionFilter;
+    }
     public void onStart(Trace parent) throws Throwable
     {
     }

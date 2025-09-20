@@ -32,6 +32,10 @@ public class FileDownloadHandler extends ServletHandler
     {
         this(rootDirectory,enableLocalCaching,cacheControl,2147483648L,maxSize,freeMemory);
     }
+    public FileDownloadHandler(String rootDirectory, long maxSize, long freeMemory) throws Throwable
+    {
+        this(rootDirectory,false,"public",2147483648L,maxSize,freeMemory);
+    }
 
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable

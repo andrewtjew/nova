@@ -9,10 +9,12 @@ import org.nova.tracing.Trace;
 public class UserSession extends DeviceSession<Role>
 {
     public Long userId;
+    final private ZoneId zoneId;
 
     public UserSession(Service service,long deviceSessionId,String token,ZoneId zoneId) throws Throwable
     {
-        super(deviceSessionId,token,zoneId,Role.class);
+        super(deviceSessionId,token,Role.class);
+        this.zoneId=zoneId;
     }
 
     @Override
