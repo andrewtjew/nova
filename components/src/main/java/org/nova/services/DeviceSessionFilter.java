@@ -103,7 +103,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
-    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
+    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=false;
 
     protected String getToken(Trace parent, Context context)
     {

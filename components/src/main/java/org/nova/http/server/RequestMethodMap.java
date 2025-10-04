@@ -828,7 +828,7 @@ class RequestMethodMap
 		String[] fragments = Utils.split(path, '/');
 		if (fragments[0].length() != 0)
 		{
-			throw new Exception("Path must start with root / character. Site=" + requestMethod.getMethod().getName());
+			throw new Exception("Path must start with root / character. Site=" + requestMethod.getMethod().getName()+", path="+path);
 		}
 		PathNode node = null;
 		FragmentIndexMap indexMap = requestMethod.getFragmentIndexMap();

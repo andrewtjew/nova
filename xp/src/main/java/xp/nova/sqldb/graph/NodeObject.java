@@ -11,4 +11,8 @@ public class NodeObject
     {
         return this._nodeId;
     }        
+    public void resetNodeId()
+    {
+        this._nodeId=null;
+    }
 }

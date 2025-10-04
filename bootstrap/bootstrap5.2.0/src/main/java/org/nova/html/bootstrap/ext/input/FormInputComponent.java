@@ -180,7 +180,7 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
         this.input=input;
         return this;
     }
-    
+
     public void setValidationErrorMessage(String message)
     {
         this.validationMessage.clearInners();
