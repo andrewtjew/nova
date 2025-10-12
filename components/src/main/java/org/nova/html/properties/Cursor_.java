@@ -19,20 +19,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.bootstrap;
+package org.nova.html.properties;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-
-//public class TableResponsive extends StyleComponent<TableResponsive> 
-//{
-//    public TableResponsive(BreakPoint breakPoint)
-//    {
-//        super("div",null);
-//        addClass("table-responsive",breakPoint);
-//    }
-//    public TableResponsive()
-//    {
-//        this(null);
-//    }
-//    
-//}
+public enum Cursor_
+{
+    alias("alias"),
+    all_scroll("all-scroll"),
+    auto("auto"),
+    cell("cell"),
+    col_resize("col-resize"),
+    context_menu("context-menu"),
+    copy("copy"),
+    crosshair("crosshair"),
+    default_("default"),
+    e_resize("e-resize"),
+    ew_resize("ew-resize"),
+    grab("grab"),
+    grabbing("grabbing"),
+    help("help"),
+    move("move"),
+    n_resize("n-resize"),
+    ne_resize("ne-resize"),
+    nesw_resize("nesw-resize"),
+    ns_resize("ns-resize"),
+    nw_resize("nw-resize"),
+    nwse_resize("nwse-resize"),
+    no_drop("no-drop"),
+    none("none"),
+    not_allowed("not-allowed"),
+    pointer("pointer"),
+    progress("progress"),
+    row_resize("row-resize"),
+    s_resize("s-resize"),
+    se_resize("se-resize"),
+    sw_resize("sw-resize"),
+    text("text"),
+    url("url(myBall.cur),auto"),
+    w_resize("w-resize"),
+    wait("wait"),
+    zoom_in("zoom-in"),
+    zoom_out("zoom-out")    
+    
+    ;
+    final String value;
+    Cursor_(String value)
+    {
+        this.value=value;
+    }
+    @Override
+    public String toString()
+    {
+        return this.value;
+    }
+}

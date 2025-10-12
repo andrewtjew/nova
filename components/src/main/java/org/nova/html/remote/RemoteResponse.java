@@ -104,7 +104,7 @@ public class RemoteResponse
     
     private void addScripts(Element element)
     {
-        if ((element instanceof TagElement<?>)==false)
+        if ((element instanceof NodeElement<?>)==false)
         {
             return;
         }

@@ -59,7 +59,10 @@ namespace nova.remote
             })
             .then((text:string)=>
             {
-                document.getElementById(id).innerHTML=text;
+                if (text!=undefined)
+                {
+                    document.getElementById(id).innerHTML=text;
+                }
             });
 
     }

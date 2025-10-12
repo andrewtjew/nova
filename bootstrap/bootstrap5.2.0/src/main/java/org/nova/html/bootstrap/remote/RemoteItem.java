@@ -57,5 +57,35 @@ public class RemoteItem extends RemoteElement<RemoteItem> implements Styling<Rem
         return load(href,null,null,true,null);
     }    
 
+    public RemoteItem loadStatic(String href,Long interval,Long timeout,boolean showSpinner,String waitingMessage) throws Throwable
+    {
+        if ((showSpinner||waitingMessage!=null))
+        {
+            Item item=new Item();
+            item.d(Display.flex).justify_content(Justify.center);
+            if (showSpinner)
+            {
+                item.returnAddInner(new Spinner(SpinnerType.border,BreakPoint.md));
+            }
+            if (waitingMessage!=null)
+            {
+                Item messageItem=item.returnAddInner(new Item()).addInner(waitingMessage);
+                if (showSpinner)
+                {
+                    messageItem.me(1);
+                }
+            }
+            if (showSpinner||(waitingMessage!=null))
+            {
+                this.addInner(item);
+            }
+        }
+        return (RemoteItem) super.loadStatic(href, interval, timeout);
+    }    
+    public RemoteItem loadStatic(String href) throws Throwable
+    {
+        return loadStatic(href,null,null,true,null);
+    }    
+
     
 }

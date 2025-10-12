@@ -59,6 +59,14 @@ public interface Styling<ELEMENT>
         }
         return addClass("col",breakPoint,columns);
     }
+    public default ELEMENT table_responsive()
+    {
+        return addClass("table-responsive");
+    }
+    public default ELEMENT table_responsive(BreakPoint breakPoint)
+    {
+        return addClass("table-responsive",breakPoint);
+    }
     public default ELEMENT col(BreakPoint breakPoint)
     {
         if (breakPoint==BreakPoint.xs)
@@ -582,6 +590,7 @@ public interface Styling<ELEMENT>
     {
         return addClass("dropend");
     }
+    
 //    public default ELEMENT flex_wrap()
 //    {
 //        return addClass("flex-wrap");

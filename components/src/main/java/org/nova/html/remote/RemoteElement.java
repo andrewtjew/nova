@@ -31,15 +31,29 @@ public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMEN
     {
         if (interval!=null)
         {
-            returnAddInner(new script()).addInner(HtmlUtils.js_setInterval(timeout, "nova.remote.getRemote",href));
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
+            returnAddInner(new script()).addInner(HtmlUtils.js_setInterval(interval, "nova.remote.getRemote",id(),href));
         }
         else if (timeout!=null)
         {
-            returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getRemote",href));
+            returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getRemote",id(),href));
+        }
+        return this;
+    }    
+    public RemoteElement<ELEMENT> loadStatic(String href,Long interval,Long timeout) throws Throwable
+    {
+        if (interval!=null)
+        {
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getStatic(href)));
+            returnAddInner(new script()).addInner(HtmlUtils.js_setInterval(interval, "nova.remote.getStatic",href));
+        }
+        else if (timeout!=null)
+        {
+            returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getStatic",href));
         }
         else
         {
-            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getRemote(id(),href)));
+            returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_getStatic(href)));
         }
         return this;
     }    

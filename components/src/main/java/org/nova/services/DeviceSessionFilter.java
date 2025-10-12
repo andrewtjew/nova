@@ -200,7 +200,12 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             {
                 t.printStackTrace();
             }
-            return handleException(parent, context, parent.getThrowable());
+            Response<?> exceptionResponse=handleException(parent, context, parent.getThrowable());
+            if (exceptionResponse!=null)
+            {
+                return exceptionResponse;
+            }
+            throw t;
         }
         finally
         {

@@ -209,14 +209,21 @@ public class JSONClient
        int statusCode=response.getStatusLine().getStatusCode();
        if (statusCode>=300)
        {
-           return new JSONResponse<TYPE>(statusCode, null,null,response);
+           return new JSONResponse<TYPE>(statusCode, null,null,null,response);
        }
        if (responseContentType!=null)
        {
-           TYPE content=ObjectMapper.readObject(text, responseContentType);
-           return new JSONResponse<TYPE>(statusCode,text,content,response);
+           try
+           {
+               TYPE content=ObjectMapper.readObject(text, responseContentType);
+               return new JSONResponse<TYPE>(statusCode,text,content,null,response);
+           }
+           catch(Throwable t)
+           {
+               return new JSONResponse<TYPE>(statusCode,text,null,t,response);
+           }
        }
-       return new JSONResponse<TYPE>(statusCode,text,null,response);
+       return new JSONResponse<TYPE>(statusCode,text,null,null,response);
     }
     
     public <TYPE> JSONResponse<TYPE> getJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType,Header...headers) throws Throwable
