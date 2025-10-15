@@ -62,17 +62,10 @@ public class GraphAccessor implements AutoCloseable
     {
         if (set==null)
         {
-<<<<<<< HEAD
             Debugging.log(Graph.DEBUG_CATEGORY,"null set",LogLevel.ERROR);
             return;
         }
         Debugging.log(Graph.DEBUG_CATEGORY,label,LogLevel.ERROR);
-=======
-            Debugging.log(Graph.DEBUG_CATEGORY,"null set");
-            return;
-        }
-        Debugging.log(Graph.DEBUG_CATEGORY,label);
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
         for (int i=0;i<set.results.length;i++)
         {
             var result=set.results[i];
@@ -119,13 +112,8 @@ public class GraphAccessor implements AutoCloseable
                     QueryResultSet cachedResultSet=valueSize.value();
                     if (queryResultSet.equals(cachedResultSet)==false)
                     {
-<<<<<<< HEAD
                         debugPrint("inconsistent cache",cachedResultSet);
                         debugPrint("result from query",queryResultSet);
-=======
-                        debugPrint("query",queryResultSet);
-                        debugPrint("cache",cachedResultSet);
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
                         throw new Exception();
                     }
                 }

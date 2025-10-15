@@ -1026,11 +1026,7 @@ public class Graph
                     );
 
             createTable(parent,accessor,catalog,"@deletedlink"
-<<<<<<< HEAD
                     ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
-=======
-                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
                     );
             
             createTable(parent,accessor,catalog,"@version"
@@ -1308,22 +1304,14 @@ public class Graph
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {
-<<<<<<< HEAD
                     Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+",size="+typeNameCacheSet.size());
-=======
-                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+":"+typeNameCacheSet.size());
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
                 }
                 typeNameCacheSet.add(key);
             }
             this.countCache.put(parent,key, new ValueSize<Long>(count));
             if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
-<<<<<<< HEAD
                 Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql+",count="+count+",size="+this.countCache.size());
-=======
-                Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql);
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
             }
         }
     }

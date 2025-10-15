@@ -45,11 +45,8 @@ public class SpinnerButtonComponent <ELEMENT extends SpinnerButtonComponent<ELEM
     public String js_reset()
     {
         return HtmlUtils.js_property(this.spinnerItem.id(), "style.display","none")+";"
-<<<<<<< HEAD
-                +HtmlUtils.js_property(this.element.id(), "style.display","block")+";"
-=======
+//                +HtmlUtils.js_property(this.element.id(), "style.display","block")+";"
                 +HtmlUtils.js_property(this.element.id(), "style.visibility","visible")+";"
->>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
                 +HtmlUtils.js_classList_remove(id(), "disabled")+";"
                 ;
     }    
