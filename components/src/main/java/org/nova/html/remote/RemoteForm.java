@@ -1,15 +1,19 @@
 package org.nova.html.remote;
 
 
+import org.nova.html.deprecated.ObjectBuilder;
+import org.nova.html.elements.Composer;
 import org.nova.html.elements.FormElement;
 import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
+import org.nova.html.tags.script;
 import org.nova.html.enums.enctype;
 
 public class RemoteForm extends FormElement<RemoteForm> 
 {
+    private boolean usePost=false;
     public RemoteForm(String id,RemoteStateElement<?> remoteStateElement) throws Throwable
     {
         super(method.post);
@@ -27,7 +31,6 @@ public class RemoteForm extends FormElement<RemoteForm>
             addInner(new InputHidden(binding.getStateKey(),id()));
             binding.setPageState(id(), remoteStateElement);
         }
-        this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
     }
     public RemoteForm(RemoteStateElement<?> remoteStateElement) throws Throwable
     {
@@ -49,6 +52,7 @@ public class RemoteForm extends FormElement<RemoteForm>
     
     public String js_post(String action) throws Throwable
     {
+        this.usePost=true;
         if (enctype()==enctype.data)
         {
             return HtmlUtils.js_call("nova.remote.postFormData",id(),action);
@@ -59,4 +63,19 @@ public class RemoteForm extends FormElement<RemoteForm>
         }
                 
     }
+
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (this.usePost==false)
+        {
+            this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
+        }
+        else
+        {
+            this.onsubmit(HtmlUtils.js_call("nova.remote.preventDefault",new JsObject("event")));
+        }
+        super.compose(composer);
+    }
+    
 }

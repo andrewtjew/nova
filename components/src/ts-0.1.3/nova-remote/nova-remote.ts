@@ -172,18 +172,27 @@ namespace nova.remote
             });
     }
 
+    export async function preventDefault(event:Event)
+    {
+        event.preventDefault();
+    }
+
     export async function submit(event:Event,formId:string=null)
     {
         event.preventDefault();
         let formEvent=event as SubmitEvent;
         let form=(formId==null?event.currentTarget:document.getElementById(formId)) as HTMLFormElement;
-//        let data=new FormData(form,formEvent.submitter);
-        let formData=new FormData(form);
+        let data=new FormData(form);
+        let params=new URLSearchParams();
+        for (const pair of data)
+        {
+            params.append(pair[0],pair[1].toString());
+        }
 
         return await fetch(form.action,
             {
                 method:"POST",
-                body: formData
+                body: params
             }
             ).then(response=>
             {
@@ -281,7 +290,6 @@ namespace nova.remote
     export async function postFormData(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
-        let data=new FormData(form);
         return await fetch(action!=null?action:form.action,
             {
                 method:"POST",
