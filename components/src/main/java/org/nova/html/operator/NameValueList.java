@@ -24,26 +24,27 @@ package org.nova.html.operator;
 import java.util.ArrayList;
 
 import org.nova.core.NameValue;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.border_style;
-import org.nova.html.attributes.text_align;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.ext.Text;
+import org.nova.html.properties.BorderStyle_;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.TextAlign_;
+import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
 
 public class NameValueList extends GlobalEventTagElement<NameValueList>
 {
     final private ArrayList<NameValue<Element>> list;
     private int longest;
-    final private Size leftWidth;
+    final private Length_ leftWidth;
     final private boolean frame;
     
-    public NameValueList(Size leftWidth,boolean frame)
+    public NameValueList(Length_ leftWidth,boolean frame)
     {
         super("div");
         style("display:block;");
@@ -52,7 +53,7 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
         this.leftWidth=leftWidth;
         this.frame=frame;
     }
-    public NameValueList(Size leftWidth)
+    public NameValueList(Length_ leftWidth)
     {
         this(leftWidth,true);
     }
@@ -88,13 +89,13 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
     public void compose(Composer builder) throws Throwable
     {
        int width=(int)(this.longest*0.7f+1);
-       Size size=this.leftWidth!=null?this.leftWidth:new Size(width,unit.em);
+       Length_ size=this.leftWidth!=null?this.leftWidth:new Length_(width,Unit_.em);
        Style valueStyle=new Style()
-       .text_align(text_align.left)
-       .width(new Size(100,unit.percent))
+       .text_align(TextAlign_.left)
+       .width(new Length_(100,Unit_.percent))
 //       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
-       .margin_right(new Size(0.25,unit.em))
-       .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em));
+       .margin_right(new Length_(0.25,Unit_.em))
+       .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em));
 
        for (int i=0;i<this.list.size();i++)
        {
@@ -131,9 +132,9 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                        (
                            new Style()
                            .width(size)
-                           .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
-                           .margin_right(new Size(0.25,unit.em))
-                           .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em))
+                           .border_right(new Length_(0.1,Unit_.em),BorderStyle_.solid,Color_.rgb(176, 176, 176))
+                           .margin_right(new Length_(0.25,Unit_.em))
+                           .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
                        )
                        .addInner(label));
            }
@@ -143,8 +144,8 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                        (
                            new Style()
                            .width(size)
-                           .margin_right(new Size(0.25,unit.em))
-                           .padding(new Size(0.6,unit.em),new Size(0.2,unit.em),new Size(0.2,unit.em),new Size(0,unit.em))
+                           .margin_right(new Length_(0.25,Unit_.em))
+                           .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
                        )
                        .addInner(label));
            }

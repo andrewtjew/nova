@@ -90,6 +90,10 @@ public class Trace implements AutoCloseable
     {
         this(parent.traceManager,parent,category,waiting);
     }
+    public Trace(Trace parent,String category,String details)
+    {
+        this(parent.traceManager,parent,category,details);
+    }
     public Trace(Trace parent,String category,boolean waiting,boolean log)
     {
         this(parent.traceManager,parent,category,null,waiting,log);
@@ -251,6 +255,10 @@ public class Trace implements AutoCloseable
 			return this.duration;
 		}
 	}
+    public long getDurationMs()
+    {
+        return getDurationNs()/1000000;
+    }
 	public long getActiveNs()
 	{
 		synchronized(this)
@@ -263,7 +271,7 @@ public class Trace implements AutoCloseable
 				}
 				return System.nanoTime()-this.start-this.wait;
 			}
-			return this.duration;
+			return this.duration-this.wait;
 		}
 	}
 	public long getWaitNs()

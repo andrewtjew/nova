@@ -21,8 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Element;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.th;
 import org.nova.html.tags.tr;
 

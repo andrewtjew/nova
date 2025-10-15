@@ -12,4 +12,11 @@ public enum Command
     fetch,
     log,
     checked,
+    prepend,
+    append,
+    before,
+    after,
+    remove,
+    appendChild,
+    removeChilderen,
 }

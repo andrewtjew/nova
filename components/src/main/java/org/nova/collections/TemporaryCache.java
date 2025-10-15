@@ -21,12 +21,6 @@
  ******************************************************************************/
 package org.nova.collections;
 
-import java.util.Collection;
-import java.util.HashMap;
-
-import org.nova.annotations.Description;
-import org.nova.metrics.CountMeter;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 abstract public class TemporaryCache<VALUE>

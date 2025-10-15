@@ -10,7 +10,6 @@ import com.geneva.lexing3.GenevaLexer;
 import com.geneva.lexing3.Lexeme;
 import com.geneva.lexing3.LexerResult;
 import com.geneva.lexing3.Token;
-import com.geneva.parsing.Node;
 import com.geneva.parsing.Node.NodeType;
 import com.geneva.parsing.member.ClassMember;
 import com.geneva.parsing.member.EnumMember;

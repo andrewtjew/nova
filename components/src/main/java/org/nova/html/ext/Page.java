@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.ext;
 import org.nova.html.tags.html;
+import org.nova.html.tags.script;
 import org.nova.html.tags.body;
 
 public class Page extends Content
@@ -28,24 +29,18 @@ public class Page extends Content
     final private html html;
     final private Head head;
     final private body body;
-    final private boolean continuationDisallowed;
     
-    public Page(String docType,boolean continuationDisallowed)
+    public Page(String docType)
     {
         addInner(new DocType(docType));
         this.html=returnAddInner(new html());
         this.head=this.html.returnAddInner(new Head());
         this.body=this.html.returnAddInner(new body());
-        this.continuationDisallowed=continuationDisallowed;
     }
     
-    public Page(boolean continuationPage)
-    {
-        this("html",continuationPage);
-    }
     public Page()
     {
-        this(false);
+        this("html");
     }
     
     public Head head()
@@ -59,10 +54,6 @@ public class Page extends Content
     public html html()
     {
         return this.html;
-    }
-    public boolean isContinuationDisallowed()
-    {
-        return this.continuationDisallowed;
     }
     
 }

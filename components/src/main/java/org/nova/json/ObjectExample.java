@@ -28,6 +28,8 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 
+import org.nova.annotations.Example;
+
 public class ObjectExample
 {
 	static public void write(OutputStream outputStream, Class<?> contentType) throws IOException
@@ -49,23 +51,54 @@ public class ObjectExample
 
 	private int integerValue=2;
 	private int fractionValue=1;
-	private void writeExample(StringBuilder sb,Class<?> type,int indentLevel)
+	private void writeExample(StringBuilder sb,Class<?> type,Example example,int indentLevel)
 	{
-		if ((type==Boolean.class)||(type==boolean.class))
+	    if ((type==Boolean.class)||(type==boolean.class))
 		{
-			sb.append("true");
+	        if (example!=null)
+	        {
+	            Boolean.parseBoolean(example.value());
+                sb.append(example.value());
+	        }
+	        else
+	        {
+	            sb.append(++integerValue%1==1?"true":"false");
+	        }
 		}
 		else if ((type==Integer.class)||(type==int.class)||(type==Short.class)||(type==short.class)||(type==Long.class)||(type==long.class)||(type==byte.class)||(type==Byte.class))
 		{
-			sb.append(integerValue++);
+            if (example!=null)
+            {
+                Long.parseLong(example.value());
+                sb.append(example.value());
+            }
+            else
+            {
+                sb.append(integerValue++);
+            }
 		}
 		else if ((type==Float.class)||(type==float.class)||(type==Double.class)||(type==double.class))
 		{
-			sb.append(integerValue+++"."+fractionValue++);
+            if (example!=null)
+            {
+                Double.parseDouble(example.value());
+                sb.append(example.value());
+            }
+            else
+            {
+                sb.append(integerValue+++"."+fractionValue++);
+            }
 		}
         else if (type==String.class)
         {
-            sb.append("\""+integerValue+++" bottles\"");
+            if (example!=null)
+            {
+                sb.append("\""+example.value()+"\"");
+            }
+            else
+            {
+                sb.append("\""+integerValue+++" bottles\"");
+            }
         }
         else if (type.isEnum())
         {
@@ -77,9 +110,9 @@ public class ObjectExample
             if (this.shownClasses.contains(type.getComponentType().getName())==false)
             {
     			sb.append("[");
-    			writeExample(sb,type.getComponentType(),indentLevel+1);
+    			writeExample(sb,type.getComponentType(),example,indentLevel+1);
     			sb.append(",");
-    			writeExample(sb,type.getComponentType(),indentLevel+1);
+    			writeExample(sb,type.getComponentType(),example,indentLevel+1);
     			sb.append("\r\n");
     			writeIndent(sb, indentLevel).append("]");
             }
@@ -112,7 +145,7 @@ public class ObjectExample
     					commaNeeded=true;
     				}
 	                writeIndent(sb, indentLevel+1).append("\""+field.getName()+"\": ");
-	                writeExample(sb,fieldType,indentLevel+1);
+	                writeExample(sb,fieldType,field.getAnnotation(Example.class),indentLevel+1);
 		        }
 			}
 			sb.append("\r\n");
@@ -124,7 +157,7 @@ public class ObjectExample
 	public void writeExample(OutputStream outputStream, Class<?> contentType) throws IOException
 	{
 		StringBuilder sb=new StringBuilder();
-		writeExample(sb,contentType,0);
+		writeExample(sb,contentType,null,0);
 		outputStream.write(sb.toString().getBytes(StandardCharsets.UTF_8));
 	}
 	

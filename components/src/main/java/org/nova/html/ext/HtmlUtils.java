@@ -22,6 +22,7 @@
 package org.nova.html.ext;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,24 +30,147 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 
 import org.eclipse.jetty.server.Request;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
+import org.nova.html.properties.Display_;
 import org.nova.html.remoting.ModalOption;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
+import org.nova.http.server.annotations.DefaultValue;
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
 public class HtmlUtils
 {
+    @SuppressWarnings(
+    { "unchecked", "rawtypes" })
+    public static Object getDefaultValue(Method method, DefaultValue defaultValue, Class<?> type) throws Exception
+    {
+        if (defaultValue == null)
+        {
+            return null;
+        }
+        try
+        {
+            if (type == int.class)
+            {
+                return Integer.parseInt(defaultValue.value());
+            }
+            else if (type == Integer.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Integer.parseInt(defaultValue.value());
+            }
+            else if (type == long.class)
+            {
+                return Long.parseLong(defaultValue.value());
+            }
+            else if (type == Long.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Long.parseLong(defaultValue.value());
+            }
+            else if (type == short.class)
+            {
+                return Short.parseShort(defaultValue.value());
+            }
+            else if (type == Short.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Short.parseShort(defaultValue.value());
+            }
+            else if (type == float.class)
+            {
+                return Float.parseFloat(defaultValue.value());
+            }
+            else if (type == Float.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Float.parseFloat(defaultValue.value());
+            }
+            else if (type == double.class)
+            {
+                return Double.parseDouble(defaultValue.value());
+            }
+            else if (type == Double.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return Double.parseDouble(defaultValue.value());
+            }
+            else if (type == boolean.class)
+            {
+                String value = defaultValue.value().toLowerCase();
+                if (value.equals("true"))
+                {
+                    return true;
+                }
+                if (value.equals("false"))
+                {
+                    return false;
+                }
+            }
+            else if (type == Boolean.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                String value = defaultValue.value().toLowerCase();
+                if (value.equals("true"))
+                {
+                    return true;
+                }
+                if (value.equals("false"))
+                {
+                    return false;
+                }
+            }
+            else if (type == String.class)
+            {
+                return defaultValue.value();
+            }
+            else if (type == BigDecimal.class)
+            {
+                if (defaultValue.value().length()==0)
+                {
+                    return null;
+                }
+                return new BigDecimal(Long.parseLong(defaultValue.value()));
+            }
+            else if (type.isEnum())
+            {
+                return Enum.valueOf((Class<Enum>) type, defaultValue.value());
+            }
+        }
+        catch (Throwable t)
+        {
+        }
+        throw new Exception("Unable to parse @DefaultValue value. Value=" + defaultValue.value() + ". Site=" + method.getName());
+    }
+    
     @Deprecated
     public static String returnFunction(String function,Object...parameters)
     {
@@ -442,6 +566,10 @@ public class HtmlUtils
     {
         return js_removeAttribute(element.id(), attribute);
     }  
+    public static String js_display(String id,Display_ display)
+    {
+        return "document.getElementById('"+id+"').style.display='"+display+"'";
+    }  
     public static String js_removeAttribute(String id,String attribute)
     {
         return "document.getElementById('"+id+"').removeAttribute('"+attribute+"')";
@@ -453,6 +581,10 @@ public class HtmlUtils
     public static String js_classList_remove(String id,String class_)
     {
         return "document.getElementById(\""+id+"\").classList.remove("+"'"+class_+"')";
+    }  
+    public static String js_style(String id,String style,String value)
+    {
+        return "document.getElementById(\""+id+"\").style."+style+"="+"'"+value+"'";
     }  
     public static String js_classList_add(TagElement<?> element,String class_)
     {
@@ -471,24 +603,6 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').getAttribute('"+attribute+"')";
     }  
-//    public static String js_call(String id,String function,Object...parameters)
-//    {
-//        return js_call("document.getElementById('"+id+"')."+function,parameters);
-//    }  
-    
-//    public static String js_elementCall(String id,String function,Object...parameters)
-//    {
-//        return js_call("document.getElementById('"+id+"')."+function,parameters);
-//    }  
-//    public static String js_elementCall(TagElement<?> element,String function,Object...parameters)
-//    {
-//        return js_elementCall(element.id(), function, parameters);
-//    }  
-//    public static String js_call(TagElement<?> element,String function,Object...parameters)
-//    {
-//        return js_call(element.id(), function, parameters);
-//    }  
-    
     public static String js_jqueryCall(String id,String function,Object...parameters)
     {
         return js_call("$","#"+id)+"."+js_call(function,parameters);
@@ -866,6 +980,9 @@ public class HtmlUtils
             case "jpeg":
             case "jpg":
             return "jpeg";
+
+            case "webp":
+            return "webp";
             
             default:
                 return null;
@@ -941,7 +1058,7 @@ public class HtmlUtils
     public static void writeFile(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+//        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {
@@ -953,7 +1070,7 @@ public class HtmlUtils
     public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
-        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+//        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
         Part part=request.getPart(name);
         if (overrideFileName==null)
         {
@@ -964,5 +1081,18 @@ public class HtmlUtils
         byte[] bytes = java.util.Base64.getDecoder().decode(data.substring(data.indexOf(",") + 1));
         FileUtils.writeBinaryFile(directory+"\\"+overrideFileName, bytes);
     }
-    
+    public static String getRequestPathAndQuery(HttpServletRequest request)
+    {
+        String query=request.getQueryString();
+        System.err.println("getRequestPathAndQuery="+query);
+        if (query==null)
+        {
+            return request.getRequestURI();
+        }
+        return request.getRequestURI()+"?"+query;
+    }
+    public static String getRequestPathAndQuery(Context context)
+    {
+        return getRequestPathAndQuery(context.getHttpServletRequest());
+    }
 }

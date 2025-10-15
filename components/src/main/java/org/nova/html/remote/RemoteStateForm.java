@@ -2,7 +2,6 @@ package org.nova.html.remote;
 
 import org.nova.html.ext.InputHidden;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.RemoteStateBinding;
 import org.nova.http.server.annotations.ContentWriters;
 
 @ContentWriters(RemoteResponseWriter.class)
@@ -13,7 +12,7 @@ public class RemoteStateForm extends RemoteForm
     {
         super(id);
         this.binding=binding;
-        binding.setState(id(),this);
+        binding.setPageState(id(),this);
         addInner(new InputHidden(binding.getStateKey(),id()));
         if (action!=null)
         {
@@ -48,6 +47,7 @@ public class RemoteStateForm extends RemoteForm
 //    {
 //        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getStateKey(),id()).toString());
 //    }    
+    
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
         return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());

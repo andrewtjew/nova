@@ -34,7 +34,7 @@ public class FileCache extends ContentCache<String,byte[]>
         byte[] bytes=null;
         if ("gzip".equals(compression))
         {
-            bytes=getValueFromCache(trace,"raw|"+localFile);
+            bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
                 bytes=FileUtils.readFile(localFile);
@@ -52,7 +52,7 @@ public class FileCache extends ContentCache<String,byte[]>
         }
         else if ("deflate".equals(compression))
         {
-            bytes=getValueFromCache(trace,"raw|"+localFile);
+            bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
                 bytes=FileUtils.readFile(localFile);
@@ -70,7 +70,7 @@ public class FileCache extends ContentCache<String,byte[]>
         }
         else if ("br".equals(compression))
         {
-            bytes=getValueFromCache(trace,"raw|"+localFile);
+            bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
                 bytes=FileUtils.readFile(localFile);

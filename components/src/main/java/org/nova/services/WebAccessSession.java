@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 
 import org.nova.frameworks.ServerApplication;
 
+@Deprecated
 public abstract class WebAccessSession<SERVICE extends ServerApplication> extends AccessSession<SERVICE> 
 {
 	final private ZoneOffset zoneOffset;

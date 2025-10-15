@@ -20,50 +20,51 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.html.ext;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.overflow;
-import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.QuotationMark;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Display_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Overflow_;
+import org.nova.html.properties.Position_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
 
 public class ModalBackground extends GlobalEventTagElement<div>
 {
 	final private int z_index;
-    public ModalBackground(int z_index,Color color,boolean show)
+    public ModalBackground(int z_index,Color_ color,boolean show)
     {
         super("div");
         Style style=new Style()
-        		.position(position.fixed)
+        		.position(Position_.fixed)
         		.z_index(z_index)
-        		.left(new Size(0,unit.px))
-           		.top(new Size(0,unit.px))
-        		.width(new Size(100,unit.percent))
-           		.height(new Size(100,unit.percent))
-           		.overflow(overflow.auto)
+        		.left(new Length_(0,Unit_.px))
+           		.top(new Length_(0,Unit_.px))
+        		.width(new Length_(100,Unit_.percent))
+           		.height(new Length_(100,Unit_.percent))
+           		.overflow(Overflow_.auto)
            		.background_color(color);
         if (show)
         {
-        	style.display(display.block);
+        	style.display(Display_.block);
         }
         else
         {
-        	style.display(display.none);
+        	style.display(Display_.none);
         }
         this.style(style);
         this.z_index=z_index;
     }
-    public ModalBackground(Color color)
+    public ModalBackground(Color_ color)
     {
     	this(1,color,false);
     }
     public ModalBackground()
     {
-    	this(Color.rgba(0, 0, 0, 0.0f));
+    	this(Color_.rgba(0, 0, 0, 0.0f));
     }
     public String js_show(QuotationMark mark)
     {

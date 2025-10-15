@@ -43,8 +43,17 @@ public class Tooltip extends TipComponent<Tooltip>
     	return js_tooltip(option, QuotationMark.APOS);
     }
     
-    public static script script_ready()
+//    public static script script_ready()
+//    {
+//        return new script().addInner(new LiteralHtml("$(document).ready(function(){$('[data-toggle=\"tooltip\"]').tooltip();});"));
+//    }
+
+    public static script script_readyAll()
     {
-        return new script().addInner(new LiteralHtml("$(document).ready(function(){$('[data-toggle=\"tooltip\"]').tooltip();});"));
+        return new script().addInner(new LiteralHtml(js_readyAll()));
+    }
+    public static String js_readyAll()
+    {
+        return "var tooltipTriggerList= document.querySelectorAll('[data-bs-toggle=\"tooltip\"]');var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));";
     }
 }

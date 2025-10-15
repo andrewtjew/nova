@@ -2,10 +2,8 @@ package org.nova.http.server;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 public abstract class SecureHttpServletRequest extends HttpServletRequestWrapper
 {

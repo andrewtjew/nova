@@ -26,6 +26,7 @@ import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
+import org.nova.utils.TypeUtils;
 
 public abstract class SessionServerApplication<SESSION extends Session> extends ServerApplication
 {
@@ -50,7 +51,10 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
         String headerTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.header", "X-Token");
         String queryTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.query", "token");
         String cookieTokenKey=this.getConfiguration().getValue("SessionServerApplication.tokenKey.cookie", headerTokenKey);
-        this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
+        if ((TypeUtils.isNullOrEmpty(headerTokenKey)==false)||(TypeUtils.isNullOrEmpty(queryTokenKey)==false)||(TypeUtils.isNullOrEmpty(cookieTokenKey)==false))
+        {
+            this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
+        }
 
         this.getPublicServer().addBottomFilters(this.sessionFilter);
         this.getMenuBar().add("/operator/sessions","Sessions","View All");
@@ -81,7 +85,7 @@ public abstract class SessionServerApplication<SESSION extends Session> extends 
     
     public SessionFilter getSessionFilter()
     {
-        return sessionFilter;
+        return this.sessionFilter;
     }
 
     public String generateSessionToken()

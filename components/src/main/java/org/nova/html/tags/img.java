@@ -20,7 +20,7 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.html.tags;
-
+//6478946818 9055340080
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.enums.crossorigin;
 
@@ -29,6 +29,10 @@ public class img extends GlobalEventTagElement<img>
     public img()
     {
         super("img",true);
+    }
+    public img(boolean noEndTag)
+    {
+        super("img",noEndTag);
     }
     
     public img alt(String text)

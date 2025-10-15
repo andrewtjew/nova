@@ -22,29 +22,29 @@
 package org.nova.html.bootstrap.ext;
 
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
-import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.LiteralHtml;
-import org.nova.html.tags.hr;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
 
-public class NameValueColumns extends Item
+public class NameValueColumns extends StyleComponent<NameValueColumns>
 {
     final private Item names;
     final private Item values;
     final private Element divider;
     final private TextAlign nameAlign;
     
-    public NameValueColumns(Size nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
+    public NameValueColumns(Length_ nameSize,TextAlign nameAlign,StyleTemplate rowTemplate,Element divider)
     {
+        super("div",null);
         d(Display.flex);
         this.names=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);
         this.values=returnAddInner(new Item()).flex(Flex.column).d(Display.flex);
@@ -60,11 +60,11 @@ public class NameValueColumns extends Item
         }
         this.divider=divider;
     }
-    public NameValueColumns(Size nameSize,TextAlign nameAlign,Element divider)
+    public NameValueColumns(Length_ nameSize,TextAlign nameAlign,Element divider)
     {
         this(nameSize,nameAlign,null,divider);
     }
-    public NameValueColumns(Size nameSize,TextAlign nameAlign)
+    public NameValueColumns(Length_ nameSize,TextAlign nameAlign)
     {
         this(nameSize,nameAlign,new LiteralHtml("&nbsp;:&nbsp;"));
     }

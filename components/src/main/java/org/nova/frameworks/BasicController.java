@@ -2,7 +2,6 @@ package org.nova.frameworks;
 
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentDecoder;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentDecoder;

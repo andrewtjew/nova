@@ -4,6 +4,7 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.ext.Redirect;
 import org.nova.http.client.PathAndQuery;
 
+@Deprecated
 public class RedirectToMessage extends Redirect
 {
     static public String DEFAULT_MESSAGE_URL="/message";

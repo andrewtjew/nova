@@ -35,5 +35,4 @@ public enum ParameterSource
 	QUERIES,
 	INTERNAL,
 	COOKIE_STATE,
-    SECURE_QUERY,
 }

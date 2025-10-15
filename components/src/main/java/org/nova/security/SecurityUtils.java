@@ -88,7 +88,7 @@ public class SecurityUtils
 
     public static final byte[] encrypt(String password, String salt, byte[] data) throws Exception
     {
-        SecretKey secretKey = buildKey(password, salt);
+        SecretKey secretKey = buildAESKey(password, salt);
         Cipher AesCipher = Cipher.getInstance("AES");
         AesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
         return AesCipher.doFinal(data);
@@ -103,17 +103,10 @@ public class SecurityUtils
 
     public static byte[] decrypt(String password, String salt, byte[] bytes) throws Exception
     {
-        SecretKey secretKey = buildKey(password, salt);
-        try
-        {
-            Cipher AesCipher = Cipher.getInstance("AES");
-            AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
-            return AesCipher.doFinal(bytes);
-        }
-        finally
-        {
-            secretKey.destroy();
-        }
+        SecretKey secretKey = buildAESKey(password, salt);
+        Cipher AesCipher = Cipher.getInstance("AES");
+        AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
+        return AesCipher.doFinal(bytes);
     }
 
     public static byte[] decrypt(SecretKey secretKey, byte[] bytes) throws Exception
@@ -250,6 +243,14 @@ public class SecurityUtils
         return new SecretKeySpec(secretKey.getEncoded(), "AES");
     }
 
+    static public SecretKey buildAESKey(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), ITERATIONS, KEY_LENGTH);
+        SecretKey secretKey = factory.generateSecret(spec);
+        return new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
+    }
+
     static public SecretKey buildKeyDES(String password) throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException
     {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
@@ -280,7 +281,7 @@ public class SecurityUtils
         }
     }
     
-    final static String USER_CODE_ALPHABET = "ACEFGHJKMNPQRTWYZ23679";
+    final static String USER_CODE_ALPHABET = "ACDEFGHJKLMNPQRTUVWXYZ23456789";
 
     public static byte[] generateRandomBytes(int length)
     {
@@ -290,6 +291,15 @@ public class SecurityUtils
     }
     
     
+    public static String generateMachineVerificationCode(int length)
+    {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            bytes[i] = (byte) (USER_CODE_ALPHABET.charAt(RANDOM.nextInt(USER_CODE_ALPHABET.length())));
+        }
+        return new String(bytes, StandardCharsets.ISO_8859_1);
+    }
     public static String generateVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
@@ -303,7 +313,7 @@ public class SecurityUtils
             while (bytes[i] == bytes[i - 1]);
         }
         return new String(bytes, StandardCharsets.ISO_8859_1);
-    }
+    }    
     
     public static String generateUserFixedUnique(long number,int length) throws Exception
     {

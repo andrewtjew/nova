@@ -4,8 +4,15 @@ public class NodeObject
 {
     @Internal
     protected Long _nodeId;
+
+    @Internal
+    protected Long _transactionId;
     public Long getNodeId()
     {
         return this._nodeId;
     }        
+    public void resetNodeId()
+    {
+        this._nodeId=null;
+    }
 }

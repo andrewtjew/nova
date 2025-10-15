@@ -30,16 +30,15 @@ public class TableBody extends StyleComponent<TableBody>
         super("tbody",null);
     }
     
-    public TableBody addRowWithStyle(StyleTemplate template,Object...objects)
+    public TableRow addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        returnAddInner(new TableRow()).addWithStyle(template, objects);
-        return this;
+        return returnAddInner(new TableRow()).addWithStyle(template, objects);
+        
     }
 
-    public TableBody addRow(Object...objects)
+    public TableRow addRow(Object...objects)
     {
-        returnAddInner(new TableRow()).add(objects);
-        return this;
+        return returnAddInner(new TableRow()).add(objects);
     }
 
     public TableBody color(ThemeColor color)

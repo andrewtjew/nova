@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.td;
 

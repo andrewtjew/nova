@@ -41,6 +41,11 @@ public class InputRadio extends InputComponent<InputRadio>
         }
         return this;
     }
+    public InputRadio required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
+    {
+        return attr("required");
+    }
+    
     public InputRadio value(String text) //button, reset, submit, text, password, hidden, checkbox, radio, image
     {
         return attr("value",text);

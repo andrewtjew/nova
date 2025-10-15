@@ -168,7 +168,19 @@ public class JSONClient
                 this.lastRequestInstantMs=now;
             }
         }
-	    return new DisruptorTraceContext(parent, this.traceManager, this.logger, this.disruptor, traceCategoryOverride!=null?traceCategoryOverride:pathAndQuery,this.endPoint);
+        if (traceCategoryOverride==null)
+        {
+            int index=pathAndQuery.indexOf('?');
+            if (index<0)
+            {
+                traceCategoryOverride="JSONClient:"+pathAndQuery;
+            }
+            else
+            {
+                traceCategoryOverride="JSONClient:"+pathAndQuery.substring(0,index);
+            }
+        }
+	    return new DisruptorTraceContext(parent, this.traceManager, this.logger, this.disruptor, traceCategoryOverride,this.endPoint);
 	}
 	/*
     public <TYPE> JSONResponse<TYPE> get(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType) throws Throwable
@@ -193,13 +205,25 @@ public class JSONClient
     
     private <TYPE> JSONResponse<TYPE> processResponse(HttpResponse response,DisruptorTraceContext context,Class<TYPE> responseContentType) throws Throwable
     {
-       String json=processResponse(response, context);
+       String text=processResponse(response, context);
        int statusCode=response.getStatusLine().getStatusCode();
        if (statusCode>=300)
        {
-           return new JSONResponse<TYPE>(statusCode, null,response);
+           return new JSONResponse<TYPE>(statusCode, null,null,null,response);
        }
-       return new JSONResponse<TYPE>(statusCode,ObjectMapper.readObject(json, responseContentType),response);
+       if (responseContentType!=null)
+       {
+           try
+           {
+               TYPE content=ObjectMapper.readObject(text, responseContentType);
+               return new JSONResponse<TYPE>(statusCode,text,content,null,response);
+           }
+           catch(Throwable t)
+           {
+               return new JSONResponse<TYPE>(statusCode,text,null,t,response);
+           }
+       }
+       return new JSONResponse<TYPE>(statusCode,text,null,null,response);
     }
     
     public <TYPE> JSONResponse<TYPE> getJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType,Header...headers) throws Throwable
@@ -465,14 +489,64 @@ public class JSONClient
             return executeAndProcess(context,post,responseContentType);
         }
 	}
-    public <TYPE> JSONResponse<TYPE> postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object content,Class<TYPE> responseContentType) throws Throwable
+    public <TYPE> JSONResponse<TYPE> postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object request,Class<TYPE> responseContentType) throws Throwable
     {
-        return postJSON(parent,traceCategoryOverride,pathAndQuery,content,responseContentType,new Header[0]);
+        return postJSON(parent,traceCategoryOverride,pathAndQuery,request,responseContentType,new Header[0]);
     }
     public <TYPE> JSONResponse<TYPE> postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType) throws Throwable
     {
         return postJSON(parent,traceCategoryOverride,pathAndQuery,null,responseContentType);
     }
+    public int postJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object request) throws Throwable
+    {
+        return postJSON(parent,traceCategoryOverride,pathAndQuery,request,null).getStatusCode();
+    }
+
+    public <TYPE> JSONResponse<TYPE> putJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object content,Class<TYPE> responseContentType,Header...headers) throws Throwable
+    {
+        try (DisruptorTraceContext context=createContext(parent, traceCategoryOverride, pathAndQuery))
+        {
+            HttpPut put=new HttpPut(this.endPoint+pathAndQuery);
+            context.addLogItem(new Item("endPoint",this.endPoint));
+            context.addLogItem(new Item("pathAndQuery",pathAndQuery));
+            if (content!=null)
+            {
+                String jsonContent=ObjectMapper.writeObjectToString(content);
+//              System.out.println(jsonContent);
+                context.addLogItem(new Item("request",jsonContent));
+                StringEntity entity=new StringEntity(jsonContent);
+                put.setEntity(entity);
+            }
+            if (this.headers!=null)
+            {
+                for (Header header:this.headers)
+                {
+                    put.setHeader(header.getName(),header.getValue());
+                }
+            }
+            for (Header header:headers)
+            {
+                put.setHeader(header.getName(),header.getValue());
+            }
+            put.setHeader("Accept",this.contentType);
+            put.setHeader("Content-Type",this.contentType);
+            logHeaders(context,put.getAllHeaders());
+            return executeAndProcess(context,put,responseContentType);
+        }
+    }
+    public <TYPE> JSONResponse<TYPE> putJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object request,Class<TYPE> responseContentType) throws Throwable
+    {
+        return putJSON(parent,traceCategoryOverride,pathAndQuery,request,responseContentType,new Header[0]);
+    }
+    public <TYPE> JSONResponse<TYPE> putJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Class<TYPE> responseContentType) throws Throwable
+    {
+        return putJSON(parent,traceCategoryOverride,pathAndQuery,null,responseContentType);
+    }
+    public int putJSON(Trace parent,String traceCategoryOverride,String pathAndQuery,Object request) throws Throwable
+    {
+        return putJSON(parent,traceCategoryOverride,pathAndQuery,request,null).getStatusCode();
+    }
+    
     public int post(Trace parent,String traceCategoryOverride,String pathAndQuery) throws Throwable
     {
         return post(parent,traceCategoryOverride,pathAndQuery,null,new Header[0]);

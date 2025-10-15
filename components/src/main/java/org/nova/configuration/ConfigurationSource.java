@@ -27,4 +27,5 @@ public enum ConfigurationSource
 	CODE,
 	FILE,
 	ARGS,
+	OPERATOR,
 }

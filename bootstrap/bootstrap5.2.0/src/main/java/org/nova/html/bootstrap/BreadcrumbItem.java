@@ -21,9 +21,20 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.tags.a;
+
 public class BreadcrumbItem extends StyleComponent<BreadcrumbItem>
 {
     public BreadcrumbItem(String label,String href)
+    { 
+        super("li","breadcrumb-item");
+        returnAddInner(new a()).href(href).addInner(label);
+    }
+    public BreadcrumbItem(String label)
+    { 
+        this(label,null);
+    }
+    public BreadcrumbItem()
     { 
         super("li","breadcrumb-item");
     }

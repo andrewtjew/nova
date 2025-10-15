@@ -41,13 +41,14 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 
 public interface Styling<ELEMENT>
 {
 //    final private TagElement<?> element;
     public ELEMENT addClass(Object class_,Object...fragments);
-    public TagElement<?> getElement();
+    public GlobalTagElement<?> getElement();
 
 
     public default ELEMENT col(BreakPoint breakPoint,int columns)
@@ -57,6 +58,14 @@ public interface Styling<ELEMENT>
             return addClass("col",columns);
         }
         return addClass("col",breakPoint,columns);
+    }
+    public default ELEMENT table_responsive()
+    {
+        return addClass("table-responsive");
+    }
+    public default ELEMENT table_responsive(BreakPoint breakPoint)
+    {
+        return addClass("table-responsive",breakPoint);
     }
     public default ELEMENT col(BreakPoint breakPoint)
     {
@@ -146,6 +155,11 @@ public interface Styling<ELEMENT>
     {
         return addClass("valid-feedback");
     }
+    public default ELEMENT bg(StyleColor value,double opacity)
+    {
+        getElement().style("--bs-bg-opacity:"+opacity+";");
+        return addClass("bg",value);
+    }
     public default ELEMENT bg(StyleColor value)
     {
         return addClass("bg",value);
@@ -158,6 +172,10 @@ public interface Styling<ELEMENT>
     public default ELEMENT text(StyleColor value)
     {
         return addClass("text",value);
+    }
+    public default ELEMENT text_bg(StyleColor value)
+    {
+        return addClass("text-bg",value);
     }
     public default ELEMENT text(TextAlign value)
     {
@@ -572,6 +590,7 @@ public interface Styling<ELEMENT>
     {
         return addClass("dropend");
     }
+    
 //    public default ELEMENT flex_wrap()
 //    {
 //        return addClass("flex-wrap");

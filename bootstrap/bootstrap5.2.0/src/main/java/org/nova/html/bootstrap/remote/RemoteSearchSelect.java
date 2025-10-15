@@ -3,50 +3,27 @@ package org.nova.html.bootstrap.remote;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Alert;
-import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.Span;
-import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Edge;
-import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.Position;
-import org.nova.html.bootstrap.classes.Rounded;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.Icon;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.FormElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.enums.autocomplete;
-import org.nova.html.ext.Content;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
-import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.tags.em;
-import org.nova.html.tags.form_post;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.BrotliContentEncoder;
-import org.nova.http.server.Context;
-import org.nova.http.server.DeflaterContentEncoder;
-import org.nova.http.server.GzipContentEncoder;
-import org.nova.http.server.JSONContentReader;
-import org.nova.http.server.RemoteStateBinding;
-import org.nova.http.server.annotations.ContentEncoders;
-import org.nova.http.server.annotations.ContentReaders;
-import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
 
 
 @RequiredRoles()
@@ -137,7 +114,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> exten
     
     @POST
     @Path(PATH+"/select")
-    public RemoteResponse memberSelect(Trace parent,
+    public RemoteResponse select(Trace parent,
             @StateParam STATE state,
         @QueryParam("index") int index 
         ) throws Throwable

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.remoting;
 
+@Deprecated
 public enum ModalOption
 {
     hide,

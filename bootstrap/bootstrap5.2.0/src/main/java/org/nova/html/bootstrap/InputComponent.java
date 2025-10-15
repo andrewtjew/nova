@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.InputType;
 import org.nova.html.elements.TagElement;
@@ -81,7 +82,7 @@ public class InputComponent<ELEMENT extends InputComponent<ELEMENT>> extends Inp
     }
     
     @Override
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this;
     }

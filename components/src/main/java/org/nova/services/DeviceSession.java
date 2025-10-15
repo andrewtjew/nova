@@ -1,48 +1,43 @@
 package org.nova.services;
 
-import static org.nova.services.DeviceSession.generateSecretKey;
-
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.TimeZone;
+import java.util.Stack;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.nova.core.NameObject;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.tags.sub;
-import org.nova.html.tags.time;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
-import org.nova.http.server.RemoteStateBinding;
-import org.nova.json.ObjectMapper;
-import org.nova.localization.CountryCode;
-import org.nova.localization.CurrencyCode;
+import org.nova.http.server.RequestMethod;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
-    final static boolean DEBUG=false;
-    protected HashMap<String,Object> pageStates;
+    final static boolean DEBUG=true;
+    final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_SECURITY=true;
+    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
+    
+    protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
     
-    
-    final protected ZoneId zoneId;
     final private long deviceSessionId;
-    private Context context;
     final protected SecretKey secretKey;
     final private String querySecurityPathPrefix;
 
@@ -62,15 +57,23 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return secret;
     }   
     
+    public LocalDateTime toLocalDateTime(LocalDateTime utcDateTime)
+    {
+        return utcDateTime;
+    }
     
-    public DeviceSession(long deviceSessionId,String token,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
+    public LocalDateTime toUtcDateTime(LocalDateTime localDateTime)
+    {
+        return localDateTime;
+    }
+    
+    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
-        this.zoneId=zoneId;
-        this.pageStates=new HashMap<String, Object>();
+        this.states=new HashMap<String, Object>();
         this.newPageStates=null;
     }
     
@@ -79,72 +82,22 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return this.deviceSessionId;
     }
     
-    public ZoneId getZoneId()
-    {
-        return this.zoneId;
-    }
-    
-    @Deprecated
-    protected void setContext(Context context)
-    {
-        this.context=context;
-    }
-    @Deprecated
-    public Context getContext()
-    {
-        return this.context;
-    }
-    
     public void setPageState(TagElement<?> element) throws Throwable
     {
         if (element instanceof FormElement<?>)
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
-        setState(element.id(), element);
-    }
-    
-    public void updateStates(boolean pageRequest)
-    {
-        if (pageRequest)
-        {
-            if (this.newPageStates!=null)
-            {
-                this.pageStates=this.newPageStates;
-                this.newPageStates=null;
-            }
-        }
-        else
-        {
-            this.newPageStates=null;
-        }
+        setPageState(element.id(), element);
     }
 
-    public <T> T getPageState(String key)
+    public void setPageState(long key,Object state) throws Throwable
     {
-        if (Debugging.ENABLE && DEBUG)
-        {
-            if (this.pageStates.containsKey(key)==false)
-            {
-                System.err.println("No Page State for key="+key);
-                for (Entry<String, Object> entry:this.pageStates.entrySet())
-                {
-                    System.err.println(entry.getKey()+":"+entry.getValue());
-                }
-            }
-        }
-        return (T)this.pageStates.get(key);
+        setPageState(Long.toString(key),state);
     }
-    
-    
+
     @Override
-    public Object getState(Context context) throws Throwable
-    {
-        String id=context.getHttpServletRequest().getParameter(STATE_KEY);
-        return getPageState(id);
-    }
-    @Override
-    public void setState(String key,Object state) throws Throwable
+    public void setPageState(String key,Object state) throws Throwable
     {
         if (state!=null)
         {
@@ -153,12 +106,90 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
                 this.newPageStates=new HashMap<String, Object>();
             }
             this.newPageStates.put(key, state);
-            this.pageStates.put(key, state);
-            if (Debugging.ENABLE && DEBUG)
+            this.states.put(key, state);
+            if (Debug.ENABLE && DEBUG)
             {
-                Debugging.log("UserSession","setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
             }            
         }
+    }
+    
+    public void clearLastStates()
+    {
+        if (this.newPageStates!=null)
+        {
+            this.states=this.newPageStates;
+            this.newPageStates=null;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public <T> T getPageState(String key)
+    {
+        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
+        {
+            if (this.states.containsKey(key)==false)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                for (Entry<String, Object> entry:this.states.entrySet())
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                }
+            }
+        }
+        @SuppressWarnings("unchecked")
+        T state=(T)this.states.get(key);
+        if (state!=null)
+        {
+            //As long as the handler refers to the state, we keep it alive.
+            if (this.newPageStates==null)
+            {
+                this.newPageStates=new HashMap<String, Object>();
+            }
+            this.newPageStates.put(key, state);
+        }
+        return state;
+    }
+
+    @SuppressWarnings("unused")
+    public <T> T getPageState(long key)
+    {
+        return getPageState(Long.toString(key));
+    }
+    
+    @SuppressWarnings({"unused", "unchecked"})
+    public <T> T removePageState(long key)
+    {
+        return removePageState(Long.toString(key));
+    }    
+    
+    @SuppressWarnings({"unused", "unchecked"})
+    public <T> T removePageState(String key)
+    {
+        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
+        {
+            if (this.states.containsKey(key)==false)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+                for (Entry<String, Object> entry:this.states.entrySet())
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                }
+            }
+        }
+        if (this.newPageStates!=null)
+        {
+            this.newPageStates.remove(key);
+        }
+        return (T)this.states.remove(key);
+        
+    }
+
+    @Override
+    public <T> T getPageState(Context context) throws Throwable
+    {
+        String id=context.getHttpServletRequest().getParameter(getStateKey());
+        return getPageState(id);
     }
     final static public String STATE_KEY="@";
 
@@ -168,10 +199,45 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return "_";
     }
 
+    
     @Override
-    public void verifyQuery(Context context) throws Throwable
+    public AbnormalAccept acceptRequest(Trace parent,Context context) throws Throwable
     {
+        {
+            AbnormalAccept abnormalAccept=super.acceptRequest(parent, context);
+            if (abnormalAccept!=null)
+            {
+                return abnormalAccept;
+            }
+        }
         HttpServletRequest request=context.getHttpServletRequest();
+        String queryString=request.getQueryString();
+        if (queryString==null)
+        {
+            return null;
+        }
+        RequestMethod requestMethod=context.getRequestMethod();
+        if (requestMethod.isQueryVerificationRequired())
+        {
+            if (getSecurityQueryKey()!=null)
+            {
+                //Require 
+                var map=context.getHttpServletRequest().getParameterMap();
+                int ignore=map.containsKey(getStateKey())?1:0;
+                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
+                {
+                    if (DEBUG_SECURITY)
+                    {
+                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
+                    }
+                    else
+                    {
+                        return new AbnormalAccept();
+                    }
+                }
+            }
+        }
+        
         String code=request.getParameter(getSecurityQueryKey());
         if (code!=null)
         {
@@ -180,11 +246,14 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            if (code.equals(computed)==false)
-            {
-                throw new Exception();
-            }
+            return code.equals(computed)?null:new AbnormalAccept();
         }
+        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
+        {
+            String query=request.getQueryString();
+            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+        }
+        return null;
     }
     @Override
     public String signQuery(String query) throws Throwable
@@ -202,49 +271,40 @@ public abstract class DeviceSession<ROLE extends Enum> extends RoleSession<ROLE>
         return STATE_KEY;
     }
     
-//    private String continuationPage;
-    private String continuation;
-    
-    public String setContinuation(Context context)
-    {
-        this.continuation=context.getPathAndQuery();
-        return this.continuation;
-    }
-    public String setRefererContinuation(Context context)
-    {
-        HttpServletRequest request=context.getHttpServletRequest();
-        this.continuation=request.getHeader("Referer");
-        return this.continuation;
-    }
-    public void setContinuation(String pathAndQuery)
-    {
-        this.continuation=pathAndQuery;
-    }
-    public void clearContinuation()
-    {
-        this.continuation=null;
-    }
-
-//    public void setContinuationPage(Context context)
+//    public String pushContinuation(String script)
 //    {
-//        this.continuationPage=this.getPathAndQuery(context);
+//        if (this.newContinuations==null)
+//        {
+//            this.newContinuations=new Stack<String>();
+//        }
+//        this.newContinuations.push(script);
+//        this.continuations.push(script);
+//        return script;
 //    }
-
-//    public String activateContination()
+//    public String pushContinuation(Context context)
 //    {
-//        this.activeContinuation=this.continuation;
-//        return this.continuationPage;
+//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
 //    }
-    
-    public String useContinuation()
-    {
-        String continuation=this.continuation;
-        if (continuation!=null)
-        {
-            this.continuation=null;
-        }
-        return continuation;
-    }
+//    public String pushRefererContinuation(Context context)
+//    {
+//        HttpServletRequest request=context.getHttpServletRequest();
+//        return pushContinuation(request.getHeader("Referer"));
+//    }
+//    
+//    public void clearContinuations()
+//    {
+//        this.continuations.clear();
+//        this.newContinuations=null;
+//    }
+//    
+//    public String popContinuation()
+//    {
+//        if (this.continuations.size()==0)
+//        {
+//            return null;
+//        }
+//        return this.continuations.pop();
+//    }
     
      
     

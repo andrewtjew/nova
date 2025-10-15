@@ -23,7 +23,6 @@ package org.nova.frameworks;
 
 import java.io.File;
 import org.eclipse.jetty.server.Server;
-import org.nova.collections.FileCacheConfiguration;
 import org.nova.concurrent.Synchronization;
 import org.nova.configuration.Configuration;
 import org.nova.html.ExtensionToContentTypeMappings;
@@ -48,6 +47,7 @@ import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
 import org.nova.operations.OperatorVariableManager;
+import org.nova.operator.ConfigurationOperatorVariableStore;
 import org.nova.security.Vault;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
@@ -98,8 +98,14 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
+        String operatorVariableStoreFileName=this.getBaseDirectory()+"\\resources\\"+configuration.getValue("Environment.operatorVariableStoreFileName","local.cnf");
         
-        this.operatorVariableManager=new OperatorVariableManager();
+        File operatorVariableStoreFile=new File(operatorVariableStoreFileName);
+        if (operatorVariableStoreFile.exists()==false)
+        {
+            operatorVariableStoreFileName=null;
+        }
+        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariableStoreFileName,configuration));
 		this.typeMappings=ExtensionToContentTypeMappings.fromDefault();
 
         int operatorPort=this.operatorTransport.getPorts()[0];
@@ -118,7 +124,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             }
             if (ports>0)
             {
-                int threads=configuration.getIntegerValue("HttpServer.private.threads",20);
+                int threads=configuration.getIntegerValue("HttpServer.private.threads",0);
                 HttpServerConfiguration privateServerConfiguration=getConfiguration().getNamespaceObject("HttpServer.private", HttpServerConfiguration.class);
                 
                 int httpsPort=configuration.getIntegerValue("HttpServer.private.https.port",-1);
@@ -136,10 +142,12 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String serverCertificatePassword=vault.get("KeyStore.private.serverCertificate.password");
                     String clientCertificatePassword=vault.get("KeyStore.private.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
-    
+
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isTest());
+                    
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.private.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.private.clientCertificate.keyStorePath",null);
-                    servers[portIndex]=JettyServerFactory.createHttpsServer(threads, httpsPort, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+                    servers[portIndex]=JettyServerFactory.createHttpsServer(threads, httpsPort, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword,requireServerNameIndication);
                     portIndex++;
                 }
                 if (http)
@@ -155,7 +163,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
-                this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+                this.privateServer.addContentReaders(new JSONContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter());
             }
             else
@@ -182,7 +190,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             }
             if (ports>0)
             {
-                int threads=configuration.getIntegerValue("HttpServer.public.threads",100);
+                int threads=configuration.getIntegerValue("HttpServer.public.threads",0);
                 HttpServerConfiguration publicServerConfiguration=getConfiguration().getNamespaceObject("HttpServer.public", HttpServerConfiguration.class);
                 
                 int httpsPort=configuration.getIntegerValue("HttpServer.public.https.port",-1);
@@ -201,10 +209,12 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String serverCertificatePassword=vault.get("KeyStore.public.serverCertificate.password");
                     String clientCertificatePassword=vault.get("KeyStore.public.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
-    
+
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isTest());
+                    
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.public.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.public.clientCertificate.keyStorePath",null);
-                    servers[portIndex]=JettyServerFactory.createHttpsServer(threads, httpsPort, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+                    servers[portIndex]=JettyServerFactory.createHttpsServer(threads, httpsPort, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword,requireServerNameIndication);
                     portIndex++;
                 }
                 if (http)
@@ -214,9 +224,18 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                         httpPort=operatorPort+3;
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
+                    //Testing
                 }
                 this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
+                if (websocket)
+                {
+                    this.websocketPublicTransport=new WebSocketTransport("/wstest", this.publicServer, servers);
+                }
+                else
+                {
+                    this.websocketPublicTransport=null;
+                }
                 int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
                 int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
                 for (Server server:servers)
@@ -227,7 +246,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.publicServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.publicServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
-                this.publicServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
+                this.publicServer.addContentReaders(new JSONContentReader());
                 this.publicServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
@@ -247,16 +266,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 
                 this.privateServer.addContentReaders(new JSONContentReader(),new JSONPatchContentReader());
                 this.privateServer.addContentWriters(new JSONContentWriter(),new HtmlContentWriter(),new HtmlElementWriter(),new HtmlRemotingWriter(),new RemoteResponseWriter());
-                //Testing
-                if (websocket)
-                {
-                    Server server=JettyServerFactory.createServer(threads, 8080);
-                    this.websocketPublicTransport=new WebSocketTransport("/ws_hello", this.publicServer, server);
-                }
-                else
-                {
-                    this.websocketPublicTransport=null;
-                }
             }
             else
             {
@@ -273,20 +282,19 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 //		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
 //		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
 		
-        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
+//        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
         {
-            this.getOperatorVariableManager().register("HttpServer.private", this.privateServer);
+            this.getOperatorVariableManager().register(null,"HttpServer.private", this.privateServer);
         }
         if (this.publicServer!=null)
         {
-            this.getOperatorVariableManager().register("HttpServer.public", this.publicServer);
+            this.getOperatorVariableManager().register(null,"HttpServer.public", this.publicServer);
         }
 
         this.menuBar=new MenuBar();
-        String namespace=configuration.getValue("ServerApplication.APIDefinitionNamespace","");
         this.operatorTransport.getHttpServer().getTransformers().add(new RemoteResponseWriter());
-        this.operatorTransport.getHttpServer().registerHandlers(new ServerOperatorPages(this,namespace));
+        this.operatorTransport.getHttpServer().registerHandlers(new ServerOperatorPages(this));
         
         //Build template and start operator server so we can monitor the rest of the startup.
         this.template=OperatorPage.buildTemplate(this.menuBar,this.getName(),this.hostName); 
@@ -347,6 +355,19 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	    synchronized(this.runLock)
         {
             this.onStop();
+	        if (this.publicTransport!=null)
+	        {
+	            this.publicTransport.stop();
+	        }
+	        if (this.privateTransport!=null)
+	        {
+	            this.privateTransport.stop();
+	        }
+	        if (this.operatorTransport!=null)
+	        {
+	            this.operatorTransport.stop();
+	        }
+	        this.getCoreEnvironment().stop();
 	        this.status=Status.STOPPED;
 	        this.runLock.notify();
         }

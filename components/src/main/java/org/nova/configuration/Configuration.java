@@ -72,10 +72,6 @@ public class Configuration
             this.map.put(name,new ConfigurationItem(name, value, ConfigurationSource.CODE, getSource(Thread.currentThread().getStackTrace()[2]), description));
         }
     }
-    public void add(String name,String value)
-    {
-        add(name,value,null);
-    }
 	public ConfigurationItem getConfigurationItem(String name)
 	{
 		synchronized (this)
@@ -131,6 +127,13 @@ public class Configuration
 		}
 		return item.getValue();
 	}
+    public boolean contains(String name) throws Exception
+    {
+        synchronized (this)
+        {
+            return this.map.containsKey(name);
+        }
+    }
 
 	private String getValue(String name,Object defaultValue) throws Exception
     {
@@ -286,8 +289,6 @@ public class Configuration
 			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
 		}
 	}
-
-	
 	public long getLongValue(String name,long defaultValue) throws Exception
 	{
 		try
@@ -357,7 +358,6 @@ public class Configuration
 		}			
 
     }
-
     public int getIntegerValue(String name,int defaultValue) throws Exception
     {
     	try
@@ -740,7 +740,8 @@ public class Configuration
 		}
 	}
 	
-	public <OBJECT> OBJECT getNamespaceObject(String namespace,Class<OBJECT> type) throws Throwable
+	@SuppressWarnings("unchecked")
+    public <OBJECT> OBJECT getNamespaceObject(String namespace,Class<OBJECT> type) throws Throwable
 	{
 	    OBJECT object=type.newInstance();
 	    for (Field field:type.getDeclaredFields())

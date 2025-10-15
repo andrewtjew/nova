@@ -22,17 +22,15 @@
 package org.nova.html.elements;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.nova.core.NameObject;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.json.ObjectMapper;
-import org.nova.testing.Debugging;
 
 
 public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement<ELEMENT>
@@ -54,7 +52,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         this.noEndTag=noEndTag;
         this.classBuilder=new StringBuilder();
         this.attributes=new HashMap<>();
-        if (Debugging.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
+        if (Debug.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
         {
             StackTraceElement[] stackTraceElements=Thread.currentThread().getStackTrace();
             StringBuilder sb=new StringBuilder();

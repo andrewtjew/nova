@@ -29,20 +29,26 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.nova.core.NameObject;
-import org.nova.frameworks.ServerApplication;
+import org.nova.debug.Debugging;
 import org.nova.http.server.Context;
-import org.nova.http.server.RequestHandler;
-import org.nova.testing.Debugging;
+import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
-import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
+/*
+ * Optimizes access deny determination based on current session roles and handler RequiredRoles and ForbiddenRoles.
+ * Two deny maps are used for two level lookups. The maps are built dynamically.
+*/
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
-    static private HashMap<String,Boolean> DENY_MAP=new HashMap<String, Boolean>();
-
-    private HashMap<Long,Boolean> denyMap;
+    static record AbnormalAcceptBox(AbnormalAccept abnormalAccept)
+    {
+    }
     
+    static final boolean DEBUG=false;
+    static private HashMap<String,AbnormalAcceptBox> DENY_MAP=new HashMap<String, AbnormalAcceptBox>();
+
+    private HashMap<Long,AbnormalAcceptBox> denyMap;
     final private HashSet<ROLE> roles;
     final private Class<ROLE> roleType;
     private String partialKey;
@@ -52,7 +58,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         super(token, user);
         this.roleType=roleType;
         this.roles=new HashSet<>();
-        this.denyMap=new HashMap<Long, Boolean>();
+        this.denyMap=new HashMap<Long, AbnormalAcceptBox>();
     }
     
     @SuppressWarnings("rawtypes")
@@ -61,7 +67,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         StringBuilder sb=new StringBuilder();
         
         ArrayList<ROLE> list=new ArrayList<ROLE>();
-        list.addAll(roles);
+        list.addAll(this.roles);
         list.sort(new Comparator<ROLE>()
         {
 
@@ -104,81 +110,94 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         this.partialKey=computePartialKey();
     }
     
-    @Override
-    synchronized public boolean isAccessDenied(Trace trace, Context context) throws Throwable
+
+    static class AccessResult
     {
-        RequestHandler handler=context.getRequestHandler();
-        long handlerKey=handler.getRunTimeKey();
-        Boolean deny=this.denyMap.get(handlerKey);
-        if (deny!=null)
+        final public String redirect;
+        final public boolean denied;
+        
+        public AccessResult(boolean denied)
         {
-            return deny;
+            this.denied=denied;
+            this.redirect=null;
         }
-        String key=this.partialKey+handlerKey;
+        public AccessResult(String redirect)
+        {
+            this.denied=true;
+            this.redirect=redirect;
+        }
+    }
+    
+    @Override
+    synchronized public AbnormalAccept acceptRequest(Trace trace, Context context) throws Throwable
+    {
+        RequestMethod handler=context.getRequestMethod();
+        ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
+        RequiredRoles requiredRoles=handler.getRequiredRoles();
+        if (requiredRoles==null)
+        {
+            throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
+        }
+        return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
+    }    
+
+    public AbnormalAccept isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    {
+        //Implements two level of caching, first per session using this.denyMap, then global using DENY_MAP.
+        
+        AbnormalAcceptBox result=this.denyMap.get(runTimeKey); //We assume the page request are serialized by the session filter.
+        if (result!=null)
+        {
+            return result.abnormalAccept;
+        }
+        String key=this.partialKey+runTimeKey; 
+        
+        //We expect the combination of roles to be small so DENY_MAP won't grow too big.
         synchronized (DENY_MAP)
         {
-            deny=DENY_MAP.get(key);
+            result=DENY_MAP.get(key);
         }
-        if (deny==null)
+        if (result==null)
         {
-            deny=isAccessDenied(handler);
+            result=new AbnormalAcceptBox(isAccessDenied(forbiddenRoles,requiredRoles));
             synchronized (DENY_MAP)
             {
-                DENY_MAP.put(key, deny);
+                DENY_MAP.put(key, result);
             }
         }
-        this.denyMap.put(handlerKey, deny);
-        return deny;
+        this.denyMap.put(runTimeKey, result);
+        return result.abnormalAccept;
     }
 
-    public boolean isAccessDenied(RequestHandler handler) throws Throwable
+    private AbnormalAccept isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
     {
-        Method method=handler.getMethod();
-        ForbiddenRoles forbiddenRoles=method.getDeclaredAnnotation(ForbiddenRoles.class);
-        if (forbiddenRoles==null)
-        {
-            forbiddenRoles=method.getDeclaringClass().getDeclaredAnnotation(ForbiddenRoles.class);
-        }
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
             {
-                return true; //deny all
+                return new AbnormalAccept();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return true;
+                    return new AbnormalAccept();
                 }
             }
         }
 
-        RequiredRoles requiredRoles=method.getDeclaredAnnotation(RequiredRoles.class);
-        if (requiredRoles==null)
-        {
-            requiredRoles=method.getDeclaringClass().getDeclaredAnnotation(RequiredRoles.class);
-            if (requiredRoles==null)
-            {
-                throw new Exception("Missing RequiredRoles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
-            }
-        }
         if (requiredRoles.value().length==0)
         {
-            if (Debugging.ENABLE)
-            {
-                System.err.println("No Roles: "+handler.getKey()+", class="+handler.getMethod().getDeclaringClass());
-            }
-            return false; 
+            return null;
         }
         for (String value:requiredRoles.value())
         {
             if (hasRole(value))
             {
-                return false;
+                return null;
             }
         }
-        return true;
+        return new AbnormalAccept(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

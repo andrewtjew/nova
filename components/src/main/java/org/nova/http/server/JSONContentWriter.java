@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -44,15 +45,19 @@ public class JSONContentWriter extends ContentWriter
 	}
 
 	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public String writeSchema(Class<?> contentType) throws Throwable
 	{
-		SchemaWriter.writeSchema(outputStream, contentType);		
+	    ByteArrayOutputStream stream=new ByteArrayOutputStream();
+		SchemaWriter.writeSchema(stream, contentType);
+		return stream.toString(StandardCharsets.UTF_8);
 	}
 
 	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
+	public String writeExample(Class<?> contentType) throws Throwable
 	{
-		ObjectExample.write(outputStream, contentType);
+        ByteArrayOutputStream stream=new ByteArrayOutputStream();
+		ObjectExample.write(stream, contentType);
+        return stream.toString(StandardCharsets.UTF_8);
 	}
 
     @Override

@@ -26,18 +26,22 @@ import org.apache.http.HttpResponse;
 public class JSONResponse<TYPE>
 {
 	private final int statusCode;
-	private final TYPE content;
+    private final String text;
+    private final TYPE content;
 	private final HttpResponse response;
-	public JSONResponse(int statusCode,TYPE content,HttpResponse response) 
+	private final Throwable exception;
+	public JSONResponse(int statusCode,String text,TYPE content,Throwable exception,HttpResponse response) 
 	{
 		this.statusCode=statusCode;
 		this.content=content;
 		this.response=response;
+		this.exception=exception;
+		this.text=text;
 	}
-    public JSONResponse(TYPE content,HttpResponse response) 
-    {
-        this(200,content,response);
-    }
+//    public JSONResponse(String text,TYPE content,HttpResponse response) 
+//    {
+//        this(200,text,content,response);
+//    }
 	public TYPE get() throws Exception
 	{
 		if (this.statusCode>=300)
@@ -53,5 +57,9 @@ public class JSONResponse<TYPE>
 	public HttpResponse getHttpResponse()
 	{
 	    return this.response;
+	}
+	public String getText()
+	{
+	    return text;
 	}
 }

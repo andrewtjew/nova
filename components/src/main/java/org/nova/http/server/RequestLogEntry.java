@@ -21,8 +21,8 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.tracing.Trace;
 
@@ -41,7 +41,7 @@ public class RequestLogEntry
 	final String request;
 	final String contentType;
 
-	public RequestLogEntry(Trace trace,RequestHandler requestHandler,String requestContentText,String responseContentText,HttpServletRequest request,HttpServletResponse response) throws Throwable
+	public RequestLogEntry(Trace trace,RequestMethod requestMethod,String requestContentText,String responseContentText,HttpServletRequest request,HttpServletResponse response) throws Throwable
 	{
 		this.trace=trace;
 		this.requestContentText=requestContentText;
@@ -51,9 +51,9 @@ public class RequestLogEntry
 		this.statusCode=response.getStatus();
 		this.request=request.getMethod()+" "+request.getRequestURI();
 		this.remoteEndPoint=request.getRemoteHost()+":"+request.getRemotePort();
-        this.requestHeaders=WsUtils.getRequestHeaders(request,requestHandler);
+        this.requestHeaders=WsUtils.getRequestHeaders(request,requestMethod);
         this.responseHeaders=WsUtils.getResponseHeaders(response);
-        this.requestParameters=WsUtils.getRequestParameters(request,requestHandler);
+        this.requestParameters=WsUtils.getRequestParameters(request,requestMethod);
 	}
 
 	public Trace getTrace()

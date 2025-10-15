@@ -26,7 +26,7 @@ import org.nova.tracing.Trace;
 public abstract class ContentFilter
 {
     public abstract Response<?> executeNext(Trace trace,Context context,FilterChain filterChain) throws Throwable;
-    public void onRegister(RequestHandler requestHandler)
+    public void onRegister(RequestMethod requestMethod)
     {
     }
 	

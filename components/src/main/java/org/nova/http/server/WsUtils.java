@@ -24,13 +24,13 @@ package org.nova.http.server;
 import java.util.Enumeration;
 import java.util.HashSet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class WsUtils
 {
-	public static String getRequestHeaders(HttpServletRequest request,RequestHandler requestHandler)
+	public static String getRequestHeaders(HttpServletRequest request,RequestMethod requestMethod)
 	{
 		StringBuilder sb=new StringBuilder();
 		Enumeration<String> names=request.getHeaderNames();
@@ -58,12 +58,11 @@ public class WsUtils
 		}
 		return sb.toString();
 	}
-    public static String getRequestParameters(HttpServletRequest request,RequestHandler requestHandler)
+    public static String getRequestParameters(HttpServletRequest request,RequestMethod requestMethod)
     {
-        HttpServletRequestWrapper wrapper;
         StringBuilder sb=new StringBuilder();
         Enumeration<String> names=request.getParameterNames();
-        HashSet<String> hiddenParameters=requestHandler!=null?requestHandler.getHiddenParameters():null;
+        HashSet<String> hiddenParameters=requestMethod!=null?requestMethod.getHiddenParameters():null;
         while (names.hasMoreElements())
         {
             String name=names.nextElement();

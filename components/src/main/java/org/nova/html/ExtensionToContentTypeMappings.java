@@ -42,6 +42,7 @@ public class ExtensionToContentTypeMappings
         mappings.addMappings("image/jpeg", "jpeg","jpg","jpe");
         mappings.addMappings("image/gif", "gif");
         mappings.addMappings("image/png", "png");
+        mappings.addMappings("image/svg+xml", "svg");
         mappings.addMappings("image/bmp", "bmp","bm");
         mappings.addMappings("application/json", "json");
         mappings.addMappings("application/pdf", "pdf");

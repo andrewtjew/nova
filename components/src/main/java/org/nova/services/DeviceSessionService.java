@@ -27,7 +27,7 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
 
-public abstract class DeviceSessionService<SESSION extends DeviceSession> extends ServerApplication
+public abstract class DeviceSessionService<SESSION extends DeviceSession<?>> extends ServerApplication
 {
     final private TokenGenerator tokenGenerator;
     final private SessionManager<SESSION> sessionManager;
@@ -41,6 +41,7 @@ public abstract class DeviceSessionService<SESSION extends DeviceSession> extend
     public DeviceSessionService(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport,AbnormalSessionRequestHandling...sessionRejectResponders) throws Throwable
     {
         super(name,coreEnvironment,operatorTransport);
+        
         long lockTimeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.lockTimeout", 10*1000);
         long timeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.timeout", 30*60*1000);
         int generations=this.getConfiguration().getIntegerValue("SessionServerApplication.session.timeoutGenerations", 10);

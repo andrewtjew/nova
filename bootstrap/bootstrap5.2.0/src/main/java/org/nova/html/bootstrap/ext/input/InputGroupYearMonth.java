@@ -1,16 +1,10 @@
 package org.nova.html.bootstrap.ext.input;
 
-import java.time.LocalDate;
-
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Select;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.tags.option;
-import org.nova.localization.CountryCode;
-import org.nova.localization.CurrencyCode;
-import org.nova.utils.TypeUtils;
 
-public class InputGroupYearMonth extends Item
+public class InputGroupYearMonth extends StyleComponent<InputGroupYearMonth>
 {
     final private String namePrefix;
     final private int baseYear;
@@ -18,6 +12,7 @@ public class InputGroupYearMonth extends Item
 
     public InputGroupYearMonth(String namePrefix,int baseYear,int years,Integer yearValue,Integer monthValue)
     {
+        super("div",null);
         input_group().d(Display.flex);
         this.namePrefix=namePrefix;
         this.baseYear=baseYear;

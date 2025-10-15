@@ -119,19 +119,16 @@ public class AjaxQueryResultWriter extends ContentWriter
 		context.writeContent(sb.toString(), StandardCharsets.UTF_8);
 	}
 
-	@Override
-	public void writeSchema(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    public String writeSchema(Class<?> contentType) throws Throwable
+    {
+        return null;
+    }
 
-	@Override
-	public void writeExample(OutputStream outputStream, Class<?> contentType) throws Throwable
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public String writeExample(Class<?> contentType) throws Throwable
+    {
+        return null;
+    }
 
     @Override
     public Class<?> getContentType()

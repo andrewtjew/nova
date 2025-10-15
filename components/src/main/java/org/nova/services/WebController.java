@@ -39,6 +39,7 @@ import org.nova.http.server.annotations.ContentWriters;
 @ContentEncoders(GzipContentEncoder.class)
 @ContentReaders({JSONContentReader.class,JSONPatchContentReader.class})
 @ContentWriters({JSONContentWriter.class,HtmlRemotingWriter.class,HtmlElementWriter.class,RemoteResponseWriter.class})
+@Deprecated
 public class WebController<SERVICE extends ServerApplication>
 {
 	final protected SERVICE service;

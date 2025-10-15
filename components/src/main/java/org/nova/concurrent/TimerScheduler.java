@@ -21,7 +21,10 @@
  ******************************************************************************/
 package org.nova.concurrent;
 
-//TODO: stats are not threadsafe. Timer code should be executed in its own thread using thread pool
+import java.util.ArrayList;
+import java.util.HashMap;
+
+//TODO: stats are not threadsafe. 
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -48,7 +51,8 @@ public class TimerScheduler
 	}
 	final private Logger logger;
 	final TraceManager traceManager;
-	final private TreeMap<Key, TimerTask> map;
+    final private TreeMap<Key, TimerTask> waitingTasks;
+    final private HashMap<Key, TimerTask> runningTasks;
     final private ExecutorService executorService; 
 
     private AtomicLong number;
@@ -57,12 +61,13 @@ public class TimerScheduler
 
 	public TimerScheduler(TraceManager traceManager, Logger logger) 
 	{
-	    this.executorService=Executors.newCachedThreadPool();
+	    this.executorService=Executors.newVirtualThreadPerTaskExecutor();
 	       
 		this.traceManager = traceManager;
 		this.logger = logger;
 		this.number=new AtomicLong();
-		this.map = new TreeMap<>((Key a, Key b) ->
+		this.runningTasks=new HashMap();
+		this.waitingTasks = new TreeMap<>((Key a, Key b) ->
 		{
 			if (a.due < b.due)
 			{
@@ -121,23 +126,6 @@ public class TimerScheduler
         }
 	}
 	
-    class Runner implements java.lang.Runnable
-    {
-        final TimerTask task;
-
-        Runner(TimerTask task)
-        {
-            this.task=task;
-        }
-
-        @Override
-        public void run()
-        {
-            task.execute();
-        }
-    }
-	
-
 	void run()
 	{
 		for (;;)
@@ -148,7 +136,7 @@ public class TimerScheduler
 				for (;;)
 				{
 					long now=System.currentTimeMillis();
-					entry=this.map.firstEntry();
+					entry=this.waitingTasks.firstEntry();
 					if (entry!=null)
 					{
 						Key key=entry.getKey();
@@ -192,29 +180,44 @@ public class TimerScheduler
 						}
 					}
 				}
+				this.waitingTasks.remove(entry.getKey());
+				this.runningTasks.put(entry.getKey(),entry.getValue());
 			}
-			
-//			this.executorService.submit(
-			        
-			Key key=entry.getValue().execute();
-			synchronized(this)
-			{
-				this.map.remove(entry.getKey());
-				if (key!=null)
-				{
-					this.map.put(key, entry.getValue());
-				}
-			}
+			TimerTask task=entry.getValue();
+			final Key key=entry.getKey();
+	        this.executorService.execute(() -> 
+	        {
+	            task.execute(key);
+	        });
 		}
+	}
+	
+	void reschedule(Key runningKey,Key key,TimerTask task)
+	{
+        synchronized(this)
+        {
+            this.runningTasks.remove(runningKey);
+            this.waitingTasks.put(key, task);
+            this.notifyAll();
+        }
 	}
 	
 	void cancel(Key key)
 	{
 		synchronized(this)
 		{
-			this.map.remove(key);
+            this.runningTasks.remove(key);
+			this.waitingTasks.remove(key);
 		}
 	}
+
+	void end(Key key)
+    {
+        synchronized(this)
+        {
+            this.runningTasks.remove(key);
+        }
+    }
 
 	public TimerTask schedule(String traceCategory,TimeBase timeBase,long offset, long period, TimerRunnable executable) throws Exception
 	{
@@ -227,7 +230,7 @@ public class TimerScheduler
 	    }
 		synchronized(this)
 		{
-			this.map.put(key, timerTask);
+			this.waitingTasks.put(key, timerTask);
 			this.notify();
 		}
 		return timerTask;
@@ -235,10 +238,13 @@ public class TimerScheduler
 	
 	public TimerTask[] getTimerTaskSnapshot()
 	{
+	    ArrayList<TimerTask> tasks=new ArrayList<TimerTask>();
 		synchronized(this)
 		{
-			return this.map.values().toArray(new TimerTask[this.map.size()]);
+            tasks.addAll(this.runningTasks.values());
+            tasks.addAll(this.waitingTasks.values());
 		}
+		return tasks.toArray(new TimerTask[tasks.size()]);
 	}
 	Logger getLogger()
 	{

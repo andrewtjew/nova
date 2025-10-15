@@ -25,13 +25,14 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
 import org.nova.collections.FileCache;
 import org.nova.collections.FileCacheConfiguration;
 import org.nova.configuration.Configuration;
+import org.nova.debug.Debugging;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.Element;
 import org.nova.http.client.BinaryResponse;
@@ -47,7 +48,6 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 

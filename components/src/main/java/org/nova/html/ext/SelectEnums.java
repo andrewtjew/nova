@@ -23,9 +23,9 @@ package org.nova.html.ext;
 
 import java.lang.reflect.Field;
 
-import org.nova.html.attributes.Style;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.option;
 import org.nova.html.tags.select;
 

@@ -4,6 +4,8 @@ import org.nova.html.ext.LocalText;
 
 public abstract class LocalTextResolver
 {
+    final static char DELIMITER ='~';
+    
     protected abstract String translate(LocalText localText);
     
     public String resolve(LocalText localText)
@@ -13,21 +15,21 @@ public abstract class LocalTextResolver
         StringBuilder sb=new StringBuilder();
         for (int index=0;index<text.length();)
         {
-            int start=text.indexOf('~',index);
+            int start=text.indexOf(DELIMITER,index);
             if (start<index)
             {
                 sb.append(text.substring(index));
                 break;
             }
             sb.append(text.substring(index,start));
-            int end=text.indexOf('~',start+1);
+            int end=text.indexOf(DELIMITER,start+1);
             if (end<0)
             {
                 break;
             }
             if (end==start+1)
             {
-                sb.append('~');
+                sb.append(DELIMITER);
                 index=end+1;
                 continue;
             }

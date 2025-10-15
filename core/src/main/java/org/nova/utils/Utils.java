@@ -135,19 +135,27 @@ public class Utils
                 count++;
             }
         }
-        String[] fragments=new String[count];
+        String[] lines=new String[count];
         int begin=0;
         int index=0;
         for (int i=0;i<string.length();i++)
         {
             if (string.charAt(i)=='\n')
             {
-                fragments[index++]=string.substring(begin,i+1);
+                if ((i>0)&&(string.charAt(i-1)=='\r'))
+                {
+                    lines[index++]=string.substring(begin,i-1);
+                }
+                else
+                {
+                    lines[index++]=string.substring(begin,i);
+                }
                 begin=i+1;
             }
         }
-        fragments[index]=string.substring(begin,string.length());
-        return fragments;
+        
+        lines[index]=string.substring(begin,string.length());
+        return lines;
     }
     
 //    public static String[] splitUsingCommaDeprecated(String string,boolean doNotSplitIfNextCharacterIsSpace)
@@ -255,6 +263,19 @@ public class Utils
     {
         StringBuilder sb=new StringBuilder();
         for (byte item:items)
+        {
+            if (sb.length()>0)
+            {
+                sb.append(seperator);
+            }
+            sb.append(item);
+        }
+        return sb.toString();
+    }
+    public static String combine(short[] items,String seperator)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (short item:items)
         {
             if (sb.length()>0)
             {

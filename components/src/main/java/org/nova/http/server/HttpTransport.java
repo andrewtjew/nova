@@ -22,14 +22,21 @@
 package org.nova.http.server;
 
 import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.nova.http.server.WebSocketTransport.TestWebSocket;
+import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public class HttpTransport 
@@ -61,7 +68,7 @@ public class HttpTransport
 
 	public void start() throws Exception
 	{
-	    
+	    Map<String,WebSocketInitializer<?>> webSocketInitializers=this.httpServer.getWebSocketInitializers();
 	    try
 	    {
     		for (Server server:this.servers)
@@ -71,12 +78,58 @@ public class HttpTransport
     	            @Override
     	            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
     	            {
-    	                handleRequest(target, baseRequest, request, response);
+    	                try
+    	                {
+    	                    if (httpServer.handle(target,request, response))
+    	                    {
+    	                        String connection=response.getHeader("Connection");
+    	                        if (TypeUtils.containsIgnoreCase(connection, "keep-alive"))
+    	                        {
+    	                            response.setHeader("Connection", "keep-alive");
+    	                        }
+    	                        baseRequest.setHandled(true);
+    	                    }
+    	                    else
+    	                    {
+    	                        baseRequest.setHandled(false);
+    	                    }
+    	                }
+    	                catch (Throwable t)
+    	                {
+    	                    httpServer.getLogger().log(t);
+    	                    baseRequest.setHandled(true); //Exception implies handler activity.
+    	                }
     	            }
     	        };
-//    	        server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 1000000);
-//    	        server.setAttribute("org.eclipse.jetty.server.Request.maxFormKeys", 10000);
-    			server.setHandler(handler);
+    	        if (webSocketInitializers.size()==0)
+    	        {
+        	        server.setHandler(handler);
+    	        }
+    	        else
+    	        {
+                    HandlerCollection collection=new HandlerCollection(); 
+                    ServletContextHandler servletHandler = new ServletContextHandler(server, "/");
+                    collection.addHandler(handler);
+                    collection.addHandler(servletHandler);
+                    
+                    JettyWebSocketServletContainerInitializer.configure(servletHandler, (servletContext, container) ->
+                    {
+                        // Configure the ServerContainer.
+                        container.setMaxTextMessageSize(128 * 1024);
+
+                        for (var entry:webSocketInitializers.entrySet())
+                        {
+                            container.addMapping(entry.getKey(), (upgradeRequest, upgradeResponse) ->
+                            {
+                                WebSocketInitializer<?> initializer=(WebSocketInitializer<?>)entry.getValue();
+                                return new WebSocketResponder(this.httpServer.getTraceManager(), this.httpServer.getLogger(), initializer);
+                            });
+                        }
+                    });
+                    
+                    server.setHandler(collection);
+    	        }
+    	        
     			server.start();
     		}
 	    }
@@ -90,25 +143,12 @@ public class HttpTransport
 	{
        return this.ports;
     }
- 	
-	public void handleRequest(String string, Request request, HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-			throws IOException, ServletException
-	{
-		try
-		{
-			this.httpServer.handle(servletRequest, servletResponse);
-		}
-		catch (Throwable t)
-		{
-		    this.httpServer.getLogger().log(t);
-		}
-		finally
-		{
-            request.setHandled(true);
-		}
-	}
 
     public void stop() throws Throwable
     {
+        for (Server server:this.servers)
+        {
+            server.stop();
+        }
     }
 }

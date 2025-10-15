@@ -2,8 +2,8 @@ package org.nova.http.server;
 
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 public abstract class DecodingHttpServletRequest extends HttpServletRequestWrapper
 {

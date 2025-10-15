@@ -22,18 +22,22 @@
 package org.nova.html.bootstrap.ext;
 
 
-import org.nova.html.attributes.Size;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
+import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.hr;
+import org.nova.html.properties.*;
 
-public class NameValueList extends Item
+public class NameValueList extends StyleComponent<NameValueList>
 {
-	final private Size nameSize;
+	final private Length_ nameSize;
     final private StyleTemplate nameTemplate;
     final private StyleTemplate valueTemplate;
     final private Integer lineSpace;
@@ -41,31 +45,32 @@ public class NameValueList extends Item
     private int lines;
     
     
-    public NameValueList(Size nameSize,StyleTemplate nameTemplate,Object divider,StyleTemplate valueTemplate,Integer lineSpace)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,Object divider,StyleTemplate valueTemplate,Integer lineSpace)
     {
+        super("div",null);        
     	this.nameSize=nameSize;
         this.nameTemplate=nameTemplate;
         this.valueTemplate=valueTemplate;
         this.lineSpace=lineSpace;
         this.divider=divider;
     }
-    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate,Integer lineSpace)
     {
         this(nameSize,nameTemplate,null,valueTemplate,lineSpace);
     }
-    public NameValueList(Size nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
+    public NameValueList(Length_ nameSize,StyleTemplate nameTemplate,StyleTemplate valueTemplate)
     {
         this(nameSize,nameTemplate,null,valueTemplate,null);
     }
-    public NameValueList(Size nameSize,Integer lineSpace)
+    public NameValueList(Length_ nameSize,Integer lineSpace)
     {
         this(nameSize,null,null,null,lineSpace);
     }
-    public NameValueList(Size nameSize)
+    public NameValueList(Length_ nameSize)
     {
         this(nameSize,null,null,null,null);
     }
-    public NameValueList(Size nameSize,Object divider)
+    public NameValueList(Length_ nameSize,Object divider)
     {
         this(nameSize,null,divider,null,null);
     }
@@ -82,13 +87,14 @@ public class NameValueList extends Item
         if (name instanceof TagElement)
         {
             GlobalEventTagElement<?> tagElement=(GlobalEventTagElement<?>)name;
-            tagElement.style("width:"+this.nameSize.toString()+";white-space:nowrap;");
+            tagElement.style(new width(this.nameSize));
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
         }
         else
         {
         	Label tagElement=new Label().addInner(name);
-            tagElement.style("width:"+this.nameSize.toString()+"!important;white-space:nowrap;");
+            tagElement.style(new width(this.nameSize));
+//            tagElement.style("width:"+this.nameSize.toString()+"!important;white-space:nowrap;");
             row.addInner(StyleTemplate.apply(nameTemplate,tagElement));
         }
         if (divider==null)

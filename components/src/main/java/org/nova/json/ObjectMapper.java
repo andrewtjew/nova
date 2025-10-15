@@ -31,21 +31,25 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.util.AbstractList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.nova.annotations.Alias;
 import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
 
 public class ObjectMapper
 {
     //To support non standard JSON.
     static public boolean PERMIT_ELEMENT_AS_ARRAY=false;
+    static final Options DEFAULT_OPTIONS=new Options();
+    
     
     
     final static private HashMap<String, FieldWriter[]> FIELD_WRITERS=new HashMap<>();
@@ -75,6 +79,37 @@ public class ObjectMapper
         void write(WriteState writeState,Object object)
         {
             writeState.writeEscapedString((String)object);
+        }
+    }
+    static class LocalDateWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            if (object==null)
+            {
+                writeState.writeNull();
+            }
+            else
+            {
+                LocalDate date=(LocalDate)object;
+                writeState.write(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
+            }
+        }
+    }
+    final static private DateTimeFormatter ISO8601_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss:SSS");
+    static class LocalDateTimeWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            if (object==null)
+            {
+                writeState.writeNull();
+            }
+            else
+            {
+                LocalDateTime dateTime=(LocalDateTime)object;
+                writeState.write(ISO8601_DATETIME_FORMATTER.format(dateTime));
+            }
         }
     }
     static class EnumWriter extends  Writer
@@ -173,6 +208,14 @@ public class ObjectMapper
             else if (type == java.lang.Enum.class)
             {
                 writer=new EnumWriter();
+            }
+            else if (type==LocalDate.class)
+            {
+                writer=new LocalDateWriter();
+            }
+            else if (type==LocalDateTime.class)
+            {
+                writer=new LocalDateTimeWriter();
             }
             else if (type == BigDecimal.class)
             {
@@ -665,7 +708,7 @@ public class ObjectMapper
         }
         if (fieldWriters == null)
         {
-            HashMap<String, FieldWriter> map = new HashMap<>();
+            TreeMap<String, FieldWriter> map = new TreeMap<>(); //To confirm to canonical json format, the fields must be sorted by key.
             for (Class<?> c = type; c != null; c = c.getSuperclass())
             {
                 for (Field field : c.getDeclaredFields())
@@ -1608,6 +1651,9 @@ public class ObjectMapper
     }
     static class EnumReader extends Reader
     {
+        @SuppressWarnings({
+                "unchecked", "rawtypes"
+        })
         @Override
         Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
         {
@@ -2036,6 +2082,7 @@ public class ObjectMapper
                             continue;
                         }
                         field.setAccessible(true);
+                  
                         Reader reader=getReader(fieldType);
                         Alias alias=field.getAnnotation(Alias.class);
                         if (alias!=null)
@@ -2058,8 +2105,6 @@ public class ObjectMapper
         return classReader;
     }
 
-    static final Options DEFAULT_OPTIONS=new Options();
-    
     static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type) throws Throwable
     {
         return readObjectFromFile(fileName,type,DEFAULT_OPTIONS);

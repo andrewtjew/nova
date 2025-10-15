@@ -2,31 +2,41 @@
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
 
+import org.nova.collections.ContentCache.ValueSize;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
+import org.nova.metrics.CountMeter;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Row;
 import org.nova.sqldb.RowSet;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
 public class Graph
 {
     static final boolean DEBUG=true;
+    static final boolean DEBUG_UPGRADE=true;
+    static final boolean DEBUG_QUERY=true;
+    static final boolean DEBUG_CACHING=true;
+    static final boolean DEBUG_VERIFY_CACHING=true;
+    static final String DEBUG_CATEGORY=Graph.class.getSimpleName();
+    public static Class<? extends NodeObject> DEBUG_UPGRADETYPE=null;
+
+    static final boolean DEBUG_VERIFY_LINK_QUERY_REFACTORING=true; //This should go away at some point
     
     private int defaultVARCHARLength=45;
     
@@ -57,7 +67,7 @@ public class Graph
                 public SqlType getSqlType() throws Throwable
                 {
                     long value=defaultVARCHARLength;
-                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    MaxLength length=this.field.getDeclaredAnnotation(MaxLength.class);
                     if (length!=null)
                     {
                         value=length.value();
@@ -162,7 +172,9 @@ public class Graph
                 @Override
                 public void set(Object object, String typeName, Row row) throws Throwable
                 {
-                    field.set(object,row.getNullableBIGINT(getColumnName(typeName)));
+                    String columnName=getColumnName(typeName);
+                    Long value=row.getNullableBIGINT(columnName);
+                    field.set(object,value);
                     
                 }
 
@@ -446,7 +458,7 @@ public class Graph
                 public SqlType getSqlType() throws Throwable
                 {
                     long value=defaultVARCHARLength;
-                    Length length=this.field.getDeclaredAnnotation(Length.class);
+                    MaxLength length=this.field.getDeclaredAnnotation(MaxLength.class);
                     if (length!=null)
                     {
                         value=length.value();
@@ -533,13 +545,55 @@ public class Graph
                             {
                                 return null;
                             }
-                            return ((ShortEnummerable)object).getValue();
+                            return ((IntegerEnummerable)object).getValue();
                         }
 
                         @Override
                         public SqlType getSqlType() throws Throwable
                         {
                             return new SqlType("INT",true);
+                        }
+                    };
+                }
+                else if (LongEnummerable.class==interfaceType)
+                {
+                    descriptor=new FieldDescriptor(field)
+                    {
+                        @Override
+                        public void set(Object object, String typeName, Row row) throws Throwable
+                        {
+                            Long value=row.getNullableBIGINT(getColumnName(typeName));
+                            Object enumValue=null;
+                            if (value!=null)
+                            {
+                                for (Object enumConstantObject:type.getEnumConstants())
+                                {
+                                    if (((IntegerEnummerable)enumConstantObject).getValue()==value)
+                                    {
+                                        enumValue=enumConstantObject;
+                                        break;
+                                    }
+                                }
+                            }
+                            field.set(object, enumValue);
+                        }
+
+                        @Override
+                        public Object get(Object object) throws Throwable
+                        {
+                            
+                            object=field.get(object);
+                            if (object==null)
+                            {
+                                return null;
+                            }
+                            return ((LongEnummerable)object).getValue();
+                        }
+
+                        @Override
+                        public SqlType getSqlType() throws Throwable
+                        {
+                            return new SqlType("BIGINT",true);
                         }
                     };
                 }
@@ -583,8 +637,6 @@ public class Graph
         return this.connector;
     }
 
-    
-    
     protected GraphObjectDescriptor register(Class<? extends NodeObject> type) throws Exception
     {
         GraphObjectDescriptor descriptor=null;
@@ -636,7 +688,7 @@ public class Graph
             }
             else
             {
-                throw new Exception(type.getName()+" needs to extend from a subclass of NodeObject.");
+                throw new Exception(type.getName()+" needs to extend from a subclass of Node.");
             }
             
             descriptor = new GraphObjectDescriptor(simpleTypeName,type,objectType,map.values().toArray(new FieldDescriptor[map.size()]));
@@ -653,35 +705,59 @@ public class Graph
         String simpleTypeName=type.getSimpleName();
         return descriptorMap.get(simpleTypeName);
     }
+    protected GraphObjectDescriptor getGraphObjectDescriptor(String simpleTypeName) throws Exception
+    {
+        return descriptorMap.get(simpleTypeName);
+    }
     
+    public String[] getTypes()
+    {
+        return this.descriptorMap.keySet().toArray(new String[this.descriptorMap.size()]);
+    }
     
     final private HashMap<String,GraphObjectDescriptor> descriptorMap=new HashMap<String, GraphObjectDescriptor>();
     final private HashMap<String, FieldDescriptor> columnAccessorMap=new HashMap<>();
     final private Connector connector;
+    final GraphPerformanceMonitor performanceMonitor;
+    final private String catalog;
+
+    static final public CountMeter hits=new CountMeter();
+    static final public CountMeter misses=new CountMeter();
+//    public boolean caching;
+    final private QueryResultSetCache queryResultSetCache;
+    final private CountCache countCache;
+    final private HashMap<String,HashSet<QueryCacheKey>> typeNameQueryKeyCacheSets;
+    final private HashMap<Long,HashSet<String>> nodeTypeNameCacheSets; 
     
-    public Graph(Connector connector)
+    public Graph(Connector connector,String catalog,GraphPerformanceMonitor performanceMonitor) throws Throwable
     {
         this.connector=connector;
+        this.performanceMonitor=performanceMonitor;
+        this.catalog=catalog;
+
+        this.countCache=new CountCache(this);
+        this.queryResultSetCache=new QueryResultSetCache(this);
+        this.typeNameQueryKeyCacheSets=new HashMap<String, HashSet<QueryCacheKey>>();
+        this.nodeTypeNameCacheSets=new HashMap<Long, HashSet<String>>();
     }
     
+    public String getCatalog()
+    {
+        return this.catalog;
+    }
     public Map<String,GraphObjectDescriptor> getGraphObjectDescriptorMap()
     {
         return this.descriptorMap;
     }
     
-    public GraphAccessor openGraphAcessor(Trace parent,String catalog) throws Throwable
+    public GraphAccessor openGraphAcessor(Trace parent) throws Throwable
     {
-        return new GraphAccessor(this,this.connector.openAccessor(parent, null, catalog));
+        return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
+    
 
-    public void setDebugUpgradeWatchType(Class<? extends NodeObject> debugUpgradeWatchType)
-    {
-        this.debugUpgradeType=debugUpgradeWatchType;
-    }
 
-    Class<? extends NodeObject> debugUpgradeType;
-
-    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,String catalog,Class<? extends NodeObject> type) throws Throwable
+    public void upgradeTable(Trace parent,GraphAccessor graphAccessor,Class<? extends NodeObject> type) throws Throwable
     {
         String table=type.getSimpleName();
         GraphObjectDescriptor descriptor=this.register(type);
@@ -689,14 +765,17 @@ public class Graph
         Accessor accessor=graphAccessor.accessor;
         if (accessor.executeQuery(parent,"existTable:"+table,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",table,catalog).getRow(0).getBIGINT(0)==0)
         {
-            StringBuilder sql=new StringBuilder();
+            StringBuilder createTableSql=new StringBuilder();
+            StringBuilder _createTableSql=new StringBuilder();
             if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_id` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`@version` bigint NOT NULL AUTO_INCREMENT,`_id` bigint NOT NULL,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             else
             {
-            	sql.append("CREATE TABLE `"+table+"` (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                createTableSql.append("CREATE TABLE "+descriptor.getTableName()+" (`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
+                _createTableSql.append("CREATE TABLE "+descriptor.getVersionedTableName()+" (`@version` bigint NOT NULL AUTO_INCREMENT,`_nodeId` bigint NOT NULL,`_transactionId` bigint NOT NULL,");
             }
             for (FieldDescriptor columnAccessor:descriptor.fieldDescriptors)
             {
@@ -704,192 +783,537 @@ public class Graph
                 {
                     continue;
                 }
-                sql.append("`"+columnAccessor.getName()+"` ");
-                sql.append(columnAccessor.getSqlType().getSql());
-                sql.append(",");
+                createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
+                _createTableSql.append("`"+columnAccessor.getName()+"` "+columnAccessor.getSqlType().getSql()+",");
             }
             if (TypeUtils.isDerivedFrom(type, IdentityNodeObject.class))
             {
-                sql.append("PRIMARY KEY (`_id`),KEY `index` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`_id`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                _createTableSql.append("PRIMARY KEY (`@version`),KEY `_idIndex` (`_id`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
             else
             {
-                sql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                createTableSql.append("PRIMARY KEY (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                _createTableSql.append("PRIMARY KEY (`@version`),KEY `_nodeIdIndex` (`_nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             }
-            if (DEBUG)
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
             {
-                Debugging.log("Graph",sql);
+                Debugging.log(DEBUG_CATEGORY,createTableSql);
+                Debugging.log(DEBUG_CATEGORY,_createTableSql);
             }
-            accessor.executeUpdate(parent, "createTable:"+table, sql.toString());
+            accessor.executeUpdate(parent, "createTable:"+descriptor.getTableName(), createTableSql.toString());
+            accessor.executeUpdate(parent, "createTable:"+descriptor.getVersionedTableName(), _createTableSql.toString());
         }
         else
         {
             
             RowSet rowSet=accessor.executeQuery(parent,"columnsOfTable:"+table,"SELECT * FROM information_schema.columns WHERE table_name=? AND table_schema=?",table,catalog);
 
-            String after="_transactionId";
-            Stack<String> alters=new Stack<String>();
+            ArrayList<String> alters=new ArrayList<String>();
 
-            if (Graph.DEBUG)
-            {
-                if (type.getSimpleName().equals("AppointmentStatus"))
-                {
-                    Debugging.log("Graph","Catalog="+catalog+", type="+type.getSimpleName());
-                }
-            }
-            int rowIndex=0;
-            int fieldIndex=0;
-            Row[] orderedRows=new Row[rowSet.size()];
+            HashMap<String,Row> tableColumns=new HashMap<String, Row>();
             for (int i=0;i<rowSet.size();i++)
             {
                 Row row=rowSet.getRow(i);
-                int position=(int)row.getBIGINT("ORDINAL_POSITION");
-                orderedRows[position-1]=row;
-            }
-            
-            boolean debug=this.debugUpgradeType==type;
-            
-            while (fieldIndex<descriptor.fieldDescriptors.length)
-            {
-                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
-                if (fieldDescriptor.isInternal())
+                String columnName=row.getVARCHAR("COLUMN_NAME");
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
                 {
-                    fieldIndex++;
-                    rowIndex++;
+                    Debugging.log(DEBUG_CATEGORY,"columnName="+columnName);
+                }
+                if (columnName.startsWith("_"))
+                {
                     continue;
                 }
+                tableColumns.put(columnName, row);
+            }
+            
+            //Pass for when columnName==fieldName.
+            ArrayList<FieldDescriptor> notInTableDescriptors=new ArrayList<FieldDescriptor>();
+            for (int index=0;index<descriptor.fieldDescriptors.length;index++)
+            {
+                FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
                 String fieldName=fieldDescriptor.getName();
+                Row row=tableColumns.remove(fieldName);
                 SqlType fieldSqlType=fieldDescriptor.getSqlType();
-                if (debug)
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE && (DEBUG_UPGRADETYPE==type))
                 {
-                    System.out.println("Field:"+fieldSqlType.getType()+" "+fieldName);
+                    Debugging.log(DEBUG_CATEGORY,"fieldIndex="+index+", field="+fieldSqlType.getType()+" "+fieldName+", exists="+(row!=null));
                 }
-                if (rowIndex<rowSet.size())
+                if (fieldDescriptor.isInternal())
                 {
-                    Row row=orderedRows[rowIndex];
-                    String columnName=row.getVARCHAR("COLUMN_NAME");
-                    if (columnName.equals("_transactionId"))
+                    continue;
+                }
+                if (row!=null)
+                {
+                    String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
+                    Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                    boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+                    if (fieldSqlType.isEqual(dataType, nullable, length)==false)
                     {
-                        rowIndex++;
-                        continue;
-                    }
-                    int compareResult=fieldName.compareTo(columnName);
-                    if (compareResult==0)
-                    {
-                        String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
-                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
-                        boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
-                         if (length==null)
-                         {
-                             
-                         }
-                        if (fieldSqlType.isEqual(dataType, nullable, length)==false)
+                        if (fieldSqlType.isLengthAcceptable(length)==false)
                         {
-                            if (fieldSqlType.isLengthAcceptable(length)==false)
-                            {
-                                throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", field length="+fieldSqlType.getLength()+", db type="+dataType+", db length="+length);
-                            }
-                            alters.push(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql()+" DEFAULT NULL");
+                            throw new Exception("Catalog="+catalog+", type="+type.getSimpleName()+", field="+fieldName+", field type="+fieldSqlType+", field length="+fieldSqlType.getLength()+", db type="+dataType+", db length="+length);
                         }
- 
-                        after=columnName;
-                        fieldIndex++;
-                        rowIndex++;
-                        continue;
-                    }
-                    else if (compareResult<0)
-                    {
-                        fieldIndex++;
-                    }
-                    else
-                    {
-                        after=columnName;
-                        if (rowIndex<=rowSet.size()-1)
-                        {
-                            rowIndex++;
-                            if (DEBUG)
-                            {
-                                Debugging.log("Graph","Unused column: columnName="+columnName+", table="+table);
-                            }
-                            continue;
-                        }
+                        alters.add(" CHANGE COLUMN `"+fieldName+"` `"+fieldName+"` "+fieldSqlType.getSql());
                     }
                 }
                 else
                 {
-                    fieldIndex++;
+                    notInTableDescriptors.add(fieldDescriptor);
+//                    alters.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+after+'`');
                 }
-                alters.push(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+after+'`');
             }
+            
+            //In production, we only allow new columns to be added.
+            
+            //Discover renames. 
+            ArrayList<FieldDescriptor> addFieldDescriptors=new ArrayList<FieldDescriptor>();
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
+            {
+                for (FieldDescriptor fieldDescriptor:notInTableDescriptors)
+                {
+                    String fieldName=fieldDescriptor.getName();
+                    SqlType fieldSqlType=fieldDescriptor.getSqlType();
+                    Row rename=null;
+                    for (Row row:tableColumns.values())
+                    {
+                        String dataType=row.getVARCHAR("DATA_TYPE").toUpperCase();
+                        Long length=row.getNullableBIGINT("CHARACTER_MAXIMUM_LENGTH");
+                        boolean nullable=row.getVARCHAR("IS_NULLABLE").equals("YES");
+                        if (fieldSqlType.isEqual(dataType, nullable, length))
+                        {
+                            if (rename!=null)
+                            {
+                                throw new Exception("Rename conflict: table="+table+", fieldName="+fieldName+", candidates="+row.getVARCHAR("COLUMN_NAME")+", "+rename.getVARCHAR("COLUMN_NAME"));
+                            }
+                            rename=row;
+                        }
+                    }
+                    if (rename!=null)
+                    {
+                        String columnName=rename.getVARCHAR("COLUMN_NAME");
+                        alters.add(" CHANGE COLUMN `"+columnName+"` `"+fieldName+"` "+fieldSqlType.getSql());
+                        tableColumns.remove(columnName);
+                    }
+                    else
+                    {
+                        addFieldDescriptors.add(fieldDescriptor);
+                    }
+                }
+            }
+
+            FieldDescriptor[] inTableFieldFieldDescriptors=new FieldDescriptor[descriptor.fieldDescriptors.length];
+            if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
+            {
+                for (int index=0;index<descriptor.fieldDescriptors.length;index++)
+                {
+                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[index];
+                    boolean inTable=true;
+                    for (FieldDescriptor add:addFieldDescriptors)
+                    {
+                        if (add.getName().equals(fieldDescriptor.getName()))
+                        {
+                            inTable=false;
+                            break;
+                        }
+                    }
+                    if (inTable)
+                    {
+                        inTableFieldFieldDescriptors[index]=fieldDescriptor;
+                    }
+                }
+
+                //Delete columns
+                for (Row row:tableColumns.values())
+                {
+                    String columnName=row.getVARCHAR("COLUMN_NAME");
+                    if (columnName.startsWith("~")||columnName.equals("_nodeId")||columnName.equals("_id"))
+                    {
+                        continue;
+                    }
+                    if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"DROP column="+columnName+", table="+table,LogLevel.WARNING);
+                    }
+                    alters.add(" DROP COLUMN `"+columnName+"`");
+                }
+            }
+            
+            
+            //Add new columns 
+            for (FieldDescriptor addFieldDescriptor:addFieldDescriptors)
+            {
+                String fieldName=addFieldDescriptor.getName();
+                for (int fieldIndex=1;fieldIndex<descriptor.fieldDescriptors.length;fieldIndex++)
+                {
+                    FieldDescriptor fieldDescriptor=descriptor.fieldDescriptors[fieldIndex];
+                    if (fieldName.equals(fieldDescriptor.getName()))
+                    {
+                        for (int inTableIndex=fieldIndex-1;inTableIndex>=0;inTableIndex--)
+                        {
+                            FieldDescriptor inTableFieldDescriptor=inTableFieldFieldDescriptors[inTableIndex];
+                            if (inTableFieldDescriptor!=null)
+                            {
+                                String columnName=inTableIndex>0?inTableFieldDescriptor.getName():"_transactionId";
+                                SqlType fieldSqlType=addFieldDescriptor.getSqlType();
+                                alters.add(" ADD COLUMN `"+fieldName+"` "+fieldSqlType.getSql()+" AFTER `"+columnName+'`');
+                                inTableFieldFieldDescriptors[fieldIndex]=fieldDescriptor;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (alters.size()>0)
             {
                 StringBuilder sql=new StringBuilder("ALTER TABLE `"+catalog+"`."+descriptor.getTableName());
-                sql.append(alters.pop());
-                while (alters.size()>0)
+                for (int i=0;i<alters.size();i++)
                 {
-                    sql.append(','+alters.pop());
-                    
+                    if (i>0)
+                    {
+                        sql.append(',');
+                    }
+                    sql.append(alters.get(i));
                 }
                 sql.append(';');
-                if (DEBUG)
+                if (Debug.ENABLE && DEBUG && DEBUG_UPGRADE)
                 {
-                    Debugging.log("Graph",sql);
+                    Debugging.log(DEBUG_CATEGORY,sql);
                 }
-                accessor.executeUpdate(parent, "alterTable:"+table, sql.toString());
+                accessor.executeUpdate(parent, null , sql.toString());
+                String _sql=sql.toString().replace(descriptor.getTableName(),descriptor.getVersionedTableName());
+                accessor.executeUpdate(parent, null , _sql.toString());
             }
         }
     }
 
-    public void createCatalog(Trace parent,String catalog) throws Throwable
+    private static void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
     {
-        try (Accessor accessor=this.connector.openAccessor(parent))
+        if (accessor.executeQuery(parent,"existTable:"+tableName
+                ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",tableName,catalog).getRow(0).getBIGINT(0)==0)
+        {
+            accessor.executeUpdate(parent, "createTable:"+tableName,sql);
+        }
+        
+    }
+    
+    public static void setup(Trace parent,Connector connector,String catalog) throws Throwable
+    {
+        try (Accessor accessor=connector.openAccessor(parent))
         {
             if (accessor.executeQuery(parent,"existCatalog:"+catalog,"SELECT count(*) FROM information_schema.schemata WHERE SCHEMA_NAME=?",catalog).getRow(0).getBIGINT(0)==0)
             {
                 accessor.executeUpdate(parent, "createCatalog:"+catalog,"CREATE DATABASE `"+catalog+'`');
             }
         }
-        try (Accessor accessor=this.connector.openAccessor(parent,null,catalog))
+        try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
-            if (accessor.executeQuery(parent,"existTable:_transaction"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_transaction",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                accessor.executeUpdate(parent, "createTable:_transaction"
-                        ,"CREATE TABLE `_transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
-            }
+            createTable(parent,accessor,catalog,"@transaction"
+                    ,"CREATE TABLE `@transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@node"
+                    ,"CREATE TABLE `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@nodetype"
+                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` varchar(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@link"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@deletednode"
+                    ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
 
-            if (accessor.executeQuery(parent,"existTable:_link"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_link",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                
-                
-                accessor.executeUpdate(parent, "createTable:_link"
-                        ,"CREATE TABLE `_link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relationValue` bigint DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relationValue`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relationValue`,`toNodeType`,`nodeId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
-            }
+            createTable(parent,accessor,catalog,"@deletedlink"
+                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+                    );
+            
+            createTable(parent,accessor,catalog,"@version"
+                    ,"CREATE TABLE `@version` (`id` bigint NOT NULL,`created` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
 
-            if (accessor.executeQuery(parent,"existTable:_node"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
-            {
-                accessor.executeUpdate(parent, "createTable:_node"
-                        ,"CREATE TABLE `_node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
+            createTable(parent,accessor,catalog,"@array"
+                    ,"CREATE TABLE `@array` (`elementId` bigint NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL,KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@deletedarray"
+                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT ,`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+                    );
+            createTable(parent,accessor,catalog,"@deletedelement"
+                    ,"CREATE TABLE `@deletedelement` (`version` bigint NOT NULL,`elementId` bigint NULL,`index` int NULL) ENGINE=InnoDB;"
+                    );
+
             }
-            if (accessor.executeQuery(parent,"existTable:_array"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_array",catalog).getRow(0).getBIGINT(0)==0)
+    }
+    
+    ValueSize<QueryResultSet> getFromCache(QueryCacheKey key) throws Throwable
+    {
+        if (this.performanceMonitor.caching==false)
+        {
+            return null;
+        }
+        synchronized(this)
+        {
+            ValueSize<QueryResultSet> valueSize=this.queryResultSetCache.getFromCache(key);
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
             {
-                accessor.executeUpdate(parent, "createTable:_array"
-                        ,"CREATE TABLE `_array` (`elementId` bigint NOT NULL,`arrayId` bigint NOT NULL,`index` int NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
+                if (valueSize==null)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache miss:"+key.preparedQuery.sql);
+                }
+                else
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache hit: "+key.preparedQuery.sql);
+                }
             }
-            if (accessor.executeQuery(parent,"existTable:_version"
-                    ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?","_node",catalog).getRow(0).getBIGINT(0)==0)
+            if (valueSize!=null)
             {
-                accessor.executeUpdate(parent, "createTable:_version"
-                        ,"CREATE TABLE `_version` (`version` varchar(50) NOT NULL,PRIMARY KEY (`version`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-                        );
+                this.hits.increment();
+            }
+            else
+            {
+                this.misses.increment();
+            }
+            return valueSize;
+        }
+    }
+    @SuppressWarnings("unused")
+    void updateQueryResultSetCache(Trace parent,QueryCacheKey key,QueryResultSet queryResultSet,long duration) throws Throwable
+    {
+        this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
+        
+        synchronized(this)
+        {
+            if (this.performanceMonitor.caching==false)
+            {
+                return;
+            }
+            
+            int size=0;
+            for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
+            {
+                String typeName=namespaceDescriptor.descriptor().getTypeName();
+                HashSet<QueryCacheKey> typeNameQueryKeyCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                
+                if (typeNameQueryKeyCacheSet==null)
+                {
+                    typeNameQueryKeyCacheSet=new HashSet<QueryCacheKey>();
+                    this.typeNameQueryKeyCacheSets.put(typeName,typeNameQueryKeyCacheSet);
+                }
+                typeNameQueryKeyCacheSet.add(key);
+                String table=namespaceDescriptor.getNamespaceTypeName();
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache:table="+table+",added in set:"+key.preparedQuery.sql+":"+typeNameQueryKeyCacheSet.size());
+                }
+                for (QueryResult result:queryResultSet.results)
+                {
+                    Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
+                    if (nodeId!=null)
+                    {
+                        HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(nodeId);
+                        if (nodeTypeNameCacheSets==null)
+                        {
+                            nodeTypeNameCacheSets=new HashSet<String>();
+                            this.nodeTypeNameCacheSets.put(nodeId, nodeTypeNameCacheSets);
+                        }
+                        nodeTypeNameCacheSets.add(typeName);
+                        if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                        {
+                            Debugging.log(DEBUG_CATEGORY,"Cache:added nodeId="+nodeId+",type="+typeName);
+                        }
+                    }
+                }
+            }
+            this.queryResultSetCache.put(parent,key, new ValueSize<QueryResultSet>(queryResultSet,size));
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql);
             }
         }
     }
+    void invalidateCacheLines(Trace parent,GraphObjectDescriptor...descriptors) throws Throwable
+    {
+        synchronized(this)
+        {
+            if (this.performanceMonitor.caching==false)
+            {
+                return;
+            }
+            for (var descriptor:descriptors)
+            {
+                if (descriptor!=null)
+                {
+                    invalidateCacheLines(parent,descriptor.getTypeName());
+                }
+                    
+            }
+        }
+    }
+
+    private void invalidateCacheLines(Trace parent,String typeName) throws Throwable
+    {
+        var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
+        if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+        {
+            Debugging.log(DEBUG_CATEGORY,"Cache:invalidate cached table "+typeName);
+        }
+        if (typeNameCacheSet!=null)
+        {
+            for (QueryCacheKey key:typeNameCacheSet)
+            {
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: sql="+key.preparedQuery.sql);
+                }
+                QueryResultSet resultSet=this.queryResultSetCache.remove(key);
+                evictCacheSets(parent,key,resultSet);
+            }
+        }
+    }
+    void invalidateCacheLines(Trace parent,long nodeId) throws Throwable
+    {
+        synchronized(this)
+        {
+            this.countCache.clear();
+            var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+            if (typeNameSet!=null)
+            {
+                for (String typeName:typeNameSet.toArray(new String[typeNameSet.size()]))
+                {
+                    if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
+                    }
+                    invalidateCacheLines(parent,typeName);
+                }
+            }
+        }
+    }
+    void evictCacheSets(Trace parent, QueryCacheKey key,QueryResultSet queryResultSet) throws Throwable
+    {
+        for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
+        {
+            String typeName=namespaceDescriptor.descriptor().getTypeName();
+            HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+            if (typeNameCacheSet!=null)
+            {
+                typeNameCacheSet.remove(key);
+                if (typeNameCacheSet.size()==0)
+                {
+                    this.typeNameQueryKeyCacheSets.remove(typeName);
+                }
+            }
+            if (queryResultSet!=null)
+            {
+                String table=namespaceDescriptor.getNamespaceTypeName();
+                for (QueryResult result:queryResultSet.results)
+                {
+                    Long nodeId=result.row.getNullableBIGINT(table+"._nodeId");
+                    if (nodeId!=null)
+                    {
+                        HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+                        if (typeNameSet!=null)
+                        {
+                            typeNameSet.remove(typeName);
+                            if (typeNameSet.size()==0)
+                            {
+                                this.nodeTypeNameCacheSets.remove(nodeId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void clearCache()
+    {
+        synchronized(this)
+        {
+            this.typeNameQueryKeyCacheSets.clear();
+            this.nodeTypeNameCacheSets.clear();
+            this.queryResultSetCache.clear();
+            this.countCache.clear();
+        }
+    }
+//    public void setCaching(boolean caching)
+//    {
+//        synchronized(this)
+//        {
+//            this.performanceMonitor.caching=caching;
+//            if (caching==false)
+//            {
+//                clearCache();
+//            }
+//        }
+//    }
+    public GraphPerformanceMonitor getPerformanceCollector()
+    {
+        return this.performanceMonitor;
+    }
+    ValueSize<Long> getFromCountCache(QueryCacheKey key) throws Throwable
+    {
+        synchronized(this)
+        {
+            ValueSize<Long> valueSize=this.countCache.getFromCache(key);
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                if (valueSize==null)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache:not found : "+key.preparedQuery.sql);
+                }
+                else
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache:found     : "+key.preparedQuery.sql);
+                }
+            }
+            if (valueSize!=null)
+            {
+                this.hits.increment();
+            }
+            else
+            {
+                this.misses.increment();
+            }
+            return valueSize;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    void updateCountCache(Trace parent,QueryCacheKey key,long count,long duration) throws Throwable
+    {
+        this.performanceMonitor.updateSlowQuery(duration, getCatalog(),key);
+        
+        synchronized(this)
+        {
+            if (this.performanceMonitor.caching==false)
+            {
+                return;
+            }
+            
+            for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
+            {
+                String typeName=namespaceDescriptor.descriptor().getTypeName();
+                HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.get(typeName);
+                
+                if (typeNameCacheSet==null)
+                {
+                    typeNameCacheSet=new HashSet<QueryCacheKey>();
+                    this.typeNameQueryKeyCacheSets.put(typeName,typeNameCacheSet);
+                }
+                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Cache:added in set:"+key.preparedQuery.sql+",size="+typeNameCacheSet.size());
+                }
+                typeNameCacheSet.add(key);
+            }
+            this.countCache.put(parent,key, new ValueSize<Long>(count));
+            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql+",count="+count+",size="+this.countCache.size());
+            }
+        }
+    }
+    
 }

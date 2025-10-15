@@ -35,16 +35,14 @@ public class TableHead extends StyleComponent<TableHead>
         returnAddInner(new TableHeadRow()).add(objects);
     }
     
-    public TableHead addRowWithStyle(StyleTemplate template,Object...objects)
+    public TableHeadRow addRowWithStyle(StyleTemplate template,Object...objects)
     {
-        returnAddInner(new TableHeadRow()).addWithStyle(template, objects);
-        return this;
+        return returnAddInner(new TableHeadRow()).addWithStyle(template, objects);
     }
 
-    public TableHead addRow(Object...objects)
+    public TableHeadRow addRow(Object...objects)
     {
-        returnAddInner(new TableHeadRow()).add(objects);
-        return this;
+        return returnAddInner(new TableHeadRow()).add(objects);
     }
     
     public TableHead color(ThemeColor color)

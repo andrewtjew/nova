@@ -30,8 +30,14 @@ import org.nova.html.elements.Element;
 import org.nova.html.operator.MoreButton;
 import org.nova.html.operator.NameValueList;
 import org.nova.html.operator.TableRow;
+import org.nova.html.tags.button_button;
+import org.nova.html.tags.button_submit;
+import org.nova.html.tags.form_post;
 import org.nova.html.tags.hr;
+import org.nova.html.tags.p;
 import org.nova.html.elements.HtmlElementWriter;
+import org.nova.html.ext.HtmlUtils;
+import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.Redirect;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
@@ -40,11 +46,13 @@ import org.nova.http.server.GzipContentEncoder;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
+import org.nova.http.server.Response;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.GET;
+import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.metrics.RateSample;
@@ -113,16 +121,6 @@ public class SessionOperatorPages<SESSION extends Session>
     public Element getSession(Trace parent,@QueryParam("token") String token) throws Exception, Throwable
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("Session Info");
-        /*
-        OperatorTable table=page.content().returnAddInner(new ServerOperatorPages.OperatorTable(page.head()));
-        table.setHeadRow(new Row().add("Name","Value"));
-        
-        SESSION session= this.sessionManager.getSessionByToken(token);
-        for (NameObject item:session.getDisplayItems())
-        {
-            table.addBodyRow(new Row().add(item.getName(),item.getValue()));
-        }
-        */
         SESSION session= this.sessionManager.getSessionByToken(token);
         if (session==null)
         {
@@ -134,7 +132,19 @@ public class SessionOperatorPages<SESSION extends Session>
         {
             list.add(item.getName(),item.getValue());
         }
+        page.content().returnAddInner(new p());
+        form_post form=page.content().returnAddInner(new form_post()).action("/operator/session/delete");
+        form.returnAddInner(new InputHidden("token",token));
+        button_submit button=form.returnAddInner(new button_submit()).addInner("Delete");
         return page;
+    }   
+
+    @POST
+    @Path("/operator/session/delete")
+    public void deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
+    {
+        this.sessionManager.removeSession(parent, token);
+        context.seeOther("/operator/sessions");
     }   
 
 }

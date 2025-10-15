@@ -292,6 +292,7 @@ public class CSharpClassWriter
                     writeComments(sb, indentLevel + 1, "// ***Application error***", columns);
                     writeComments(sb, indentLevel + 1, "// Unable to generate description for this field!", columns);
                 }
+                @SuppressWarnings("rawtypes")
                 Enum e=(Enum)enumValue;
                 String name=e.name();
                 String toString=e.toString();

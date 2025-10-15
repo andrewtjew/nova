@@ -251,6 +251,9 @@ public class Parameters
                         + method.getName());
             }
         }
+        @SuppressWarnings({
+                "unchecked", "rawtypes"
+        })
         public Object getDefaultValue(Method method, DefaultValue defaultValue, Class<?> type) throws Exception
         {
             if (defaultValue == null)

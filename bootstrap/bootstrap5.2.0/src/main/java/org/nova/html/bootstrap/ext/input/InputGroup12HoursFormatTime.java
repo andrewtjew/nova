@@ -1,17 +1,11 @@
 package org.nova.html.bootstrap.ext.input;
 
-import java.time.LocalDate;
-
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.Select;
+import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.tags.option;
-import org.nova.localization.CountryCode;
-import org.nova.localization.CurrencyCode;
-import org.nova.utils.TypeUtils;
 
-public class InputGroup12HoursFormatTime extends Item
+public class InputGroup12HoursFormatTime extends StyleComponent<InputGroup12HoursFormatTime>
 {
     final private String namePrefix;
     final int minuteStep;
@@ -19,6 +13,7 @@ public class InputGroup12HoursFormatTime extends Item
 
     public InputGroup12HoursFormatTime(String namePrefix,int minuteStep,Integer secondStep,Integer hourValue,Integer minuteValue,Integer secondValue)
     {
+        super("div",null);
         input_group().d(Display.flex);
         this.minuteStep=minuteStep;
         this.secondStep=secondStep;

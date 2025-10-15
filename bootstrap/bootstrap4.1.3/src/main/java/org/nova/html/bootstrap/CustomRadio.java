@@ -53,5 +53,9 @@ public class CustomRadio extends InputComponent<CustomRadio>
         }
         return attr("value",value.toString());
     }
+    public CustomRadio required()  //text, search, url, tel, email, password, date pickers, number, checkbox, radio, and file.
+    {
+        return attr("required");
+    }
     
 }

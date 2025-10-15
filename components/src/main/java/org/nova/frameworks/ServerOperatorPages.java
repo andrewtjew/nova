@@ -45,9 +45,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.HttpClient;
 import org.eclipse.jetty.http.HttpStatus;
@@ -58,19 +58,19 @@ import org.nova.concurrent.Progress;
 import org.nova.concurrent.TimerTask;
 import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.flow.Tapper;
 import org.nova.html.tags.a;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.div;
-import org.nova.html.tags.em;
 import org.nova.html.tags.fieldset;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
-import org.nova.html.tags.i;
 import org.nova.html.tags.input_checkbox;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
@@ -114,29 +114,24 @@ import org.nova.http.server.JSONPatchContentReader;
 import org.nova.http.server.ParameterInfo;
 import org.nova.http.server.ParameterSource;
 import org.nova.http.server.Queries;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.RequestHandlerNotFoundLogEntry;
 import org.nova.http.server.RequestLogEntry;
 import org.nova.http.server.Response;
 import org.nova.http.server.TypeScriptClassWriter;
 import org.nova.http.server.HtmlContentWriter;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.unit;
 import org.nova.html.deprecated.th_title;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.elements.NodeElement;
-import org.nova.html.elements.QuotationMark;
 import org.nova.html.enums.http_equiv;
-import org.nova.html.ext.Page;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.Head;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.Page;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.Refresher;
 import org.nova.html.ext.SelectEnums;
@@ -168,9 +163,12 @@ import org.nova.html.operator.TableHeader;
 import org.nova.html.operator.TableRow;
 import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
-import org.nova.html.remote.RemoteResponse;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 import org.nova.html.remote.RemoteResponseWriter;
-import org.nova.html.remoting.Inputs;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
@@ -212,11 +210,10 @@ import org.nova.metrics.ThreadExecutionProfiler;
 import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
 import org.nova.operations.OperatorVariable;
-import org.nova.operations.Status;
-import org.nova.operations.ValidationResult;
 import org.nova.operations.VariableInstance;
 import org.nova.security.Vault;
-import org.nova.testing.Debugging;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 import org.nova.tracing.CategorySample;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -244,6 +241,18 @@ public class ServerOperatorPages
         }
     }
 
+    static public class ClipTitleText extends td
+    {
+        public ClipTitleText(String text)
+        {
+            this.style("width:300px;");
+             div div=this.returnAddInner(new div()).addInner(text);
+             div.style("overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:300px;");
+             div.title(text);
+            this.onclick(HtmlUtils.js_writeTextToClipboard(text));
+        }
+    }
+
     static public class WideTable extends Table
     {
         public WideTable(Head head)
@@ -253,29 +262,24 @@ public class ServerOperatorPages
         }
     }
     final static LiteralHtml WARNING=new LiteralHtml("&#9888;");
-    
-    public final ServerApplication serverApplication;
-
-    @org.nova.operations.OperatorVariable(description = "Sampling duration (seconds)", minimum = "0.1")
-    private double rateSamplingDuration = 10;
-
-    @org.nova.operations.OperatorVariable(description = "cache max-age in (seconds)", minimum = "1")
-    private int cacheMaxAge = 300;
-
-    @OperatorVariable(description = "cache control value returned to client other than max-age (e.g.: no-transform, public)")
-    private String cacheControlValue = "public";
     final private FileCache fileCache;
 
-    public ServerOperatorPages(ServerApplication serverApplication,String namespace) throws Throwable
+    public final ServerApplication serverApplication;
+
+    @OperatorVariable(description = "Sampling duration (seconds)", minimum = "0.1")
+    private double rateSamplingDuration;
+
+    @OperatorVariable(description="Client namespace")
+    String namespace;
+    
+    public ServerOperatorPages(ServerApplication serverApplication) throws Throwable
     {
         Configuration configuration=serverApplication.getConfiguration();
         FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
         this.fileCache=new FileCache(fileCacheConfiguration);
-        
-        this.namespace=namespace;
-        this.rateSamplingDuration = serverApplication.getConfiguration().getDoubleValue("ServerOperatorPages.meters.rateSamplingDuration", 10);
-        this.cacheMaxAge = serverApplication.getConfiguration().getIntegerValue("ServerOperatorPages.cache.maxAgeS", 300);
-        this.cacheControlValue = serverApplication.getConfiguration().getValue("ServerOperatorPages.cache.controlValue", "public");
+
+        this.namespace=configuration.getValue(this.getClass().getSimpleName()+".namespace", null);
+        this.rateSamplingDuration = configuration.getDoubleValue(this.getClass().getSimpleName()+".meters.rateSamplingDuration", 10);
         this.serverApplication = serverApplication;
 
         MenuBar menuBar=serverApplication.getMenuBar();
@@ -357,11 +361,11 @@ public class ServerOperatorPages
         menuBar.add("/operator/httpServer/methods/operator","Servers","Operator","Methods");
         menuBar.add("/operator/httpServer/classDefinitions/operator","Servers","Operator","Class Definitions");
 
-//        menuBar.add("/operator/variables/view","Variables","View");
-//        menuBar.add("/operator/variables/modify","Variables","Modify");
+        menuBar.add("/operator/variables/view","Variables","View");
+        menuBar.add("/operator/variables/modify","Variables","Modify");
 
-        serverApplication.getOperatorVariableManager().register(serverApplication.getTraceManager());
-        serverApplication.getOperatorVariableManager().register(this);
+        serverApplication.getOperatorVariableManager().register(null,serverApplication.getTraceManager());
+        serverApplication.getOperatorVariableManager().register(null,this);
     }
 
     @GET
@@ -619,12 +623,15 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
             RecentSourceEventSample sample=entry.getValue().sample();
-            SourceEvent event=sample.getEvents().get(0);
+            SourceEvent event=sample.getEvents().getLast();
             Object state=event.getState();
             String type=state!=null?state.getClass().getSimpleName():"";
 
             row.add(entry.getKey());
-            row.add(new TitleText(state!=null?state.toString():"",80));
+            String stateText=state!=null?state.toString():"";
+            td td=new td().addInner(new TitleText(stateText,80));
+            td.onclick(HtmlUtils.js_call("navigator.clipboard.writeText", stateText));
+            row.add(td);
             row.add(type,DateTimeUtils.toSystemDateTimeString(event.getInstantMs()),event.getStackTrace()[event.getStackTraceStartIndex()].toString(),sample.getCount());
             table.addRow(row);
         }
@@ -1386,12 +1393,12 @@ public class ServerOperatorPages
     }
     */
     
-    static String format_3(double value)
+    public static String format_3(double value)
     {
         return String.format("%.3f", value);
     }
     
-    static String format_2(double value)
+    public static String format_2(double value)
     {
         return String.format("%.2f", value);
     }
@@ -1465,7 +1472,7 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
    //         row.add("&#128462;");
-            row.add(new TitleText(sample.getCategory(),80));
+            row.add(new ClipTitleText(sample.getCategory()));
             writeTraceSample(detector,row,sample.getSample());
             String location=new PathAndQuery("./trace").addQuery("category", sample.getCategory()).toString();
             row.add(new RightMoreLink(page.head(),location));
@@ -1952,7 +1959,7 @@ public class ServerOperatorPages
         header.add(new th_title("Ct","Sample count"));
 
         header.add(new th_title(new LiteralHtml("Tot&#x23F1;"),"Total trace duration in category in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Ave0rage trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Ave&#x23F1;"),"Average trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("Std &#x23F1;"),"Standard deviation of trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("min&#x23F1;"),"Minimum trace duration in milliseconds"));
         header.add(new th_title(new LiteralHtml("max&#x23F1;"),"Maximum trace duration in milliseconds"));
@@ -1966,8 +1973,8 @@ public class ServerOperatorPages
         header.add(new th_title(new LiteralHtml("&#9888;"),"Exception count and rate (in popup)"));
     }
     
-    static final Style ATTENTION_STYLE=new Style().background_color(Color.rgb(255, 255, 192));
-    static final Style EXCEPTION_STYLE=new Style().background_color(Color.rgb(255, 216, 216));
+    static final Style ATTENTION_STYLE=new Style().background_color(Color_.rgb(255, 255, 192));
+    static final Style EXCEPTION_STYLE=new Style().background_color(Color_.rgb(255, 216, 216));
     void writeTraceSample(SlowTraceSampleDetector detector,TableRow row,TraceSample sample)
     {
         row.add(format_2(sample.getRate()));
@@ -2335,10 +2342,6 @@ public class ServerOperatorPages
         }
 
     }
-    
-    
-    
-    
     private div formatNsToMsWithInstantMsAsDiv(long ns,long instantMs)
     {
         double ms=ns/1.0e6;
@@ -2352,7 +2355,7 @@ public class ServerOperatorPages
     private void writeTraceSample(Head head,NodeElement<?> content,TraceSample sample) throws Exception
     {
         Panel3 panel=content.returnAddInner(new Panel3(head,"Stats"));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length_(20,Unit_.em)));
         list.add("Rate", String.format("%.3f", sample.getRate())+" per second");
         list.add("Count", sample.getCount());
         list.add("Average Duration", divFormatNsToMs(sample.getAverageDurationNs()));
@@ -2400,7 +2403,7 @@ public class ServerOperatorPages
     static public void writeTrace(Head head,NodeElement<?> content,String title,Trace trace) throws Exception
     {
         Panel4 panel=content.returnAddInner(new Panel4(head,title));
-        NameValueList list=panel.content().returnAddInner(new NameValueList(new Size(20,unit.em)));
+        NameValueList list=panel.content().returnAddInner(new NameValueList(new Length_(20,Unit_.em)));
         list.add("Number",trace.getNumber());
         list.add("Category",trace.getCategory());
         list.add("Thread (id:name)", trace.getThread().getId()+":"+trace.getThread().getName());
@@ -2740,8 +2743,8 @@ public class ServerOperatorPages
         infoTable.addRow(DOUBLE_FORMAT.format(sample.getRate()),sample.getSamples());
         
         page.content().addInner(new p());
-        Panel requestHandlerPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
-        OperatorDataTable table=requestHandlerPanel.content().returnAddInner(new OperatorTable(page.head()));
+        Panel requestMethodPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestMethods"));
+        OperatorDataTable table=requestMethodPanel.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method")
             .add(new th_title("Count","Number of requests in last sample"))
@@ -2755,21 +2758,21 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         HashMap<String,Map<Integer, LongValueSample>> statusResults=new HashMap<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueSample> results = requestHandler.sampleStatusMeters();
+            Map<Integer, LongValueSample> results = requestMethod.sampleStatusMeters();
             for (LongValueSample result : results.values())
             {
                 totalAll += result.getTotal();
                 totalCount += result.getSamples();
             }
-            statusResults.put(requestHandler.getKey(),results);
+            statusResults.put(requestMethod.getKey(),results);
         }
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueSample> results = statusResults.get(requestHandler.getKey());
+            Map<Integer, LongValueSample> results = statusResults.get(requestMethod.getKey());
             long total = 0;
             long count = 0;
             double rate = 0;
@@ -2781,14 +2784,14 @@ public class ServerOperatorPages
             }
 
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod() + " " + requestHandler.getPath())
+            row.add(requestMethod.getHttpMethod() + " " + requestMethod.getPath())
             .add(buildCountRatio(100, count,totalCount))
             .add(buildDurationRatio(100,(long)(total/1.0e6),(long)(totalAll/1.0e6)))
             .add(count > 0 ? DOUBLE_FORMAT.format(total / (1.0e6 * count)) : 0)
             .add(DOUBLE_FORMAT.format(rate))
-            .add(requestHandler.getRequestUncompressedContentSizeMeter().sample().getWeightedAverage(0))
-            .add(requestHandler.getResponseUncompressedContentSizeMeter().sample().getWeightedAverage());
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            .add(requestMethod.getRequestUncompressedContentSizeMeter().sample().getWeightedAverage(0))
+            .add(requestMethod.getResponseUncompressedContentSizeMeter().sample().getWeightedAverage());
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestMethod.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
             
         }
@@ -2808,8 +2811,8 @@ public class ServerOperatorPages
         infoTable.addRow(DOUBLE_FORMAT.format(sample.getRate()),sample.getSamples());
         
         page.content().addInner(new p());
-        Panel requestHandlerPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
-        OperatorDataTable table=requestHandlerPanel.content().returnAddInner(new OperatorTable(page.head()));
+        Panel requestMethodPanel=page.content().returnAddInner(new Panel2(page.head(),"RequestHandlers"));
+        OperatorDataTable table=requestMethodPanel.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method")
             .add(new th_title("Count","Count of total requests"))
@@ -2826,21 +2829,21 @@ public class ServerOperatorPages
 
         double totalAll = 0;
         long totalCount = 0;
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         HashMap<String,Map<Integer, LongValueMeter>> statusResults=new HashMap<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            Map<Integer, LongValueMeter> results = requestHandler.getStatusMeters();
+            Map<Integer, LongValueMeter> results = requestMethod.getStatusMeters();
             for (LongValueMeter result : results.values())
             {
                 totalAll += result.getTotal();
                 totalCount += result.getTotalCount();
             }
-            statusResults.put(requestHandler.getKey(),results);
+            statusResults.put(requestMethod.getKey(),results);
         }
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requesMethodHandler : requestMethods)
         {
-            Map<Integer, LongValueMeter> results = statusResults.get(requestHandler.getKey());
+            Map<Integer, LongValueMeter> results = statusResults.get(requesMethodHandler.getKey());
             long total = 0;
             long count = 0;
             for (LongValueMeter result : results.values())
@@ -2848,11 +2851,11 @@ public class ServerOperatorPages
                 total += result.getTotal();
                 count += result.getTotalCount();
             }
-            LongValueSample requestSample=requestHandler.getRequestUncompressedContentSizeMeter().sample();
-            LongValueSample responseSample=requestHandler.getResponseUncompressedContentSizeMeter().sample();
+            LongValueSample requestSample=requesMethodHandler.getRequestUncompressedContentSizeMeter().sample();
+            LongValueSample responseSample=requesMethodHandler.getResponseUncompressedContentSizeMeter().sample();
 
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod() + " " + requestHandler.getPath())
+            row.add(requesMethodHandler.getHttpMethod() + " " + requesMethodHandler.getPath())
             .add(buildCountRatio(100, count,totalCount))
             .add(buildDurationRatio(100,(long)(total/1.0e6),(long)(totalAll/1.0e6)))
             .add(count > 0 ? DOUBLE_FORMAT.format(total / (1.0e6 * count)) : 0);
@@ -2883,7 +2886,7 @@ public class ServerOperatorPages
                 
             }
             
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requesMethodHandler.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
             
         }
@@ -3253,6 +3256,12 @@ public class ServerOperatorPages
             Panel panel=page.content().returnAddInner(new Panel3(page.head(),title));
             writeTrace(page.head(),panel.content(),trace,true);
             writeHeaders(page.head(),"Request Headers",panel.content(),entry.getRequestHeaders());
+//            private void writeContent(Head head,String heading,NodeElement<?> content,String text,String contentType)
+
+            if (entry.getContent()!=null)
+            {
+                writeContent(page.head(),"Content", panel.content(), entry.getContent(),null);
+            }
         }
         return page;
     }
@@ -3262,20 +3271,20 @@ public class ServerOperatorPages
     public Element status(@PathParam("server") String server) throws Throwable
     {
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler[] requestHandlers = httpServer.getRequestHandlers();
+        RequestMethod[] requestMethods = httpServer.getRequestMethods();
         OperatorPage page=buildServerOperatorPage("Server Status",server,null);
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         TableHeader header=new TableHeader();
         header.add("Method","Path","200","300","400","500","");
         table.setHeader(header);
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
             HashMap<Integer, Long> statusCodes = new HashMap<>();
             statusCodes.put(200, 0L);
             statusCodes.put(300, 0L);
             statusCodes.put(400, 0L);
             statusCodes.put(500, 0L);
-            Map<Integer, LongValueSample> results = requestHandler.sampleStatusMeters();
+            Map<Integer, LongValueSample> results = requestMethod.sampleStatusMeters();
             for (Entry<Integer, LongValueSample> entry : results.entrySet())
             {
                 int status = entry.getKey() / 100 * 100;
@@ -3291,14 +3300,14 @@ public class ServerOperatorPages
                 statusCodes.put(status, count);
             }
             TableRow row=new TableRow();
-            row.add(requestHandler.getHttpMethod())
-            .add(requestHandler.getPath())
+            row.add(requestMethod.getHttpMethod())
+            .add(requestMethod.getPath())
             .add(statusCodes.get(200)
                 ,statusCodes.get(300)
                 ,statusCodes.get(400)
                 ,statusCodes.get(500)
             );
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestHandler.getKey()).addQuery("server", server).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/info").addQuery("key", requestMethod.getKey()).addQuery("server", server).toString()));
             table.addRow(row);
         }
         return page;
@@ -3331,7 +3340,7 @@ public class ServerOperatorPages
         }
     }
     
-    static class RequestHandlerParameterDescriptions
+    static class RequestMethodParameterDescriptions
     {
         final String method;
         final String pathSchema;
@@ -3342,7 +3351,7 @@ public class ServerOperatorPages
         final ContentTypeDescription[] requestContentTypes;
         final ContentTypeDescription[] responseContentTypes;
         
-        RequestHandlerParameterDescriptions(String method,String pathSchema,ParameterDescription[] cookieParameters,
+        RequestMethodParameterDescriptions(String method,String pathSchema,ParameterDescription[] cookieParameters,
                 ParameterDescription[] pathParameters,
                 ParameterDescription[] queryParameters,
                 ParameterDescription[] headerParameters,
@@ -3360,16 +3369,16 @@ public class ServerOperatorPages
         }
     }
     
-    private RequestHandlerParameterDescriptions extractParameterDescriptions(RequestHandler requestHandler) throws Throwable
+    private RequestMethodParameterDescriptions extractParameterDescriptions(RequestMethod requestMethod) throws Throwable
     {
-        Method method=requestHandler.getMethod();
+        Method method=requestMethod.getMethod();
         ArrayList<ParameterDescription> cookieParameters=new ArrayList<>();
         ArrayList<ParameterDescription> pathParameters=new ArrayList<>();
         ArrayList<ParameterDescription> queryParameters=new ArrayList<>();
         ArrayList<ParameterDescription> headerParameters=new ArrayList<>();
         ParameterInfo contentParameterInfo = null;
 
-        for (ParameterInfo info:requestHandler.getParameterInfos())
+        for (ParameterInfo info:requestMethod.getParameterInfos())
         {
             Parameter parameter = method.getParameters()[info.getIndex()];
             switch (info.getSource())
@@ -3393,9 +3402,9 @@ public class ServerOperatorPages
             case QUERY:
                 queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
                 break;
-            case SECURE_QUERY:
-                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
-                break;                
+//            case SECURE_QUERY:
+//                queryParameters.add(new ParameterDescription(info.getName(),info.getType().getSimpleName(),info.getDefaultValue()!=null?info.getDefaultValue().toString():null,getDescription(parameter)));
+//                break;                
             }
         }
 
@@ -3403,9 +3412,9 @@ public class ServerOperatorPages
         if (contentParameterInfo != null)
         {
             Parameter contentParameter = method.getParameters()[contentParameterInfo.getIndex()];
-            if (requestHandler.getContentReaders().size() > 0)
+            if (requestMethod.getContentReaders().size() > 0)
             {
-                for (ContentReader contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestMethod.getContentReaders().values())
                 {
                     ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
                     contentReader.writeSchema(byteOutputStream, contentParameter.getType());
@@ -3439,27 +3448,25 @@ public class ServerOperatorPages
                     innerReturnType = null;
                 }
             }
-            if (requestHandler.getContentWriters().size() > 0)
+            if (requestMethod.getContentWriters().size() > 0)
             {
-                HashMap<String, ContentWriterList> lists = new HashMap<>();
-                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
+                HashMap<String, TypeContentWriter> lists = new HashMap<>();
+                for (Entry<String, ContentWriter> entry : requestMethod.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
+                    TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
-                        types = new ContentWriterList(entry.getValue());
+                        types = new TypeContentWriter(entry.getValue());
                         lists.put(entry.getValue().getMediaType(), types);
                     }
                     types.types.add(entry.getKey());
                 }
 
-                for (ContentWriterList list : lists.values())
+                for (TypeContentWriter list : lists.values())
                 {
                     if (innerReturnType == null)
                     {
-                        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                        list.contentWriter.writeSchema(byteOutputStream, returnType);
-                        String schema = new String(byteOutputStream.toByteArray());
+                        String schema = list.contentWriter.writeSchema(returnType);
                         if (schema.length()==0)
                         {
                             schema=null;
@@ -3480,30 +3487,30 @@ public class ServerOperatorPages
         ContentTypeDescription[] requestContentDescriptionArray=requestContentDescriptions.size()>0?requestContentDescriptions.toArray(new ContentTypeDescription[requestContentDescriptions.size()]):null;
         ContentTypeDescription[] responseContentDescriptionArray=responseContentDescriptions.size()>0?responseContentDescriptions.toArray(new ContentTypeDescription[responseContentDescriptions.size()]):null;
         
-        return new RequestHandlerParameterDescriptions(requestHandler.getHttpMethod(),requestHandler.getPath(),cookieParameterArray, pathParameterArray, queryParameterArray, headerParameterArray, requestContentDescriptionArray, responseContentDescriptionArray); 
+        return new RequestMethodParameterDescriptions(requestMethod.getHttpMethod(),requestMethod.getPath(),cookieParameterArray, pathParameterArray, queryParameterArray, headerParameterArray, requestContentDescriptionArray, responseContentDescriptionArray); 
     }
     
     @GET
     @ContentWriters(JSONContentWriter.class)
     @Path("/operator/httpServer/apis")
-    public RequestHandlerParameterDescriptions[] apis() throws Throwable
+    public RequestMethodParameterDescriptions[] apis() throws Throwable
     {
-        RequestHandler[] requestHandlers = this.serverApplication.getOperatorServer().getRequestHandlers();
-        ArrayList<RequestHandlerParameterDescriptions> list=new ArrayList<>();
-        for (RequestHandler requestHandler : requestHandlers)
+        RequestMethod[] requestMethods = this.serverApplication.getOperatorServer().getRequestMethods();
+        ArrayList<RequestMethodParameterDescriptions> list=new ArrayList<>();
+        for (RequestMethod requestMethod : requestMethods)
         {
-            list.add(extractParameterDescriptions(requestHandler));
+            list.add(extractParameterDescriptions(requestMethod));
         }
-        return list.toArray(new RequestHandlerParameterDescriptions[list.size()]);
+        return list.toArray(new RequestMethodParameterDescriptions[list.size()]);
     }
 
     @GET
     @ContentWriters(JSONContentWriter.class)
     @Path("/operator/httpServer/api")
-    public RequestHandlerParameterDescriptions api(@QueryParam("key") String key) throws Throwable
+    public RequestMethodParameterDescriptions api(@QueryParam("key") String key) throws Throwable
     {
-        RequestHandler requestHandler = this.serverApplication.getOperatorServer().getRequestHandler(key);
-        return extractParameterDescriptions(requestHandler);
+        RequestMethod requestMethod = this.serverApplication.getOperatorServer().getRequestHandler(key);
+        return extractParameterDescriptions(requestMethod);
     }    
 
     
@@ -3624,15 +3631,15 @@ public class ServerOperatorPages
     {
         HttpTransport httpTransport=getHttpTransport(server);
         OperatorPage page=buildServerOperatorPage("Methods",server,null);
-        RequestHandler[] requestHandlers = httpTransport.getHttpServer().getRequestHandlers();
+        RequestMethod[] requestMethods = httpTransport.getHttpServer().getRequestMethods();
         OperatorDataTable table=page.content().returnAddInner(new OperatorTable(page.head()));
         table.setHeader("Method","Path","Description","");
-        for (RequestHandler requestHandler : requestHandlers)
+        for (RequestMethod requestMethod : requestMethods)
         {
-            TableRow row=new TableRow().add(requestHandler.getHttpMethod());
-            row.add(requestHandler.getPath());
+            TableRow row=new TableRow().add(requestMethod.getHttpMethod());
+            row.add(requestMethod.getPath());
             
-            Method method = requestHandler.getMethod();
+            Method method = requestMethod.getMethod();
             Description description = method.getAnnotation(Description.class);
             if (description != null)
             {
@@ -3643,7 +3650,7 @@ public class ServerOperatorPages
                 row.add("");
             }
 
-            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/method/"+server).addQuery("key", requestHandler.getKey()).toString()));
+            row.add(new RightMoreLink(page.head(),new PathAndQuery("/operator/httpServer/method/"+server).addQuery("key", requestMethod.getKey()).toString()));
             table.addRow(row);
         }
         return page;
@@ -3668,15 +3675,15 @@ public class ServerOperatorPages
         return null;
     }
 
-    private void writeParameterInfos(Head head,Panel panel, String heading, RequestHandler handler, ParameterSource filter)
+    private void writeParameterInfos(Head head,Panel panel, String heading, RequestMethod handler, ParameterSource filter)
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
             ParameterSource source=info.getSource();
-            if (source==ParameterSource.SECURE_QUERY)
-            {
-                source=ParameterSource.QUERY;
-            }
+//            if (source==ParameterSource.SECURE_QUERY)
+//            {
+//                source=ParameterSource.QUERY;
+//            }
             return source == filter;
         }).count() == 0)
         {
@@ -3691,10 +3698,10 @@ public class ServerOperatorPages
         for (ParameterInfo info : handler.getParameterInfos())
         {
             ParameterSource source=info.getSource();
-            if (source==ParameterSource.SECURE_QUERY)
-            {
-                source=ParameterSource.QUERY;
-            }
+//            if (source==ParameterSource.SECURE_QUERY)
+//            {
+//                source=ParameterSource.QUERY;
+//            }
             if (source == filter)
             {
                 Parameter parameter = method.getParameters()[info.getIndex()];
@@ -3705,7 +3712,7 @@ public class ServerOperatorPages
         panel.content().addInner(new p());
     }
 
-    private void writeInputParameterInfos(Head head,NodeElement<?> container, AjaxButton button, String heading, RequestHandler handler, ParameterSource source) throws Exception
+    private void writeInputParameterInfos(Head head,NodeElement<?> container, AjaxButton button, String heading, RequestMethod handler, ParameterSource source) throws Exception
     {
         if (Arrays.stream(handler.getParameterInfos()).filter(info ->
         {
@@ -3762,13 +3769,12 @@ public class ServerOperatorPages
         }
     }
 
-    private ParameterInfo findContentParameter(RequestHandler requestHandler)
+    private ParameterInfo findContentParameter(RequestMethod requestMethod)
     {
-        for (ParameterInfo info : requestHandler.getParameterInfos())
+        for (ParameterInfo info : requestMethod.getParameterInfos())
         {
             if (info.getSource() == ParameterSource.CONTENT)
             {
-//                Method method = requestHandler.getMethod();
                 return info;
             }
         }
@@ -3844,13 +3850,13 @@ public class ServerOperatorPages
         void write(Class<?> type)
         {
             String typeName=type.isArray()?type.getComponentType().getName():type.getName();
-            String displayTypeName=type.isArray()?type.getComponentType().getSimpleName()+"[]":type.getSimpleName();
+            String displayTypeName=type.isArray()?type.getComponentType().getName()+"[]":type.getName();
             if (this.shownClasses.contains(typeName))
             {
                 return;
             }
             this.shownClasses.add(typeName);
-            Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,"Type: "+displayTypeName));
+            Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,displayTypeName));
             if (TypeUtils.isDerivedFrom(type,Element.class))
             {
                 return;
@@ -3945,9 +3951,9 @@ public class ServerOperatorPages
     {
         OperatorPage page=buildServerOperatorPage("Method: "+key, server,null);
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler requestHandler = httpServer.getRequestHandler(key);
+        RequestMethod requestMethod = httpServer.getRequestHandler(key);
 
-        Map<Integer, LongValueSample> meters = requestHandler.sampleStatusMeters();
+        Map<Integer, LongValueSample> meters = requestMethod.sampleStatusMeters();
         if (meters.size()>0)
         {
             Panel durationPanel=page.content().returnAddInner(new Panel2(page.head(),"Durations"));
@@ -4007,7 +4013,7 @@ public class ServerOperatorPages
                     ,"Total Bytes","KB","MB","GB","TB"
                     );
             
-            LongValueMeter requestMeter = requestHandler.getRequestUncompressedContentSizeMeter();
+            LongValueMeter requestMeter = requestMethod.getRequestUncompressedContentSizeMeter();
             LongValueSample result = requestMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4036,7 +4042,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter compressedRequestMeter = requestHandler.getRequestCompressedContentSizeMeter();
+            LongValueMeter compressedRequestMeter = requestMethod.getRequestCompressedContentSizeMeter();
             result = compressedRequestMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4065,7 +4071,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter responseMeter = requestHandler.getResponseUncompressedContentSizeMeter();
+            LongValueMeter responseMeter = requestMethod.getResponseUncompressedContentSizeMeter();
             result = responseMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4094,7 +4100,7 @@ public class ServerOperatorPages
                         ,total / 1024 / 1024 / 1024 / 1024));
             }
     
-            LongValueMeter compressedResponseMeter = requestHandler.getResponseCompressedContentSizeMeter();
+            LongValueMeter compressedResponseMeter = requestMethod.getResponseCompressedContentSizeMeter();
             result = compressedResponseMeter.sample();
             if (result.getSamples()>0)
             {
@@ -4129,7 +4135,7 @@ public class ServerOperatorPages
             list.add("Request", requestUncompressed != 0?DOUBLE_FORMAT.format((double) requestCompressed / requestUncompressed):"");
             list.add("Response",responseUncompressed != 0?DOUBLE_FORMAT.format((double) responseCompressed / responseUncompressed):"");
 
-            RequestLogEntry[] entries = requestHandler.getLastRequestLogEntries();
+            RequestLogEntry[] entries = requestMethod.getLastRequestLogEntries();
             if (entries.length>0)
             {
                 Panel logPanel=page.content().returnAddInner(new Panel2(page.head(), "Last Log Entries"));
@@ -4141,12 +4147,12 @@ public class ServerOperatorPages
         return page;
     }
 
-    static class ContentWriterList
+    static class TypeContentWriter
     {
         ContentWriter contentWriter;
         ArrayList<String> types;
 
-        public ContentWriterList(ContentWriter contentWriter)
+        public TypeContentWriter(ContentWriter contentWriter)
         {
             this.contentWriter = contentWriter;
             this.types = new ArrayList<>();
@@ -4159,14 +4165,14 @@ public class ServerOperatorPages
         this.namespace=namespace;
         HttpServer httpServer=getHttpServer(server);
         HashMap<String,Class<?>> roots=new HashMap<>();
-        for (RequestHandler requestHandler:httpServer.getRequestHandlers())
+        for (RequestMethod requestMethod:httpServer.getRequestMethods())
         {
-            Method method = requestHandler.getMethod();
-            ParameterInfo contentParameterInfo = findContentParameter(requestHandler);
+            Method method = requestMethod.getMethod();
+            ParameterInfo contentParameterInfo = findContentParameter(requestMethod);
 
             if (contentParameterInfo!=null)
             {
-                for (ContentReader reader:requestHandler.getContentReaders().values())
+                for (ContentReader reader:requestMethod.getContentReaders().values())
                 {
                     if (reader instanceof JSONContentReader)
                     {
@@ -4181,7 +4187,7 @@ public class ServerOperatorPages
             Type innerReturnType = null;
             if (returnType != void.class)
             {
-                for (ContentWriter writer:requestHandler.getContentWriters().values())
+                for (ContentWriter writer:requestMethod.getContentWriters().values())
                 {
                     if (writer instanceof JSONContentWriter)
                     {
@@ -4223,8 +4229,6 @@ public class ServerOperatorPages
         }
     }
     
-    private String namespace;
-
     @GET
     @Path("/operator/httpServer/classDefinitions/{server}")
     public Element classDefinitions(Context context,@PathParam("server") String server) throws Throwable
@@ -4299,8 +4303,8 @@ public class ServerOperatorPages
     {
         OperatorPage page=buildServerOperatorPage("Method: "+key,server,null);
         HttpServer httpServer=getHttpServer(server);
-        RequestHandler requestHandler = httpServer.getRequestHandler(key);
-        Method method = requestHandler.getMethod();
+        RequestMethod requestMethod = httpServer.getRequestHandler(key);
+        Method method = requestMethod.getMethod();
         String text = getDescription(method);
         if (text != null)
         {
@@ -4310,11 +4314,12 @@ public class ServerOperatorPages
         }
         
         Panel2 requestPanel=page.content().returnAddInner(new Panel2(page.head(),"Request"));
-        writeParameterInfos(page.head(),requestPanel, "Query Parameters", requestHandler, ParameterSource.QUERY);
-        writeParameterInfos(page.head(),requestPanel, "Path Parameters", requestHandler, ParameterSource.PATH);
-        writeParameterInfos(page.head(),requestPanel, "Header Parameters", requestHandler, ParameterSource.HEADER);
-        writeParameterInfos(page.head(),requestPanel, "Cookie Parameters", requestHandler, ParameterSource.COOKIE);
-        ParameterInfo contentParameterInfo = findContentParameter(requestHandler);
+        writeParameterInfos(page.head(),requestPanel, "Query Parameters", requestMethod, ParameterSource.QUERY);
+        writeParameterInfos(page.head(),requestPanel, "Path Parameters", requestMethod, ParameterSource.PATH);
+        writeParameterInfos(page.head(),requestPanel, "Header Parameters", requestMethod, ParameterSource.HEADER);
+        writeParameterInfos(page.head(),requestPanel, "Cookie Parameters", requestMethod, ParameterSource.COOKIE);
+        ParameterInfo contentParameterInfo = findContentParameter(requestMethod);
+
         if (contentParameterInfo != null)
         {
             Panel3 contentParameterPanel=requestPanel.content().returnAddInner(new Panel3(page.head(),"Content Parameter"));
@@ -4323,11 +4328,11 @@ public class ServerOperatorPages
             ParameterWriter parameterWriter = new ParameterWriter(page.head(),contentParameterPanel);
             parameterWriter.write(contentParameter.getType());
 
-            if (requestHandler.getContentReaders().size() > 0)
+            if (requestMethod.getContentReaders().size() > 0)
             {
                 requestPanel.content().addInner(new p());
                 Panel3 contentReaderPanel=requestPanel.content().returnAddInner(new Panel3(page.head(),"Content Readers"));
-                for (ContentReader contentReader : requestHandler.getContentReaders().values())
+                for (ContentReader contentReader : requestMethod.getContentReaders().values())
                 {
                     WideTable table=contentReaderPanel.content().returnAddInner(new WideTable(page.head()));
                     table.setHeader("Class","Media Type");
@@ -4361,7 +4366,7 @@ public class ServerOperatorPages
 
 
         Class<?> returnType = method.getReturnType();
-        Type innerReturnType = null;
+        Type unknownReturnType = null;
         if (returnType != void.class)
         {
             Panel2 responsePanel=page.content().returnAddInner(new Panel2(page.head(), "Response"));
@@ -4372,16 +4377,16 @@ public class ServerOperatorPages
             if (returnType == Response.class)
             {
                 ParameterizedType type = (ParameterizedType) method.getGenericReturnType();
-                innerReturnType = type.getActualTypeArguments()[0];
-                String typeName = innerReturnType.getTypeName();
+                unknownReturnType = type.getActualTypeArguments()[0];
+                String typeName = unknownReturnType.getTypeName();
                 if (typeName.equals("?"))
                 {
                     parameterWriter.write(returnType);
                 }
                 else
                 {
-                    returnType = (Class<?>) innerReturnType;
-                    innerReturnType = null;
+                    returnType = (Class<?>) unknownReturnType;
+                    unknownReturnType = null;
                     parameterWriter.write(returnType);
                 }
             }
@@ -4390,15 +4395,15 @@ public class ServerOperatorPages
                 parameterWriter.write(returnType); 
             }
 
-            if (requestHandler.getContentWriters().size() > 0)
+            if (requestMethod.getContentWriters().size() > 0)
             {
-                HashMap<String, ContentWriterList> lists = new HashMap<>();
-                for (Entry<String, ContentWriter> entry : requestHandler.getContentWriters().entrySet())
+                HashMap<String, TypeContentWriter> lists = new HashMap<>();
+                for (Entry<String, ContentWriter> entry : requestMethod.getContentWriters().entrySet())
                 {
-                    ContentWriterList types = lists.get(entry.getValue().getMediaType().toLowerCase());
+                    TypeContentWriter types = lists.get(entry.getValue().getMediaType().toLowerCase());
                     if (types == null)
                     {
-                        types = new ContentWriterList(entry.getValue());
+                        types = new TypeContentWriter(entry.getValue());
                         lists.put(entry.getValue().getMediaType(), types);
                     }
                     types.types.add(entry.getKey());
@@ -4406,29 +4411,35 @@ public class ServerOperatorPages
 
                 responsePanel.content().addInner(new p());
                 Panel3 contentWriterPanel=responsePanel.content().returnAddInner(new Panel3(page.head(),"Content Writers"));
-                for (ContentWriterList list : lists.values())
+                for (TypeContentWriter typeContentWriter : lists.values())
                 {
+                    
                     WideTable table=contentWriterPanel.content().returnAddInner(new WideTable(page.head()));
                     table.setHeader("Class","Media Type","Accept Types");
-                    table.addRow(new TableRow().add(list.contentWriter.getClass().getName(),list.contentWriter.getMediaType(),Utils.combine(list.types, ", ")));
+                    table.addRow(new TableRow().add(typeContentWriter.contentWriter.getClass().getName(),typeContentWriter.contentWriter.getMediaType(),Utils.combine(typeContentWriter.types, ", ")));
 
-                    if (innerReturnType==null)
+
+                    if (unknownReturnType==null)
                     {
+                        Class<?> contentType=typeContentWriter.contentWriter.getContentType();
+                        if (TypeUtils.isDerivedFrom(returnType,Element.class)&&(contentType==Object.class))
+                        {
+                            continue;
+                        }       
+                        if (TypeUtils.isDerivedFrom(returnType,contentType)==false)
+                        {
+                            continue;
+                        }       
                         contentWriterPanel.content().addInner(new p());
-                        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-                        list.contentWriter.writeSchema(byteOutputStream, returnType);
-                        String schema = new String(byteOutputStream.toByteArray());
-    
-                        byteOutputStream.reset();
-                        list.contentWriter.writeExample(byteOutputStream, returnType);
-                        String example = new String(byteOutputStream.toByteArray());
-                        if (schema.length() > 0)
+                        String schema=typeContentWriter.contentWriter.writeSchema(returnType);
+                        String example=typeContentWriter.contentWriter.writeExample(returnType);
+                        if (TypeUtils.isNullOrEmpty(schema)==false)
                         {
                             Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Schema"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(schema, "\r")+1));
                             area.addInner(schema);
                         }
-                        if (example.length() > 0)
+                        if (TypeUtils.isNullOrEmpty(example)==false)
                         {
                             Accordion accordion=contentWriterPanel.content().returnAddInner(new Accordion(null, false, "Example"));
                             textarea area=accordion.content().returnAddInner(new textarea().readonly().style("width:100%;").rows(Utils.occurs(example,"\r")+1));
@@ -4441,48 +4452,65 @@ public class ServerOperatorPages
             page.content().addInner(new p());
         }
         
-        
+        ForbiddenRoles forbiddenRoles=requestMethod.getForbiddenRoles();
+        RequiredRoles requiredRoles=requestMethod.getRequiredRoles();
+        if ((forbiddenRoles!=null)||(requiredRoles!=null))
+        {
+            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Access Control"));
+            if (requiredRoles!=null)
+            {
+                WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+                table.setHeader("RequiredRoles","Redirect");
+                table.addRow(new TableRow().add(Utils.combine(requiredRoles.value(),", "),requiredRoles.redirect()));
+            }
+            if (forbiddenRoles!=null)
+            {
+                WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
+                table.setHeader("ForbiddenRoles");
+                table.addRow(new TableRow().add(Utils.combine(forbiddenRoles.value(),"")));
+            }
+        }
 
-        if (requestHandler.getContentDecoders().size() > 0)
+        if (requestMethod.getContentDecoders().size() > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Decoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (Entry<String, ContentDecoder> entry : requestHandler.getContentDecoders().entrySet())
+            for (Entry<String, ContentDecoder> entry : requestMethod.getContentDecoders().entrySet())
             {
                 table.addRow(new TableRow().add(entry.getValue().getClass().getName(),entry.getValue().getCoding(),entry.getKey()));
             }
             page.content().addInner(new p());
      }
-         if (requestHandler.getContentEncoders().length> 0)
+         if (requestMethod.getContentEncoders().length> 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Content Encoders"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             table.setHeader("Class","Content-Encoding","Encoder");
-            for (ContentEncoder encoder:requestHandler.getContentEncoders())
+            for (ContentEncoder encoder:requestMethod.getContentEncoders())
             {
                 table.addRow(new TableRow().add(encoder.getClass().getName(),encoder,encoder.getCoding()));
             }
             page.content().addInner(new p());
         }
-        if (requestHandler.getTopFilters().length > 0)
+        if (requestMethod.getTopFilters().length > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Top Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
-            for (Filter filter : requestHandler.getTopFilters())
+            for (Filter filter : requestMethod.getTopFilters())
             {
                 row.add(filter.getClass().getName());
             }
             table.addRow(row);
             page.content().addInner(new p());
         }
-        if (requestHandler.getBottomFilters().length > 0)
+        if (requestMethod.getBottomFilters().length > 0)
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Bottom Filters"));
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             TableRow row=new TableRow();
-            for (Filter filter : requestHandler.getBottomFilters())
+            for (Filter filter : requestMethod.getBottomFilters())
             {
                 row.add(filter.getClass().getName());
             }
@@ -4493,7 +4521,7 @@ public class ServerOperatorPages
         methodPanel.content().addInner(escapeHtml(method.toGenericString()+";"));
         page.content().addInner(new p());
         
-        Set<String> attributes=requestHandler.getAttributes();
+        Set<String> attributes=requestMethod.getAttributes();
         if (attributes!=null)
         {
             String[] array=attributes.toArray(new String[attributes.size()]);
@@ -4503,25 +4531,25 @@ public class ServerOperatorPages
         }
         
         Panel2 executePanel=page.content().returnAddInner(new Panel2(page.head(),"Execute: "+key));
-        String httpMethod = requestHandler.getHttpMethod();
+        String httpMethod = requestMethod.getHttpMethod();
         {
             form_get form=executePanel.content().returnAddInner(new form_get());
             AjaxButton button = new AjaxButton("button", "Execute Call", "/operator/httpServer/method/execute/"+server);
             button.parameter("key", key);
             button.style("height:3em;width:10em;margin:10px;");
-            writeInputParameterInfos(page.head(),form, button, "Query Parameters", requestHandler, ParameterSource.QUERY);
-            writeInputParameterInfos(page.head(),form, button, "Path Parameters", requestHandler, ParameterSource.PATH);
-            writeInputParameterInfos(page.head(),form, button, "Header Parameters", requestHandler, ParameterSource.HEADER);
-            writeInputParameterInfos(page.head(),form, button, "Cookie Parameters", requestHandler, ParameterSource.COOKIE);
+            writeInputParameterInfos(page.head(),form, button, "Query Parameters", requestMethod, ParameterSource.QUERY);
+            writeInputParameterInfos(page.head(),form, button, "Path Parameters", requestMethod, ParameterSource.PATH);
+            writeInputParameterInfos(page.head(),form, button, "Header Parameters", requestMethod, ParameterSource.HEADER);
+            writeInputParameterInfos(page.head(),form, button, "Cookie Parameters", requestMethod, ParameterSource.COOKIE);
             button.async(false);
 
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)|| "PATCH".equals(httpMethod))
             {
-                for (ParameterInfo info:requestHandler.getParameterInfos())
+                for (ParameterInfo info:requestMethod.getParameterInfos())
                 {
                     if (info.getSource()==ParameterSource.CONTENT)
                     {
-                        Collection<ContentReader> readers = requestHandler.getContentReaders().values();
+                        Collection<ContentReader> readers = requestMethod.getContentReaders().values();
                         if (readers.size() > 0)
                         {
                             fieldset field=form.returnAddInner(new fieldset());
@@ -4542,7 +4570,7 @@ public class ServerOperatorPages
             NameInputValueList list=new NameInputValueList();
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod))
             {
-                Collection<ContentReader> readers = requestHandler.getContentReaders().values();
+                Collection<ContentReader> readers = requestMethod.getContentReaders().values();
                 if (readers.size() > 0)
                 {
                     HashSet<String> set=new HashSet<>();
@@ -4560,7 +4588,7 @@ public class ServerOperatorPages
                     button.val("contentType", "contentType");
                 }
             }
-            Collection<ContentWriter> writers = requestHandler.getContentWriters().values();
+            Collection<ContentWriter> writers = requestMethod.getContentWriters().values();
             if (writers.size() > 0)
             {
                 HashSet<String> set=new HashSet<>();
@@ -4928,7 +4956,7 @@ public class ServerOperatorPages
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
         .add("Base Directory",this.serverApplication.getBaseDirectory())
         .add("SAFE_ESCAPE",Text.SAFE_ESCAPE)
-        .add("Debugging.ENABLE",Debugging.ENABLE)
+        .add("Debug.ENABLE",Debug.ENABLE)
         .add("OS",System.getProperty("os.name"));
      
         try
@@ -5099,8 +5127,8 @@ public class ServerOperatorPages
         {
             response.setContentType(contentType);
         }
-        response.setHeader("Cache-Control",
-                (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
+        response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
+//                (this.cacheControlValue == null || this.cacheControlValue.length() == 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue + ",max-age=" + this.cacheMaxAge);
         response.setStatus(HttpStatus.OK_200);
         context.writeContent(bytes);
     }
@@ -5131,7 +5159,7 @@ public class ServerOperatorPages
             page.content().addInner(new p());
             WideTable table=panel.content().returnAddInner(new WideTable(page.head()));
             
-            table.setHeader("Name","Type","Validator","Default","Value","Modified","Description");
+            table.setHeader("Name","Type","Default","Value","Modified","Description");
 
             for (VariableInstance instance:instances)
             {
@@ -5140,8 +5168,7 @@ public class ServerOperatorPages
                 TableRow row=new TableRow();
                 row.add(instance.getName());
                 row.add(field.getType().getSimpleName());
-                row.add(variable.validator().getSimpleName());
-                row.add(instance.getDefaultValue());
+                row.add(variable.defaultValue());
                 row.add(instance.getValue());
                 row.add(instance.getModified()==0?"":DateTimeUtils.toSystemDateTimeString(instance.getModified()));
                 row.add(variable.description());
@@ -5179,36 +5206,38 @@ public class ServerOperatorPages
             header.add(new th_title("Max","Maximum"));
             header.add(new th_title("\u2205","Null String"));
             header.add("New Value");
-            header.add("Action");
-            header.add("Result");
+            header.add("");
             table.setHeader(header);
-            int textSize=10;
+            int textSize=15;
 
             for (VariableInstance instance:instances)
             {
-                Field field=instance.getField();
                 OperatorVariable variable=instance.getOperatorVariable();
                 String name=instance.getName();
+                form_post form=new form_post().action("/operator/variable");
+                form.addInner(new InputHidden("category",category));
+                form.addInner(new InputHidden("name",name));
+                Field field=instance.getField();
                 Class<?> type=field.getType();
                 Object value=instance.getValue();
                 String resultElementId=(category+name+"Result").replace('.', '_');
              //   String valueKey=(category+name+"Value").replace('.', '_');
 
-                TableRow row=new TableRow();
+                TableRow row=form.returnAddInner(new TableRow());
                 row.add(new td().style("text-align:left;").addInner(new TitleText(variable.description(),name)));
                 row.add(type.getSimpleName());
-                row.add(instance.getDefaultValue());
+                row.add(variable.defaultValue());
                 row.add(instance.getValue());//,new Attribute("id",valueKey));
                 String buttonKey=(category+name+"Button").replace('.', '_');
                 String[] options=variable.options();
-                Inputs inputs=new Inputs(QuotationMark.QOUT);
-                inputs.add(new InputHidden("resultElementId", resultElementId));
+                
+                td input_td=new td().style("width:10em;");
                 if (options[0].length()!=0)
                 {
                     row.add("","","");
                     
                     SelectOptions selectOptions=new SelectOptions();
-                    inputs.add(selectOptions);
+                    selectOptions.name("value");
                     for (String option:options)
                     {
                         selectOptions.add(option);
@@ -5218,8 +5247,9 @@ public class ServerOperatorPages
                 }
                 else if (type==boolean.class)
                 {
+                    form.addInner(new InputHidden("checkbox",true));
                     row.add("","","");
-                    row.add(inputs.returnAdd(new input_checkbox().id(name).checked((boolean)value)));
+                    row.add(input_td.addInner(new input_checkbox().name("value").checked((boolean)value)));
                     
                 }
                 else if (type.isEnum())
@@ -5227,12 +5257,13 @@ public class ServerOperatorPages
                     row.add("","","");
                     
                     SelectOptions selectOptions=new SelectOptions();
+                    selectOptions.name("value");
                     for (Object enumConstant:field.getType().getEnumConstants())
                     {
                         String option=enumConstant.toString();
                         selectOptions.add(option);
                     }
-                    row.add(selectOptions);
+                    row.add(input_td.addInner(selectOptions));
                 }
                 else if (type==String.class) 
                 {
@@ -5240,24 +5271,22 @@ public class ServerOperatorPages
                     if (value!=null)
                     {
                         row.add(new input_checkbox().id("nullString").checked(false));
-                        row.add(new input_text().id(name).value(value.toString()).size(textSize));
+                        row.add(input_td.addInner(new input_text().name("value").value(value.toString()).size(textSize)));
                     }
                     else
                     {
                         row.add(new input_checkbox().id("nullString").checked(true));
-                        row.add(new input_text().id(name).size(textSize));
+                        row.add(input_td.addInner(new input_text().name("value").size(textSize)));
                     }
                 }
                 else
                 {
                     row.add(variable.minimum(),variable.maximum(),"");
-                    row.add(new input_text().size(textSize).id(name).value(value==null?"":value.toString()));
+                    row.add(input_td.addInner(new input_text().size(textSize).name("value").value(value==null?"":value.toString())));
                 }
-                button_button button=new button_button().addInner("Update");
-                button.onclick(inputs.js_post("/operator/variable"));
-                row.add(button);
-                row.add(new div().id(resultElementId));
-                table.addRow(row);
+                button_submit button=new button_submit().addInner("Update");
+                row.add(new td().addInner(button).style("width:0;"));
+                table.addRow(form);
             }
         }
         
@@ -5266,22 +5295,14 @@ public class ServerOperatorPages
 
     @POST
     @Path("/operator/variable")
-    public RemoteResponse update(@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue,@QueryParam("resultElementId") String resultElementId) throws Throwable
+    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
     {
-        RemoteResponse response=new RemoteResponse();
-        VariableInstance instance=this.serverApplication.getOperatorVariableManager().getInstance(category, name);
-        OperatorVariable variable=instance.getOperatorVariable();
-        Object old=instance.getValue();
-        ValidationResult validationResult=instance.set(value);
-        if (validationResult.getStatus()==Status.SUCCESS)
+        if (checkbox)
         {
-            response.innerText(resultElementId, "old="+old+", new="+value);
+            value=Boolean.toString(value==null?false:true);
         }
-        else
-        {
-          response.innerText(resultElementId, "Error: "+validationResult.getMessage());
-        }
-        return response;
-      }
+        var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
+        context.seeOther("/operator/variables/modify");
+    }
 
 }

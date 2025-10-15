@@ -50,9 +50,12 @@ public class SqlType
         }
         if (this.nullable==false)
         {
-            sb.append(" NOT");
+            sb.append(" NOT NULL");
         }
-        sb.append(" NULL");
+        else
+        {
+            sb.append(" NULL DEFAULT NULL");
+        }
         return sb.toString();
         
     }

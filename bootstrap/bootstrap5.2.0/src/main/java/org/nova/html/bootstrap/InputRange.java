@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.InputType;
-import org.nova.html.enums.autocomplete;
 
 public class InputRange extends InputComponent<InputRange>
 {
@@ -46,6 +45,14 @@ public class InputRange extends InputComponent<InputRange>
     public InputRange step(double number) 
     {
         return attr("step",number);
+    }
+    public InputRange value(double value)
+    {
+        return attr("value",value);
+    }
+    public InputRange value(Double value)
+    {
+        return attr("value",value);
     }
 }
 

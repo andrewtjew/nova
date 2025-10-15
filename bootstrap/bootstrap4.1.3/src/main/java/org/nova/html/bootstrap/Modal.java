@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
+import org.nova.html.ext.HtmlUtils;
+
 public class Modal extends StyleComponent<Modal>
 {
     public Modal()
@@ -75,5 +77,14 @@ public class Modal extends StyleComponent<Modal>
     public Modal focus()
     {
         return focus(true);
+    }
+    public static String js_show(String id)
+    {
+//        return HtmlUtils.js_call("alert",5);
+        return HtmlUtils.js_call("$('#"+id+"').modal", "show");
+    }
+    public static String js_hide(String id)
+    {
+        return HtmlUtils.js_call("$('#"+id+"').modal", "hide");
     }
 }

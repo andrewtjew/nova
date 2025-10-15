@@ -30,10 +30,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface OperatorVariable
 {
+    String defaultValue() default "";
 	String description() default "";
 	String minimum() default "";
 	String maximum() default "";
     String[] options() default "";
 	String alias() default "";
-	Class<? extends Validator> validator() default DefaultValidator.class;
+	Class<? extends Applicator> applicator() default DefaultApplicator.class;
 }

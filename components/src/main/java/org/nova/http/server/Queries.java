@@ -23,7 +23,7 @@ package org.nova.http.server;
 
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class Queries
 {

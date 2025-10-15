@@ -25,8 +25,9 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.nova.annotations.Description;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
 import org.nova.metrics.CountMeter;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 
 abstract public class ContentCache<KEY,VALUE>
@@ -75,6 +76,10 @@ abstract public class ContentCache<KEY,VALUE>
         {
             this.value=value;
             this.size=0;
+        }
+        public VALUE value()
+        {
+            return this.value;
         }
 	}
 
@@ -136,7 +141,7 @@ abstract public class ContentCache<KEY,VALUE>
 		return fill(parent,key);
 	}
 
-    public VALUE getValueFromCache(Trace parent,KEY key) throws Throwable
+    public VALUE getValueFromCache(KEY key) throws Throwable
     {
         ValueSize<VALUE> valueSize=getFromCache(key);
         if (valueSize!=null)
@@ -178,12 +183,9 @@ abstract public class ContentCache<KEY,VALUE>
                 remove(key);
             }
         }
-        if (Debugging.ENABLE)
+        if (Debug.ENABLE && DEBUG)
         {
-            if (DEBUG)
-            {
-                Debugging.log("Cache miss:"+key+",size="+this.entries.size());
-            }
+            Debugging.log("Cache miss:"+key+",size="+this.entries.size());
         }
         this.misses.increment();
         return null;
@@ -197,12 +199,9 @@ abstract public class ContentCache<KEY,VALUE>
 		    return null;
 		}
 		VALUE value=put(parent,key,valueSize);
-        if (Debugging.ENABLE)
+        if (Debug.ENABLE && DEBUG)
         {
-	        if (DEBUG)
-	        {
-	            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
-	        }
+            Debugging.log("Cache fill:"+key+",size="+this.entries.size());
         }
         return value;
 	}
@@ -319,12 +318,9 @@ abstract public class ContentCache<KEY,VALUE>
 				node.next.previous=node.previous;
 			}
 			
-			if (Debugging.ENABLE)
+			if (Debug.ENABLE && DEBUG)
 			{
-    	        if (DEBUG)
-    	        {
-    	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
-    	        }
+  	            Debugging.log("Cache remove:"+key+",size="+this.entries.size());
 			}
 			return node.valueSize.value;
 		}
@@ -381,7 +377,10 @@ abstract public class ContentCache<KEY,VALUE>
 	}
 	public Collection<Entry<KEY, VALUE>> getAllFromCache()
 	{
-	    return this.entries.values();
+	    synchronized(this)
+	    {
+	        return this.entries.values();
+	    }
 	}
 	
 	

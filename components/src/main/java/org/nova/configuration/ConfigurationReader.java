@@ -127,6 +127,7 @@ public class ConfigurationReader
                 }
                 catch (Throwable t)
                 {
+                    //optional include
                 }
             }
 			else
@@ -139,7 +140,11 @@ public class ConfigurationReader
                 checkError(lexeme);
     
                 character=scanner.skipWhiteSpaceAndBegin();
-                if ((character == '{')||(character=='['))
+                if (character == '"')
+                {
+                    lexeme=scanner.produceDelimitedText('"', true);
+                }
+                else if ((character == '{')||(character=='['))
                 {
                     scanner.revert();
                     lexeme=scanner.produceJSONLikeText();

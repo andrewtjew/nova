@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.nova.debug.Debugging;
 import org.nova.logging.Logger;
 import org.nova.metrics.LongValueMeter;
-import org.nova.testing.Debugging;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
@@ -70,7 +70,7 @@ public class TcpServer
 	
 	public TcpServer(Logger logger,TraceManager traceManager,int maximumThreads,int port,Receivable receivable,Connectable connectable) throws Throwable
 	{
-		this(TcpServer.class.getSimpleName(),logger,traceManager, Executors.newFixedThreadPool(maximumThreads), port, receivable,connectable);
+		this(TcpServer.class.getSimpleName(),logger,traceManager, maximumThreads>0?Executors.newFixedThreadPool(maximumThreads):Executors.newVirtualThreadPerTaskExecutor(), port, receivable,connectable);
 	}
 	
 	public void start() throws Exception

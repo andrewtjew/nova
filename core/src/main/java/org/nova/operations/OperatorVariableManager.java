@@ -28,27 +28,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.nova.tracing.Trace;
+
 public class OperatorVariableManager
 {
 	final private HashMap<String, HashMap<String, VariableInstance>> map;
-	final private HashMap<String,Validator> validators;
+	final private HashMap<String,Applicator> applicators;
+	final private OperatorVariableStore store;
 	
-	
-	public OperatorVariableManager()
+	public OperatorVariableManager(OperatorVariableStore store)
 	{
 		this.map=new HashMap<>();
-		this.validators=new HashMap<>();
-		registerValidator(new DefaultValidator());
+		this.applicators=new HashMap<>();
+		registerApplicators(new DefaultApplicator());
+		this.store=store;
 	}
-    public void registerValidator(Validator validator) 
+    public void registerApplicators(Applicator applicator) 
     {
-        this.validators.put(validator.getClass().getName(),validator);
+        this.applicators.put(applicator.getClass().getName(),applicator);
     }
-	public void register(Object object) throws Throwable
+	public void register(Trace parent,Object object) throws Throwable
 	{
-		register(object.getClass().getSimpleName(),object);
+		register(parent,object.getClass().getSimpleName(),object);
 	}
-	public void register(String category,Object object) throws Throwable
+	public void register(Trace parent,String category,Object object) throws Throwable
 	{
 		HashMap<String,VariableInstance> variables=map.get(category);
 		if (variables==null)
@@ -77,12 +80,27 @@ public class OperatorVariableManager
 			{
 				throw new Exception("OperatorVariable already registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
 			}
-			Validator validator=this.validators.get(variable.validator().getName());
-            if (validator==null)
+			Applicator applicator=this.applicators.get(variable.applicator().getName());
+            if (applicator==null)
             {
                 throw new Exception("No validator registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
             }
-			variables.put(key,new VariableInstance(validator,variable, object, field));
+            if (applicator instanceof DefaultApplicator==false)
+            {
+                System.out.println("Applicator:"+applicator.getClass().getSimpleName());
+            }
+			
+            VariableInstance instance=new VariableInstance(applicator,variable, object, field);
+			if ((this.store!=null)&&(parent!=null))
+			{
+			    String valueText=this.store.load(parent, category, instance);
+			    if (valueText==null)
+			    {
+                    valueText=variable.defaultValue();
+			    }
+                 instance.set(valueText);
+			}
+			variables.put(key,instance);
 		}
 	}
 	public VariableInstance getInstance(String category,String key)
@@ -97,22 +115,30 @@ public class OperatorVariableManager
 			return variables.get(key);
 		}
 	}
-    public boolean setOperatorVariable(String category,String key,OperatorVariable variable)
+	
+    public ApplicationResult setOperatorVariable(Trace parent,String category,String key,String value) throws Throwable
     {
         synchronized (this)
         {
             HashMap<String, VariableInstance> variables=this.map.get(category);
             if (variables==null)
             {
-                return false;
+                return new ApplicationResult(Status.CATEGORY_NOT_FOUND);
             }
             VariableInstance instance=variables.get(key);
             if (instance==null)
             {
-                return false;
+                return new ApplicationResult(Status.KEY_NOT_FOUND);
             }
-            instance.setOperatorVariable(variable);
-            return true;
+            ApplicationResult result=instance.set(value);
+            if (result.status==Status.SUCCESS)
+            {
+                if (this.store!=null)
+                {
+                    this.store.save(parent, category,instance, value);
+                }
+            }
+            return result;
         }
     }
 	public String[] getCategories()

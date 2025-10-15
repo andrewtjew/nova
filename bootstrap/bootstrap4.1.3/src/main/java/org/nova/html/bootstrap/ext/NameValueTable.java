@@ -22,12 +22,12 @@
 package org.nova.html.bootstrap.ext;
 
 
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.text_align;
 import org.nova.html.bootstrap.Table;
 import org.nova.html.bootstrap.TableRow;
 import org.nova.html.bootstrap.classes.Float_;
 import org.nova.html.bootstrap.classes.Font;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.TextAlign_;
 import org.nova.html.tags.td;
 
 public class NameValueTable extends Table
@@ -39,7 +39,7 @@ public class NameValueTable extends Table
         tr.add(new Span().font(Font.weight_bold).float_(Float_.right).addInner(name),value);
         return this;
     }
-    public NameValueTable add(Object name,Object value,text_align valueAlign)
+    public NameValueTable add(Object name,Object value,TextAlign_ valueAlign)
     {
         TableRow tr=new TableRow();
         addRow(tr);

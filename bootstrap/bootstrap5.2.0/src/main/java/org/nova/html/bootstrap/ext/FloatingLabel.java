@@ -3,10 +3,10 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.InputComponent;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
-import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 
+@Deprecated
 public class FloatingLabel extends Item
 {
     final private String label;

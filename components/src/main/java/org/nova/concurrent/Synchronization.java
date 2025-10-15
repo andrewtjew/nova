@@ -53,18 +53,6 @@ public class Synchronization
         }
     }
 
-//    public static void notifyAll(Object synchronizationObject,Condition condition) 
-//    {
-//        condition.set();
-//        synchronizationObject.notifyAll();
-//    }
-//
-//    public static void notify(Object synchronizationObject,Condition condition)
-//    {
-//        condition.set();
-//        synchronizationObject.notify();
-//    }
-    
     public static void waitFor(Object synchronizationObject,Predicate predicate)  throws Throwable
 	{
 		while (predicate.evaluate()==false)

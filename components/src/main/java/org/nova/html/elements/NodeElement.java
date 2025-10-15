@@ -24,7 +24,6 @@ package org.nova.html.elements;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Text;
 import org.nova.utils.TypeUtils;
 

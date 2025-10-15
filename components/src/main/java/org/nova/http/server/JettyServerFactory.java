@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.nova.http.server;
 
+import java.util.concurrent.Executors;
+
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -31,17 +34,23 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.nova.utils.FileUtils;
 
 public class JettyServerFactory
 {
-    static public Server createServer(ThreadPool threadPool, int port)
+    static private Server createServer(ThreadPool threadPool, int port)
     {
         Server server = new Server(threadPool);
         HttpConfiguration config = new HttpConfiguration();
+        config.setRequestHeaderSize(8192);
+        config.setResponseHeaderSize(8192);
+        
         config.setOutputBufferSize(65536);
         config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
+        UriCompliance specViolatingCompliance = UriCompliance.from("RFC3986,AMBIGUOUS_PATH_ENCODING");
+        config.setUriCompliance(specViolatingCompliance);
 
         ServerConnector connector = new ServerConnector(server,new HttpConnectionFactory(config));
         connector.setIdleTimeout(30*60*1000);
@@ -50,12 +59,39 @@ public class JettyServerFactory
         return server;
     }
 
+    final static boolean MIGRATE_VIRTUAL_THREADS=true;
+    
+    static private ThreadPool createThreadPool(int threads)
+    {
+        if (MIGRATE_VIRTUAL_THREADS)
+        {
+            if (threads>0)
+            {
+                System.err.println("MIGRATE: Jetty max threads: "+threads);
+            }
+        }
+        if (threads>0)
+        {
+            return new ExecutorThreadPool(threads, threads);
+        }
+        QueuedThreadPool threadPool=new QueuedThreadPool();
+        threadPool.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());
+        return threadPool;
+    }
     static public Server createServer(int threads, int port)
     {
-        return createServer(new ExecutorThreadPool(threads, threads), port);
+        return createServer(createThreadPool(threads), port);
+    }
+    static public Server createServer(int port)
+    {
+        return createServer(0,port);
     }
 
-    static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
+    static public Server createHttpsServer(int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
+    {
+        return createHttpsServer(port, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+    }
+    static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,boolean requireServerNameIndication)
     {
         HttpConfiguration config=new HttpConfiguration();
         config.setOutputBufferSize(65536);
@@ -64,31 +100,39 @@ public class JettyServerFactory
         config.setSecurePort(port);
         
         config.setMultiPartFormDataCompliance(MultiPartFormDataCompliance.RFC7578);
-        return createHttpsServer(new ExecutorThreadPool(threads, threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
+        UriCompliance specViolatingCompliance = UriCompliance.from("RFC3986,AMBIGUOUS_PATH_ENCODING");
+        config.setUriCompliance(specViolatingCompliance);
+
+        SecureRequestCustomizer customizer=new SecureRequestCustomizer();
+        if (requireServerNameIndication==false)
+        {
+            customizer.setSniHostCheck(false);
+        }
+        return createHttpsServer(createThreadPool(threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword,customizer);
     }
     
-    static public Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword)
+    static private Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,SecureRequestCustomizer customizer)
     {
         Server server = new Server(threadPool);
-        config.addCustomizer(new SecureRequestCustomizer());
-        SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        config.addCustomizer(customizer);
+        
+        SslContextFactory.Server sslContextFactoryServer = new SslContextFactory.Server();
         if ((serverCertificateKeyPassword!=null)&&(serverCertificateKeyStorePath!=null))
         {
-            sslContextFactory.setKeyStorePath(FileUtils.toNativePath(serverCertificateKeyStorePath));
-            sslContextFactory.setKeyStorePassword(serverCertificateKeyPassword);
+            sslContextFactoryServer.setKeyStorePath(FileUtils.toNativePath(serverCertificateKeyStorePath));
+            sslContextFactoryServer.setKeyStorePassword(serverCertificateKeyPassword);
         }
         if ((clientCertificatePassword!=null)&&(clientCertificateKeyStorePath!=null))
         {
-            sslContextFactory.setNeedClientAuth(true);
-            sslContextFactory.setTrustStorePath(FileUtils.toNativePath(clientCertificateKeyStorePath));
-            sslContextFactory.setTrustStorePassword(clientCertificatePassword);
+            sslContextFactoryServer.setNeedClientAuth(true);
+            sslContextFactoryServer.setTrustStorePath(FileUtils.toNativePath(clientCertificateKeyStorePath));
+            sslContextFactoryServer.setTrustStorePassword(clientCertificatePassword);
         }
 
         
-        sslContextFactory.setKeyManagerPassword(keyManagerPassword);
 //        sslContextFactory.setTrustAll(true);
 //        sslContextFactory.setRenegotiationAllowed(true);
-        ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(config));
+        ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactoryServer, "http/1.1"), new HttpConnectionFactory(config));
         sslConnector.setPort(config.getSecurePort());
         server.setConnectors(new Connector[]{sslConnector});
         

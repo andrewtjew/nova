@@ -2,28 +2,37 @@ package org.nova.services;
 
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.List;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
-import org.nova.html.ext.Page;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Redirect;
+import org.nova.html.ext.DeviceSessionPage;
 import org.nova.html.remote.Remote;
+import org.nova.html.remote.RemoteResponse;
 import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
+import org.nova.services.RoleSession.AccessResult;
 import org.nova.tracing.Trace;
+import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
+public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
+    
     final private SessionManager<SESSION> sessionManager;
     private SESSION debugSession;
     final private Class<COOKIESTATE> coookieStateType;
@@ -35,14 +44,24 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         this.coookieStateType=cookieStateType;
         this.cookieStateName=cookieStateName;
     }
-
     public void setDebugSession(SESSION session)
     {
         this.debugSession=session;
     }
-
+    public String getCookieStateName()
+    {
+        return this.cookieStateName;
+    }
+    public Class<COOKIESTATE> getCookieStateType()
+    {
+        return this.coookieStateType;
+    }
+    public SessionManager<SESSION> getSessionManager()
+    {
+        return this.sessionManager;
+    }
     
-    private COOKIESTATE getCookieState(HttpServletRequest request)
+    public COOKIESTATE getCookieState(HttpServletRequest request)
     {
         try
         {
@@ -65,6 +84,26 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
         }
         return null;
     }
+    public void setCookieState(HttpServletResponse response,COOKIESTATE state) throws Throwable
+    {
+        String json=ObjectMapper.writeObjectToString(state);
+        String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
+        Cookie cookie=new Cookie(getCookieStateName(), value);
+        cookie.setPath("/");
+        response.addCookie(cookie);    
+     }    
+    
+    public Cookie encodeCookieState(COOKIESTATE state) throws Throwable
+    {
+        String json=ObjectMapper.writeObjectToString(state);
+        String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
+        return new Cookie(getCookieStateName(), value);
+    }    
+    
+    final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
+    final static boolean DEBUG=true;
+    final static boolean DEBUG_ACCESS=true;
+    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=false;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -85,8 +124,8 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
 	{
 		String token=getToken(parent,context);
 		SESSION session=this.sessionManager.getSessionByToken(token);
-        RequestHandler handler=context.getRequestHandler();
-        Method method=handler.getMethod();
+        RequestMethod requestMethod=context.getRequestMethod();
+        Method method=requestMethod.getMethod();
         if (session==null)
         {
             if (method.getAnnotation(AllowNoSession.class)!=null)
@@ -108,76 +147,79 @@ public abstract class DeviceSessionFilter<ROLE extends Enum,SESSION extends Devi
                 session=this.debugSession;
             }
         }
-        else
-        {
-            session.verifyQuery(context);
-            if (session.isAccessDenied(handler))
-            {
-              this.sessionManager.removeSession(parent, session.getToken());
-              return new Response<Redirect>(new Redirect("/"));
-            }
-        }
 
         Lock<String> lock=null;
+        if (method.getAnnotation(AllowNoLock.class)==null)
         {
-            if (method.getAnnotation(AllowNoLock.class)==null)
+            lock=sessionManager.waitForLock(parent,session.getToken());
+            if (lock==null)
             {
-                lock=sessionManager.waitForLock(parent,session.getToken());
-                if (lock==null)
-                {
-                    return handleNoLock(parent, context);
-                }
+                return handleNoLock(parent, context);
             }
         }
-        session.beginSessionProcessing(lock);
         
-        boolean pageRequest=false; 
         try
         {
-            session.setContext(context);
+            AbnormalAccept abnormalAccept=session.acceptRequest(parent, context);
+            if (abnormalAccept!=null)
+            {
+                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                {
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+                }
+                if (abnormalAccept.statusCode()!=null)
+                {
+                    context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                }
+                if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                {
+                    context.seeOther(abnormalAccept.seeOther());
+                    return null;
+                }
+                return handleInvalidQuery(parent, context);
+            }
             context.setState(session);
+
             Response<?> response=context.next(parent);
             if (response!=null)
             {
                 Object content=response.getContent();
-                if (content instanceof Page)
+                if (content instanceof DeviceSessionPage)
                 {
-                    pageRequest=true;
-                    Page page=(Page)content;
-                    if (page.isContinuationDisallowed()==false)
-                    {
-                        String action=session.useContinuation();
-                        if (action!=null)
-                        {
-                            page.body().returnAddInner(new script()).addInner(new LiteralHtml(Remote.js_postStatic(action)));
-                        }
-                    }
-                    logPage(parent,session,context,page);
+                    @SuppressWarnings("unchecked")
+                    DeviceSessionPage<SESSION> page=(DeviceSessionPage<SESSION>)content;
+                    page.end(parent, context, session);
                 }
-                return response;
             }
+            return response;
         }
         catch (Throwable t)
         {
             parent.close(t);
+            if (Debug.ENABLE && DEBUG && DEBUG_EXCEPTION_PRINT_STACK_TRACE)
+            {
+                t.printStackTrace();
+            }
+            Response<?> exceptionResponse=handleException(parent, context, parent.getThrowable());
+            if (exceptionResponse!=null)
+            {
+                return exceptionResponse;
+            }
+            throw t;
         }
         finally
         {
-            session.updateStates(pageRequest);
-            session.endSessionProcessing();
+            lock.close();
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Expires", "0");
         }
-        return handleException(parent, context, parent.getThrowable());
+
 	}
 	
+    abstract protected Response<?> handleInvalidQuery(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;
-	abstract protected void logPage(Trace parent,SESSION session,Context context,Page page) throws Throwable;
-	
-	
-	
 }

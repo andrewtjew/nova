@@ -192,9 +192,9 @@ public class TypeUtils
         return distance;
     }
 
-    public static boolean isDerivedFrom(Class<?> type,Class<?> from)
+    public static boolean isDerivedFrom(Class<?> type,Class<?> baseType)
     {
-        while (type!=from)
+        while (type!=baseType)
         {
             type=type.getSuperclass();
             if (type==null)
@@ -402,28 +402,32 @@ public class TypeUtils
         return false;
     }
     
-    public static long parseLong(String value,long defaultValue)
-    {
-        if (TypeUtils.isNullOrSpace(value))
-        {
-            return defaultValue;
-        }
-        return Long.parseLong(value);
-    }
-    
-    public static int parseInt(String value,int defaultValue)
-    {
-        if (TypeUtils.isNullOrSpace(value))
-        {
-            return defaultValue;
-        }
-        return Integer.parseInt(value);
-    }
+//    public static long parseLong(String value,long defaultValue)
+//    {
+//        if (TypeUtils.isNullOrSpace(value))
+//        {
+//            return defaultValue;
+//        }
+//        return Long.parseLong(value);
+//    }
+//    
+//    public static int parseInt(String value,int defaultValue)
+//    {
+//        if (TypeUtils.isNullOrSpace(value))
+//        {
+//            return defaultValue;
+//        }
+//        return Integer.parseInt(value);
+//    }
     public static Integer tryParseInt(String value)
     {
+        return tryParseInt(value,null);
+    }
+    public static Integer tryParseInt(String value,Integer defaultValue)
+    {
         if (TypeUtils.isNullOrSpace(value))
         {
-            return null;
+            return defaultValue;
         }
         try
         {
@@ -434,11 +438,49 @@ public class TypeUtils
             return null;
         }
     }
-    public static Float tryParseFloat(String value)
+    public static Long tryParseLong(String value)
+    {
+        return tryParseLong(value,null);
+    }
+    public static Long tryParseLong(String value,Long defaultValue)
     {
         if (TypeUtils.isNullOrSpace(value))
         {
+            return defaultValue;
+        }
+        try
+        {
+            return Long.parseLong(value);
+        }
+        catch (Throwable t)
+        {
             return null;
+        }
+    }
+    public static Long tryParseLong(String value,long defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Long.parseLong(value);
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
+    }    
+    public static Float tryParseFloat(String value)
+    {
+        return tryParseFloat(value,null);
+    }
+    public static Float tryParseFloat(String value,Float defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
         }
         try
         {
@@ -446,7 +488,26 @@ public class TypeUtils
         }
         catch (Throwable t)
         {
-            return null;
+            return defaultValue;
+        }
+    }
+    public static Double tryParseDouble(String value)
+    {
+        return tryParseDouble(value,null);
+    }
+    public static Double tryParseDouble(String value,Double defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Double.parseDouble(value);
+        }
+        catch (Throwable t)
+        {
+            return defaultValue;
         }
     }
     public static long[] parseLongs(String[] values,long defaultValue)
@@ -454,7 +515,7 @@ public class TypeUtils
         long[] results=new long[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=parseLong(values[i],defaultValue);
+            results[i]=tryParseLong(values[i],defaultValue);
         }
         return results;
     }
@@ -473,7 +534,7 @@ public class TypeUtils
         int[] results=new int[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=parseInt(values[i],defaultValue);
+            results[i]=tryParseInt(values[i],defaultValue);
         }
         return results;
     }
@@ -696,6 +757,33 @@ public class TypeUtils
         }
         return string.trim();
     }
+
+    static public boolean equals(short[] a,short[] b)
+    {
+        if ((a==null)&&(b==null))
+        {
+            return true;
+        }
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        if (a.length!=b.length)
+        {
+            return false;
+        }
+        for (int i=0;i<a.length;i++)
+        {
+            if (a[i]!=b[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    
+    
     static public boolean equals(Integer a,Integer b)
     {
         if ((a==null)&&(b==null))

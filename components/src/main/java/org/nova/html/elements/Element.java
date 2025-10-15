@@ -76,9 +76,11 @@ public abstract class Element
         {
             if (URL!=null)
             {
-                if (URL.indexOf(':')>=0)
+                int index=URL.indexOf(':');
+                if (index>=0)
                 {
-                    return HREF_LOCAL_DIRECTORY+"/"+URL;
+                    String replacement=HREF_LOCAL_DIRECTORY+"/"+URL.substring(index+3);
+                    return replacement;
                 }
             }
         }

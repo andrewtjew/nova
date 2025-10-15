@@ -83,26 +83,25 @@ public class TimerTask
 		this.key=new Key(this.due, this.number);
 	}
 	
-	TimerScheduler.Key getKey()
+//	TimerScheduler.Key getKey()
+//	{
+//		return this.key;
+//	}
+	void execute(Key runningKey)
 	{
-		return this.key;
-	}
-	
-	Key execute()
-	{
+        synchronized(this)
+        {
+            if (this.cancel)
+            {
+                this.executeStatus=TaskStatus.CANCELLED;
+                return;
+            }
+            this.executeStatus=TaskStatus.EXECUTING;
+        }
 		try (Trace trace=new Trace(this.timerScheduler.traceManager,this.category))
 		{
 			try
 			{
-				synchronized(this)
-				{
-					if (this.cancel)
-					{
-						this.executeStatus=TaskStatus.COMPLETED;
-						return null;
-					}
-					this.executeStatus=TaskStatus.EXECUTING;
-				}
 				this.attempts++;
 				this.executable.run(trace, this);
 				this.successes++;
@@ -119,22 +118,24 @@ public class TimerTask
 				}
 			}
 			this.totalDuration+=trace.getDurationNs();
-            Key key=getSchedule();
-			synchronized(this)
-			{
-				if (this.cancel)
-				{
-					this.executeStatus=TaskStatus.CANCELLED;
-					return null;
-				}
-				if (key==null)
-				{
-					this.executeStatus=TaskStatus.COMPLETED;
-					return null;
-				}
-				this.executeStatus=TaskStatus.READY;
-			}
-			return key;
+	        Key key=getSchedule();
+	        synchronized(this)
+	        {
+	            if (this.cancel)
+	            {
+	                this.executeStatus=TaskStatus.CANCELLED;
+	                this.timerScheduler.cancel(runningKey);
+	                return;
+	            }
+	            if (key==null)
+	            {
+	                this.executeStatus=TaskStatus.COMPLETED;
+	                this.timerScheduler.end(runningKey);
+	                return;
+	            }
+	            this.executeStatus=TaskStatus.READY;
+	        }
+	        this.timerScheduler.reschedule(runningKey,key, this);
 		}
 	}
 	
@@ -314,7 +315,10 @@ public class TimerTask
 		synchronized (this)
 		{
 			this.cancel=true;
-			this.timerScheduler.cancel(this.key);
+            if (this.executeStatus!=TaskStatus.EXECUTING)
+            {
+                this.timerScheduler.cancel(this.key);
+            }
 		}
 	}
 

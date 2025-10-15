@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.bootstrap.Modal;
 import org.nova.html.bootstrap.ModalBody;
 import org.nova.html.bootstrap.ModalContent;
 import org.nova.html.bootstrap.ModalDialog;
@@ -32,62 +31,59 @@ import org.nova.html.elements.Composer;
 public class ModalDialogDocument extends ModalDialog
 {
     final private ModalContent content;
-    private ModalHeader header;
-    private ModalFooter footer;
-    private ModalBody body;
+    ModalHeader header;
+    ModalFooter footer;
+    ModalBody body;
     
     public ModalDialogDocument()
     {
         this.content=this.returnAddInner(new ModalContent());
-        this.header=this.content.returnAddInner(new ModalHeader());
-        this.body=this.content.returnAddInner(new ModalBody());
-        this.footer=this.content.returnAddInner(new ModalFooter());
     }
     
     public ModalHeader header()
     {
-//        if (this.header==null)
-//        {
-//            this.header=new ModalHeader();
-//        }
+        if (this.header==null)
+        {
+            this.header=new ModalHeader();
+        }
         return this.header;
     }
     public ModalFooter footer()
     {
-//        if (this.footer==null)
-//        {
-//            this.footer=new ModalFooter();
-//        }
+        if (this.footer==null)
+        {
+            this.footer=new ModalFooter();
+        }
         return this.footer;
     }
     public ModalBody body()
     {
-//        if (this.body==null)
-//        {
-//            this.body=new ModalBody();
-//        }
+        if (this.body==null)
+        {
+            this.body=new ModalBody();
+        }
         return this.body;
     }
     public ModalContent modalContent()
     {
         return this.content;
     }
-//    @Override
-//    public void compose(Composer composer) throws Throwable
-//    {
-//        if (this.header!=null)
-//        {
-//            this.content.addInner(this.header);
-//        }
-//        if (this.body!=null)
-//        {
-//            this.content.addInner(this.body);
-//        }
-//        if (this.footer!=null)
-//        {
-//            this.content.addInner(this.footer);
-//        }
-//        
-//        super.compose(composer);
-//    }
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (this.header!=null)
+        {
+            this.content.addInner(this.header);
+        }
+        if (this.body!=null)
+        {
+            this.content.addInner(this.body);
+        }
+        if (this.footer!=null)
+        {
+            this.content.addInner(this.footer);
+        }
+        
+        super.compose(composer);
+    }
 }

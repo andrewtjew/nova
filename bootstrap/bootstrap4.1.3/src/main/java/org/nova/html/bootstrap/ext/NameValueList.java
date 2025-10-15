@@ -21,21 +21,22 @@
  ******************************************************************************/
 package org.nova.html.bootstrap.ext;
 
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Element;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
 import org.nova.html.tags.b;
 
 
 public class NameValueList extends StyleComponent<NameValueList>
 {
-    final private Size width;
+    final private Length_ width;
 
-    public NameValueList(Size width)
+    public NameValueList(Length_ width)
     {
         super("div",null);
         this.width=width;

@@ -62,35 +62,6 @@ public abstract class Session
         this.user=user;
     }
     
-    public void beginSessionProcessing(Lock<String> lock)
-    {
-        synchronized(this)
-        {
-            this.lock=lock;
-            this.lastAccess=System.currentTimeMillis();
-            this.accessRateMeter.increment();
-        }
-    }
-    public Lock<String> freeLock()
-    {
-        synchronized (this)
-        {
-            Lock<String> lock=this.lock;
-            this.lock=null;
-            return lock;
-        }
-    }
-    public void endSessionProcessing()
-    {
-        synchronized (this)
-        {
-            if (this.lock!=null)
-            {
-                this.lock.close();
-            }
-            this.lock=null;
-        }
-    }
     public long getLastAccess()
     {
         return lastAccess;
@@ -127,6 +98,6 @@ public abstract class Session
     
     abstract public void onClose(Trace trace) throws Throwable;
     abstract public NameObject[] getDisplayItems();
-    abstract public boolean isAccessDenied(Trace trace,Context context) throws Throwable;
+    abstract public AbnormalAccept acceptRequest(Trace trace,Context context) throws Throwable;
     
 }

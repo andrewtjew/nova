@@ -21,22 +21,28 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.Position;
-import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.InputType;
-import org.nova.html.ext.HtmlUtils;
-import org.nova.html.tags.div;
 
 public class InputSwitch extends InputComponent<InputSwitch>
 {
     private Item outer;
-    public InputSwitch()
+    public InputSwitch(String label)
     {
         super(InputType.checkbox);
         this.outer=new Item().form_check().form_switch();
         this.outer.addInner(this);
+        if (label!=null)
+        {
+            this.me(2);
+            this.outer.addInner(new Label().addInner(label));
+        }
         addClass("form-check-input");
+    }
+    
+    public InputSwitch()
+    {
+        this(null);
     }
     public InputSwitch checked() 
     {

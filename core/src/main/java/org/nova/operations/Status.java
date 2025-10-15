@@ -27,4 +27,6 @@ public enum Status
     PARSE_FAILED,
     VALIDATION_FAILED,
     SET_FAILED,
+    CATEGORY_NOT_FOUND,
+    KEY_NOT_FOUND,
 }

@@ -1,6 +1,6 @@
 @default.cnf
 HttpServer.public.https=false
-HttpServer.public.http=false
+HttpServer.public.http=true
 
 Environment.Vault.unsecureVaultFile=.\resources\UnsecureVault.cnf
 System.test=true

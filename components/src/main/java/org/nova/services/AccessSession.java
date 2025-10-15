@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
+import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session
@@ -38,28 +39,32 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     }
 
     @Override
-    public boolean isAccessDenied(Trace trace, Context context) throws Throwable
+    public AbnormalAccept acceptRequest(Trace trace, Context context) throws Throwable
     {
-        Boolean deny=this.denyMap.get(context.getRequestHandler().getKey());
+        Boolean deny=this.denyMap.get(context.getRequestMethod().getKey());
         if (deny==null)
         {
             deny=isAccessDenied(context);
-            this.denyMap.put(context.getRequestHandler().getKey(),deny);
+            this.denyMap.put(context.getRequestMethod().getKey(),deny);
         }
-        return deny;
+        if (deny)
+        {
+            return new AbnormalAccept();
+        }
+        return null;
     }
     
     boolean isAccessDenied(Context context)
     {
-        Method method=context.getRequestHandler().getMethod();
-        ForbiddenRoles denyGroups=method.getDeclaredAnnotation(ForbiddenRoles.class);
-        if (denyGroups!=null)
+        RequestMethod requestMethod=context.getRequestMethod();
+        ForbiddenRoles forbiddenGroups=requestMethod.getForbiddenRoles();
+        if (forbiddenGroups!=null)
         {
-            if (denyGroups.value().length==0)
+            if (forbiddenGroups.value().length==0)
             {
                 return true; //deny all
             }
-            for (String value:denyGroups.value())
+            for (String value:forbiddenGroups.value())
             {
                 if (isInGroup(value))
                 {
@@ -68,16 +73,16 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
             }
         }
 
-        RequiredRoles allowGroups=method.getDeclaredAnnotation(RequiredRoles.class);
-        if (allowGroups==null)
+        RequiredRoles requiredRoles=requestMethod.getRequiredRoles();
+        if (requiredRoles==null)
         {
             return true; //deny all
         }
-        if (allowGroups.value().length==0)
+        if (requiredRoles.value().length==0)
         {
             return false; //allow all
         }
-        for (String value:allowGroups.value())
+        for (String value:requiredRoles.value())
         {
             if (isInGroup(value))
             {

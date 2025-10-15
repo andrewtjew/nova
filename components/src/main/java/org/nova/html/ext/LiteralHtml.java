@@ -50,7 +50,11 @@ public class LiteralHtml extends Element
     {
         return this.html;
     }
-    
+    @Override
+    public String toString()
+    {
+        return this.html;
+    }    
     @Override
     public void compose(Composer composer) throws Throwable
     {

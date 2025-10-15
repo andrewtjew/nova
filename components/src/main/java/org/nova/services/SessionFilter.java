@@ -24,9 +24,9 @@ package org.nova.services;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
 import org.nova.http.server.Context;
@@ -34,7 +34,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
-import org.nova.http.server.RequestHandler;
+import org.nova.http.server.RequestMethod;
 
 
 public class SessionFilter extends Filter
@@ -156,8 +156,8 @@ public class SessionFilter extends Filter
         {
             String token=getToken(context.getHttpServletRequest());
             Session session=this.sessionManager.getSessionByToken(token);
-            RequestHandler handler=context.getRequestHandler();
-            Method method=handler.getMethod();
+            RequestMethod handlerMethod=context.getRequestMethod();
+            Method method=handlerMethod.getMethod();
             if (method.getAnnotation(AllowNoSession.class)!=null)
             {
                 if (session==null)
@@ -186,7 +186,7 @@ public class SessionFilter extends Filter
                     session=this.debugSession;
                 }
             }
-            Class<?> handlerSessionType=handler.getStateType();
+            Class<?> handlerSessionType=handlerMethod.getStateType();
             if (handlerSessionType!=null)
             {
                 if (TypeUtils.isDerivedFrom(session.getClass(),handlerSessionType)==false)
@@ -204,11 +204,20 @@ public class SessionFilter extends Filter
                     return getAbnormalSessionRequestHandler(context).handleNoLockRequest(parent,this, session, context);
                 }
             }
-            session.beginSessionProcessing(lock);
             try
             {
-                if (session.isAccessDenied(parent,context))
+                var abnormalAccept=session.acceptRequest(parent,context);
+                if (abnormalAccept!=null)
                 {
+                    if (abnormalAccept.statusCode()!=null)
+                    {
+                        context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                    }
+                    if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                    {
+                        context.seeOther(abnormalAccept.seeOther());
+                        return null;
+                    }
                     return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);
                 }
                 context.setState(session);
@@ -216,7 +225,7 @@ public class SessionFilter extends Filter
             }
             finally
             {
-                session.endSessionProcessing();
+                lock.close();
             }
         }
         finally
@@ -248,5 +257,19 @@ public class SessionFilter extends Filter
     {
         return cookieTokenKey;
     }
-
+    
+    public Cookie createSessionCookie(String token,Integer maxAge,String path)
+    {
+        Cookie cookie = new Cookie(this.cookieTokenKey, token);
+        if (maxAge!=null)
+        {
+            cookie.setMaxAge(maxAge);
+        }
+        cookie.setPath(path);
+        return cookie;
+    }
+    public Cookie createSessionCookie(String token)
+    {
+        return createSessionCookie(token, null, null);
+    }
 }

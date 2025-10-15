@@ -31,4 +31,5 @@ import java.lang.annotation.Target;
 public @interface RequiredRoles
 {
     String[] value() default {};
+    String redirect() default "";
 }

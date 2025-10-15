@@ -23,7 +23,7 @@ package org.nova.html.bootstrap;
 
 import java.util.Map.Entry;
 
-import org.nova.core.NameObject;
+import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.tags.div;
 
@@ -58,7 +58,7 @@ public class StyleTemplate implements Styling<StyleTemplate>
     }
 
     @Override
-    public TagElement<?> getElement()
+    public GlobalTagElement<?> getElement()
     {
         return this.template;
     }

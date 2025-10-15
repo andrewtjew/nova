@@ -1,20 +1,19 @@
 package org.nova.html.ext;
 
 import org.nova.html.StyleBuilder;
-import org.nova.html.attributes.BorderStyleRect;
-import org.nova.html.attributes.Color;
-import org.nova.html.attributes.ColorRect;
-import org.nova.html.attributes.Size;
-import org.nova.html.attributes.Style;
-import org.nova.html.attributes.border_style;
-import org.nova.html.attributes.display;
-import org.nova.html.attributes.overflow;
-import org.nova.html.attributes.position;
-import org.nova.html.attributes.unit;
 import org.nova.html.elements.GlobalEventTagElement;
-import org.nova.html.elements.QuotationMark;
+import org.nova.html.properties.BorderStyle_;
+import org.nova.html.properties.BorderBoxStyle_;
+import org.nova.html.properties.Color_;
+import org.nova.html.properties.Display_;
+import org.nova.html.properties.Length_;
+import org.nova.html.properties.BoxColor_;
+import org.nova.html.properties.Overflow_;
+import org.nova.html.properties.Position_;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Style;
+import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
-import org.nova.html.tags.script;
 import org.nova.html.tags.style;
 
 public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
@@ -33,20 +32,20 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 		this("modal-spinner");
 	}
 
-	public style style(Size spinnerSize,Size spinnerTop,Color spinnerColor,Color spinnerBackground,Size spinnerBorderSize,float speed,int z_index,Color modalBackground)
+	public style style(Length_ spinnerSize,Length_ spinnerTop,Color_ spinnerColor,Color_ spinnerBackground,Length_ spinnerBorderSize,float speed,int z_index,Color_ modalBackground)
 	{
 		StyleBuilder sb=new StyleBuilder();
 		{
 	        Style style=new Style()
-	        		.position(position.fixed)
+	        		.position(Position_.fixed)
 	        		.z_index(z_index)
-	        		.left(new Size(0,unit.px))
-	           		.top(new Size(0,unit.px))
-	        		.width(new Size(100,unit.percent))
-	           		.height(new Size(100,unit.percent))
-	           		.overflow(overflow.auto)
+	        		.left(new Length_(0,Unit_.px))
+	           		.top(new Length_(0,Unit_.px))
+	        		.width(new Length_(100,Unit_.percent))
+	           		.height(new Length_(100,Unit_.percent))
+	           		.overflow(Overflow_.auto)
 	           		.background_color(modalBackground);
-	        		style.display(display.none);
+	        		style.display(Display_.none);
 	        
 			sb.begin("."+this.rootName);
 			sb.add(style);
@@ -55,19 +54,19 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 		}
 		{
 			Style style=new Style();
-			style.border(spinnerBorderSize,new BorderStyleRect(border_style.solid),new ColorRect(spinnerBackground));
-			style.border_radius(new Size(50.0f,unit.percent));
-			style.border_top(spinnerBorderSize,border_style.solid,spinnerColor);
+			style.border(spinnerBorderSize,new BorderBoxStyle_(BorderStyle_.solid),new BoxColor_(spinnerBackground));
+			style.border_radius(new Length_(50.0f,Unit_.percent));
+			style.border_top(spinnerBorderSize,BorderStyle_.solid,spinnerColor);
 			style.width(spinnerSize);
 			style.height(spinnerSize);
 			String key=this.rootName+"-spin";
 			String animation=key+" "+speed+"s linear infinite";
 			style.add("animation", animation);
 			style.add("-webkit-animation", animation);
-			style.position(position.fixed);
-			style.left(new Size(50.0,unit.percent));
+			style.position(Position_.fixed);
+			style.left(new Length_(50.0,Unit_.percent));
 			style.top(spinnerTop);
-			style.margin_left(new Size(-spinnerSize.value()/2,spinnerSize.unit()));
+			style.margin_left(new Length_(-spinnerSize.value()/2,spinnerSize.unit()));
 //			style.add("transform", "translate(-100%,0)");
 			//style.add("transform", "translate(-100%,0)");
 			
@@ -88,13 +87,13 @@ public class ModalSpinner extends GlobalEventTagElement<ModalSpinner>
 		}
 		return new style().addInner(sb.toString());
 	}
-	public style style(Size spinnerSize,Size spinnerTop)
+	public style style(Length_ spinnerSize,Length_ spinnerTop)
 	{
-		return style(spinnerSize,spinnerTop,new Color("#3498db"),new Color("#f3f3f3"),new Size(spinnerSize.value()/7.5,spinnerSize.unit()),1.0f,10000,Color.rgba(64, 64,64,0.5f));
+		return style(spinnerSize,spinnerTop,new Color_("#3498db"),new Color_("#f3f3f3"),new Length_(spinnerSize.value()/7.5,spinnerSize.unit()),1.0f,10000,Color_.rgba(64, 64,64,0.5f));
 	}
-	public style style(Size size)
+	public style style(Length_ size)
 	{
-		return style(size,new Size(25.0f,unit.percent));
+		return style(size,new Length_(25.0f,Unit_.percent));
 	}
 	
 	
