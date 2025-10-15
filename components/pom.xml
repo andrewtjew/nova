@@ -8,7 +8,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<waffle.version>1.8.1</waffle.version>
-
 	</properties>
 	<dependencies>
 		<dependency>
@@ -132,6 +131,19 @@
 		    <artifactId>azure-communication-sms</artifactId>
 		    <version>1.1.29</version>
 		</dependency>
+<<<<<<< HEAD
+=======
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-identity</artifactId>
+			<version>1.13.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.openai</groupId>
+			<artifactId>openai-java</artifactId>
+			<version>4.3.0</version>
+		</dependency>
+>>>>>>> ea9674eae9f54d6ac5332311c85b321d4812f1a8
 		
 	</dependencies>
 
