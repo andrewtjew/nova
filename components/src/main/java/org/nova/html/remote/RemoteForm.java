@@ -1,5 +1,7 @@
 package org.nova.html.remote;
 
+//Submits to a method handler returning RemoteResponse. Allows submits while staying on the same page. 
+
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.FormElement;
 import org.nova.html.enums.method;

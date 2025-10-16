@@ -750,7 +750,7 @@ public class Graph
         return this.descriptorMap;
     }
     
-    public GraphAccessor openGraphAcessor(Trace parent) throws Throwable
+    public GraphAccessor openGraphAccessor(Trace parent) throws Throwable
     {
         return new GraphAccessor(this,this.connector.openAccessor(parent, null, this.catalog));
     }
@@ -1313,6 +1313,23 @@ public class Graph
             {
                 Debugging.log(DEBUG_CATEGORY,"Cache:added line: "+key.preparedQuery.sql+",count="+count+",size="+this.countCache.size());
             }
+        }
+    }
+
+    public <OBJECT extends NodeObject> OBJECT getNodeObject(Trace parent,long nodeId,Class<OBJECT> type) throws Throwable
+    {
+        Query query=new Query().select(type);
+        try (GraphAccessor graphAccessor=openGraphAccessor(parent))
+        {
+            return graphAccessor.execute(parent, nodeId, query).getNodeObject();
+        }
+    }
+    public QueryResult getQueryResult(Trace parent,long nodeId,Class<? extends NodeObject>...types) throws Throwable
+    {
+        Query query=new Query().select(types);
+        try (GraphAccessor graphAccessor=openGraphAccessor(parent))
+        {
+            return graphAccessor.execute(parent, nodeId, query).getResult();
         }
     }
     
