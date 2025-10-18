@@ -1,7 +1,6 @@
 package org.nova.html.ext;
 
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 import org.nova.html.tags.script;
 

@@ -22,7 +22,6 @@
 package org.nova.http.server;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.nova.json.ObjectExample;

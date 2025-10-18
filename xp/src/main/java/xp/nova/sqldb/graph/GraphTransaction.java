@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
 import org.nova.sqldb.Accessor;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Row;

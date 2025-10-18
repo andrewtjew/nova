@@ -22,7 +22,6 @@
 package org.nova.html.bootstrap;
 
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.TagElement;
 
 public class Styler implements Styling<Styler>
 {

@@ -2,18 +2,15 @@ package org.nova.html.bootstrap.ext.input;
 
 import java.time.LocalDate;
 
-import org.nova.html.bootstrap.InputComponent;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
-import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.elements.Composer;
-import org.nova.http.server.annotations.QueryParam;
+import org.nova.localization.DateFormat;
 import org.nova.utils.TypeUtils;
 
 public class FormInputGroupDateRange extends StyleComponent<FormInputGroupDateRange>
@@ -22,7 +19,7 @@ public class FormInputGroupDateRange extends StyleComponent<FormInputGroupDateRa
     private InputGroupDate end;
     final private Item validationMessage;
     
-    public FormInputGroupDateRange(FormCol formCol, String startLabelText,String endLabelText,String namePrefix,int baseYear,int years,LocalDate start,LocalDate end,boolean required)
+    public FormInputGroupDateRange(FormCol formCol, String startLabelText,String endLabelText,String namePrefix,DateFormat dateFormat,int baseYear,int years,LocalDate start,LocalDate end,boolean required)
     {
         super("div");
         id();
@@ -71,8 +68,8 @@ public class FormInputGroupDateRange extends StyleComponent<FormInputGroupDateRa
 
         namePrefix=TypeUtils.isNullOrEmpty(namePrefix)?"":namePrefix+"-";
 
-        this.start=left.returnAddInner(new InputGroupDate(namePrefix+"start",baseYear, years));
-        this.end=right.returnAddInner(new InputGroupDate(namePrefix+"end",baseYear, years));
+        this.start=left.returnAddInner(new InputGroupDate(namePrefix+"start",dateFormat,baseYear, years));
+        this.end=right.returnAddInner(new InputGroupDate(namePrefix+"end",dateFormat,baseYear, years));
 //        this.end.form_control();
 
         d(Display.block);
@@ -81,13 +78,13 @@ public class FormInputGroupDateRange extends StyleComponent<FormInputGroupDateRa
         mb(3);
         
     }
-    public FormInputGroupDateRange(FormCol col, String startLabelText,String endLabelText,String namePrefix,int baseYear,int years,LocalDate start,LocalDate end)
+    public FormInputGroupDateRange(FormCol col, String startLabelText,String endLabelText,String namePrefix,DateFormat dateFormat,int baseYear,int years,LocalDate start,LocalDate end)
     {
-        this(col, startLabelText, endLabelText,namePrefix,baseYear,years,start,end,false);
+        this(col, startLabelText, endLabelText,namePrefix,dateFormat,baseYear,years,start,end,false);
     }
-    public FormInputGroupDateRange(FormCol col, String startLabelText,String endLabelText,String namePrefix,int baseYear,int years)
+    public FormInputGroupDateRange(FormCol col, String startLabelText,String endLabelText,DateFormat dateFormat,String namePrefix,int baseYear,int years)
     {
-        this(col, startLabelText, endLabelText,namePrefix,baseYear,years,null,null);
+        this(col, startLabelText, endLabelText,namePrefix,dateFormat,baseYear,years,null,null);
     }
 //    public FormMultiSelectYearMonthDay(String labelText,String namePrefix,int baseYear,int years,LocalDate value,boolean required)
 //    {

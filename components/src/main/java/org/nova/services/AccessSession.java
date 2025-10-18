@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.services;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;

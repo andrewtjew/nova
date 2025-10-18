@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import java.io.OutputStream;
-
 public abstract class ContentWriter
 {
     abstract public String getMediaType();

@@ -2,7 +2,6 @@ package org.nova.html.bootstrap.ext;
 
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.SpinnerType;
-import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.remote.RemoteForm;
 
 public class SpinnerButton extends SpinnerButtonComponent<SpinnerButton>

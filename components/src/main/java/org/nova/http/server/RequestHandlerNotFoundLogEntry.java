@@ -23,8 +23,6 @@ package org.nova.http.server;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
-
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 import org.nova.utils.TypeUtils;

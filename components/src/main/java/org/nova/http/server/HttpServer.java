@@ -45,7 +45,6 @@ import org.nova.metrics.RateMeter;
 import org.nova.operations.OperatorVariable;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
-import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public class HttpServer 

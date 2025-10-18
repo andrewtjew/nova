@@ -10,8 +10,6 @@ import org.nova.html.bootstrap.ext.ModalDocument;
 import org.nova.html.bootstrap.ext.SpinnerButton;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteForm;
-import org.nova.html.remoting.Inputs;
-import org.nova.html.tags.script;
 
 
 public class ProceedModal extends ModalDocument

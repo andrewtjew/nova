@@ -1,7 +1,5 @@
 package org.nova.security;
 
-import org.nova.http.server.Context;
-
 public interface QuerySecurity
 {
     public String getSecurityQueryKey();

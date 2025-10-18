@@ -30,7 +30,6 @@ import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.Test;
-import org.nova.services.AllowNoSession;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
 

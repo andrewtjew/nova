@@ -1,28 +1,17 @@
 package org.nova.http.server;
 
-import java.io.InterruptedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.HashMap;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.nova.core.ObjectBox;
-import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteResponse;
-import org.nova.html.remote.RemoteStateBinding;
-import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
 import org.nova.logging.Logger;
-import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 
 public class WebSocketResponder implements WebSocketListener
 {

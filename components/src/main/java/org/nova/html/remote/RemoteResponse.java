@@ -10,7 +10,6 @@ import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.Text;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.WebSocketContext;
 import org.nova.json.ObjectMapper;

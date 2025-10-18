@@ -27,11 +27,9 @@ import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.StyleTemplate;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 import org.nova.html.tags.hr;
 import org.nova.html.properties.*;
 

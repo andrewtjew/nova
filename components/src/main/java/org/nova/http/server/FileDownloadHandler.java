@@ -1,24 +1,9 @@
 package org.nova.http.server;
 
-import java.io.File;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpStatus;
-import org.nova.debug.Debug;
-import org.nova.debug.Debugging;
-import org.nova.html.ExtensionToContentTypeMappings;
 import org.nova.tracing.Trace;
-import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
-
-import com.google.common.io.Files;
-import com.nixxcode.jvmbrotli.common.BrotliLoader;
 
 public class FileDownloadHandler extends ServletHandler
 {

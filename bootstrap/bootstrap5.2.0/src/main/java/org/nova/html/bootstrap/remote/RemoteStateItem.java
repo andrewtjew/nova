@@ -8,7 +8,6 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.remote.RemoteStateElement;
 

@@ -24,7 +24,6 @@ package org.nova.html.bootstrap;
 import org.nova.html.elements.GlobalTagElement;
 import org.nova.html.elements.InputElement;
 import org.nova.html.elements.InputType;
-import org.nova.html.elements.TagElement;
 import org.nova.html.enums.autocomplete;
 
 public class InputComponent<ELEMENT extends InputComponent<ELEMENT>> extends InputElement<ELEMENT> implements Styling<ELEMENT>
