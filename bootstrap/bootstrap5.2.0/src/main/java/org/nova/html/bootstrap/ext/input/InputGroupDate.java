@@ -28,6 +28,18 @@ public class InputGroupDate extends StyleComponent<InputGroupDate>
         this.selectMonth.name(namePrefix+"month").form_select().style("width:40%;");
         this.selectDay.name(namePrefix+"day").form_select().style("width:30%;");
     }
+    public InputGroupDate required(boolean required)
+    {
+        this.selectYear.required(required);
+        this.selectMonth.required(required);
+        this.selectDay.required(required);
+        return this;
+    }
+    public InputGroupDate required()
+    {
+        return required(true);
+    }
+    
     public InputGroupDate(String namePrefix,int baseYear,int years)
     {
         this(namePrefix,baseYear,years,null,null,null);

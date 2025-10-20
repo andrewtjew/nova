@@ -11,19 +11,14 @@ import org.nova.utils.TypeUtils;
 
 public class SelectMonth extends Select
 {
-    private Integer value;
+    public SelectMonth(Integer value)
+    {
+        set(value);
+    }
+    public SelectMonth()
+    {
+    }
     public SelectMonth set(Integer value)
-    {
-        this.value=value;
-        return this;
-    }
-    public SelectMonth set(Month value)
-    {
-        return set(value!=null?value.getValue():null);
-    }
-    
-    @Override
-    public void compose(Composer composer) throws Throwable
     {
         clearInners();
         option prompt=returnAddInner(new option()).selected().value("").addInner("Month");
@@ -40,6 +35,11 @@ public class SelectMonth extends Select
             option.value(month);
             option.selected(TypeUtils.equals(month,value));
         }
-        super.compose(composer);
+        return this;
     }
+    public SelectMonth set(Month value)
+    {
+        return set(value!=null?value.getValue():null);
+    }
+    
 }

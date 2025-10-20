@@ -62,5 +62,13 @@ public class InputRadio extends InputComponent<InputRadio>
     {
         return attr("required");
     }
+    public InputRadio required(boolean required)
+    {
+        if (required)
+        {
+            attr("required");
+        }
+        return this;
+    }
 }
 
