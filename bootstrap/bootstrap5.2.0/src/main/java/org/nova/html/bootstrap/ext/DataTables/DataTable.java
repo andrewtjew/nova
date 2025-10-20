@@ -115,32 +115,54 @@ public class DataTable  extends StyleComponent<DataTable>
     @Override
     public void compose(Composer composer) throws Throwable
     {
-        script script=new script().addInner(new LiteralHtml(js_ready()));
-        composer.getStringBuilder().append(script.getHtml());
+//        script script=new script().addInner(new LiteralHtml(js_ready()));
+//        composer.getStringBuilder().append(script.getHtml());
+        this.addInner(new script().addInner(new LiteralHtml(js_new())));
         super.compose(composer);
     }
-    public String js_ready() throws Throwable
-    {
-        return js_ready(id(),options);
-    }
-    static public String js_ready(String id,DataTableOptions options) throws Throwable
-    {
-        StringBuilder sb=new StringBuilder();
-        sb.append("$(document).ready(function(){$('#").append(id).append("').DataTable(");
-        {
-            ObjectBuilder ob=new ObjectBuilder();
-            ob.add(options);
-            sb.append(ob.toString());
-        }
-        sb.append(");});");
-    //    sb.append(HtmlUtils.js_call("alert",id));
-        return sb.toString();
-    }
+//    public String js_ready() throws Throwable
+//    {
+//        return js_ready(id(),options);
+//    }
+//    static public String js_ready(String id,DataTableOptions options) throws Throwable
+//    {
+//        StringBuilder sb=new StringBuilder();
+//        sb.append("$(document).ready(function(){$('#").append(id).append("').DataTable(");
+//        {
+//            ObjectBuilder ob=new ObjectBuilder();
+//            ob.add(options);
+//            sb.append(ob.toString());
+//        }
+//        sb.append(");});");
+//        return sb.toString();
+//    }
     static public String js_draw(String id) throws Throwable
     {
         StringBuilder sb=new StringBuilder();
         sb.append("$('#").append(id).append("').DataTable().draw();");
         return sb.toString();
+    }
+    public String js_draw() throws Throwable
+    {
+        return js_draw(id());
+    }
+    
+    static public String js_new(String id,DataTableOptions options) throws Throwable
+    {
+        StringBuilder sb=new StringBuilder();
+        sb.append("$('#").append(id).append("').DataTable(");
+        {
+            ObjectBuilder ob=new ObjectBuilder();
+            ob.add(options);
+            sb.append(ob.toString());
+        }
+        sb.append(");");
+        return sb.toString();
+        
+    }
+    public String js_new() throws Throwable
+    {
+        return js_new(id(),options);
     }
     public TableRow returnAddBodyRow()
     {
