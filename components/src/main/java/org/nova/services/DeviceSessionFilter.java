@@ -4,8 +4,6 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,19 +12,12 @@ import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
-import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.LiteralHtml;
-import org.nova.html.ext.Redirect;
 import org.nova.html.ext.DeviceSessionPage;
-import org.nova.html.remote.Remote;
-import org.nova.html.remote.RemoteResponse;
-import org.nova.html.tags.script;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
-import org.nova.services.RoleSession.AccessResult;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 

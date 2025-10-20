@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.http.server;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class HtmlContentWriter extends ContentWriter

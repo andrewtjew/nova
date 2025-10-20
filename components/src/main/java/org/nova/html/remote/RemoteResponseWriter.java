@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.remote;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.nova.http.server.ContentWriter;

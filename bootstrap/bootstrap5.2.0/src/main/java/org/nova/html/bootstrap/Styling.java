@@ -42,7 +42,6 @@ import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.TagElement;
 
 public interface Styling<ELEMENT>
 {

@@ -1,7 +1,6 @@
 package org.nova.html.remote;
 
 
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;

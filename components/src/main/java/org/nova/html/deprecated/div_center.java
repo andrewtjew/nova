@@ -25,7 +25,6 @@ import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.properties.Length_;
 import org.nova.html.properties.Position_;
 import org.nova.html.properties.Style;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 
 public class div_center extends GlobalEventTagElement<div_center>

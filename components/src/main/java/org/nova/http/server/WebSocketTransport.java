@@ -22,13 +22,9 @@
 package org.nova.http.server;
 
 import java.io.IOException;
-import java.util.HashMap;
-
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.api.Session;
@@ -41,9 +37,6 @@ import org.nova.html.tags.body;
 import org.nova.html.tags.h1;
 import org.nova.html.tags.html;
 import org.nova.html.tags.script;
-import org.nova.json.ObjectMapper;
-import org.nova.tracing.Trace;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

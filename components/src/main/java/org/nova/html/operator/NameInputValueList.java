@@ -31,7 +31,6 @@ import org.nova.html.properties.Display_;
 import org.nova.html.properties.FontWeight_;
 import org.nova.html.properties.Length_;
 import org.nova.html.properties.Style;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.TextAlign_;
 import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;

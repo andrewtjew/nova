@@ -1,6 +1,5 @@
 package org.nova.html.bootstrap.ext.input;
 
-import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.TextArea;
 import org.nova.html.elements.Element;
 

@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Stack;
-
 import org.nova.collections.ContentCache.ValueSize;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;

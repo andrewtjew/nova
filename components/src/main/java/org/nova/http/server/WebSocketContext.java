@@ -1,10 +1,8 @@
 package org.nova.http.server;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.eclipse.jetty.websocket.api.Session;
-import org.nova.html.remote.RemoteResponse;
 import org.nova.tracing.Trace;
 
 public class WebSocketContext

@@ -25,9 +25,7 @@ import java.util.HashSet;
 
 import org.nova.html.elements.GlobalEventTagElement;
 import org.nova.html.enums.link_rel;
-import org.nova.html.tags.base;
 import org.nova.html.tags.link;
-import org.nova.html.tags.meta;
 import org.nova.html.tags.style;
 import org.nova.html.tags.script;
 

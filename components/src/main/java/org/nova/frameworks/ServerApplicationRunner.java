@@ -39,7 +39,6 @@ import org.nova.http.server.HttpServerConfiguration;
 import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
-import org.nova.http.server.JSONPatchContentReader;
 import org.nova.http.server.JettyServerFactory;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;

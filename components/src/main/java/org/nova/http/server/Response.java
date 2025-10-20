@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import jakarta.servlet.http.Cookie;
 
 import org.eclipse.jetty.http.HttpStatus;
-import org.nova.html.elements.Element;
 import org.nova.http.Header;
 
 //The class is made final to force http method handlers to specify the parametized content type which is needed to map to the proper content writer. 

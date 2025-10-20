@@ -1,7 +1,6 @@
 package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputRange;
-import org.nova.html.bootstrap.InputText;
 import org.nova.html.elements.Element;
 
 public class FormInputRange extends FormInputComponent<InputRange>

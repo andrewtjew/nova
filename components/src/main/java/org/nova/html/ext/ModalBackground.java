@@ -28,7 +28,6 @@ import org.nova.html.properties.Length_;
 import org.nova.html.properties.Overflow_;
 import org.nova.html.properties.Position_;
 import org.nova.html.properties.Style;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
 

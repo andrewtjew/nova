@@ -4,9 +4,7 @@ import org.nova.html.DataTables.ColumnDef;
 import org.nova.html.DataTables.DataTableOptions;
 import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
-import org.nova.html.properties.width;
 
 public class LastColumnMenuDataTable extends DataTable 
 {

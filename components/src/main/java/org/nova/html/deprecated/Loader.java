@@ -24,7 +24,6 @@ package org.nova.html.deprecated;
 import org.nova.html.ext.Head;
 import org.nova.html.properties.Color_;
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
 import org.nova.html.tags.style;

@@ -2,20 +2,21 @@ package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.Select;
 import org.nova.html.tags.option;
+import org.nova.localization.ClockFormat;
 import org.nova.utils.TypeUtils;
 
 
 public class SelectHour extends Select
 {
-    final private int step;
-    public SelectHour(int step,Integer value)
+    final private ClockFormat clockFormat;
+    public SelectHour(ClockFormat clockFormat,Integer value)
     {
-        this.step=step;
+        this.clockFormat=clockFormat;
         set(value);
     }
-    public SelectHour(Integer value)
+    public SelectHour(ClockFormat clockFormat)
     {
-        this(1,value);
+        this(clockFormat,null);
     }
     
     public SelectHour set(Integer value)
@@ -26,12 +27,32 @@ public class SelectHour extends Select
         {
             prompt.disabled();
         }
-        for (int i=0;i<24;i++)
+
+        switch (this.clockFormat)
         {
-            option option=returnAddInner(new option()).value(i);
-            option.addInner(i);
-            option.selected(TypeUtils.equals(value,i));
+            case AM_PM:
+            if (value!=null)
+            {
+                value=value%12;
+            }
+            for (int i=1;i<13;i++)
+            {
+                option option=returnAddInner(new option()).value(i);
+                option.addInner(i);
+                option.selected(TypeUtils.equals(value,i));
+            }
+            break;
+
+            case HOURS_24:
+            for (int i=0;i<24;i++)
+            {
+                option option=returnAddInner(new option()).value(i);
+                option.addInner(i);
+                option.selected(TypeUtils.equals(value,i));
+            }
+            break;
         }
+        
         return this;
     }    
     

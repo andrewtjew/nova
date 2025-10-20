@@ -22,7 +22,6 @@
 package org.nova.html.DataTables;
 
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 
 public class Column
 {

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.ext;
 import org.nova.html.tags.html;
-import org.nova.html.tags.script;
 import org.nova.html.tags.body;
 
 public class Page extends Content

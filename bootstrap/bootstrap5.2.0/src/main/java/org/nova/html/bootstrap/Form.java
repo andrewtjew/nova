@@ -23,7 +23,6 @@ package org.nova.html.bootstrap;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.enums.method;
 
 public class Form extends FormElement<Form> implements Styling<Form>

@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.html.bootstrap;
 
-import org.nova.html.bootstrap.classes.BreakPoint;
-
 //public class TableResponsive extends StyleComponent<TableResponsive> 
 //{
 //    public TableResponsive(BreakPoint breakPoint)

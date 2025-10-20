@@ -35,7 +35,6 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
-import org.nova.http.server.WebSocketTransport.TestWebSocket;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 

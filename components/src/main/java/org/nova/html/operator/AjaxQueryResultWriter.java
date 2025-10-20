@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map.Entry;
 

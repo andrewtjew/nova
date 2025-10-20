@@ -1,6 +1,5 @@
 package org.nova.html.remote;
 
-import org.nova.html.elements.Composer;
 import org.nova.html.elements.FormElement;
 import org.nova.html.enums.enctype;
 import org.nova.html.ext.HtmlUtils;

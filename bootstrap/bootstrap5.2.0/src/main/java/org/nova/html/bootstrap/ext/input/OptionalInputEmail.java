@@ -1,7 +1,6 @@
 package org.nova.html.bootstrap.ext.input;
 
 import org.nova.html.bootstrap.InputEmail;
-import org.nova.html.bootstrap.InputText;
 
 public class OptionalInputEmail extends OptionalInput<InputEmail>
 {

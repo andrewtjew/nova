@@ -1,10 +1,6 @@
 package org.nova.http.server;
 
-import java.nio.charset.StandardCharsets;
-
 import org.eclipse.jetty.http.HttpStatus;
-import org.nova.html.elements.StringComposer;
-import org.nova.html.ext.Redirect;
 import org.nova.tracing.Trace;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
