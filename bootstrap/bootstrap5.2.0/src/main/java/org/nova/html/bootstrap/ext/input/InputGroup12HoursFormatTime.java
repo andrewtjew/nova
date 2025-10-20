@@ -1,6 +1,5 @@
 package org.nova.html.bootstrap.ext.input;
 
-import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.ext.InputHidden;
