@@ -57,6 +57,17 @@ public class InputGroupDate extends StyleComponent<InputGroupDate>
     {
         this(namePrefix,dateFormat,baseYear,years,null,null,null);
     }
+    public InputGroupDate required(boolean required)
+    {
+        this.selectYear.required(required);
+        this.selectMonth.required(required);
+        this.selectDay.required(required);
+        return this;
+    }
+    public InputGroupDate required()
+    {
+        return required(true);
+    }    
 //    public InputGroupDate(int baseYear,int years)
 //    {
 //        this(null,baseYear,years);

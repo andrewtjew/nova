@@ -1,10 +1,10 @@
 package org.nova.html.bootstrap.ext.input;
 
-public class FormInputNumberGroup extends FormInputComponent<InputNumberGroup>
+public class FormInputNumberGroup extends FormInputComponent<InputGroupNumber>
 {
     public FormInputNumberGroup(FormCol col, String labelText,String name,Double value,boolean required)
     {
-        super(col, labelText, new InputNumberGroup(), null);
+        super(col, labelText, new InputGroupNumber(), null);
         input().name(name).required(required);
         if (value!=null)
         {

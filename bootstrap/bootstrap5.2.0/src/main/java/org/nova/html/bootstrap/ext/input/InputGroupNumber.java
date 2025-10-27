@@ -5,22 +5,22 @@ import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.elements.Composer;
 
-public class InputNumberGroup extends InputNumber
+public class InputGroupNumber extends InputNumber
 {
     private String prefix;
     private String postfix;
     
-    public InputNumberGroup()
+    public InputGroupNumber()
     {
         form_control();
     }
     
-    public InputNumberGroup prefix(String prefix)
+    public InputGroupNumber prefix(String prefix)
     {
         this.prefix=prefix;
         return this;
     }
-    public InputNumberGroup postfix(String postfix)
+    public InputGroupNumber postfix(String postfix)
     {
         this.postfix=postfix;
         return this;
