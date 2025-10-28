@@ -34,7 +34,7 @@ public class Service extends DeviceSessionService<UserSession>
         this.getPublicServer().registerBackServletHandlers(this.fileDownloader);
         this.getPrivateServer().registerBackServletHandlers(this.fileDownloader);
         
-        FavIconController favIconController=new FavIconController("./client/favicon.ico"); 
+        FavIconController favIconController=new FavIconController("./client/favicon.ico",null); 
         this.getPublicServer().addContentEncoders(new BrotliContentEncoder());
         this.getPublicServer().registerHandlers(favIconController);
         this.getPrivateServer().registerHandlers(favIconController);

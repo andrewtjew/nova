@@ -272,6 +272,10 @@ public class HtmlUtils
         return "var x = document.getElementById('"+id+"');var t=document.getElementById('"+toggleElementId+"');if (x.type === 'password') {x.type = 'text';t.innerHTML='"+toggleHideText+"';} else {x.type = 'password';t.innerHTML='"+toggleShowText+"';}";
     }
     
+    public static String js_reload()
+    {
+        return "window.location.reload()";
+    }
     public static String js_select_location()
     {
     	return "window.location=this.options[this.selectedIndex].value;";

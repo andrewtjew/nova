@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.services;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.Context;
 import org.nova.http.server.DeflaterContentEncoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -30,28 +31,92 @@ import org.nova.http.server.annotations.Path;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
 public class FavIconController
 {
-    final private byte[] bytes;
+    final private byte[] icoImage;
+    final private byte[] pngImage;
     final private String cacheControl;
-    public FavIconController(String favIconFileName,String cacheControl) throws Exception
+    public FavIconController(String icoFileName,String pngFileName,String cacheControl) throws Exception
     {
-        this.bytes=FileUtils.readFile(favIconFileName);
+        if (icoFileName!=null)
+        {
+            this.icoImage=FileUtils.readFile(icoFileName);
+        }
+        else
+        {
+            this.icoImage=null;
+        }
+        
+        if (pngFileName!=null)
+        {
+            this.pngImage=FileUtils.readFile(pngFileName);
+        }
+        else
+        {
+            this.pngImage=null;
+        }
+       
         this.cacheControl=cacheControl;
     }
-    public FavIconController(String favIconFileName) throws Exception
+    public FavIconController(String icoFileName,String pngFileName) throws Exception
     {
-        this(favIconFileName,"max-age=604800");
+        this(icoFileName,pngFileName,"max-age=604800");
     }
 	
 	@GET
 	@Path("/favicon.ico")
-	
-	public void favicon(Trace parent,Context context) throws Throwable
+	public void ico(Trace parent,Context context) throws Throwable
 	{
-	    context.capture();
-	    context.getHttpServletResponse().setHeader("Cache-Control", this.cacheControl);
-        context.getHttpServletResponse().getOutputStream().write(this.bytes);
+	    if (this.icoImage!=null)
+	    {
+    	    context.capture();
+            HttpServletResponse response=context.getHttpServletResponse();
+            response.setHeader("Cache-Control", this.cacheControl);
+            response.getOutputStream().write(this.icoImage);
+            response.setContentType("image/x-icon");
+	    }
+	    else
+	    {
+            context.getHttpServletResponse().setStatus(HttpStatus.NOT_FOUND_404);
+	    }
 	}
+
+	@GET
+    @Path("/favicon.png")
+    public void png(Trace parent,Context context) throws Throwable
+    {
+        if (this.pngImage!=null)
+        {
+            context.capture();
+            HttpServletResponse response=context.getHttpServletResponse();
+            response.setHeader("Cache-Control", this.cacheControl);
+            response.getOutputStream().write(this.pngImage);
+            response.setContentType("image/png");
+        }
+        else
+        {
+            context.getHttpServletResponse().setStatus(HttpStatus.NOT_FOUND_404);
+        }
+    }
+
+	@GET
+    @Path("/apple-touch-icon.png")
+    public void apple(Trace parent,Context context) throws Throwable
+    {
+        if (this.pngImage!=null)
+        {
+            context.capture();
+            HttpServletResponse response=context.getHttpServletResponse();
+            response.setHeader("Cache-Control", this.cacheControl);
+            response.getOutputStream().write(this.pngImage);
+            response.setContentType("image/png");
+        }
+        else
+        {
+            context.getHttpServletResponse().setStatus(HttpStatus.NOT_FOUND_404);
+        }
+    }
 }
