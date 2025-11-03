@@ -11,23 +11,21 @@ public class AzureChatCompletionService extends ChatCompletionService
 {
     final private OpenAIClient openAIClient; 
     final private String deploymentName;
-    private String systemMessage;
-    public AzureChatCompletionService(String endPoint,String apiKey,String deploymentName,String systemMessage)
+    public AzureChatCompletionService(String endPoint,String apiKey,String deploymentName)
     {
         this.openAIClient = OpenAIOkHttpClient.builder()
                 .baseUrl(endPoint)
                 .credential(AzureApiKeyCredential.create(apiKey))
                 .build();        
         this.deploymentName=deploymentName;
-        this.systemMessage=systemMessage;
     }
     
     @Override
-    public String complete(String prompt)
+    public String complete(String systemMessage,String prompt)
     {
         ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()
                 .model(ChatModel.of(this.deploymentName))
-                .addSystemMessage(this.systemMessage)
+                .addSystemMessage(systemMessage)
                 .addUserMessage(prompt)
                 .build();
         ChatCompletion chatCompletion = this.openAIClient.chat().completions().create(createParams);
