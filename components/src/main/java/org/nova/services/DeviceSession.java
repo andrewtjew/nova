@@ -195,7 +195,12 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return "_";
     }
 
+    public RequestMethod getCurrentRequestMethod()
+    {
+        return this.requestMethod;
+    }
     
+    private RequestMethod requestMethod;    
     @Override
     public AbnormalAccept acceptRequest(Trace parent,Context context) throws Throwable
     {
@@ -212,7 +217,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         {
             return null;
         }
-        RequestMethod requestMethod=context.getRequestMethod();
+        this.requestMethod=context.getRequestMethod();
         if (requestMethod.isQueryVerificationRequired())
         {
             if (getSecurityQueryKey()!=null)
