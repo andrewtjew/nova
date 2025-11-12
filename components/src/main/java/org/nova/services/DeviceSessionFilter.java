@@ -200,7 +200,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         }
         finally
         {
-            lock.close();
+            if (lock!=null)
+            {
+                lock.close();
+            }
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
             response.setHeader("Pragma", "no-cache");

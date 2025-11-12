@@ -105,7 +105,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             this.states.put(key, state);
             if (Debug.ENABLE && DEBUG)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state);
             }            
         }
     }

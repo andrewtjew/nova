@@ -242,7 +242,6 @@ namespace nova.remote
         let form=document.getElementById(id) as HTMLFormElement;
         if (form.enctype=="data")
         {
-            let data=new FormData(form);
             return await fetch(action!=null?action:form.action,
                 {
                     method:"POST",
@@ -262,9 +261,9 @@ namespace nova.remote
             }
         else
         {
-            let data=new FormData(form);
+            let formData=new FormData(form);
             let params=new URLSearchParams();
-            for (const pair of data)
+            for (const pair of formData)
             {
                 params.append(pair[0],pair[1].toString());
             }
@@ -291,6 +290,7 @@ namespace nova.remote
     export async function postFormData(id:string,action:string=null)
     {
         let form=document.getElementById(id) as HTMLFormElement;
+        
         return await fetch(action!=null?action:form.action,
             {
                 method:"POST",
