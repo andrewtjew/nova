@@ -211,13 +211,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 return abnormalAccept;
             }
         }
+        this.requestMethod=context.getRequestMethod();
         HttpServletRequest request=context.getHttpServletRequest();
         String queryString=request.getQueryString();
         if (queryString==null)
         {
             return null;
         }
-        this.requestMethod=context.getRequestMethod();
         if (requestMethod.isQueryVerificationRequired())
         {
             if (getSecurityQueryKey()!=null)
