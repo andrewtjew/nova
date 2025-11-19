@@ -75,7 +75,7 @@ public class QueryResultSet
         }
         return (OBJECT[]) array;
     }
-    public <OBJECT extends NodeObject> OBJECT[] getObjects(Class<OBJECT> type) throws Throwable
+    public <OBJECT extends NodeObject> OBJECT[] getNodeObjects(Class<OBJECT> type) throws Throwable
     {
         return getNodeObjects(null,type);
     }

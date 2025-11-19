@@ -52,7 +52,7 @@ class PrepareState
                     {
                         if (linkQuery.endNodeObjectType!=linkQuery.nodeTypes[0])
                         {
-                            throw new Exception();
+                            throw new Exception("endNodeObjecType="+linkQuery.endNodeObjectType.getSimpleName()+", first select type="+linkQuery.nodeTypes[0].getSimpleName());
                         }
                     }
                     else if (linkQuery.optionalNodeTypes!=null)

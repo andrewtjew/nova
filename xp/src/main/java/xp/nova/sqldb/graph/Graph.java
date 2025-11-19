@@ -739,6 +739,24 @@ public class Graph
         this.nodeTypeNameCacheSets=new HashMap<Long, HashSet<String>>();
     }
     
+    static public record DebugCacheState(QueryResultSetCache queryResultSetCache
+            ,HashMap<String,HashSet<QueryCacheKey>> typeNameQueryKeyCacheSets
+            ,HashMap<Long,HashSet<String>> nodeTypeNameCacheSets
+            ,CountCache countCache)
+    {
+    }
+
+    public DebugCacheState debug_getDebugCacheState()
+    {
+        if (DEBUG)
+        {
+            return new DebugCacheState(queryResultSetCache, typeNameQueryKeyCacheSets, nodeTypeNameCacheSets, countCache);
+        }
+        else
+        {
+            return null;
+        }
+    }
     public String getCatalog()
     {
         return this.catalog;
@@ -1151,7 +1169,7 @@ public class Graph
 
     private void invalidateCacheLines(Trace parent,String typeName) throws Throwable
     {
-        var typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
+        HashSet<QueryCacheKey> typeNameCacheSet=this.typeNameQueryKeyCacheSets.remove(typeName);
         if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
         {
             Debugging.log(DEBUG_CATEGORY,"Cache:invalidate cached table "+typeName);
@@ -1174,7 +1192,7 @@ public class Graph
         synchronized(this)
         {
             this.countCache.clear();
-            var typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
+            HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
             if (typeNameSet!=null)
             {
                 for (String typeName:typeNameSet.toArray(new String[typeNameSet.size()]))
@@ -1183,12 +1201,19 @@ public class Graph
                     {
                         Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: nodeId="+nodeId+", typeName="+typeName);
                     }
+//                    GraphObjectDescriptor descriptor=this.getGraphObjectDescriptor(typeName);
+//                    invalidateCacheLines(parent, descriptor);
+                      
                     invalidateCacheLines(parent,typeName);
                 }
             }
+            else if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+            {
+                Debugging.log(DEBUG_CATEGORY,"invalidateCacheLines: typeNameSet not found for nodeId="+nodeId);
+            }
         }
     }
-    void evictCacheSets(Trace parent, QueryCacheKey key,QueryResultSet queryResultSet) throws Throwable
+    void evictCacheSets(Trace parent,QueryCacheKey key,QueryResultSet queryResultSet) throws Throwable
     {
         for (NamespaceGraphObjectDescriptor namespaceDescriptor:key.preparedQuery.descriptors)
         {
@@ -1202,6 +1227,7 @@ public class Graph
                     this.typeNameQueryKeyCacheSets.remove(typeName);
                 }
             }
+            invalidateCacheLines(parent, typeName);
             if (queryResultSet!=null)
             {
                 String table=namespaceDescriptor.getNamespaceTypeName();
@@ -1213,9 +1239,17 @@ public class Graph
                         HashSet<String> typeNameSet=this.nodeTypeNameCacheSets.get(nodeId);
                         if (typeNameSet!=null)
                         {
+                            if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                            {
+                                Debugging.log(DEBUG_CATEGORY,"evictCacheSets: typeName="+typeName);
+                            }
                             typeNameSet.remove(typeName);
                             if (typeNameSet.size()==0)
                             {
+                                if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
+                                {
+                                    Debugging.log(DEBUG_CATEGORY,"evictCacheSets: nodeId="+nodeId);
+                                }
                                 this.nodeTypeNameCacheSets.remove(nodeId);
                             }
                         }
