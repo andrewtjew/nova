@@ -135,7 +135,10 @@ public class TimerTask
 	            }
 	            this.executeStatus=TaskStatus.READY;
 	        }
-	        this.timerScheduler.reschedule(runningKey,key, this);
+	        if (this.period>=0)
+	        {
+	            this.timerScheduler.reschedule(runningKey,key, this);
+	        }
 		}
 	}
 	

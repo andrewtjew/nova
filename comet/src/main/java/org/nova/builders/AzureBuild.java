@@ -17,7 +17,8 @@ public class AzureBuild extends Script
         boolean noBuild=false;
         String bootstrapVersion="5.2.0";
         String aws=null;
-
+        boolean T2=false;
+        
         for (String arg : args)
         {
             String[] parts = arg.split("=");
@@ -56,6 +57,10 @@ public class AzureBuild extends Script
                     aws = parts[1];
                     break;
 
+                case "t2":
+                    T2=Boolean.parseBoolean(parts[1]);
+                    break;
+
                 default:
                     System.err.println("invalid arg:" + arg);
             }
@@ -82,6 +87,10 @@ public class AzureBuild extends Script
                 CometUtils.exec(libDir+"messaging","mvn clean install");
                 CometUtils.exec(libDir+"common","mvn clean install");
                 CometUtils.exec(libDir+"common-ui-bootstrap"+bootstrapVersion,"mvn clean install");
+            }
+            if (T2)
+            {
+                CometUtils.exec("C:\\repos\\azure\\services2\\T2","mvn clean install");
             }
             CometUtils.deleteFile(destDir);
             CometUtils.exec(sourceDir+artifact,"mvn clean install");

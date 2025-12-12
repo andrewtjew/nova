@@ -1,13 +1,8 @@
 package org.nova.html.bootstrap.ext.input;
 
-import java.time.LocalDate;
-
 import org.nova.html.bootstrap.InputText;
 import org.nova.html.bootstrap.StyleComponent;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.TextAlign;
-import org.nova.localization.DateFormat;
-import org.nova.utils.TypeUtils;
 
 public class InputGroupVerificationCode extends StyleComponent<InputGroupVerificationCode>
 {

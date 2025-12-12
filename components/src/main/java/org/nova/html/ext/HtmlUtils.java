@@ -30,11 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.element.Element;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
+import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.properties.Display_;
@@ -292,9 +295,14 @@ public class HtmlUtils
     {
         return "window.location='"+url+"'";
     }
-    public static String js_focus(InputElement element)
+    public static String js_focus(InputElement<?> element)
     {
         return "document.getElementById('"+element.id()+"').focus();";
+    }
+
+    public static String js_element_style_none(TagElement<?> element)
+    {
+        return "document.getElementById('"+element.id()+"').style.display='none';";
     }
     
     public static List<String> getSelectionNames(Context context,String prefix)

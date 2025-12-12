@@ -29,7 +29,7 @@ public class Program
         }
         finally
         {
-            System.out.println("script ended");
+            System.out.println("comet: script ended");
         }
     }
     

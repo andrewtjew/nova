@@ -24,38 +24,38 @@ package org.nova.html.tags;
 import org.nova.html.elements.InputElement;
 import org.nova.html.enums.autocomplete;
 
-public class input extends InputElement<input>
+public class request extends InputElement<request>
 {
-    public input()
+    public request()
     {
         super(null);
     }
-    public input(datalist datalist)
+    public request(datalist datalist)
     {
         this();
         add(datalist);
     }
-    public input list(String id)
+    public request list(String id)
     {
         attr("list",id);
         return this;
     }
-    public input list(datalist datalist)
+    public request list(datalist datalist)
     {
         list(datalist.id());
         return this;
     }
-    public input add(datalist datalist)
+    public request add(datalist datalist)
     {
         list(datalist.id());
         addInner(datalist);
         return this;
     }
-    public input autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
+    public request autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
     {
         return attr("autocomplete",autocomplete);
     }
-    public input autocomplete(boolean autocomplete)
+    public request autocomplete(boolean autocomplete)
     {
         if (autocomplete)
         {

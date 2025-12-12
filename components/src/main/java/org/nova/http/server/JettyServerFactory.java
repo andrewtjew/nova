@@ -91,7 +91,7 @@ public class JettyServerFactory
     {
         return createHttpsServer(port, serverCertificateKeyStorePath, serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword);
     }
-    static public Server createHttpsServer(int threads, int port, String serverCertificateKeyStorePath, String serverCertificatePassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,boolean requireServerNameIndication)
+    static public Server createHttpsServer(int threads, int port, String keyStorePath, String keyStorePassword,String trustStorePath,String trustStorePassword,String keyManagerPassword,boolean requireServerNameIndication)
     {
         HttpConfiguration config=new HttpConfiguration();
         config.setOutputBufferSize(65536);
@@ -108,26 +108,28 @@ public class JettyServerFactory
         {
             customizer.setSniHostCheck(false);
         }
-        return createHttpsServer(createThreadPool(threads),config,serverCertificateKeyStorePath,serverCertificatePassword,clientCertificateKeyStorePath,clientCertificatePassword,keyManagerPassword,customizer);
+        return createHttpsServer(createThreadPool(threads),config,keyStorePath,keyStorePassword,trustStorePath,trustStorePassword,keyManagerPassword,customizer);
     }
     
-    static private Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String serverCertificateKeyStorePath, String serverCertificateKeyPassword,String clientCertificateKeyStorePath,String clientCertificatePassword,String keyManagerPassword,SecureRequestCustomizer customizer)
+    static private Server createHttpsServer(ThreadPool threadPool, HttpConfiguration config, String keyStorePath, String keyStorePassword,String trustStorePath,String trustStorePassword,String keyManagerPassword,SecureRequestCustomizer customizer)
     {
         Server server = new Server(threadPool);
         config.addCustomizer(customizer);
         
         SslContextFactory.Server sslContextFactoryServer = new SslContextFactory.Server();
-        if ((serverCertificateKeyPassword!=null)&&(serverCertificateKeyStorePath!=null))
+        if ((keyStorePassword!=null)&&(keyStorePath!=null))
         {
-            sslContextFactoryServer.setKeyStorePath(FileUtils.toNativePath(serverCertificateKeyStorePath));
-            sslContextFactoryServer.setKeyStorePassword(serverCertificateKeyPassword);
+            //To enable https. keySorePath can be a jks file containing server.pfx file. 
+            sslContextFactoryServer.setKeyStorePath(FileUtils.toNativePath(keyStorePath));
+            sslContextFactoryServer.setKeyStorePassword(keyStorePassword);
         }
-        if ((clientCertificatePassword!=null)&&(clientCertificateKeyStorePath!=null))
-        {
-            sslContextFactoryServer.setNeedClientAuth(true);
-            sslContextFactoryServer.setTrustStorePath(FileUtils.toNativePath(clientCertificateKeyStorePath));
-            sslContextFactoryServer.setTrustStorePassword(clientCertificatePassword);
-        }
+//        if ((trustStorePassword!=null)&&(trustStorePath!=null))
+//        {
+//            //To verify client certificates. trustStorePath can be a jks file containing ca.pfx file to verify client certificates.
+//            sslContextFactoryServer.setNeedClientAuth(true);
+//            sslContextFactoryServer.setTrustStorePath(FileUtils.toNativePath(trustStorePath));
+//            sslContextFactoryServer.setTrustStorePassword(trustStorePassword);
+//        }
 
         
 //        sslContextFactory.setTrustAll(true);

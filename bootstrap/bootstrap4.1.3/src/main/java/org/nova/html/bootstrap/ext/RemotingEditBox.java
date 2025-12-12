@@ -42,7 +42,6 @@ import org.nova.html.ext.ModalBackground;
 import org.nova.html.properties.Display_;
 import org.nova.html.properties.Length_;
 import org.nova.html.properties.Style;
-import org.nova.html.properties.Style;
 import org.nova.http.client.PathAndQuery;
 
 public class RemotingEditBox extends StyleComponent<RemotingEditBox>   

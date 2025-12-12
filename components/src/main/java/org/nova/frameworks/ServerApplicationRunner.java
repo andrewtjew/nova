@@ -175,7 +175,7 @@ public class ServerApplicationRunner //
         ServerApplication serverApplication=start(configuration,instantiator);
         serverApplication.waitForStop();
     } 
-
+    
     @GET 
     @Path("/operator/exception")
     public void startupException(Context context) throws Throwable

@@ -24,8 +24,6 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.Col;
 import org.nova.html.bootstrap.Container;
 import org.nova.html.bootstrap.Row;
-import org.nova.html.bootstrap.classes.AlignItems;
-import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.DeviceClass;
 import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Font;

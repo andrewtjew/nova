@@ -32,10 +32,6 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
 {
     final private StyleComponent<?> toggler;
     
-    public DropdownMenu(StyleComponent<?> toggler)
-    {
-        this(toggler,false);
-    }
     public DropdownMenu(StyleComponent<?> toggler,boolean split)
     {
         super("ul", "dropdown-menu");
@@ -50,7 +46,10 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
             }
         }
     }
-    
+    public DropdownMenu(StyleComponent<?> toggler)
+    {
+        this(toggler,false);
+    }
     public DropdownMenu end()
     {
         addClass("dropdown-menu-end");
