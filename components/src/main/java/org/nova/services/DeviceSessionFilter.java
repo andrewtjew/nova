@@ -94,7 +94,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
-    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=false;
+    final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
 
     protected String getToken(Trace parent, Context context)
     {
@@ -200,7 +200,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         }
         finally
         {
-            lock.close();
+            if (lock!=null)
+            {
+                lock.close();
+            }
             HttpServletResponse response=context.getHttpServletResponse();
             response.setHeader("Cache-Control","no-store, no-cache, must-revalidate, max-age=0");
             response.setHeader("Pragma", "no-cache");

@@ -320,6 +320,7 @@ public class GraphTransaction implements AutoCloseable
         {
             return rowSet.getRow(0).getBIGINT(0);
         }
+        
         this.graph.invalidateCacheLines(parent, fromNodeId);
         this.graph.invalidateCacheLines(parent, toNodeId);
         long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);

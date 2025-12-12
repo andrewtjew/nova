@@ -30,7 +30,7 @@ public class Nav extends StyleComponent<Nav>
     
     public Nav divider(String divider)
     {
-        attr("style","--bs-breadcrumb-divider:'"+divider+"'");
+        attr("style","--bs-breadcrumb-divider:'"+divider+"';");
         return this;
     }
 }

@@ -105,7 +105,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             this.states.put(key, state);
             if (Debug.ENABLE && DEBUG)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state.getClass().getCanonicalName());
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state);
             }            
         }
     }
@@ -195,7 +195,12 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return "_";
     }
 
+    public RequestMethod getCurrentRequestMethod()
+    {
+        return this.requestMethod;
+    }
     
+    private RequestMethod requestMethod;    
     @Override
     public AbnormalAccept acceptRequest(Trace parent,Context context) throws Throwable
     {
@@ -206,13 +211,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 return abnormalAccept;
             }
         }
+        this.requestMethod=context.getRequestMethod();
         HttpServletRequest request=context.getHttpServletRequest();
         String queryString=request.getQueryString();
         if (queryString==null)
         {
             return null;
         }
-        RequestMethod requestMethod=context.getRequestMethod();
         if (requestMethod.isQueryVerificationRequired())
         {
             if (getSecurityQueryKey()!=null)

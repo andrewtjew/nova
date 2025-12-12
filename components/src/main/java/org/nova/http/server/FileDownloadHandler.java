@@ -26,7 +26,7 @@ public class FileDownloadHandler extends ServletHandler
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
         String URI=request.getRequestURI();
-        return this.downloader.download(parent, URI, request, response);
+        return this.downloader.download(parent, URI, null, request, response);
     }
 
 

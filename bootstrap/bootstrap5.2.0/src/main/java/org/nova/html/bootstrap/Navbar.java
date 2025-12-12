@@ -31,7 +31,7 @@ public class Navbar extends StyleComponent<Navbar>
     {
         super("nav","navbar");
     }
-    public Navbar color(ThemeColor value)
+    public Navbar themeColor(ThemeColor value)
     {
         addClass("navbar",value.toString());
         return this;

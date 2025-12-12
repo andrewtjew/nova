@@ -294,7 +294,7 @@ public abstract class CacheDownloader<KEY>
     }
     
     
-    public boolean download(Trace parent, KEY key, HttpServletRequest request, HttpServletResponse response) throws Throwable
+    public boolean download(Trace parent, KEY key, String contentType,HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
         Long rangeStart=null;
         Long rangeEnd=null;
@@ -385,7 +385,10 @@ public abstract class CacheDownloader<KEY>
             response.setHeader("Expires", "0");
         }
         CacheValue cacheValue=cacheResult.cacheValue;
-        String contentType=this.mappings.getContentType(cacheValue.fileName);
+        if (contentType==null)
+        {
+            contentType=this.mappings.getContentType(cacheValue.fileName);
+        }
         response.setContentType(contentType);
         if (Debug.ENABLE && DEBUG)
         {
