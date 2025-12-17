@@ -152,33 +152,23 @@ class PrepareState
                 }
                 if (linkQuery.endNodeId!=null)//&&(linkQuery.nodeTypes == null)&&(linkQuery.optionalNodeTypes==null))
                 {
-                    String on = null;
+                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
+                    GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
+                    String table = descriptor.getTableName();
+
+                    String alias = "`@end" + this.aliasIndex+"`";
+                    String as=" AS "+alias+" ";
                     switch (linkQuery.direction)
                     {
                     case FROM:
-                        on = " ON " + linkAlias + ".toNodeId=";
+                        this.sources.append(" JOIN " + table + as + " ON " + linkAlias + ".toNodeId=" + alias + "._nodeId AND "+ linkAlias + ".fromNodeId="+linkQuery.endNodeId);
                         break;
                     case TO:
-                        on = " ON " + linkAlias + ".fromNodeId=";
+                        this.sources.append(" JOIN " + table + as + " ON " + linkAlias + ".fromNodeId=" + alias + "._nodeId AND " + linkAlias + ".toNodeId="+linkQuery.endNodeId);
                         break;
                     default:
                         break;
                     }
-                    Class<? extends NodeObject> type = linkQuery.endNodeObjectType;
-                    GraphObjectDescriptor descriptor = this.graph.getGraphObjectDescriptor(type);
-//                    this.descriptors.add(new NamespaceGraphObjectDescriptor(nodeNamespace,descriptor));
-                    
-                    String typeName = descriptor.getTypeName();
-                    String table = descriptor.getTableName();
-
-                    String as=" ";
-                    String alias=table;
-                    if (linkQuery.linkNamespace!=null)
-                    {
-                        alias="`"+linkQuery.linkNamespace+"_"+typeName+"`";
-                        as=" AS "+alias+" ";
-                    }
-                    this.sources.append(" JOIN " + table + as + on + alias + "._nodeId AND "+alias+"._nodeId="+linkQuery.endNodeId);
                 }
                 if (linkQuery.selectNodeId)
                 {
