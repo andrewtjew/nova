@@ -58,7 +58,7 @@ public class Style
 //    }
     public Style background_color(Color_ color)
     {
-        sb.append(new color(color));
+        sb.append(new background_color(color));
         return this;
     }
     public Style border(Length_ size,BorderBoxStyle_ borderStyle,BoxColor_ color)

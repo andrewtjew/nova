@@ -8,7 +8,7 @@ public class QueryResultSetCache extends ContentCache<QueryCacheKey, QueryResult
     final private Graph graph;
     public QueryResultSetCache(Graph graph) throws Throwable
     {
-        super(0,0,0,0);
+        super(0,5*60*1000,0,0);
         this.graph=graph;
     }
 
