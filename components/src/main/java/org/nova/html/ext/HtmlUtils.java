@@ -643,6 +643,34 @@ public class HtmlUtils
         return sb.toString();
     }
 
+    public static String escapeJSON(String string)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (int i=0;i<string.length();i++)
+        {
+            char c=string.charAt(i);
+            switch (c)
+            {
+                case '"':
+                    sb.append("'");
+                    break;
+                    
+                case '\'':
+                    sb.append("&apos;");
+                    break;
+                    
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                    
+                    
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String escapeString(QuotationMark mark,String string)
     {
         StringBuilder sb=new StringBuilder();
@@ -899,7 +927,7 @@ public class HtmlUtils
                             try
                             {
 //                                sb.append(mark.toString()+ObjectMapper.writeObjectToString(Array.get(parameter, i))+mark.toString());
-                                sb.append(escapeString(ObjectMapper.writeObjectToString(Array.get(parameter, i))));
+                                sb.append(escapeJSON(ObjectMapper.writeObjectToString(Array.get(parameter, i))));
                             }
                             catch (Throwable e)
                             {
@@ -912,7 +940,7 @@ public class HtmlUtils
                     {
                         try
                         {
-                            sb.append(escapeString(ObjectMapper.writeObjectToString(parameter)));
+                            sb.append(escapeJSON(ObjectMapper.writeObjectToString(parameter)));
                         }
                         catch (Throwable e)
                         {

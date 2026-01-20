@@ -1117,6 +1117,17 @@ public class Graph
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameQueryKeyCacheSet);
                 }
                 typeNameQueryKeyCacheSet.add(key);
+                if (TypeUtils.isTrue(key.preparedQuery.array))
+                {
+                    HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(key.nodeId);
+                    if (nodeTypeNameCacheSets==null)
+                    {
+                        nodeTypeNameCacheSets=new HashSet<String>();
+                        this.nodeTypeNameCacheSets.put(key.nodeId, nodeTypeNameCacheSets);
+                    }
+                    nodeTypeNameCacheSets.add(typeName);
+                }
+                
                 String table=namespaceDescriptor.getNamespaceTypeName();
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
+@Deprecated
 public class Style
 {
     final private StringBuilder sb;

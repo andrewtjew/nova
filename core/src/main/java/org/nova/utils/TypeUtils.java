@@ -359,7 +359,7 @@ public class TypeUtils
         {
             return false;
         }
-        return value;
+        return value.booleanValue();
     }
     static public boolean isFalse(Boolean value)
     {

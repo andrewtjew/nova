@@ -23,60 +23,6 @@ package org.nova.http.client;
 
 import org.nova.security.QuerySecurity;
 
-//public class SessionPathAndQuery
-//{
-//    final protected String path;
-//    final protected ArrayList<NameString> parameters;
-//    final private QuerySecurity security;    
-//    public SessionPathAndQuery(QuerySecurity security,String path) throws UnsupportedEncodingException
-//    {
-//        this.security=security;
-//        this.path=path;
-//        this.parameters=new ArrayList<NameString>();
-//    }
-//	public SessionPathAndQuery addQuery(String key,Object value) throws Exception
-//	{
-//	    if (value==null)
-//	    {
-//	        return this;
-//	    }
-//	    parameters.add(new NameString(key,URLEncoder.encode(value.toString(), "UTF-8")));
-////        parameters.add(new NameString(key,value.toString()));
-//	    return this;
-//	}
-//    public SessionPathAndQuery addQuery(String key,long value) throws Exception
-//    {
-//        parameters.add(new NameString(key,Long.toString(value)));
-//        return this;
-//    }
-//    public SessionPathAndQuery addQuery(String key,int value) throws Exception
-//    {
-//        parameters.add(new NameString(key,Integer.toString(value)));
-//        return this;
-//    }
-//    public SessionPathAndQuery addQuery(String key,short value) throws Exception
-//    {
-//        parameters.add(new NameString(key,Short.toString(value)));
-//        return this;
-//    }
-//    public SessionPathAndQuery addJSONQuery(String key,Object value) throws Throwable
-//    {
-//        return addQuery(key,ObjectMapper.writeObjectToString(value));
-//    }
-//    @Override
-//    public String toString()
-//    {
-//        try
-//        {
-//            return path+security.encodeParameters(this.parameters);
-//        }
-//        catch (Throwable t)
-//        {
-//            return this.path;
-//        }
-//    }
-//}
-
 public class SecurePathAndQuery extends PathAndQuery
 {
     final private QuerySecurity security;

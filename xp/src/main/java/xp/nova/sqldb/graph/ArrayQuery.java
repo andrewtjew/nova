@@ -10,7 +10,6 @@ public class ArrayQuery
 
     String expression;
  //   Object[] parameters;
-    String orderBy;
     Integer limit;
     Integer offset;
     
@@ -83,6 +82,11 @@ public class ArrayQuery
 //            preparedQuery.start=" WHERE nodeId=";
 //        }
 //        else
+        if (this.expression==null)
+        {
+            preparedQuery.start=" WHERE `@array`.nodeId=";
+        }
+        else
         {
             preparedQuery.start=" AND `@array`.nodeId=";
         }
@@ -95,6 +99,10 @@ public class ArrayQuery
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
+                if (descriptor==null)
+                {
+                    throw new Exception("Type not registered: type="+type);
+                }
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 state.descriptors.add(new NamespaceGraphObjectDescriptor(null,descriptor));
@@ -150,9 +158,10 @@ public class ArrayQuery
         {
             query.append(" WHERE `@array`.index>="+this.offset);
         }
-        preparedQuery.orderBy=this.orderBy;
+        preparedQuery.orderBy="`index`";
         preparedQuery.limit=this.limit;
         preparedQuery.sql=query.toString();
+        preparedQuery.array=true;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }

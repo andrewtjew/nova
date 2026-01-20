@@ -26,7 +26,7 @@ import org.nova.tracing.Trace;
 public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=true;
-    final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_PAGESTATE=true;
     final static boolean DEBUG_SECURITY=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
@@ -95,6 +95,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     @Override
     public void setPageState(String key,Object state) throws Throwable
     {
+        if (Debug.ENABLE && DEBUG)
+        {
+            if (key==null)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key=null");
+            }
+        }            
         if (state!=null)
         {
             if (this.newPageStates==null)

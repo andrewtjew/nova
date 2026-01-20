@@ -20,13 +20,7 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.html.ext;
-import org.nova.html.tags.html;
-import org.nova.html.tags.meta;
 import org.nova.html.tags.script;
-import org.nova.html.elements.Composer;
-import org.nova.html.elements.Element;
-import org.nova.html.enums.http_equiv;
-import org.nova.html.tags.head;
 
 public class Script extends script
 {

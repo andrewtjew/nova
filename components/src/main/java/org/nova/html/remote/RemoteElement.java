@@ -25,7 +25,7 @@ public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMEN
     public RemoteElement(String tag) throws Throwable
     {
         this(tag,null);
-    }        
+    }     
     public RemoteElement<ELEMENT> load(String href,Long interval,Long timeout) throws Throwable
     {
         if (interval!=null)

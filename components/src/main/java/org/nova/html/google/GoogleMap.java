@@ -40,9 +40,10 @@ public class GoogleMap extends Element
     
     public static script api_script(String key)
     {
-    	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
+    	return new script().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
     }
     
+    @Deprecated
     public GoogleMap(Length_ width,Length_ height,double lattitude,double longtitude,double zoom)
     {
         this.div=new div();

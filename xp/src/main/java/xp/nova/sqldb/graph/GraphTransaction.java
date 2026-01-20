@@ -493,7 +493,7 @@ public class GraphTransaction implements AutoCloseable
         {
             throw new Exception();
         }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT elementId FROM `@array` WHERE nodeId=? AND index=?",arrayNodeId,index);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
         if (rowSet.size()!=1)
         {
             throw new Exception("Invalid index: index="+index);
@@ -506,8 +506,60 @@ public class GraphTransaction implements AutoCloseable
         else
         {
             elementId=this.createNode(nodeObjects);
-            this.accessor.executeUpdate(parent, null, "UPDATE `@array' SET elementId=? WHERE nodeId=? AND index=?", elementId,arrayNodeId,index);
+            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId,arrayNodeId,index);
         }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+    }
+    public void deleteArrayElement(NodeObject arrayObject,int index) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`>=? order by `index`",arrayNodeId,index);
+        if (rowSet.size()==0)
+        {
+            throw new Exception("Invalid index: index="+index);
+        }
+        Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
+        if (elementId!=null)
+        {
+            _deleteNode(elementId);
+        }
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=? AND Index=?",arrayNodeId,index);
+        for (int i=1;i<rowSet.size();i++)
+        {
+            Row row=rowSet.getRow(i);
+            elementId=row.getBIGINT(0);
+            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=`index`-1 WHERE `nodeId`=? AND `index`=?", arrayNodeId,index);
+        }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+    }
+
+    public void exchangeArrayElements(NodeObject arrayObject,int index1,int index2) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        RowSet rowSet1=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=? ORDER BY `index`",arrayNodeId,index1);
+        if (rowSet1.size()!=1)
+        {
+            throw new Exception("Invalid index1: index1="+index1);
+        }
+        RowSet rowSet2=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=? order by `index`",arrayNodeId,index2);
+        if (rowSet2.size()!=1)
+        {
+            throw new Exception("Invalid index2: index2="+index2);
+        }
+        Long elementId1=rowSet1.getRow(0).getNullableBIGINT(0);
+        Long elementId2=rowSet2.getRow(0).getNullableBIGINT(0);
+
+        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId2,arrayNodeId,index1);
+        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId1,arrayNodeId,index2);
+//        this.graph.clearCache();
         this.graph.invalidateCacheLines(parent, arrayNodeId);
     }
     public void appendToArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
@@ -528,6 +580,7 @@ public class GraphTransaction implements AutoCloseable
             base=row.getINTEGER(0)+1;
         }
         _createArray(arrayNodeId,base,elements);
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
     }
     private void _createArray(long arrayNodeId,int base,Node[] elements) throws Throwable
     {

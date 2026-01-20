@@ -443,6 +443,10 @@ public class FilterChain
                         throw new Exception("No binding: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
     		        }
 		        }
+		        if (object==null)
+		        {
+		            throw new Exception("State object is null. Check if @StateParam is part of the method parameters.");
+		        }
 		    }
 			Object result=requestMethod.getMethod().invoke(object, parameters);
 			if (context.isCaptured()==false)
