@@ -25,7 +25,7 @@ public class FirstColumnMenuDataTable extends DataTable
 	    return options;
 	}
     
-	public FirstColumnMenuDataTable(DataTableOptions options,Length_ menuWidth,Object...columnNames) 
+	public FirstColumnMenuDataTable(DataTableOptions options,Length_ menuWidth,Object...columnNames) throws Throwable 
     {
         super(addOptions(options,menuWidth,0));
         
@@ -36,17 +36,17 @@ public class FirstColumnMenuDataTable extends DataTable
     }
 	
 	
-	public FirstColumnMenuDataTable(Length_ menuWidth,Object...columnNames) 
+	public FirstColumnMenuDataTable(Length_ menuWidth,Object...columnNames) throws Throwable 
 	{
 	    this(new DataTableOptions(),menuWidth,columnNames);
 	}
 
-	public FirstColumnMenuDataTable(Object...columnNames) 
+	public FirstColumnMenuDataTable(Object...columnNames) throws Throwable 
 	{
 		this(new Length_(1,Unit_.em),columnNames);
 	}
 
-	public FirstColumnMenuDataTable(DataTableOptions options,Object...columnNames) 
+	public FirstColumnMenuDataTable(DataTableOptions options,Object...columnNames) throws Throwable 
     {
         this(options,new Length_(1,Unit_.em),columnNames);
     }

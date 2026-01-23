@@ -46,7 +46,7 @@ public class DataTable  extends StyleComponent<DataTable>
     
     final private DataTableOptions options;
 
-    public DataTable(DataTableOptions options)
+    public DataTable(DataTableOptions options) throws Throwable
     {
         super("table", "table");
         if (options==null)
@@ -58,7 +58,7 @@ public class DataTable  extends StyleComponent<DataTable>
         this.body=returnAddInner(new TableBody());
         this.footer=returnAddInner(new TableFoot());
     }    
-    public DataTable(DataTableOptions options,Object...columnNames) 
+    public DataTable(DataTableOptions options,Object...columnNames) throws Throwable 
     {
         this(options);
         TableHeadRow row=new TableHeadRow();
@@ -115,8 +115,6 @@ public class DataTable  extends StyleComponent<DataTable>
     @Override
     public void compose(Composer composer) throws Throwable
     {
-//        script script=new script().addInner(new LiteralHtml(js_ready()));
-//        composer.getStringBuilder().append(script.getHtml());
         this.addInner(new script().addInner(new LiteralHtml(js_new())));
         super.compose(composer);
     }
@@ -149,6 +147,7 @@ public class DataTable  extends StyleComponent<DataTable>
     
     static public String js_new(String id,DataTableOptions options) throws Throwable
     {
+        System.out.println("id-------------------------"+id);
         StringBuilder sb=new StringBuilder();
         sb.append("$('#").append(id).append("').DataTable(");
         {

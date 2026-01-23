@@ -564,9 +564,17 @@ public class GraphTransaction implements AutoCloseable
     }
     public void appendToArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
     {
-        appendToArray(arrayObject,toNodes(elements));
+        long arrayNodeId=arrayObject._nodeId;
+        int base=0;
+        var row=Select.source("`@array`").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
+        if (row!=null)
+        {
+            base=row.getINTEGER(0)+1;
+        }
+        _createArray(arrayNodeId,base,elements);
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
     }    
-    public void appendToArray(NodeObject arrayObject,Node...elements) throws Throwable
+    public void appendToArray(NodeObject arrayObject,Node...nodes) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -579,17 +587,34 @@ public class GraphTransaction implements AutoCloseable
         {
             base=row.getINTEGER(0)+1;
         }
-        _createArray(arrayNodeId,base,elements);
+        _createArray(arrayNodeId,base,nodes);
         this.graph.invalidateCacheLines(parent, arrayNodeId);
     }
-    private void _createArray(long arrayNodeId,int base,Node[] elements) throws Throwable
+    private void _createArray(long arrayNodeId,int base,Node[] nodes) throws Throwable
     {
-        for (int i=0;i<elements.length;i++)
+        for (int i=0;i<nodes.length;i++)
         {
-            Node node=elements[i];
+            Node node=nodes[i];
             if (node!=null)
             {
                 long elementId=createNode(node);
+                Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+            }
+            else
+            {
+                Insert.table("`@array`").value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+            }
+        }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+    }
+    private void _createArray(long arrayNodeId,int base,NodeObject[] elements) throws Throwable
+    {
+        for (int i=0;i<elements.length;i++)
+        {
+            NodeObject element=elements[i];
+            if (element!=null)
+            {
+                long elementId=element.getNodeId()==null?createNode(element):element.getNodeId();
                 Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
             }
             else
