@@ -393,6 +393,10 @@ public class GraphTransaction implements AutoCloseable
             {
                 String typeName=row.getVARCHAR(0);
                 var descriptor=this.graph.getGraphObjectDescriptor(typeName);
+//                if (descriptor==null)
+//                {
+//                    throw new Exception("Type not registered. typeName="+typeName);
+//                }
                 String selectSql="SELECT * FROM "+descriptor.getTableName()+" WHERE _nodeId=?";
                 RowSet rowSet=this.accessor.executeQuery(parent, null, selectSql,nodeId);
                 versionRow(parent, descriptor, accessor, rowSet.getColumnNames(),rowSet.getRow(0));
@@ -527,12 +531,32 @@ public class GraphTransaction implements AutoCloseable
         {
             _deleteNode(elementId);
         }
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=? AND Index=?",arrayNodeId,index);
+        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
         for (int i=1;i<rowSet.size();i++)
         {
-            Row row=rowSet.getRow(i);
-            elementId=row.getBIGINT(0);
-            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=`index`-1 WHERE `nodeId`=? AND `index`=?", arrayNodeId,index);
+            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=? WHERE `nodeId`=? AND `index`=?", i-1,arrayNodeId,i);
+        }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+    }
+
+    public void removeArrayElement(NodeObject arrayObject,int index) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`>=? order by `index`",arrayNodeId,index);
+        if (rowSet.size()==0)
+        {
+            throw new Exception("Invalid index: index="+index);
+        }
+        int updated=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
+        System.out.println("updated: "+updated);
+        for (int i=1;i<rowSet.size();i++)
+        {
+            updated=this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=? WHERE `nodeId`=? AND `index`=?", i-1,arrayNodeId,i);
+            System.out.println("updated: i="+i+","+updated);
         }
         this.graph.invalidateCacheLines(parent, arrayNodeId);
     }

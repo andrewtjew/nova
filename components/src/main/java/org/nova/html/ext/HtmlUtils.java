@@ -1069,6 +1069,10 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').value=new Date();";
     }
+    public static String js_remove(String id)
+    {
+        return "document.getElementById('"+id+"').remove()";
+    }
     public static String js_copyToClipboard(TagElement<?> element)
     {
 //        return "var copyText=getElementById('"+element.id()+"');copyText.select();document.execCommand('Copy');";
