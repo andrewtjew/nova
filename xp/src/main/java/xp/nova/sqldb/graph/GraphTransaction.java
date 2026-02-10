@@ -218,7 +218,6 @@ public class GraphTransaction implements AutoCloseable
                 StringBuilder sb=new StringBuilder(updateSql);
                 if (updateValues.length>0)
                 {
-                    sb.append("(");
                     for (int i=0;i<updateValues.length;i++)
                     {
                         if (i==0)
@@ -313,9 +312,8 @@ public class GraphTransaction implements AutoCloseable
 
     private long _link(Class<? extends NodeObject> fromNodeType, long fromNodeId,Relation_ relation,Class<? extends NodeObject> toNodeType,long toNodeId) throws Throwable
     {
-        String relationValue=relation.getValue();
-        
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationValue);
+        String relationKey=getRelationKey(relation);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT nodeId FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationKey);
         if (rowSet.size()==1)
         {
             return rowSet.getRow(0).getBIGINT(0);
@@ -325,7 +323,7 @@ public class GraphTransaction implements AutoCloseable
         this.graph.invalidateCacheLines(parent, toNodeId);
         long nodeId=Insert.table("`@node`").value("transactionId",this.transactionId).executeAndReturnLongKey(parent, this.accessor);
         Insert.table("`@link`").value("fromNodeType",fromNodeType.getSimpleName()).value("nodeId",nodeId).value("fromNodeId",fromNodeId).value("toNodeType",toNodeType.getSimpleName()).value("toNodeId", toNodeId)
-                .value("relation", relationValue)
+                .value("relation", relationKey)
                 .execute(parent, this.accessor);
         return nodeId;
     }
@@ -340,7 +338,7 @@ public class GraphTransaction implements AutoCloseable
             RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT toNodeId FROM `@link` WHERE fromNodeId=? AND relation=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
-                deleted+=_deleteLink(nodeId,relation.getValue(),row.getBIGINT(0));
+                deleted+=_deleteLink(nodeId,getRelationKey(relation),row.getBIGINT(0));
             }
         }
         else
@@ -348,15 +346,15 @@ public class GraphTransaction implements AutoCloseable
             RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT fromNodeId FROM `@link` WHERE toNodeId=? AND relation=?",nodeId,relation);
             for (Row row:rowSet.rows())
             {
-                deleted+=_deleteLink(row.getBIGINT(0),relation.getValue(),nodeId);
+                deleted+=_deleteLink(row.getBIGINT(0),getRelationKey(relation),nodeId);
             }
         }
         return deleted;
     }
 
-    private int _deleteLink(long fromNodeId,String relationValue,long toNodeId) throws Throwable
+    private int _deleteLink(long fromNodeId,String relationKey,long toNodeId) throws Throwable
     {
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationValue);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT * FROM `@link` WHERE fromNodeId=? AND toNodeId=? AND relation=?",fromNodeId,toNodeId,relationKey);
         if (rowSet.size()==0)
         {
             return 0;
@@ -375,11 +373,11 @@ public class GraphTransaction implements AutoCloseable
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,long toNodeId) throws Throwable
     {
-        return _deleteLink(fromNode.getNodeId(),relation.getValue(),toNodeId);
+        return _deleteLink(fromNode.getNodeId(),getRelationKey(relation),toNodeId);
     }
     public int deleteLink(NodeObject fromNode,Relation_ relation,NodeObject toNode) throws Throwable
     {
-        return _deleteLink(fromNode.getNodeId(),relation.getValue(),toNode.getNodeId());
+        return _deleteLink(fromNode.getNodeId(),getRelationKey(relation),toNode.getNodeId());
     }
 
     private int _deleteNode(long nodeId) throws Throwable
@@ -409,8 +407,8 @@ public class GraphTransaction implements AutoCloseable
             {
                 long fromNodeId=row.getBIGINT("fromNodeId");
                 long toNodeId=row.getBIGINT("toNodeId");
-                String relationValue=row.getVARCHAR("relation");
-                deleted+=_deleteLink(fromNodeId,relationValue,toNodeId);
+                String relationKey=row.getVARCHAR("relation");
+                deleted+=_deleteLink(fromNodeId,relationKey,toNodeId);
             }
         }
         if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_CACHING)
@@ -433,15 +431,6 @@ public class GraphTransaction implements AutoCloseable
         }
         return deleteNode(node._nodeId);
     }
-//    public int deleteNodes(NodeObject...nodes) throws Throwable
-//    {
-//        int deleted=0;
-//        for (NodeObject node:nodes)
-//        {
-//            deleted+=deleteNode(node);
-//        }
-//        return deleted;
-//    }
     
     public void commit() throws Throwable
     {
@@ -469,214 +458,261 @@ public class GraphTransaction implements AutoCloseable
         return nodes;
     }
     
-    public void createArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
+    public long createArray(NodeObject arrayObject,Relation_ relation,NodeObject...elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        deleteArray(arrayObject);
-        _createArray(arrayNodeId,0,toNodes(elements));
+        deleteArray(arrayObject,relation);
+        return _putArray(arrayNodeId,relation,0,toNodes(elements));
     }
-
-    public void createArray(NodeObject arrayObject,Node...elements) throws Throwable
+    public long createArray(NodeObject arrayObject,Relation_ relation,Node...elements) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        deleteArray(arrayObject);
-        _createArray(arrayNodeId,0,elements);
+        deleteArray(arrayObject,relation);
+        return _putArray(arrayNodeId,relation,0,elements);
     }
-    public void updateArrayElement(NodeObject arrayObject,int index,NodeObject...nodeObjects) throws Throwable
+    public long createArray(NodeObject arrayObject,Node...elements) throws Throwable
     {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
+        return createArray(arrayObject,null,elements);
+    }
+    
+    private long _putArray(long arrayNodeId,Relation_ relation,int base,Node[] nodes) throws Throwable
+    {
+        String relationKey=getRelationKey(relation);
+        long nodeId;
+        RowSet rowSet=accessor.executeQuery(parent, null, "SELECT `nodeId` FROM `@arraylink` WHERE arrayNodeId=? AND relation=?",arrayNodeId,relationKey);
+        if (rowSet.size()==0)
         {
-            throw new Exception();
+            nodeId=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, "INSERT INTO `@arraylink` (arrayNodeId,relation) VALUES (?,?)", arrayNodeId,relationKey).getAsLong(0);
         }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
-        if (rowSet.size()!=1)
+        else if (rowSet.size()==1)
         {
-            throw new Exception("Invalid index: index="+index);
-        }
-        Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
-        if (elementId!=null)
-        {
-            this.update(elementId, nodeObjects);
+            nodeId=rowSet.getRow(0).getBIGINT(0);
         }
         else
         {
-            elementId=this.createNode(nodeObjects);
-            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId,arrayNodeId,index);
+            throw new Exception("rows="+rowSet.size());
         }
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }
-    public void deleteArrayElement(NodeObject arrayObject,int index) throws Throwable
-    {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`>=? order by `index`",arrayNodeId,index);
-        if (rowSet.size()==0)
-        {
-            throw new Exception("Invalid index: index="+index);
-        }
-        Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
-        if (elementId!=null)
-        {
-            _deleteNode(elementId);
-        }
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
-        for (int i=1;i<rowSet.size();i++)
-        {
-            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=? WHERE `nodeId`=? AND `index`=?", i-1,arrayNodeId,i);
-        }
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }
-
-    public void removeArrayElement(NodeObject arrayObject,int index) throws Throwable
-    {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`>=? order by `index`",arrayNodeId,index);
-        if (rowSet.size()==0)
-        {
-            throw new Exception("Invalid index: index="+index);
-        }
-        int updated=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE `nodeId`=? AND `index`=?",arrayNodeId,index);
-        System.out.println("updated: "+updated);
-        for (int i=1;i<rowSet.size();i++)
-        {
-            updated=this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=? WHERE `nodeId`=? AND `index`=?", i-1,arrayNodeId,i);
-            System.out.println("updated: i="+i+","+updated);
-        }
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }
-
-    public void exchangeArrayElements(NodeObject arrayObject,int index1,int index2) throws Throwable
-    {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        RowSet rowSet1=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=? ORDER BY `index`",arrayNodeId,index1);
-        if (rowSet1.size()!=1)
-        {
-            throw new Exception("Invalid index1: index1="+index1);
-        }
-        RowSet rowSet2=this.accessor.executeQuery(parent, null, "SELECT `elementId` FROM `@array` WHERE `nodeId`=? AND `index`=? order by `index`",arrayNodeId,index2);
-        if (rowSet2.size()!=1)
-        {
-            throw new Exception("Invalid index2: index2="+index2);
-        }
-        Long elementId1=rowSet1.getRow(0).getNullableBIGINT(0);
-        Long elementId2=rowSet2.getRow(0).getNullableBIGINT(0);
-
-        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId2,arrayNodeId,index1);
-        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId1,arrayNodeId,index2);
-//        this.graph.clearCache();
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }
-    public void appendToArray(NodeObject arrayObject,NodeObject...elements) throws Throwable
-    {
-        long arrayNodeId=arrayObject._nodeId;
-        int base=0;
-        var row=Select.source("`@array`").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
-        if (row!=null)
-        {
-            base=row.getINTEGER(0)+1;
-        }
-        _createArray(arrayNodeId,base,elements);
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }    
-    public void appendToArray(NodeObject arrayObject,Node...nodes) throws Throwable
-    {
-        Long arrayNodeId=arrayObject._nodeId;
-        if (arrayNodeId==null)
-        {
-            throw new Exception();
-        }
-        int base=0;
-        var row=Select.source("`@array`").columns("`index`").orderBy("`index` DESC").limit(1).where("nodeId=?", arrayNodeId).executeOne(parent, this.accessor);
-        if (row!=null)
-        {
-            base=row.getINTEGER(0)+1;
-        }
-        _createArray(arrayNodeId,base,nodes);
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
-    }
-    private void _createArray(long arrayNodeId,int base,Node[] nodes) throws Throwable
-    {
         for (int i=0;i<nodes.length;i++)
         {
             Node node=nodes[i];
             if (node!=null)
             {
                 long elementId=createNode(node);
-                Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+                accessor.executeUpdate(parent, null, "INSERT INTO `@array` (nodeId,elementId,`index`) VALUES (?,?,?)", nodeId,elementId,i+base);                
             }
             else
             {
-                Insert.table("`@array`").value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
+                accessor.executeUpdate(parent, null, "INSERT INTO `@array` (nodeId,`index`) VALUES (?,?)", nodeId,i+base);                
             }
         }
         this.graph.invalidateCacheLines(parent, arrayNodeId);
+        return nodeId;
     }
-    private void _createArray(long arrayNodeId,int base,NodeObject[] elements) throws Throwable
+    public <ELEMENT extends NodeObject> long createArray(NodeObject arrayObject,ELEMENT...elements) throws Throwable
     {
-        for (int i=0;i<elements.length;i++)
-        {
-            NodeObject element=elements[i];
-            if (element!=null)
-            {
-                long elementId=element.getNodeId()==null?createNode(element):element.getNodeId();
-                Insert.table("`@array`").value("elementId",elementId).value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
-            }
-            else
-            {
-                Insert.table("`@array`").value("nodeId",arrayNodeId).value("`index`",i+base).execute(parent, this.accessor);
-            }
-        }
-        this.graph.invalidateCacheLines(parent, arrayNodeId);
+        return createArray(arrayObject,null,elements);
     }
-    
-    public int deleteArray(NodeObject arrayObject) throws Throwable
+
+//    public void updateArrayElement(NodeObject arrayObject,Relation_ relation,int index,NodeObject...nodeObjects) throws Throwable
+//    {
+//        Long arrayNodeId=arrayObject._nodeId;
+//        if (arrayNodeId==null)
+//        {
+//            throw new Exception();
+//        }
+//        String relationKey=relation.getKey();
+//        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `elementId`,`nodeId` FROM `@arraylink` JOIN `@arraylink.nodeId` ON `@array.nodeId` ON WHERE `arrayNodeId`=? AND relation=? AND `index`=?",arrayNodeId,relationKey,index);
+//        if (rowSet.size()!=1)
+//        {
+//            throw new Exception("Not found: index="+index+", relation="+relationKey);
+//        }
+//        Long elementId=rowSet.getRow(0).getNullableBIGINT(0);
+//        if (elementId!=null)
+//        {
+//            this.update(elementId, nodeObjects);
+//        }
+//        else
+//        {
+//            elementId=this.createNode(nodeObjects);
+//            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `elementId`=? WHERE `nodeId`=? AND `index`=?", elementId,arrayNodeId,index);
+//        }
+//        this.graph.invalidateCacheLines(parent, arrayNodeId);
+//    }
+    private boolean _removeArrayElement(NodeObject arrayObject,Relation_ relation,int index,boolean delete) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
         {
             throw new Exception();
         }
-        int deleted=0;
-        RowSet rowSet=accessor.executeQuery(parent, null, "SELECT `elementId`,`index` FROM `@array` WHERE nodeId=?",arrayNodeId);
+        String relationKey=getRelationKey(relation);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT elementId,`@arraylink`.nodeId FROM `@arraylink` JOIN `@array` ON `@arraylink`.nodeId=`@array`.nodeId WHERE arrayNodeId=? AND relation=? AND `index`>=?",arrayNodeId,relationKey,index);
         if (rowSet.size()==0)
         {
-            return deleted;
+            return false;
         }
-        long version=accessor.executeUpdateAndReturnGeneratedKeys(parent, null, "INSERT INTO `@deletedarray` (`deleted`,`nodeId`) VALUES (?,?)", SqlUtils.now(),arrayNodeId).getAsLong(0);
-        for (Row row:rowSet.rows())
+        Row row=rowSet.getRow(0);
+        if (delete)
         {
-            Long elementId=row.getNullableBIGINT("elementId");
+            Long elementId=row.getNullableBIGINT(0);
             if (elementId!=null)
             {
-                deleted+=this._deleteNode(elementId);
+                _deleteNode(elementId);
             }
-            int index=row.getINTEGER("index");
-            accessor.executeUpdate(parent, null, "INSERT INTO `@deletedelement` (`version`,`elementId`,`index`) VALUES (?,?,?)", version,elementId,index);
         }
-        this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=?",arrayNodeId);
+        long nodeId=row.getBIGINT(1);
+        if (rowSet.size()>1)
+        {
+            this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=? AND `index`=?",nodeId,index);
+            this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=`index`-1 WHERE nodeId=? AND `index`>?",nodeId,index);
+        }
+        else
+        {
+            this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@arraylink` WHERE nodeId=?",nodeId);
+            this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=?",nodeId);
+        }
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+        return true;
+    }
+
+    public boolean removeArrayElement(NodeObject arrayObject,Relation_ relation,int index) throws Throwable
+    {
+        return _removeArrayElement(arrayObject, relation, index, false);
+    }
+    public boolean removeArrayElement(NodeObject arrayObject,int index) throws Throwable
+    {
+        return removeArrayElement(arrayObject,null,index);
+    }
+
+    public boolean deleteArrayElement(NodeObject arrayObject,Relation_ relation,int index) throws Throwable
+    {
+        return _removeArrayElement(arrayObject, relation, index, true);
+    }
+    public boolean deleteArrayElement(NodeObject arrayObject,int index) throws Throwable
+    {
+        return deleteArrayElement(arrayObject,null,index);
+    }
+
+    public boolean exchangeArrayElements(NodeObject arrayObject,Relation_ relation,int indexA,int indexB) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        String relationKey=getRelationKey(relation);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT elementId,`@arraylink`.nodeId,`index` FROM `@arraylink` JOIN `@array` ON `@arraylink`.nodeId=`@array`.nodeId WHERE arrayNodeId=? AND relation=? AND `index` IN (?,?)",arrayNodeId,relationKey,indexA,indexB);
+        if (rowSet.size()!=2)
+        {
+            return false;
+        }
+        Row rowA=rowSet.getRow(0);
+        Row rowB=rowSet.getRow(1);
+        Long elementIdA=rowA.getNullableBIGINT(0);
+        Long elementIdB=rowB.getNullableBIGINT(0);
+        long nodeIdA=rowA.getBIGINT(1);
+        long nodeIdB=rowB.getBIGINT(1);
+        indexA=rowA.getINTEGER(2);
+        indexB=rowB.getINTEGER(2);
+        
+        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET elementId=? WHERE nodeId=? AND `index`=?", elementIdB,nodeIdA,indexA);
+        this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET elementId=? WHERE nodeId=? AND `index`=?", elementIdA,nodeIdB,indexB);
+        this.graph.invalidateCacheLines(parent, arrayNodeId);
+        return true;
+    }
+    public boolean exchangeArrayElements(NodeObject arrayObject,int indexA,int indexB) throws Throwable
+    {
+        return exchangeArrayElements(arrayObject, null, indexA, indexB);
+    }
+    public long appendToArray(NodeObject arrayObject,Relation_ relation,Node...nodes) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        int base=0;
+        String relationKey=getRelationKey(relation);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT `index` FROM `@arraylink` JOIN `@array` ON `@arraylink`.nodeId=`@array`.nodeId WHERE arrayNodeId=? AND relation=? ORDER BY `index` DESC LIMIT 1",arrayNodeId,relationKey);
+        if (rowSet.size()==1)
+        {
+            base=rowSet.getRow(0).getINTEGER(0)+1;
+        }
+        return _putArray(arrayNodeId,relation,base,nodes);
+    }
+    public long appendToArray(NodeObject arrayObject,Relation_ relation,NodeObject...elements) throws Throwable
+    {
+        return appendToArray(arrayObject,relation,toNodes(elements));
+    }    
+    public <ELEMENT extends NodeObject> long appendToArray(NodeObject arrayObject,ELEMENT...elements) throws Throwable
+    {
+        return appendToArray(arrayObject,null,elements);
+    }    
+
+    static String getRelationKey(Relation_ relation)
+    {
+        if (relation==null)
+        {
+            return "";
+        }
+        return relation.getKey();
+    }
+    
+    private int _removeArray(NodeObject arrayObject,Relation_ relation,boolean delete) throws Throwable
+    {
+        Long arrayNodeId=arrayObject._nodeId;
+        if (arrayNodeId==null)
+        {
+            throw new Exception();
+        }
+        String relationKey=getRelationKey(relation);
+        RowSet rowSet=this.accessor.executeQuery(parent, null, "SELECT elementId,`@arraylink`.nodeId FROM `@arraylink` JOIN `@array` ON `@arraylink`.nodeId=`@array`.nodeId WHERE arrayNodeId=? AND relation=?",arrayNodeId,relationKey);
+        if (rowSet.size()==0)
+        {
+            return 0;
+        }
+        long nodeId=rowSet.getRow(0).getBIGINT(0);
+        int deleted=0;
+        if (delete)
+        {
+            for (Row row:rowSet.rows())
+            {
+                Long elementId=row.getNullableBIGINT("elementId");
+                if (elementId!=null)
+                {
+                    deleted+=this._deleteNode(elementId);
+                }
+            }
+        }
+        deleted+=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@arraylink` WHERE nodeId=?",nodeId);
+        deleted+=this.accessor.executeUpdate(this.parent,null,"DELETE FROM `@array` WHERE nodeId=?",nodeId);
         this.graph.invalidateCacheLines(parent, arrayNodeId);
         return deleted;
     }
-    
-    
+
+    public boolean removeArray(NodeObject arrayObject,Relation_ relation) throws Throwable
+    {
+        return _removeArray(arrayObject, relation, false)>0;
+    }
+    public int deleteArray(NodeObject arrayObject,Relation_ relation) throws Throwable
+    {
+        return _removeArray(arrayObject, relation, true);
+    }
+
+    public boolean removeArray(NodeObject arrayObject) throws Throwable
+    {
+        return _removeArray(arrayObject, null, false)>0;
+    }
+    public int deleteArray(NodeObject arrayObject) throws Throwable
+    {
+        return _removeArray(arrayObject, null, true);
+    }
 }

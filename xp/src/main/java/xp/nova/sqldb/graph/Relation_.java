@@ -2,5 +2,5 @@ package xp.nova.sqldb.graph;
 
 public interface Relation_
 {
-    public String getValue();
+    public String getKey();
 }

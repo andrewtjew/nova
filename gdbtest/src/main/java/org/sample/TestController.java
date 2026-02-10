@@ -14,6 +14,8 @@ import org.sample.graph.Paper;
 import org.sample.graph.Rock;
 import org.sample.graph.Scissor;
 
+import com.mira.graphTypes.Relation;
+
 import xp.nova.sqldb.graph.ArrayQuery;
 import xp.nova.sqldb.graph.Direction;
 import xp.nova.sqldb.graph.LinkQuery;
@@ -25,6 +27,29 @@ import xp.nova.sqldb.graph.Relation_;
 
 public class TestController extends PageController
 {
+    
+    static public class Relation implements Relation_
+    {
+        private final String key;
+        public Relation()
+        {
+            this.key="";
+        }
+        public Relation(String key)
+        {
+            this.key=key;
+        }
+        public String getKey()
+        {
+            return this.key;
+        }
+        //Keep the static functions sorted alphabetically.
+        static public Relation link()
+        {
+            return new Relation("link");
+        }
+    }
+    
     public TestController(Service service) throws Throwable
     {
         super(service);
@@ -192,17 +217,6 @@ public class TestController extends PageController
         return page;
     }
 
-    static class LinkRelation implements Relation_
-    {
-
-        @Override
-        public String getValue()
-        {
-            return "";
-        }
-        
-    }
-    
     @GET
     @Path("/test3")
     @RequiredRoles()
@@ -223,9 +237,9 @@ public class TestController extends PageController
             transaction.createNode(rock);
             transaction.createNode(castle);
             
-            transaction.createLink(castle, new LinkRelation(), rock);
+            transaction.createLink(castle, Relation.link(), rock);
 
-            Query query=new Query().select(Castle.class).traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Rock.class).select(Rock.class));
+            Query query=new Query().select(Castle.class).traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class).select(Rock.class));
             QueryResult result=accessor.execute(parent, query).getResult();
             Rock rock2=result.getNodeObject(Rock.class);
             page.body().returnAddInner(new p()).addInner(rock2.name);
@@ -276,13 +290,13 @@ public class TestController extends PageController
             transaction.createNode(rock);
             transaction.createNode(paper);
             
-            transaction.createLink(castle, new LinkRelation(), rock);
-            transaction.createLink(rock, new LinkRelation(), paper);
+            transaction.createLink(castle, Relation.link(), rock);
+            transaction.createLink(rock, Relation.link(), paper);
             transaction.commit();
 
             Query query=new Query().select(Castle.class)
-                    .traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Rock.class)
-                            .traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Paper.class).select(Paper.class))
+                    .traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class)
+                            .traverse(new LinkQuery(Direction.FROM,Relation.link(),Paper.class).select(Paper.class))
                             );
 
             QueryResult[] results=accessor.execute(parent, query).getResults();
@@ -353,14 +367,14 @@ public class TestController extends PageController
                     scissor.name="scissor:"+paper1.name;
                     transaction.createNode(scissor);
                     
-                    transaction.createLink(paper1,new LinkRelation(),scissor); 
+                    transaction.createLink(paper1,Relation.link(),scissor); 
                     
                 }
             }
             page.body().returnAddInner(new p()).addInner("---------");
             
             {
-                ArrayQuery query=new ArrayQuery().select(Paper.class).range(2,3).traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Scissor.class).select(Scissor.class)).where("scissor.name=?");
+                ArrayQuery query=new ArrayQuery().select(Paper.class).range(2,3).traverse(new LinkQuery(Direction.FROM,Relation.link(),Scissor.class).select(Scissor.class)).where("scissor.name=?");
                 QueryResult[] results=accessor.execute(parent, castle, query,"scissor:paper:3").getResults();
                 for (QueryResult result:results)
                 {
@@ -405,12 +419,12 @@ public class TestController extends PageController
                 transaction.createNode(paper);
                 transaction.createNode(rock);
                 
-                transaction.createLink(paper,new LinkRelation(),rock);
+                transaction.createLink(paper,Relation.link(),rock);
                 transaction.commit();
             }
         }
         
-        Query query=new Query().select(Paper.class).traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Rock.class).select(Rock.class));
+        Query query=new Query().select(Paper.class).traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class).select(Rock.class));
         var result=graph.execute(parent, 10, query).getResult();
         if (result!=null)
         {
@@ -429,27 +443,122 @@ public class TestController extends PageController
         UserPage page = new UserPage(null, null);
         
         TestGraph graph=this.service.getGraph();
+        Castle castle=new Castle();
+        Rock rock=new Rock();
         try (var transaction=graph.beginGraphTransaction(parent))
         {
             var accessor=transaction.getGraphAccessor();
 
-            Castle castle=new Castle();
             castle.name="castle";
-            Rock rock=new Rock();
             rock.name="rock";
             
             transaction.createNode(rock);
             transaction.update(rock);
             transaction.createNode(castle);
             
-            transaction.createLink(castle, new LinkRelation(), rock);
+            transaction.createLink(castle, Relation.link(), rock);
             transaction.commit();
 
-            Query query=new Query().traverse(new LinkQuery(Direction.FROM,new LinkRelation(),Rock.class).selectNodeId());
+            Query query=new Query().traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class).select(Rock.class));
             QueryResultSet set=accessor.execute(parent, castle, query);
-            QueryResult result=set.getResult();
-            page.body().returnAddInner(new p()).addInner("nodeId "+result.getNodeId(Rock.class));
+            Rock rock2=set.getNodeObject();
+            page.body().returnAddInner(new p()).addInner("nodeId "+rock2.getNodeId()+":"+rock2.name);
+
         }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+
+            rock.name="dust";
+            transaction.update(rock);
+            transaction.commit();
+
+            Query query=new Query().traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class).select(Rock.class));
+            QueryResultSet set=accessor.execute(parent, castle, query);
+            Rock rock2=set.getNodeObject();
+            page.body().returnAddInner(new p()).addInner("nodeId "+rock2.getNodeId()+":"+rock2.name);
+        }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+            Query query=new Query().traverse(new LinkQuery(Direction.FROM,Relation.link(),Rock.class).select(Rock.class));
+            QueryResultSet set=accessor.execute(parent, castle, query);
+            Rock rock2=set.getNodeObject();
+            page.body().returnAddInner(new p()).addInner("nodeId "+rock2.getNodeId()+":"+rock2.name);
+        }
+        
+        page.body().returnAddInner(new p()).addInner("OK");
+        
+        return page;
+    }
+
+    @GET
+    @Path("/test8")
+    @RequiredRoles()
+    public UserPage test8(Trace parent,@StateParam UserSession session) throws Throwable
+    {
+        UserPage page = new UserPage(null, null);
+        
+        TestGraph graph=this.service.getGraph();
+        Castle castle=new Castle();
+        castle.name="castle";
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            transaction.createNode(castle);
+        }            
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            Paper[] papers=new Paper[5];
+            for (int i=0;i<papers.length;i++)
+            {
+                if (i!=2)
+                {
+                    papers[i]=new Paper();
+                    papers[i].name="name:"+i;
+                }
+            }
+            transaction.createArray(castle,papers);
+            transaction.commit();
+        }
+
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            transaction.exchangeArrayElements(castle, 1, 0);
+            transaction.commit();
+        }
+
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            transaction.deleteArrayElement(castle, 1);
+            transaction.commit();
+        }
+        
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+            ArrayQuery query=new ArrayQuery().range(2, 3).select(Paper.class);
+            QueryResult[] results=accessor.execute(parent, castle, query).getResults();
+            for (QueryResult result:results)
+            {
+                Paper paper=result.getNodeObject(Paper.class);
+                System.out.println("paper:"+paper.name);
+                paper.name=paper.name+" burned";
+                transaction.update(paper);
+            }
+            transaction.commit();
+        }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+            ArrayQuery query=new ArrayQuery().range(2, 3).select(Paper.class);
+            QueryResult[] results=accessor.execute(parent, castle, query).getResults();
+            for (QueryResult result:results)
+            {
+                Paper paper=result.getNodeObject(Paper.class);
+                System.out.println("paper:"+paper.name);
+            }
+        }
+        
         
         page.body().returnAddInner(new p()).addInner("OK");
         

@@ -77,21 +77,16 @@ public class ArrayQuery
         PrepareState state=new PrepareState(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
         
         String on=null;
-//        if ((this.expression==null)&&(this.offset==null))
-//        {
-//            preparedQuery.start=" WHERE nodeId=";
-//        }
-//        else
-        if (this.expression==null)
+        if ((this.expression==null)&&(this.offset==null))
         {
-            preparedQuery.start=" WHERE `@array`.nodeId=";
+            preparedQuery.start=" WHERE `@arraylink`.arrayNodeId=";
         }
         else
         {
-            preparedQuery.start=" AND `@array`.nodeId=";
+            preparedQuery.start=" AND `@arraylink`.arrayNodeId=";
         }
         on=" ON `@array`.elementId=";
-        sources.append(" `@array`");
+        sources.append(" `@arraylink` JOIN `@array` ON `@array`.nodeId=`@arraylink`.nodeId ");
         
         if (this.nodeTypes != null)
         {
@@ -157,9 +152,9 @@ public class ArrayQuery
         else if (this.offset!=null)
         {
             query.append(" WHERE `@array`.index>="+this.offset);
+            preparedQuery.limit=this.limit;
         }
-        preparedQuery.orderBy="`index`";
-        preparedQuery.limit=this.limit;
+        preparedQuery.orderBy="`@array`.index";
         preparedQuery.sql=query.toString();
         preparedQuery.array=true;
         this.preparedQuery=preparedQuery;

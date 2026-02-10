@@ -34,7 +34,7 @@ public class LinkQuery
     {
         this.direction=direction;
         this.endNodeObjectType=endNodeObjectType;
-        this.relationValue=relation.getValue();
+        this.relationValue=relation.getKey();
         this.endNodeId=endNodeId;
         this.selectNodeId=false;
     }    
