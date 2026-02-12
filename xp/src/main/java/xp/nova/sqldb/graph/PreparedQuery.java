@@ -13,6 +13,7 @@ public class PreparedQuery
     Integer limit;
     Integer offset;
     String orderBy;
+    Boolean array;
     HashMap<String,GraphObjectDescriptor> typeDescriptorMap;
     ArrayList<NamespaceGraphObjectDescriptor> descriptors;
 
@@ -23,6 +24,10 @@ public class PreparedQuery
         if (start!=null)
         {
             code+=start.hashCode();
+        }
+        if (array!=null)
+        {
+            code+=array.hashCode();
         }
         if (offset!=null)
         {
@@ -74,6 +79,10 @@ public class PreparedQuery
             return false;
         }
         if (TypeUtils.equals(this.orderBy,other.orderBy)==false)
+        {
+            return false;
+        }
+        if (TypeUtils.equals(this.array,other.array)==false)
         {
             return false;
         }

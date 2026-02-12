@@ -25,6 +25,10 @@ public class FileDownloadHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
+        if (request.getMethod()!="GET")
+        {
+            return false;
+        }
         String URI=request.getRequestURI();
         return this.downloader.download(parent, URI, null, request, response);
     }

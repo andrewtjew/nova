@@ -1,0 +1,14 @@
+@default.cnf
+
+Application.database.test=
+{
+	"user":"dev",
+	"passwordKey":"Database.password",
+	"mySql":
+	{
+		"schema":"test"
+	}
+}
+
+
+%local.cnf

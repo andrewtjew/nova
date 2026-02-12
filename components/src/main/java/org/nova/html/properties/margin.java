@@ -27,6 +27,10 @@ public class margin extends Property
     {
         super("margin:"+size.toString()+";");
     }
+    public margin(Length_ size,boolean auto)
+    {
+        super("margin:"+size.toString()+(auto?" auto;":";"));
+    }
     public margin(double top,double right,double bottom,double left,Unit_ unit)
     {
         super("margin-top:"+new Length_(top,unit).toString()

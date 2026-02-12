@@ -174,7 +174,11 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             }
             context.setState(session);
 
-            Response<?> response=context.next(parent);
+            Response<?> response;
+            try (Trace trace=new Trace(parent,requestMethod.getKey()))
+            {
+                response=context.next(parent);
+            }
             if (response!=null)
             {
                 Object content=response.getContent();

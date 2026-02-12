@@ -249,6 +249,10 @@ class RequestMethodMap
 	
     static String toSite(Object object,Method method)
     {
+        if (object==null)
+        {
+            return "(null)";
+        }
         return object.getClass().getName()+"."+method.getName();
     }
     static String toSite(Method method)

@@ -59,10 +59,28 @@ public class Col extends StyleComponent<Col>
         }
             
     }
-    public Col(BreakPoint breakPoint,int columns)
+    public Col(BreakPoint breakPoint,Integer columns)
     {
         super("div",null);
-        addClass("col",breakPoint,columns);
+        if (breakPoint!=null)
+        {
+            if (columns!=null)
+            {
+                addClass("col",breakPoint,columns);
+            }
+            else
+            {
+                addClass("col",breakPoint);
+            }
+        }
+        else if (columns!=null)
+        {
+            addClass("col",columns);
+        }
+        else
+        {
+            addClass("col");
+        }
     }
     public Col(int columns)
     {

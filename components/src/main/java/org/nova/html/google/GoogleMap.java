@@ -30,6 +30,7 @@ import org.nova.html.properties.Style;
 import org.nova.html.tags.div;
 import org.nova.html.tags.script;
 
+@Deprecated
 public class GoogleMap extends Element
 {
     final div div;
@@ -40,7 +41,7 @@ public class GoogleMap extends Element
     
     public static script api_script(String key)
     {
-    	return new script().async().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
+    	return new script().src("https://maps.googleapis.com/maps/api/js?callback=initMap&key="+key);
     }
     
     public GoogleMap(Length_ width,Length_ height,double lattitude,double longtitude,double zoom)

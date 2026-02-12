@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "lib": [
+          "dom",
+          "dom.iterable",
+          "esnext"
+          ],
+          "downlevelIteration": true,  
+        "allowJs": true,
+        "esModuleInterop": true,
+        "removeComments": true,
+        "target": "es5",
+        "outDir": "../../../client/$/html/js"
+    }
+  }
+  
+  

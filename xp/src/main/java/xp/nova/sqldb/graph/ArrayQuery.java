@@ -10,7 +10,6 @@ public class ArrayQuery
 
     String expression;
  //   Object[] parameters;
-    String orderBy;
     Integer limit;
     Integer offset;
     
@@ -78,16 +77,16 @@ public class ArrayQuery
         PrepareState state=new PrepareState(graph,preparedQuery.typeDescriptorMap,sources,select,preparedQuery.descriptors);
         
         String on=null;
-//        if ((this.expression==null)&&(this.offset==null))
-//        {
-//            preparedQuery.start=" WHERE nodeId=";
-//        }
-//        else
+        if ((this.expression==null)&&(this.offset==null))
         {
-            preparedQuery.start=" AND `@array`.nodeId=";
+            preparedQuery.start=" WHERE `@arraylink`.arrayNodeId=";
+        }
+        else
+        {
+            preparedQuery.start=" AND `@arraylink`.arrayNodeId=";
         }
         on=" ON `@array`.elementId=";
-        sources.append(" `@array`");
+        sources.append(" `@arraylink` JOIN `@array` ON `@array`.nodeId=`@arraylink`.nodeId ");
         
         if (this.nodeTypes != null)
         {
@@ -95,6 +94,10 @@ public class ArrayQuery
             {
                 Class<? extends NodeObject> type = this.nodeTypes[i];
                 GraphObjectDescriptor descriptor = graph.getGraphObjectDescriptor(type);
+                if (descriptor==null)
+                {
+                    throw new Exception("Type not registered: type="+type);
+                }
                 preparedQuery.typeDescriptorMap.put(descriptor.getTypeName(), descriptor);
                 String typeName = descriptor.getTypeName();
                 state.descriptors.add(new NamespaceGraphObjectDescriptor(null,descriptor));
@@ -149,10 +152,11 @@ public class ArrayQuery
         else if (this.offset!=null)
         {
             query.append(" WHERE `@array`.index>="+this.offset);
+            preparedQuery.limit=this.limit;
         }
-        preparedQuery.orderBy=this.orderBy;
-        preparedQuery.limit=this.limit;
+        preparedQuery.orderBy="`@array`.index";
         preparedQuery.sql=query.toString();
+        preparedQuery.array=true;
         this.preparedQuery=preparedQuery;
         return this.preparedQuery;
     }

@@ -1035,7 +1035,7 @@ public class Graph
                     ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` varchar(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@link"
-                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45),`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
                     );
             createTable(parent,accessor,catalog,"@deletednode"
                     ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
@@ -1050,14 +1050,18 @@ public class Graph
                     );
 
             createTable(parent,accessor,catalog,"@array"
-                    ,"CREATE TABLE `@array` (`elementId` bigint NULL,`nodeId` bigint NOT NULL,`index` int NOT NULL,KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+                    ,"CREATE TABLE `@array` (`nodeId` bigint NOT NULL,`elementId` bigint,`index` int NOT NULL,KEY `nodeIdIndex` (`elementId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"@deletedarray"
-                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT ,`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`nodeId`)) ENGINE=InnoDB;"
+            createTable(parent,accessor,catalog,"@arraylink"
+                    ,"CREATE TABLE `@arraylink` (`nodeId` bigint NOT NULL AUTO_INCREMENT,`arrayNodeId` bigint NOT NULL,`relation` varchar(45), PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"@deletedelement"
-                    ,"CREATE TABLE `@deletedelement` (`version` bigint NOT NULL,`elementId` bigint NULL,`index` int NULL) ENGINE=InnoDB;"
-                    );
+//            createTable(parent,accessor,catalog,"@deletedarray"
+//                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT,`deleted` datetime NOT NULL,`arrayNodeId` bigint NOT NULL,`nodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`arrayId`)) ENGINE=InnoDB;"
+//                    );
+//            createTable(parent,accessor,catalog,"@deletedelement"
+//                    ,"CREATE TABLE `@deletedelement` (`version` bigint NOT NULL,`elementId` bigint NULL,`index` int NULL) ENGINE=InnoDB;"
+//                    );
+            
 
             }
     }
@@ -1079,7 +1083,7 @@ public class Graph
                 }
                 else
                 {
-                    Debugging.log(DEBUG_CATEGORY,"Cache hit: "+key.preparedQuery.sql);
+                    Debugging.log(DEBUG_CATEGORY,"Cache hit:"+key.preparedQuery.sql);
                 }
             }
             if (valueSize!=null)
@@ -1117,6 +1121,17 @@ public class Graph
                     this.typeNameQueryKeyCacheSets.put(typeName,typeNameQueryKeyCacheSet);
                 }
                 typeNameQueryKeyCacheSet.add(key);
+                if (TypeUtils.isTrue(key.preparedQuery.array))
+                {
+                    HashSet<String> nodeTypeNameCacheSets=this.nodeTypeNameCacheSets.get(key.nodeId);
+                    if (nodeTypeNameCacheSets==null)
+                    {
+                        nodeTypeNameCacheSets=new HashSet<String>();
+                        this.nodeTypeNameCacheSets.put(key.nodeId, nodeTypeNameCacheSets);
+                    }
+                    nodeTypeNameCacheSets.add(typeName);
+                }
+                
                 String table=namespaceDescriptor.getNamespaceTypeName();
                 if (Debug.ENABLE && DEBUG && DEBUG_CACHING)
                 {

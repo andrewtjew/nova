@@ -77,14 +77,6 @@ public class RemoteResponse
         this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
         return this;
     }
-    public RemoteResponse add(RemoteResponse response)
-    {
-        for (Instruction instruction:response.instructions)
-        {
-            this.instructions.add(instruction);
-        }
-        return this;
-    }
     public RemoteResponse innerHtml(String id,Element element)
     {
         if (element==null)
@@ -286,6 +278,12 @@ public class RemoteResponse
 //        this.instructions.clear();
 //        return this;
 //    }
+
+    public RemoteResponse add(RemoteResponse response)
+    {
+        this.instructions.addAll(response.instructions);
+        return this;
+    }
     
     public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
     {

@@ -25,7 +25,7 @@ public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMEN
     public RemoteElement(String tag) throws Throwable
     {
         this(tag,null);
-    }        
+    }     
     public RemoteElement<ELEMENT> load(String href,Long interval,Long timeout) throws Throwable
     {
         if (interval!=null)
@@ -36,6 +36,10 @@ public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMEN
         else if (timeout!=null)
         {
             returnAddInner(new script()).addInner(HtmlUtils.js_setTimeout(timeout, "nova.remote.getRemote",id(),href));
+        }
+        else
+        {
+            returnAddInner(new script()).addInner(HtmlUtils.js_call("nova.remote.getRemote",id(),href));
         }
         return this;
     }    

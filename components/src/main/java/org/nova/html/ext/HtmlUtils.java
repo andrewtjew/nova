@@ -30,14 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.lang.model.element.Element;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.InputElement;
-import org.nova.html.elements.NodeElement;
 import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.properties.Display_;
@@ -295,14 +292,9 @@ public class HtmlUtils
     {
         return "window.location='"+url+"'";
     }
-    public static String js_focus(InputElement<?> element)
+    public static String js_focus(InputElement element)
     {
         return "document.getElementById('"+element.id()+"').focus();";
-    }
-
-    public static String js_element_style_none(TagElement<?> element)
-    {
-        return "document.getElementById('"+element.id()+"').style.display='none';";
     }
     
     public static List<String> getSelectionNames(Context context,String prefix)
@@ -651,7 +643,35 @@ public class HtmlUtils
         return sb.toString();
     }
 
-    private static String escapeString(QuotationMark mark,String string)
+    public static String escapeJSON(String string)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (int i=0;i<string.length();i++)
+        {
+            char c=string.charAt(i);
+            switch (c)
+            {
+                case '"':
+                    sb.append("'");
+                    break;
+                    
+                case '\'':
+                    sb.append("&apos;");
+                    break;
+                    
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                    
+                    
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String escapeString(QuotationMark mark,String string)
     {
         StringBuilder sb=new StringBuilder();
         switch (mark)
@@ -664,7 +684,7 @@ public class HtmlUtils
                 {
                     case '"':
 //                        sb.append("&quot;");
-                        sb.append("\"");
+                        sb.append("\\\"");
                         break;
                         
                     case '\'':
@@ -907,7 +927,7 @@ public class HtmlUtils
                             try
                             {
 //                                sb.append(mark.toString()+ObjectMapper.writeObjectToString(Array.get(parameter, i))+mark.toString());
-                                sb.append(escapeString(mark,ObjectMapper.writeObjectToString(Array.get(parameter, i))));
+                                sb.append(escapeJSON(ObjectMapper.writeObjectToString(Array.get(parameter, i))));
                             }
                             catch (Throwable e)
                             {
@@ -920,7 +940,7 @@ public class HtmlUtils
                     {
                         try
                         {
-                            sb.append(escapeString(mark,ObjectMapper.writeObjectToString(parameter)));
+                            sb.append(escapeJSON(ObjectMapper.writeObjectToString(parameter)));
                         }
                         catch (Throwable e)
                         {
@@ -1048,6 +1068,10 @@ public class HtmlUtils
     public static String js_inputNow(String id)
     {
         return "document.getElementById('"+id+"').value=new Date();";
+    }
+    public static String js_remove(String id)
+    {
+        return "document.getElementById('"+id+"').remove()";
     }
     public static String js_copyToClipboard(TagElement<?> element)
     {

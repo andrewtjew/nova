@@ -111,6 +111,7 @@ public class TypeUtils
     {
         return (value==null)?0.0:value;
     }
+
     
     static public List<Integer> intArrayToList(int[] values)
     {
@@ -359,7 +360,7 @@ public class TypeUtils
         {
             return false;
         }
-        return value;
+        return value.booleanValue();
     }
     static public boolean isFalse(Boolean value)
     {

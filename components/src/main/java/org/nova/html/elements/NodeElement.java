@@ -75,6 +75,18 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
         this.inners.add(element);
         return (ELEMENT)this;
     }
+//    public void addInner(Element element)
+//    {
+//        if (element==null)
+//        {
+//            return;
+//        }
+//        if (this.inners==null)
+//        {
+//            this.inners=new ArrayList<>(); 
+//        }
+//        this.inners.add(element);
+//    }
     @SuppressWarnings("unchecked")
     public ELEMENT addInnerFirst(Element element)
     {
@@ -117,6 +129,10 @@ public class NodeElement<ELEMENT extends NodeElement<ELEMENT>> extends Element
             }
         }
         return (ELEMENT)this;
+    }
+    public ELEMENT addInner(String text)
+    {
+        return addInner(new Text(text));
     }
     public <RETURN extends Element> RETURN returnAddInner(RETURN element)
     {

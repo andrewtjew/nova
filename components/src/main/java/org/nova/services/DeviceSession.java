@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
+import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
@@ -26,7 +27,7 @@ import org.nova.tracing.Trace;
 public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=true;
-    final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_PAGESTATE=true;
     final static boolean DEBUG_SECURITY=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
@@ -95,6 +96,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     @Override
     public void setPageState(String key,Object state) throws Throwable
     {
+        if (Debug.ENABLE && DEBUG)
+        {
+            if (key==null)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key=null");
+            }
+        }            
         if (state!=null)
         {
             if (this.newPageStates==null)
@@ -169,7 +177,15 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                 Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
                 for (Entry<String, Object> entry:this.states.entrySet())
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                    var object=entry.getValue();
+                    if (object instanceof Element)
+                    {
+                        Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", class="+object.getClass().getName());
+                    }
+                    else
+                    {
+                        Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+                    }
                 }
             }
         }

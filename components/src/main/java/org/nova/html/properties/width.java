@@ -23,9 +23,11 @@ package org.nova.html.properties;
 
 public class width extends LengthProperty
 {
+    public final Length_ value;
     public width(Length_ length)
     {
         super("width",length);
+        this.value=length;
     }
     public width(double length,Unit_ unit)
     {

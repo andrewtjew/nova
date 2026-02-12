@@ -18,7 +18,7 @@ public class LastColumnMenuDataTable extends DataTable
 	    return options;
 	}
     
-	private LastColumnMenuDataTable(DataTableOptions options,Length_ menuWidth,Object...columnNames) 
+	private LastColumnMenuDataTable(DataTableOptions options,Length_ menuWidth,Object...columnNames) throws Throwable 
     {
         super(addOptions(options,menuWidth,columnNames.length));
         
@@ -29,17 +29,17 @@ public class LastColumnMenuDataTable extends DataTable
     }
 	
 	
-	public LastColumnMenuDataTable(Length_ menuWidth,Object...columnNames) 
+	public LastColumnMenuDataTable(Length_ menuWidth,Object...columnNames) throws Throwable 
 	{
 	    this(new DataTableOptions(),menuWidth,columnNames);
 	}
 
-	public LastColumnMenuDataTable(Object...columnNames) 
+	public LastColumnMenuDataTable(Object...columnNames) throws Throwable 
 	{
 		this(new Length_(1,Unit_.em),columnNames);
 	}
 
-	public LastColumnMenuDataTable(DataTableOptions options,Object...columnNames) 
+	public LastColumnMenuDataTable(DataTableOptions options,Object...columnNames) throws Throwable 
     {
         this(options,new Length_(1,Unit_.em),columnNames);
     }

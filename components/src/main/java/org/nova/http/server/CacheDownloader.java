@@ -80,8 +80,9 @@ public abstract class CacheDownloader<KEY>
     final private ExtensionToContentTypeMappings mappings;
 
     static public boolean DEBUG=false;
+    static public boolean DEBUG_FILE_NOT_FOUND=true;
     static public String LOG_DEBUG_CATEGORY=CacheDownloader.class.getSimpleName();
-
+    
     public CacheDownloader(boolean enableLocalCaching, String cacheControl, long maxAge, long maxSize, long freeMemory) throws Throwable
     {
         this.cache = new Cache<KEY>(maxSize, freeMemory);
@@ -296,110 +297,117 @@ public abstract class CacheDownloader<KEY>
     
     public boolean download(Trace parent, KEY key, String contentType,HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        Long rangeStart=null;
-        Long rangeEnd=null;
-        String range=request.getHeader("Range");
-        if (range!=null)
+        try (Trace trace=new Trace(parent,"CacheDownloader",key!=null?key.toString():"(null)"))
         {
-            if (range.startsWith("bytes"))
+            Long rangeStart=null;
+            Long rangeEnd=null;
+            String range=request.getHeader("Range");
+            if (range!=null)
             {
-                int index=range.indexOf('=');
-                if (index>0)
+                if (range.startsWith("bytes"))
                 {
-                    String[] parts=range.substring(index+1).split("-");
-                    if (parts.length>0)
+                    int index=range.indexOf('=');
+                    if (index>0)
                     {
-                        rangeStart=Long.parseLong(parts[0]);
-                    }
-                    if (parts.length>1)
-                    {
-                        rangeEnd=Long.parseLong(parts[1]);
-                    }
+                        String[] parts=range.substring(index+1).split("-");
+                        if (parts.length>0)
+                        {
+                            rangeStart=Long.parseLong(parts[0]);
+                        }
+                        if (parts.length>1)
+                        {
+                            rangeEnd=Long.parseLong(parts[1]);
+                        }
+                            
                         
-                    
+                    }
                 }
             }
-        }
-        
-        if (this.enableLocalCaching==false)
-        {
-            //Do this only in test mode? 
-            this.cache.remove(new CacheKey<KEY>(null,key));
-            for (Encoding encoding:Encoding.values())
+            
+            if (this.enableLocalCaching==false)
             {
-                this.cache.remove(new CacheKey<KEY>(encoding,key));
+                //Do this only in test mode? 
+                this.cache.remove(new CacheKey<KEY>(null,key));
+                for (Encoding encoding:Encoding.values())
+                {
+                    this.cache.remove(new CacheKey<KEY>(encoding,key));
+                }
             }
-        }
-
-        CacheResult cacheResult=getCacheValue(parent, key, request);
-        
-        if (cacheResult==null)
-        {
-            response.setStatus(HttpStatus.NOT_FOUND_404);
-            return false;
-        }
-        if (cacheResult.contentEncoding!=null)
-        {
-            response.setHeader("Content-Encoding", cacheResult.contentEncoding);
-        }
-
-        boolean browserCachingEnabled = this.cacheControl != null;
-        String cacheControlValue = request.getHeader("Cache-Control");
-        boolean cacheControlSet = false;
-        if (TypeUtils.containsIgnoreCase(cacheControlValue, "no-cache"))
-        {
-            browserCachingEnabled = false;
-            cacheControlSet = true;
-        }
-        String pragmaValue = request.getHeader("Pragma");
-        boolean pragmaSet = false;
-        if (TypeUtils.containsIgnoreCase(pragmaValue, "no-cache"))
-        {
-            browserCachingEnabled = false;
-            pragmaSet = true;
-        }
-        if (browserCachingEnabled)
-        {
-            if (this.maxAge > 0)
+    
+            CacheResult cacheResult=getCacheValue(trace, key, request);
+            
+            if (cacheResult==null)
             {
-                response.setHeader("Cache-Control", this.cacheControl + ", max-age=" + this.maxAge);
-                String expires = OffsetDateTime.now().plusSeconds(this.expires)
-                        .format(DateTimeFormatter.RFC_1123_DATE_TIME);
-                response.setHeader("Expires", expires);
+                if (Debug.ENABLE && DEBUG_FILE_NOT_FOUND)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"File not found:"+key);
+                }
+                response.setStatus(HttpStatus.NOT_FOUND_404);
+                return false;
+            }
+            if (cacheResult.contentEncoding!=null)
+            {
+                response.setHeader("Content-Encoding", cacheResult.contentEncoding);
+            }
+    
+            boolean browserCachingEnabled = this.cacheControl != null;
+            String cacheControlValue = request.getHeader("Cache-Control");
+            boolean cacheControlSet = false;
+            if (TypeUtils.containsIgnoreCase(cacheControlValue, "no-cache"))
+            {
+                browserCachingEnabled = false;
+                cacheControlSet = true;
+            }
+            String pragmaValue = request.getHeader("Pragma");
+            boolean pragmaSet = false;
+            if (TypeUtils.containsIgnoreCase(pragmaValue, "no-cache"))
+            {
+                browserCachingEnabled = false;
+                pragmaSet = true;
+            }
+            if (browserCachingEnabled)
+            {
+                if (this.maxAge > 0)
+                {
+                    response.setHeader("Cache-Control", this.cacheControl + ", max-age=" + this.maxAge);
+                    String expires = OffsetDateTime.now().plusSeconds(this.expires)
+                            .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+                    response.setHeader("Expires", expires);
+                } 
+                else
+                {
+                    response.setHeader("Cache-Control", this.cacheControl);
+                }
             } 
             else
             {
-                response.setHeader("Cache-Control", this.cacheControl);
+                if (cacheControlSet == false)
+                {
+                    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+                }
+                if (pragmaSet == false)
+                {
+                    response.setHeader("Pragma", "no-cache");
+                }
+                response.setHeader("Expires", "0");
             }
-        } 
-        else
-        {
-            if (cacheControlSet == false)
+            CacheValue cacheValue=cacheResult.cacheValue;
+            if (contentType==null)
             {
-                response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+                contentType=this.mappings.getContentType(cacheValue.fileName);
             }
-            if (pragmaSet == false)
+            response.setContentType(contentType);
+            if (Debug.ENABLE && DEBUG)
             {
-                response.setHeader("Pragma", "no-cache");
+                Debugging.log(LOG_DEBUG_CATEGORY,"Write start:key="+key+", length="+cacheValue.bytes.length);
             }
-            response.setHeader("Expires", "0");
+            write(trace, cacheValue.bytes, response,rangeStart,rangeEnd);
+            if (Debug.ENABLE && DEBUG)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"Write end:key="+key+", length="+cacheValue.bytes.length);
+            }
+            return true;
         }
-        CacheValue cacheValue=cacheResult.cacheValue;
-        if (contentType==null)
-        {
-            contentType=this.mappings.getContentType(cacheValue.fileName);
-        }
-        response.setContentType(contentType);
-        if (Debug.ENABLE && DEBUG)
-        {
-            Debugging.log(LOG_DEBUG_CATEGORY,"Write start:key="+key+", length="+cacheValue.bytes.length);
-        }
-        write(parent, cacheValue.bytes, response,rangeStart,rangeEnd);
-        if (Debug.ENABLE && DEBUG)
-        {
-            Debugging.log(LOG_DEBUG_CATEGORY,"Write end:key="+key+", length="+cacheValue.bytes.length);
-        }
-        return true;
     }
 
 }
