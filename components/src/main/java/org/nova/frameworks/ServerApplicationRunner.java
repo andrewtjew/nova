@@ -173,7 +173,7 @@ public class ServerApplicationRunner //
     public void run(Configuration configuration,ServerApplicationInstantiator instantiator) throws Throwable
     {
         ServerApplication serverApplication=start(configuration,instantiator);
-        serverApplication.waitForStop();
+       serverApplication.waitForStop();
     } 
     
     @GET 

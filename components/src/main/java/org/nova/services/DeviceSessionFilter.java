@@ -126,16 +126,19 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                     return context.next(parent);
                 }
             }
-            if (this.debugSession==null)
+            if (requestMethod.getHttpMethod().equals("GET"))
             {
-                if (method.getAnnotation(AllowNoSession.class)==null)
+                if (this.debugSession==null)
                 {
-                    return requestDeviceSession(parent,context);
+                    if (method.getAnnotation(AllowNoSession.class)==null)
+                    {
+                        return requestDeviceSession(parent,context);
+                    }
                 }
-            }
-            else
-            {
-                session=this.debugSession;
+                else
+                {
+                    session=this.debugSession;
+                }
             }
         }
 

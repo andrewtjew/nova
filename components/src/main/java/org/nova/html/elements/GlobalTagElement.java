@@ -90,25 +90,34 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
     }
     public ELEMENT style(String value)
     {
-        return attr("style",value);
+        if (styleBuilder==null)
+        {
+            styleBuilder=new StringBuilder();
+        }
+        this.styleBuilder.append(value);
+        return (ELEMENT) this;
     }
     
     public ELEMENT style(Style value)
     {
-        return attr("style",value.toString());
+        return style(value.toString());
     }
+    private StringBuilder styleBuilder=null;
     public ELEMENT style(Property...properties)
     {
         if (properties.length==0)
         {
             return (ELEMENT)this;
         }
-        StringBuilder sb=new StringBuilder();
+        if (styleBuilder==null)
+        {
+            styleBuilder=new StringBuilder();
+        }
         for (Property property:properties)
         {
-            sb.append(property);
+            this.styleBuilder.append(property);
         }
-        return attr("style",sb.toString());
+        return (ELEMENT) this;
     }
     public ELEMENT tabindex(int value)
     {
@@ -122,4 +131,14 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
     {
         return attr("translate",value);
     }
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (this.styleBuilder!=null)
+        {
+            attr("style",this.styleBuilder.toString());
+        }
+        super.compose(composer);
+    }
+    
 }

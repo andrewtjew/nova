@@ -240,7 +240,7 @@ public class Style
         return this;
     }
 
-    public Style flex_direction(FlexDirection_ value)
+    public Style flex_direction(FlexDirection value)
     {
         sb.append("flex-direction:"+value.toString()+";");
         return this;

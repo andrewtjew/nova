@@ -42,13 +42,13 @@ import org.nova.html.bootstrap.classes.TextAlign;
 import org.nova.html.bootstrap.classes.Text;
 import org.nova.html.bootstrap.classes.Translate;
 import org.nova.html.elements.GlobalTagElement;
+import org.nova.html.properties.FlexDirection;
 
 public interface Styling<ELEMENT>
 {
 //    final private TagElement<?> element;
     public ELEMENT addClass(Object class_,Object...fragments);
     public GlobalTagElement<?> getElement();
-
 
     public default ELEMENT col(BreakPoint breakPoint,int columns)
     {
@@ -266,6 +266,11 @@ public interface Styling<ELEMENT>
     {
         return addClass("clearfix");
     }
+    public default ELEMENT flex_direction(FlexDirection direction)
+    {
+        return addClass("flex-direction",direction);
+    }
+
     public default ELEMENT flex(Flex flex)
     {
         return addClass("flex",flex);

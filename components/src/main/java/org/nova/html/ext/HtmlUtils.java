@@ -651,7 +651,7 @@ public class HtmlUtils
         return sb.toString();
     }
 
-    public static String escapeString(QuotationMark mark,String string)
+    private static String escapeString(QuotationMark mark,String string)
     {
         StringBuilder sb=new StringBuilder();
         switch (mark)
@@ -664,7 +664,7 @@ public class HtmlUtils
                 {
                     case '"':
 //                        sb.append("&quot;");
-                        sb.append("\\\"");
+                        sb.append("\"");
                         break;
                         
                     case '\'':
@@ -907,7 +907,7 @@ public class HtmlUtils
                             try
                             {
 //                                sb.append(mark.toString()+ObjectMapper.writeObjectToString(Array.get(parameter, i))+mark.toString());
-                                sb.append(escapeString(ObjectMapper.writeObjectToString(Array.get(parameter, i))));
+                                sb.append(escapeString(mark,ObjectMapper.writeObjectToString(Array.get(parameter, i))));
                             }
                             catch (Throwable e)
                             {
@@ -920,7 +920,7 @@ public class HtmlUtils
                     {
                         try
                         {
-                            sb.append(escapeString(ObjectMapper.writeObjectToString(parameter)));
+                            sb.append(escapeString(mark,ObjectMapper.writeObjectToString(parameter)));
                         }
                         catch (Throwable e)
                         {

@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.nova.html.properties;
 
-public enum FlexDirection_
+public enum FlexDirection
 {
     row("row"),
     row_reverse("row-reverse"),
@@ -29,7 +29,7 @@ public enum FlexDirection_
     column_reverse("column-reverse"),
         ;
     final String value;
-    FlexDirection_(String value)
+    FlexDirection(String value)
     {
         this.value=value;
     }
