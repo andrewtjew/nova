@@ -108,7 +108,7 @@ namespace nova.remote
                 {
                     if (error!=null)
                     {
-                        error(error);
+                        error(response);
                     }
                 }
             })
@@ -317,7 +317,7 @@ namespace nova.remote
         return t.content;
     }    
 
-    function run(instructions:Instruction[])
+    export async function run(instructions:Instruction[])
     {
         if (instructions!=null)
         {

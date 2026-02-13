@@ -80,10 +80,10 @@ public class GlobalEventTagElement<ELEMENT extends GlobalEventTagElement<ELEMENT
     {
         return attr("onpopstate",script);
     }
-//    public ELEMENT onresize(String script)
-//    {
-//        return attr("onresize",script);
-//    }
+    public ELEMENT onresize(String script)
+    {
+        return attr("onresize",script);
+    }
     public ELEMENT onstorage(String script)
     {
         return attr("onstorage",script);

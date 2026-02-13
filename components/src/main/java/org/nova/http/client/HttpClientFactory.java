@@ -212,6 +212,10 @@ public class HttpClientFactory
         
         return HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(config).setSSLSocketFactory(connectionSocketFactory).build();
     }
+    static public HttpClient createSSLClient(HttpClientConfiguration configuration,String clientCertficateStorePath, String clientCertficateStorePassword,String serverCertificateStorePath,String serverCertificateStorePassword) throws Throwable
+    {
+        return createSSLClient(configuration,clientCertficateStorePath,clientCertficateStorePassword,serverCertificateStorePath,serverCertificateStorePassword,null,"TLSv1.2",null);
+    }
     static public HttpClient createSSLClient(HttpClientConfiguration configuration) throws Throwable
     {
         SSLContextBuilder contextBuilder=new SSLContextBuilder().loadTrustMaterial(null,new TrustSelfSignedStrategy());

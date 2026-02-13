@@ -127,15 +127,15 @@ public class TimerTask
 	                this.timerScheduler.cancel(runningKey);
 	                return;
 	            }
-	            if (key==null)
+	            if ((key==null)||(this.period<=0))
 	            {
 	                this.executeStatus=TaskStatus.COMPLETED;
 	                this.timerScheduler.end(runningKey);
 	                return;
 	            }
+                this.timerScheduler.reschedule(runningKey,key, this);
 	            this.executeStatus=TaskStatus.READY;
 	        }
-	        this.timerScheduler.reschedule(runningKey,key, this);
 		}
 	}
 	

@@ -19,23 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.properties;
+package org.nova.html.tags;
 
-public enum FlexDirection_
+import org.nova.html.elements.InputElement;
+import org.nova.html.enums.autocomplete;
+
+public class request extends InputElement<request>
 {
-    row("row"),
-    row_reverse("row-reverse"),
-    column("column"),
-    column_reverse("column-reverse"),
-        ;
-    final String value;
-    FlexDirection_(String value)
+    public request()
     {
-        this.value=value;
+        super(null);
     }
-    @Override
-    public String toString()
+    public request(datalist datalist)
     {
-        return this.value;
+        this();
+        add(datalist);
+    }
+    public request list(String id)
+    {
+        attr("list",id);
+        return this;
+    }
+    public request list(datalist datalist)
+    {
+        list(datalist.id());
+        return this;
+    }
+    public request add(datalist datalist)
+    {
+        list(datalist.id());
+        addInner(datalist);
+        return this;
+    }
+    public request autocomplete(autocomplete autocomplete) //text, search, url, tel, email, password, datepickers, range, and color.
+    {
+        return attr("autocomplete",autocomplete);
+    }
+    public request autocomplete(boolean autocomplete)
+    {
+        if (autocomplete)
+        {
+            attr("autocomplete");
+        }
+        return this;
     }
 }

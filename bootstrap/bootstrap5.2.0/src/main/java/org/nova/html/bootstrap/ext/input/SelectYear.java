@@ -28,6 +28,7 @@ public class SelectYear extends Select
         {
             prompt.disabled();
         }
+        boolean selected=false;
         if (years<0)
         {
             for (int i=0;i<-years;i++)
@@ -35,7 +36,12 @@ public class SelectYear extends Select
                 int year=baseYear-i;
                 option option=returnAddInner(new option()).value(year);
                 option.addInner(year);
-                option.selected(TypeUtils.equals(value,year));
+                boolean equal=TypeUtils.equals(value,year);
+                if (equal)
+                {
+                    selected=true;
+                }
+                option.selected(equal);
             }
         }
         else
@@ -45,8 +51,19 @@ public class SelectYear extends Select
                 int year=baseYear+i;
                 option option=returnAddInner(new option()).value(year);
                 option.addInner(year);
-                option.selected(TypeUtils.equals(value,year));
+                boolean equal=TypeUtils.equals(value,year);
+                if (equal)
+                {
+                    selected=true;
+                }
+                option.selected(equal);
             }
+        }
+        if (selected==false)
+        {
+            option option=returnAddInner(new option()).value(value);
+            option.addInner(value);
+            option.selected(true);
         }
         return this;
     }

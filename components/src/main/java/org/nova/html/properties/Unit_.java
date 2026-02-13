@@ -40,6 +40,8 @@ public enum Unit_
     vh("vh"),
     vmin("vmin"),
     vmax("vmax"),
+    
+    cqh("cqh"),
     ;
 
     private String value;

@@ -37,7 +37,6 @@ import org.nova.html.remoting.FormQueryBuilder;
 import org.nova.html.tags.script;
 import org.nova.html.ext.ModalBackground;
 import org.nova.html.properties.Length_;
-import org.nova.html.properties.Style;
 import org.nova.http.client.PathAndQuery;
 
 

@@ -1,5 +1,7 @@
 package org.nova.html.bootstrap.ext.input;
 
+import java.time.LocalDate;
+
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleComponent;
@@ -7,6 +9,7 @@ import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Flex;
 import org.nova.html.bootstrap.classes.TextAlign;
+import org.nova.localization.DateFormat;
 import org.nova.utils.TypeUtils;
 
 public class InputGroupDateRange extends StyleComponent<InputGroupDateRange>
@@ -19,7 +22,7 @@ public class InputGroupDateRange extends StyleComponent<InputGroupDateRange>
     final private SelectMonth selectMonthEnd;
     final private SelectDay selectDayEnd;
 
-    public InputGroupDateRange(String namePrefix,int baseYear,int years,Integer yearStartValue,Integer monthStartValue,Integer dayStartValue,Integer yearEndValue,Integer monthEndValue,Integer dayEndValue)
+    public InputGroupDateRange(String namePrefix,DateFormat dateFormat,int baseYear,int years,Integer yearStartValue,Integer monthStartValue,Integer dayStartValue,Integer yearEndValue,Integer monthEndValue,Integer dayEndValue)
     {
         super("div",null);
         input_group().d(Display.flex).flex(Flex.wrap);
@@ -46,13 +49,17 @@ public class InputGroupDateRange extends StyleComponent<InputGroupDateRange>
         this.selectMonthEnd.name(namePrefix+"monthEnd").form_select().style("width:45%;");
         this.selectDayEnd.name(namePrefix+"dayEnd").form_select().style("width:25%;");
     }
-    public InputGroupDateRange(String namePrefix,int baseYear,int years)
+    public InputGroupDateRange(String namePrefix,DateFormat dateFormat,int baseYear,int years,LocalDate from,LocalDate to)
     {
-        this(namePrefix,baseYear,years,null,null,null,null,null,null);
+        this(namePrefix,dateFormat,baseYear,years,from.getYear(),from.getMonthValue(),from.getDayOfMonth(),to.getYear(),to.getMonthValue(),to.getDayOfMonth());
     }
-    public InputGroupDateRange(int baseYear,int years)
+    public InputGroupDateRange(String namePrefix,DateFormat dateFormat,int baseYear,int years)
     {
-        this(null,baseYear,years);
+        this(namePrefix,dateFormat,baseYear,years,null,null,null,null,null,null);
+    }
+    public InputGroupDateRange(DateFormat dateFormat,int baseYear,int years)
+    {
+        this(null,dateFormat,baseYear,years);
     }
     public InputGroupDateRange disabled(boolean value)
     {
@@ -73,5 +80,9 @@ public class InputGroupDateRange extends StyleComponent<InputGroupDateRange>
         this.selectDayEnd.set(dayEndValue);
         
         return this;
+    }    
+    public InputGroupDateRange set(LocalDate from,LocalDate to)
+    {
+        return set(from.getYear(),from.getMonthValue(),from.getDayOfMonth(),to.getYear(),to.getMonthValue(),from.getDayOfMonth());
     }    
 }
