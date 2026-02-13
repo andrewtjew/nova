@@ -12,11 +12,17 @@ public class ArrayQuery
  //   Object[] parameters;
     Integer limit;
     Integer offset;
+    final private String relationKey;
     
     ArrayList<LinkQuery> linkQueries;
 
+    public ArrayQuery(Relation_ relation)
+    {
+        this.relationKey=Relation_.getKey(relation);
+    }
     public ArrayQuery()
     {
+        this(null);
     }
     public ArrayQuery where(String expression)
     {
@@ -86,7 +92,7 @@ public class ArrayQuery
             preparedQuery.start=" AND `@arraylink`.arrayNodeId=";
         }
         on=" ON `@array`.elementId=";
-        sources.append(" `@arraylink` JOIN `@array` ON `@array`.nodeId=`@arraylink`.nodeId ");
+        sources.append(" `@arraylink` JOIN `@array` ON `@array`.nodeId=`@arraylink`.nodeId AND `@arraylink`.relation='"+this.relationKey+'\'');
         
         if (this.nodeTypes != null)
         {

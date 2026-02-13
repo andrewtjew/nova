@@ -4949,14 +4949,16 @@ public class ServerOperatorPages
         List<String> arguments = runtimeMxBean.getInputArguments();
         String args=Utils.combine(arguments, " ");
         page.content().returnAddInner(new NameValueList())
+        .add("OS",System.getProperty("os.name"))
         .add("JVM Parameters",args)
         .add("Started",DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime()))
         .add("Current",DateTimeUtils.toSystemDateTimeString(now))
         .add("Uptime",Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime()))
         .add("Base Directory",this.serverApplication.getBaseDirectory())
+        .add("Test",this.serverApplication.isTest())
         .add("SAFE_ESCAPE",Text.SAFE_ESCAPE)
         .add("Debug.ENABLE",Debug.ENABLE)
-        .add("OS",System.getProperty("os.name"));
+                ;
      
         try
         {
