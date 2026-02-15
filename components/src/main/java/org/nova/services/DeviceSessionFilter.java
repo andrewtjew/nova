@@ -110,6 +110,19 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
           return cookieState.getToken();
     }
     
+    static public record SessionOrResponse<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>>(SESSION session,Response<?> response)
+    {
+        public SessionOrResponse(SESSION session)
+        {
+            this(session, null);
+        }
+        public SessionOrResponse(Response<?> response)
+        {
+            this(null,response);
+        }
+        
+    }
+    
 	@Override
 	public Response<?> executeNext(Trace parent, Context context) throws Throwable 
 	{
@@ -132,7 +145,19 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
                 {
                     if (method.getAnnotation(AllowNoSession.class)==null)
                     {
-                        return requestDeviceSession(parent,context);
+                        var result=requestDeviceSession(parent,context);
+                        if (result==null)
+                        {
+                            return null;
+                        }
+                        if (result.session!=null)
+                        {
+                            session=result.session;
+                        }
+                        else
+                        {
+                            return result.response;
+                        }
                     }
                 }
                 else
@@ -222,5 +247,5 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     abstract protected Response<?> handleInvalidQuery(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
-	abstract protected Response<?> requestDeviceSession(Trace parent,Context context) throws Throwable;
+	abstract protected SessionOrResponse<ROLE,SESSION> requestDeviceSession(Trace parent,Context context) throws Throwable;
 }
