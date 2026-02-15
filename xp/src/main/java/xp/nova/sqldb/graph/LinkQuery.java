@@ -8,7 +8,7 @@ public class LinkQuery
      * Links must have fromNodeType and toNodeType because the target of a link is specified by Relation and targetNodeType
      */
     final Direction direction;
-    final String relationValue;
+    final String relationKey;
     final Class<? extends NodeObject> endNodeObjectType;
     final Long endNodeId;
 
@@ -34,7 +34,7 @@ public class LinkQuery
     {
         this.direction=direction;
         this.endNodeObjectType=endNodeObjectType;
-        this.relationValue=relation.getKey();
+        this.relationKey=Relation_.getKey(relation);
         this.endNodeId=endNodeId;
         this.selectNodeId=false;
     }    

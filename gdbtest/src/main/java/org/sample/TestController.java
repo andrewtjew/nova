@@ -508,7 +508,7 @@ public class TestController extends PageController
         }            
         try (var transaction=graph.beginGraphTransaction(parent))
         {
-            Paper[] papers=new Paper[5];
+            Paper[] papers=new Paper[7];
             for (int i=0;i<papers.length;i++)
             {
                 if (i!=2)
@@ -557,6 +557,48 @@ public class TestController extends PageController
                 Paper paper=result.getNodeObject(Paper.class);
                 System.out.println("paper:"+paper.name);
             }
+        }
+
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            transaction.deleteArrayElements(castle, 1,2);
+            transaction.commit();
+        }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            Paper[] papers=new Paper[2];
+            for (int i=0;i<papers.length;i++)
+            {
+                papers[i]=new Paper();
+                papers[i].name="second:"+i;
+            }
+            transaction.insertIntoArray(castle,1,papers);
+            transaction.commit();
+        }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+            ArrayQuery query=new ArrayQuery().range(2, 3).select(Paper.class);
+            Paper[] papers=accessor.execute(parent, castle, query).getNodeObjects(Paper.class);
+            
+            Paper[] deletes=new Paper[] {papers[2],papers[0]};
+            transaction.deleteArrayElements(castle, deletes);
+            transaction.commit();
+        }
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            var accessor=transaction.getGraphAccessor();
+            ArrayQuery query=new ArrayQuery().range(0, 3).select(Paper.class);
+            Paper[] papers=accessor.execute(parent, castle, query).getNodeObjects(Paper.class);
+            
+            transaction.exchangeArrayElements(castle, papers[0], papers[2]);
+            transaction.commit();
+        }
+
+        try (var transaction=graph.beginGraphTransaction(parent))
+        {
+            transaction.deleteArrayElements(castle, 0,4);
+            transaction.commit();
         }
         
         
