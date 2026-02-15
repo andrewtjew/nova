@@ -19,7 +19,7 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     }
 
     @Override
-    protected SessionOrResponse<Role,UserSession> requestDeviceSession(Trace parent, Context context) throws Throwable
+    protected SessionOrResponse<Role,UserSession> getDeviceSession(Trace parent, Context context) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
         String URI = request.getRequestURI();

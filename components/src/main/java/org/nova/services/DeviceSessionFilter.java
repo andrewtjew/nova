@@ -25,7 +25,6 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
 {
     
     final private SessionManager<SESSION> sessionManager;
-    private SESSION debugSession;
     final private Class<COOKIESTATE> coookieStateType;
     final private String cookieStateName;
     
@@ -34,10 +33,6 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         this.sessionManager=sessionManager;
         this.coookieStateType=cookieStateType;
         this.cookieStateName=cookieStateName;
-    }
-    public void setDebugSession(SESSION session)
-    {
-        this.debugSession=session;
     }
     public String getCookieStateName()
     {
@@ -141,28 +136,21 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             }
             if (requestMethod.getHttpMethod().equals("GET"))
             {
-                if (this.debugSession==null)
+                if (method.getAnnotation(AllowNoSession.class)==null)
                 {
-                    if (method.getAnnotation(AllowNoSession.class)==null)
+                    var result=getDeviceSession(parent,context);
+                    if (result==null)
                     {
-                        var result=requestDeviceSession(parent,context);
-                        if (result==null)
-                        {
-                            return null;
-                        }
-                        if (result.session!=null)
-                        {
-                            session=result.session;
-                        }
-                        else
-                        {
-                            return result.response;
-                        }
+                        return null;
                     }
-                }
-                else
-                {
-                    session=this.debugSession;
+                    if (result.session!=null)
+                    {
+                        session=result.session;
+                    }
+                    else
+                    {
+                        return result.response;
+                    }
                 }
             }
         }
@@ -247,5 +235,5 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
     abstract protected Response<?> handleInvalidQuery(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
-	abstract protected SessionOrResponse<ROLE,SESSION> requestDeviceSession(Trace parent,Context context) throws Throwable;
+	abstract protected SessionOrResponse<ROLE,SESSION> getDeviceSession(Trace parent,Context context) throws Throwable;
 }
