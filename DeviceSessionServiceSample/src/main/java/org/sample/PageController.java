@@ -13,13 +13,13 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
-import org.nova.services.SimpleDeviceSessionFilter;
+import org.nova.services.DeviceSessionFilter;
 
 @ContentDecoders(GzipContentDecoder.class)
 @ContentWriters({HtmlElementWriter.class,RemoteResponseWriter.class,JSONContentWriter.class})
 @ContentReaders({JSONContentReader.class})
 @ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class,BrotliContentEncoder.class})
-@Filters({SimpleDeviceSessionFilter.class})
+@Filters({DeviceSessionFilter.class})
 public class PageController
 {
     final protected Service service;

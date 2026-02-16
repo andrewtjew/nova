@@ -8,13 +8,13 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMapper;
 import org.nova.services.DeviceCookieState;
 import org.nova.services.DeviceSession;
-import org.nova.services.SimpleDeviceSessionFilter;
+import org.nova.services.DeviceSessionFilter;
 import org.nova.tracing.Trace;
 
 public class DeviceSessionWebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends WebSocketInitializer<DEVICESESSION>
 {
-    final private SimpleDeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter;
-    public DeviceSessionWebSocketInitializer(String webSocketPath,SimpleDeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter,Class<? extends WebSocketHandling> handlerType,WebSocketHandlingInitialization<? extends WebSocketHandling> handlerInitialization) throws Throwable
+    final private DeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter;
+    public DeviceSessionWebSocketInitializer(String webSocketPath,DeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter,Class<? extends WebSocketHandling> handlerType,WebSocketHandlingInitialization<? extends WebSocketHandling> handlerInitialization) throws Throwable
     {
         super(webSocketPath,handlerType,handlerInitialization);
         this.deviceSessionFilter=deviceSessionFilter;

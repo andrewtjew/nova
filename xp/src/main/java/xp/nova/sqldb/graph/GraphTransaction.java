@@ -633,7 +633,7 @@ public class GraphTransaction implements AutoCloseable
     }
 
     //----
-    private boolean _removeArrayElements(NodeObject arrayObject,Relation_ relation,boolean delete,NodeObject...nodeObjects) throws Throwable
+    private boolean _removeArrayElements(NodeObject arrayObject,Relation_ relation,boolean delete,Long[] nodeIds) throws Throwable
     {
         Long arrayNodeId=arrayObject._nodeId;
         if (arrayNodeId==null)
@@ -651,14 +651,13 @@ public class GraphTransaction implements AutoCloseable
             return false;
         }
         long nodeId=rowSet.getRow(0).getBIGINT(0);
-        for (int i=0;i<nodeObjects.length;i++)
+        for (int i=0;i<nodeIds.length;i++)
         {
-            NodeObject nodeObject=nodeObjects[i];
-            Long elementId=nodeObject.getNodeId();
+            Long elementId=nodeIds[i];
             rowSet=this.accessor.executeQuery(parent, null, "SELECT `index` FROM `@array` WHERE nodeId=? AND elementId=?",nodeId,elementId);
             if (rowSet.size()!=1)
             {
-                throw new Exception("arrayNodeId="+arrayNodeId+", relationKey="+relationKey+", elementId="+nodeObject.getNodeId());
+                throw new Exception("arrayNodeId="+arrayNodeId+", relationKey="+relationKey+", elementId="+elementId);
             }
             if (delete)
             {
@@ -669,7 +668,7 @@ public class GraphTransaction implements AutoCloseable
             int updated=this.accessor.executeUpdate(parent, null, "UPDATE `@array` SET `index`=`index`-1 WHERE nodeId=? AND `index`>?",nodeId,index);
             if ((index==0)&&(updated==0))
             {
-                if (i!=nodeObjects.length-1)
+                if (i!=nodeIds.length-1)
                 {
                     throw new Exception();//should be impossible.
                 }
@@ -679,22 +678,52 @@ public class GraphTransaction implements AutoCloseable
         this.graph.invalidateCacheLines(parent, arrayNodeId);
         return true;
     }
+    
+    static Long[] toIds(NodeObject[] nodeObjects)
+    {
+        Long[] ids=new Long[nodeObjects.length];
+        for (int i=0;i<nodeObjects.length;i++)
+        {
+            if (nodeObjects[i]!=null)
+            {
+                ids[i]=nodeObjects[i].getNodeId();
+            }
+        }
+        return ids;
+    }
+    
     public boolean removeArrayElements(NodeObject arrayObject,Relation_ relation,NodeObject...nodeObjects) throws Throwable
     {
-        return _removeArrayElements(arrayObject, relation, false, nodeObjects);
+        return _removeArrayElements(arrayObject, relation, false, toIds(nodeObjects));
     }
     public boolean removeArrayElements(NodeObject arrayObject,NodeObject...nodeObjects) throws Throwable
     {
         return removeArrayElements(arrayObject, null, nodeObjects);
     }
+//    public boolean removeArrayElements(NodeObject arrayObject,Relation_ relation,Long...nodeIds) throws Throwable
+//    {
+//        return _removeArrayElements(arrayObject, relation, false, nodeIds);
+//    }
+//    public boolean removeArrayElements(NodeObject arrayObject,Long...nodeIds) throws Throwable
+//    {
+//        return removeArrayElements(arrayObject, null, nodeIds);
+//    }
     public boolean deleteArrayElements(NodeObject arrayObject,Relation_ relation,NodeObject...nodeObjects) throws Throwable
     {
-        return _removeArrayElements(arrayObject, relation, true, nodeObjects);
+        return _removeArrayElements(arrayObject, relation, true, toIds(nodeObjects));
     }
     public boolean deleteArrayElements(NodeObject arrayObject,NodeObject...nodeObjects) throws Throwable
     {
         return deleteArrayElements(arrayObject, null, nodeObjects);
     }
+//    public boolean deleteArrayElements(NodeObject arrayObject,Relation_ relation,Long...nodeIds) throws Throwable
+//    {
+//        return _removeArrayElements(arrayObject, relation, true, nodeIds);
+//    }
+//    public boolean deleteArrayElements(NodeObject arrayObject,Long...nodeIds) throws Throwable
+//    {
+//        return deleteArrayElements(arrayObject, null, nodeIds);
+//    }
     //--
     
     public boolean exchangeArrayElements(NodeObject arrayObject,Relation_ relation,int indexA,int indexB) throws Throwable

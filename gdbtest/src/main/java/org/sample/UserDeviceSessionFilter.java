@@ -5,6 +5,8 @@ import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
 import org.nova.services.DeviceSessionFilter;
+import org.nova.services.DeviceSessionFilter.SessionOrResponse;
+import org.nova.services.DeviceSessionFilter;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
@@ -17,13 +19,13 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     }
 
     @Override
-    protected Response<?> requestDeviceSession(Trace parent, Context context) throws Throwable
+    protected SessionOrResponse<Role,UserSession> getDeviceSession(Trace parent, Context context) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
         String URI = request.getRequestURI();
         if (URI.startsWith(DeviceController.PATH))
         {
-            return context.next(parent);
+            return new SessionOrResponse<Role,UserSession>(context.next(parent));
         }
         String method = request.getMethod();
         if ("GET".equals(method))

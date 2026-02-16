@@ -21,14 +21,14 @@ import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class SimpleDeviceSessionFilter<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
+public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
     
     final private SessionManager<SESSION> sessionManager;
     final private Class<COOKIESTATE> coookieStateType;
     final private String cookieStateName;
     
-    public SimpleDeviceSessionFilter(SessionManager<SESSION> sessionManager,String cookieStateName,Class<COOKIESTATE> cookieStateType)
+    public DeviceSessionFilter(SessionManager<SESSION> sessionManager,String cookieStateName,Class<COOKIESTATE> cookieStateType)
     {
         this.sessionManager=sessionManager;
         this.coookieStateType=cookieStateType;
@@ -86,7 +86,7 @@ public abstract class SimpleDeviceSessionFilter<ROLE extends Enum<?>,SESSION ext
         return new Cookie(getCookieStateName(), value);
     }    
     
-    final static String LOG_CATEGORY_DEBUG=SimpleDeviceSessionFilter.class.getSimpleName();
+    final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
     final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;

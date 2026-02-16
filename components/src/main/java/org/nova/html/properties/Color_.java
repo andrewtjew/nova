@@ -23,6 +23,14 @@ package org.nova.html.properties;
 
 public class Color_
 {
+    static public record oklch(float lightness,float chroma,float hue)
+    {
+    }
+    
+    
+    
+    
+    
     final private String value;
     public Color_(String value)
     {
@@ -30,7 +38,7 @@ public class Color_
     }
     static public Color_ rgba(int red,int green,int blue,float opacity)
     {
-        return new Color_("rgba("+red+","+green+","+blue+","+opacity+")");
+        return new Color_("rgba("+red+" "+green+" "+blue+" / "+opacity+")");
     }
     static public Color_ rgb(int red,int green,int blue)
     {
@@ -44,6 +52,14 @@ public class Color_
     {
         return new Color_("hsl("+hue+","+saturation+"%,"+lightness+"%)");
     }
+    static public Color_ oklch(float lightness,float chroma,float hue)
+    {
+        return new Color_("hsl("+hue+" "+chroma+" "+lightness+")");
+    }
+    static public Color_ oklch(float lightness,float chroma,float hue,float opacity)
+    {
+        return new Color_("hsl("+hue+" "+chroma+" "+lightness+" / "+opacity+")");
+    }
     static public Color_ value(String value)
     {
         return new Color_(value);
@@ -54,4 +70,75 @@ public class Color_
     {
         return this.value;
     }
+    
+    
+    static record float3(float a,float b,float c)
+    {
+    }
+    
+//    static class Parser
+//    {
+//        final private String value;
+//        private int index;
+//        public Parser(Color_ color)
+//        {
+//            this.value=color.toString();
+//            this.index=0;
+//        }
+//        
+//        public String format()
+//        {
+//            this.index=this.value.indexOf('(');
+//            String format=this.value.substring(0,this.index);
+//            this.index++;
+//            return format;
+//        }
+//        
+//        public float3 float3()
+//        {
+//            
+//        }
+//        
+//        
+//        
+//        public Float getFloat()
+//        {
+//            for (int i=this.index;i<this.value.length();i++)
+//            {
+//                char c=this.value.charAt(i);
+//                if ((Character.isDigit(c)||c=='.'))
+//                {
+//                    this.index=i;
+//                    break;
+//                }
+//                if (Character.isSpace(c)==false)
+//            }
+//            for (int i=this.index;i<this.value.length();i++)
+//            {
+//                char c=this.value.charAt(i);
+//                if ((Character.isDigit(c)||c=='.'))
+//                {
+//                    continue;
+//                }
+//                String number=this.value.substring(this.index,i);
+//                
+//                this.index=i;
+//            }
+//            return null;
+//        }
+//    }
+//    
+//    public oklch oklch()
+//    {
+//        if (this.value.startsWith("oklch")==false)
+//        {
+//            return null;
+//        }
+//        int start=this.value.indexOf('(');
+//        if (start<0)
+//        {
+//            return null;
+//        }
+//        int end=this.vla
+//    }
 }
