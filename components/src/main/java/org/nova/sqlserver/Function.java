@@ -19,18 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
-import java.nio.charset.StandardCharsets;
-
-import org.nova.sqldb.SqlServerConfiguration;
-
-public class ConnectorAndMigrationConfiguration
+public class Function
 {
-    public SqlServerConfiguration connectorConfiguration;
-    public String passwordKey;
-    public String user;
-    public String scriptFile;
-    public String charSet=StandardCharsets.UTF_16LE.name();
-    public boolean captureActivateStackTrace;
+    final private String owner;
+    final private String name;
+    final private String body;
+    final private String text;
+    Function(String text,String owner,String name,String body)
+    {
+        this.text=text;
+        this.owner=owner;
+        this.name=name;
+        this.body=body;
+    }
+    public String getText()
+    {
+        return this.text;
+    }
+    public String getOwner()
+    {
+        return owner;
+    }
+    public String getName()
+    {
+        return name;
+    }
+    public String getBody()
+    {
+        return body;
+    }
+    
 }

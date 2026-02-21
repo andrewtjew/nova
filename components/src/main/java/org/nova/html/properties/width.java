@@ -37,4 +37,8 @@ public class width extends LengthProperty
     {
         this(new Length_(length,Unit_.px));
     }
+    static public Property auto()
+    {
+        return new Property("width:auto;");
+    }
 }

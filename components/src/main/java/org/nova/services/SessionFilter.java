@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
+import org.nova.html.elements.Element;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
@@ -206,16 +207,20 @@ public class SessionFilter extends Filter
             }
             try
             {
-                var abnormalAccept=session.acceptRequest(parent,context);
-                if (abnormalAccept!=null)
+                var result=session.interceptRequest(parent,context);
+                if (result!=null)
                 {
-                    if (abnormalAccept.statusCode()!=null)
+                    if (result.statusCode()!=null)
                     {
-                        context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                        context.getHttpServletResponse().setStatus(result.statusCode());
                     }
-                    if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                    if (result.response()!=null)
                     {
-                        context.seeOther(abnormalAccept.seeOther());
+                        return result.response();
+                    }
+                    if (TypeUtils.isNullOrEmpty(result.seeOther())==false)
+                    {
+                        context.seeOther(result.seeOther());
                         return null;
                     }
                     return getAbnormalSessionRequestHandler(context).handleAccessDeniedRequest(parent,this, session, context);

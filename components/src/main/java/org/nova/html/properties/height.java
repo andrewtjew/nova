@@ -35,4 +35,8 @@ public class height extends LengthProperty
     {
         this(new Length_(size,null));
     }
+    static public Property auto()
+    {
+        return new Property("height:auto;");
+    }
 }

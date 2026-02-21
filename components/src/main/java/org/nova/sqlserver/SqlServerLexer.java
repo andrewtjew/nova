@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
 import org.nova.parsing.scan.Lexeme;
 import org.nova.parsing.scan.ScanException;

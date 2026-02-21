@@ -19,27 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
-public class DatabaseUpdatePermissions
+public class OwnerName
 {
-    public boolean deleteTable=false;
-    public boolean deleteColumn=false;
-    public boolean createTable=true;
-    public boolean createNullableTableColumn=true;
-    public boolean createNotNullableTableColumn=false;
-    public boolean alterColumnToLargerSize=true;
-    public boolean alterColumnToSmallerSize=false;
-    public boolean alterColumnToNullable=true;
-    public boolean alterColumnToNotNullable=false;
-    public boolean alterIdentityColumns=false;
-    public boolean alterIdentityStart=false;
-    public boolean alterIdentityIncrement=false;
-    public boolean deleteFunction=true;
-    public boolean createFunction=true;
-    public boolean replaceFunction=true;
-
-    public boolean deleteProcedure=false; 
-    public boolean createProcedure=true;
-    public boolean replaceProcedure=true;
+    final private String owner;
+    final private String name;
+    OwnerName(String owner,String name)
+    {
+        this.owner=owner;
+        this.name=name;
+    }
+    public String getOwner()
+    {
+        return owner;
+    }
+    public String getName()
+    {
+        return name;
+    }
+    
 }

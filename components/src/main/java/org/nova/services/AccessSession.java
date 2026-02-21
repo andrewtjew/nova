@@ -38,7 +38,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     }
 
     @Override
-    public AbnormalAccept acceptRequest(Trace trace, Context context) throws Throwable
+    public InterceptResult interceptRequest(Trace trace, Context context) throws Throwable
     {
         Boolean deny=this.denyMap.get(context.getRequestMethod().getKey());
         if (deny==null)
@@ -48,7 +48,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
         }
         if (deny)
         {
-            return new AbnormalAccept();
+            return new InterceptResult();
         }
         return null;
     }

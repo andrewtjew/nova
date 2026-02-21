@@ -167,21 +167,25 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         
         try
         {
-            AbnormalAccept abnormalAccept=session.acceptRequest(parent, context);
+            InterceptResult<?> abnormalAccept=session.interceptRequest(parent, context);
             if (abnormalAccept!=null)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
-                {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
-                }
                 if (abnormalAccept.statusCode()!=null)
                 {
                     context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                }
+                if (abnormalAccept.response()!=null)
+                {
+                    return abnormalAccept.response();
                 }
                 if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
                 {
                     context.seeOther(abnormalAccept.seeOther());
                     return null;
+                }
+                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                {
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                 }
                 return handleInvalidQuery(parent, context);
             }

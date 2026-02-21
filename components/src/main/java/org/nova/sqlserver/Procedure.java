@@ -19,15 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
-public class Function
+public class Procedure
 {
     final private String owner;
     final private String name;
     final private String body;
     final private String text;
-    Function(String text,String owner,String name,String body)
+    Procedure(String text,String owner,String name,String body)
     {
         this.text=text;
         this.owner=owner;

@@ -19,34 +19,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
-public class SqlServerObjects
+public class Column
 {
-    final private Function[] functions; 
-    final private Procedure[] procedures; 
-    final private Table[] tables ;
+    private final String name;
+    private final String type;
+    private final String size;
+    private final boolean identity;
+    private final long identityStart;
+    private final long identityIncrement;
+    private final boolean nullAllowed;
     
-    SqlServerObjects(Function[] functions,Procedure[] procedures,Table[] tables)
+    public Column(String name,String type,String size,boolean identity,long identityStart,long identityIncrement,boolean nullAllowed)
     {
-        this.functions=functions;
-        this.procedures=procedures;
-        this.tables=tables;
+        this.name=name;
+        this.type=type;
+        this.size=size;
+        this.identity=identity;
+        this.identityStart=identityStart;
+        this.identityIncrement=identityIncrement;
+        this.nullAllowed=nullAllowed;
     }
 
-    public Function[] getFunctions()
+    public String getName()
     {
-        return functions;
+        return name;
     }
 
-    public Procedure[] getProcedures()
+    public String getType()
     {
-        return procedures;
+        return type;
     }
 
-    public Table[] getTables()
+    public String getSize()
     {
-        return tables;
+        return size;
     }
+
+    public boolean isIdentity()
+    {
+        return identity;
+    }
+
+    public long getIdentityStart()
+    {
+        return identityStart;
+    }
+    public long getIdentityIncrement()
+    {
+        return identityIncrement;
+    }
+    public boolean isNullAllowed()
+    {
+        return nullAllowed;
+    }
+    
     
 }

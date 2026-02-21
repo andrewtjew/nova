@@ -19,27 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nebula.sqlserver;
+package org.nova.sqlserver;
 
-public class DatabaseUpdateActions
+public class SqlServerObjects
 {
-    public int deleteTable=0;
-    public int deleteColumn=0;
-    public int createTable=0;
-    public int createNullableTableColumn=0;
-    public int createNotNullableTableColumn=0;
-    public int alterColumnToLargerSize=0;
-    public int alterColumnToSmallerSize=0;
-    public int alterColumnToNullable=0;
-    public int alterColumnToNotNullable=0;
-    public int alterIdentityColumns=0;
-    public int alterIdentityStart=0;
-    public int alterIdentityIncrement=0;
-    public int deleteFunction=0;
-    public int createFunction=0;
-    public int replaceFunction=0;
+    final private Function[] functions; 
+    final private Procedure[] procedures; 
+    final private Table[] tables ;
+    
+    SqlServerObjects(Function[] functions,Procedure[] procedures,Table[] tables)
+    {
+        this.functions=functions;
+        this.procedures=procedures;
+        this.tables=tables;
+    }
 
-    public int deleteProcedure=0; 
-    public int createProcedure=0;
-    public int replaceProcedure=0;
+    public Function[] getFunctions()
+    {
+        return functions;
+    }
+
+    public Procedure[] getProcedures()
+    {
+        return procedures;
+    }
+
+    public Table[] getTables()
+    {
+        return tables;
+    }
+    
 }

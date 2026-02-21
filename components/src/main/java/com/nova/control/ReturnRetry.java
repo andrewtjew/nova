@@ -23,44 +23,44 @@ package com.nova.control;
 
 import org.nova.tracing.Trace;
 
-public abstract class ReturnRetry<RETURN,THROWABLE extends Throwable> 
-{
-    public abstract RETURN retry(Trace parent) throws THROWABLE;
-    
-    public static <RETURN,THROWABLE extends Throwable> RETURN invoke(Trace parent,int attempts,long sleep,ReturnRetry<RETURN,THROWABLE> retry) throws THROWABLE
-    {
-        THROWABLE throwable=null;
-        for (int i=0;i<attempts;i++)
-        {
-            try (Trace trace=new Trace(parent,"Retry:"+parent.getCategory()))
-            {
-                trace.setDetails("RetryIndex="+i);
-                try 
-                {
-                    return retry.retry(trace);
-                }
-                catch (Throwable t)
-                {
-                    trace.close(t);
-                    throwable=(THROWABLE)t;
-                }
-                if (sleep>0)
-                {
-                    try
-                    {
-                        Thread.sleep(sleep);
-                    }
-                    catch (InterruptedException e)
-                    {
-                    }
-                }
-            }
-        }
-        throw throwable;
-    }
-
-    public static <RETURN,THROWABLE extends Throwable> RETURN invoke(Trace parent,int attempts,ReturnRetry<RETURN,THROWABLE> retry) throws THROWABLE
-    {
-        return invoke(parent,attempts,0,retry);
-    }
-}
+//public abstract class ReturnRetry<RETURN,THROWABLE extends Throwable> 
+//{
+//    public abstract RETURN retry(Trace parent) throws THROWABLE;
+//    
+//    public static <RETURN,THROWABLE extends Throwable> RETURN invoke(Trace parent,int attempts,long sleep,ReturnRetry<RETURN,THROWABLE> retry) throws THROWABLE
+//    {
+//        THROWABLE throwable=null;
+//        for (int i=0;i<attempts;i++)
+//        {
+//            try (Trace trace=new Trace(parent,"Retry:"+parent.getCategory()))
+//            {
+//                trace.setDetails("RetryIndex="+i);
+//                try 
+//                {
+//                    return retry.retry(trace);
+//                }
+//                catch (Throwable t)
+//                {
+//                    trace.close(t);
+//                    throwable=(THROWABLE)t;
+//                }
+//                if (sleep>0)
+//                {
+//                    try
+//                    {
+//                        Thread.sleep(sleep);
+//                    }
+//                    catch (InterruptedException e)
+//                    {
+//                    }
+//                }
+//            }
+//        }
+//        throw throwable;
+//    }
+//
+//    public static <RETURN,THROWABLE extends Throwable> RETURN invoke(Trace parent,int attempts,ReturnRetry<RETURN,THROWABLE> retry) throws THROWABLE
+//    {
+//        return invoke(parent,attempts,0,retry);
+//    }
+//}
