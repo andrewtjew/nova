@@ -218,10 +218,10 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     
     private RequestMethod requestMethod;    
     @Override
-    public InterceptResult interceptRequest(Trace parent,Context context) throws Throwable
+    public AbnormalResult verifyRequest(Trace parent,Context context) throws Throwable
     {
         {
-            InterceptResult abnormalAccept=super.interceptRequest(parent, context);
+            AbnormalResult abnormalAccept=super.verifyRequest(parent, context);
             if (abnormalAccept!=null)
             {
                 return abnormalAccept;
@@ -249,7 +249,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                     }
                     else
                     {
-                        return new InterceptResult();
+                        return new AbnormalResult();
                     }
                 }
             }
@@ -263,7 +263,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new InterceptResult();
+            return code.equals(computed)?null:new AbnormalResult();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {

@@ -5,7 +5,6 @@ import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
 import org.nova.services.DeviceSessionFilter;
-import org.nova.services.DeviceSessionFilter.SessionOrResponse;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
