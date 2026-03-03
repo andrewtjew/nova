@@ -39,7 +39,7 @@ import org.nova.utils.Utils;
 */
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
-    static record AbnormalAcceptBox(InterceptResult abnormalAccept)
+    static record AbnormalAcceptBox(AbnormalResult abnormalAccept)
     {
     }
     
@@ -127,7 +127,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     }
     
     @Override
-    synchronized public InterceptResult interceptRequest(Trace trace, Context context) throws Throwable
+    synchronized public AbnormalResult verifyRequest(Trace trace, Context context) throws Throwable
     {
         RequestMethod handler=context.getRequestMethod();
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
@@ -139,7 +139,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
     }    
 
-    public InterceptResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    public AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
     {
         //Implements two level of caching, first per session using this.denyMap, then global using DENY_MAP.
         
@@ -167,19 +167,19 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return result.abnormalAccept;
     }
 
-    private InterceptResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
+    private AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
     {
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
             {
-                return new InterceptResult();
+                return new AbnormalResult();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return new InterceptResult();
+                    return new AbnormalResult();
                 }
             }
         }
@@ -195,7 +195,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
                 return null;
             }
         }
-        return new InterceptResult(requiredRoles.redirect());
+        return new AbnormalResult(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

@@ -29,7 +29,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.nova.concurrent.Lock;
-import org.nova.html.elements.Element;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
@@ -207,7 +206,7 @@ public class SessionFilter extends Filter
             }
             try
             {
-                var result=session.interceptRequest(parent,context);
+                var result=session.verifyRequest(parent,context);
                 if (result!=null)
                 {
                     if (result.statusCode()!=null)

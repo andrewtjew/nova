@@ -29,8 +29,8 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
-
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -54,6 +54,16 @@ public class SecurityUtils
         return mac.doFinal(data);
     }
 
+    public static String computeHashHMACSHA256(String key,String data) throws Throwable 
+    {
+        String algorithm = "HmacSHA256";
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8),algorithm);
+        Mac mac=Mac.getInstance(algorithm);
+        mac.init(secretKey);
+        byte[] bytes= mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+    
     public static byte[] computeHashHMACSHA256(SecretKey key,byte[] data) throws Throwable
     {
         Mac mac=Mac.getInstance("HmacSHA256");
@@ -543,4 +553,5 @@ public class SecurityUtils
         }
         return true;
     }
+    
 }

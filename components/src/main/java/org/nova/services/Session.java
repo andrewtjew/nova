@@ -98,6 +98,6 @@ public abstract class Session
     
     abstract public void onClose(Trace trace) throws Throwable;
     abstract public NameObject[] getDisplayItems();
-    abstract public InterceptResult interceptRequest(Trace trace,Context context) throws Throwable;
+    abstract public AbnormalResult<?> verifyRequest(Trace trace,Context context) throws Throwable;
     
 }

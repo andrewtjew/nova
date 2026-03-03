@@ -158,7 +158,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         
         try
         {
-            InterceptResult<?> abnormalAccept=session.interceptRequest(parent, context);
+            AbnormalResult<?> abnormalAccept=session.verifyRequest(parent, context);
             if (abnormalAccept!=null)
             {
                 if (abnormalAccept.statusCode()!=null)
