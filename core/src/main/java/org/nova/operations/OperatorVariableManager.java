@@ -89,16 +89,18 @@ public class OperatorVariableManager
             {
                 System.out.println("Applicator:"+applicator.getClass().getSimpleName());
             }
-			
             VariableInstance instance=new VariableInstance(applicator,variable, object, field);
 			if ((this.store!=null)&&(parent!=null))
 			{
-			    String valueText=this.store.load(parent, category, instance);
-			    if (valueText==null)
+			    var value=this.store.load(parent, category, instance);
+			    if (value!=null)
 			    {
-                    valueText=variable.defaultValue();
+                    instance.set(value.value());
 			    }
-                 instance.set(valueText);
+//			    else
+//			    {
+//                    instance.set(variable.defaultValue());
+//			    }
 			}
 			variables.put(key,instance);
 		}

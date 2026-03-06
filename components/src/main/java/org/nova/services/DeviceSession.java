@@ -288,40 +288,6 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return STATE_KEY;
     }
     
-//    public String pushContinuation(String script)
-//    {
-//        if (this.newContinuations==null)
-//        {
-//            this.newContinuations=new Stack<String>();
-//        }
-//        this.newContinuations.push(script);
-//        this.continuations.push(script);
-//        return script;
-//    }
-//    public String pushContinuation(Context context)
-//    {
-//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
-//    }
-//    public String pushRefererContinuation(Context context)
-//    {
-//        HttpServletRequest request=context.getHttpServletRequest();
-//        return pushContinuation(request.getHeader("Referer"));
-//    }
-//    
-//    public void clearContinuations()
-//    {
-//        this.continuations.clear();
-//        this.newContinuations=null;
-//    }
-//    
-//    public String popContinuation()
-//    {
-//        if (this.continuations.size()==0)
-//        {
-//            return null;
-//        }
-//        return this.continuations.pop();
-//    }
     
      
     

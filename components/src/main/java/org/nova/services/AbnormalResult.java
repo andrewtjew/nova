@@ -1,5 +1,6 @@
 package org.nova.services;
 
+import org.nova.html.elements.Element;
 import org.nova.http.server.Response;
 
 public record AbnormalResult<CONTENT>(String seeOther,Integer statusCode,Response<CONTENT> response)
@@ -19,6 +20,10 @@ public record AbnormalResult<CONTENT>(String seeOther,Integer statusCode,Respons
     public AbnormalResult(int statusCode,Response<CONTENT> response)
     {
         this(null,statusCode,response);
+    }
+    public AbnormalResult(CONTENT content)
+    {
+        this(null,null,new Response<CONTENT>(content));
     }
     public AbnormalResult()
     {
