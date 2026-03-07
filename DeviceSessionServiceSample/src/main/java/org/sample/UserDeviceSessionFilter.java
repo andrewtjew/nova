@@ -1,6 +1,8 @@
 package org.sample;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.nova.html.elements.Element;
+import org.nova.html.ext.Redirect;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
@@ -62,6 +64,14 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     {
         UserPage page = new UserPage(null, null);
         page.body().addInner("Invalid Query");
+        return new Response<UserPage>(page);
+    }
+
+    @Override
+    protected Response<?> handleNoSession(Trace parent, Context context) throws Throwable
+    {
+        UserPage page = new UserPage(null, null);
+        page.body().addInner("No session");
         return new Response<UserPage>(page);
     }
 

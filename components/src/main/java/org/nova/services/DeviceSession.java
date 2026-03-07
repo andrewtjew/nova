@@ -218,10 +218,10 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     
     private RequestMethod requestMethod;    
     @Override
-    public AbnormalResult verifyRequest(Trace parent,Context context) throws Throwable
+    public AbnormalResult<?> verifyRequest(Trace parent,Context context) throws Throwable
     {
         {
-            AbnormalResult abnormalAccept=super.verifyRequest(parent, context);
+            AbnormalResult<?> abnormalAccept=super.verifyRequest(parent, context);
             if (abnormalAccept!=null)
             {
                 return abnormalAccept;
@@ -263,7 +263,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult();
+            return code.equals(computed)?null:new AbnormalResult<Void>();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {
@@ -287,42 +287,4 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     {
         return STATE_KEY;
     }
-    
-//    public String pushContinuation(String script)
-//    {
-//        if (this.newContinuations==null)
-//        {
-//            this.newContinuations=new Stack<String>();
-//        }
-//        this.newContinuations.push(script);
-//        this.continuations.push(script);
-//        return script;
-//    }
-//    public String pushContinuation(Context context)
-//    {
-//        return pushContinuation(HtmlUtils.getRequestPathAndQuery(context));
-//    }
-//    public String pushRefererContinuation(Context context)
-//    {
-//        HttpServletRequest request=context.getHttpServletRequest();
-//        return pushContinuation(request.getHeader("Referer"));
-//    }
-//    
-//    public void clearContinuations()
-//    {
-//        this.continuations.clear();
-//        this.newContinuations=null;
-//    }
-//    
-//    public String popContinuation()
-//    {
-//        if (this.continuations.size()==0)
-//        {
-//            return null;
-//        }
-//        return this.continuations.pop();
-//    }
-    
-     
-    
 }

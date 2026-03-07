@@ -127,36 +127,30 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         Method method=requestMethod.getMethod();
         if (session==null)
         {
-            if (method.getAnnotation(AllowNoSession.class)!=null)
+            if ((method.getAnnotation(AllowNoSession.class)==null)&&(requestMethod.getHttpMethod().equals("GET")))
             {
-                if (session==null)
+                var result=getDeviceSession(parent,context);
+                if (result==null)
                 {
-                    return context.next(parent);
+                    return null;
+                }
+                if (result.session!=null)
+                {
+                    session=result.session;
+                }
+                else
+                {
+                    return result.response;
                 }
             }
-            if (requestMethod.getHttpMethod().equals("GET"))
+            else
             {
-                if (method.getAnnotation(AllowNoSession.class)==null)
-                {
-                    var result=getDeviceSession(parent,context);
-                    if (result==null)
-                    {
-                        return null;
-                    }
-                    if (result.session!=null)
-                    {
-                        session=result.session;
-                    }
-                    else
-                    {
-                        return result.response;
-                    }
-                }
+                return this.handleNoSession(parent, context);
             }
         }
 
         Lock<String> lock=null;
-        if (method.getAnnotation(AllowNoLock.class)==null)
+        if ((method.getAnnotation(AllowNoLock.class)==null)&&(session!=null))
         {
             lock=sessionManager.waitForLock(parent,session.getToken());
             if (lock==null)
@@ -237,6 +231,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
 	}
 	
     abstract protected Response<?> handleInvalidQuery(Trace parent,Context context) throws Throwable;
+    abstract protected Response<?> handleNoSession(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleNoLock(Trace parent,Context context) throws Throwable;
     abstract protected Response<?> handleException(Trace parent,Context context,Throwable t) throws Throwable;
 	abstract protected SessionOrResponse<ROLE,SESSION> getDeviceSession(Trace parent,Context context) throws Throwable;

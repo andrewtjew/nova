@@ -62,8 +62,16 @@ public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSessi
     protected Response<?> handleInvalidQuery(Trace parent, Context context) throws Throwable
     {
         UserPage page = new UserPage(null, null);
+        
         page.body().addInner("Invalid Query");
         return new Response<UserPage>(page);
+    }
+
+    @Override
+    protected Response<?> handleNoSession(Trace parent, Context context) throws Throwable
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
