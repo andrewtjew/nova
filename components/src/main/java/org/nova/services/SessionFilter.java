@@ -206,7 +206,7 @@ public class SessionFilter extends Filter
             }
             try
             {
-                var result=session.verifyRequest(parent,context);
+                var result=session.verifyRequest(parent,context,this);
                 if (result!=null)
                 {
                     if (result.statusCode()!=null)
