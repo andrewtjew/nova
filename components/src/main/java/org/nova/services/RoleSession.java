@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.nova.core.NameObject;
 import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
@@ -127,7 +128,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
     }
     
     @Override
-    synchronized public AbnormalResult<?> verifyRequest(Trace trace, Context context) throws Throwable
+    synchronized public AbnormalResult<?> verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
     {
         RequestMethod handler=context.getRequestMethod();
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();

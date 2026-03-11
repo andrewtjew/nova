@@ -18,6 +18,7 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
@@ -218,13 +219,13 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     
     private RequestMethod requestMethod;    
     @Override
-    public AbnormalResult<?> verifyRequest(Trace parent,Context context) throws Throwable
+    public AbnormalResult<?> verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         {
-            AbnormalResult<?> abnormalAccept=super.verifyRequest(parent, context);
-            if (abnormalAccept!=null)
+            var abnormalResult=super.verifyRequest(parent, context,filter);
+            if (abnormalResult!=null)
             {
-                return abnormalAccept;
+                return abnormalResult;
             }
         }
         this.requestMethod=context.getRequestMethod();
