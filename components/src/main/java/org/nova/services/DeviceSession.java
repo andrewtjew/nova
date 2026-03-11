@@ -238,7 +238,6 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         {
             if (getSecurityQueryKey()!=null)
             {
-                //Require 
                 var map=context.getHttpServletRequest().getParameterMap();
                 int ignore=map.containsKey(getStateKey())?1:0;
                 if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
@@ -249,7 +248,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                     }
                     else
                     {
-                        return new AbnormalResult();
+                        return new AbnormalResult<>();
                     }
                 }
             }
@@ -263,7 +262,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult<Void>();
+            return code.equals(computed)?null:new AbnormalResult<>();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {

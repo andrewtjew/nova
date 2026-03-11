@@ -173,13 +173,13 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         {
             if (forbiddenRoles.value().length==0)
             {
-                return new AbnormalResult<Void>();
+                return new AbnormalResult<>();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return new AbnormalResult<Void>();
+                    return new AbnormalResult<>();
                 }
             }
         }

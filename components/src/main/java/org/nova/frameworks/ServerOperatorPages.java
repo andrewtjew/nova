@@ -5221,7 +5221,7 @@ public class ServerOperatorPages
                 Field field=instance.getField();
                 Class<?> type=field.getType();
                 Object value=instance.getValue();
-                String resultElementId=(category+name+"Result").replace('.', '_');
+//                String resultElementId=(category+name+"Result").replace('.', '_');
              //   String valueKey=(category+name+"Value").replace('.', '_');
 
                 TableRow row=form.returnAddInner(new TableRow());
@@ -5229,7 +5229,7 @@ public class ServerOperatorPages
                 row.add(type.getSimpleName());
                 row.add(variable.defaultValue());
                 row.add(instance.getValue());//,new Attribute("id",valueKey));
-                String buttonKey=(category+name+"Button").replace('.', '_');
+  //              String buttonKey=(category+name+"Button").replace('.', '_');
                 String[] options=variable.options();
                 
                 td input_td=new td().style("width:10em;");

@@ -108,9 +108,9 @@ public class MultiTaskScheduler
 		return future;
 	}
 
-	public Progress<Void> schedule(Trace parent,String traceCategory,TraceRunnable...runnables)
+	public Progress<?> schedule(Trace parent,String traceCategory,TraceRunnable...runnables)
     {
-        Progress<Void> progress=null;
+        Progress<?> progress=null;
         synchronized(this)
         {
             long number=this.number++;

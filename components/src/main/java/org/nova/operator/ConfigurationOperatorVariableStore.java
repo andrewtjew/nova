@@ -119,7 +119,7 @@ public class ConfigurationOperatorVariableStore extends OperatorVariableStore
         }
     }
     @Override
-    public String load(Trace parent, String category,VariableInstance instance)
+    public OperatorVariableStoreValue load(Trace parent, String category,VariableInstance instance)
     {
         if (fileName!=null)
         {
@@ -127,7 +127,7 @@ public class ConfigurationOperatorVariableStore extends OperatorVariableStore
             var item=this.configuration.getConfigurationItem(name);
             if (item!=null)
             {
-                return item.getValue();
+                return new OperatorVariableStoreValue(item.getValue());
             }
         }
         return null;
