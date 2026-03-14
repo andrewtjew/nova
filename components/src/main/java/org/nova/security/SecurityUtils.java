@@ -382,7 +382,7 @@ public class SecurityUtils
 
     static private SecureRandom RANDOM=new SecureRandom();
     
-    public static String generateNummericVerificationCode(int length)
+    public static String generateNumericVerificationCode(int length)
     {
         byte[] bytes = new byte[length];
         bytes[0] = (byte) (RANDOM.nextInt(9) + '1');
@@ -393,7 +393,7 @@ public class SecurityUtils
         return new String(bytes, StandardCharsets.ISO_8859_1);
     }
 
-    public static String generateNummericReferenceCode(int length)
+    public static String generateNumericReferenceCode(int length)
     {
         byte[] bytes = new byte[length];
         bytes[0] = (byte) (RANDOM.nextInt(9) + '1');

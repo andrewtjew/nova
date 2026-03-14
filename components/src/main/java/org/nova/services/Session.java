@@ -29,6 +29,7 @@ import java.util.List;
 import org.nova.concurrent.Lock;
 import org.nova.core.NameObject;
 import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
 import org.nova.metrics.RateMeter;
 import org.nova.metrics.RateSample;
 import org.nova.tracing.Trace;
@@ -98,6 +99,6 @@ public abstract class Session
     
     abstract public void onClose(Trace trace) throws Throwable;
     abstract public NameObject[] getDisplayItems();
-    abstract public AbnormalResult<?> verifyRequest(Trace trace,Context context) throws Throwable;
+    abstract public AbnormalResult<?> verifyRequest(Trace trace,Context context,Filter filter) throws Throwable;
     
 }

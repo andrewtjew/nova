@@ -48,6 +48,7 @@ import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.JSONPatchContentReader;
 import org.nova.operations.OperatorVariableManager;
 import org.nova.operator.ConfigurationOperatorVariableStore;
+import org.nova.operator.FileOperatorVariableStore;
 import org.nova.security.Vault;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
@@ -98,14 +99,15 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
-        String operatorVariableStoreFileName=this.getBaseDirectory()+"\\resources\\"+configuration.getValue("Environment.operatorVariableStoreFileName","local.cnf");
-        
+
+        String operatorVariableStoreFileName=this.getBaseDirectory()+"\\resources\\"+configuration.getValue("Environment.operatorVariableStoreFileName","operator-variables.cnf");
         File operatorVariableStoreFile=new File(operatorVariableStoreFileName);
         if (operatorVariableStoreFile.exists()==false)
         {
             operatorVariableStoreFileName=null;
         }
-        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariableStoreFileName,configuration));
+//        this.operatorVariableManager=new OperatorVariableManager(new ConfigurationOperatorVariableStore(operatorVariableStoreFileName,configuration));
+        this.operatorVariableManager=new OperatorVariableManager(new FileOperatorVariableStore(operatorVariableStoreFileName));
 		this.typeMappings=ExtensionToContentTypeMappings.fromDefault();
 
         int operatorPort=this.operatorTransport.getPorts()[0];

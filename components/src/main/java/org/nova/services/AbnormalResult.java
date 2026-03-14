@@ -20,6 +20,10 @@ public record AbnormalResult<CONTENT>(String seeOther,Integer statusCode,Respons
     {
         this(null,statusCode,response);
     }
+    public AbnormalResult(CONTENT content)
+    {
+        this(null,null,new Response<CONTENT>(content));
+    }
     public AbnormalResult()
     {
         this(null,null,null);
