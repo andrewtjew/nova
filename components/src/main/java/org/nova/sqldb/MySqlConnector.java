@@ -26,6 +26,7 @@ import java.sql.DriverManager;
 import java.time.format.DateTimeFormatter;
 
 import org.nova.debug.Debugging;
+import org.nova.http.client.PathAndQuery;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
@@ -49,7 +50,13 @@ public class MySqlConnector extends Connector
     private String buildConnectionString()
     {
 //        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?rewriteBatchedStatements=true";
-        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
+        StringBuilder sb=new StringBuilder("jdbc:mysql://"+this.host+":"+this.port);
+        if (this.schema!=null)
+        {
+            sb.append("/"+this.schema);
+        }
+        sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true");
+        return sb.toString();
     }
     
     private static Vault buildUnsecuredVault(String password)
