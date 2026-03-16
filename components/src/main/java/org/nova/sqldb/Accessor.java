@@ -60,7 +60,7 @@ public class Accessor extends Resource
 		this.retireTransaction=null;
 	}
 	
-    void setCatalog(String catalog) throws Throwable
+    public void setCatalog(String catalog) throws Throwable
     {
         if (catalog!=null)
         {
