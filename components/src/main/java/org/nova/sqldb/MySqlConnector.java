@@ -49,7 +49,6 @@ public class MySqlConnector extends Connector
 	
     private String buildConnectionString()
     {
-//        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?rewriteBatchedStatements=true";
         StringBuilder sb=new StringBuilder("jdbc:mysql://"+this.host+":"+this.port);
         if (this.schema!=null)
         {
@@ -57,6 +56,9 @@ public class MySqlConnector extends Connector
         }
         sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true");
         return sb.toString();
+        
+//        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
+
     }
     
     private static Vault buildUnsecuredVault(String password)
@@ -130,6 +132,10 @@ public class MySqlConnector extends Connector
 	    //"jdbc:mysql://localhost:3306/YourDBName";
         Class.forName("com.mysql.cj.jdbc.Driver");
 		Connection connection=DriverManager.getConnection(connectionString,user,password);
+		if (this.schema!=null)
+		{
+		    connection.setCatalog(this.schema);
+		}
 		this.openConnectionSuccesses.increment();
 		return connection;
 	}
