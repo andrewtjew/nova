@@ -125,6 +125,14 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
 		SESSION session=this.sessionManager.getSessionByToken(token);
         RequestMethod requestMethod=context.getRequestMethod();
         Method method=requestMethod.getMethod();
+        
+        
+        var request=context.getHttpServletRequest();
+        var url=request.getRequestURL().toString();
+        System.out.println("URL:"+url);
+        
+        
+        
         if (session==null)
         {
             if (method.getAnnotation(AllowNoSession.class)!=null)
