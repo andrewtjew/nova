@@ -30,11 +30,11 @@ import org.nova.http.server.Response;
 import org.nova.tracing.Trace;
 
 
-public class HeaderFilter extends Filter
+public class AddResponseHeaderFilter extends Filter
 {
     final private Header[] headers;
     
-    public HeaderFilter(Header...headers)
+    public AddResponseHeaderFilter(Header...headers)
     {
         this.headers=headers;
     }

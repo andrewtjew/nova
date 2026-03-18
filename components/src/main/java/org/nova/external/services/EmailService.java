@@ -26,7 +26,7 @@ import org.nova.tracing.Trace;
 
 public abstract class EmailService
 {
-    public abstract void send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable;
-    public abstract void send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable;
-    public abstract void send(Trace parent,String to,String subject,String plainText,Element html) throws Throwable;
+    public abstract String send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable;
+    public abstract String send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable;
+    public abstract String send(Trace parent,String to,String subject,String plainText,Element html) throws Throwable;
 }

@@ -141,6 +141,12 @@
 			<artifactId>openai-java</artifactId>
 			<version>4.3.0</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.twilio.sdk</groupId>
+    		<artifactId>twilio</artifactId>
+    		<version>11.3.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

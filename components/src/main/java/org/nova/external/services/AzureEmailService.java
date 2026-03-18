@@ -19,19 +19,33 @@ public class AzureEmailService extends EmailService
 {
     final private EmailClient client;
     final private String senderAddress;
-    final private MultiTaskScheduler scheduler;
 
-    public AzureEmailService(MultiTaskScheduler scheduler,String connectionString,String senderAddress)
+    public AzureEmailService(String connectionString,String senderAddress)
     {
         this.client = new EmailClientBuilder().connectionString(connectionString).buildClient();
         this.senderAddress=senderAddress;
-        this.scheduler=scheduler;
-        
-        
+    }
+
+    private String send(Trace parent,EmailMessage emailMessage)
+    {
+        try (Trace trace=new Trace(parent,"AzureEmailService:send"))
+        {
+            try 
+            {
+                SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
+                PollResponse<EmailSendResult> result = poller.waitForCompletion();
+                return result.getValue().getStatus().toString();
+            }
+            catch (Throwable t)
+            {
+                trace.close(t);
+                throw t;
+            }
+        }
     }
     
     @Override
-    public void send(Trace parent, String to, String subject, String content, String mediaType) throws Throwable
+    public String send(Trace parent, String to, String subject, String content, String mediaType) throws Throwable
     {
         EmailAddress toAddress = new EmailAddress(to);
         EmailMessage emailMessage = new EmailMessage()
@@ -40,25 +54,25 @@ public class AzureEmailService extends EmailService
             .setSubject(subject)
             .setBodyPlainText(content)
             .setBodyHtml(content);
-        send(parent,emailMessage);
+        return send(parent,emailMessage);
     }
     
-    void send(Trace parent,EmailMessage emailMessage)
-    {
-        this.scheduler.schedule(parent, "AzureEmailService", new TraceRunnable()
-        {
-
-            @Override
-            public void run(Trace parent) throws Throwable
-            {
-                SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
-                PollResponse<EmailSendResult> result = poller.waitForCompletion();
-            }
-        });
-    }
+//    void send(Trace parent,EmailMessage emailMessage)
+//    {
+//        this.scheduler.schedule(parent, "AzureEmailService", new TraceRunnable()
+//        {
+//
+//            @Override
+//            public void run(Trace parent) throws Throwable
+//            {
+//                SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
+//                PollResponse<EmailSendResult> result = poller.waitForCompletion();
+//            }
+//        });
+//    }
 
     @Override
-    public void send(Trace parent, String to, String subject, String content, String mediaType, String attachementMediaType, String filename, byte[] attachment) throws Throwable
+    public String send(Trace parent, String to, String subject, String content, String mediaType, String attachementMediaType, String filename, byte[] attachment) throws Throwable
     {
         EmailAddress toAddress = new EmailAddress(to);
         EmailMessage emailMessage = new EmailMessage()
@@ -69,12 +83,12 @@ public class AzureEmailService extends EmailService
             .setBodyHtml(content);
         EmailAttachment emailAttachement=new EmailAttachment(filename,attachementMediaType,BinaryData.fromBytes(attachment));
         emailMessage.setAttachments(emailAttachement);
-        SyncPoller<EmailSendResult, EmailSendResult> poller = client.beginSend(emailMessage, null);
-        PollResponse<EmailSendResult> result = poller.waitForCompletion();
+        return send(parent,emailMessage);
     }
 
+    
     @Override
-    public void send(Trace parent, String to, String subject, String plainText, Element html) throws Throwable
+    public String send(Trace parent, String to, String subject, String plainText, Element html) throws Throwable
     {
         EmailAddress toAddress = new EmailAddress(to);
 
@@ -91,7 +105,7 @@ public class AzureEmailService extends EmailService
             String htmlText=html.toString();
             emailMessage.setBodyHtml(htmlText);
         }
-        send(parent,emailMessage);
+        return send(parent,emailMessage);
     }
 
 }
