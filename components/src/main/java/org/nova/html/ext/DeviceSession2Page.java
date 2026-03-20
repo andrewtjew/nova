@@ -22,12 +22,12 @@
 package org.nova.html.ext;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
-import org.nova.services.DeviceSession;
+import org.nova.services.DeviceSession2;
 import org.nova.tracing.Trace;
 
-public class DeviceSessionPage<SESSION extends DeviceSession<?>> extends Page
+public class DeviceSession2Page<SESSION extends DeviceSession2<?>> extends Page
 {
-    public DeviceSessionPage()
+    public DeviceSession2Page()
     {
         super("html");
     }

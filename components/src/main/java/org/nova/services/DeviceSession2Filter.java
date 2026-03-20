@@ -12,7 +12,7 @@ import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
-import org.nova.html.ext.DeviceSessionPage;
+import org.nova.html.ext.DeviceSession2Page;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -21,14 +21,14 @@ import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
+public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
 {
     
     final private SessionManager<SESSION> sessionManager;
     final private Class<COOKIESTATE> coookieStateType;
     final private String cookieStateName;
     
-    public DeviceSessionFilter(SessionManager<SESSION> sessionManager,String cookieStateName,Class<COOKIESTATE> cookieStateType)
+    public DeviceSession2Filter(SessionManager<SESSION> sessionManager,String cookieStateName,Class<COOKIESTATE> cookieStateType)
     {
         this.sessionManager=sessionManager;
         this.coookieStateType=cookieStateType;
@@ -86,7 +86,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
         return new Cookie(getCookieStateName(), value);
     }    
     
-    final static String LOG_CATEGORY_DEBUG=DeviceSessionFilter.class.getSimpleName();
+    final static String LOG_CATEGORY_DEBUG=DeviceSession2Filter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
     final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
@@ -105,7 +105,7 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
           return cookieState.getToken();
     }
     
-    static public record SessionOrResponse<ROLE extends Enum<?>,SESSION extends DeviceSession<ROLE>>(SESSION session,Response<?> response)
+    static public record SessionOrResponse<ROLE extends Enum<?>,SESSION extends DeviceSession2<ROLE>>(SESSION session,Response<?> response)
     {
         public SessionOrResponse(SESSION session)
         {
@@ -192,10 +192,10 @@ public abstract class DeviceSessionFilter<ROLE extends Enum<?>,SESSION extends D
             if (response!=null)
             {
                 Object content=response.getContent();
-                if (content instanceof DeviceSessionPage)
+                if (content instanceof DeviceSession2Page)
                 {
                     @SuppressWarnings("unchecked")
-                    DeviceSessionPage<SESSION> page=(DeviceSessionPage<SESSION>)content;
+                    DeviceSession2Page<SESSION> page=(DeviceSession2Page<SESSION>)content;
                     page.end(parent, context, session);
                 }
             }

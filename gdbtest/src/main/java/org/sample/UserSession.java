@@ -2,10 +2,10 @@ package org.sample;
 
 import java.util.ArrayList;
 import org.nova.core.NameObject;
-import org.nova.services.DeviceSession;
+import org.nova.services.DeviceSession2;
 import org.nova.tracing.Trace;
 
-public class UserSession extends DeviceSession<Role>
+public class UserSession extends DeviceSession2<Role>
 {
     public Long userId;
 

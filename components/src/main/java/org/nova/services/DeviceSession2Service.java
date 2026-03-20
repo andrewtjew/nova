@@ -27,18 +27,18 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
 
-public abstract class DeviceSessionService<SESSION extends DeviceSession<?>> extends ServerApplication
+public abstract class DeviceSession2Service<SESSION extends DeviceSession2<?>> extends ServerApplication
 {
     final private TokenGenerator tokenGenerator;
     final private SessionManager<SESSION> sessionManager;
     private SessionFilter sessionFilter;
 
-    public DeviceSessionService(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable
+    public DeviceSession2Service(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable
     {
     	this(name,coreEnvironment,operatorTransport,new DefaultAbnormalSessionRequestHandler());
     }
 
-    public DeviceSessionService(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport,AbnormalSessionRequestHandling...sessionRejectResponders) throws Throwable
+    public DeviceSession2Service(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport,AbnormalSessionRequestHandling...sessionRejectResponders) throws Throwable
     {
         super(name,coreEnvironment,operatorTransport);
         
