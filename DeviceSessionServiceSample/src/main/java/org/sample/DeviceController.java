@@ -26,14 +26,14 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.localization.LanguageCode;
-import org.nova.services.DeviceSessionFilter;
+import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
 
 
 @ContentWriters({HtmlElementWriter.class,RemoteResponseWriter.class,JSONContentWriter.class})
 @ContentReaders({JSONContentReader.class})
 @ContentEncoders({DeflaterContentEncoder.class,GzipContentEncoder.class})
-@Filters({DeviceSessionFilter.class})
+@Filters({DeviceSession2Filter.class})
 @Path(DeviceController.PATH)
 public class DeviceController 
 {

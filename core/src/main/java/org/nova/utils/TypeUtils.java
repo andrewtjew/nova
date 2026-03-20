@@ -403,23 +403,6 @@ public class TypeUtils
         return false;
     }
     
-//    public static long parseLong(String value,long defaultValue)
-//    {
-//        if (TypeUtils.isNullOrSpace(value))
-//        {
-//            return defaultValue;
-//        }
-//        return Long.parseLong(value);
-//    }
-//    
-//    public static int parseInt(String value,int defaultValue)
-//    {
-//        if (TypeUtils.isNullOrSpace(value))
-//        {
-//            return defaultValue;
-//        }
-//        return Integer.parseInt(value);
-//    }
     public static Integer tryParseInt(String value)
     {
         return tryParseInt(value,null);
@@ -432,7 +415,7 @@ public class TypeUtils
         }
         try
         {
-            return Integer.parseInt(value);
+            return Integer.parseInt(value.trim());
         }
         catch (Throwable t)
         {
@@ -451,28 +434,28 @@ public class TypeUtils
         }
         try
         {
-            return Long.parseLong(value);
+            return Long.parseLong(value.trim());
         }
         catch (Throwable t)
         {
             return null;
         }
     }
-    public static Long tryParseLong(String value,long defaultValue)
-    {
-        if (TypeUtils.isNullOrSpace(value))
-        {
-            return defaultValue;
-        }
-        try
-        {
-            return Long.parseLong(value);
-        }
-        catch (Throwable t)
-        {
-            return null;
-        }
-    }    
+//    public static Long tryParseLong(String value,long defaultValue)
+//    {
+//        if (TypeUtils.isNullOrSpace(value))
+//        {
+//            return defaultValue;
+//        }
+//        try
+//        {
+//            return Long.parseLong(value.);
+//        }
+//        catch (Throwable t)
+//        {
+//            return null;
+//        }
+//    }    
     public static Float tryParseFloat(String value)
     {
         return tryParseFloat(value,null);
@@ -485,7 +468,7 @@ public class TypeUtils
         }
         try
         {
-            return Float.parseFloat(value);
+            return Float.parseFloat(value.trim());
         }
         catch (Throwable t)
         {
@@ -504,7 +487,7 @@ public class TypeUtils
         }
         try
         {
-            return Double.parseDouble(value);
+            return Double.parseDouble(value.trim());
         }
         catch (Throwable t)
         {
@@ -525,11 +508,10 @@ public class TypeUtils
         long[] results=new long[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=Long.parseLong(values[i]);
+            results[i]=Long.parseLong(values[i].trim());
         }
         return results;
     }
-
     public static int[] parseInts(String[] values,int defaultValue)
     {
         int[] results=new int[values.length];
@@ -544,18 +526,29 @@ public class TypeUtils
         int[] results=new int[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=Integer.parseInt(values[i]);
+            results[i]=Integer.parseInt(values[i].trim());
         }
         return results;
     }
 
-    public static short parseShort(String value,short defaultValue)
+    public static Short tryParseShort(String value)
     {
-        if (value==null)
+        return tryParseShort(value,null);
+    }
+    public static Short tryParseShort(String value,Short defaultValue)
+    {
+        if (TypeUtils.isNullOrSpace(value))
         {
             return defaultValue;
         }
-        return Short.parseShort(value);
+        try
+        {
+            return Short.parseShort(value.trim());
+        }
+        catch (Throwable t)
+        {
+            return defaultValue;
+        }
     }
 
     public static short[] parseShorts(String[] values,short defaultValue)
@@ -563,7 +556,7 @@ public class TypeUtils
         short[] results=new short[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=parseShort(values[i],defaultValue);
+            results[i]=tryParseShort(values[i],defaultValue);
         }
         return results;
     }
@@ -572,7 +565,7 @@ public class TypeUtils
         short[] results=new short[values.length];
         for (int i=0;i<results.length;i++)
         {
-            results[i]=Short.parseShort(values[i]);
+            results[i]=Short.parseShort(values[i].trim());
         }
         return results;
     }

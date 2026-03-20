@@ -25,12 +25,12 @@ import org.nova.security.SecurityUtils;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
     final static boolean DEBUG_SECURITY=false;
-    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
+    final static String LOG_DEBUG_CATEGORY=DeviceSession2.class.getSimpleName();
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
@@ -66,7 +66,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     }
     
     
-    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
+    public DeviceSession2(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");

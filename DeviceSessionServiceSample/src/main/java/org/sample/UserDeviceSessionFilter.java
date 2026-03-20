@@ -4,13 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
-import org.nova.services.DeviceSessionFilter;
+import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
 
 
-public class UserDeviceSessionFilter extends DeviceSessionFilter<Role, UserSession,CookieState>
+public class UserDeviceSessionFilter extends DeviceSession2Filter<Role, UserSession,CookieState>
 {
     public UserDeviceSessionFilter(Service service)
     {

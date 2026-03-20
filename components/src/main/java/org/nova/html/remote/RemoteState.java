@@ -13,12 +13,12 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
-import org.nova.services.DeviceSessionFilter;
+import org.nova.services.DeviceSession2Filter;
 
 @ContentWriters({ HtmlElementWriter.class, RemoteResponseWriter.class, JSONContentWriter.class })
 @ContentReaders({ JSONContentReader.class })
 @ContentEncoders({ BrotliContentEncoder.class, DeflaterContentEncoder.class, GzipContentEncoder.class })
-@Filters({ DeviceSessionFilter.class })
+@Filters({ DeviceSession2Filter.class })
 public class RemoteState
 {
     final private RemoteStateBinding binding;
