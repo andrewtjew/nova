@@ -12,6 +12,7 @@ import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.Redirect;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.http.client.PathAndQuery;
@@ -26,29 +27,23 @@ import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessionCookieState,ROLE extends Enum<?>> extends Filter
+public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Filter
 {
     final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
-    final private Class<COOKIESTATE> coookieStateType;
     final private Class<STATE> stateType;
     final private String deviceSessionControllerPath;
-    public DeviceSessionFilter(SessionManager<DeviceSession<STATE,ROLE>> sessionManager,Class<STATE> stateType,Class<COOKIESTATE> cookieStateType,String deviceSessionControllerPath)
+    public DeviceSessionFilter(SessionManager<DeviceSession<STATE,ROLE>> sessionManager,Class<STATE> stateType,String deviceSessionControllerPath)
     {
         this.sessionManager=sessionManager;
-        this.coookieStateType=cookieStateType;
         this.stateType=stateType;
         this.deviceSessionControllerPath=deviceSessionControllerPath;
-    }
-    public Class<COOKIESTATE> getCookieStateType()
-    {
-        return this.coookieStateType;
     }
     public SessionManager<DeviceSession<STATE,ROLE>> getSessionManager()
     {
         return this.sessionManager;
     }
     
-    public COOKIESTATE getCookieState(HttpServletRequest request)
+    public DeviceSessionCookieState getCookieState(HttpServletRequest request)
     {
         try
         {
@@ -61,7 +56,7 @@ public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessio
                     {
                         String value = cookie.getValue();
                         value = URLDecoder.decode(value, StandardCharsets.UTF_8);
-                        return ObjectMapper.readObject(value, this.coookieStateType);
+                        return ObjectMapper.readObject(value, DeviceSessionCookieState.class);
                     }
                 }
             }
@@ -71,7 +66,7 @@ public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessio
         }
         return null;
     }
-    public void setCookieState(HttpServletResponse response,COOKIESTATE state) throws Throwable
+    public void setCookieState(HttpServletResponse response,DeviceSessionCookieState state) throws Throwable
     {
         String json=ObjectMapper.writeObjectToString(state);
         String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
@@ -80,7 +75,7 @@ public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessio
         response.addCookie(cookie);    
      }    
     
-    public Cookie encodeCookieState(COOKIESTATE state) throws Throwable
+    public Cookie encodeCookieState(DeviceSessionCookieState state) throws Throwable
     {
         String json=ObjectMapper.writeObjectToString(state);
         String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
@@ -94,7 +89,7 @@ public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessio
 
     protected String getToken(Trace parent, Context context)
     {
-          COOKIESTATE cookieState=context.getState(); //If SessionParametesFilter is in the handler stack, get userState from SessionParametesFilter.  
+          DeviceSessionCookieState cookieState=context.getState(); //If SessionParametesFilter is in the handler stack, get userState from SessionParametesFilter.  
           if (cookieState==null)
           {
               cookieState=getCookieState(context.getHttpServletRequest());
@@ -258,7 +253,8 @@ public abstract class DeviceSessionFilter<STATE,COOKIESTATE extends DeviceSessio
     {
         HttpServletRequest request = context.getHttpServletRequest();
         var returnType=context.getRequestMethod().getMethod().getReturnType();
-        String redirect=new PathAndQuery(this.deviceSessionControllerPath+ "/initialize").addQuery("redirect", "/").toString();
+        var pathAndQuery=HtmlUtils.getRequestPathAndQuery(context);
+        String redirect=new PathAndQuery(this.deviceSessionControllerPath+ "/initialize").addQuery("redirect", pathAndQuery).toString();
         if (returnType==RemoteResponse.class)
         {
             RemoteResponse response=new RemoteResponse();

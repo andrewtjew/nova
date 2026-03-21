@@ -48,6 +48,7 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
     final private long deviceSessionId;
     final protected SecretKey secretKey;
     final private String querySecurityPathPrefix;
+    final private String language;
     private DeviceLocation location;
     
     static byte[] generateSecretKey(String token)
@@ -66,13 +67,14 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
         return secret;
     }   
     
-    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType,GeoLocation location) throws Throwable
+    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType,GeoLocation location,String language) throws Throwable
     {
         super(roleType,token, null);
         this.location=new DeviceLocation(location);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
+        this.language=language;
     }
     
     public void updateLocation(GeoLocation location)
@@ -83,6 +85,11 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
     public DeviceLocation getLocation()
     {
         return this.location;
+    }
+
+    public String getLanguage()
+    {
+        return this.language;
     }
     
     public long getDeviceSessionId()

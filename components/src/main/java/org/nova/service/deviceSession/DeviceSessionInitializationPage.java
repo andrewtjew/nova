@@ -21,25 +21,25 @@ public class DeviceSessionInitializationPage extends Page
         body().returnAddInner(new h3()).addInner("Initializing...");
         String script=
             """
-        function createDeviceSession(redirect) {
+        function createDeviceSession(path,redirect) {
             var timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             var parameters = new URLSearchParams({ redirect: redirect });
-            var path = "/$/device/createDeviceSession?" + parameters.toString();
+            var pathAndQuery = path+"?" + parameters.toString();
             try {
                 var location = navigator.geolocation.getCurrentPosition(function (position) {
-                    window.location.href = path + encodeURI("&timeZone=" + timeZone + "&latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude);
+                    window.location.href = pathAndQuery + encodeURI("&timeZone=" + timeZone + "&latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude);
                 }, function () {
-                    window.location.href = path + encodeURI("&timeZone=" + timeZone);
+                    window.location.href = pathAndQuery + encodeURI("&timeZone=" + timeZone);
                 });
             }
             catch (_a) {
-                window.location.href = path + encodeURI("&timeZone=" + timeZone);
+                window.location.href = pathAndQuery + encodeURI("&timeZone=" + timeZone);
             }
         }
             """;
         
         System.out.println(script);
         body().returnAddInner(new Script(script));
-        body().onload(HtmlUtils.js_call("createDeviceSession", redirect));
+        body().onload(HtmlUtils.js_call("createDeviceSession",path+"/createDeviceSession", redirect));
     }
 }

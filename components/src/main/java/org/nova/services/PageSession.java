@@ -2,6 +2,7 @@ package org.nova.services;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -12,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
+import org.nova.geo.GeoLocation;
+import org.nova.geo.LatitudeLongitude;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
@@ -20,9 +23,11 @@ import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
+import org.nova.localization.CountryCode;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.service.deviceSession.DeviceSession;
+import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.tracing.Trace;
 
 
@@ -34,11 +39,13 @@ public abstract class PageSession<STATE,ROLE extends Enum<?>> implements RemoteS
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
-    
+    final protected DeviceSession<STATE,ROLE> deviceSession;
     public PageSession(DeviceSession<STATE,ROLE> deviceSession) throws Throwable
     {
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
+        this.deviceSession=deviceSession;
+        
     }
     
     public void setPageState(TagElement<?> element) throws Throwable
@@ -172,4 +179,58 @@ public abstract class PageSession<STATE,ROLE extends Enum<?>> implements RemoteS
     {
         return STATE_KEY;
     }
+    
+    public long getDeviceSessionId()
+    {
+        return this.getDeviceSessionId();
+    }
+    
+    public ZoneId getZoneId()
+    {
+        var deviceLocation=this.deviceSession.getLocation();
+        if (deviceLocation==null)
+        {
+            return null;
+        }
+        var location=deviceLocation.location();
+        if (location==null)
+        {
+            return null;
+        }
+        return location.zoneId();
+    }
+    public CountryCode getCountryCode()
+    {
+        var deviceLocation=this.deviceSession.getLocation();
+        if (deviceLocation==null)
+        {
+            return null;
+        }
+        var location=deviceLocation.location();
+        if (location==null)
+        {
+            return null;
+        }
+        return location.countryCode();
+    }
+
+    public LatitudeLongitude getLatitudeLongitude()
+    {
+        var deviceLocation=this.deviceSession.getLocation();
+        if (deviceLocation==null)
+        {
+            return null;
+        }
+        var location=deviceLocation.location();
+        if (location==null)
+        {
+            return null;
+        }
+        return location.position();
+    }
+    public DeviceLocation getDeviceLocation()
+    {
+        return this.deviceSession.getLocation();
+    }
+    
 }

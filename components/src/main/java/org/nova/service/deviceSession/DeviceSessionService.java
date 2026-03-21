@@ -32,7 +32,7 @@ import org.nova.services.SessionOperatorPages;
 import org.nova.services.TokenGenerator;
 import org.nova.tracing.Trace;
 
-public abstract class DeviceSessionService<STATE,COOKIESTATE extends DeviceSessionCookieState,ROLE extends Enum<?>> extends ServerApplication
+public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends ServerApplication
 {
     final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
 //    private SessionFilter sessionFilter;
@@ -65,7 +65,7 @@ public abstract class DeviceSessionService<STATE,COOKIESTATE extends DeviceSessi
             }
         }
     }
-    public void addFilter(DeviceSessionFilter<STATE,COOKIESTATE,ROLE> filter)
+    public void addFilter(DeviceSessionFilter<STATE,ROLE> filter)
     {
         this.getPublicServer().addBottomFilters(filter);
     }

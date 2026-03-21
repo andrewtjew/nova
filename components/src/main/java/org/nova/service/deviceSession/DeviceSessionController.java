@@ -33,6 +33,7 @@ import org.nova.localization.CountryCode;
 import org.nova.localization.LanguageCode;
 import org.nova.services.RequiredRoles;
 import org.nova.services.SessionManager;
+import org.nova.services.TokenGenerator;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.html.elements.Element;
@@ -44,17 +45,31 @@ import org.nova.geo.LatitudeLongitude;
 @ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
 @RequiredRoles()
 
-abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSessionCookieState,ROLE extends Enum<?>>
+abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
 {
     final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
+    final private TokenGenerator tokenGenerator;
+    
     public DeviceSessionController(SessionManager<DeviceSession<STATE,ROLE>> sessionManager) throws Throwable
     {
         this.sessionManager=sessionManager;
+        this.tokenGenerator=new TokenGenerator();
     }
 
     final public static String COOKIE_NAME="NOVA-DEVICE-SESSION";
     final public static int COOKIE_MAXAGE=3600*24*7;
     
+    public SessionManager<DeviceSession<STATE,ROLE>> getSessionManager()
+    {
+        return this.sessionManager;
+    }
+    
+    public String generateToken()
+    {
+        return this.tokenGenerator.next();
+    }
+    
+    @GET
     @Path("/initialize")
     public Element initialize(Trace parent, Context context, @QueryParam("redirect") String redirect) throws Throwable
     {
@@ -103,13 +118,13 @@ abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSe
         return null;
     }
 
-    abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude location,Context context) throws Throwable;
-    abstract protected DeviceSession<STATE,ROLE> createDeviceSession(Trace parent,Context context,COOKIESTATE cookieSate,GeoLocation location,String language);
+    abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
+    abstract protected DeviceSession<STATE,ROLE> createDeviceSession(Trace parent,Context context,DeviceSessionCookieState cookieState,GeoLocation location,String language) throws Throwable;
     abstract protected Element getInitializationPage(Trace parent,Context context,String redirect);
     
     @GET
     @Path("/createDeviceSession")
-    public void session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) COOKIESTATE cookieState,
+    public void session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME, maxAge = COOKIE_MAXAGE, add = true) DeviceSessionCookieState cookieState,
             @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude, @QueryParam("redirect") String redirect) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
@@ -117,9 +132,11 @@ abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSe
         var location=getLocation(parent, context, timeZone, latitude, longitude);
         
         var deviceSession=createDeviceSession(parent, context, cookieState, location,language);
-        cookieState.setToken(deviceSession.getToken());
-
-        this.sessionManager.addSession(parent, deviceSession);
+        if (deviceSession!=null)
+        {
+            cookieState.setToken(deviceSession.getToken());
+            this.sessionManager.addSession(parent, deviceSession);
+        }
         context.seeOther(redirect);
     }
 
@@ -151,12 +168,12 @@ abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSe
 
     @GET
     @Path("/check/cookie")
-    public Page cookie(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME) COOKIESTATE cookieState) throws Throwable
+    public Page cookie(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME) DeviceSessionCookieState cookieState) throws Throwable
     {
         Page page=new Page();
         if (cookieState!=null)
         {
-            page.body().addInner(ObjectMapper.writeObjectToString(cookieState));
+            page.body().returnAddInner(new div()).addInner("cookie="+ObjectMapper.writeObjectToString(cookieState));
         }
         else
         {
@@ -174,12 +191,34 @@ abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSe
 
     @GET
     @Path("/check/initialize/result")
-    public Page session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME) COOKIESTATE cookieState) throws Throwable
+    public Page session(Trace parent, Context context, @CookieStateParam(value = COOKIE_NAME) DeviceSessionCookieState cookieState) throws Throwable
     {
         Page page=new Page();
         if (cookieState!=null)
         {
-            page.body().addInner(ObjectMapper.writeObjectToString(cookieState));
+            page.body().returnAddInner(new div()).addInner("cookie="+ObjectMapper.writeObjectToString(cookieState));
+            DeviceSession<STATE,ROLE> deviceSession=this.sessionManager.getSessionByToken(cookieState.getToken());
+            page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());
+            page.body().returnAddInner(new div()).addInner("language="+deviceSession.getLanguage());
+
+            var deviceLocation=deviceSession.getLocation();
+            var location=deviceLocation.location();
+            if (location!=null)
+            {
+                page.body().returnAddInner(new div()).addInner("zoneId="+location.zoneId()+", countryCode="+location.countryCode());
+                var position=location.position();
+                if (position!=null)
+                {
+                    page.body().returnAddInner(new div()).addInner("latitude="+position.latitude+", longitude="+position.longitude);
+                }
+            }
+            else
+            {
+                page.body().addInner("null location");
+            }
+            
+            
+            
         }
         else
         {
@@ -187,6 +226,4 @@ abstract public class DeviceSessionController<STATE,COOKIESTATE extends DeviceSe
         }
         return page;
     }
-
-
 }
