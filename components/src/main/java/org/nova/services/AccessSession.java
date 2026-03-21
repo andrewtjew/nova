@@ -26,6 +26,7 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
+import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session

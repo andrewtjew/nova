@@ -18,10 +18,12 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.json.ObjectMapper;
+import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.service.deviceSession.DeviceSessionCookieState;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceCookieState> extends Filter
+public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceSessionCookieState> extends Filter
 {
     
     final private SessionManager<SESSION> sessionManager;

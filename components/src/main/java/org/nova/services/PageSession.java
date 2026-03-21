@@ -22,64 +22,23 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
-import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.service.deviceSession.DeviceSession;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class PageSession<STATE,ROLE extends Enum<?>> implements RemoteStateBinding
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
-    final static boolean DEBUG_SECURITY=false;
-    final static String LOG_DEBUG_CATEGORY=DeviceSession2.class.getSimpleName();
+    final static String LOG_DEBUG_CATEGORY=PageSession.class.getSimpleName();
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
     
-    final private long deviceSessionId;
-    final protected SecretKey secretKey;
-    final private String querySecurityPathPrefix;
-
-    static byte[] generateSecretKey(String token)
+    public PageSession(DeviceSession<STATE,ROLE> deviceSession) throws Throwable
     {
-        byte[] bytes = token.getBytes();
-        byte[] secret = new byte[16]; 
-        for (int i = 0; i < secret.length; i++)
-        {
-            int value = i;
-            for (int j = 0; j < 8; j++)
-            {
-                value += bytes[(i * 3 + j) % bytes.length];
-            }
-            secret[i] = (byte) value;
-        }
-        return secret;
-    }   
-    
-    public LocalDateTime toLocalDateTime(LocalDateTime utcDateTime)
-    {
-        return utcDateTime;
-    }
-    
-    public LocalDateTime toUtcDateTime(LocalDateTime localDateTime)
-    {
-        return localDateTime;
-    }
-    
-    
-    public DeviceSession2(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
-    {
-        super(roleType,token, null);
-        this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
-        this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
-        this.deviceSessionId=deviceSessionId;
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
-    }
-    
-    public long getDeviceSessionId()
-    {
-        return this.deviceSessionId;
     }
     
     public void setPageState(TagElement<?> element) throws Throwable
@@ -209,89 +168,8 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     final static public String STATE_KEY="@";
 
     @Override
-    public String getSecurityQueryKey()
-    {
-        return "_";
-    }
-
-    public RequestMethod getCurrentRequestMethod()
-    {
-        return this.requestMethod;
-    }
-    
-    private RequestMethod requestMethod;    
-    @Override
-    public AbnormalResult<?> verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
-    {
-        {
-            AbnormalResult<?> abnormalAccept=super.verifyRequest(parent, context,filter);
-            if (abnormalAccept!=null)
-            {
-                return abnormalAccept;
-            }
-        }
-        this.requestMethod=context.getRequestMethod();
-        HttpServletRequest request=context.getHttpServletRequest();
-        String queryString=request.getQueryString();
-        if (queryString==null)
-        {
-            return null;
-        }
-        if (requestMethod.isQueryVerificationRequired())
-        {
-            if (getSecurityQueryKey()!=null)
-            {
-                //Require 
-                var map=context.getHttpServletRequest().getParameterMap();
-                int ignore=map.containsKey(getStateKey())?1:0;
-                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
-                {
-                    if (DEBUG_SECURITY)
-                    {
-                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
-                    }
-                    else
-                    {
-                        return new AbnormalResult<>();
-                    }
-                }
-            }
-        }
-        
-        String code=request.getParameter(getSecurityQueryKey());
-        if (code!=null)
-        {
-            String query=request.getQueryString();
-            int index=query.lastIndexOf(this.querySecurityPathPrefix);
-            String text=query.substring(0,index);
-            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
-            String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult<>();
-        }
-        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
-        {
-            String query=request.getQueryString();
-            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
-        }
-        return null;
-    }
-    @Override
-    public String signQuery(String query) throws Throwable
-    {
-        byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
-        byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
-        String code=Base64.getUrlEncoder().encodeToString(hmac);
-        return query+this.querySecurityPathPrefix+code;
-    }
-
-
-    @Override
     public String getStateKey()
     {
         return STATE_KEY;
     }
-    
-    
-     
-    
 }

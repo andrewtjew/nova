@@ -1,10 +1,10 @@
-package org.nova.services;
+package org.nova.service.deviceSession;
 
-public class DeviceCookieState
+public class DeviceSessionCookieState
 {
     private String token;
     
-    public DeviceCookieState(String token)
+    public DeviceSessionCookieState(String token)
     {
         this.token=token;
     }

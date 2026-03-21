@@ -9,11 +9,11 @@ import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.FileDownloadHandler;
 import org.nova.http.server.HttpTransport;
-import org.nova.services.DeviceSessionService;
+import org.nova.services.DeviceSession2Service;
 import org.nova.services.FavIconController;
 import org.nova.tracing.Trace;
 
-public class Service extends DeviceSessionService<UserSession>
+public class Service extends DeviceSession2Service<UserSession>
 {
     private FileDownloadHandler fileDownloader;
 
