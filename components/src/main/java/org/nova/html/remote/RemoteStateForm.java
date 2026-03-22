@@ -15,27 +15,22 @@ import org.nova.tracing.Trace;
 //Register using register(PATH,SubClassOfRemoteStateForm.class), then new subclass in method handler.  
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateForm extends FormElement<RemoteStateForm> 
+public class RemoteStateForm extends RemoteForm 
 {
     RemoteStateBinding binding;
     private boolean usePost=false;
 
-    public RemoteStateForm(RemoteStateBinding binding, String action) throws Throwable
+    public RemoteStateForm(String id,RemoteStateBinding binding) throws Throwable
     {
-        super(method.post);
-        id();
+        super(id);
         this.binding=binding;
         binding.bind(this);
         binding.setPageState(id(),this);
         addInner(new InputHidden(binding.getStateKey(),id()));
-        if (action!=null)
-        {
-            action(action);
-        }
     }
     public RemoteStateForm(RemoteStateBinding binding) throws Throwable
     {
-        this(binding, null);
+        this(null,binding);
     }
     
 //    public RemoteStateBinding getRemoteStateBinding()

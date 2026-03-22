@@ -9,10 +9,10 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
 import org.nova.html.enums.enctype;
-public class RemoteForm extends FormElement<RemoteForm> 
+public class RemoteForm2 extends FormElement<RemoteForm2> 
 {
     private boolean usePost=false;
-    public RemoteForm(String id) throws Throwable
+    public RemoteForm2(String id,RemoteStateElement<?> remoteStateElement) throws Throwable
     {
         super(method.post);
         if (id==null)
@@ -23,10 +23,24 @@ public class RemoteForm extends FormElement<RemoteForm>
         {
             id(id);
         }
+        if (remoteStateElement!=null)
+        {
+            RemoteStateBinding binding=remoteStateElement.getRemoteStateBinding();
+            addInner(new InputHidden(binding.getStateKey(),id()));
+            binding.setPageState(id(), remoteStateElement);
+        }
     }
-    public RemoteForm() throws Throwable
+    public RemoteForm2(RemoteStateElement<?> remoteStateElement) throws Throwable
     {
-        this(null);
+        this(null,remoteStateElement);
+    }
+    public RemoteForm2(String id) throws Throwable
+    {
+        this(id,null);
+    }
+    public RemoteForm2() throws Throwable
+    {
+        this((String)null);
     }
     
     public String js_post() throws Throwable

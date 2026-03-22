@@ -9,7 +9,7 @@ import org.nova.tracing.Trace;
 //Register using register(PATH,SubClassOfRemoteStateForm.class), then new subclass in method handler.  
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateForm2 extends RemoteForm
+public class RemoteStateForm2 extends RemoteForm2
 {
     RemoteStateBinding binding;
     public RemoteStateForm2(String id,RemoteStateBinding binding, String action) throws Throwable

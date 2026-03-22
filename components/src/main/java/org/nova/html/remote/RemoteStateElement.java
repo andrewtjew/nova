@@ -41,11 +41,11 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
         return Remote.js_postStatic(this.binding.bind(this,pathAndQuery));
     }
     
-//    public PathAndQuery addBinding(PathAndQuery pathAndQuery) throws Throwable
-//    {
-//        binding.bind(this, pathAndQuery);
-//        return pathAndQuery;
-//    }
+    public PathAndQuery addBinding(PathAndQuery pathAndQuery) throws Throwable
+    {
+        binding.bind(this, pathAndQuery);
+        return pathAndQuery;
+    }
 
     public String js_post(FormElement<?> form,PathAndQuery pathAndQuery) throws Throwable
     {

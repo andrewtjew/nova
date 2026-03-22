@@ -77,10 +77,10 @@ public class ProceedModal extends ModalDocument
     {
         proceedButton.onclick(form.js_post());
     }
-    public void onProceed(RemoteForm form,String action) throws Throwable
-    {
-        proceedButton.onclick(form.js_post(action));
-    }
+//    public void onProceed(RemoteForm2 form,String action) throws Throwable
+//    {
+//        proceedButton.onclick(form.js_post(action));
+//    }
     
 //    public void onProceed(Inputs inputs,String action) throws Throwable
 //    {
