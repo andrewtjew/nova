@@ -19,14 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.external.services;
-
-import org.nova.html.elements.Element;
+package org.nova.html.ext;
+import org.nova.http.server.Context;
+import org.nova.http.server.Response;
+import org.nova.services.DeviceSession2;
 import org.nova.tracing.Trace;
 
-public abstract class EmailService
+public class DeviceSession2Page<SESSION extends DeviceSession2<?>> extends Page
 {
-    public abstract String send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable;
-    public abstract String send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable;
-    public abstract String send(Trace parent,String to,String subject,String plainText,Element html) throws Throwable;
+    public DeviceSession2Page()
+    {
+        super("html");
+    }
+    public Response<?> end(Trace parent,Context context,SESSION session) throws Throwable
+    {
+        session.clearLastStates();
+        return null;
+    }
 }

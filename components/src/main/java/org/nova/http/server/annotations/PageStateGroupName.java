@@ -19,21 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.html.ext;
-import org.nova.http.server.Context;
-import org.nova.http.server.Response;
-import org.nova.services.DeviceSession;
-import org.nova.tracing.Trace;
+package org.nova.http.server.annotations;
 
-public class DeviceSessionPage<SESSION extends DeviceSession<?>> extends Page
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.TYPE})
+public @interface PageStateGroupName
 {
-    public DeviceSessionPage()
-    {
-        super("html");
-    }
-    public Response<?> end(Trace parent,Context context,SESSION session) throws Throwable
-    {
-        session.clearLastStates();
-        return null;
-    }
+	String value();
 }

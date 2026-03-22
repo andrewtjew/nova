@@ -6,15 +6,15 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMapper;
-import org.nova.services.DeviceCookieState;
-import org.nova.services.DeviceSession;
-import org.nova.services.DeviceSessionFilter;
+import org.nova.service.deviceSession.DeviceSessionCookieState;
+import org.nova.services.DeviceSession2;
+import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
 
-public class DeviceSessionWebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession<ROLE>,COOKIESTATE extends DeviceCookieState> extends WebSocketInitializer<DEVICESESSION>
+public class DeviceSession2WebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceSessionCookieState> extends WebSocketInitializer<DEVICESESSION>
 {
-    final private DeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter;
-    public DeviceSessionWebSocketInitializer(String webSocketPath,DeviceSessionFilter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter,Class<? extends WebSocketHandling> handlerType,WebSocketHandlingInitialization<? extends WebSocketHandling> handlerInitialization) throws Throwable
+    final private DeviceSession2Filter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter;
+    public DeviceSession2WebSocketInitializer(String webSocketPath,DeviceSession2Filter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter,Class<? extends WebSocketHandling> handlerType,WebSocketHandlingInitialization<? extends WebSocketHandling> handlerInitialization) throws Throwable
     {
         super(webSocketPath,handlerType,handlerInitialization);
         this.deviceSessionFilter=deviceSessionFilter;

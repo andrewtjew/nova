@@ -22,15 +22,16 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
+import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
-    final static boolean DEBUG=true;
-    final static boolean DEBUG_PAGESTATE=true;
-    final static boolean DEBUG_SECURITY=true;
-    final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
+    final static boolean DEBUG=false;
+    final static boolean DEBUG_PAGESTATE=false;
+    final static boolean DEBUG_SECURITY=false;
+    final static String LOG_DEBUG_CATEGORY=DeviceSession2.class.getSimpleName();
     
     protected HashMap<String,Object> states;
     protected HashMap<String,Object> newPageStates;
@@ -65,7 +66,8 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
         return localDateTime;
     }
     
-    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
+    
+    public DeviceSession2(long deviceSessionId,String token,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
@@ -201,7 +203,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     @Override
     public <T> T getPageState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(getStateKey());
+        String id=context.getHttpServletRequest().getParameter(getPageStateKey());
         return getPageState(id);
     }
     final static public String STATE_KEY="@";
@@ -219,7 +221,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
     
     private RequestMethod requestMethod;    
     @Override
-    public AbnormalResult<?> verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
+    public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         {
             var abnormalResult=super.verifyRequest(parent, context,filter);
@@ -240,7 +242,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             if (getSecurityQueryKey()!=null)
             {
                 var map=context.getHttpServletRequest().getParameterMap();
-                int ignore=map.containsKey(getStateKey())?1:0;
+                int ignore=map.containsKey(getPageStateKey())?1:0;
                 if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
                 {
                     if (DEBUG_SECURITY)
@@ -249,7 +251,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
                     }
                     else
                     {
-                        return new AbnormalResult<>();
+                        return new AbnormalResult();
                     }
                 }
             }
@@ -263,7 +265,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult<>();
+            return code.equals(computed)?null:new AbnormalResult();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {
@@ -283,7 +285,7 @@ public abstract class DeviceSession<ROLE extends Enum<?>> extends RoleSession<RO
 
 
     @Override
-    public String getStateKey()
+    public String getPageStateKey()
     {
         return STATE_KEY;
     }

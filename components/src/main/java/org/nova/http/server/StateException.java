@@ -19,35 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.http.server;
 
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.nova.http.Header;
-import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
-import org.nova.http.server.Response;
-import org.nova.tracing.Trace;
-
-
-public class HeaderFilter extends Filter
+public class StateException extends Exception
 {
-    final private Header[] headers;
-    
-    public HeaderFilter(Header...headers)
-    {
-        this.headers=headers;
-    }
 
-    @Override
-    public Response<?> executeNext(Trace parent, Context context) throws Throwable
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3203473253582953667L;
+	
+    StateException(Throwable cause)
     {
-        HttpServletResponse response=context.getHttpServletResponse();
-        for (Header header:this.headers)
-        {
-            response.addHeader(header.getName(), header.getValue());
-        }
-        return context.next(parent);
     }
-
+    StateException(String message,Throwable cause)
+    {
+        super(message,cause);
+    }
+    StateException(String message)
+    {
+        super(message);
+    }
 }

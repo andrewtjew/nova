@@ -31,6 +31,7 @@ import org.nova.core.NameObject;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
+import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -40,7 +41,7 @@ import org.nova.utils.Utils;
 */
 public abstract class RoleSession <ROLE extends Enum> extends Session
 {
-    static record AbnormalAcceptBox(AbnormalResult<?> abnormalResult)
+    static record AbnormalAcceptBox(AbnormalResult abnormalResult)
     {
     }
     
@@ -127,8 +128,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         }
     }
     
-    @Override
-    synchronized public AbnormalResult<?> verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
+    synchronized public AbnormalResult verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
     {
         RequestMethod handler=context.getRequestMethod();
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
@@ -140,7 +140,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
     }    
 
-    public AbnormalResult<?> isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    public AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
     {
         //Implements two level of caching, first per session using this.denyMap, then global using DENY_MAP.
         
@@ -168,19 +168,19 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
         return result.abnormalResult;
     }
 
-    private AbnormalResult<?> isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
+    private AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
     {
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
             {
-                return new AbnormalResult<>();
+                return new AbnormalResult();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return new AbnormalResult<>();
+                    return new AbnormalResult();
                 }
             }
         }
@@ -196,7 +196,7 @@ public abstract class RoleSession <ROLE extends Enum> extends Session
                 return null;
             }
         }
-        return new AbnormalResult<>(requiredRoles.redirect());
+        return new AbnormalResult(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

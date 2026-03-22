@@ -1,8 +1,8 @@
-package org.nova.services;
+package org.nova.service.deviceSession;
 
 import org.nova.http.server.Response;
 
-public record AbnormalResult<CONTENT>(String seeOther,Integer statusCode,Response<CONTENT> response)
+public record AbnormalResult(String seeOther,Integer statusCode,Response<?> response)
 {
     public AbnormalResult(String redirect)
     {
@@ -12,17 +12,17 @@ public record AbnormalResult<CONTENT>(String seeOther,Integer statusCode,Respons
     {
         this(null,statusCode,null);
     }
-    public AbnormalResult(Response<CONTENT> response)
+    public AbnormalResult(Response<?> response)
     {
         this(null,null,response);
     }
-    public AbnormalResult(int statusCode,Response<CONTENT> response)
+    public AbnormalResult(int statusCode,Response<?> response)
     {
         this(null,statusCode,response);
     }
-    public AbnormalResult(CONTENT content)
+    public AbnormalResult(Object content)
     {
-        this(null,null,new Response<CONTENT>(content));
+        this(null,null,new Response<>(content));
     }
     public AbnormalResult()
     {

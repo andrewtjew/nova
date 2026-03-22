@@ -78,7 +78,8 @@ public class RequestMethod
     
     final private FragmentIndexMap fragmentIndexMap;
     final private boolean isQueryVerificationRequired;
-
+    final private String pageGroupName;
+    
     RequestMethod(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
         this.runtimeKey=HttpServer.RUNTIME_KEY_GENERATOR.getAndIncrement();
@@ -152,10 +153,22 @@ public class RequestMethod
         {
             this.attributes=null;
         }
+        if (annotations.pageStateGroupName!=null)
+        {
+            this.pageGroupName=annotations.pageStateGroupName.value();
+        }
+        else
+        {
+            this.pageGroupName=null;
+        }
         this.test=annotations.test!=null;
         this.isQueryVerificationRequired=(queryParameterInfos>0)&&(((this.requiredRoles!=null)&&this.requiredRoles.value().length>0))||((this.forbiddenRoles!=null)&&(this.forbiddenRoles.value().length>0));        
    }
 
+    public String getPageStateGroupName()
+    {
+        return this.pageGroupName;
+    }
     public boolean isQueryVerificationRequired()
     {
         return this.isQueryVerificationRequired;

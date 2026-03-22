@@ -19,4 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.server.annotations;
+package org.nova.services;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.nova.http.Header;
+import org.nova.http.server.Context;
+import org.nova.http.server.Filter;
+import org.nova.http.server.Response;
+import org.nova.tracing.Trace;
+
+
+public class AddResponseHeaderFilter extends Filter
+{
+    final private Header[] headers;
+    
+    public AddResponseHeaderFilter(Header...headers)
+    {
+        this.headers=headers;
+    }
+
+    @Override
+    public Response<?> executeNext(Trace parent, Context context) throws Throwable
+    {
+        HttpServletResponse response=context.getHttpServletResponse();
+        for (Header header:this.headers)
+        {
+            response.addHeader(header.getName(), header.getValue());
+        }
+        return context.next(parent);
+    }
+
+}

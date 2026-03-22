@@ -75,7 +75,7 @@ public class SMTPEmailService extends EmailService
         // Create a Session object to represent a mail session with the specified properties. 
         this.session = Session.getDefaultInstance(props);
     }
-    public void send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable
+    public String send(Trace parent,String to,String subject,String content,String mediaType) throws Throwable
     {
         try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
@@ -93,11 +93,13 @@ public class SMTPEmailService extends EmailService
                 transport.connect(this.host, this.username, this.password);
                 transport.sendMessage(msg, msg.getAllRecipients());
                 this.logger.log("Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
+                return null;
             }
             catch (Throwable t) 
             {
                 this.logger.log(t);
                 trace.close(t);
+                throw t;
             }
             finally
             {
@@ -105,7 +107,7 @@ public class SMTPEmailService extends EmailService
             }
         }
     }
-    public void send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
+    public String send(Trace parent,String to,String subject,String content,String mediaType,String attachementMediaType,String filename,byte[] attachment) throws Throwable
     {
         try (Trace trace=new Trace(parent,"SMTPEmailService.send"))
         {
@@ -136,11 +138,13 @@ public class SMTPEmailService extends EmailService
                 transport.connect(this.host, this.username, this.password);
                 transport.sendMessage(msg, msg.getAllRecipients());
                 this.logger.log(trace,"Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
+                return null;
             }
             catch (Throwable t) 
             {
                 trace.close(t);
                 this.logger.log(trace,"Emailer",new Item("from",from),new Item("to",to),new Item("subject",subject),new Item("mediaType",mediaType),new Item("content",content));
+                throw t;
             }
             finally
             {
@@ -149,10 +153,9 @@ public class SMTPEmailService extends EmailService
         }        
     }
     @Override
-    public void send(Trace parent, String to, String subject, String plainText, Element html) throws Throwable
+    public String send(Trace parent, String to, String subject, String plainText, Element html) throws Throwable
     {
-        // TODO Auto-generated method stub
-        
+        return null;
     }
     
 }

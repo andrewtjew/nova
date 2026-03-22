@@ -28,7 +28,7 @@ import org.nova.http.server.annotations.Path;
 import org.nova.tracing.Trace;
 
 @Filters(CORSFilter.class)
-public class CORSFilter extends HeaderFilter
+public class CORSFilter extends AddResponseHeaderFilter
 {
     public CORSFilter(int maxAge,String allowOrigin,String allowMethods,String allowHeaders)
     {

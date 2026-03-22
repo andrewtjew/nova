@@ -26,6 +26,7 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
+import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session
@@ -39,7 +40,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     }
 
     @Override
-    public AbnormalResult<?> verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
+    public AbnormalResult verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
     {
         Boolean deny=this.denyMap.get(context.getRequestMethod().getKey());
         if (deny==null)
@@ -49,7 +50,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
         }
         if (deny)
         {
-            return new AbnormalResult<>();
+            return new AbnormalResult();
         }
         return null;
     }

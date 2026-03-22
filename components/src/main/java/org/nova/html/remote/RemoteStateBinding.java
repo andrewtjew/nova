@@ -22,5 +22,5 @@ public interface RemoteStateBinding
     public void setPageState(String key,Object state) throws Throwable;
     
     //The state key is used 
-    public String getStateKey();
+    public String getPageStateKey();
 }
