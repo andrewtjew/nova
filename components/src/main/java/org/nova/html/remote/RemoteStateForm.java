@@ -11,8 +11,8 @@ import org.nova.tracing.Trace;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateForm extends RemoteForm
 {
-    RemoteStateBinding binding;
-    public RemoteStateForm(String id,RemoteStateBinding binding, String action) throws Throwable
+    RemoteStateBinding2 binding;
+    public RemoteStateForm(String id,RemoteStateBinding2 binding, String action) throws Throwable
     {
         super(id);
         this.binding=binding;
@@ -23,17 +23,17 @@ public class RemoteStateForm extends RemoteForm
             action(action);
         }
     }
-    public RemoteStateForm(RemoteStateBinding binding,String action) throws Throwable
+    public RemoteStateForm(RemoteStateBinding2 binding,String action) throws Throwable
     {
         this(null,binding, action);
     }
 
-    public RemoteStateForm(RemoteStateBinding binding) throws Throwable
+    public RemoteStateForm(RemoteStateBinding2 binding) throws Throwable
     {
         this(binding, null);
     }
     
-    public RemoteStateBinding getRemoteStateBinding()
+    public RemoteStateBinding2 getRemoteStateBinding()
     {
         return this.binding;
     }

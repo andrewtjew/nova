@@ -34,7 +34,7 @@ import org.nova.tracing.Trace;
 
 public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends ServerApplication
 {
-    final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
+    final private SessionManager<DeviceSession<ROLE>> sessionManager;
 //    private SessionFilter sessionFilter;
 
 
@@ -45,14 +45,14 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
         long lockTimeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.lockTimeout", 10*1000);
         long timeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.timeout", 30*60*1000);
         int generations=this.getConfiguration().getIntegerValue("SessionServerApplication.session.timeoutGenerations", 10);
-        this.sessionManager=new SessionManager<DeviceSession<STATE,ROLE>>(this.getTraceManager(),this.getLogger("SessionService"),this.getTimerScheduler(), lockTimeoutMs,timeoutMs, generations);
+        this.sessionManager=new SessionManager<DeviceSession<ROLE>>(this.getTraceManager(),this.getLogger("SessionService"),this.getTimerScheduler(), lockTimeoutMs,timeoutMs, generations);
 
 //        this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
 
 //        this.getPublicServer().addBottomFilters(this.sessionFilter);
         this.getMenuBar().add("/operator/sessions","Sessions","View All");
         
-        SessionOperatorPages<DeviceSession<STATE,ROLE>> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
+        SessionOperatorPages<DeviceSession<ROLE>> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);
         
         if (isTest()==false)
@@ -65,11 +65,11 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
             }
         }
     }
-    public void addFilter(DeviceSessionFilter<STATE,ROLE> filter)
+    public void addFilter(DeviceSessionFilter<ROLE> filter)
     {
         this.getPublicServer().addBottomFilters(filter);
     }
-    public SessionManager<DeviceSession<STATE,ROLE>> getSessionManager()
+    public SessionManager<DeviceSession<ROLE>> getSessionManager()
     {
         return this.sessionManager;
     }

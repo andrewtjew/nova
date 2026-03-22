@@ -16,7 +16,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding;
+import org.nova.html.remote.RemoteStateBinding2;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -26,7 +26,7 @@ import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding2,QuerySecurity
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
@@ -221,10 +221,10 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     
     private RequestMethod requestMethod;    
     @Override
-    public AbnormalResult<?> verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
+    public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         {
-            AbnormalResult<?> abnormalAccept=super.verifyRequest(parent, context,filter);
+            AbnormalResult abnormalAccept=super.verifyRequest(parent, context,filter);
             if (abnormalAccept!=null)
             {
                 return abnormalAccept;
@@ -252,7 +252,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
                     }
                     else
                     {
-                        return new AbnormalResult<>();
+                        return new AbnormalResult();
                     }
                 }
             }
@@ -266,7 +266,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult<>();
+            return code.equals(computed)?null:new AbnormalResult();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {

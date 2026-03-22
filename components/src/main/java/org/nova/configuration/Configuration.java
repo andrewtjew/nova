@@ -740,7 +740,9 @@ public class Configuration
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({
+            "unchecked", "rawtypes"
+    })
     public <OBJECT> OBJECT getNamespaceObject(String namespace,Class<OBJECT> type) throws Throwable
 	{
 	    OBJECT object=type.newInstance();

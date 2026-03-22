@@ -45,12 +45,12 @@ import org.nova.geo.LatitudeLongitude;
 @ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
 @RequiredRoles()
 
-abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
+abstract public class DeviceSessionController<ROLE extends Enum<?>>
 {
-    final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
+    final private SessionManager<DeviceSession<ROLE>> sessionManager;
     final private TokenGenerator tokenGenerator;
     
-    public DeviceSessionController(SessionManager<DeviceSession<STATE,ROLE>> sessionManager) throws Throwable
+    public DeviceSessionController(SessionManager<DeviceSession<ROLE>> sessionManager) throws Throwable
     {
         this.sessionManager=sessionManager;
         this.tokenGenerator=new TokenGenerator();
@@ -59,7 +59,7 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
     final public static String COOKIE_NAME="NOVA-DEVICE-SESSION";
     final public static int COOKIE_MAXAGE=3600*24*7;
     
-    public SessionManager<DeviceSession<STATE,ROLE>> getSessionManager()
+    public SessionManager<DeviceSession<ROLE>> getSessionManager()
     {
         return this.sessionManager;
     }
@@ -119,8 +119,9 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
     }
 
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
-    abstract protected DeviceSession<STATE,ROLE> createDeviceSession(Trace parent,Context context,DeviceSessionCookieState cookieState,GeoLocation location,String language) throws Throwable;
+    abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,DeviceSessionCookieState cookieState,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
     abstract protected Element getInitializationPage(Trace parent,Context context,String redirect);
+    abstract protected Element getSessionLostPage(Trace parent,Context context);
     
     @GET
     @Path("/createDeviceSession")
@@ -131,7 +132,7 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
         String language = resolveAcceptableLanguage(request);
         var location=getLocation(parent, context, timeZone, latitude, longitude);
         
-        var deviceSession=createDeviceSession(parent, context, cookieState, location,language);
+        var deviceSession=createDeviceSession(parent, context, cookieState, language,location.position(),location.countryCode(),location.zoneId());
         if (deviceSession!=null)
         {
             cookieState.setToken(deviceSession.getToken());
@@ -147,19 +148,27 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
         CountryCode countryCode=resolveDeviceCountryCode(parent,location,context);
         return new GeoLocation(location,countryCode,zoneId);
     }
+
     
     @GET
     @Path("/redirectWithLocation")
-    public Redirect redirectWithCurrentLocation(Trace parent, Context context,@StateParam DeviceSession<STATE,ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
+    public Redirect redirectWithCurrentLocation(Trace parent, Context context,@StateParam DeviceSession<ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
     {
         var location=getLocation(parent, context, timeZone, latitude, longitude);
-        session.updateLocation(location);
+        session.updateLocation(location.position(),location.countryCode(),location.zoneId());
         return new Redirect(redirect);
     }
 
     @GET
+    @Path("/sessionLost")
+    public Element sessionLost(Trace parent, Context context,@StateParam DeviceSession<ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
+    {
+        return this.getSessionLostPage(parent, context);
+    }
+
+    @GET
     @Path("/check/time")
-    public Page time(Trace parent, Context context,@StateParam DeviceSession<STATE,ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
+    public Page time(Trace parent, Context context,@StateParam DeviceSession<ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
     {
         Page page=new Page();
         page.body().addInner(LocalDateTime.now());
@@ -177,7 +186,7 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
         }
         else
         {
-            page.body().addInner("null cookie");
+            page.body().addInner("no cookie");
         }
         return page;
     }
@@ -197,32 +206,20 @@ abstract public class DeviceSessionController<STATE,ROLE extends Enum<?>>
         if (cookieState!=null)
         {
             page.body().returnAddInner(new div()).addInner("cookie="+ObjectMapper.writeObjectToString(cookieState));
-            DeviceSession<STATE,ROLE> deviceSession=this.sessionManager.getSessionByToken(cookieState.getToken());
+            DeviceSession<ROLE> deviceSession=this.sessionManager.getSessionByToken(cookieState.getToken());
             page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());
             page.body().returnAddInner(new div()).addInner("language="+deviceSession.getLanguage());
 
-            var deviceLocation=deviceSession.getLocation();
-            var location=deviceLocation.location();
-            if (location!=null)
+            page.body().returnAddInner(new div()).addInner("zoneId="+deviceSession.getZoneId()+", countryCode="+deviceSession.getCountryCode());
+            var position=deviceSession.getPosition();
+            if (position!=null)
             {
-                page.body().returnAddInner(new div()).addInner("zoneId="+location.zoneId()+", countryCode="+location.countryCode());
-                var position=location.position();
-                if (position!=null)
-                {
-                    page.body().returnAddInner(new div()).addInner("latitude="+position.latitude+", longitude="+position.longitude);
-                }
+                page.body().returnAddInner(new div()).addInner("latitude="+position.latitude+", longitude="+position.longitude);
             }
-            else
-            {
-                page.body().addInner("null location");
-            }
-            
-            
-            
         }
         else
         {
-            page.body().addInner("null cookie");
+            page.body().addInner("no cookie");
         }
         return page;
     }

@@ -27,23 +27,25 @@ import org.nova.services.SessionManager;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 
-public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Filter
+public abstract class DeviceSessionFilter<ROLE extends Enum<?>> extends Filter
 {
-    final private SessionManager<DeviceSession<STATE,ROLE>> sessionManager;
-    final private Class<STATE> stateType;
+    final private SessionManager<DeviceSession<ROLE>> sessionManager;
     final private String deviceSessionControllerPath;
-    public DeviceSessionFilter(SessionManager<DeviceSession<STATE,ROLE>> sessionManager,Class<STATE> stateType,String deviceSessionControllerPath)
+    final private String cookieName;
+    final private int cookieAge;
+    public DeviceSessionFilter(SessionManager<DeviceSession<ROLE>> sessionManager,String deviceSessionControllerPath,String cookieName,int cookieAge)
     {
         this.sessionManager=sessionManager;
-        this.stateType=stateType;
         this.deviceSessionControllerPath=deviceSessionControllerPath;
+        this.cookieName=cookieName;
+        this.cookieAge=cookieAge;
     }
-    public SessionManager<DeviceSession<STATE,ROLE>> getSessionManager()
+    public SessionManager<DeviceSession<ROLE>> getSessionManager()
     {
         return this.sessionManager;
     }
     
-    public DeviceSessionCookieState getCookieState(HttpServletRequest request)
+    private String getCookieToken(HttpServletRequest request)
     {
         try
         {
@@ -52,11 +54,10 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
             {
                 for (Cookie cookie : cookies)
                 {
-                    if (DeviceSessionController.COOKIE_NAME.equals(cookie.getName()))
+                    if (this.cookieName.equals(cookie.getName()))
                     {
                         String value = cookie.getValue();
-                        value = URLDecoder.decode(value, StandardCharsets.UTF_8);
-                        return ObjectMapper.readObject(value, DeviceSessionCookieState.class);
+                        return value;
                     }
                 }
             }
@@ -66,11 +67,9 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
         }
         return null;
     }
-    public void setCookieState(HttpServletResponse response,DeviceSessionCookieState state) throws Throwable
+    void setCookieToken(HttpServletResponse response,String token) throws Throwable
     {
-        String json=ObjectMapper.writeObjectToString(state);
-        String value=URLEncoder.encode(json,StandardCharsets.UTF_8);
-        Cookie cookie=new Cookie(DeviceSessionController.COOKIE_NAME, value);
+        Cookie cookie=new Cookie(this.cookieName, token);
         cookie.setPath("/");
         response.addCookie(cookie);    
      }    
@@ -87,41 +86,14 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
     final static boolean DEBUG_ACCESS=true;
     final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
 
-    protected String getToken(Trace parent, Context context)
-    {
-          DeviceSessionCookieState cookieState=context.getState(); //If SessionParametesFilter is in the handler stack, get userState from SessionParametesFilter.  
-          if (cookieState==null)
-          {
-              cookieState=getCookieState(context.getHttpServletRequest());
-          }
-          if (cookieState==null)
-          {
-              return null;
-          }
-          return cookieState.getToken();
-    }
-    
-//    static public record DeviceSessionOrResponse<ROLE extends Enum<?>,USERSTATE>(DeviceSession<USERSTATE,ROLE> session,Response<?> response)
-//    {
-//        public DeviceSessionOrResponse(DeviceSession<USERSTATE,ROLE> session)
-//        {
-//            this(session, null);
-//        }
-//        public DeviceSessionOrResponse(Response<?> response)
-//        {
-//            this(null,response);
-//        }
-//        
-//    }
-    
     @Override
     public Response<?> executeNext(Trace parent, Context context) throws Throwable 
     {
-        String token=getToken(parent,context);
-        DeviceSession<STATE,ROLE> deviceSession=this.sessionManager.getSessionByToken(token);
+        String token=getCookieToken(context.getHttpServletRequest());
+        DeviceSession<ROLE> deviceSession=this.sessionManager.getSessionByToken(token);
         RequestMethod requestMethod=context.getRequestMethod();
         Method method=requestMethod.getMethod();
-        
+        context.getCookieState("test");
         if (deviceSession==null)
         {
             var result=initializeDeviceSession(parent,context);
@@ -134,6 +106,7 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
                 return result.response;
             }
             deviceSession=result.deviceSession;
+            setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
 
         Lock<String> lock=null;
@@ -148,7 +121,7 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
         
         try
         {
-            AbnormalResult<?> abnormalResult=deviceSession.verifyRequest(parent, context,this);
+            AbnormalResult abnormalResult=deviceSession.verifyRequest(parent, context,this);
             if (abnormalResult!=null)
             {
                 if (abnormalResult.statusCode()!=null)
@@ -173,7 +146,11 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
             var requestMethodStateType=requestMethod.getStateType();
             
             
-            if (requestMethodStateType==this.stateType)
+            if (requestMethodStateType==deviceSession.getClass())
+            {
+                context.setState(deviceSession);
+            }
+            else
             {
                 var state=deviceSession.getState();
                 if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null))
@@ -182,10 +159,6 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
                 }
                 context.setState(state);
             }
-            else if (requestMethodStateType==deviceSession.getClass())
-            {
-                context.setState(deviceSession);
-            }
 
             Response<?> response;
             try (Trace trace=new Trace(parent,requestMethod.getKey()))
@@ -193,17 +166,6 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
                 response=context.next(parent);
             }
             deviceSession.endRequest(response);
-            
-//            if (response!=null)
-//            {
-//                Object content=response.getContent();
-//                if (content instanceof DeviceSession2Page)
-//                {
-//                    @SuppressWarnings("unchecked")
-//                    DeviceSession2Page<SESSION> page=(DeviceSession2Page<SESSION>)content;
-//                    page.end(parent, context, session);
-//                }
-//            }
             return response;
         }
         catch (Throwable t)
@@ -233,7 +195,7 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
         }
     }
     
-    static public record DeviceSessionResult<STATE,ROLE extends Enum<?>>(DeviceSession<STATE,ROLE> deviceSession,Response<?> response) 
+    static public record DeviceSessionResult<ROLE extends Enum<?>>(DeviceSession<ROLE> deviceSession,Response<?> response) 
     {
         public DeviceSessionResult(Response<?> response)
         {
@@ -243,13 +205,13 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
         {
             this(null,null);
         }
-        public DeviceSessionResult(DeviceSession<STATE,ROLE> deviceSession)
+        public DeviceSessionResult(DeviceSession<ROLE> deviceSession)
         {
             this(deviceSession,null);
         }
     }
 
-    protected DeviceSessionResult<STATE,ROLE> initializeDeviceSession(Trace parent,Context context) throws Throwable
+    protected DeviceSessionResult<ROLE> initializeDeviceSession(Trace parent,Context context) throws Throwable
     {
         HttpServletRequest request = context.getHttpServletRequest();
         var returnType=context.getRequestMethod().getMethod().getReturnType();
@@ -257,8 +219,9 @@ public abstract class DeviceSessionFilter<STATE,ROLE extends Enum<?>> extends Fi
         String redirect=new PathAndQuery(this.deviceSessionControllerPath+ "/initialize").addQuery("redirect", pathAndQuery).toString();
         if (returnType==RemoteResponse.class)
         {
+            
             RemoteResponse response=new RemoteResponse();
-            response.location(redirect);
+            response.location(this.deviceSessionControllerPath+"/sessionLost");
             return new DeviceSessionResult<>(new Response<>(response));
         }
         else if (returnType==null)

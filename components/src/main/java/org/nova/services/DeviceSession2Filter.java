@@ -162,7 +162,7 @@ public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends 
         
         try
         {
-            AbnormalResult<?> abnormalAccept=session.verifyRequest(parent, context,this);
+            AbnormalResult abnormalAccept=session.verifyRequest(parent, context,this);
             if (abnormalAccept!=null)
             {
                 if (abnormalAccept.statusCode()!=null)

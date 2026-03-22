@@ -100,6 +100,6 @@ public abstract class Session
     
     abstract public void onClose(Trace trace) throws Throwable;
     abstract public NameObject[] getDisplayItems();
-    abstract public AbnormalResult<?> verifyRequest(Trace trace,Context context,Filter filter) throws Throwable;
+    abstract public AbnormalResult verifyRequest(Trace trace,Context context,Filter filter) throws Throwable;
     
 }

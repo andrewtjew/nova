@@ -40,7 +40,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
     }
 
     @Override
-    public AbnormalResult<?> verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
+    public AbnormalResult verifyRequest(Trace trace, Context context,Filter filter) throws Throwable
     {
         Boolean deny=this.denyMap.get(context.getRequestMethod().getKey());
         if (deny==null)
@@ -50,7 +50,7 @@ public abstract class AccessSession <SERVICE extends ServerApplication> extends 
         }
         if (deny)
         {
-            return new AbnormalResult<>();
+            return new AbnormalResult();
         }
         return null;
     }

@@ -15,22 +15,24 @@ import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
 import org.nova.geo.GeoLocation;
+import org.nova.geo.LatitudeLongitude;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding;
+import org.nova.html.remote.RemoteStateBinding2;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
+import org.nova.localization.CountryCode;
 import org.nova.security.QuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.services.RoleSession;
 import org.nova.tracing.Trace;
 
 
-public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE> implements QuerySecurity
+public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements QuerySecurity
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -49,8 +51,10 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
     final protected SecretKey secretKey;
     final private String querySecurityPathPrefix;
     final private String language;
-    private DeviceLocation location;
-    
+    private LatitudeLongitude position; 
+    private CountryCode countryCode;
+    private ZoneId zoneId;
+    private long locationLastUpdated;
     static byte[] generateSecretKey(String token)
     {
         byte[] bytes = token.getBytes();
@@ -67,25 +71,24 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
         return secret;
     }   
     
-    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType,GeoLocation location,String language) throws Throwable
+    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
     {
         super(roleType,token, null);
-        this.location=new DeviceLocation(location);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
         this.language=language;
+        updateLocation(position, countryCode, zoneId);
     }
     
-    public void updateLocation(GeoLocation location)
+    public void updateLocation(LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId)
     {
-        this.location=new DeviceLocation(location);
+        this.position=position;
+        this.countryCode=countryCode;
+        this.zoneId=zoneId;
+        this.locationLastUpdated=System.currentTimeMillis();
     }
     
-    public DeviceLocation getLocation()
-    {
-        return this.location;
-    }
 
     public String getLanguage()
     {
@@ -95,6 +98,22 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
     public long getDeviceSessionId()
     {
         return this.deviceSessionId;
+    }
+    public LatitudeLongitude getPosition()
+    {
+        return this.position;
+    }
+    public ZoneId getZoneId()
+    {
+        return this.zoneId;
+    }
+    public CountryCode getCountryCode()
+    {
+        return this.countryCode;
+    }
+    public long getLocationLastUpdated()
+    {
+        return this.locationLastUpdated;
     }
     
     final static public String QUERY_KEY="@";
@@ -106,10 +125,10 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
     }
 
     @Override
-    public AbnormalResult<?> verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
+    public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         {
-            AbnormalResult<?> abnormalAccept=super.verifyRequest(parent, context,filter);
+            AbnormalResult abnormalAccept=super.verifyRequest(parent, context,filter);
             if (abnormalAccept!=null)
             {
                 return abnormalAccept;
@@ -150,7 +169,7 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
                     {
                         Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
                     }
-                    return new AbnormalResult<>();
+                    return new AbnormalResult();
                 }
             }
         }
@@ -163,7 +182,7 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
             String text=query.substring(0,index);
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult<>();
+            return code.equals(computed)?null:new AbnormalResult();
         }
         if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {
@@ -197,14 +216,15 @@ public class DeviceSession<STATE,ROLE extends Enum<?>> extends RoleSession<ROLE>
         return null;
     }
     
-    private STATE state;
+    private StateRequestHandling state;
     
-    public STATE getState()
+    @SuppressWarnings("unchecked")
+    public <STATE extends StateRequestHandling> STATE getState()
     {
-        return this.state;
+        return (STATE)this.state;
     }
     
-    public void setState(STATE state)
+    public void setState(StateRequestHandling state)
     {
         this.state=state;
     }

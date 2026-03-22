@@ -21,11 +21,11 @@ import org.nova.services.DeviceSession2Filter;
 @Filters({ DeviceSession2Filter.class })
 public class RemoteState
 {
-    final private RemoteStateBinding binding;
+    final private RemoteStateBinding2 binding;
     final private String id;
     static private AtomicLong ID=new AtomicLong();
     
-    public RemoteState(String id,RemoteStateBinding binding) throws Throwable
+    public RemoteState(String id,RemoteStateBinding2 binding) throws Throwable
     {
         if (id==null)
         {
@@ -35,7 +35,7 @@ public class RemoteState
         binding.setPageState(id,this);
         this.binding=binding;
     }
-    public RemoteState(RemoteStateBinding binding) throws Throwable
+    public RemoteState(RemoteStateBinding2 binding) throws Throwable
     {
         this(null, binding);
     }
@@ -43,7 +43,7 @@ public class RemoteState
     {
         return this.id;
     }
-    public RemoteStateBinding getRemoteStateBinding()
+    public RemoteStateBinding2 getRemoteStateBinding()
     {
         return this.binding;
     }

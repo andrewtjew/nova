@@ -13,7 +13,7 @@ import org.nova.http.server.Context;
  * If a request handler has a @StateParam parameter that is not of a session object type, then FilterChain asks the session object for the server side object and injects it as the @StateParam object.
  * 
  */
-public interface RemoteStateBinding
+public interface RemoteStateBinding2
 {
     //The remote element doing the calling for example using RemoteForm.js_post(). The handler calls this method to get the remote element.
     public <T> T getPageState(Context context) throws Throwable;

@@ -34,7 +34,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
-import org.nova.html.remote.RemoteStateBinding;
+import org.nova.html.remote.RemoteStateBinding2;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
@@ -422,9 +422,9 @@ public class FilterChain
     		        {
     		            try
     		            {
-        		            if (binding instanceof RemoteStateBinding)
+        		            if (binding instanceof RemoteStateBinding2)
         		            {
-        		                object=((RemoteStateBinding)binding).getPageState(context);
+        		                object=((RemoteStateBinding2)binding).getPageState(context);
         		            }
     		            }
     		            catch (Throwable t)
