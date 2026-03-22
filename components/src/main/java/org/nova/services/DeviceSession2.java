@@ -87,15 +87,15 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
-        setPageState(element.id(), element);
+        setState(element.id(), element);
     }
 
     public void setPageState(long key,Object state) throws Throwable
     {
-        setPageState(Long.toString(key),state);
+        setState(Long.toString(key),state);
     }
 
-    public void setPageState(String key,Object state) throws Throwable
+    public void setState(String key,Object state) throws Throwable
     {
         if (Debug.ENABLE && DEBUG)
         {
@@ -199,9 +199,9 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     }
 
     @Override
-    public <T> T getPageState(Context context) throws Throwable
+    public <T> T getState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(getStateKey());
+        String id=context.getHttpServletRequest().getParameter(STATE_KEY);
         return getPageState(id);
     }
     final static public String STATE_KEY="@";
@@ -286,5 +286,10 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     public String getStateKey()
     {
         return STATE_KEY;
+    }
+    @Override
+    public String getQueryBinding(TagElement<?> element)
+    {
+        return STATE_KEY+"="+element.id();
     }
 }

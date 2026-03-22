@@ -22,6 +22,7 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
         this(null,binding);
     }
     
+    
     @Override
     public GlobalTagElement<?> getElement()
     {

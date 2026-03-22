@@ -128,12 +128,12 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
         {
             element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
         }
-        setPageState(element.id(), element);
+        setState(element.id(), element);
     }
 
     public void setPageState(long key,Object state) throws Throwable
     {
-        setPageState(Long.toString(key),state);
+        setState(Long.toString(key),state);
     }
 
     @SuppressWarnings({
@@ -209,7 +209,7 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
 //        return (T)pageStateSet.removeState(key);
 //    }
     
-    final public void setPageState(String key,Object state) throws Throwable
+    final public void setState(String key,Object state) throws Throwable
     {
         if (this.pageStateGroupName==null)
         {
@@ -239,7 +239,7 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
     }
     
     @Override
-    final public <T> T getPageState(Context context) throws Throwable
+    final public <T> T getState(Context context) throws Throwable
     {
         String groupKey=context.getHttpServletRequest().getParameter(GROUP_KEY);
         String stateKey=context.getHttpServletRequest().getParameter(STATE_KEY);

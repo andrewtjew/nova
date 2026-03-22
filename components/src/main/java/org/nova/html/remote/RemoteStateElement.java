@@ -35,13 +35,18 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     {
         return this.binding;
     }
+    
+    public String getQueryBinding()
+    {
+        return this.binding.getQueryBinding(this);
+    }
   
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        return Remote.js_postStatic(this.binding.bind(this,pathAndQuery));
+        return Remote.js_postStatic(this.binding.bind(this,pathAndQuery).toString());
     }
     
-    public PathAndQuery addBinding(PathAndQuery pathAndQuery) throws Throwable
+    public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(PATHANDQUERY pathAndQuery) throws Throwable
     {
         binding.bind(this, pathAndQuery);
         return pathAndQuery;
@@ -49,7 +54,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
 
     public String js_post(FormElement<?> form,PathAndQuery pathAndQuery) throws Throwable
     {
-        String action=this.binding.bind(this,pathAndQuery);
+        String action=this.binding.bind(this,pathAndQuery).toString();
         if (form.enctype()==enctype.data)
         {
             return HtmlUtils.js_call("nova.remote.postFormData",form.id(),action);

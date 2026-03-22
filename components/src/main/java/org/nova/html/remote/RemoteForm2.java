@@ -26,8 +26,7 @@ public class RemoteForm2 extends FormElement<RemoteForm2>
         if (remoteStateElement!=null)
         {
             RemoteStateBinding binding=remoteStateElement.getRemoteStateBinding();
-            addInner(new InputHidden(binding.getStateKey(),id()));
-            binding.setPageState(id(), remoteStateElement);
+            binding.bind(id(),remoteStateElement);
         }
     }
     public RemoteForm2(RemoteStateElement<?> remoteStateElement) throws Throwable

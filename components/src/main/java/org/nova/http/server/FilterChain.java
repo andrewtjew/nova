@@ -424,7 +424,7 @@ public class FilterChain
     		            {
         		            if (binding instanceof RemoteStateBinding)
         		            {
-        		                object=((RemoteStateBinding)binding).getPageState(context);
+        		                object=((RemoteStateBinding)binding).getState(context);
         		            }
     		            }
     		            catch (Throwable t)

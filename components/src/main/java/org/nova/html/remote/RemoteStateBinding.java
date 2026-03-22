@@ -20,10 +20,10 @@ import org.nova.http.server.Context;
 public interface RemoteStateBinding
 {
     //The remote element doing the calling for example using RemoteForm.js_post(). The handler calls this method to get the remote element.
-    public <T> T getPageState(Context context) throws Throwable;
+    public <T> T getState(Context context) throws Throwable;
 
     //Stores the ssso.
-    public void setPageState(String key,Object state) throws Throwable;
+    public void setState(String key,Object state) throws Throwable;
     
     //The state key is used 
     public String getStateKey();
@@ -38,16 +38,22 @@ public interface RemoteStateBinding
         return "";
     }
     
-    default public String bind(TagElement<?> element,PathAndQuery pathAndQuery) throws Throwable
+    default public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(TagElement<?> element,PATHANDQUERY pathAndQuery) throws Throwable
     {
-        pathAndQuery.addQuery(getStateKey(), element.id());
+        return bind(element.id(),element,pathAndQuery);
+    }
+
+    default public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
+    {
+        setState(id,state);
+        pathAndQuery.addQuery(getStateKey(), id);
         pathAndQuery.addQuery(getPageStateGroupKey(), getPageStateGroupName());
-        return pathAndQuery.toString();
+        return pathAndQuery;
     }
     
     default public void bind(TagElement<?> element) throws Throwable
     {
-        setPageState(element.id(),element);
+        setState(element.id(),element);
         if (element instanceof FormElement<?>)
         {
             element.addInner(new InputHidden(getStateKey(),element.id()));
@@ -55,5 +61,6 @@ public interface RemoteStateBinding
         }
     }
     
+    public String getQueryBinding(TagElement<?> element);
     
 }

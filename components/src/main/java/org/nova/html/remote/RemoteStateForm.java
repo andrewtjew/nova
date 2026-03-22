@@ -25,8 +25,8 @@ public class RemoteStateForm extends RemoteForm
         super(id);
         this.binding=binding;
         binding.bind(this);
-        binding.setPageState(id(),this);
-        addInner(new InputHidden(binding.getStateKey(),id()));
+//        binding.setState(id(),this);
+//        addInner(new InputHidden(binding.getStateKey(),id()));
     }
     public RemoteStateForm(RemoteStateBinding binding) throws Throwable
     {
