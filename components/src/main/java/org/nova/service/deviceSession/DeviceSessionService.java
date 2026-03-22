@@ -25,6 +25,7 @@ package org.nova.service.deviceSession;
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
+import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.RoleSession;
 import org.nova.services.SessionManager;
@@ -65,9 +66,10 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
             }
         }
     }
-    public void addFilter(DeviceSessionFilter<ROLE> filter)
+    public void addDeviceSessionControllerFilter(HttpServer server,String path,DeviceSessionControllerFilter<ROLE> controllerFilter) throws Throwable
     {
-        this.getPublicServer().addBottomFilters(filter);
+        server.addBottomFilters(controllerFilter);
+        server.registerHandlers(path, controllerFilter);
     }
     public SessionManager<DeviceSession<ROLE>> getSessionManager()
     {

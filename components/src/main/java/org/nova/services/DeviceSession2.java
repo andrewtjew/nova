@@ -16,7 +16,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding2;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -26,7 +26,7 @@ import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding2,QuerySecurity
+public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
@@ -203,7 +203,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     @Override
     public <T> T getPageState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(getStateKey());
+        String id=context.getHttpServletRequest().getParameter(getPageStateKey());
         return getPageState(id);
     }
     final static public String STATE_KEY="@";
@@ -243,7 +243,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
             {
                 //Require 
                 var map=context.getHttpServletRequest().getParameterMap();
-                int ignore=map.containsKey(getStateKey())?1:0;
+                int ignore=map.containsKey(getPageStateKey())?1:0;
                 if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
                 {
                     if (DEBUG_SECURITY)
@@ -286,7 +286,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
 
 
     @Override
-    public String getStateKey()
+    public String getPageStateKey()
     {
         return STATE_KEY;
     }

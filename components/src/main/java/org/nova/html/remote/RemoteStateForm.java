@@ -11,29 +11,29 @@ import org.nova.tracing.Trace;
 @ContentWriters(RemoteResponseWriter.class)
 public class RemoteStateForm extends RemoteForm
 {
-    RemoteStateBinding2 binding;
-    public RemoteStateForm(String id,RemoteStateBinding2 binding, String action) throws Throwable
+    RemoteStateBinding binding;
+    public RemoteStateForm(String id,RemoteStateBinding binding, String action) throws Throwable
     {
         super(id);
         this.binding=binding;
         binding.setPageState(id(),this);
-        addInner(new InputHidden(binding.getStateKey(),id()));
+        addInner(new InputHidden(binding.getPageStateKey(),id()));
         if (action!=null)
         {
             action(action);
         }
     }
-    public RemoteStateForm(RemoteStateBinding2 binding,String action) throws Throwable
+    public RemoteStateForm(RemoteStateBinding binding,String action) throws Throwable
     {
         this(null,binding, action);
     }
 
-    public RemoteStateForm(RemoteStateBinding2 binding) throws Throwable
+    public RemoteStateForm(RemoteStateBinding binding) throws Throwable
     {
         this(binding, null);
     }
     
-    public RemoteStateBinding2 getRemoteStateBinding()
+    public RemoteStateBinding getRemoteStateBinding()
     {
         return this.binding;
     }
@@ -54,7 +54,7 @@ public class RemoteStateForm extends RemoteForm
     
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getPageStateKey(), this.id()).toString());
         
     }
 

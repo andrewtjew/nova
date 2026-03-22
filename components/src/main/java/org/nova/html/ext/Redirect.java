@@ -31,8 +31,12 @@ public class Redirect extends Element
 {
     final private html html;
     
-    public Redirect(String url)
+    public Redirect(String url) throws Exception
     {
+        if (url==null)
+        {
+            throw new Exception();
+        }
 //        System.out.println("Redirect="+url);
         this.html=new html();
         head head=this.html.returnAddInner(new head());

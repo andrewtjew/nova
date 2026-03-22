@@ -54,7 +54,7 @@ public class RedirectAbnormalSessionRequestHandling implements AbnormalSessionRe
     }
     
     @Override
-    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context)
+    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.UNAUTHORIZED_401);
@@ -62,7 +62,7 @@ public class RedirectAbnormalSessionRequestHandling implements AbnormalSessionRe
     }
 
     @Override
-    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)
+    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.FORBIDDEN_403);
@@ -70,7 +70,7 @@ public class RedirectAbnormalSessionRequestHandling implements AbnormalSessionRe
     }
 
     @Override
-    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)
+    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.CONFLICT_409);

@@ -20,7 +20,7 @@ import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding2;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -192,9 +192,9 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return null;
     }
     
-    public void endRequest(Response<?> response)
-    {
-    }
+//    public void endRequest(Response<?> response)
+//    {
+//    }
     
     @Override
     public String signQuery(String query) throws Throwable
@@ -216,15 +216,15 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return null;
     }
     
-    private StateRequestHandling state;
+    private PageStateRequestHandling state;
     
     @SuppressWarnings("unchecked")
-    public <STATE extends StateRequestHandling> STATE getState()
+    public <STATE extends PageStateRequestHandling> STATE getState()
     {
         return (STATE)this.state;
     }
     
-    public void setState(StateRequestHandling state)
+    public void setState(PageStateRequestHandling state)
     {
         this.state=state;
     }

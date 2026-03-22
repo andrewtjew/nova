@@ -8,16 +8,16 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.remote.RemoteStateBinding2;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.remote.RemoteStateElement;
 
 public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> implements Styling<RemoteStateItem>
 {
-    public RemoteStateItem(String id,RemoteStateBinding2 binding) throws Throwable
+    public RemoteStateItem(String id,RemoteStateBinding binding) throws Throwable
     {
         super("div",id,binding);
     }
-    public RemoteStateItem(RemoteStateBinding2 binding) throws Throwable
+    public RemoteStateItem(RemoteStateBinding binding) throws Throwable
     {
         this(null,binding);
     }

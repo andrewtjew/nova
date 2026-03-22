@@ -22,16 +22,16 @@ import org.nova.services.DeviceSession2Filter;
 @Filters({DeviceSession2Filter.class})
 public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT>
 {
-    final private RemoteStateBinding2 binding;
+    final private RemoteStateBinding binding;
     
-    public RemoteStateElement(String tag,String id,RemoteStateBinding2 binding) throws Throwable
+    public RemoteStateElement(String tag,String id,RemoteStateBinding binding) throws Throwable
     {
         super(tag,id);
         binding.setPageState(id(),this);
         this.binding=binding;
     }
     
-    public RemoteStateBinding2 getRemoteStateBinding()
+    public RemoteStateBinding getRemoteStateBinding()
     {
         return this.binding;
     }
@@ -43,7 +43,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     
     public PathAndQuery addBinding(PathAndQuery pathAndQuery) throws Throwable
     {
-        pathAndQuery.addQuery(binding.getStateKey(),id());
+        pathAndQuery.addQuery(binding.getPageStateKey(),id());
         return pathAndQuery;
     }
 

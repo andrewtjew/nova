@@ -54,6 +54,7 @@ import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.PATCH;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.PUT;
+import org.nova.http.server.annotations.PageStateGroupName;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
@@ -185,6 +186,10 @@ class RequestMethodMap
                 {
                     classAnnotations.path= (Path) annotation;
                 }
+                else if (type == PageStateGroupName.class)
+                {
+                    classAnnotations.pageStateGroupName= (PageStateGroupName) annotation;
+                }
                 else if (type==Test.class)
                 {
                     classAnnotations.test=(Test)annotation;
@@ -302,6 +307,10 @@ class RequestMethodMap
             else if (type == Log.class)
             {
                 handlerAnnotations.log = (Log) annotation;
+            }
+            else if (type == PageStateGroupName.class)
+            {
+                handlerAnnotations.pageStateGroupName= (PageStateGroupName) annotation;
             }
             else if (type == Test.class)
             {
@@ -646,7 +655,7 @@ class RequestMethodMap
 		            returnType=((ParameterizedType)genericReturnType).getActualTypeArguments()[0];
 		            if (returnType instanceof WildcardType)
 		            {
-                        throw new Exception("Need to specify response type: "+", Site="+ toSite(object,method));
+                        throw new Exception("Response<?> not allowed. Need to specify type: "+", Site="+ toSite(object,method));
 //                        throw new Exception("Need to specify response type: "+", Site="+ objectType.getCanonicalName() + "." + method.getName());
 		            }
 		        }

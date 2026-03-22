@@ -15,7 +15,7 @@ import org.nova.html.enums.autocomplete;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
-import org.nova.html.remote.RemoteStateBinding2;
+import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.POST;
@@ -27,14 +27,14 @@ import org.nova.tracing.Trace;
 
 
 @RequiredRoles()
-public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding2> extends RemoteStateItem
+public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> extends RemoteStateItem
 {
     public static final String PATH = "/$/RemoteSearchSelect";
 
     final private Item options;
     final private String instanceName;
     final private InputText inputText;
-    public RemoteSearchSelect(RemoteStateBinding2 binding,Icon searchIcon,String searchMessage) throws Throwable
+    public RemoteSearchSelect(RemoteStateBinding binding,Icon searchIcon,String searchMessage) throws Throwable
     {
         super(binding);
         style("z-index:1;");
@@ -62,7 +62,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding2> exte
     
     public String js_new()
     {
-        return HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), this.getRemoteStateBinding().getStateKey()+"="+id() ,PATH,this.inputText.id());
+        return HtmlUtils.js_new(instanceName, "nova.ui.remote."+RemoteSearchSelect.class.getSimpleName(), this.getRemoteStateBinding().getPageStateKey()+"="+id() ,PATH,this.inputText.id());
     }
     static public class OptionResult
     {
@@ -98,7 +98,7 @@ public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding2> exte
           {
               String option=options.options.get(i);
 //              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new SecurePathAndQuery(this,PATH+"/select").addQuery("index",i).toString()));
-              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(PATH+"/select").addQuery(this.getRemoteStateBinding().getStateKey(), id()).addQuery("index",i).toString()));
+              Item item=content.returnAddInner(new Item()).px(3).py(1).id(this.inputText.id()+"-option-"+i).addClass("active-input").onclick(Remote.js_postStatic(new PathAndQuery(PATH+"/select").addQuery(this.getRemoteStateBinding().getPageStateKey(), id()).addQuery("index",i).toString()));
               item.returnAddInner(new Item()).addInner(option);
           }
           if (options.tooMany!=null)

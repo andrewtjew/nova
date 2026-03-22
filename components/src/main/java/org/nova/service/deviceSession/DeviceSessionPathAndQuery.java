@@ -6,7 +6,7 @@ import org.nova.security.QuerySecurity;
 public class DeviceSessionPathAndQuery extends SecurePathAndQuery
 {
 
-    public DeviceSessionPathAndQuery(PageSession<?,?> session, String path) throws Throwable
+    public DeviceSessionPathAndQuery(PageStateSession<?,?> session, String path) throws Throwable
     {
         super(session.getDeviceSession(), path);
     }

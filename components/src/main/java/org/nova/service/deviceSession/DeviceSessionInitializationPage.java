@@ -21,7 +21,7 @@ public class DeviceSessionInitializationPage extends Page
         body().returnAddInner(new h3()).addInner("Initializing...");
         String script=
             """
-        function createDeviceSession(path,redirect) {
+        function sendDeviceLocation(path,redirect) {
             var timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             var parameters = new URLSearchParams({ redirect: redirect });
             var pathAndQuery = path+"?" + parameters.toString();
@@ -38,8 +38,8 @@ public class DeviceSessionInitializationPage extends Page
         }
             """;
         
-        System.out.println(script);
+//        System.out.println(script);
         body().returnAddInner(new Script(script));
-        body().onload(HtmlUtils.js_call("createDeviceSession",path+"/createDeviceSession", redirect));
+        body().onload(HtmlUtils.js_call("sendDeviceLocation",path+"/createDeviceSession", redirect));
     }
 }

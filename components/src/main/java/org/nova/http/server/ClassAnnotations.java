@@ -28,6 +28,7 @@ import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.Log;
+import org.nova.http.server.annotations.PageStateGroupName;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.Test;
 import org.nova.services.ForbiddenRoles;
@@ -46,7 +47,7 @@ public class ClassAnnotations
 	Log log=null;
     RequiredRoles requiredRoles=null;
     ForbiddenRoles forbiddenRoles=null;
-	
+    PageStateGroupName pageStateGroupName=null;
 	
     ClassAnnotations()
     {
@@ -65,6 +66,7 @@ public class ClassAnnotations
 	    this.attributes=that.attributes;
 	    this.requiredRoles=that.requiredRoles;
 	    this.forbiddenRoles=that.forbiddenRoles;
+	    this.pageStateGroupName=that.pageStateGroupName;
 	}
 
 }
