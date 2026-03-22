@@ -1,6 +1,12 @@
 package org.nova.html.remote;
 
+import org.nova.html.elements.Composer;
+import org.nova.html.elements.FormElement;
+import org.nova.html.enums.enctype;
+import org.nova.html.enums.method;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
+import org.nova.html.ext.JsObject;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.tracing.Trace;
@@ -9,12 +15,15 @@ import org.nova.tracing.Trace;
 //Register using register(PATH,SubClassOfRemoteStateForm.class), then new subclass in method handler.  
 
 @ContentWriters(RemoteResponseWriter.class)
-public class RemoteStateForm extends RemoteForm
+public class RemoteStateForm extends FormElement<RemoteStateForm> 
 {
     RemoteStateBinding binding;
-    public RemoteStateForm(String id,RemoteStateBinding binding, String action) throws Throwable
+    private boolean usePost=false;
+
+    public RemoteStateForm(RemoteStateBinding binding, String action) throws Throwable
     {
-        super(id);
+        super(method.post);
+        id();
         this.binding=binding;
         binding.bind(this);
         binding.setPageState(id(),this);
@@ -24,20 +33,15 @@ public class RemoteStateForm extends RemoteForm
             action(action);
         }
     }
-    public RemoteStateForm(RemoteStateBinding binding,String action) throws Throwable
-    {
-        this(null,binding, action);
-    }
-
     public RemoteStateForm(RemoteStateBinding binding) throws Throwable
     {
         this(binding, null);
     }
     
-    public RemoteStateBinding getRemoteStateBinding()
-    {
-        return this.binding;
-    }
+//    public RemoteStateBinding getRemoteStateBinding()
+//    {
+//        return this.binding;
+//    }
 
 
     public RemoteResponse render(Trace parent,RemoteResponse response) throws Throwable
@@ -55,8 +59,48 @@ public class RemoteStateForm extends RemoteForm
     
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//<<<<<<< HEAD
+//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//=======
+        return Remote.js_postStatic(pathAndQuery.addQuery(this.binding.getStateKey(), this.id()).toString());
+//>>>>>>> 69de9a61908c65f215dac363c7df2a92b7c28a23
         
     }
+//----------------------------------
+    public String js_post() throws Throwable
+    {
+        return js_post(action());
+    }
+    
+    public String js_post(String action) throws Throwable
+    {
+        this.usePost=true;
+        if (enctype()==enctype.data)
+        {
+            return HtmlUtils.js_call("nova.remote.postFormData",id(),action);
+        }
+        else
+        {
+            return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",id(),action);
+        }
+                
+    }
 
+    @Override
+    public void compose(Composer composer) throws Throwable
+    {
+        if (this.usePost==false)
+        {
+            this.onsubmit(HtmlUtils.js_call("nova.remote.submit",new JsObject("event")));
+        }
+        else
+        {
+            this.onsubmit(HtmlUtils.js_call("nova.remote.preventDefault",new JsObject("event")));
+        }
+        super.compose(composer);
+    }
+    
+    
+    
+    
 }
