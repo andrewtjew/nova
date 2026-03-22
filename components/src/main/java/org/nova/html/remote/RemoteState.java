@@ -50,13 +50,13 @@ public class RemoteState
   
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        pathAndQuery.addQuery(binding.getPageStateKey(),this.id);
+        pathAndQuery.addQuery(binding.getStateKey(),this.id);
         return Remote.js_postStatic(pathAndQuery.toString());
     }
 
     public String js_get(PathAndQuery pathAndQuery) throws Throwable
     {
-        pathAndQuery.addQuery(binding.getPageStateKey(),this.id);
+        pathAndQuery.addQuery(binding.getStateKey(),this.id);
         return pathAndQuery.toString();
     }
     
