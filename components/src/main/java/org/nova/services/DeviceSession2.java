@@ -76,7 +76,6 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
     }
-    
     public long getDeviceSessionId()
     {
         return this.deviceSessionId;
@@ -96,7 +95,6 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         setPageState(Long.toString(key),state);
     }
 
-    @Override
     public void setPageState(String key,Object state) throws Throwable
     {
         if (Debug.ENABLE && DEBUG)
@@ -203,7 +201,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     @Override
     public <T> T getPageState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(getPageStateKey());
+        String id=context.getHttpServletRequest().getParameter(getStateKey());
         return getPageState(id);
     }
     final static public String STATE_KEY="@";
@@ -242,7 +240,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
             if (getSecurityQueryKey()!=null)
             {
                 var map=context.getHttpServletRequest().getParameterMap();
-                int ignore=map.containsKey(getPageStateKey())?1:0;
+                int ignore=map.containsKey(getStateKey())?1:0;
                 if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
                 {
                     if (DEBUG_SECURITY)
@@ -285,7 +283,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
 
 
     @Override
-    public String getPageStateKey()
+    public String getStateKey()
     {
         return STATE_KEY;
     }

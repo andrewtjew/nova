@@ -44,7 +44,11 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
 
         public Object getState(String key)
         {
-            Object state=this.states.get(key);
+            Object state=null;
+            if (this.states!=null)
+            {
+                state=this.states.get(key);
+            }
             if (state!=null)
             {
                 //As long as the handler refers to the state, we keep it alive.
@@ -53,6 +57,10 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
                     this.newStates=new HashMap<String, Object>();
                 }
                 this.newStates.put(key, state);
+            }
+            else
+            {
+                state=this.newStates.get(key);
             }
             return state;
         }
@@ -100,12 +108,13 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
     
     final protected DeviceSession<ROLE> deviceSession;
     final private HashMap<String,PageStateSet> pageStateSets;
-    private PageStateSet pageStateSet;
+    private String pageStateGroupName;
     
     public PageStateSession(DeviceSession<ROLE> deviceSession) throws Throwable
     {
         this.pageStateSets=new HashMap<>();
         this.deviceSession=deviceSession;
+        this.pageStateGroupName="";
     }
     
     public DeviceSession<ROLE> getDeviceSession()
@@ -130,76 +139,83 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
     @SuppressWarnings({
             "unused", "unchecked"
     })
-    final public <T> T getPageState(String key) throws Throwable
+    final public <T> T getPageState(String groupKey,String stateKey) throws Throwable
     {
+        var pageStateSet=this.pageStateSets.get(groupKey);
+        
         if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
         {
-            if (this.pageStateSet!=null)
+            if (pageStateSet!=null)
             {
-                if (this.pageStateSet.states.containsKey(key)==false)
+                if (pageStateSet.states.containsKey(stateKey)==false)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
-                    for (Entry<String, Object> entry:this.pageStateSet.states.entrySet())
+                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+stateKey);
+                    for (Entry<String, Object> entry:pageStateSet.states.entrySet())
                     {
                         Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
                     }
                 }
             }
         }
-        if (this.pageStateSet==null)
+        if (pageStateSet==null)
         {
             throw new Exception("No PageStateGroupName annotation");
         }
-        return (T)this.pageStateSet.getState(key);
+        return (T)pageStateSet.getState(stateKey);
     }
 
-    @SuppressWarnings("unused")
-    final public <T> T getPageState(long key) throws Throwable
-    {
-        return getPageState(Long.toString(key));
-    }
+//    @SuppressWarnings("unused")
+//    final public <T> T getPageState(long key) throws Throwable
+//    {
+//        return getPageState(Long.toString(key));
+//    }
     
-    @SuppressWarnings({"unused", "unchecked"})
-    final public <T> T removePageState(long key) throws Throwable
-    {
-        return removePageState(Long.toString(key));
-    }    
+//    @SuppressWarnings({"unused", "unchecked"})
+//    final public <T> T removePageState(long key) throws Throwable
+//    {
+//        return removePageState(Long.toString(key));
+//    }    
+//    
+//    @SuppressWarnings({"unused", "unchecked"})
+//    final public <T> T removePageState(String key) throws Throwable
+//    {
+//        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
+//        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
+//        {
+//            if (pageStateSet!=null)
+//            {
+//                if (pageStateSet.states.containsKey(key)==false)
+//                {
+//                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
+//                    for (Entry<String, Object> entry:pageStateSet.states.entrySet())
+//                    {
+//                        var object=entry.getValue();
+//                        if (object instanceof Element)
+//                        {
+//                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", class="+object.getClass().getName());
+//                        }
+//                        else
+//                        {
+//                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        if (pageStateSet==null)
+//        {
+//            throw new Exception("No PageStateGroupName annotation");
+//        }
+//        return (T)pageStateSet.removeState(key);
+//    }
     
-    @SuppressWarnings({"unused", "unchecked"})
-    final public <T> T removePageState(String key) throws Throwable
-    {
-        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
-        {
-            if (this.pageStateSet!=null)
-            {
-                if (this.pageStateSet.states.containsKey(key)==false)
-                {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
-                    for (Entry<String, Object> entry:this.pageStateSet.states.entrySet())
-                    {
-                        var object=entry.getValue();
-                        if (object instanceof Element)
-                        {
-                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", class="+object.getClass().getName());
-                        }
-                        else
-                        {
-                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
-                        }
-                    }
-                }
-            }
-        }
-        if (this.pageStateSet==null)
-        {
-            throw new Exception("No PageStateGroupName annotation");
-        }
-        return (T)this.pageStateSet.removeState(key);
-    }
-    
-    @Override
     final public void setPageState(String key,Object state) throws Throwable
     {
+        if (this.pageStateGroupName==null)
+        {
+            throw new Exception();
+        }
+        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
         if (Debug.ENABLE && DEBUG)
         {
             if (key==null)
@@ -207,13 +223,14 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key=null");
             }
         }            
-        if (this.pageStateSet==null)
+        if (pageStateSet==null)
         {
-            throw new Exception("No PageStateGroupName annotation");
+            pageStateSet=new PageStateSet();
+            this.pageStateSets.put(this.pageStateGroupName, pageStateSet);
         }
         if (state!=null)
         {
-            this.pageStateSet.setState(key, state);
+            pageStateSet.setState(key, state);
             if (Debug.ENABLE && DEBUG)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state);
@@ -224,45 +241,52 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
     @Override
     final public <T> T getPageState(Context context) throws Throwable
     {
-        String id=context.getHttpServletRequest().getParameter(getPageStateKey());
-        return getPageState(id);
+        String groupKey=context.getHttpServletRequest().getParameter(GROUP_KEY);
+        String stateKey=context.getHttpServletRequest().getParameter(STATE_KEY);
+        return getPageState(groupKey,stateKey);
     }
-    final static public String STATE_KEY="@";
+    final static public String STATE_KEY="@state";
+    final static public String GROUP_KEY="@group";
 
     @Override
-    final public String getPageStateKey()
+    final public String getStateKey()
     {
         return STATE_KEY;
     }
 
     @Override
+    final public String getPageStateGroupKey()
+    {
+        return GROUP_KEY;
+    }
+    
+    @Override
+    final public String getPageStateGroupName()
+    {
+        return this.pageStateGroupName;
+    }
+    
+    @Override
     public AbnormalResult beginRequest(Trace parent,Context context)
     {
-       var name=context.getRequestMethod().getPageStateGroupName();
-       if (name==null)
-       {
-           this.pageStateSet=null;
-       }
-       else
-       {
-           this.pageStateSet=this.pageStateSets.get(name);
-           if (this.pageStateSet==null)
-           {
-               this.pageStateSet=new PageStateSet();
-               this.pageStateSets.put(name,this.pageStateSet);
-           }
-       }
+       this.pageStateGroupName=context.getRequestMethod().getPageStateGroupName();
        return null;
     }
     @Override
     public void endRequest(Trace parent,Context context,Response<?> response)
     {
-//        if (response.getContent() instanceof )
-//        if (this.pageStateSet!=null)
-//        {
-//            this.pageStateSet.clearLastStates();
-//        }
-//        this.pageStateSet=null;
+        if (response==null)
+        {
+            return;
+        }
+        if (response.getContent() instanceof DeviceSessionInitializationPage)
+        {
+            var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
+            if (pageStateSet!=null)
+            {
+                pageStateSet.clearLastStates();
+            }
+        }
     }
     
     public long getDeviceSessionId()

@@ -1,5 +1,9 @@
 package org.nova.html.remote;
 
+import org.nova.html.elements.FormElement;
+import org.nova.html.elements.TagElement;
+import org.nova.html.ext.InputHidden;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 
 /* A page may contain per session remote element. A remote element bound to a server side state object.
@@ -22,5 +26,34 @@ public interface RemoteStateBinding
     public void setPageState(String key,Object state) throws Throwable;
     
     //The state key is used 
-    public String getPageStateKey();
+    public String getStateKey();
+    
+    default public String getPageStateGroupKey()
+    {
+        return "";
+    }
+
+    default public String getPageStateGroupName()
+    {
+        return "";
+    }
+    
+    default public String bind(TagElement<?> element,PathAndQuery pathAndQuery) throws Throwable
+    {
+        pathAndQuery.addQuery(getStateKey(), element.id());
+        pathAndQuery.addQuery(getPageStateGroupKey(), getPageStateGroupName());
+        return pathAndQuery.toString();
+    }
+    
+    default public void bind(TagElement<?> element) throws Throwable
+    {
+        setPageState(element.id(),element);
+        if (element instanceof FormElement<?>)
+        {
+            element.addInner(new InputHidden(getStateKey(),element.id()));
+            element.addInner(new InputHidden(getPageStateGroupKey(),getPageStateGroupName()));
+        }
+    }
+    
+    
 }

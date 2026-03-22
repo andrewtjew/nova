@@ -25,6 +25,7 @@ public class RemoteStateForm extends FormElement<RemoteStateForm>
         super(method.post);
         id();
         this.binding=binding;
+        binding.bind(this);
         binding.setPageState(id(),this);
         addInner(new InputHidden(binding.getStateKey(),id()));
         if (action!=null)
@@ -58,7 +59,11 @@ public class RemoteStateForm extends FormElement<RemoteStateForm>
     
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
+//<<<<<<< HEAD
+//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//=======
         return Remote.js_postStatic(pathAndQuery.addQuery(this.binding.getStateKey(), this.id()).toString());
+//>>>>>>> 69de9a61908c65f215dac363c7df2a92b7c28a23
         
     }
 //----------------------------------

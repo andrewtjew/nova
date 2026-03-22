@@ -32,8 +32,9 @@ import org.nova.html.tags.link;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.script;
 import org.nova.html.tags.title;
+import org.nova.service.deviceSession.DeviceSessionPage;
 
-public class BootStrapPage extends Page
+public class BootStrapPage extends DeviceSessionPage
 {
     final private Content content;
     public BootStrapPage(String title,String lang,String compatible)
