@@ -49,7 +49,6 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     
     final private long deviceSessionId;
     final protected SecretKey secretKey;
-    final private String querySecurityPathPrefix;
     final private String language;
     private LatitudeLongitude position; 
     private CountryCode countryCode;
@@ -75,7 +74,6 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
-        this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
         this.language=language;
         updateLocation(position, countryCode, zoneId);
@@ -116,14 +114,6 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return this.locationLastUpdated;
     }
     
-    final static public String QUERY_KEY="@";
-
-    @Override
-    public String getSecurityQueryKey()
-    {
-        return QUERY_KEY;
-    }
-
     @Override
     public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
@@ -134,60 +124,9 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
                 return abnormalAccept;
             }
         }
-        HttpServletRequest request=context.getHttpServletRequest();
-        String queryString=request.getQueryString();
-        if (queryString==null)
+        if (this.isQuerySecure(context)==false)
         {
-            return null;
-        }
-        var requestMethod=context.getRequestMethod();
-        if (requestMethod.isQueryVerificationRequired())
-        {
-//            if (getSecurityQueryKey()!=null)
-//            {
-//                //Require 
-//                var map=context.getHttpServletRequest().getParameterMap();
-//                int ignore=map.containsKey(getStateKey())?1:0;
-//                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
-//                {
-//                    if (DEBUG_SECURITY)
-//                    {
-//                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
-//                    }
-//                    else
-//                    {
-//                        return new AbnormalResult<>();
-//                    }
-//                }
-//            }
-            if (getSecurityQueryKey()!=null)
-            {
-                var map=context.getHttpServletRequest().getParameterMap();
-                if ((map.containsKey(getSecurityQueryKey())==false))
-                {
-                    if (DEBUG_SECURITY)
-                    {
-                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
-                    }
-                    return new AbnormalResult();
-                }
-            }
-        }
-        
-        String code=request.getParameter(getSecurityQueryKey());
-        if (code!=null)
-        {
-            String query=request.getQueryString();
-            int index=query.lastIndexOf(this.querySecurityPathPrefix);
-            String text=query.substring(0,index);
-            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
-            String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult();
-        }
-        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
-        {
-            String query=request.getQueryString();
-            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+            return new AbnormalResult();
         }
         return null;
     }
@@ -202,7 +141,7 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
         byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
         String code=Base64.getUrlEncoder().encodeToString(hmac);
-        return query+this.querySecurityPathPrefix+code;
+        return query+QUERY_SECURITY_PREFIX+code;
     }
 
     @Override
@@ -231,6 +170,37 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     public void clearState()
     {
         this.state=null;
+    }
+
+    final static String QUERY_SECURITY_KEY="_";
+    final static String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
+
+    @Override
+    public boolean isQuerySecure(Context context) throws Throwable
+    {
+        HttpServletRequest request=context.getHttpServletRequest();
+        String queryString=request.getQueryString();
+        if (queryString==null)
+        {
+            return true;
+        }
+        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
+        {
+            var requestMethod=context.getRequestMethod();
+            String query=request.getQueryString();
+            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+        }
+        String code=request.getParameter(QUERY_SECURITY_KEY);
+        if (code!=null)
+        {
+            String query=request.getQueryString();
+            int index=query.lastIndexOf(QUERY_SECURITY_PREFIX);
+            String text=query.substring(0,index);
+            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
+            String computed=Base64.getUrlEncoder().encodeToString(hmac);
+            return code.equals(computed);
+        }
+        return false;
     }
     
     

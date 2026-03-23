@@ -55,7 +55,8 @@ public class RemoteStateForm2 extends RemoteForm2
     
     public String js_postStatic(PathAndQuery pathAndQuery) throws Throwable
     {
-        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+//        return Remote.js_postStatic(pathAndQuery.addQuery(this.getRemoteStateBinding().getStateKey(), this.id()).toString());
+        return Remote.js_postStatic(this.binding.bind(this,pathAndQuery).toString());
         
     }
 

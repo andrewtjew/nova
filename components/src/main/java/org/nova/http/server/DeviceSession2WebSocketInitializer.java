@@ -6,12 +6,12 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMapper;
-import org.nova.service.deviceSession.DeviceSessionCookieState;
+import org.nova.service.deviceSession.DeviceCookieState;
 import org.nova.services.DeviceSession2;
 import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
 
-public class DeviceSession2WebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceSessionCookieState> extends WebSocketInitializer<DEVICESESSION>
+public class DeviceSession2WebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceCookieState> extends WebSocketInitializer<DEVICESESSION>
 {
     final private DeviceSession2Filter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter;
     public DeviceSession2WebSocketInitializer(String webSocketPath,DeviceSession2Filter<ROLE,DEVICESESSION,COOKIESTATE> deviceSessionFilter,Class<? extends WebSocketHandling> handlerType,WebSocketHandlingInitialization<? extends WebSocketHandling> handlerInitialization) throws Throwable

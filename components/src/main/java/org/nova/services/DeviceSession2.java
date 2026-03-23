@@ -17,6 +17,7 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -38,7 +39,6 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     
     final private long deviceSessionId;
     final protected SecretKey secretKey;
-    final private String querySecurityPathPrefix;
 
     static byte[] generateSecretKey(String token)
     {
@@ -71,7 +71,6 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
-        this.querySecurityPathPrefix="&"+this.getSecurityQueryKey()+"=";
         this.deviceSessionId=deviceSessionId;
         this.states=new HashMap<String, Object>();
         this.newPageStates=null;
@@ -204,13 +203,25 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         String id=context.getHttpServletRequest().getParameter(STATE_KEY);
         return getPageState(id);
     }
-    final static public String STATE_KEY="@";
-
+    
     @Override
-    public String getSecurityQueryKey()
+    final public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
     {
-        return "_";
+        setState(id,state);
+        pathAndQuery.addQuery(STATE_KEY, id);
+        return pathAndQuery;
     }
+  
+    @Override
+    final public void bind(FormElement<?> element) throws Throwable
+    {
+        setState(element.id(),element);
+        element.addInner(new InputHidden(STATE_KEY,element.id()));
+    }
+    
+    final static String STATE_KEY="@";
+    final static String QUERY_SECURITY_KEY="_";
+    final static String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
 
     public RequestMethod getCurrentRequestMethod()
     {
@@ -221,54 +232,14 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     @Override
     public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
+        var abnormalResult=super.verifyRequest(parent, context,filter);
+        if (abnormalResult!=null)
         {
-            var abnormalResult=super.verifyRequest(parent, context,filter);
-            if (abnormalResult!=null)
-            {
-                return abnormalResult;
-            }
+            return abnormalResult;
         }
-        this.requestMethod=context.getRequestMethod();
-        HttpServletRequest request=context.getHttpServletRequest();
-        String queryString=request.getQueryString();
-        if (queryString==null)
+        if (this.isQuerySecure(context)==false)
         {
-            return null;
-        }
-        if (requestMethod.isQueryVerificationRequired())
-        {
-            if (getSecurityQueryKey()!=null)
-            {
-                var map=context.getHttpServletRequest().getParameterMap();
-                int ignore=map.containsKey(getStateKey())?1:0;
-                if ((map.size()>ignore)&&(map.containsKey(getSecurityQueryKey())==false))
-                {
-                    if (DEBUG_SECURITY)
-                    {
-                        Debugging.log(LOG_DEBUG_CATEGORY,"No security key: expected key="+getSecurityQueryKey()+", method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
-                    }
-                    else
-                    {
-                        return new AbnormalResult();
-                    }
-                }
-            }
-        }
-        
-        String code=request.getParameter(getSecurityQueryKey());
-        if (code!=null)
-        {
-            String query=request.getQueryString();
-            int index=query.lastIndexOf(this.querySecurityPathPrefix);
-            String text=query.substring(0,index);
-            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
-            String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed)?null:new AbnormalResult();
-        }
-        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
-        {
-            String query=request.getQueryString();
-            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+            return new AbnormalResult();
         }
         return null;
     }
@@ -278,18 +249,61 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
         byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
         String code=Base64.getUrlEncoder().encodeToString(hmac);
-        return query+this.querySecurityPathPrefix+code;
+        return query+QUERY_SECURITY_PREFIX+code;
     }
 
 
-    @Override
-    public String getStateKey()
-    {
-        return STATE_KEY;
-    }
+//    @Override
+//    public String getStateKey()
+//    {
+//        return STATE_KEY;
+//    }
     @Override
     public String getQueryBinding(TagElement<?> element)
     {
         return STATE_KEY+"="+element.id();
+    }
+    public boolean isQuerySecure(Context context) throws Throwable
+    {
+        this.requestMethod=context.getRequestMethod();
+        HttpServletRequest request=context.getHttpServletRequest();
+        String queryString=request.getQueryString();
+        if (queryString==null)
+        {
+            return false;
+        }
+        if (requestMethod.isQueryVerificationRequired())
+        {
+            var map=context.getHttpServletRequest().getParameterMap();
+            int ignore=map.containsKey(STATE_KEY)?1:0;
+            if ((map.size()>ignore)&&(map.containsKey(QUERY_SECURITY_KEY)==false))
+            {
+                if (DEBUG_SECURITY)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"No security key: method="+requestMethod.getMethod().getDeclaringClass().getName()+"."+requestMethod.getMethod().getName(),LogLevel.WARNING);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        
+        String code=request.getParameter(QUERY_SECURITY_KEY);
+        if (code!=null)
+        {
+            String query=request.getQueryString();
+            int index=query.lastIndexOf(QUERY_SECURITY_PREFIX);
+            String text=query.substring(0,index);
+            byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
+            String computed=Base64.getUrlEncoder().encodeToString(hmac);
+            return code.equals(computed);
+        }
+        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
+        {
+            String query=request.getQueryString();
+            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
+        }
+        return true;
     }
 }

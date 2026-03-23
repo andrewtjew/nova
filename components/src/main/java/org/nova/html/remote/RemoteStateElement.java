@@ -28,7 +28,6 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     {
         super(tag,id);
         this.binding=binding;
-        this.binding.bind(this);
     }
     
     public RemoteStateBinding getRemoteStateBinding()

@@ -84,7 +84,8 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
     abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
-    abstract protected DeviceSessionInitializationPage getInitializationPage(Trace parent,Context context,String redirect);
+    abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,String token) throws Throwable;
+    abstract protected InitializationPage getInitializationPage(Trace parent,Context context,String redirect);
     abstract protected Element getSessionLostPage(Trace parent,Context context) throws Throwable;
 
     final private SessionManager<DeviceSession<ROLE>> sessionManager;
@@ -153,25 +154,36 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     @Override
     public Response<?> executeNext(Trace parent, Context context) throws Throwable 
     {
+        DeviceSession<ROLE> deviceSession=null;
         String token=getCookieToken(context.getHttpServletRequest());
-        DeviceSession<ROLE> deviceSession=this.sessionManager.getSessionByToken(token);
-        RequestMethod requestMethod=context.getRequestMethod();
-        Method method=requestMethod.getMethod();
+        if (token!=null)
+        {
+            deviceSession=this.sessionManager.getSessionByToken(token);
+        }
         if (deviceSession==null)
         {
-            var result=initializeDeviceSession(parent,context);
-            if (result==null)
+            if (token!=null)
             {
-                return handleNoDeviceSession(parent, context);
+                deviceSession=createDeviceSession(parent,context,token);
             }
-            if (result.deviceSession==null)
+            if (deviceSession==null)
             {
-                return result.response;
+                var result=initializeDeviceSession(parent,context);
+                if (result==null)
+                {
+                    return handleNoDeviceSession(parent, context);
+                }
+                if (result.deviceSession==null)
+                {
+                    return result.response;
+                }
+                deviceSession=result.deviceSession;
+                setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
             }
-            deviceSession=result.deviceSession;
-            setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
 
+        RequestMethod requestMethod=context.getRequestMethod();
+        Method method=requestMethod.getMethod();
         Lock<String> lock=null;
         if (method.getAnnotation(AllowNoLock.class)==null)
         {

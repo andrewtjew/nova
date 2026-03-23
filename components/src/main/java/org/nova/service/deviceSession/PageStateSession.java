@@ -20,6 +20,7 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -122,24 +123,14 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
         return this.deviceSession;
     }
     
-    public void setPageState(TagElement<?> element) throws Throwable
+    public <T> T getState(String stateKey) throws Throwable
     {
-        if (element instanceof FormElement<?>)
-        {
-            element.returnAddInner(new InputHidden(STATE_KEY,element.id()));
-        }
-        setState(element.id(), element);
+        return getState(this.pageStateGroupName,stateKey);
     }
-
-    public void setPageState(long key,Object state) throws Throwable
-    {
-        setState(Long.toString(key),state);
-    }
-
     @SuppressWarnings({
             "unused", "unchecked"
     })
-    final public <T> T getPageState(String groupKey,String stateKey) throws Throwable
+    private <T> T getState(String groupKey,String stateKey) throws Throwable
     {
         var pageStateSet=this.pageStateSets.get(groupKey);
         
@@ -163,52 +154,8 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
         }
         return (T)pageStateSet.getState(stateKey);
     }
-
-//    @SuppressWarnings("unused")
-//    final public <T> T getPageState(long key) throws Throwable
-//    {
-//        return getPageState(Long.toString(key));
-//    }
     
-//    @SuppressWarnings({"unused", "unchecked"})
-//    final public <T> T removePageState(long key) throws Throwable
-//    {
-//        return removePageState(Long.toString(key));
-//    }    
-//    
-//    @SuppressWarnings({"unused", "unchecked"})
-//    final public <T> T removePageState(String key) throws Throwable
-//    {
-//        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
-//        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
-//        {
-//            if (pageStateSet!=null)
-//            {
-//                if (pageStateSet.states.containsKey(key)==false)
-//                {
-//                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+key);
-//                    for (Entry<String, Object> entry:pageStateSet.states.entrySet())
-//                    {
-//                        var object=entry.getValue();
-//                        if (object instanceof Element)
-//                        {
-//                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", class="+object.getClass().getName());
-//                        }
-//                        else
-//                        {
-//                            Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if (pageStateSet==null)
-//        {
-//            throw new Exception("No PageStateGroupName annotation");
-//        }
-//        return (T)pageStateSet.removeState(key);
-//    }
-    
+    @Override
     final public void setState(String key,Object state) throws Throwable
     {
         if (this.pageStateGroupName==null)
@@ -239,32 +186,45 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
     }
     
     @Override
+    final public String getQueryBinding(TagElement<?> element)
+    {
+        return STATE_KEY+"="+element.id();
+    }
+    
+    
+    @Override
     final public <T> T getState(Context context) throws Throwable
     {
         String groupKey=context.getHttpServletRequest().getParameter(GROUP_KEY);
         String stateKey=context.getHttpServletRequest().getParameter(STATE_KEY);
-        return getPageState(groupKey,stateKey);
+        return getState(groupKey,stateKey);
     }
     final static public String STATE_KEY="@state";
     final static public String GROUP_KEY="@group";
 
     @Override
-    final public String getStateKey()
+    final public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
     {
-        return STATE_KEY;
+        setState(id,state);
+        pathAndQuery.addQuery(STATE_KEY, id);
+        if (this.pageStateGroupName!=null)
+        {
+            pathAndQuery.addQuery(GROUP_KEY, this.pageStateGroupName);
+        }
+        return pathAndQuery;
+    }
+  
+    @Override
+    final public void bind(FormElement<?> element) throws Throwable
+    {
+        setState(element.id(),element);
+        element.addInner(new InputHidden(STATE_KEY,element.id()));
+        if (this.pageStateGroupName!=null)
+        {
+            element.addInner(new InputHidden(GROUP_KEY,this.pageStateGroupName));
+        }
     }
 
-    @Override
-    final public String getPageStateGroupKey()
-    {
-        return GROUP_KEY;
-    }
-    
-    @Override
-    final public String getPageStateGroupName()
-    {
-        return this.pageStateGroupName;
-    }
     
     @Override
     public AbnormalResult beginRequest(Trace parent,Context context)
@@ -279,7 +239,7 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
         {
             return;
         }
-        if (response.getContent() instanceof DeviceSessionInitializationPage)
+        if (response.getContent() instanceof InitializationPage)
         {
             var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
             if (pageStateSet!=null)

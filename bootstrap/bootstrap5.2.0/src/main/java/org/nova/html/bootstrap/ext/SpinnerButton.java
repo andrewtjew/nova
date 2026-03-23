@@ -3,6 +3,7 @@ package org.nova.html.bootstrap.ext;
 import org.nova.html.bootstrap.Span;
 import org.nova.html.bootstrap.SpinnerType;
 import org.nova.html.remote.RemoteForm;
+import org.nova.html.remote.RemoteForm2;
 
 public class SpinnerButton extends SpinnerButtonComponent<SpinnerButton>
 {
@@ -15,6 +16,13 @@ public class SpinnerButton extends SpinnerButtonComponent<SpinnerButton>
         this(label, SpinnerType.border);
     }
     public SpinnerButton(RemoteForm form,String label) throws Throwable
+    {
+        this(label);
+        onclick("if (document.getElementById('"+form.id()+"').reportValidity()){"+form.js_post()+";}else{"+js_reset()+";}");
+    }
+
+    @Deprecated 
+    public SpinnerButton(RemoteForm2 form,String label) throws Throwable
     {
         this(label);
         onclick("if (document.getElementById('"+form.id()+"').reportValidity()){"+form.js_post()+";}else{"+js_reset()+";}");
