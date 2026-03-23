@@ -42,6 +42,8 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         }
     }
     
+    Throwable throwable;
+    
     final static boolean DEBUG=false;
     final static boolean DEBUG_SECURITY=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
@@ -70,7 +72,7 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return secret;
     }   
     
-    public DeviceSession(long deviceSessionId,String token,Class<ROLE> roleType,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
+    public DeviceSession(long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
     {
         super(roleType,token, null);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
@@ -130,10 +132,6 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         }
         return null;
     }
-    
-//    public void endRequest(Response<?> response)
-//    {
-//    }
     
     @Override
     public String signQuery(String query) throws Throwable
