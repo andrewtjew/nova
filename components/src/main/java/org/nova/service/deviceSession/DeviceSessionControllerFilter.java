@@ -201,8 +201,8 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                     return result.response;
                 }
                 deviceSession=result.deviceSession;
-                setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
             }
+            setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
         //deviceSesion is not null after this
         

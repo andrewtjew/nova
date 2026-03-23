@@ -16,13 +16,15 @@ abstract public class ConnectorDeviceSessionControllerFilter<ROLE extends Enum<?
 {
     final private String deviceType;
     final private Connector connector;
-    final private Class<ROLE> roleType;        
-    public ConnectorDeviceSessionControllerFilter(SessionManager<DeviceSession<ROLE>> sessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String deviceType,Connector connector,Class<ROLE> roleType)
+    final private Class<ROLE> roleType;
+    final private long deviceSessionMaxAgeSeconds;
+    public ConnectorDeviceSessionControllerFilter(SessionManager<DeviceSession<ROLE>> sessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String deviceType,Connector connector,Class<ROLE> roleType,long deviceSessionMaxAgeSeconds)
     {
         super(sessionManager, deviceSessionControllerPath,cookieName,cookieAge);
         this.deviceType=deviceType;
         this.connector=connector;
         this.roleType=roleType;
+        this.deviceSessionMaxAgeSeconds=deviceSessionMaxAgeSeconds;
     }
     @Override
     protected DeviceSession<ROLE> getDeviceSession(Trace parent, Context context, String token) throws Throwable
@@ -31,6 +33,12 @@ abstract public class ConnectorDeviceSessionControllerFilter<ROLE extends Enum<?
         {
             var row=Select.source("devicesession JOIN device ON devicesession.deviceId=device.id").columns("*").where("identifier=?", token).orderBy("devicesession.created DESC").limit(1).executeOne(parent, accessor);
             if (row==null)
+            {
+                return null;
+            }
+            long created=row.getTIMESTAMP("created").getTime();
+            long age=System.currentTimeMillis()-created;
+            if (age>this.deviceSessionMaxAgeSeconds*1000)
             {
                 return null;
             }
