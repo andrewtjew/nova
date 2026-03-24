@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMapper;
-import org.nova.service.deviceSession.DeviceCookieState;
+import org.nova.services.DeviceCookieState;
 import org.nova.services.DeviceSession2;
 import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
