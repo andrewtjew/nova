@@ -219,9 +219,9 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         element.addInner(new InputHidden(STATE_KEY,element.id()));
     }
     
-    final static String STATE_KEY="@";
-    final static String QUERY_SECURITY_KEY="_";
-    final static String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
+    final static public String STATE_KEY="@";
+    final static public String QUERY_SECURITY_KEY="_";
+    final static public String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
 
     public RequestMethod getCurrentRequestMethod()
     {
@@ -270,8 +270,9 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         String queryString=request.getQueryString();
         if (queryString==null)
         {
-            return false;
+            return true;
         }
+        
         if (requestMethod.isQueryVerificationRequired())
         {
             var map=context.getHttpServletRequest().getParameterMap();
@@ -288,7 +289,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
                 }
             }
         }
-        
+        //!! This makes QuerySecurity a choice thing.
         String code=request.getParameter(QUERY_SECURITY_KEY);
         if (code!=null)
         {

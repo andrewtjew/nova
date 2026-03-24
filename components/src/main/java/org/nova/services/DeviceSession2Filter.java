@@ -13,6 +13,7 @@ import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
 import org.nova.html.ext.DeviceSession2Page;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
@@ -91,6 +92,7 @@ public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends 
     final static String LOG_CATEGORY_DEBUG=DeviceSession2Filter.class.getSimpleName();
     final static boolean DEBUG=true;
     final static boolean DEBUG_ACCESS=true;
+    final static boolean DEBUG_SHOW_REQUESTS=true;
     final static boolean DEBUG_EXCEPTION_PRINT_STACK_TRACE=true;
 
     protected String getToken(Trace parent, Context context)
@@ -128,12 +130,16 @@ public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends 
         RequestMethod requestMethod=context.getRequestMethod();
         Method method=requestMethod.getMethod();
         
+        if (Debug.ENABLE && DEBUG && DEBUG_SHOW_REQUESTS)
+        {
+            String request=requestMethod.getHttpMethod()+" "+HtmlUtils.getRequestPathAndQuery(context);
+            Debugging.log(LOG_CATEGORY_DEBUG, "Request: "+request+",key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()));
+        }
         
         if (session==null)
         {
             if ((method.getAnnotation(AllowNoSession.class)==null)&&(requestMethod.getHttpMethod().equals("GET")))
             {
-//<<<<<<< HEAD:components/src/main/java/org/nova/services/DeviceSessionFilter.java
                 var result=getDeviceSession(parent,context);
                 if (result==null)
                 {
@@ -147,26 +153,6 @@ public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends 
                 {
                     return result.response;
                 }
-            }
-            else
-            {
-                return this.handleNoSession(parent, context);
-//=======
-//                return context.next(parent);
-//            }
-//            var result=getDeviceSession(parent,context);
-//            if (result==null)
-//            {
-//                return null;
-//            }
-//            if (result.session!=null)
-//            {
-//                session=result.session;
-//            }
-//            else
-//            {
-//                return result.response;
-//>>>>>>> 69de9a61908c65f215dac363c7df2a92b7c28a23:components/src/main/java/org/nova/services/DeviceSession2Filter.java
             }
         }
 
@@ -182,27 +168,30 @@ public abstract class DeviceSession2Filter<ROLE extends Enum<?>,SESSION extends 
         
         try
         {
-            AbnormalResult abnormalAccept=session.verifyRequest(parent, context,this);
-            if (abnormalAccept!=null)
+            if (session!=null)
             {
-                if (abnormalAccept.statusCode()!=null)
+                AbnormalResult abnormalAccept=session.verifyRequest(parent, context,this);
+                if (abnormalAccept!=null)
                 {
-                    context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                    if (abnormalAccept.statusCode()!=null)
+                    {
+                        context.getHttpServletResponse().setStatus(abnormalAccept.statusCode());
+                    }
+                    if (abnormalAccept.response()!=null)
+                    {
+                        return abnormalAccept.response();
+                    }
+                    if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
+                    {
+                        context.seeOther(abnormalAccept.seeOther());
+                        return null;
+                    }
+                    if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                    {
+                        Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+                    }
+                    return handleInvalidQuery(parent, context);
                 }
-                if (abnormalAccept.response()!=null)
-                {
-                    return abnormalAccept.response();
-                }
-                if (TypeUtils.isNullOrEmpty(abnormalAccept.seeOther())==false)
-                {
-                    context.seeOther(abnormalAccept.seeOther());
-                    return null;
-                }
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
-                {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
-                }
-                return handleInvalidQuery(parent, context);
             }
             context.setState(session);
 
