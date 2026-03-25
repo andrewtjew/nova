@@ -202,10 +202,11 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                 }
                 deviceSession=result.deviceSession;
             }
+            this.sessionManager.addSession(parent, deviceSession);
             setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
         //deviceSesion is not null after this
-        
+        System.out.println("session:"+deviceSession.getDeviceSessionId());
         RequestMethod requestMethod=context.getRequestMethod();
         Method method=requestMethod.getMethod();
         Lock<String> lock=null;
@@ -255,12 +256,13 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                 }
                 else
                 {
-                    stateHandling=deviceSession.getState();
-                    if ((method.getAnnotation(AllowNoSession.class)==null)&&(stateHandling==null))
+                    var state=deviceSession.getState();
+                    if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null))
                     {
                         return dispatchInvalidQuery(parent, context,deviceSession);
                     }
-                    context.setState(stateHandling);
+                    context.setState(state);
+                    stateHandling=state instanceof PageStateRequestHandling?(PageStateRequestHandling)state:null;
                     if (stateHandling!=null)
                     {
                         stateHandling.beginRequest(parent, context);

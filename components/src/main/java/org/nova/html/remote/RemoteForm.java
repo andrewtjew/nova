@@ -8,6 +8,7 @@ import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
+import org.nova.tracing.Trace;
 import org.nova.html.enums.enctype;
 public class RemoteForm extends FormElement<RemoteForm> 
 {
@@ -61,5 +62,13 @@ public class RemoteForm extends FormElement<RemoteForm>
         }
         super.compose(composer);
     }
+    public RemoteResponse render(Trace parent,RemoteResponse response) throws Throwable
+    {
+        if (response!=null)
+        {
+            response.outerHtml(this);
+        }
+        return response;
+    }    
     
 }

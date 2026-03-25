@@ -39,14 +39,6 @@ public class RemoteStateForm extends RemoteForm
 //    }
 
 
-    public RemoteResponse render(Trace parent,RemoteResponse response) throws Throwable
-    {
-        if (response!=null)
-        {
-            response.outerHtml(this);
-        }
-        return response;
-    }    
 //    public String js_postStatic(String action) throws Exception, Throwable
 //    {
 //        return Remote.js_postStatic(new PathAndQuery(action).addQuery(binding.getStateKey(),id()).toString());

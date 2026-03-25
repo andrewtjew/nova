@@ -117,7 +117,7 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     }
     
     @Override
-    public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
+    final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         {
             AbnormalResult abnormalAccept=super.verifyRequest(parent, context,filter);
@@ -153,15 +153,15 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return null;
     }
     
-    private PageStateRequestHandling state;
+    private Object state;
     
     @SuppressWarnings("unchecked")
-    public <STATE extends PageStateRequestHandling> STATE getState()
+    public <STATE> STATE getState()
     {
         return (STATE)this.state;
     }
     
-    public void setState(PageStateRequestHandling state)
+    public void setState(Object state)
     {
         this.state=state;
     }
@@ -169,6 +169,7 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     {
         this.state=null;
     }
+    
 
     final static String QUERY_SECURITY_KEY="_";
     final static String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
