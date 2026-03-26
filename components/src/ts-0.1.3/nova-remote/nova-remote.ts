@@ -91,6 +91,24 @@ namespace nova.remote
 
     }
 
+    export async function postStaticInterval(interval:number,pathAndQuery:string,data:string=null,error:Function=null)
+    {
+        setInterval(()=>{postStatic(pathAndQuery,data,error);},interval);
+    }
+    export async function getStaticInterval(interval:number,pathAndQuery:string,error:Function=null)
+    {
+        setInterval(()=>{getStatic(pathAndQuery,error);},interval);
+    }
+
+    export async function postStaticTimeout(timeout:number,pathAndQuery:string,data:string=null,error:Function=null)
+    {
+        setTimeout(()=>{postStatic(pathAndQuery,data,error);},timeout);
+    }
+    export async function getStaticTimeout(timeout:number,pathAndQuery:string,error:Function=null)
+    {
+        setInterval(()=>{getStatic(pathAndQuery,error);},timeout);
+    }
+
     export async function postStatic(pathAndQuery:string,data:string=null,error:Function=null)
     {
         return await fetch(pathAndQuery,
@@ -316,6 +334,8 @@ namespace nova.remote
         t.innerHTML = html;
         return t.content;
     }    
+
+
 
     export async function run(instructions:Instruction[])
     {
