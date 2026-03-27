@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.userSession;
+package com.evolve.legacy.services;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.metrics.RateMeter;
 import org.nova.metrics.RateSample;
-import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
 
 public abstract class Session2

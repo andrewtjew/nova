@@ -3,8 +3,9 @@ package org.samples;
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplicationRunner;
 import org.nova.http.server.HttpTransport;
-import org.nova.services.SessionServerApplication;
 import org.nova.tracing.Trace;
+
+import com.evolve.legacy.services.SessionServerApplication;
 
 public class Service extends SessionServerApplication<UserSession>
 {

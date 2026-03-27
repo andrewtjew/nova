@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.userSession;
+package com.evolve.legacy.services;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

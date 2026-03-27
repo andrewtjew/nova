@@ -23,7 +23,8 @@ package org.nova.services;
 
 import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.annotations.Filters;
-import org.nova.userSession.SessionFilter;
+
+import com.evolve.legacy.services.SessionFilter;
 
 @Filters(SessionFilter.class)
 @Deprecated

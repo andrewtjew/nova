@@ -7,8 +7,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.html.ext.Redirect;
 import org.nova.tracing.Trace;
-import org.nova.userSession.Session2;
-import org.nova.userSession.SessionFilter;
+
+import com.evolve.legacy.services.Session2;
+import com.evolve.legacy.services.SessionFilter;
 
 public class AccessHandler extends ServletHandler
 {

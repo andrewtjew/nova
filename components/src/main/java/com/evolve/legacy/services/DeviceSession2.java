@@ -1,4 +1,4 @@
-package org.nova.userSession;
+package com.evolve.legacy.services;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
-import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
 
 

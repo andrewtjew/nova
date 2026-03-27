@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import org.nova.core.NameObject;
 import org.nova.html.elements.TagElement;
 import org.nova.tracing.Trace;
-import org.nova.userSession.DeviceSession2;
+
+import com.evolve.legacy.services.DeviceSession2;
 
 public class UserSession extends DeviceSession2<Role>
 {

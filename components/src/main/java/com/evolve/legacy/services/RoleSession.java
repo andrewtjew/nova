@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.userSession;
+package com.evolve.legacy.services;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +31,7 @@ import org.nova.core.NameObject;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
-import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.services.AbnormalResult;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;

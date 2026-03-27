@@ -1,4 +1,4 @@
-package org.nova.userSession;
+package com.evolve.legacy.services;
 
 public class DeviceCookieState
 {

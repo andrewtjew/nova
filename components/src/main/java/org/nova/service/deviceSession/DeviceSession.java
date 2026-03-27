@@ -27,15 +27,16 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
+import org.nova.metrics.RateMeter;
 import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
-import org.nova.services.Session;
+import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
-import org.nova.userSession.RoleSession;
 import org.nova.utils.Utils;
 
 
-public class DeviceSession extends Session implements PathAndQueryAuthentication
+
+public class DeviceSession implements PathAndQueryAuthentication
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -59,6 +60,12 @@ public class DeviceSession extends Session implements PathAndQueryAuthentication
     private CountryCode countryCode;
     private ZoneId zoneId;
     private long locationLastUpdated;
+    
+    final String token;
+    final long created;
+    private long lastAccess;
+    private RateMeter accessRateMeter;
+    
     static byte[] generateSecretKey(String token)
     {
         byte[] bytes = token.getBytes();
@@ -77,13 +84,31 @@ public class DeviceSession extends Session implements PathAndQueryAuthentication
     
     public DeviceSession(long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
     {
-        super(token);
+        this.token=token;
+        this.lastAccess=this.created=System.currentTimeMillis();
+        this.accessRateMeter=new RateMeter();
+
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.deviceSessionId=deviceSessionId;
         this.language=language;
         updateLocation(position, countryCode, zoneId);
     }
-    
+    public long getLastAccess()
+    {
+        return lastAccess;
+    }
+    public long getCreated()
+    {
+        return created;
+    }
+    public String getToken()
+    {
+        return token;
+    }
+    public RateMeter getAccessRateMeter()
+    {
+        return this.accessRateMeter;
+    }    
     public void updateLocation(LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId)
     {
         this.position=position;
@@ -119,7 +144,6 @@ public class DeviceSession extends Session implements PathAndQueryAuthentication
         return this.locationLastUpdated;
     }
     
-    @Override
     final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
         if (this.isRequestAuthentic(context)==false)
@@ -140,7 +164,6 @@ public class DeviceSession extends Session implements PathAndQueryAuthentication
         }
     }
 
-    @Override
     public NameObject[] getDisplayItems()
     {
         return null;
@@ -221,8 +244,4 @@ public class DeviceSession extends Session implements PathAndQueryAuthentication
             return false;
         }
     }
-    
-    
-    
-    
 }

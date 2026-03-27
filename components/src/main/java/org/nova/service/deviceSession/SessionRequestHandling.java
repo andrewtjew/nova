@@ -2,6 +2,7 @@ package org.nova.service.deviceSession;
 
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
+import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
 
 public interface SessionRequestHandling

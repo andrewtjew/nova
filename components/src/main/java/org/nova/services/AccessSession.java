@@ -26,9 +26,9 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
-import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
-import org.nova.userSession.Session2;
+
+import com.evolve.legacy.services.Session2;
 
 public abstract class AccessSession <SERVICE extends ServerApplication> extends Session2
 {

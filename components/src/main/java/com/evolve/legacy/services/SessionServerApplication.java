@@ -19,19 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package com.evolve.legacy.services;
 
 
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
-import org.nova.userSession.AbnormalSessionRequestHandling;
-import org.nova.userSession.DefaultAbnormalSessionRequestHandler;
-import org.nova.userSession.Session2;
-import org.nova.userSession.SessionFilter;
-import org.nova.userSession.SessionManager;
-import org.nova.userSession.SessionOperatorPages;
+import org.nova.services.TokenGenerator;
 import org.nova.utils.TypeUtils;
 
 public abstract class SessionServerApplication<SESSION extends Session2> extends ServerApplication

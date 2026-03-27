@@ -10,7 +10,8 @@ import org.nova.sqldb.Insert;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.tracing.Trace;
-import org.nova.userSession.SessionManager;
+
+import com.evolve.legacy.services.SessionManager;
 
 abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessionControllerFilter
 {

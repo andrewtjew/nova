@@ -11,7 +11,8 @@ import org.nova.http.server.FileDownloadHandler;
 import org.nova.http.server.HttpTransport;
 import org.nova.services.FavIconController;
 import org.nova.tracing.Trace;
-import org.nova.userSession.DeviceSession2Service;
+
+import com.evolve.legacy.services.DeviceSession2Service;
 
 public class Service extends DeviceSession2Service<UserSession>
 {

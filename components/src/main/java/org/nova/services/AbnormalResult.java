@@ -1,4 +1,4 @@
-package org.nova.service.deviceSession;
+package org.nova.services;
 
 import org.nova.http.server.Response;
 

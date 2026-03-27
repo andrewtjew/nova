@@ -32,7 +32,8 @@ import org.nova.logging.Logger;
 import org.nova.metrics.CountMeter;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
-import org.nova.userSession.Session2;
+
+import com.evolve.legacy.services.Session2;
 
 public class DeviceSessionManager 
 {
