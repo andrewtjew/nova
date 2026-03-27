@@ -78,6 +78,36 @@ public class GeneratedKeys
         }
         throw new Exception();
     }
+    public int getAsInteger(int index) throws Exception
+    {
+        Object key=this.keys.get(index);
+        if (key instanceof Long)
+        {
+            long value=(long)key;
+            if ((value<Integer.MIN_VALUE)||(value>Integer.MAX_VALUE))
+            {
+                throw new Exception("value="+value);
+            }
+            return (int)value;
+        }
+        else if (key instanceof BigInteger)
+        {
+            return ((BigInteger)key).intValue();
+        }
+        else if (key instanceof BigDecimal)
+        {
+            return ((BigDecimal)key).intValue();
+        }
+        else if (key instanceof Integer)
+        {
+            return (Integer)key;
+        }
+        if (key!=null)
+        {
+            throw new Exception("class="+key.getClass().getName());
+        }
+        throw new Exception();
+    }
     public int size()
     {
         return keys.size();

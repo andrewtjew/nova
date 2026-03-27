@@ -27,11 +27,8 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
-import org.nova.services.RoleSession;
 import org.nova.services.SessionManager;
 import org.nova.services.SessionOperatorPages;
-import org.nova.services.TokenGenerator;
-import org.nova.tracing.Trace;
 
 public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends ServerApplication
 {

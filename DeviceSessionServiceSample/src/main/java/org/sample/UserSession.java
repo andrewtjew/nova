@@ -3,7 +3,6 @@ package org.sample;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import org.nova.core.NameObject;
-import org.nova.html.elements.TagElement;
 import org.nova.services.DeviceSession2;
 import org.nova.tracing.Trace;
 

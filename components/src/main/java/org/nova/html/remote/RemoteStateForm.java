@@ -1,15 +1,11 @@
 package org.nova.html.remote;
 
 import org.nova.html.elements.Composer;
-import org.nova.html.elements.FormElement;
 import org.nova.html.enums.enctype;
-import org.nova.html.enums.method;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.InputHidden;
 import org.nova.html.ext.JsObject;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ContentWriters;
-import org.nova.tracing.Trace;
 
 //Use to implement complex, stateful and re-usable form. Allows sub class forms to have method handlers returning RemoteResponse results. Subclass form lifetime is page lifetime and it is ended if the next page does not use it and is extended when next page uses it by calling getPageState(). 
 //Register using register(PATH,SubClassOfRemoteStateForm.class), then new subclass in method handler.  

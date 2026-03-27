@@ -1,7 +1,6 @@
 package org.nova.service.deviceSession;
 
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.TimeZone;
@@ -26,7 +25,6 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.p;
 import org.nova.html.tags.pre;
-import org.nova.html.tags.textarea;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
@@ -36,12 +34,10 @@ import org.nova.http.server.ValueQ;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
-import org.nova.json.ObjectMapper;
 import org.nova.localization.CountryCode;
 import org.nova.localization.LanguageCode;
 import org.nova.services.AllowNoLock;
@@ -500,7 +496,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         return dispatchHandler(context, EXCEPTION_PATH);
     }
 
-    protected InitializationPage getInitializationPage(Trace parent, Context context, String redirect)
+    protected Element getInitializationPage(Trace parent, Context context, String redirect)
     {
         var page=new InitializationPage(this.deviceSessionControllerPath,false,redirect);
         page.content().addInner("Initializing...");

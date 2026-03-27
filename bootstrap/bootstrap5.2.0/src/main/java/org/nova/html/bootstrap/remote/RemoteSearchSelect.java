@@ -13,7 +13,6 @@ import org.nova.html.bootstrap.classes.StyleColor;
 import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.enums.autocomplete;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.remote.Remote;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.html.tags.script;

@@ -27,7 +27,6 @@ import org.nova.html.enums.link_rel;
 import org.nova.html.enums.name;
 import org.nova.html.ext.Content;
 import org.nova.html.ext.DocType;
-import org.nova.html.ext.Page;
 import org.nova.html.tags.link;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.script;

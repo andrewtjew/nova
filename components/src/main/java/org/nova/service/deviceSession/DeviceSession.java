@@ -1,31 +1,18 @@
 package org.nova.service.deviceSession;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map.Entry;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.nova.core.NameObject;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
 import org.nova.geo.GeoLocation;
 import org.nova.geo.LatitudeLongitude;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.FormElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.RequestMethod;
-import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
 import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;

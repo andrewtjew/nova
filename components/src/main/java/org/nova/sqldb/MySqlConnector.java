@@ -26,7 +26,6 @@ import java.sql.DriverManager;
 import java.time.format.DateTimeFormatter;
 
 import org.nova.debug.Debugging;
-import org.nova.http.client.PathAndQuery;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
