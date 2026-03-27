@@ -19,25 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
-import org.nova.http.server.GzipContentDecoder;
-import org.nova.http.server.GzipContentEncoder;
-import org.nova.http.server.JSONContentReader;
-import org.nova.http.server.JSONContentWriter;
-import org.nova.http.server.JSONPatchContentReader;
-import org.nova.http.server.annotations.ContentDecoders;
-import org.nova.http.server.annotations.ContentEncoders;
-import org.nova.http.server.annotations.ContentReaders;
-import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.Filters;
-import org.nova.userSession.SessionFilter;
+import org.nova.http.server.Context;
+import org.nova.http.server.Response;
+import org.nova.tracing.Trace;
 
-@ContentDecoders(GzipContentDecoder.class)
-@ContentEncoders(GzipContentEncoder.class)
-@ContentReaders({JSONContentReader.class,JSONPatchContentReader.class})
-@ContentWriters(JSONContentWriter.class)
-@Filters(SessionFilter.class)
-public class SessionController
+public interface AbnormalSessionRequestHandling
 {
+    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context) throws Throwable;
+    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session2 session,Context context) throws Throwable;;
+    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session2 session,Context context) throws Throwable;;
+    public String[] getMediaTypes();
 }

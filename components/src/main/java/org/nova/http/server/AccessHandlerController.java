@@ -16,8 +16,8 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
-import org.nova.services.SessionFilter;
 import org.nova.tracing.Trace;
+import org.nova.userSession.SessionFilter;
 
 @ContentDecoders(GzipContentDecoder.class)
 @ContentEncoders(GzipContentEncoder.class)

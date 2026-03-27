@@ -19,16 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
-import org.nova.http.server.Context;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.Response;
+import org.nova.http.server.Context;
 import org.nova.tracing.Trace;
 
-public interface AbnormalSessionRequestHandling
+public class DefaultAbnormalSessionRequestHandler implements AbnormalSessionRequestHandling
 {
-    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context) throws Throwable;
-    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session session,Context context) throws Throwable;;
-    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session session,Context context) throws Throwable;;
-    public String[] getMediaTypes();
+    
+    @Override
+    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context)
+    {
+        HttpServletResponse response=context.getHttpServletResponse();
+        response.setStatus(HttpStatus.UNAUTHORIZED_401);
+        return null;
+    }
+
+    @Override
+    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session2 session, Context context)
+    {
+        HttpServletResponse response=context.getHttpServletResponse();
+        response.setStatus(HttpStatus.FORBIDDEN_403);
+        return null;
+    }
+
+    @Override
+    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session2 session, Context context)
+    {
+        HttpServletResponse response=context.getHttpServletResponse();
+        response.setStatus(HttpStatus.CONFLICT_409);
+        return null;
+    }
+
+    @Override
+    public String[] getMediaTypes()
+    {
+        return new String[]{"*/*"};
+    }
+
 }

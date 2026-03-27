@@ -29,12 +29,13 @@ import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
 import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
-import org.nova.services.RoleSession;
+import org.nova.services.Session;
 import org.nova.tracing.Trace;
+import org.nova.userSession.RoleSession;
 import org.nova.utils.Utils;
 
 
-public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements PathAndQueryAuthentication
+public class DeviceSession extends Session implements PathAndQueryAuthentication
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -74,9 +75,9 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return secret;
     }   
     
-    public DeviceSession(long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId,Class<ROLE> roleType) throws Throwable
+    public DeviceSession(long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
     {
-        super(roleType,token, null);
+        super(token);
         this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
         this.deviceSessionId=deviceSessionId;
         this.language=language;
@@ -121,13 +122,6 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     @Override
     final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
-        {
-            AbnormalResult abnormalAccept=super.verifyRequest(parent, context,filter);
-            if (abnormalAccept!=null)
-            {
-                return abnormalAccept;
-            }
-        }
         if (this.isRequestAuthentic(context)==false)
         {
             return new AbnormalResult();
@@ -135,9 +129,15 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
         return null;
     }
 
-    @Override
-    public void onClose(Trace trace) throws Throwable
+    public void onClose(Trace parent) throws Throwable
     {
+        if (state!=null)
+        {
+            if (state instanceof SessionRequestHandling)
+            {
+                ((SessionRequestHandling)state).onClose(parent);
+            }
+        }
     }
 
     @Override

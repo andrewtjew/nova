@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -32,6 +32,8 @@ import org.nova.concurrent.Lock;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.Response;
+import org.nova.services.AllowNoLock;
+import org.nova.services.AllowNoSession;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.http.server.RequestMethod;
@@ -44,7 +46,7 @@ public class SessionFilter extends Filter
     final private String queryTokenKey;
     final private String cookieTokenKey;
     final private HashMap<String,AbnormalSessionRequestHandling> abnormalSessionHandlers;
-    private Session debugSession;
+    private Session2 debugSession;
     
     public SessionFilter(SessionManager<?> sessionManager,String headerTokenKey,String queryTokenKey,String cookieTokenKey,AbnormalSessionRequestHandling...abnormalSessionHandlers)
     {
@@ -82,7 +84,7 @@ public class SessionFilter extends Filter
         }
     }
 
-    public void setDebugSession(Session session)
+    public void setDebugSession(Session2 session)
     {
         this.debugSession=session;
     }
@@ -114,7 +116,7 @@ public class SessionFilter extends Filter
         
     }
     
-    public Session getSession(HttpServletRequest request)
+    public Session2 getSession(HttpServletRequest request)
     {
         String token=getToken(request);
         return this.sessionManager.getSessionByToken(token);
@@ -155,7 +157,7 @@ public class SessionFilter extends Filter
         try
         {
             String token=getToken(context.getHttpServletRequest());
-            Session session=this.sessionManager.getSessionByToken(token);
+            Session2 session=this.sessionManager.getSessionByToken(token);
             RequestMethod handlerMethod=context.getRequestMethod();
             Method method=handlerMethod.getMethod();
             if (method.getAnnotation(AllowNoSession.class)!=null)
@@ -243,7 +245,7 @@ public class SessionFilter extends Filter
         
     }
 
-    public <SESSION extends Session> SessionManager<SESSION> getSessionManager()
+    public <SESSION extends Session2> SessionManager<SESSION> getSessionManager()
     {
         return (SessionManager<SESSION>)this.sessionManager;
     }

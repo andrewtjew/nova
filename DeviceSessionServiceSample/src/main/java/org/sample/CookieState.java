@@ -1,6 +1,6 @@
 package org.sample;
 
-import org.nova.services.DeviceCookieState;
+import org.nova.userSession.DeviceCookieState;
 
 public class CookieState extends DeviceCookieState
 {

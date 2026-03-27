@@ -26,8 +26,8 @@ import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.localization.LanguageCode;
-import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
+import org.nova.userSession.DeviceSession2Filter;
 
 
 @ContentWriters({HtmlElementWriter.class,RemoteResponseWriter.class,JSONContentWriter.class})

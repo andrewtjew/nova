@@ -6,10 +6,10 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.nova.json.ObjectMapper;
-import org.nova.services.DeviceCookieState;
-import org.nova.services.DeviceSession2;
-import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
+import org.nova.userSession.DeviceCookieState;
+import org.nova.userSession.DeviceSession2;
+import org.nova.userSession.DeviceSession2Filter;
 
 public class DeviceSession2WebSocketInitializer<ROLE extends Enum<?>,DEVICESESSION extends DeviceSession2<ROLE>,COOKIESTATE extends DeviceCookieState> extends WebSocketInitializer<DEVICESESSION>
 {

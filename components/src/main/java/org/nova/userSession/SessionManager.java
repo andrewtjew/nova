@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import org.nova.metrics.CountMeter;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
-public class SessionManager<SESSION extends Session> 
+public class SessionManager<SESSION extends Session2> 
 {
     final private ExpireMap<String, SESSION> tokenSessions;
     final private HashMap<String,SESSION> userSessions;

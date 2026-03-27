@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.service.deviceSession;
 
 import org.nova.core.NameObject;
 import org.nova.frameworks.OperatorPage;
@@ -60,13 +60,13 @@ import org.nova.utils.Utils;
 @ContentEncoders(GzipContentEncoder.class)
 @ContentReaders({JSONContentReader.class,JSONPatchContentReader.class})
 @ContentWriters({JSONContentWriter.class,HtmlElementWriter.class})
-public class SessionOperatorPages<SESSION extends Session>
+public class SessionOperatorPages
 {
-    final private SessionManager<SESSION> sessionManager;
+    final private DeviceSessionManager deviceSessionManager;
     final private ServerApplication serverApplication;
-    public SessionOperatorPages(SessionManager<SESSION> sessionManager,ServerApplication serverApplication)
+    public SessionOperatorPages(DeviceSessionManager deviceSessionManager,ServerApplication serverApplication)
     {
-        this.sessionManager=sessionManager;
+        this.deviceSessionManager=deviceSessionManager;
         this.serverApplication=serverApplication;
     }
     
@@ -83,15 +83,15 @@ public class SessionOperatorPages<SESSION extends Session>
         OperatorPage page=this.serverApplication.buildOperatorPage("All Sessions");
         page.content().addInner(new hr());
         OperatorTable table=page.content().returnAddInner(new ServerOperatorPages.OperatorTable(page.head()));
-        table.setHeader("Token","User","Created","Last Accessed","Active","Idle","Accessed","Rate","");
+        table.setHeader("Token","Created","Last Accessed","Active","Idle","Accessed","Rate","");
         
-        for (Session session:this.sessionManager.getSessionSnapshot())
+        for (var deviceSession:this.deviceSessionManager.getSessionSnapshot())
         {
-            long duration=System.currentTimeMillis()-session.getCreated();
-            long idle=System.currentTimeMillis()-session.getLastAccess();
+            long duration=System.currentTimeMillis()-deviceSession.getCreated();
+            long idle=System.currentTimeMillis()-deviceSession.getLastAccess();
             TableRow row=new TableRow();
-            RateSample sample=session.getAccessRateMeter().sample();
-            row.add(session.getToken(),session.getUser(),Utils.millisToLocalDateTimeString(session.getCreated()),Utils.millisToLocalDateTimeString(session.getLastAccess()),Utils.millisToDurationString(duration),Utils.millisToDurationString(idle)
+            RateSample sample=deviceSession.getAccessRateMeter().sample();
+            row.add(deviceSession.getToken(),Utils.millisToLocalDateTimeString(deviceSession.getCreated()),Utils.millisToLocalDateTimeString(deviceSession.getLastAccess()),Utils.millisToDurationString(duration),Utils.millisToDurationString(idle)
                     ,sample.getSamples(),String.format("%.2f",sample.getRate()
                             ));
             /*
@@ -99,7 +99,7 @@ public class SessionOperatorPages<SESSION extends Session>
                     ,new PathAndQueryBuilder("/operator/session").addQuery("token",session.getToken()).toString()
                     );
             */
-            row.add(new MoreButton(page.head(),new PathAndQuery("/operator/session").addQuery("token",session.getToken()).toString()));
+            row.add(new MoreButton(page.head(),new PathAndQuery("/operator/session").addQuery("token",deviceSession.getToken()).toString()));
            table.addRow(row);
         }
         return page;
@@ -109,7 +109,7 @@ public class SessionOperatorPages<SESSION extends Session>
     @Path("/operator/sessions/remove")
     public Element delete(Trace parent,Context context,@QueryParam("token") String token) throws Exception, Throwable
     {
-        this.sessionManager.removeSession(parent, token);
+        this.deviceSessionManager.remove(parent, token);
         return new Redirect("/operator/sessions");
     }   
 
@@ -118,7 +118,7 @@ public class SessionOperatorPages<SESSION extends Session>
     public Element getSession(Trace parent,@QueryParam("token") String token) throws Exception, Throwable
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("Session Info");
-        SESSION session= this.sessionManager.getSessionByToken(token);
+        var session= this.deviceSessionManager.get(token);
         if (session==null)
         {
             page.content().addInner("Sesson not found");
@@ -140,7 +140,7 @@ public class SessionOperatorPages<SESSION extends Session>
     @Path("/operator/session/delete")
     public void deleteSession(Trace parent,@QueryParam("token") String token,Context context) throws Exception, Throwable
     {
-        this.sessionManager.removeSession(parent, token);
+        this.deviceSessionManager.remove(parent, token);
         context.seeOther("/operator/sessions");
     }   
 

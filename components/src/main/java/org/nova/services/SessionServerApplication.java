@@ -26,9 +26,15 @@ import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpTransport;
+import org.nova.userSession.AbnormalSessionRequestHandling;
+import org.nova.userSession.DefaultAbnormalSessionRequestHandler;
+import org.nova.userSession.Session2;
+import org.nova.userSession.SessionFilter;
+import org.nova.userSession.SessionManager;
+import org.nova.userSession.SessionOperatorPages;
 import org.nova.utils.TypeUtils;
 
-public abstract class SessionServerApplication<SESSION extends Session> extends ServerApplication
+public abstract class SessionServerApplication<SESSION extends Session2> extends ServerApplication
 {
     final private TokenGenerator tokenGenerator;
     final private SessionManager<SESSION> sessionManager;

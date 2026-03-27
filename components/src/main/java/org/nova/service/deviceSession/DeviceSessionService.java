@@ -27,15 +27,12 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
-import org.nova.services.RoleSession;
-import org.nova.services.SessionManager;
-import org.nova.services.SessionOperatorPages;
 import org.nova.services.TokenGenerator;
 import org.nova.tracing.Trace;
 
-public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends ServerApplication
+public abstract class DeviceSessionService<STATE> extends ServerApplication
 {
-    final private SessionManager<DeviceSession<ROLE>> sessionManager;
+    final private DeviceSessionManager deviceSessionManager;
 //    private SessionFilter sessionFilter;
 
 
@@ -46,14 +43,11 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
         long lockTimeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.lockTimeout", 10*1000);
         long timeoutMs=this.getConfiguration().getLongValue("SessionServerApplication.session.timeout", 30*60*1000);
         int generations=this.getConfiguration().getIntegerValue("SessionServerApplication.session.timeoutGenerations", 10);
-        this.sessionManager=new SessionManager<DeviceSession<ROLE>>(this.getTraceManager(),this.getLogger("SessionService"),this.getTimerScheduler(), lockTimeoutMs,timeoutMs, generations);
+        this.deviceSessionManager=new DeviceSessionManager(this.getTraceManager(),this.getLogger("SessionService"),this.getTimerScheduler(), lockTimeoutMs,timeoutMs, generations);
 
-//        this.sessionFilter=new SessionFilter(this.sessionManager,headerTokenKey,queryTokenKey,cookieTokenKey,sessionRejectResponders);
-
-//        this.getPublicServer().addBottomFilters(this.sessionFilter);
         this.getMenuBar().add("/operator/sessions","Sessions","View All");
         
-        SessionOperatorPages<DeviceSession<ROLE>> sessionOperatorPages=new SessionOperatorPages<>(this.sessionManager,this);
+        SessionOperatorPages sessionOperatorPages=new SessionOperatorPages(this.deviceSessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);
         
         if (isTest()==false)
@@ -66,13 +60,13 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
             }
         }
     }
-    public void addDeviceSessionControllerFilter(HttpServer server,String path,DeviceSessionControllerFilter<ROLE> controllerFilter) throws Throwable
+    public void addDeviceSessionControllerFilter(HttpServer server,String path,DeviceSessionControllerFilter controllerFilter) throws Throwable
     {
         server.registerHandlers(path, controllerFilter);
         server.addBottomFilters(controllerFilter);
     }
-    public SessionManager<DeviceSession<ROLE>> getSessionManager()
+    public DeviceSessionManager getDeviceSessionManager()
     {
-        return this.sessionManager;
+        return this.deviceSessionManager;
     }
 }

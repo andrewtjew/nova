@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.html.ext.Redirect;
-import org.nova.services.Session;
-import org.nova.services.SessionFilter;
 import org.nova.tracing.Trace;
+import org.nova.userSession.Session2;
+import org.nova.userSession.SessionFilter;
 
 public class AccessHandler extends ServletHandler
 {
@@ -41,7 +41,7 @@ public class AccessHandler extends ServletHandler
         {
             if (this.sessionFilter!=null)
             {
-                Session session=this.sessionFilter.getSession(request);
+                Session2 session=this.sessionFilter.getSession(request);
                 if (session!=null)
                 {
                     return false;

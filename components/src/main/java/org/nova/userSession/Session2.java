@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,23 +35,42 @@ import org.nova.metrics.RateSample;
 import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
-public abstract class Session
+public abstract class Session2
 {
     final String token;
     final long created;
+    private String user;
     private long lastAccess;
+    private Lock<String> lock;
     private RateMeter accessRateMeter;
     
-    public Session(String token)
+    public Session2(String token,String user)
+    {
+        this.user=user;
+        this.token=token;
+        this.lastAccess=this.created=System.currentTimeMillis();
+        this.accessRateMeter=new RateMeter();
+    }
+
+    public Session2(String token)
     {
         this.token=token;
         this.lastAccess=this.created=System.currentTimeMillis();
         this.accessRateMeter=new RateMeter();
     }
     
+    protected void setUser(String user)
+    {
+        this.user=user;
+    }
+    
     public long getLastAccess()
     {
         return lastAccess;
+    }
+    public String getUser()
+    {
+        return user;
     }
     public long getCreated()
     {
@@ -70,6 +89,7 @@ public abstract class Session
     {
         ZoneId zoneId=ZoneId.of("UTC");
         list.add(new NameObject("Token",this.token));
+        list.add(new NameObject("User",this.user));
         list.add(new NameObject("Created",LocalDateTime.ofInstant(Instant.ofEpochMilli(this.created),zoneId)));
         list.add(new NameObject("Last Access",LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastAccess),zoneId)));
         RateSample rate=this.accessRateMeter.sample();

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,32 +27,54 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.nova.http.server.Response;
 import org.nova.http.server.Context;
 import org.nova.tracing.Trace;
+import org.nova.html.ext.Redirect;;
 
-public class DefaultAbnormalSessionRequestHandler implements AbnormalSessionRequestHandling
+public class RedirectAbnormalSessionRequestHandling implements AbnormalSessionRequestHandling
 {
+
+    final private String noSessionRedirect;
+    final private String accessDeniedRedirect;
+    final private String noLockRedirect;
+    
+    public RedirectAbnormalSessionRequestHandling(String noSessionRedirect,String accessDeniedRedirect,String noLockRedirect)
+    {
+        this.noSessionRedirect=noSessionRedirect;
+        this.accessDeniedRedirect=accessDeniedRedirect;
+        this.noLockRedirect=noLockRedirect;
+    }
+
+    public RedirectAbnormalSessionRequestHandling(String redirect)
+    {
+        this(redirect,redirect,redirect);
+    }
+
+    public RedirectAbnormalSessionRequestHandling()
+    {
+        this("/");
+    }
     
     @Override
-    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context)
+    public Response<?> handleNoSessionRequest(Trace parent,SessionFilter sessionFilter,Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.UNAUTHORIZED_401);
-        return null;
+        return new Response<Redirect>(new Redirect(this.noSessionRedirect));
     }
 
     @Override
-    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)
+    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter,Session2 session, Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.FORBIDDEN_403);
-        return null;
+        return new Response<Redirect>(new Redirect(this.accessDeniedRedirect));
     }
 
     @Override
-    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session session, Context context)
+    public Response<?> handleNoLockRequest(Trace parent,SessionFilter sessionFilter,Session2 session, Context context)  throws Throwable
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.setStatus(HttpStatus.CONFLICT_409);
-        return null;
+        return new Response<Redirect>(new Redirect(this.noLockRedirect));
     }
 
     @Override

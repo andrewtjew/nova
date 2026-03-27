@@ -1,4 +1,4 @@
-package org.nova.services;
+package org.nova.userSession;
 
 public class DeviceCookieState
 {

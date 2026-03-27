@@ -6,8 +6,8 @@ import org.nova.html.ext.Redirect;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Response;
-import org.nova.services.DeviceSession2Filter;
 import org.nova.tracing.Trace;
+import org.nova.userSession.DeviceSession2Filter;
 import org.nova.utils.TypeUtils;
 
 

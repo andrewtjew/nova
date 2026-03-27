@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,6 +32,8 @@ import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.service.deviceSession.AbnormalResult;
+import org.nova.services.ForbiddenRoles;
+import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -39,7 +41,7 @@ import org.nova.utils.Utils;
  * Optimizes access deny determination based on current session roles and handler RequiredRoles and ForbiddenRoles.
  * Two deny maps are used for two level lookups. The maps are built dynamically.
 */
-public abstract class RoleSession <ROLE extends Enum> extends Session
+public abstract class RoleSession <ROLE extends Enum> extends Session2
 {
     static record AbnormalAcceptBox(AbnormalResult abnormalResult)
     {

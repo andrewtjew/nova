@@ -32,7 +32,7 @@ import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.tracing.Trace;
 
 
-public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE>,ROLE extends Enum<?>> implements RemoteStateBinding,StateHandling
+public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,SessionRequestHandling
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
@@ -107,18 +107,19 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
         
     }
     
-    final protected DeviceSession<ROLE> deviceSession;
+    final protected DeviceSession deviceSession;
     final private HashMap<String,PageStateSet> pageStateSets;
     private String pageStateGroupName;
     
-    public PageStateSession(DeviceSession<ROLE> deviceSession) throws Throwable
+    public PageStateSession(DeviceSession deviceSession,Class<ROLE> roleType) throws Throwable
     {
+        super(deviceSession,roleType);
         this.pageStateSets=new HashMap<>();
         this.deviceSession=deviceSession;
         this.pageStateGroupName="";
     }
     
-    public DeviceSession<ROLE> getDeviceSession()
+    public DeviceSession getDeviceSession()
     {
         return this.deviceSession;
     }
@@ -227,14 +228,20 @@ public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE
 
     
     @Override
-    public AbnormalResult beginRequest(Trace parent,Context context)
+    public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
     {
+       AbnormalResult result=super.beginRequest(parent, context);
+       if (result!=null)
+       {
+           return result;
+       }
        this.pageStateGroupName=context.getRequestMethod().getPageStateGroupName();
        return null;
     }
     @Override
     public void endRequest(Trace parent,Context context,Response<?> response)
     {
+        super.endRequest(parent, context, response);
         if (response==null)
         {
             return;

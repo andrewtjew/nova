@@ -5,29 +5,27 @@ import java.time.ZoneId;
 import org.nova.geo.LatitudeLongitude;
 import org.nova.http.server.Context;
 import org.nova.localization.CountryCode;
-import org.nova.services.SessionManager;
 import org.nova.sqldb.Connector;
 import org.nova.sqldb.Insert;
 import org.nova.sqldb.Select;
 import org.nova.sqldb.SqlUtils;
 import org.nova.tracing.Trace;
+import org.nova.userSession.SessionManager;
 
-abstract public class ConnectorDeviceSessionControllerFilter<ROLE extends Enum<?>> extends DeviceSessionControllerFilter<ROLE>
+abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessionControllerFilter
 {
     final private String deviceType;
     final private Connector connector;
-    final private Class<ROLE> roleType;
     final private long deviceSessionMaxAgeSeconds;
-    public ConnectorDeviceSessionControllerFilter(SessionManager<DeviceSession<ROLE>> sessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String deviceType,Connector connector,Class<ROLE> roleType,long deviceSessionMaxAgeSeconds)
+    public ConnectorDeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String deviceType,Connector connector,long deviceSessionMaxAgeSeconds)
     {
-        super(sessionManager, deviceSessionControllerPath,cookieName,cookieAge);
+        super(deviceSessionManager, deviceSessionControllerPath,cookieName,cookieAge);
         this.deviceType=deviceType;
         this.connector=connector;
-        this.roleType=roleType;
         this.deviceSessionMaxAgeSeconds=deviceSessionMaxAgeSeconds;
     }
     @Override
-    protected DeviceSession<ROLE> getDeviceSession(Trace parent, Context context, String token) throws Throwable
+    protected DeviceSession getDeviceSession(Trace parent, Context context, String token) throws Throwable
     {
         try (var accessor=this.connector.openAccessor(parent))
         {
@@ -57,13 +55,13 @@ abstract public class ConnectorDeviceSessionControllerFilter<ROLE extends Enum<?
             var countryCode=CountryCode.fromAlpha2Code(row.getVARCHAR("countryCode"));
             var zoneId=ZoneId.of(row.getVARCHAR("zoneId"));
 
-            DeviceSession<ROLE> deviceSession=new DeviceSession<>(deviceSessionId, token,language,position,countryCode,zoneId,this.roleType);
+            DeviceSession deviceSession=new DeviceSession(deviceSessionId, token,language,position,countryCode,zoneId);
             return deviceSession;
         }
     }
         
     @Override
-    protected DeviceSession<ROLE> createDeviceSession(Trace parent, Context context, String token, String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
+    protected DeviceSession createDeviceSession(Trace parent, Context context, String token, String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
     {
         var request=context.getHttpServletRequest();
         try (var accessor=this.connector.openAccessor(parent))
@@ -113,7 +111,7 @@ abstract public class ConnectorDeviceSessionControllerFilter<ROLE extends Enum<?
                 var deviceSessionId=insert.executeAndReturnLongKey(parent, accessor);
                 transaction.commit();
 
-                DeviceSession<ROLE> deviceSession=new DeviceSession<>(deviceSessionId, token,language,position,countryCode,zoneId,this.roleType);
+                DeviceSession deviceSession=new DeviceSession(deviceSessionId, token,language,position,countryCode,zoneId);
                 return deviceSession;
             }
         }

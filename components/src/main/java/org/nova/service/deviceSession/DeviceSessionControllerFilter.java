@@ -47,9 +47,9 @@ import org.nova.localization.LanguageCode;
 import org.nova.services.AllowNoLock;
 import org.nova.services.AllowNoSession;
 import org.nova.services.RequiredRoles;
-import org.nova.services.SessionManager;
 import org.nova.services.TokenGenerator;
 import org.nova.tracing.Trace;
+import org.nova.userSession.SessionManager;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 import org.nova.html.elements.HtmlElementWriter;
@@ -65,7 +65,7 @@ import org.nova.http.server.JSONContentWriter;
 @ContentReaders({JSONContentReader.class})
 @ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
 @RequiredRoles()
-public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extends Filter
+public abstract class DeviceSessionControllerFilter extends Filter
 {
     final static String LOG_CATEGORY_DEBUG=DeviceSessionControllerFilter.class.getSimpleName();
     final static boolean DEBUG=true;
@@ -78,7 +78,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     static final public String NO_LOCK_PATH="/e3";
     static final public String EXCEPTION_PATH="/e4";
 
-    static public record DeviceSessionResult<ROLE extends Enum<?>>(DeviceSession<ROLE> deviceSession,Response<?> response) 
+    static public record DeviceSessionResult(DeviceSession deviceSession,Response<?> response) 
     {
         public DeviceSessionResult(Response<?> response)
         {
@@ -88,7 +88,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         {
             this(null,null);
         }
-        public DeviceSessionResult(DeviceSession<ROLE> deviceSession)
+        public DeviceSessionResult(DeviceSession deviceSession)
         {
             this(deviceSession,null);
         }
@@ -108,23 +108,19 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     }    
     
 
-    final private SessionManager<DeviceSession<ROLE>> sessionManager;
+    final private DeviceSessionManager deviceSessionManager;
     final private String deviceSessionControllerPath;
     final private String cookieName;
     final private Integer cookieAge;
     final private TokenGenerator tokenGenerator;
     
-    public DeviceSessionControllerFilter(SessionManager<DeviceSession<ROLE>> sessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge)
+    public DeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge)
     {
         this.tokenGenerator=new TokenGenerator();
-        this.sessionManager=sessionManager;
+        this.deviceSessionManager=deviceSessionManager;
         this.deviceSessionControllerPath=deviceSessionControllerPath;
         this.cookieName=cookieName;
         this.cookieAge=cookieAge;
-    }
-    public SessionManager<DeviceSession<ROLE>> getSessionManager()
-    {
-        return this.sessionManager;
     }
     public String generateToken()
     {
@@ -166,11 +162,11 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     @Override
     public Response<?> executeNext(Trace parent, Context context) throws Throwable 
     {
-        DeviceSession<ROLE> deviceSession=null;
+        DeviceSession deviceSession=null;
         String token=getCookieToken(context.getHttpServletRequest());
         if (token!=null)
         {
-            deviceSession=this.sessionManager.getSessionByToken(token);
+            deviceSession=this.deviceSessionManager.get(token);
         }
         if (deviceSession==null)
         {
@@ -191,7 +187,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                 }
                 deviceSession=result.deviceSession;
             }
-            this.sessionManager.addSession(parent, deviceSession);
+            this.deviceSessionManager.add(parent, deviceSession);
             setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
         //deviceSesion is not null after this
@@ -201,7 +197,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         Lock<String> lock=null;
         if (method.getAnnotation(AllowNoLock.class)==null)
         {
-            lock=sessionManager.waitForLock(parent,deviceSession.getToken());
+            lock=deviceSessionManager.waitForLock(parent,deviceSession.getToken());
             if (lock==null)
             {
                 return dispatchNoLock(parent, context, deviceSession);
@@ -238,7 +234,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
             Response<?> response=null;
             try (Trace trace=new Trace(parent,requestMethod.getKey()))
             {
-                StateHandling stateHandling=null;
+                SessionRequestHandling stateHandling=null;
                 if (requestMethodStateType==deviceSession.getClass())
                 {
                     context.setState(deviceSession);
@@ -251,7 +247,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                         return dispatchInvalidQuery(parent, context,deviceSession);
                     }
                     context.setState(state);
-                    stateHandling=state instanceof StateHandling?(StateHandling)state:null;
+                    stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
                     if (stateHandling!=null)
                     {
                         stateHandling.beginRequest(parent, context);
@@ -363,7 +359,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                 throw new Exception();
             }
             this.setCookieToken(context.getHttpServletResponse(), token);
-            this.sessionManager.addSession(parent, deviceSession);
+            this.deviceSessionManager.add(parent, deviceSession);
             return new Redirect(redirect);
         }
         catch (Throwable t)
@@ -381,7 +377,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     
     @GET
     @Path("/redirectWithLocation")
-    public Redirect redirectWithCurrentLocation(Trace parent, Context context,@StateParam DeviceSession<ROLE> session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
+    public Redirect redirectWithCurrentLocation(Trace parent, Context context,@StateParam DeviceSession session,@QueryParam("redirect") String redirect, @QueryParam("timeZone") String timeZone, @QueryParam("latitude") Double latitude, @QueryParam("longitude") Double longitude) throws Throwable
     {
         try
         {
@@ -429,11 +425,11 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     }
 
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
-    abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
-    abstract protected DeviceSession<ROLE> getDeviceSession(Trace parent,Context context,String token) throws Throwable;
+    abstract protected DeviceSession createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
+    abstract protected DeviceSession getDeviceSession(Trace parent,Context context,String token) throws Throwable;
 
     //Override methods below as needed
-    protected DeviceSessionResult<ROLE> initializeDeviceSession(Trace parent,Context context) throws Throwable
+    protected DeviceSessionResult initializeDeviceSession(Trace parent,Context context) throws Throwable
     {
         var returnType=context.getRequestMethod().getMethod().getReturnType();
         var pathAndQuery=HtmlUtils.getRequestPathAndQuery(context);
@@ -443,17 +439,17 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
             
             RemoteResponse response=new RemoteResponse();
             response.location(this.deviceSessionControllerPath+"/sessionLost");
-            return new DeviceSessionResult<>(new Response<>(response));
+            return new DeviceSessionResult(new Response<>(response));
         }
         else if (returnType==null)
         {
             context.seeOther(redirect);
-            return new DeviceSessionResult<>();
+            return new DeviceSessionResult();
         }
         else
         {
             context.seeOther(redirect);
-            return new DeviceSessionResult<>(new Response<>(new Redirect(redirect)));
+            return new DeviceSessionResult(new Response<>(new Redirect(redirect)));
         }
     }
 
@@ -487,15 +483,15 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     {
         return dispatchHandler(context, NO_DEVICE_SESSION_PATH);
     }
-    protected Response<?> dispatchInvalidQuery(Trace parent,Context context,DeviceSession<?> session) throws Throwable
+    protected Response<?> dispatchInvalidQuery(Trace parent,Context context,DeviceSession session) throws Throwable
     {
         return dispatchHandler(context, INVAID_QUERY_PATH);
     }
-    protected Response<?> dispatchNoLock(Trace parent,Context context,DeviceSession<?> session) throws Throwable
+    protected Response<?> dispatchNoLock(Trace parent,Context context,DeviceSession session) throws Throwable
     {
         return dispatchHandler(context, NO_LOCK_PATH);
     }
-    protected Response<?> dispatchException(Trace parent,Context context,DeviceSession<?> session,Throwable t) throws Throwable
+    protected Response<?> dispatchException(Trace parent,Context context,DeviceSession session,Throwable t) throws Throwable
     {
         return dispatchHandler(context, EXCEPTION_PATH);
     }
@@ -511,15 +507,15 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     {
         return new DefaultHandlerPage(NO_DEVICE_SESSION_PATH);
     }
-    protected Element handleInvalidQuery(Trace parent,Context context,DeviceSession<?> devSession) throws Throwable
+    protected Element handleInvalidQuery(Trace parent,Context context,DeviceSession devSession) throws Throwable
     {
         return new DefaultHandlerPage(INVAID_QUERY_PATH);
     }
-    protected Element handleNoLock(Trace parent,Context context,DeviceSession<?> devSession) throws Throwable
+    protected Element handleNoLock(Trace parent,Context context,DeviceSession devSession) throws Throwable
     {
         return new DefaultHandlerPage(NO_LOCK_PATH);
     }
-    protected Element handleException(Trace parent,Context context,DeviceSession<?> devSession,Throwable t) throws Throwable
+    protected Element handleException(Trace parent,Context context,DeviceSession devSession,Throwable t) throws Throwable
     {
         return new DefaultHandlerPage(EXCEPTION_PATH,t);
     }
@@ -536,7 +532,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     public Element invalidQuery(Trace parent, Context context) throws Throwable
     {
         String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.sessionManager.getSessionByToken(token);
+        var deviceSession=this.deviceSessionManager.get(token);
         return handleInvalidQuery(parent, context,deviceSession);
     }
         
@@ -545,7 +541,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     public Element noLock(Trace parent, Context context) throws Throwable
     {
         String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.sessionManager.getSessionByToken(token);
+        var deviceSession=this.deviceSessionManager.get(token);
         return handleNoLock(parent, context,deviceSession);
     }
         
@@ -554,7 +550,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     public Element exception(Trace parent, Context context) throws Throwable
     {
         String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.sessionManager.getSessionByToken(token);
+        var deviceSession=this.deviceSessionManager.get(token);
         return handleException(parent, context,deviceSession,deviceSession!=null?deviceSession.throwable:null);
     }
 
@@ -581,7 +577,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
     {
         Page page=new Page();
         String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.sessionManager.getSessionByToken(token);
+        var deviceSession=this.deviceSessionManager.get(token);
         if (deviceSession!=null)
         {
             page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());

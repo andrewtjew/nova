@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.services;
+package org.nova.userSession;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -51,7 +51,7 @@ public class AbnormalBrowserSessionResponder implements AbnormalSessionRequestHa
     }
 
     @Override
-    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter, Session session, Context context)
+    public Response<?> handleAccessDeniedRequest(Trace parent,SessionFilter sessionFilter, Session2 session, Context context)
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.addHeader("Location", accessDeniedURL);
@@ -60,7 +60,7 @@ public class AbnormalBrowserSessionResponder implements AbnormalSessionRequestHa
     }
 
     @Override
-    public Response<?>  handleNoLockRequest(Trace parent,SessionFilter sessionFilter, Session session, Context context)
+    public Response<?>  handleNoLockRequest(Trace parent,SessionFilter sessionFilter, Session2 session, Context context)
     {
         HttpServletResponse response=context.getHttpServletResponse();
         response.addHeader("Location", noLockURL);

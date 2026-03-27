@@ -13,7 +13,7 @@ import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
-import org.nova.services.DeviceSession2Filter;
+import org.nova.userSession.DeviceSession2Filter;
 
 @ContentWriters({ HtmlElementWriter.class, RemoteResponseWriter.class, JSONContentWriter.class })
 @ContentReaders({ JSONContentReader.class })
