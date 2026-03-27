@@ -26,13 +26,13 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
-import org.nova.security.QuerySecurity;
+import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
 import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.tracing.Trace;
 
 
-public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE>,ROLE extends Enum<?>> implements RemoteStateBinding,PageStateRequestHandling
+public abstract class PageStateSession<STATE extends PageStateSession<STATE,ROLE>,ROLE extends Enum<?>> implements RemoteStateBinding,StateHandling
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;

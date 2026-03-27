@@ -21,13 +21,13 @@ import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
-import org.nova.security.QuerySecurity;
+import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
 import org.nova.service.deviceSession.AbnormalResult;
 import org.nova.tracing.Trace;
 
 
-public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,QuerySecurity
+public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,PathAndQueryAuthentication
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
@@ -237,14 +237,14 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
         {
             return abnormalResult;
         }
-        if (this.isQuerySecure(context)==false)
+        if (this.isRequestAuthentic(context)==false)
         {
             return new AbnormalResult();
         }
         return null;
     }
     @Override
-    public String signQuery(String query) throws Throwable
+    public String signPathAndQuery(String query) throws Throwable
     {
         byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
         byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
@@ -263,7 +263,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
     {
         return STATE_KEY+"="+element.id();
     }
-    public boolean isQuerySecure(Context context) throws Throwable
+    public boolean isRequestAuthentic(Context context) throws Throwable
     {
         this.requestMethod=context.getRequestMethod();
         HttpServletRequest request=context.getHttpServletRequest();
@@ -273,7 +273,7 @@ public abstract class DeviceSession2<ROLE extends Enum<?>> extends RoleSession<R
             return true;
         }
         
-        if (requestMethod.isQueryVerificationRequired())
+        if ((requestMethod.getRequiredRoles()==null)||(requestMethod.getRequiredRoles().value().length==0))
         {
             var map=context.getHttpServletRequest().getParameterMap();
             int ignore=map.containsKey(STATE_KEY)?1:0;

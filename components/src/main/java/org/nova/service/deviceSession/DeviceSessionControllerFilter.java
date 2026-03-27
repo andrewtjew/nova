@@ -107,17 +107,6 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         return new Response<Redirect>(new Redirect(this.deviceSessionControllerPath+path));
     }    
     
-    abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
-    abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
-    abstract protected DeviceSession<ROLE> getDeviceSession(Trace parent,Context context,String token) throws Throwable;
-    
-    protected InitializationPage getInitializationPage(Trace parent, Context context, String redirect)
-    {
-        var page=new InitializationPage(this.deviceSessionControllerPath,true,redirect);
-        page.content().addInner("Initializing...");
-        return page;
-    }
-
 
     final private SessionManager<DeviceSession<ROLE>> sessionManager;
     final private String deviceSessionControllerPath;
@@ -249,7 +238,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
             Response<?> response=null;
             try (Trace trace=new Trace(parent,requestMethod.getKey()))
             {
-                PageStateRequestHandling stateHandling=null;
+                StateHandling stateHandling=null;
                 if (requestMethodStateType==deviceSession.getClass())
                 {
                     context.setState(deviceSession);
@@ -262,7 +251,7 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
                         return dispatchInvalidQuery(parent, context,deviceSession);
                     }
                     context.setState(state);
-                    stateHandling=state instanceof PageStateRequestHandling?(PageStateRequestHandling)state:null;
+                    stateHandling=state instanceof StateHandling?(StateHandling)state:null;
                     if (stateHandling!=null)
                     {
                         stateHandling.beginRequest(parent, context);
@@ -310,30 +299,6 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         }
     }
     
-
-    protected DeviceSessionResult<ROLE> initializeDeviceSession(Trace parent,Context context) throws Throwable
-    {
-        var returnType=context.getRequestMethod().getMethod().getReturnType();
-        var pathAndQuery=HtmlUtils.getRequestPathAndQuery(context);
-        String redirect=new PathAndQuery(this.deviceSessionControllerPath+ "/initialize").addQuery("redirect", pathAndQuery).toString();
-        if (returnType==RemoteResponse.class)
-        {
-            
-            RemoteResponse response=new RemoteResponse();
-            response.location(this.deviceSessionControllerPath+"/sessionLost");
-            return new DeviceSessionResult<>(new Response<>(response));
-        }
-        else if (returnType==null)
-        {
-            context.seeOther(redirect);
-            return new DeviceSessionResult<>();
-        }
-        else
-        {
-            context.seeOther(redirect);
-            return new DeviceSessionResult<>(new Response<>(new Redirect(redirect)));
-        }
-    }
     String resolveAcceptableLanguage(HttpServletRequest request)
     {
         String accepts = request.getHeader("Accept-Language");
@@ -352,35 +317,12 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         return "en";
     }
 
-    protected LatitudeLongitude resolveDeviceLocation(Trace parent,Double latitude,Double longitude,Context context) throws Throwable
-    {
-        if ((latitude!=null)&&(longitude!=null))
-        {
-            return new LatitudeLongitude(latitude, longitude);
-        }
-        return null;
-    }
-
-    protected ZoneId resolveDeviceZoneId(Trace parent,String timeZone,Context context) throws Throwable
-    {
-        try
-        {
-            if (TypeUtils.isNullOrSpace(timeZone)==false)
-            {
-                return TimeZone.getTimeZone(timeZone).toZoneId();
-            }
-        }
-        catch (Throwable t)
-        {
-        }
-        return null;
-    }
 
     
     GeoLocation getLocation(Trace parent,Context context,String timeZone,Double latitude,Double longitude) throws Throwable
     {
         var zoneId=resolveDeviceZoneId(parent, timeZone, context);
-        var location=resolveDeviceLocation(parent, latitude, longitude, context);
+        var location=resolveDevicePosition(parent, latitude, longitude, context);
         CountryCode countryCode=resolveDeviceCountryCode(parent,location,context);
         return new GeoLocation(location,countryCode,zoneId);
     }
@@ -453,23 +395,6 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
         return new Redirect(redirect);
     }
 
-    protected Response<?> dispatchNoDeviceSession(Trace parent,Context context) throws Throwable
-    {
-        return dispatchHandler(context, NO_DEVICE_SESSION_PATH);
-    }
-    protected Response<?> dispatchInvalidQuery(Trace parent,Context context,DeviceSession<?> session) throws Throwable
-    {
-        return dispatchHandler(context, INVAID_QUERY_PATH);
-    }
-    protected Response<?> dispatchNoLock(Trace parent,Context context,DeviceSession<?> session) throws Throwable
-    {
-        return dispatchHandler(context, NO_LOCK_PATH);
-    }
-    protected Response<?> dispatchException(Trace parent,Context context,DeviceSession<?> session,Throwable t) throws Throwable
-    {
-        return dispatchHandler(context, EXCEPTION_PATH);
-    }
-
     static class DefaultHandlerPage extends Page
     {
         public DefaultHandlerPage(String source,Throwable t)
@@ -502,7 +427,86 @@ public abstract class DeviceSessionControllerFilter<ROLE extends Enum<?>> extend
             this(source,null);
         }
     }
-    
+
+    abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
+    abstract protected DeviceSession<ROLE> createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
+    abstract protected DeviceSession<ROLE> getDeviceSession(Trace parent,Context context,String token) throws Throwable;
+
+    //Override methods below as needed
+    protected DeviceSessionResult<ROLE> initializeDeviceSession(Trace parent,Context context) throws Throwable
+    {
+        var returnType=context.getRequestMethod().getMethod().getReturnType();
+        var pathAndQuery=HtmlUtils.getRequestPathAndQuery(context);
+        String redirect=new PathAndQuery(this.deviceSessionControllerPath+ "/initialize").addQuery("redirect", pathAndQuery).toString();
+        if (returnType==RemoteResponse.class)
+        {
+            
+            RemoteResponse response=new RemoteResponse();
+            response.location(this.deviceSessionControllerPath+"/sessionLost");
+            return new DeviceSessionResult<>(new Response<>(response));
+        }
+        else if (returnType==null)
+        {
+            context.seeOther(redirect);
+            return new DeviceSessionResult<>();
+        }
+        else
+        {
+            context.seeOther(redirect);
+            return new DeviceSessionResult<>(new Response<>(new Redirect(redirect)));
+        }
+    }
+
+    //Override to add position lookup by IP
+    protected LatitudeLongitude resolveDevicePosition(Trace parent,Double latitude,Double longitude,Context context) throws Throwable
+    {
+        if ((latitude!=null)&&(longitude!=null))
+        {
+            return new LatitudeLongitude(latitude, longitude);
+        }
+        return null;
+    }
+
+    //Override to add zoneId lookup by IP
+    protected ZoneId resolveDeviceZoneId(Trace parent,String timeZone,Context context) throws Throwable
+    {
+        try
+        {
+            if (TypeUtils.isNullOrSpace(timeZone)==false)
+            {
+                return TimeZone.getTimeZone(timeZone).toZoneId();
+            }
+        }
+        catch (Throwable t)
+        {
+        }
+        return null;
+    }
+
+    protected Response<?> dispatchNoDeviceSession(Trace parent,Context context) throws Throwable
+    {
+        return dispatchHandler(context, NO_DEVICE_SESSION_PATH);
+    }
+    protected Response<?> dispatchInvalidQuery(Trace parent,Context context,DeviceSession<?> session) throws Throwable
+    {
+        return dispatchHandler(context, INVAID_QUERY_PATH);
+    }
+    protected Response<?> dispatchNoLock(Trace parent,Context context,DeviceSession<?> session) throws Throwable
+    {
+        return dispatchHandler(context, NO_LOCK_PATH);
+    }
+    protected Response<?> dispatchException(Trace parent,Context context,DeviceSession<?> session,Throwable t) throws Throwable
+    {
+        return dispatchHandler(context, EXCEPTION_PATH);
+    }
+
+    protected InitializationPage getInitializationPage(Trace parent, Context context, String redirect)
+    {
+        var page=new InitializationPage(this.deviceSessionControllerPath,false,redirect);
+        page.content().addInner("Initializing...");
+        return page;
+    }
+
     protected Element handleNoDeviceSession(Trace parent,Context context) throws Throwable
     {
         return new DefaultHandlerPage(NO_DEVICE_SESSION_PATH);

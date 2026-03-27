@@ -19,31 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.http.client;
+package org.nova.http.server.annotations;
 
-import org.nova.security.PathAndQueryAuthentication;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class SecurePathAndQuery extends PathAndQuery
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.TYPE})
+public @interface StateGroupName
 {
-    final private PathAndQueryAuthentication security;
-
-    public SecurePathAndQuery(PathAndQueryAuthentication security, String path) throws Throwable 
-    {
-        super(path);
-        this.security = security;
-    }
-
-    @Override
-    public String toString()
-    {
-        String pathAndQuery=super.toString();
-        try
-        {
-            return security.signPathAndQuery(pathAndQuery);
-        }
-        catch (Throwable t)
-        {
-            return pathAndQuery;
-        }
-    }
+	String value();
 }

@@ -50,11 +50,12 @@ import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.HEAD;
 import org.nova.http.server.annotations.Log;
+import org.nova.http.server.annotations.PathAndQueryAuthentication;
 import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.PATCH;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.PUT;
-import org.nova.http.server.annotations.PageStateGroupName;
+import org.nova.http.server.annotations.StateGroupName;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
@@ -186,9 +187,13 @@ class RequestMethodMap
                 {
                     classAnnotations.path= (Path) annotation;
                 }
-                else if (type == PageStateGroupName.class)
+                else if (type == StateGroupName.class)
                 {
-                    classAnnotations.pageStateGroupName= (PageStateGroupName) annotation;
+                    classAnnotations.stateGroupName= (StateGroupName) annotation;
+                }
+                else if (type == PathAndQueryAuthentication.class)
+                {
+                    classAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
                 }
                 else if (type==Test.class)
                 {
@@ -308,9 +313,13 @@ class RequestMethodMap
             {
                 handlerAnnotations.log = (Log) annotation;
             }
-            else if (type == PageStateGroupName.class)
+            else if (type == StateGroupName.class)
             {
-                handlerAnnotations.pageStateGroupName= (PageStateGroupName) annotation;
+                handlerAnnotations.stateGroupName= (StateGroupName) annotation;
+            }
+            else if (type == PathAndQueryAuthentication.class)
+            {
+                handlerAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
             }
             else if (type == Test.class)
             {

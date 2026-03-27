@@ -25,18 +25,6 @@ public interface RemoteStateBinding
     //Stores the ssso.
     public void setState(String key,Object state) throws Throwable;
     
-    //The state key is used 
-//    public String getStateKey();
-    
-//    default public String getPageStateGroupKey()
-//    {
-//        return "";
-//    }
-//
-//    default public String getPageStateGroupName()
-//    {
-//        return "";
-//    }
     
     default public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(TagElement<?> element,PATHANDQUERY pathAndQuery) throws Throwable
     {
@@ -46,21 +34,6 @@ public interface RemoteStateBinding
     public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable;
     public void bind(FormElement<?> element) throws Throwable;
 
-//    default public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
-//    {
-//        setState(id,state);
-//        pathAndQuery.addQuery(getStateKey(), id);
-//        pathAndQuery.addQuery(getPageStateGroupKey(), getPageStateGroupName());
-//        return pathAndQuery;
-//    }
-    
-//    default public void bind(FormElement<?> element) throws Throwable
-//    {
-//        setState(element.id(),element);
-//        element.addInner(new InputHidden(getStateKey(),element.id()));
-//        element.addInner(new InputHidden(getPageStateGroupKey(),getPageStateGroupName()));
-//    }
-    
     public String getQueryBinding(TagElement<?> element);
     
 }

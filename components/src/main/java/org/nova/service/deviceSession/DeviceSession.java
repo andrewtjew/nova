@@ -19,6 +19,7 @@ import org.nova.geo.LatitudeLongitude;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
@@ -26,13 +27,14 @@ import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
-import org.nova.security.QuerySecurity;
+import org.nova.security.PathAndQueryAuthentication;
 import org.nova.security.SecurityUtils;
 import org.nova.services.RoleSession;
 import org.nova.tracing.Trace;
+import org.nova.utils.Utils;
 
 
-public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements QuerySecurity
+public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements PathAndQueryAuthentication
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -44,8 +46,8 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     
     Throwable throwable;
     
-    final static boolean DEBUG=false;
-    final static boolean DEBUG_SECURITY=false;
+    final boolean DEBUG=true;
+    final boolean DEBUG_REQUEST_AUTHENTICATION=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     
@@ -126,20 +128,11 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
                 return abnormalAccept;
             }
         }
-        if (this.isQuerySecure(context)==false)
+        if (this.isRequestAuthentic(context)==false)
         {
             return new AbnormalResult();
         }
         return null;
-    }
-    
-    @Override
-    public String signQuery(String query) throws Throwable
-    {
-        byte[] objectBytes=query.getBytes(StandardCharsets.UTF_8);
-        byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
-        String code=Base64.getUrlEncoder().encodeToString(hmac);
-        return query+QUERY_SECURITY_PREFIX+code;
     }
 
     @Override
@@ -172,34 +165,61 @@ public class DeviceSession<ROLE extends Enum<?>> extends RoleSession<ROLE> imple
     
 
     final static String QUERY_SECURITY_KEY="_";
-    final static String QUERY_SECURITY_PREFIX="&"+QUERY_SECURITY_KEY+"=";
+    final static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
+    
+    @Override
+    public String signPathAndQuery(String pathAndQuery) throws Throwable
+    {
+        byte[] objectBytes=pathAndQuery.getBytes(StandardCharsets.UTF_8);
+        byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
+        String code=Base64.getUrlEncoder().encodeToString(hmac);
+        
+        
+        var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+QUERY_SECURITY_PREFIX+code:pathAndQuery+"?"+QUERY_SECURITY_PREFIX+code;
+        if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+        {
+            Debugging.log(LOG_DEBUG_CATEGORY,"signed method="+signed+",text="+pathAndQuery);
+        }
+        return signed;
+    }
 
     @Override
-    public boolean isQuerySecure(Context context) throws Throwable
+    public boolean isRequestAuthentic(Context context) throws Throwable
     {
-        HttpServletRequest request=context.getHttpServletRequest();
-        String queryString=request.getQueryString();
-        if (queryString==null)
+        var requestMethod=context.getRequestMethod();
+        if (requestMethod.isRequestAuthenticationRequired()==false)
         {
             return true;
         }
-        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
+        String queryString=HtmlUtils.getRequestPathAndQuery(context);
+        try 
         {
-            var requestMethod=context.getRequestMethod();
-            String query=request.getQueryString();
-            Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",query="+query);
-        }
-        String code=request.getParameter(QUERY_SECURITY_KEY);
-        if (code!=null)
-        {
-            String query=request.getQueryString();
-            int index=query.lastIndexOf(QUERY_SECURITY_PREFIX);
-            String text=query.substring(0,index);
+            int index=queryString.lastIndexOf(QUERY_SECURITY_PREFIX);
+            String text=queryString.substring(0,index-1);
+            String code=queryString.substring(index+QUERY_SECURITY_PREFIX.length());
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
+            }
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
-            return code.equals(computed);
+            var result=code.equals(computed);
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+            }
+            return result;
         }
-        return false;
+        catch (Throwable t)
+        {
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            {
+                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
+                
+            }
+            return false;
+        }
     }
     
     

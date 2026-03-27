@@ -68,8 +68,8 @@ public abstract class DeviceSessionService<STATE,ROLE extends Enum<?>> extends S
     }
     public void addDeviceSessionControllerFilter(HttpServer server,String path,DeviceSessionControllerFilter<ROLE> controllerFilter) throws Throwable
     {
-        server.addBottomFilters(controllerFilter);
         server.registerHandlers(path, controllerFilter);
+        server.addBottomFilters(controllerFilter);
     }
     public SessionManager<DeviceSession<ROLE>> getSessionManager()
     {

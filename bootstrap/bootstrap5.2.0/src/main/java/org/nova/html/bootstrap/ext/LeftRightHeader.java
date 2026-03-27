@@ -30,7 +30,7 @@ public class LeftRightHeader extends Item
         w(100);
         this.leftSpacing=leftSpacing;
         this.rightSpacing=rightSpacing;
-        d(Display.flex).flex(Flex.wrap).px(2).py(1).justify_content(Justify.between);
+        d(Display.flex).flex(Flex.wrap).py(1).justify_content(Justify.between);
         this.left=new ArrayList<Element>();
         this.right=new ArrayList<Element>();
     }
@@ -88,11 +88,11 @@ public class LeftRightHeader extends Item
         Item right=returnAddInner(new Item()).d(Display.flex).flex(Flex.wrap).align_items(AlignItems.center);
         for (var element:this.right)
         {
+            right.addInner(element);
             if (this.rightSpacing>0)
             {
                 right.addInner(new Spacer(this.rightSpacing));
             }
-            right.addInner(element);
         }
         super.compose(composer);
         

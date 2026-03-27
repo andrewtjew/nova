@@ -77,7 +77,7 @@ public class RequestMethod
     final private long runtimeKey;
     
     final private FragmentIndexMap fragmentIndexMap;
-    final private boolean isQueryVerificationRequired;
+    final private boolean isPathAndQueryAuthenticationRequired;
     final private String pageGroupName;
     
     RequestMethod(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
@@ -88,7 +88,9 @@ public class RequestMethod
 //        this.queryParameterInfos=new HashMap<String, ParameterInfo>();
   //      this.pathParameterInfos=new HashMap<String, ParameterInfo>();
         Class<?> stateType=null;
-        int queryParameterInfos=0;
+        
+        int pathParams=0;
+        int queryParams=0;
 	    for (ParameterInfo info:parameterInfos)
 	    {
 	        switch(info.getSource())
@@ -98,7 +100,11 @@ public class RequestMethod
 	            break;
 	            
                 case QUERY:
-                queryParameterInfos++;
+                queryParams++;
+                break;
+                
+                case PATH:
+                pathParams++;
                 break;
 
                 default:
@@ -153,25 +159,34 @@ public class RequestMethod
         {
             this.attributes=null;
         }
-        if (annotations.pageStateGroupName!=null)
+        if (annotations.stateGroupName!=null)
         {
-            this.pageGroupName=annotations.pageStateGroupName.value();
+            this.pageGroupName=annotations.stateGroupName.value();
         }
         else
         {
             this.pageGroupName=null;
         }
         this.test=annotations.test!=null;
-        this.isQueryVerificationRequired=(queryParameterInfos>0)&&(((this.requiredRoles!=null)&&this.requiredRoles.value().length>0))||((this.forbiddenRoles!=null)&&(this.forbiddenRoles.value().length>0));        
+        
+        
+        if (pathParams+queryParams>0)
+        {
+            this.isPathAndQueryAuthenticationRequired=(annotations.pathAndQueryAuthentication!=null)?annotations.pathAndQueryAuthentication.value():true;
+        }
+        else
+        {
+            this.isPathAndQueryAuthenticationRequired=false;
+        }
    }
 
     public String getPageStateGroupName()
     {
         return this.pageGroupName;
     }
-    public boolean isQueryVerificationRequired()
+    public boolean isRequestAuthenticationRequired()
     {
-        return this.isQueryVerificationRequired;
+        return this.isPathAndQueryAuthenticationRequired;
     }
     
 	public FragmentIndexMap getFragmentIndexMap()
