@@ -15,12 +15,9 @@ import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
 
-import com.evolve.legacy.services.DeviceSession2Filter;
-
 @ContentWriters(RemoteResponseWriter.class)
 @ContentReaders({JSONContentReader.class})
 @ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
-@Filters({DeviceSession2Filter.class})
 public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT>
 {
     final private RemoteStateBinding binding;

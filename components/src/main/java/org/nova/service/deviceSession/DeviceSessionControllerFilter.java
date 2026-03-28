@@ -53,8 +53,6 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
-import com.evolve.legacy.services.SessionManager;
-
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;

@@ -33,8 +33,6 @@ import org.nova.metrics.CountMeter;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
-import com.evolve.legacy.services.Session2;
-
 public class DeviceSessionManager 
 {
     final private ExpireMap<String, DeviceSession> deviceSessions;
