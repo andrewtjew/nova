@@ -254,7 +254,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
                 this.privateServer.addContentEncoders(new GzipContentEncoder(),new DeflaterContentEncoder());
 
-                boolean enableBrotliEncoding=configuration.getBooleanValue("Application.enableBrotliEncoding",false);
+                boolean enableBrotliEncoding=configuration.getBooleanValue("Application.enableBrotliEncoding",true);
                 
                 if (enableBrotliEncoding)
                 {

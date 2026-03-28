@@ -243,8 +243,12 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 else
                 {
                     var state=deviceSession.getState();
-                    if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null))
+                    if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null)&&(requestMethodStateType!=null))
                     {
+                        if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                        {
+                            Debugging.log(LOG_CATEGORY_DEBUG, "State required: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+                        }
                         return dispatchInvalidQuery(parent, context,deviceSession);
                     }
                     context.setState(state);

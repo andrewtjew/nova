@@ -52,6 +52,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> extends Session implemen
         this.roles=new HashSet<>();
         this.denyMap=new HashMap<Long, AbnormalAcceptBox>();
     }
+    
     @Override
     public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
     {

@@ -32,7 +32,7 @@ import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.tracing.Trace;
 
 
-public class Session
+public class Session implements PathAndQueryAuthentication
 {
     final protected DeviceSession deviceSession;
     
@@ -63,5 +63,18 @@ public class Session
     {
         return this.deviceSession.getPosition();
     }
+
+    @Override
+    public String signPathAndQuery(String pathAndQuery) throws Throwable
+    {
+        return this.deviceSession.signPathAndQuery(pathAndQuery);
+    }
+    
+    @Override
+    public boolean isRequestAuthentic(Context context) throws Throwable
+    {
+        return this.deviceSession.isRequestAuthentic(context);
+    }
+    
     
 }
