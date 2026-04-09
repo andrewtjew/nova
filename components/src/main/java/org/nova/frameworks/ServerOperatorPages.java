@@ -3720,6 +3720,7 @@ public class ServerOperatorPages
         {
             return;
         }
+        
 
         Method method = handler.getMethod();
         fieldset field=container.returnAddInner(new fieldset());
@@ -3849,13 +3850,17 @@ public class ServerOperatorPages
         void write(Class<?> type)
         {
             String typeName=type.isArray()?type.getComponentType().getName():type.getName();
-            String displayTypeName=type.isArray()?type.getComponentType().getName()+"[]":type.getName();
             if (this.shownClasses.contains(typeName))
             {
                 return;
             }
             this.shownClasses.add(typeName);
+            String displayTypeName=type.getSimpleName();
             Panel4 panel=this.parentPanel.content().returnAddInner(new Panel4(this.head,displayTypeName));
+            if (TypeUtils.isValueType(type))
+            {
+                return;
+            }
             if (TypeUtils.isDerivedFrom(type,Element.class))
             {
                 return;
@@ -3867,6 +3872,7 @@ public class ServerOperatorPages
             }
             ArrayList<Field> fields=new ArrayList<>();
             Class<?> componentType=type.isArray()?type.getComponentType():type;
+            
             for (Field field : componentType.getDeclaredFields())
             {
                 int modifiers = field.getModifiers();
@@ -3919,15 +3925,19 @@ public class ServerOperatorPages
                     {
                         row.add("");
                     }
-                    if (fieldType.isPrimitive())
-                    {
-                        continue;
-                    }
-                    if (fieldType == Number.class)
-                    {
-                        continue;
-                    }
-                    if (fieldType == String.class)
+//                    if (fieldType.isPrimitive())
+//                    {
+//                        continue;
+//                    }
+//                    if (fieldType == Number.class)
+//                    {
+//                        continue;
+//                    }
+//                    if (fieldType == String.class)
+//                    {
+//                        continue;
+//                    }
+                    if (TypeUtils.isValueType(fieldType))
                     {
                         continue;
                     }
@@ -4544,6 +4554,7 @@ public class ServerOperatorPages
             writeInputParameterInfos(page.head(),form, button, "Path Parameters", requestMethod, ParameterSource.PATH);
             writeInputParameterInfos(page.head(),form, button, "Header Parameters", requestMethod, ParameterSource.HEADER);
             writeInputParameterInfos(page.head(),form, button, "Cookie Parameters", requestMethod, ParameterSource.COOKIE);
+            writeInputParameterInfos(page.head(),form, button, "Content Parameters", requestMethod, ParameterSource.CONTENT);
             button.async(false);
 
             if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)|| "PATCH".equals(httpMethod))
@@ -4552,8 +4563,8 @@ public class ServerOperatorPages
                 {
                     if (info.getSource()==ParameterSource.CONTENT)
                     {
-                        Collection<ContentReader> readers = requestMethod.getContentReaders().values();
-                        if (readers.size() > 0)
+//                        Collection<ContentReader> readers = requestMethod.getContentReaders().values();
+//                        if (readers.size() > 0)
                         {
                             fieldset field=form.returnAddInner(new fieldset());
                             field.addInner(new legend().addInner("Request Content"));
@@ -4561,6 +4572,7 @@ public class ServerOperatorPages
                             field.addInner(input);
                             button.val("contentText", "contentText");
                         }
+                        
                     }
                 }
             }
