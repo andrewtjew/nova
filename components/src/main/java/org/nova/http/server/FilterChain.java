@@ -113,15 +113,16 @@ public class FilterChain
                     else
                     {
                         DecoderContext decoderContext=context.getDecoderContext();
-                        int value=decoderContext.getInputStream().read();
-                        if (value==-1)
-                        {
-                            content=null;
-                        }
-                        else
-                        {
-                            throw new AbnormalException(Abnormal.NO_READER);
-                        }
+//                        int value=decoderContext.getInputStream().read();
+//                        if (value==-1)
+//                        {
+//                            content=null;
+//                        }
+//                        else
+//                        {
+//                            throw new AbnormalException(Abnormal.NO_READER);
+//                        }
+                        content=context.readDecodedRequestContentText();
                     }
                 }
                 parameters[i]=content;

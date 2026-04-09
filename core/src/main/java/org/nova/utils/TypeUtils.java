@@ -900,6 +900,15 @@ public class TypeUtils
         }
         return (int)value;
     }
+    public static String getTypeDisplayName(Class<?> type)
+    {
+        String displayName=type.isArray()?type.getComponentType().getName()+"[]":type.getName();
+        if (displayName.startsWith("java.lang."))
+        {
+            displayName=displayName.substring("java.lang.".length());
+        }
+        return displayName;
+    }
     
 }
 
