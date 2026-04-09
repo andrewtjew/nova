@@ -1,7 +1,6 @@
 package org.nova.service.deviceSession;
 
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.TimeZone;
@@ -26,7 +25,6 @@ import org.nova.html.tags.div;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.p;
 import org.nova.html.tags.pre;
-import org.nova.html.tags.textarea;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
@@ -36,12 +34,10 @@ import org.nova.http.server.ValueQ;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
-import org.nova.json.ObjectMapper;
 import org.nova.localization.CountryCode;
 import org.nova.localization.LanguageCode;
 import org.nova.services.AbnormalResult;
@@ -114,14 +110,16 @@ public abstract class DeviceSessionControllerFilter extends Filter
     final private String cookieName;
     final private Integer cookieAge;
     final private TokenGenerator tokenGenerator;
+    final private String defaultRedirect;
     
-    public DeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge)
+    public DeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String defaultRedirect)
     {
         this.tokenGenerator=new TokenGenerator();
         this.deviceSessionManager=deviceSessionManager;
         this.deviceSessionControllerPath=deviceSessionControllerPath;
         this.cookieName=cookieName;
         this.cookieAge=cookieAge;
+        this.defaultRedirect=defaultRedirect;
     }
     public String generateToken()
     {
@@ -192,7 +190,8 @@ public abstract class DeviceSessionControllerFilter extends Filter
             setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
         }
         //deviceSesion is not null after this
-        System.out.println("session:"+deviceSession.getDeviceSessionId());
+        deviceSession.setContext(context);
+        //System.out.println("session:"+deviceSession.getDeviceSessionId());
         RequestMethod requestMethod=context.getRequestMethod();
         Method method=requestMethod.getMethod();
         Lock<String> lock=null;
@@ -242,7 +241,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 }
                 else
                 {
-                    var state=deviceSession.getState();
+                    var state=deviceSession.getState(requestMethod.getStateType());
                     if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null)&&(requestMethodStateType!=null))
                     {
                         if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
@@ -253,10 +252,10 @@ public abstract class DeviceSessionControllerFilter extends Filter
                     }
                     context.setState(state);
                     stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
-                    if (stateHandling!=null)
-                    {
-                        stateHandling.beginRequest(parent, context);
-                    }
+                }
+                if (stateHandling!=null)
+                {
+                    stateHandling.beginRequest(parent, context);
                 }
                 try
                 {
@@ -365,7 +364,11 @@ public abstract class DeviceSessionControllerFilter extends Filter
             }
             this.setCookieToken(context.getHttpServletResponse(), token);
             this.deviceSessionManager.add(parent, deviceSession);
-            return new Redirect(redirect);
+            if ((redirect!=null)&&(redirect.startsWith(this.deviceSessionControllerPath)==false))
+            {
+                return new Redirect(redirect);
+            }
+            return new Redirect(this.defaultRedirect);
         }
         catch (Throwable t)
         {
@@ -404,7 +407,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
             {
                 source=source.substring(1);
             }
-            body().returnAddInner(new h3()).addInner("Server error: "+source);
+            body().returnAddInner(new h3()).addInner("Server status: "+source);
             body().returnAddInner(new p());
             body().returnAddInner(new button_button()).addInner("continue").onclick(HtmlUtils.js_location("/"));
             
@@ -427,6 +430,83 @@ public abstract class DeviceSessionControllerFilter extends Filter
         {
             this(source,null);
         }
+    }
+
+    @GET
+    @Path(NO_DEVICE_SESSION_PATH)
+    public Element noDeviceSession(Trace parent, Context context) throws Throwable
+    {
+        return handleNoDeviceSession(parent, context);
+    }
+        
+    @GET
+    @Path(INVAID_QUERY_PATH)
+    public Element invalidQuery(Trace parent, Context context) throws Throwable
+    {
+        String token=this.getCookieToken(context.getHttpServletRequest());
+        var deviceSession=this.deviceSessionManager.get(token);
+        return handleInvalidQuery(parent, context,deviceSession);
+    }
+        
+    @GET
+    @Path(NO_LOCK_PATH)
+    public Element noLock(Trace parent, Context context) throws Throwable
+    {
+        String token=this.getCookieToken(context.getHttpServletRequest());
+        var deviceSession=this.deviceSessionManager.get(token);
+        return handleNoLock(parent, context,deviceSession);
+    }
+        
+    @GET
+    @Path(EXCEPTION_PATH)
+    public Element exception(Trace parent, Context context) throws Throwable
+    {
+        String token=this.getCookieToken(context.getHttpServletRequest());
+        var deviceSession=this.deviceSessionManager.get(token);
+        return handleException(parent, context,deviceSession,deviceSession!=null?deviceSession.throwable:null);
+    }
+
+    @GET
+    @Path("/check/token")
+    public Page token(Trace parent, Context context) throws Throwable
+    {
+        Page page=new Page();
+        String token=this.getCookieToken(context.getHttpServletRequest());
+        page.body().returnAddInner(new div()).addInner("token="+token);
+        return page;
+    }
+
+    @GET
+    @Path("/check/initialize")
+    public Element location(Trace parent, Context context) throws Throwable
+    {
+        return this.getInitializationPage(parent, context, context.getHttpServletRequest().getRequestURI()+"/result");
+    }
+
+    @GET
+    @Path("/check/initialize/result")
+    public Page session(Trace parent, Context context) throws Throwable
+    {
+        Page page=new Page();
+        String token=this.getCookieToken(context.getHttpServletRequest());
+        var deviceSession=this.deviceSessionManager.get(token);
+        if (deviceSession!=null)
+        {
+            page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());
+            page.body().returnAddInner(new div()).addInner("language="+deviceSession.getLanguage());
+    
+            page.body().returnAddInner(new div()).addInner("zoneId="+deviceSession.getZoneId()+", countryCode="+deviceSession.getCountryCode());
+            var position=deviceSession.getPosition();
+            if (position!=null)
+            {
+                page.body().returnAddInner(new div()).addInner("latitude="+position.latitude+", longitude="+position.longitude);
+            }
+        }
+        else
+        {
+            page.body().returnAddInner(new div()).addInner("no session. token="+token);
+        }
+        return page;
     }
 
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
@@ -525,80 +605,4 @@ public abstract class DeviceSessionControllerFilter extends Filter
         return new DefaultHandlerPage(EXCEPTION_PATH,t);
     }
     
-    @GET
-    @Path(NO_DEVICE_SESSION_PATH)
-    public Element noDeviceSession(Trace parent, Context context) throws Throwable
-    {
-        return handleNoDeviceSession(parent, context);
-    }
-        
-    @GET
-    @Path(INVAID_QUERY_PATH)
-    public Element invalidQuery(Trace parent, Context context) throws Throwable
-    {
-        String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.deviceSessionManager.get(token);
-        return handleInvalidQuery(parent, context,deviceSession);
-    }
-        
-    @GET
-    @Path(NO_LOCK_PATH)
-    public Element noLock(Trace parent, Context context) throws Throwable
-    {
-        String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.deviceSessionManager.get(token);
-        return handleNoLock(parent, context,deviceSession);
-    }
-        
-    @GET
-    @Path(EXCEPTION_PATH)
-    public Element exception(Trace parent, Context context) throws Throwable
-    {
-        String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.deviceSessionManager.get(token);
-        return handleException(parent, context,deviceSession,deviceSession!=null?deviceSession.throwable:null);
-    }
-
-    @GET
-    @Path("/check/token")
-    public Page token(Trace parent, Context context) throws Throwable
-    {
-        Page page=new Page();
-        String token=this.getCookieToken(context.getHttpServletRequest());
-        page.body().returnAddInner(new div()).addInner("token="+token);
-        return page;
-    }
-
-    @GET
-    @Path("/check/initialize")
-    public Element location(Trace parent, Context context) throws Throwable
-    {
-        return this.getInitializationPage(parent, context, context.getHttpServletRequest().getRequestURI()+"/result");
-    }
-
-    @GET
-    @Path("/check/initialize/result")
-    public Page session(Trace parent, Context context) throws Throwable
-    {
-        Page page=new Page();
-        String token=this.getCookieToken(context.getHttpServletRequest());
-        var deviceSession=this.deviceSessionManager.get(token);
-        if (deviceSession!=null)
-        {
-            page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());
-            page.body().returnAddInner(new div()).addInner("language="+deviceSession.getLanguage());
-    
-            page.body().returnAddInner(new div()).addInner("zoneId="+deviceSession.getZoneId()+", countryCode="+deviceSession.getCountryCode());
-            var position=deviceSession.getPosition();
-            if (position!=null)
-            {
-                page.body().returnAddInner(new div()).addInner("latitude="+position.latitude+", longitude="+position.longitude);
-            }
-        }
-        else
-        {
-            page.body().returnAddInner(new div()).addInner("no session. token="+token);
-        }
-        return page;
-    }
 }

@@ -6,18 +6,7 @@ import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.BrotliContentEncoder;
-import org.nova.http.server.DeflaterContentEncoder;
-import org.nova.http.server.GzipContentEncoder;
-import org.nova.http.server.JSONContentReader;
-import org.nova.http.server.annotations.ContentEncoders;
-import org.nova.http.server.annotations.ContentReaders;
-import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.Filters;
 
-@ContentWriters(RemoteResponseWriter.class)
-@ContentReaders({JSONContentReader.class})
-@ContentEncoders({BrotliContentEncoder.class,DeflaterContentEncoder.class,GzipContentEncoder.class})
 public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT>
 {
     final private RemoteStateBinding binding;

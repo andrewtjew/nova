@@ -27,10 +27,8 @@ import org.nova.frameworks.ServerApplication;
 import org.nova.html.elements.TagElement;
 import org.nova.http.server.HttpServer;
 import org.nova.http.server.HttpTransport;
-import org.nova.services.TokenGenerator;
-import org.nova.tracing.Trace;
 
-public abstract class DeviceSessionService<STATE> extends ServerApplication
+public abstract class DeviceSessionService extends ServerApplication
 {
     final private DeviceSessionManager deviceSessionManager;
 //    private SessionFilter sessionFilter;

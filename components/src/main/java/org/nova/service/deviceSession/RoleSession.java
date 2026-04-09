@@ -1,44 +1,16 @@
 package org.nova.service.deviceSession;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.nova.core.NameObject;
-import org.nova.debug.Debug;
-import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
-import org.nova.geo.GeoLocation;
-import org.nova.geo.LatitudeLongitude;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.FormElement;
-import org.nova.html.elements.TagElement;
-import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding;
-import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
-import org.nova.localization.CountryCode;
-import org.nova.security.PathAndQueryAuthentication;
-import org.nova.security.SecurityUtils;
-import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.services.AbnormalResult;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
-import org.nova.utils.Utils;
 
 public abstract class RoleSession<ROLE extends Enum<?>> extends Session implements SessionRequestHandling
 {
@@ -59,7 +31,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> extends Session implemen
         return verifyRequest(parent, context);
     }
     @Override
-    public void endRequest(Trace parent,Context context,Response<?> response)
+    public void endRequest(Trace parent,Context context,Response<?> response) throws Throwable
     {
     }
 

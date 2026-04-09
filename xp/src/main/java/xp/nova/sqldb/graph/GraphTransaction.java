@@ -48,7 +48,7 @@ public class GraphTransaction implements AutoCloseable
     {
         if (this.closed==false)
         {
-            this.graph.clearCache();
+//            this.graph.clearCache();
             this.closed=true;
         }
         this.transaction.close();

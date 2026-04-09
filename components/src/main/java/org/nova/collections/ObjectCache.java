@@ -24,13 +24,8 @@ package org.nova.collections;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.nova.annotations.Description;
-import org.nova.collections.ContentCache.Entry;
-import org.nova.collections.ContentCache.ValueSize;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.metrics.CountMeter;
-import org.nova.tracing.Trace;
 
 public class ObjectCache<KEY,VALUE>
 {

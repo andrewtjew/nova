@@ -1,6 +1,5 @@
 package org.nova.html.remote;
 
-import org.nova.html.ext.InputHidden;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.tracing.Trace;

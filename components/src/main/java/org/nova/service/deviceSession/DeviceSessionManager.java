@@ -22,7 +22,6 @@
 package org.nova.service.deviceSession;
 
 import java.util.Collection;
-import java.util.HashMap;
 import org.nova.annotations.Description;
 import org.nova.collections.ExpireMap;
 import org.nova.concurrent.Lock;
@@ -103,10 +102,14 @@ public class DeviceSessionManager
         return remove(parent,get(token));
     }
     
-    public void clear()
+    public void clear(Trace parent) throws Throwable
     {
         synchronized(this)
         {
+            for (var deviceSession:this.deviceSessions.values())
+            {
+                deviceSession.close(parent);
+            }
             this.deviceSessions.clear();
         }
     }
@@ -126,7 +129,7 @@ public class DeviceSessionManager
         {
             try
             {
-                deviceSession.onClose(parent);
+                deviceSession.close(parent);
             }
             catch (Throwable t)
             {

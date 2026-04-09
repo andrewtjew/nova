@@ -3,20 +3,12 @@ package org.nova.html.bootstrap.ext;
 import java.util.ArrayList;
 
 import org.nova.html.bootstrap.Item;
-import org.nova.html.bootstrap.classes.AlignContent;
 import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.Display;
-import org.nova.html.bootstrap.classes.Edge;
 import org.nova.html.bootstrap.classes.Flex;
-import org.nova.html.bootstrap.classes.FontWeight;
 import org.nova.html.bootstrap.classes.Justify;
-import org.nova.html.bootstrap.classes.StyleColor;
-import org.nova.html.bootstrap.classes.Text;
-import org.nova.html.bootstrap.remote.RemoteItem;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
-import org.nova.html.ext.LiteralHtml;
-import org.nova.html.tags.script;
 
 
 public class CenterHeader extends Item

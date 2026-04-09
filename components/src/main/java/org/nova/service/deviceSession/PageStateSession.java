@@ -1,34 +1,19 @@
 package org.nova.service.deviceSession;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
-import org.nova.geo.GeoLocation;
 import org.nova.geo.LatitudeLongitude;
-import org.nova.html.elements.Element;
 import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
-import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
-import org.nova.security.PathAndQueryAuthentication;
-import org.nova.security.SecurityUtils;
-import org.nova.service.deviceSession.DeviceSession.DeviceLocation;
 import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
 
@@ -124,10 +109,14 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     {
         return this.deviceSession;
     }
-    
-    public <T> T getState(String stateKey) throws Throwable
+    public <T> T getState(long key) throws Throwable
     {
-        return getState(this.pageStateGroupName,stateKey);
+        return getState(Long.toString(key));
+    }
+    
+    public <T> T getState(String key) throws Throwable
+    {
+        return getState(this.pageStateGroupName,key);
     }
     @SuppressWarnings({
             "unused", "unchecked"
@@ -155,6 +144,10 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
             throw new Exception("No PageStateGroupName annotation");
         }
         return (T)pageStateSet.getState(stateKey);
+    }
+    public void setState(long key,Object state) throws Throwable
+    {
+        setState(Long.toString(key),state);
     }
     
     @Override
@@ -185,6 +178,24 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
                 Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state);
             }            
         }
+    }
+    
+    protected void clearLastStates()
+    {
+        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
+        if (pageStateSet!=null)
+        {
+            pageStateSet.clearLastStates();
+        }
+    }
+    protected <STATE> STATE removeState(String key)
+    {
+        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
+        if (pageStateSet!=null)
+        {
+            return (STATE)pageStateSet.removeState(key);
+        }
+        return null;
     }
     
     @Override
@@ -240,27 +251,11 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
        return null;
     }
     @Override
-    public void endRequest(Trace parent,Context context,Response<?> response)
+    public void endRequest(Trace parent,Context context,Response<?> response) throws Throwable
     {
         super.endRequest(parent, context, response);
-        if (response==null)
-        {
-            return;
-        }
-        if (response.getContent() instanceof InitializationPage)
-        {
-            var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
-            if (pageStateSet!=null)
-            {
-                pageStateSet.clearLastStates();
-            }
-        }
     }
     
-    public long getDeviceSessionId()
-    {
-        return this.getDeviceSessionId();
-    }
     public ZoneId getZoneId()
     {
         return this.deviceSession.getZoneId();

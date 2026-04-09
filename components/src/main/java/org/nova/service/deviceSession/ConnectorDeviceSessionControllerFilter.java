@@ -16,9 +16,9 @@ abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessi
     final private String deviceType;
     final private Connector connector;
     final private long deviceSessionMaxAgeSeconds;
-    public ConnectorDeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String deviceType,Connector connector,long deviceSessionMaxAgeSeconds)
+    public ConnectorDeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String defaultRedirect,String deviceType,Connector connector,long deviceSessionMaxAgeSeconds)
     {
-        super(deviceSessionManager, deviceSessionControllerPath,cookieName,cookieAge);
+        super(deviceSessionManager, deviceSessionControllerPath,cookieName,cookieAge,defaultRedirect);
         this.deviceType=deviceType;
         this.connector=connector;
         this.deviceSessionMaxAgeSeconds=deviceSessionMaxAgeSeconds;

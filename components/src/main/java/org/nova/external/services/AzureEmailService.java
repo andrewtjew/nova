@@ -1,10 +1,7 @@
 package org.nova.external.services;
 
-import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.html.elements.Element;
 import org.nova.tracing.Trace;
-import org.nova.tracing.TraceRunnable;
-
 import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.EmailClientBuilder;
 import com.azure.communication.email.models.EmailAddress;

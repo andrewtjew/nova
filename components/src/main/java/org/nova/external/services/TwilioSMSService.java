@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.nova.external.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceRunnable;
@@ -31,7 +28,6 @@ import org.nova.tracing.TraceRunnable;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
-import java.net.URI;
 
 public class TwilioSMSService extends SMSService
 {

@@ -2,17 +2,12 @@ package org.nova.service.deviceSession;
 
 import org.nova.html.enums.character_set;
 import org.nova.html.enums.http_equiv;
-import org.nova.html.enums.link_rel;
 import org.nova.html.enums.name;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Script;
 import org.nova.html.tags.div;
-import org.nova.html.tags.h3;
-import org.nova.html.tags.link;
 import org.nova.html.tags.meta;
-import org.nova.html.tags.script;
-import org.nova.html.tags.title;
 
 public class InitializationPage extends Page 
 {

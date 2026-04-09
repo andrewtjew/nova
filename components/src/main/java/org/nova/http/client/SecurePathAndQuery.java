@@ -25,12 +25,12 @@ import org.nova.security.PathAndQueryAuthentication;
 
 public class SecurePathAndQuery extends PathAndQuery
 {
-    final private PathAndQueryAuthentication security;
+    final private PathAndQueryAuthentication authentication;
 
-    public SecurePathAndQuery(PathAndQueryAuthentication security, String path) throws Throwable 
+    public SecurePathAndQuery(PathAndQueryAuthentication authentication, String path) throws Throwable 
     {
         super(path);
-        this.security = security;
+        this.authentication = authentication;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SecurePathAndQuery extends PathAndQuery
         String pathAndQuery=super.toString();
         try
         {
-            return security.signPathAndQuery(pathAndQuery);
+            return authentication.signPathAndQuery(pathAndQuery);
         }
         catch (Throwable t)
         {

@@ -12,7 +12,6 @@ import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.annotations.ContentEncoders;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
-import org.nova.http.server.annotations.Filters;
 
 @ContentWriters({ HtmlElementWriter.class, RemoteResponseWriter.class, JSONContentWriter.class })
 @ContentReaders({ JSONContentReader.class })

@@ -24,17 +24,12 @@ package org.nova.operator;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.nova.configuration.Configuration;
-import org.nova.configuration.ConfigurationItem;
-import org.nova.configuration.ConfigurationSource;
 import org.nova.operations.OperatorVariableStore;
 import org.nova.operations.VariableInstance;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
-import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
 public class FileOperatorVariableStore extends OperatorVariableStore

@@ -165,7 +165,7 @@ public class RequestMethod
         }
         else
         {
-            this.pageGroupName=null;
+            this.pageGroupName="";
         }
         this.test=annotations.test!=null;
         

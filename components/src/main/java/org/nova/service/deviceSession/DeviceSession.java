@@ -1,31 +1,19 @@
 package org.nova.service.deviceSession;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.nova.core.NameObject;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
 import org.nova.geo.GeoLocation;
 import org.nova.geo.LatitudeLongitude;
-import org.nova.html.elements.Element;
-import org.nova.html.elements.FormElement;
-import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
-import org.nova.html.ext.InputHidden;
-import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
-import org.nova.http.server.RequestMethod;
-import org.nova.http.server.Response;
 import org.nova.localization.CountryCode;
 import org.nova.metrics.RateMeter;
 import org.nova.security.PathAndQueryAuthentication;
@@ -65,6 +53,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     final long created;
     private long lastAccess;
     private RateMeter accessRateMeter;
+    private Context context;
     
     static byte[] generateSecretKey(String token)
     {
@@ -92,6 +81,7 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.deviceSessionId=deviceSessionId;
         this.language=language;
         updateLocation(position, countryCode, zoneId);
+        this.states=new HashMap<Integer, Object>();
     }
     public long getLastAccess()
     {
@@ -117,12 +107,20 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.locationLastUpdated=System.currentTimeMillis();
     }
     
+    void setContext(Context context)
+    {
+        this.context=context;
+    }
+    
+    public Context getContext()
+    {
+        return this.context;
+    }
 
     public String getLanguage()
     {
         return this.language;
     }
-    
     public long getDeviceSessionId()
     {
         return this.deviceSessionId;
@@ -153,15 +151,19 @@ public class DeviceSession implements PathAndQueryAuthentication
         return null;
     }
 
-    public void onClose(Trace parent) throws Throwable
+    public void close(Trace parent) throws Throwable
     {
-        if (state!=null)
+        for (var state:this.states.values())
         {
-            if (state instanceof SessionRequestHandling)
+            if (state!=null)
             {
-                ((SessionRequestHandling)state).onClose(parent);
+                if (state instanceof SessionRequestHandling)
+                {
+                    ((SessionRequestHandling)state).onClose(parent);
+                }
             }
         }
+        this.states.clear();
     }
 
     public NameObject[] getDisplayItems()
@@ -169,26 +171,33 @@ public class DeviceSession implements PathAndQueryAuthentication
         return null;
     }
     
-    private Object state;
+    final private HashMap<Integer,Object> states;
     
-    @SuppressWarnings("unchecked")
-    public <STATE> STATE getState()
+    public <STATE> STATE getState(Class<?> type)
     {
-        return (STATE)this.state;
+        int id=System.identityHashCode(type);
+        return (STATE)this.states.get(id);
     }
     
     public void setState(Object state)
     {
-        this.state=state;
+        int id=System.identityHashCode(state.getClass());
+        this.states.put(id, state);
     }
-    public void clearState()
+    public void removeState(Class<?> type)
     {
-        this.state=null;
+        int id=System.identityHashCode(type);
+        this.states.remove(id);
     }
     
+//    public void clearStates()
+//    {
+//        this.states.clear();
+//    }
+    
 
-    final static String QUERY_SECURITY_KEY="_";
-    final static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
+    final public static String QUERY_SECURITY_KEY="_";
+    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
     
     @Override
     public String signPathAndQuery(String pathAndQuery) throws Throwable
@@ -218,6 +227,14 @@ public class DeviceSession implements PathAndQueryAuthentication
         try 
         {
             int index=queryString.lastIndexOf(QUERY_SECURITY_PREFIX);
+            if (index<0)
+            {
+                if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Authentication required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                }
+                return false;
+            }
             String text=queryString.substring(0,index-1);
             String code=queryString.substring(index+QUERY_SECURITY_PREFIX.length());
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
@@ -229,7 +246,10 @@ public class DeviceSession implements PathAndQueryAuthentication
             var result=code.equals(computed);
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+                if (result==false)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"Authentication failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+                }
             }
             return result;
         }
@@ -237,9 +257,8 @@ public class DeviceSession implements PathAndQueryAuthentication
         {
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                Debugging.log(LOG_DEBUG_CATEGORY,"Authentication exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
-                
             }
             return false;
         }
