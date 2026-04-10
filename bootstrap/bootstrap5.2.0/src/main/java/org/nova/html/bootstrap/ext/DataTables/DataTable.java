@@ -147,7 +147,6 @@ public class DataTable  extends StyleComponent<DataTable>
     
     static public String js_new(String id,DataTableOptions options) throws Throwable
     {
-        System.out.println("id-------------------------"+id);
         StringBuilder sb=new StringBuilder();
         sb.append("$('#").append(id).append("').DataTable(");
         {

@@ -210,24 +210,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
             AbnormalResult abnormalResult=deviceSession.verifyRequest(parent, context,this);
             if (abnormalResult!=null)
             {
-                if (abnormalResult.statusCode()!=null)
-                {
-                    context.getHttpServletResponse().setStatus(abnormalResult.statusCode());
-                }
-                if (abnormalResult.response()!=null)
-                {
-                    return abnormalResult.response();
-                }
-                if (TypeUtils.isNullOrEmpty(abnormalResult.seeOther())==false)
-                {
-                    context.seeOther(abnormalResult.seeOther());
-                    return null;
-                }
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
-                {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
-                }
-                return dispatchInvalidQuery(parent, context,deviceSession);
+                return returnAbnormalResult(parent, abnormalResult, context, deviceSession);
             }
             var requestMethodStateType=requestMethod.getStateType();
             
@@ -255,7 +238,11 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 }
                 if (stateHandling!=null)
                 {
-                    stateHandling.beginRequest(parent, context);
+                    abnormalResult=stateHandling.beginRequest(parent, context);
+                    if (abnormalResult!=null)
+                    {
+                        return returnAbnormalResult(parent, abnormalResult, context, deviceSession);
+                    }
                 }
                 try
                 {
@@ -317,7 +304,29 @@ public abstract class DeviceSessionControllerFilter extends Filter
         return "en";
     }
 
-
+    Response<?> returnAbnormalResult(Trace parent,AbnormalResult abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
+    {
+        if (abnormalResult.statusCode()!=null)
+        {
+            context.getHttpServletResponse().setStatus(abnormalResult.statusCode());
+        }
+        if (abnormalResult.response()!=null)
+        {
+            return abnormalResult.response();
+        }
+        if (TypeUtils.isNullOrEmpty(abnormalResult.seeOther())==false)
+        {
+            context.seeOther(abnormalResult.seeOther());
+            return null;
+        }
+        if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+        {
+            RequestMethod requestMethod=context.getRequestMethod();
+            Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+        }
+        return dispatchInvalidQuery(parent, context,deviceSession);
+    }
+    
     
     GeoLocation getLocation(Trace parent,Context context,String timeZone,Double latitude,Double longitude) throws Throwable
     {
