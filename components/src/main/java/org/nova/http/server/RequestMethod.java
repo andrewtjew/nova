@@ -184,7 +184,7 @@ public class RequestMethod
     {
         return this.pageGroupName;
     }
-    public boolean isRequestAuthenticationRequired()
+    public boolean isPathAndQueryAuthenticationRequired()
     {
         return this.isPathAndQueryAuthenticationRequired;
     }

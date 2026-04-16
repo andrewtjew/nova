@@ -14,13 +14,13 @@ public class ConsoleOutDebugging extends Debugging
         {
             case ERROR:
             case WARNING:
-            System.err.println("🐜"+category+"🐜 "+object);
+            System.err.println("🐜"+category+": "+object);
             break;
 
             default:
             synchronized(this)
             {
-                System.out.println("🐜"+category+"🐜 "+object);
+                System.out.println("🐜"+category+": "+object);
             }
             break;
             

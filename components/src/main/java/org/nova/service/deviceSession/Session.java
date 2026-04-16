@@ -23,7 +23,7 @@ public class Session implements PathAndQueryAuthentication
     
     public long getDeviceSessionId()
     {
-        return this.getDeviceSessionId();
+        return this.deviceSession.getDeviceSessionId();
     }
     public ZoneId getZoneId()
     {

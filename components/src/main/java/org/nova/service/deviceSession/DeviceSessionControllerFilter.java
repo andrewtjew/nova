@@ -225,7 +225,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
                 }
                 return dispatchInvalidQuery(parent, context,deviceSession);
             }

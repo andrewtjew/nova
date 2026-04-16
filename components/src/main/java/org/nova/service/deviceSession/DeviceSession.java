@@ -219,7 +219,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     public boolean isRequestAuthentic(Context context) throws Throwable
     {
         var requestMethod=context.getRequestMethod();
-        if (requestMethod.isRequestAuthenticationRequired()==false)
+        if (requestMethod.isPathAndQueryAuthenticationRequired()==false)
         {
             return true;
         }

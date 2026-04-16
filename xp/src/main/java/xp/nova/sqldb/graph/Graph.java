@@ -28,7 +28,7 @@ public class Graph
 {
     static final boolean DEBUG=true;
     static final boolean DEBUG_UPGRADE=false;
-    static final boolean DEBUG_QUERY=false;
+    static final boolean DEBUG_QUERY=true;
     static final boolean DEBUG_CACHING=false;
     static final boolean DEBUG_VERIFY_CACHING=true;
     static final String DEBUG_CATEGORY=Graph.class.getSimpleName();

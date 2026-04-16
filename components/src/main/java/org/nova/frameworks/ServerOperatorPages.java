@@ -4479,7 +4479,7 @@ public class ServerOperatorPages
                 table.addRow(new TableRow().add(Utils.combine(forbiddenRoles.value(),"")));
             }
         }
-        if (requestMethod.isRequestAuthenticationRequired())
+        if (requestMethod.isPathAndQueryAuthenticationRequired())
         {
             Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Authentication Required"));
         }
