@@ -55,7 +55,6 @@ import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.PATCH;
 import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.PUT;
-import org.nova.http.server.annotations.StateGroupName;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
@@ -153,55 +152,91 @@ class RequestMethodMap
     			Class<?> type = annotation.annotationType();
     			if (type == ContentReaders.class)
     			{
-    				classAnnotations.contentReaders = (ContentReaders) annotation;
+    			    if (classAnnotations.contentReaders==null)
+    			    {
+    			        classAnnotations.contentReaders = (ContentReaders) annotation;
+    			    }
     			}
     			else if (type == ContentWriters.class)
     			{
-    				classAnnotations.contentWriters = (ContentWriters) annotation;
+                    if (classAnnotations.contentWriters==null)
+                    {
+                        classAnnotations.contentWriters = (ContentWriters) annotation;
+                    }
     			}
     			else if (type == ContentEncoders.class)
     			{
-    				classAnnotations.contentEncoders = (ContentEncoders) annotation;
+                    if (classAnnotations.contentEncoders==null)
+                    {
+                        classAnnotations.contentEncoders = (ContentEncoders) annotation;
+                    }
     			}
     			else if (type == ContentDecoders.class)
     			{
-    				classAnnotations.contentDecoders = (ContentDecoders) annotation;
+                    if (classAnnotations.contentDecoders==null)
+                    {
+                        classAnnotations.contentDecoders = (ContentDecoders) annotation;
+                    }
     			}
                 else if (type == RequiredRoles.class)
                 {
-                    classAnnotations.requiredRoles = (RequiredRoles) annotation;
+                    if (classAnnotations.requiredRoles==null)
+                    {
+                        classAnnotations.requiredRoles = (RequiredRoles) annotation;
+                    }
                 }
                 else if (type == ForbiddenRoles.class)
                 {
-                    classAnnotations.forbiddenRoles = (ForbiddenRoles) annotation;
+                    if (classAnnotations.forbiddenRoles==null)
+                    {
+                        classAnnotations.forbiddenRoles = (ForbiddenRoles) annotation;
+                    }
                 }
                 else if (type == Filters.class)
                 {
-                    classAnnotations.filters = (Filters) annotation;
+                    if (classAnnotations.filters==null)
+                    {
+                        classAnnotations.filters = (Filters) annotation;
+                    }
                 }
                 else if (type == Log.class)
                 {
-                    classAnnotations.log = (Log) annotation;
+                    if (classAnnotations.log==null)
+                    {
+                        classAnnotations.log = (Log) annotation;
+                    }
                 }
                 else if (type == Path.class)
                 {
-                    classAnnotations.path= (Path) annotation;
+                    if (classAnnotations.path==null)
+                    {
+                        classAnnotations.path= (Path) annotation;
+                    }
                 }
-                else if (type == StateGroupName.class)
-                {
-                    classAnnotations.stateGroupName= (StateGroupName) annotation;
-                }
+//                else if (type == StateGroupName.class)
+//                {
+//                    classAnnotations.stateGroupName= (StateGroupName) annotation;
+//                }
                 else if (type == PathAndQueryAuthentication.class)
                 {
-                    classAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
+                    if (classAnnotations.pathAndQueryAuthentication==null)
+                    {
+                        classAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
+                    }
                 }
                 else if (type==Test.class)
                 {
-                    classAnnotations.test=(Test)annotation;
+                    if (classAnnotations.test==null)
+                    {
+                        classAnnotations.test=(Test)annotation;
+                    }
                 }
                 else if (type==Attributes.class)
                 {
-                    classAnnotations.attributes=(Attributes)annotation;
+                    if (classAnnotations.attributes==null)
+                    {
+                        classAnnotations.attributes=(Attributes)annotation;
+                    }
                 }
     		}
 		}
@@ -313,10 +348,10 @@ class RequestMethodMap
             {
                 handlerAnnotations.log = (Log) annotation;
             }
-            else if (type == StateGroupName.class)
-            {
-                handlerAnnotations.stateGroupName= (StateGroupName) annotation;
-            }
+//            else if (type == StateGroupName.class)
+//            {
+//                handlerAnnotations.stateGroupName= (StateGroupName) annotation;
+//            }
             else if (type == PathAndQueryAuthentication.class)
             {
                 handlerAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;

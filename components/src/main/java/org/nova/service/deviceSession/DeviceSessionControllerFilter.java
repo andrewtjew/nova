@@ -94,12 +94,16 @@ public abstract class DeviceSessionControllerFilter extends Filter
     
     public Response<?> dispatchHandler(Context context,String path) throws Throwable
     {
-        context.seeOther(path);
         if (context.getContentWriter() instanceof RemoteResponseWriter)
         {
             RemoteResponse response=new RemoteResponse();
             response.reload();
             return new Response<>(response);
+        }
+        if (context.getHttpServletRequest().getMethod().equals("POST"))
+        {
+            context.seeOther(this.deviceSessionControllerPath+path);
+            return null;
         }
         return new Response<Redirect>(new Redirect(this.deviceSessionControllerPath+path));
     }    
