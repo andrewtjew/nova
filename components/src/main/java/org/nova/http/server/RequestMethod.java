@@ -78,7 +78,7 @@ public class RequestMethod
     
     final private FragmentIndexMap fragmentIndexMap;
     final private boolean isPathAndQueryAuthenticationRequired;
-    final private String pageGroupName;
+//    final private String pageGroupName;
     
     RequestMethod(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
 	{
@@ -159,14 +159,14 @@ public class RequestMethod
         {
             this.attributes=null;
         }
-        if (annotations.stateGroupName!=null)
-        {
-            this.pageGroupName=annotations.stateGroupName.value();
-        }
-        else
-        {
-            this.pageGroupName="";
-        }
+//        if (annotations.stateGroupName!=null)
+//        {
+//            this.pageGroupName=annotations.stateGroupName.value();
+//        }
+//        else
+//        {
+//            this.pageGroupName="";
+//        }
         this.test=annotations.test!=null;
         
         
@@ -179,11 +179,6 @@ public class RequestMethod
             this.isPathAndQueryAuthenticationRequired=false;
         }
    }
-
-    public String getPageStateGroupName()
-    {
-        return this.pageGroupName;
-    }
     public boolean isPathAndQueryAuthenticationRequired()
     {
         return this.isPathAndQueryAuthenticationRequired;

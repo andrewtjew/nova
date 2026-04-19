@@ -29,7 +29,6 @@ import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.Log;
 import org.nova.http.server.annotations.PathAndQueryAuthentication;
-import org.nova.http.server.annotations.StateGroupName;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.Test;
 import org.nova.services.ForbiddenRoles;
@@ -48,7 +47,7 @@ public class ClassAnnotations
 	Log log=null;
     RequiredRoles requiredRoles=null;
     ForbiddenRoles forbiddenRoles=null;
-    StateGroupName stateGroupName=null;
+//    StateGroupName stateGroupName=null;
     PathAndQueryAuthentication pathAndQueryAuthentication=null;
 	
     ClassAnnotations()
@@ -68,7 +67,7 @@ public class ClassAnnotations
 	    this.attributes=that.attributes;
 	    this.requiredRoles=that.requiredRoles;
 	    this.forbiddenRoles=that.forbiddenRoles;
-	    this.stateGroupName=that.stateGroupName;
+//	    this.stateGroupName=that.stateGroupName;
 	    this.pathAndQueryAuthentication=that.pathAndQueryAuthentication;
 	}
 

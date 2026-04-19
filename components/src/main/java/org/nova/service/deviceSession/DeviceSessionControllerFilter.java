@@ -94,12 +94,16 @@ public abstract class DeviceSessionControllerFilter extends Filter
     
     public Response<?> dispatchHandler(Context context,String path) throws Throwable
     {
-        context.seeOther(path);
         if (context.getContentWriter() instanceof RemoteResponseWriter)
         {
             RemoteResponse response=new RemoteResponse();
             response.reload();
             return new Response<>(response);
+        }
+        if (context.getHttpServletRequest().getMethod().equals("POST"))
+        {
+            context.seeOther(this.deviceSessionControllerPath+path);
+            return null;
         }
         return new Response<Redirect>(new Redirect(this.deviceSessionControllerPath+path));
     }    
@@ -255,7 +259,11 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 }
                 if (stateHandling!=null)
                 {
-                    stateHandling.beginRequest(parent, context);
+                    abnormalResult=stateHandling.beginRequest(parent, context);
+                    if (abnormalResult!=null)
+                    {
+                        return returnAbnormalResult(parent, abnormalResult, context, deviceSession);
+                    }
                 }
                 try
                 {
@@ -317,7 +325,29 @@ public abstract class DeviceSessionControllerFilter extends Filter
         return "en";
     }
 
-
+    Response<?> returnAbnormalResult(Trace parent,AbnormalResult abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
+    {
+        if (abnormalResult.statusCode()!=null)
+        {
+            context.getHttpServletResponse().setStatus(abnormalResult.statusCode());
+        }
+        if (abnormalResult.response()!=null)
+        {
+            return abnormalResult.response();
+        }
+        if (TypeUtils.isNullOrEmpty(abnormalResult.seeOther())==false)
+        {
+            context.seeOther(abnormalResult.seeOther());
+            return null;
+        }
+        if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+        {
+            RequestMethod requestMethod=context.getRequestMethod();
+            Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
+        }
+        return dispatchInvalidQuery(parent, context,deviceSession);
+    }
+    
     
     GeoLocation getLocation(Trace parent,Context context,String timeZone,Double latitude,Double longitude) throws Throwable
     {

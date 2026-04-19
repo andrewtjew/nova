@@ -36,7 +36,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     
     Throwable throwable;
     
-    final boolean DEBUG=true;
+    final static boolean DEBUG=false;
     final boolean DEBUG_REQUEST_AUTHENTICATION=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
@@ -77,7 +77,7 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.lastAccess=this.created=System.currentTimeMillis();
         this.accessRateMeter=new RateMeter();
 
-        this.secretKey=new SecretKeySpec(generateSecretKey(token),"HmacSHA512");
+        this.secretKey=new SecretKeySpec(generateSecretKey(token+System.currentTimeMillis()),"HmacSHA512");
         this.deviceSessionId=deviceSessionId;
         this.language=language;
         updateLocation(position, countryCode, zoneId);
@@ -190,11 +190,10 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.states.remove(id);
     }
     
-//    public void clearStates()
-//    {
-//        this.states.clear();
-//    }
-    
+    public void clearStates()
+    {
+        this.states.clear();
+    }
 
     final public static String QUERY_SECURITY_KEY="_";
     final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
