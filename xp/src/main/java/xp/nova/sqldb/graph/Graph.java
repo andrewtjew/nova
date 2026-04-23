@@ -1004,15 +1004,34 @@ public class Graph
         }
     }
 
-    private static void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
-    {
-        if (accessor.executeQuery(parent,"existTable:"+tableName
-                ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",tableName,catalog).getRow(0).getBIGINT(0)==0)
-        {
-            accessor.executeUpdate(parent, "createTable:"+tableName,sql);
-        }
-        
-    }
+//    private static String getTableName(String sql)
+//    {
+//        int startIndex=sql.indexOf("TABLE")+"TABLE".length();
+//        
+//        while (Character.isSpaceChar(sql.charAt(startIndex)))
+//        {
+//            startIndex++;
+//        }
+//        int endIndex=sql.indexOf(" ", startIndex+1);
+//        var name=sql.substring(startIndex, endIndex).strip();
+//        if (name.charAt(0)=='`')
+//        {
+//            name=name.substring(1,name.length()-1);
+//        }
+//        return name;
+//    }
+//    
+//    private static void createTable(Trace parent,Accessor accessor,String catalog,String tableName,String sql) throws Exception, Throwable
+//    {
+//        tableName=getTableName(sql);
+//        
+//        if (accessor.executeQuery(parent,"existTable:"+tableName
+//                ,"SELECT count(*) FROM information_schema.tables WHERE table_name=? AND table_schema=?",tableName,catalog).getRow(0).getBIGINT(0)==0)
+//        {
+//            accessor.executeUpdate(parent, "createTable:"+tableName,sql);
+//        }
+//        
+//    }
     
     public static void setup(Trace parent,Connector connector,String catalog) throws Throwable
     {
@@ -1025,36 +1044,45 @@ public class Graph
         }
         try (Accessor accessor=connector.openAccessor(parent,null,catalog))
         {
-            createTable(parent,accessor,catalog,"@transaction"
-                    ,"CREATE TABLE `@transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"@node"
-                    ,"CREATE TABLE `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"@nodetype"
-                    ,"CREATE TABLE `@nodetype` (`id` BIGINT NOT NULL,`type` varchar(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"@link"
-                    ,"CREATE TABLE `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45),`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
-                    );
-            createTable(parent,accessor,catalog,"@deletednode"
-                    ,"CREATE TABLE `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
-                    );
-
-            createTable(parent,accessor,catalog,"@deletedlink"
-                    ,"CREATE TABLE `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@transaction` (`id` bigint NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`creatorId` bigint NOT NULL,`source` varchar(200) DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
             
-            createTable(parent,accessor,catalog,"@version"
-                    ,"CREATE TABLE `@version` (`id` bigint NOT NULL,`created` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@node` (`id` bigint NOT NULL AUTO_INCREMENT,`transactionId` bigint NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;"
+                    );
+            
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@nodetype` (`id` BIGINT NOT NULL,`type` varchar(45) NOT NULL,PRIMARY KEY (`id`, `type`)) ENGINE=InnoDB;"
+                    );
+            
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@link` (`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45),`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `from` (`fromNodeId`,`relation`,`toNodeType`,`toNodeId`),KEY `to` (`toNodeId`,`relation`,`fromNodeType`,`fromNodeId`)) ENGINE=InnoDB;"
+                    );
+            
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@deletednode` (`deleted` datetime NOT NULL,`id` bigint NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
 
-            createTable(parent,accessor,catalog,"@array"
-                    ,"CREATE TABLE `@array` (`nodeId` bigint NOT NULL,`elementId` bigint,`index` int NOT NULL,KEY `nodeIdIndex` (`elementId`)) ENGINE=InnoDB;"
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@deletedlink` (`deleted` datetime NOT NULL,`nodeId` bigint NOT NULL,`fromNodeId` bigint NOT NULL,`toNodeId` bigint NOT NULL,`relation` varchar(45) DEFAULT NULL,`fromNodeType` varchar(45) NOT NULL,`toNodeType` varchar(45) NOT NULL,PRIMARY KEY (`nodeId`),KEY `to` (`fromNodeId`,`toNodeId`,`fromNodeType`,`relation`,`nodeId`),KEY `from` (`fromNodeId`,`toNodeId`,`relation`,`toNodeType`,`nodeId`)) ENGINE=InnoDB;"
                     );
-            createTable(parent,accessor,catalog,"@arraylink"
-                    ,"CREATE TABLE `@arraylink` (`nodeId` bigint NOT NULL AUTO_INCREMENT,`arrayNodeId` bigint NOT NULL,`relation` varchar(45), PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
+            
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@version` (`id` bigint NOT NULL,`created` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB;"
                     );
+
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@array` (`nodeId` bigint NOT NULL,`elementId` bigint,`index` int NOT NULL,KEY `nodeIdIndex` (`elementId`)) ENGINE=InnoDB;"
+                    );
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@arraylink` (`nodeId` bigint NOT NULL AUTO_INCREMENT,`arrayNodeId` bigint NOT NULL,`relation` varchar(45), PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
+                    );
+            
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE `@graphversion` (`name` varchar(50) NOT NULL,`version` int DEFAULT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    );
+            
 //            createTable(parent,accessor,catalog,"@deletedarray"
 //                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT,`deleted` datetime NOT NULL,`arrayNodeId` bigint NOT NULL,`nodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`arrayId`)) ENGINE=InnoDB;"
 //                    );

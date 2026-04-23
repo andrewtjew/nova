@@ -24,74 +24,74 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     final static boolean DEBUG_PAGESTATE=false;
     final static String LOG_DEBUG_CATEGORY=PageStateSession.class.getSimpleName();
 
-    static class PageStateSet
-    {
-        public HashMap<String,Object> states;
-        public HashMap<String,Object> newStates;
-
-        public Object getState(String key)
-        {
-            Object state=null;
-            if (this.states!=null)
-            {
-                state=this.states.get(key);
-            }
-            if (state!=null)
-            {
-                //As long as the handler refers to the state, we keep it alive.
-                if (this.newStates==null)
-                {
-                    this.newStates=new HashMap<String, Object>();
-                }
-                this.newStates.put(key, state);
-            }
-            else
-            {
-                state=this.newStates.get(key);
-            }
-            return state;
-        }
-        public void setState(String key,Object state) throws Throwable
-        {
-            if (state!=null)
-            {
-                if (this.newStates==null)
-                {
-                    this.newStates=new HashMap<>();
-                }
-                this.newStates.put(key, state);
-            }
-        }
-        public Object removeState(String key)
-        {
-            Object removed=null;
-            if (this.newStates!=null)
-            {
-                removed=this.newStates.remove(key);
-            }
-            if (this.states!=null)
-            {
-                if (removed!=null)
-                {
-                    this.states.remove(key);
-                }
-                else
-                {
-                    removed=this.states.remove(key);
-                }
-            }
-            return removed;
-        }
-        public void clearLastStates()
-        {
-            if (this.newStates!=null)
-            {
-                this.states=this.newStates;
-                this.newStates=null;
-            }
-        }
-        
-    }
+//    static class PageStateSet
+//    {
+//        public HashMap<String,Object> states;
+//        public HashMap<String,Object> newStates;
+//
+//        public Object getState(String key)
+//        {
+//            Object state=null;
+//            if (this.states!=null)
+//            {
+//                state=this.states.get(key);
+//            }
+//            if (state!=null)
+//            {
+//                //As long as the handler refers to the state, we keep it alive.
+//                if (this.newStates==null)
+//                {
+//                    this.newStates=new HashMap<String, Object>();
+//                }
+//                this.newStates.put(key, state);
+//            }
+//            else
+//            {
+//                state=this.newStates.get(key);
+//            }
+//            return state;
+//        }
+//        public void setState(String key,Object state) throws Throwable
+//        {
+//            if (state!=null)
+//            {
+//                if (this.newStates==null)
+//                {
+//                    this.newStates=new HashMap<>();
+//                }
+//                this.newStates.put(key, state);
+//            }
+//        }
+//        public Object removeState(String key)
+//        {
+//            Object removed=null;
+//            if (this.newStates!=null)
+//            {
+//                removed=this.newStates.remove(key);
+//            }
+//            if (this.states!=null)
+//            {
+//                if (removed!=null)
+//                {
+//                    this.states.remove(key);
+//                }
+//                else
+//                {
+//                    removed=this.states.remove(key);
+//                }
+//            }
+//            return removed;
+//        }
+//        public void clearLastStates()
+//        {
+//            if (this.newStates!=null)
+//            {
+//                this.states=this.newStates;
+//                this.newStates=null;
+//            }
+//        }
+//        
+//    }
     
     final protected DeviceSession deviceSession;
     public HashMap<String,Object> states;
@@ -175,94 +175,11 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         }
     }
 
-//    public <T> T getState(long key) throws Throwable
-//    {
-//        return getState(Long.toString(key));
-//    }
-//    
-//    public <T> T getState(String key) throws Throwable
-//    {
-//        return getState(this.pageStateGroupName,key);
-//    }
-//    @SuppressWarnings({
-//            "unused", "unchecked"
-//    })
-//    private <T> T getState(String groupKey,String stateKey) throws Throwable
-//    {
-//        var pageStateSet=this.pageStateSets.get(groupKey);
-//        
-//        if (Debug.ENABLE && DEBUG && DEBUG_PAGESTATE)
-//        {
-//            if (pageStateSet!=null)
-//            {
-//                if (pageStateSet.states.containsKey(stateKey)==false)
-//                {
-//                    Debugging.log(LOG_DEBUG_CATEGORY,"No page state: key="+stateKey);
-//                    for (Entry<String, Object> entry:pageStateSet.states.entrySet())
-//                    {
-//                        Debugging.log(LOG_DEBUG_CATEGORY,"Object:key="+entry.getKey()+", value="+entry.getValue());
-//                    }
-//                }
-//            }
-//        }
-//        if (pageStateSet==null)
-//        {
-//            throw new Exception("No PageStateGroupName annotation");
-//        }
-//        return (T)pageStateSet.getState(stateKey);
-//    }
     public void setState(long key,Object state) throws Throwable
     {
         setState(Long.toString(key),state);
     }
     
-//    @Override
-//    final public void setState(String key,Object state) throws Throwable
-//    {
-//        if (this.pageStateGroupName==null)
-//        {
-//            throw new Exception();
-//        }
-//        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
-//        if (Debug.ENABLE && DEBUG)
-//        {
-//            if (key==null)
-//            {
-//                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key=null");
-//            }
-//        }            
-//        if (pageStateSet==null)
-//        {
-//            pageStateSet=new PageStateSet();
-//            this.pageStateSets.put(this.pageStateGroupName, pageStateSet);
-//        }
-//        if (state!=null)
-//        {
-//            pageStateSet.setState(key, state);
-//            if (Debug.ENABLE && DEBUG)
-//            {
-//                Debugging.log(LOG_DEBUG_CATEGORY,"setPageState: key="+key+", page="+state);
-//            }            
-//        }
-//    }
-//    
-//    protected void clearLastStates()
-//    {
-//        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
-//        if (pageStateSet!=null)
-//        {
-//            pageStateSet.clearLastStates();
-//        }
-//    }
-//    protected <STATE> STATE removeState(String key)
-//    {
-//        var pageStateSet=this.pageStateSets.get(this.pageStateGroupName);
-//        if (pageStateSet!=null)
-//        {
-//            return (STATE)pageStateSet.removeState(key);
-//        }
-//        return null;
-//    }
     
     @Override
     final public String getQueryBinding(TagElement<?> element)
@@ -274,22 +191,16 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     @Override
     final public <T> T getState(Context context) throws Throwable
     {
-//        String groupKey=context.getHttpServletRequest().getParameter(GROUP_KEY);
         String stateKey=context.getHttpServletRequest().getParameter(STATE_KEY);
         return (T)getState(stateKey);
     }
     final static public String STATE_KEY="@state";
-//    final static public String GROUP_KEY="@group";
 
     @Override
     final public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
     {
         setState(id,state);
         pathAndQuery.addQuery(STATE_KEY, id);
-//        if (this.pageStateGroupName!=null)
-//        {
-//            pathAndQuery.addQuery(GROUP_KEY, this.pageStateGroupName);
-//        }
         return pathAndQuery;
     }
   
@@ -298,10 +209,6 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     {
         setState(element.id(),element);
         element.addInner(new InputHidden(STATE_KEY,element.id()));
-//        if (this.pageStateGroupName!=null)
-//        {
-//            element.addInner(new InputHidden(GROUP_KEY,this.pageStateGroupName));
-//        }
     }
 
     
@@ -313,7 +220,6 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
        {
            return result;
        }
-//       this.pageStateGroupName=context.getRequestMethod().getPageStateGroupName();
        return null;
     }
     @Override
