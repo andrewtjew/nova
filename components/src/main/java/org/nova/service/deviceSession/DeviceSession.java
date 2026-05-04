@@ -36,7 +36,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     
     Throwable throwable;
     
-    final static boolean DEBUG=false;
+    final static boolean DEBUG=true;
     final boolean DEBUG_REQUEST_AUTHENTICATION=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
