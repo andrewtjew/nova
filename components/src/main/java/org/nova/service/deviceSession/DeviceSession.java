@@ -1,6 +1,8 @@
 package org.nova.service.deviceSession;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashMap;
@@ -12,6 +14,7 @@ import org.nova.debug.Debugging;
 import org.nova.geo.GeoLocation;
 import org.nova.geo.LatitudeLongitude;
 import org.nova.html.ext.HtmlUtils;
+import org.nova.html.operator.NameValueList;
 import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.localization.CountryCode;
@@ -40,14 +43,14 @@ public class DeviceSession implements PathAndQueryAuthentication
     final boolean DEBUG_REQUEST_AUTHENTICATION=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
-    
+    final private String querySecurityKey;
     final private long deviceSessionId;
     final protected SecretKey secretKey;
     final private String language;
     private LatitudeLongitude position; 
     private CountryCode countryCode;
     private ZoneId zoneId;
-    private long locationLastUpdated;
+    private long positionLastUpdated;
     
     final String token;
     final long created;
@@ -70,9 +73,10 @@ public class DeviceSession implements PathAndQueryAuthentication
         }
         return secret;
     }   
-    
-    public DeviceSession(long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
+
+    public DeviceSession(String querySecurityKey,long deviceSessionId,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable
     {
+        this.querySecurityKey=querySecurityKey;
         this.token=token;
         this.lastAccess=this.created=System.currentTimeMillis();
         this.accessRateMeter=new RateMeter();
@@ -83,6 +87,12 @@ public class DeviceSession implements PathAndQueryAuthentication
         updateLocation(position, countryCode, zoneId);
         this.states=new HashMap<Integer, Object>();
     }
+    
+    public String getQuerySecurityKey()
+    {
+        return this.querySecurityKey;
+    }
+    
     public long getLastAccess()
     {
         return lastAccess;
@@ -104,7 +114,7 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.position=position;
         this.countryCode=countryCode;
         this.zoneId=zoneId;
-        this.locationLastUpdated=System.currentTimeMillis();
+        this.positionLastUpdated=System.currentTimeMillis();
     }
     
     void setContext(Context context)
@@ -137,9 +147,9 @@ public class DeviceSession implements PathAndQueryAuthentication
     {
         return this.countryCode;
     }
-    public long getLocationLastUpdated()
+    public long getPositionLastUpdated()
     {
-        return this.locationLastUpdated;
+        return this.positionLastUpdated;
     }
     
     final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
@@ -166,11 +176,6 @@ public class DeviceSession implements PathAndQueryAuthentication
         this.states.clear();
     }
 
-    public NameObject[] getDisplayItems()
-    {
-        return null;
-    }
-    
     final private HashMap<Integer,Object> states;
     
     public <STATE> STATE getState(Class<?> type)
@@ -178,7 +183,6 @@ public class DeviceSession implements PathAndQueryAuthentication
         int id=System.identityHashCode(type);
         return (STATE)this.states.get(id);
     }
-    
     public void setState(Object state)
     {
         int id=System.identityHashCode(state.getClass());
@@ -189,14 +193,14 @@ public class DeviceSession implements PathAndQueryAuthentication
         int id=System.identityHashCode(type);
         this.states.remove(id);
     }
-    
     public void clearStates()
     {
         this.states.clear();
     }
 
-    final public static String QUERY_SECURITY_KEY="_";
-    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
+    
+//    final public static String QUERY_SECURITY_KEY="_";
+//    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
     
     @Override
     public String signPathAndQuery(String pathAndQuery) throws Throwable
@@ -206,7 +210,7 @@ public class DeviceSession implements PathAndQueryAuthentication
         String code=Base64.getUrlEncoder().encodeToString(hmac);
         
         
-        var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+QUERY_SECURITY_PREFIX+code:pathAndQuery+"?"+QUERY_SECURITY_PREFIX+code;
+        var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+this.querySecurityKey+"="+code:pathAndQuery+"?"+this.querySecurityKey+"="+code;
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
         {
             Debugging.log(LOG_DEBUG_CATEGORY,"signed method="+signed+",text="+pathAndQuery);
@@ -225,7 +229,7 @@ public class DeviceSession implements PathAndQueryAuthentication
         String queryString=HtmlUtils.getRequestPathAndQuery(context);
         try 
         {
-            int index=queryString.lastIndexOf(QUERY_SECURITY_PREFIX);
+            int index=queryString.lastIndexOf(this.querySecurityKey+"=");
             if (index<0)
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
@@ -235,7 +239,7 @@ public class DeviceSession implements PathAndQueryAuthentication
                 return false;
             }
             String text=queryString.substring(0,index-1);
-            String code=queryString.substring(index+QUERY_SECURITY_PREFIX.length());
+            String code=queryString.substring(index+this.querySecurityKey.length()+1);
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
@@ -261,5 +265,38 @@ public class DeviceSession implements PathAndQueryAuthentication
             }
             return false;
         }
+    }
+    
+    public static LocalDateTime toUTC(long epoch_ms)
+    {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch_ms), ZoneId.of("UTC"));
+    }
+       
+    void fill(NameValueList list)
+    {
+        
+        list.add("Token",token);
+        list.add("DeviceSessionID",this.deviceSessionId);
+        list.add("Created",toUTC(this.created));
+        list.add("LastAccess",toUTC(this.lastAccess));
+        var sample=this.accessRateMeter.sample();
+        list.add("AccessRate","instantenous rate="+String.format("%.2f", sample.getRate())+", weighted rate="+String.format("%.2f", sample.getWeightedRate())+", total="+sample.getTotalCount());
+        list.add("ZoneId",this.zoneId);
+        list.add("Language",this.language);
+        list.add("CountryCode",this.countryCode);
+        if (this.position!=null)
+        {
+            list.add("Position","lattitude="+this.position.latitude+", longitude="+this.position.longitude);
+            list.add("PositionLastUpdated",toUTC(this.positionLastUpdated));
+        }
+        for (var state:this.states.values())
+        {
+            if (state instanceof AdditionalSessionInformation)
+            {
+                ((AdditionalSessionInformation)state).fill(list);
+            }
+        }
+
+        
     }
 }

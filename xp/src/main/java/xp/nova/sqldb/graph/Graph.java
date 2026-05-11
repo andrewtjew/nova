@@ -1080,7 +1080,7 @@ public class Graph
                     );
             
             accessor.executeUpdate(parent, "createTable"
-                    ,"CREATE TABLE `@graphversion` (`name` varchar(50) NOT NULL,`version` int DEFAULT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE IF NOT EXISTS `@graphversion` (`name` varchar(50) NOT NULL,`version` int DEFAULT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                     );
             
 //            createTable(parent,accessor,catalog,"@deletedarray"

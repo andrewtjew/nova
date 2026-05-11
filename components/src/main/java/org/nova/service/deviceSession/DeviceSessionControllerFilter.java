@@ -268,6 +268,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 try
                 {
                     response=context.next(parent);
+                    deviceSession.getAccessRateMeter().increment();
                 }
                 finally
                 {

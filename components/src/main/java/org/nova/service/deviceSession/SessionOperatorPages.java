@@ -21,6 +21,11 @@
  ******************************************************************************/
 package org.nova.service.deviceSession;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+
 import org.nova.core.NameObject;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
@@ -113,6 +118,7 @@ public class SessionOperatorPages
         return new Redirect("/operator/sessions");
     }   
 
+
     @GET
     @Path("/operator/session")
     public Element getSession(Trace parent,@QueryParam("token") String token) throws Exception, Throwable
@@ -125,10 +131,7 @@ public class SessionOperatorPages
             return page;
         }
         NameValueList list=page.content().returnAddInner(new NameValueList());
-        for (NameObject item:session.getDisplayItems())
-        {
-            list.add(item.getName(),item.getValue());
-        }
+        session.fill(list);
         page.content().returnAddInner(new p());
         form_post form=page.content().returnAddInner(new form_post()).action("/operator/session/delete");
         form.returnAddInner(new InputHidden("token",token));
