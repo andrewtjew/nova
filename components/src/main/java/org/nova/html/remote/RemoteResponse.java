@@ -11,6 +11,7 @@ import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
+import org.nova.http.server.EventSourceResponse;
 import org.nova.http.server.WebSocketContext;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
@@ -284,9 +285,15 @@ public class RemoteResponse
         this.instructions.addAll(response.instructions);
         return this;
     }
-    
-    public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
+
+    public RemoteResponse send(EventSourceResponse eventSourceResponse) throws Throwable
     {
-        context.sendText(parent, ObjectMapper.writeObjectToString(this.getInstructions()));
+        eventSourceResponse.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
+        return this;
     }
+    
+//    public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
+//    {
+//        context.sendText(parent, ObjectMapper.writeObjectToString(this.getInstructions()));
+//    }
 }

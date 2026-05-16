@@ -21,6 +21,31 @@ namespace nova.remote
         content:string;
     }
 
+    // export class EventSourceCommandHandler
+    // {
+    //     constructor(url:string)
+    //     {
+    //         new EventSource(url).onmessage=(event)=>
+    //         {
+    //             let text=event.data as string;
+    //             let instructions=JSON.parse(text) as Instruction[];
+    //             console.log(instructions);
+    //             run(instructions);
+    //         }
+    //     }
+    // }
+
+    export function bindToEventSource(url:string)
+    {
+            new EventSource(url).onmessage=(event)=>
+            {
+                let text=event.data as string;
+                let instructions=JSON.parse(text) as Instruction[];
+                console.log(instructions);
+                run(instructions);
+            }
+    }
+
     export async function postWebSocket(webSocket:WebSocket,pathAndQuery:string,content:any=null,error:Function=null)
     {
         webSocket.send(JSON.stringify(new PathCommand(pathAndQuery,content)));
