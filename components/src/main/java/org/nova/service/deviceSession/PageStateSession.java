@@ -212,21 +212,21 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     }
 
     
-    @Override
-    public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
-    {
-       AbnormalResult result=super.beginRequest(parent, context);
-       if (result!=null)
-       {
-           return result;
-       }
-       return null;
-    }
-    @Override
-    public void endRequest(Trace parent,Context context,Response<?> response) throws Throwable
-    {
-        super.endRequest(parent, context, response);
-    }
+//    @Override
+//    public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
+//    {
+//       AbnormalResult result=super.beginRequest(parent, context);
+//       if (result!=null)
+//       {
+//           return result;
+//       }
+//       return null;
+//    }
+//    @Override
+//    public void endRequest(Trace parent,Context context,Response<?> response) throws Throwable
+//    {
+//        super.endRequest(parent, context, response);
+//    }
     
     public ZoneId getZoneId()
     {

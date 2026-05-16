@@ -16,9 +16,11 @@ abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessi
     final private String deviceType;
     final private Connector connector;
     final private long deviceSessionMaxAgeSeconds;
-    public ConnectorDeviceSessionControllerFilter(DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String defaultRedirect,String deviceType,Connector connector,long deviceSessionMaxAgeSeconds)
+    final private String querySecurityKey;
+    public ConnectorDeviceSessionControllerFilter(String querySecurityKey,DeviceSessionManager deviceSessionManager,String deviceSessionControllerPath,String cookieName,Integer cookieAge,String defaultRedirect,String deviceType,Connector connector,long deviceSessionMaxAgeSeconds)
     {
         super(deviceSessionManager, deviceSessionControllerPath,cookieName,cookieAge,defaultRedirect);
+        this.querySecurityKey=querySecurityKey;
         this.deviceType=deviceType;
         this.connector=connector;
         this.deviceSessionMaxAgeSeconds=deviceSessionMaxAgeSeconds;
@@ -54,7 +56,7 @@ abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessi
             var countryCode=CountryCode.fromAlpha2Code(row.getVARCHAR("countryCode"));
             var zoneId=ZoneId.of(row.getVARCHAR("zoneId"));
 
-            DeviceSession deviceSession=new DeviceSession(deviceSessionId, token,language,position,countryCode,zoneId);
+            DeviceSession deviceSession=new DeviceSession(this.querySecurityKey,deviceSessionId, token,language,position,countryCode,zoneId);
             return deviceSession;
         }
     }
@@ -110,7 +112,7 @@ abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessi
                 var deviceSessionId=insert.executeAndReturnLongKey(parent, accessor);
                 transaction.commit();
 
-                DeviceSession deviceSession=new DeviceSession(deviceSessionId, token,language,position,countryCode,zoneId);
+                DeviceSession deviceSession=new DeviceSession(this.querySecurityKey,deviceSessionId, token,language,position,countryCode,zoneId);
                 return deviceSession;
             }
         }
