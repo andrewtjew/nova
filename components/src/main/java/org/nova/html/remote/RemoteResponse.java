@@ -280,6 +280,14 @@ public class RemoteResponse
 //        return this;
 //    }
 
+    public RemoteResponse setAttribute(String id,String name,Object value)
+    {
+        script("getElementById('"+id+"').setAttribute('"+name+"','"+value+"');");
+        return this;
+    }
+    
+   
+    
     public RemoteResponse add(RemoteResponse response)
     {
         this.instructions.addAll(response.instructions);

@@ -41,7 +41,6 @@ namespace nova.remote
             {
                 let text=event.data as string;
                 let instructions=JSON.parse(text) as Instruction[];
-                console.log(instructions);
                 run(instructions);
             }
     }
