@@ -8,13 +8,13 @@ import org.nova.http.client.PathAndQuery;
 
 //Use to implement complex, stateful and re-usable form. Allows sub class forms to have method handlers returning RemoteResponse results. Subclass form lifetime is page lifetime and it is ended if the next page does not use it and is extended when next page uses it by calling getPageState(). 
 //Register using register(PATH,SubClassOfRemoteStateForm.class), then new subclass in method handler.  
-
-public class RemoteStateForm extends RemoteForm 
+//All request handlers in the subclass of RemoteStateBindingForm must have a @StatePram SubclassOfRemoteStateBinding binding parameter.
+public class RemoteStateBindingForm extends RemoteForm 
 {
     RemoteStateBinding binding;
     private boolean usePost=false;
 
-    public RemoteStateForm(String id,RemoteStateBinding binding) throws Throwable
+    public RemoteStateBindingForm(String id,RemoteStateBinding binding) throws Throwable
     {
         super(id);
         this.binding=binding;
@@ -22,7 +22,7 @@ public class RemoteStateForm extends RemoteForm
 //        binding.setState(id(),this);
 //        addInner(new InputHidden(binding.getStateKey(),id()));
     }
-    public RemoteStateForm(RemoteStateBinding binding) throws Throwable
+    public RemoteStateBindingForm(RemoteStateBinding binding) throws Throwable
     {
         this(null,binding);
     }

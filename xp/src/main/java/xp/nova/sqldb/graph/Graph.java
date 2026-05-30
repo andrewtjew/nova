@@ -27,7 +27,7 @@ import org.nova.utils.TypeUtils;
 public class Graph
 {
     static final boolean DEBUG=true;
-    static final boolean DEBUG_UPGRADE=false;
+    static final boolean DEBUG_UPGRADE=true;
     static final boolean DEBUG_QUERY=true;
     static final boolean DEBUG_CACHING=false;
     static final boolean DEBUG_VERIFY_CACHING=true;
@@ -1079,8 +1079,9 @@ public class Graph
                     ,"CREATE TABLE IF NOT EXISTS `@arraylink` (`nodeId` bigint NOT NULL AUTO_INCREMENT,`arrayNodeId` bigint NOT NULL,`relation` varchar(45), PRIMARY KEY (`nodeId`)) ENGINE=InnoDB;"
                     );
             
+
             accessor.executeUpdate(parent, "createTable"
-                    ,"CREATE TABLE IF NOT EXISTS `@graphversion` (`name` varchar(50) NOT NULL,`version` int DEFAULT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    ,"CREATE TABLE IF NOT EXISTS `@graphversion` (`version` int NOT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`version`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                     );
             
 //            createTable(parent,accessor,catalog,"@deletedarray"

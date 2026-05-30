@@ -84,7 +84,7 @@ public class DeviceSessionManager
         synchronized(this)
         {
             remove(parent,deviceSession);
-            this.deviceSessions.put(deviceSession.getToken(),deviceSession);
+            this.deviceSessions.put(deviceSession.getSessionToken(),deviceSession);
         }
         this.addMeter.increment();
     }
@@ -123,7 +123,7 @@ public class DeviceSessionManager
         DeviceSession removed;
         synchronized(this)
         {
-            removed=this.deviceSessions.remove(deviceSession.getToken());
+            removed=this.deviceSessions.remove(deviceSession.getSessionToken());
         }
         if (removed!=null)
         {

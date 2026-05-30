@@ -175,10 +175,18 @@ public abstract class DeviceSessionControllerFilter extends Filter
         {
             if (token!=null)
             {
+                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                {
+                    Debugging.log(LOG_CATEGORY_DEBUG, "getDeviceSession");
+                }
                 deviceSession=getDeviceSession(parent,context,token);
             }
             if (deviceSession==null)
             {
+                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                {
+                    Debugging.log(LOG_CATEGORY_DEBUG, "initializeDeviceSession");
+                }
                 var result=initializeDeviceSession(parent,context);
                 if (result==null)
                 {
@@ -191,7 +199,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 deviceSession=result.deviceSession;
             }
             this.deviceSessionManager.add(parent, deviceSession);
-            setCookieToken(context.getHttpServletResponse(), deviceSession.getToken());
+            setCookieToken(context.getHttpServletResponse(), deviceSession.getSessionToken());
         }
         //deviceSesion is not null after this
         deviceSession.setContext(context);
@@ -201,7 +209,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         Lock<String> lock=null;
         if (method.getAnnotation(AllowNoLock.class)==null)
         {
-            lock=deviceSessionManager.waitForLock(parent,deviceSession.getToken());
+            lock=deviceSessionManager.waitForLock(parent,deviceSession.getSessionToken());
             if (lock==null)
             {
                 return dispatchNoLock(parent, context, deviceSession);
@@ -523,7 +531,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         var deviceSession=this.deviceSessionManager.get(token);
         if (deviceSession!=null)
         {
-            page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getDeviceSessionId());
+            page.body().returnAddInner(new div()).addInner("deviceSessionId="+deviceSession.getSessionId());
             page.body().returnAddInner(new div()).addInner("language="+deviceSession.getLanguage());
     
             page.body().returnAddInner(new div()).addInner("zoneId="+deviceSession.getZoneId()+", countryCode="+deviceSession.getCountryCode());

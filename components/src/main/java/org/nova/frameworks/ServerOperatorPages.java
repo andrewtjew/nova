@@ -167,6 +167,7 @@ import org.nova.html.properties.Color_;
 import org.nova.html.properties.Length_;
 import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
+import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.http.server.annotations.ContentDecoders;
@@ -4383,7 +4384,11 @@ public class ServerOperatorPages
             Panel3 returnParameterPanel=responsePanel.content().returnAddInner(new Panel3(page.head(),"Return Type"));
             
             ParameterWriter parameterWriter = new ParameterWriter(page.head(),returnParameterPanel);
-            if (returnType == Response.class)
+            if (returnType == RemoteResponse.class)
+            {
+                returnParameterPanel.content().addInner("RemoteResponse");
+            }
+            else if (returnType == Response.class)
             {
                 ParameterizedType type = (ParameterizedType) method.getGenericReturnType();
                 unknownReturnType = type.getActualTypeArguments()[0];

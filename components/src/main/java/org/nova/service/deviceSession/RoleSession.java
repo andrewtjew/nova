@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+
 import org.nova.http.server.Context;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
@@ -71,6 +73,16 @@ public abstract class RoleSession<ROLE extends Enum<?>> extends Session implemen
             sb.append("-");
         }
         return sb.toString();
+    }
+    
+    synchronized public List<ROLE> getRoles()
+    {
+        var list=new ArrayList<ROLE>();
+        for (var role:this.roles)
+        {
+            list.add(role);
+        }
+        return list;
     }
     
     synchronized public void addRole(ROLE role)

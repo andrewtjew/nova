@@ -21,16 +21,16 @@
  ******************************************************************************/
 package org.nova.http.client;
 
-import org.nova.security.PathAndQueryAuthentication;
+import org.nova.security.PathAndQuerySecurity;
 
 public class SecurePathAndQuery extends PathAndQuery
 {
-    final private PathAndQueryAuthentication authentication;
+    final private PathAndQuerySecurity pathAndQuerySecurity;
 
-    public SecurePathAndQuery(PathAndQueryAuthentication authentication, String path) throws Throwable 
+    public SecurePathAndQuery(PathAndQuerySecurity pathAndQuerySecurity, String path) throws Throwable 
     {
         super(path);
-        this.authentication = authentication;
+        this.pathAndQuerySecurity = pathAndQuerySecurity;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SecurePathAndQuery extends PathAndQuery
         String pathAndQuery=super.toString();
         try
         {
-            return authentication.signPathAndQuery(pathAndQuery);
+            return pathAndQuerySecurity.securePathAndQuery(pathAndQuery);
         }
         catch (Throwable t)
         {

@@ -4,10 +4,10 @@ import java.time.ZoneId;
 import org.nova.geo.LatitudeLongitude;
 import org.nova.http.server.Context;
 import org.nova.localization.CountryCode;
-import org.nova.security.PathAndQueryAuthentication;
+import org.nova.security.PathAndQuerySecurity;
 
 
-public class Session implements PathAndQueryAuthentication
+public class Session implements PathAndQuerySecurity,SessionIdentification
 {
     final protected DeviceSession deviceSession;
     
@@ -21,9 +21,13 @@ public class Session implements PathAndQueryAuthentication
         return this.deviceSession;
     }
     
-    public long getDeviceSessionId()
+    public String getSessionToken()
     {
-        return this.deviceSession.getDeviceSessionId();
+        return this.deviceSession.getSessionToken();
+    }
+    public long getSessionId()
+    {
+        return this.deviceSession.getSessionId();
     }
     public ZoneId getZoneId()
     {
@@ -40,15 +44,15 @@ public class Session implements PathAndQueryAuthentication
     }
 
     @Override
-    public String signPathAndQuery(String pathAndQuery) throws Throwable
+    public String securePathAndQuery(String pathAndQuery) throws Throwable
     {
-        return this.deviceSession.signPathAndQuery(pathAndQuery);
+        return this.deviceSession.securePathAndQuery(pathAndQuery);
     }
     
     @Override
-    public boolean isRequestAuthentic(Context context) throws Throwable
+    public boolean isRequestSecure(Context context) throws Throwable
     {
-        return this.deviceSession.isRequestAuthentic(context);
+        return this.deviceSession.isRequestSecure(context);
     }
     
     

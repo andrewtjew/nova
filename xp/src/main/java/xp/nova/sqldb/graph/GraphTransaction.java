@@ -390,10 +390,14 @@ public class GraphTransaction implements AutoCloseable
             {
                 String typeName=row.getVARCHAR(0);
                 var descriptor=this.graph.getGraphObjectDescriptor(typeName);
-//                if (descriptor==null)
-//                {
-//                    throw new Exception("Type not registered. typeName="+typeName);
-//                }
+                if (Debug.ENABLE && Graph.DEBUG && Graph.DEBUG_UPGRADE)
+                {
+                   if (descriptor==null)
+                   {
+                      Debugging.log(Graph.DEBUG_CATEGORY,"no descriptor:typeName="+typeName);
+                   }
+                }
+                
                 String selectSql="SELECT * FROM "+descriptor.getTableName()+" WHERE _nodeId=?";
                 RowSet rowSet=this.accessor.executeQuery(parent, null, selectSql,nodeId);
                 versionRow(parent, descriptor, accessor, rowSet.getColumnNames(),rowSet.getRow(0));

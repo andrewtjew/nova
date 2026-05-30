@@ -96,7 +96,7 @@ public class SessionOperatorPages
             long idle=System.currentTimeMillis()-deviceSession.getLastAccess();
             TableRow row=new TableRow();
             RateSample sample=deviceSession.getAccessRateMeter().sample();
-            row.add(deviceSession.getToken(),Utils.millisToLocalDateTimeString(deviceSession.getCreated()),Utils.millisToLocalDateTimeString(deviceSession.getLastAccess()),Utils.millisToDurationString(duration),Utils.millisToDurationString(idle)
+            row.add(deviceSession.getSessionToken(),Utils.millisToLocalDateTimeString(deviceSession.getCreated()),Utils.millisToLocalDateTimeString(deviceSession.getLastAccess()),Utils.millisToDurationString(duration),Utils.millisToDurationString(idle)
                     ,sample.getSamples(),String.format("%.2f",sample.getRate()
                             ));
             /*
@@ -104,7 +104,7 @@ public class SessionOperatorPages
                     ,new PathAndQueryBuilder("/operator/session").addQuery("token",session.getToken()).toString()
                     );
             */
-            row.add(new MoreButton(page.head(),new PathAndQuery("/operator/session").addQuery("token",deviceSession.getToken()).toString()));
+            row.add(new MoreButton(page.head(),new PathAndQuery("/operator/session").addQuery("token",deviceSession.getSessionToken()).toString()));
            table.addRow(row);
         }
         return page;

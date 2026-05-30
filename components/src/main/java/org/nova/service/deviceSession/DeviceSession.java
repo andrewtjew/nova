@@ -19,7 +19,7 @@ import org.nova.http.server.Context;
 import org.nova.http.server.Filter;
 import org.nova.localization.CountryCode;
 import org.nova.metrics.RateMeter;
-import org.nova.security.PathAndQueryAuthentication;
+import org.nova.security.PathAndQuerySecurity;
 import org.nova.security.SecurityUtils;
 import org.nova.services.AbnormalResult;
 import org.nova.tracing.Trace;
@@ -27,7 +27,7 @@ import org.nova.utils.Utils;
 
 
 
-public class DeviceSession implements PathAndQueryAuthentication
+public class DeviceSession implements PathAndQuerySecurity,SessionIdentification
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -101,7 +101,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     {
         return created;
     }
-    public String getToken()
+    public String getSessionToken()
     {
         return token;
     }
@@ -131,7 +131,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     {
         return this.language;
     }
-    public long getDeviceSessionId()
+    public long getSessionId()
     {
         return this.deviceSessionId;
     }
@@ -154,7 +154,7 @@ public class DeviceSession implements PathAndQueryAuthentication
     
     final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
-        if (this.isRequestAuthentic(context)==false)
+        if (this.isRequestSecure(context)==false)
         {
             return new AbnormalResult();
         }
@@ -203,7 +203,7 @@ public class DeviceSession implements PathAndQueryAuthentication
 //    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
     
     @Override
-    public String signPathAndQuery(String pathAndQuery) throws Throwable
+    public String securePathAndQuery(String pathAndQuery) throws Throwable
     {
         byte[] objectBytes=pathAndQuery.getBytes(StandardCharsets.UTF_8);
         byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, objectBytes);
@@ -213,13 +213,13 @@ public class DeviceSession implements PathAndQueryAuthentication
         var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+this.querySecurityKey+"="+code:pathAndQuery+"?"+this.querySecurityKey+"="+code;
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
         {
-            Debugging.log(LOG_DEBUG_CATEGORY,"signed method="+signed+",text="+pathAndQuery);
+            Debugging.log(LOG_DEBUG_CATEGORY,"secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
         }
         return signed;
     }
 
     @Override
-    public boolean isRequestAuthentic(Context context) throws Throwable
+    public boolean isRequestSecure(Context context) throws Throwable
     {
         var requestMethod=context.getRequestMethod();
         if (requestMethod.isPathAndQueryAuthenticationRequired()==false)
