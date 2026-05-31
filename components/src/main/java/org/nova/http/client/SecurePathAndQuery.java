@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.http.client;
 
+import javax.management.RuntimeErrorException;
+
 import org.nova.security.PathAndQuerySecurity;
 
 public class SecurePathAndQuery extends PathAndQuery
@@ -43,7 +45,7 @@ public class SecurePathAndQuery extends PathAndQuery
         }
         catch (Throwable t)
         {
-            return pathAndQuery;
+            throw new RuntimeException(t);
         }
     }
 }

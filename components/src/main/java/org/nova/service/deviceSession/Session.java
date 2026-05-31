@@ -7,7 +7,7 @@ import org.nova.localization.CountryCode;
 import org.nova.security.PathAndQuerySecurity;
 
 
-public class Session implements PathAndQuerySecurity,SessionIdentification
+public class Session implements PathAndQuerySecurity
 {
     final protected DeviceSession deviceSession;
     

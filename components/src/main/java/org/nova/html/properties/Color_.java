@@ -54,11 +54,11 @@ public class Color_
     }
     static public Color_ oklch(float lightness,float chroma,float hue)
     {
-        return new Color_("hsl("+hue+" "+chroma+" "+lightness+")");
+        return new Color_("oklch("+lightness+" "+chroma+" "+hue+")");
     }
     static public Color_ oklch(float lightness,float chroma,float hue,float opacity)
     {
-        return new Color_("hsl("+hue+" "+chroma+" "+lightness+" / "+opacity+")");
+        return new Color_("oklch("+lightness+" "+chroma+" "+hue+" / "+opacity+")");
     }
     static public Color_ value(String value)
     {

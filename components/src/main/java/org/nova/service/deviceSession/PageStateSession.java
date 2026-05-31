@@ -21,27 +21,20 @@ import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
 
-public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,SessionRequestHandling,PathAndQuerySecurity,AdditionalSessionInformation,SessionIdentification
+public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,SessionRequestHandling,AdditionalSessionInformation
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
     final static String LOG_DEBUG_CATEGORY=PageStateSession.class.getSimpleName();
 
-    
-    final protected DeviceSession deviceSession;
     public HashMap<String,Object> states;
     public HashMap<String,Object> newStates;
     
-    public PageStateSession(DeviceSession deviceSession,Class<ROLE> roleType) throws Throwable
+    public PageStateSession(Class<ROLE> roleType) throws Throwable
     {
-        super(deviceSession,roleType);
-        this.deviceSession=deviceSession;
+        super(roleType);
     }
     
-    public DeviceSession getDeviceSession()
-    {
-        return this.deviceSession;
-    }
     
     public <T> T getState(String key)
     {
@@ -159,31 +152,6 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
 //        super.endRequest(parent, context, response);
 //    }
     
-    public ZoneId getZoneId()
-    {
-        return this.deviceSession.getZoneId();
-    }
-    public CountryCode getCountryCode()
-    {
-        return this.deviceSession.getCountryCode();
-    }
-
-    public LatitudeLongitude getPosition()
-    {
-        return this.deviceSession.getPosition();
-    }
-    
-    @Override
-    public String securePathAndQuery(String pathAndQuery) throws Throwable
-    {
-        return this.deviceSession.securePathAndQuery(pathAndQuery);
-    }
-    
-    @Override
-    public boolean isRequestSecure(Context context) throws Throwable
-    {
-        return this.deviceSession.isRequestSecure(context);
-    }
     @Override
     public void fill(NameValueList list)
     {

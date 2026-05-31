@@ -14,14 +14,13 @@ import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
 
-public abstract class RoleSession<ROLE extends Enum<?>> extends Session implements SessionRequestHandling
+public abstract class RoleSession<ROLE extends Enum<?>> implements SessionRequestHandling
 {
     final static boolean DEBUG=false;
     final static String LOG_DEBUG_CATEGORY=RoleSession.class.getSimpleName();
 
-    public RoleSession(DeviceSession deviceSession,Class<ROLE> roleType) throws Throwable
+    public RoleSession(Class<ROLE> roleType) throws Throwable
     {
-        super(deviceSession);
         this.roleType=roleType;
         this.roles=new HashSet<>();
         this.denyMap=new HashMap<Long, AbnormalAcceptBox>();

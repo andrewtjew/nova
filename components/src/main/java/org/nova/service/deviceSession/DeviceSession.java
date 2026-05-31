@@ -26,8 +26,7 @@ import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
 
-
-public class DeviceSession implements PathAndQuerySecurity,SessionIdentification
+public class DeviceSession implements PathAndQuerySecurity
 {
     static public record DeviceLocation(GeoLocation location,long created)
     {
@@ -101,10 +100,7 @@ public class DeviceSession implements PathAndQuerySecurity,SessionIdentification
     {
         return created;
     }
-    public String getSessionToken()
-    {
-        return token;
-    }
+
     public RateMeter getAccessRateMeter()
     {
         return this.accessRateMeter;
@@ -135,6 +131,10 @@ public class DeviceSession implements PathAndQuerySecurity,SessionIdentification
     {
         return this.deviceSessionId;
     }
+    public String getSessionToken()
+    {
+        return token;
+    }    
     public LatitudeLongitude getPosition()
     {
         return this.position;

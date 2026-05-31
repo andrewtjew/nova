@@ -82,7 +82,7 @@ public class GraphTransaction implements AutoCloseable
             {
                 throw new Exception("object "+nodeObject.getClass().getSimpleName()+" belongs to another node. objectNodeId="+nodeId+", nodeId="+nodeId);
             }
-            _put(nodeId,nodeObject);
+            _update(nodeId,nodeObject);
         }
     }
 
@@ -99,7 +99,7 @@ public class GraphTransaction implements AutoCloseable
         }
     }
 
-    private void _put(long nodeId, NodeObject nodeObject) throws Throwable
+    private void _update(long nodeId, NodeObject nodeObject) throws Throwable
     {
         //OPTIMIZE: the sql statements can be pre-calculated. 
         nodeObject._nodeId=nodeId;
