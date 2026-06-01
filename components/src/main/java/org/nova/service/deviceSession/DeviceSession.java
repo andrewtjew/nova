@@ -8,7 +8,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.nova.core.NameObject;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.geo.GeoLocation;

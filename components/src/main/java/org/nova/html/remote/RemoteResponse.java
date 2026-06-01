@@ -12,10 +12,8 @@ import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.EventSourceResponse;
-import org.nova.http.server.WebSocketContext;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
-import org.nova.tracing.Trace;
 import org.nova.html.tags.script;
 
 public class RemoteResponse

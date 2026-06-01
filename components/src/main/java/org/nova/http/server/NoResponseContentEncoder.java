@@ -27,9 +27,6 @@ import java.io.OutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.nova.http.server.IdentityContentEncoder.Context;
-import org.nova.io.SizeOutputStream;
-
 public class NoResponseContentEncoder extends ContentEncoder
 {
 	static class Context extends EncoderContext

@@ -21,12 +21,6 @@
  ******************************************************************************/
 package org.nova.service.deviceSession;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-
-import org.nova.core.NameObject;
 import org.nova.frameworks.OperatorPage;
 import org.nova.frameworks.ServerApplication;
 import org.nova.frameworks.ServerOperatorPages;
