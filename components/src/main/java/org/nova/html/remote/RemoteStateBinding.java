@@ -31,7 +31,7 @@ public interface RemoteStateBinding
     }
 
     public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable;
-    public void bind(FormElement<?> element) throws Throwable;
+    public void bind(FormElement<?> element,String action) throws Throwable;
 
     public String getQueryBinding(TagElement<?> element);
     

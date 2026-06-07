@@ -77,7 +77,7 @@ public class RequestMethod
     final private long runtimeKey;
     
     final private FragmentIndexMap fragmentIndexMap;
-    final private boolean isPathAndQueryAuthenticationRequired;
+    final private boolean requiresPathAndQuerySecurity;
 //    final private String pageGroupName;
     
     RequestMethod(Object object,Method method,String httpMethod,String path,Filter[] bottomFilters,Filter[] topFilters,ParameterInfo[] parameterInfos,	Map<String,ContentDecoder> contentDecoders,ContentEncoder[] contentEncoders,Map<String,ContentReader> contentReaders,Map<String,ContentWriter> contentWriters,boolean log,boolean logRequestHeaders,boolean logRequestParameters,boolean logRequestContent,boolean logResponseHeaders,boolean logResponseContent,boolean logLastRequestsInMemory,int bufferSize,int cookieParamCount,ClassAnnotations annotations,HashSet<String> hiddenParameters)
@@ -170,18 +170,19 @@ public class RequestMethod
         this.test=annotations.test!=null;
         
         
-        if (pathParams+queryParams>0)
-        {
-            this.isPathAndQueryAuthenticationRequired=(annotations.pathAndQueryAuthentication!=null)?annotations.pathAndQueryAuthentication.value():true;
-        }
-        else
-        {
-            this.isPathAndQueryAuthenticationRequired=false;
-        }
+        this.requiresPathAndQuerySecurity=(annotations.pathAndQuerySecurity!=null)?annotations.pathAndQuerySecurity.value():false;
+//        if (pathParams+queryParams>0)
+//        {
+//            this.isPathAndQueryAuthenticationRequired=(annotations.pathAndQueryAuthentication!=null)?annotations.pathAndQueryAuthentication.value():true;
+//        }
+//        else
+//        {
+//            this.isPathAndQueryAuthenticationRequired=false;
+//        }
    }
-    public boolean isPathAndQueryAuthenticationRequired()
+    public boolean requiresPathAndQuerySecurity()
     {
-        return this.isPathAndQueryAuthenticationRequired;
+        return this.requiresPathAndQuerySecurity;
     }
     
 	public FragmentIndexMap getFragmentIndexMap()

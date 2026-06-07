@@ -49,6 +49,8 @@ import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
 
+import com.ctc.wstx.shaded.msv_core.reader.State;
+
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.BrotliContentEncoder;
@@ -66,7 +68,9 @@ public abstract class DeviceSessionControllerFilter extends Filter
 {
     final static String LOG_CATEGORY_DEBUG=DeviceSessionControllerFilter.class.getSimpleName();
     final static boolean DEBUG=true;
-    final static boolean DEBUG_ACCESS=true;
+    final static boolean DEBUG_SECURITY=false;
+    final static boolean DEBUG_SECURITY_ACCESS_DENIED=true;
+    final static boolean DEBUG_STATE_HANDLING=true;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_PAGE=true;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_CONSOLE=true;
 
@@ -175,7 +179,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         {
             if (token!=null)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
                 {
                     Debugging.log(LOG_CATEGORY_DEBUG, "getDeviceSession");
                 }
@@ -183,7 +187,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
             }
             if (deviceSession==null)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
                 {
                     Debugging.log(LOG_CATEGORY_DEBUG, "initializeDeviceSession");
                 }
@@ -235,9 +239,9 @@ public abstract class DeviceSessionControllerFilter extends Filter
                     context.seeOther(abnormalResult.seeOther());
                     return null;
                 }
-                if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                if (Debug.ENABLE && DEBUG && DEBUG_SECURITY_ACCESS_DENIED)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
+                    Debugging.log(LOG_CATEGORY_DEBUG, "PathAndQuerySecurity access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
                 }
                 return dispatchInvalidQuery(parent, context,deviceSession);
             }
@@ -250,13 +254,17 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 if (requestMethodStateType==deviceSession.getClass())
                 {
                     context.setState(deviceSession);
+                    if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
+                    {
+                        Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: state=DeviceSession");
+                    }
                 }
                 else
                 {
-                    var state=deviceSession.getState(requestMethod.getStateType());
-                    if ((method.getAnnotation(AllowNoSession.class)==null)&&(state==null)&&(requestMethodStateType!=null))
+                    var state=deviceSession.getState(requestMethodStateType);
+                    if ((state==null)&&(requestMethodStateType!=null)&&(method.getAnnotation(AllowNoSession.class)==null))
                     {
-                        if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+                        if (Debug.ENABLE && DEBUG)
                         {
                             Debugging.log(LOG_CATEGORY_DEBUG, "State required: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                         }
@@ -264,7 +272,19 @@ public abstract class DeviceSessionControllerFilter extends Filter
                     }
                     context.setState(state);
                     stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
+                    if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
+                    {
+                        if (stateHandling!=null)
+                        {
+                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+stateHandling.getClass().getSimpleName());
+                        }
+                        else
+                        {
+                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
+                        }
+                    }
                 }
+                    
                 if (stateHandling!=null)
                 {
                     abnormalResult=stateHandling.beginRequest(parent, context);
@@ -349,7 +369,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
             context.seeOther(abnormalResult.seeOther());
             return null;
         }
-        if (Debug.ENABLE && DEBUG && DEBUG_ACCESS)
+        if (Debug.ENABLE && DEBUG && DEBUG_SECURITY)
         {
             RequestMethod requestMethod=context.getRequestMethod();
             Debugging.log(LOG_CATEGORY_DEBUG, "Access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);

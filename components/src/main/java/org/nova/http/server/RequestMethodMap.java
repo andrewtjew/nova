@@ -50,7 +50,7 @@ import org.nova.http.server.annotations.Filters;
 import org.nova.http.server.annotations.GET;
 import org.nova.http.server.annotations.HEAD;
 import org.nova.http.server.annotations.Log;
-import org.nova.http.server.annotations.PathAndQueryAuthentication;
+import org.nova.http.server.annotations.PathAndQuerySecurity;
 import org.nova.http.server.annotations.OPTIONS;
 import org.nova.http.server.annotations.PATCH;
 import org.nova.http.server.annotations.POST;
@@ -217,11 +217,11 @@ class RequestMethodMap
 //                {
 //                    classAnnotations.stateGroupName= (StateGroupName) annotation;
 //                }
-                else if (type == PathAndQueryAuthentication.class)
+                else if (type == PathAndQuerySecurity.class)
                 {
-                    if (classAnnotations.pathAndQueryAuthentication==null)
+                    if (classAnnotations.pathAndQuerySecurity==null)
                     {
-                        classAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
+                        classAnnotations.pathAndQuerySecurity= (PathAndQuerySecurity) annotation;
                     }
                 }
                 else if (type==Test.class)
@@ -352,9 +352,9 @@ class RequestMethodMap
 //            {
 //                handlerAnnotations.stateGroupName= (StateGroupName) annotation;
 //            }
-            else if (type == PathAndQueryAuthentication.class)
+            else if (type == PathAndQuerySecurity.class)
             {
-                handlerAnnotations.pathAndQueryAuthentication= (PathAndQueryAuthentication) annotation;
+                handlerAnnotations.pathAndQuerySecurity= (PathAndQuerySecurity) annotation;
             }
             else if (type == Test.class)
             {

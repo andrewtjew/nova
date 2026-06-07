@@ -50,9 +50,9 @@ public class Session implements PathAndQuerySecurity
     }
     
     @Override
-    public boolean isRequestSecure(Context context) throws Throwable
+    public boolean verifyRequest(Context context) throws Throwable
     {
-        return this.deviceSession.isRequestSecure(context);
+        return this.deviceSession.verifyRequest(context);
     }
     
     

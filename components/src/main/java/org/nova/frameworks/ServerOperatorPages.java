@@ -4484,9 +4484,9 @@ public class ServerOperatorPages
                 table.addRow(new TableRow().add(Utils.combine(forbiddenRoles.value(),"")));
             }
         }
-        if (requestMethod.isPathAndQueryAuthenticationRequired())
+        if (requestMethod.requiresPathAndQuerySecurity())
         {
-            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"Authentication Required"));
+            Panel2 panel=page.content().returnAddInner(new Panel2(page.head(),"PathAndQuerySecurity required"));
         }
 
         if (requestMethod.getContentDecoders().size() > 0)

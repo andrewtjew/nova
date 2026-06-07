@@ -38,7 +38,7 @@ public class DeviceSession implements PathAndQuerySecurity
     Throwable throwable;
     
     final static boolean DEBUG=true;
-    final boolean DEBUG_REQUEST_AUTHENTICATION=true;
+    static final boolean DEBUG_REQUEST_SECURITY=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -153,7 +153,7 @@ public class DeviceSession implements PathAndQuerySecurity
     
     final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
     {
-        if (this.isRequestSecure(context)==false)
+        if (this.verifyRequest(context)==false)
         {
             return new AbnormalResult();
         }
@@ -210,7 +210,7 @@ public class DeviceSession implements PathAndQuerySecurity
         
         
         var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+this.querySecurityKey+"="+code:pathAndQuery+"?"+this.querySecurityKey+"="+code;
-        if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+        if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
         {
             Debugging.log(LOG_DEBUG_CATEGORY,"secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
         }
@@ -218,10 +218,10 @@ public class DeviceSession implements PathAndQuerySecurity
     }
 
     @Override
-    public boolean isRequestSecure(Context context) throws Throwable
+    public boolean verifyRequest(Context context) throws Throwable
     {
         var requestMethod=context.getRequestMethod();
-        if (requestMethod.isPathAndQueryAuthenticationRequired()==false)
+        if (requestMethod.requiresPathAndQuerySecurity()==false)
         {
             return true;
         }
@@ -231,35 +231,35 @@ public class DeviceSession implements PathAndQuerySecurity
             int index=queryString.lastIndexOf(this.querySecurityKey+"=");
             if (index<0)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+                if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"Authentication required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 }
                 return false;
             }
             String text=queryString.substring(0,index-1);
             String code=queryString.substring(index+this.querySecurityKey.length()+1);
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
             }
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             var result=code.equals(computed);
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
                 if (result==false)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"Authentication failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
                 }
             }
             return result;
         }
         catch (Throwable t)
         {
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_AUTHENTICATION)
+            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"Authentication exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
             }
             return false;

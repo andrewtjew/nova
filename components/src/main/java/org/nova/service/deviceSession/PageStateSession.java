@@ -29,22 +29,25 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     public <T> T getState(String key)
     {
         Object state=null;
-        if (this.states!=null)
-        {
-            state=this.states.get(key);
-        }
-        if (state!=null)
-        {
-            //As long as the handler refers to the state, we keep it alive.
-            if (this.newStates==null)
-            {
-                this.newStates=new HashMap<String, Object>();
-            }
-            this.newStates.put(key, state);
-        }
-        else
+        if (this.newStates!=null)
         {
             state=this.newStates.get(key);
+        }
+        if (state==null)
+        {
+            if (this.states!=null)
+            {
+                state=this.states.get(key);
+                if (state!=null)
+                {
+                    //As long as the handler refers to the state, we keep it alive.
+                    if (this.newStates==null)
+                    {
+                        this.newStates=new HashMap<String, Object>();
+                    }
+                    this.newStates.put(key, state);
+                }
+            }
         }
         return (T)state;
     }
@@ -119,29 +122,20 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     }
   
     @Override
-    final public void bind(FormElement<?> element) throws Throwable
+    final public void bind(FormElement<?> element,String action) throws Throwable
     {
         setState(element.id(),element);
-        element.addInner(new InputHidden(STATE_KEY,element.id()));
+        if (action!=null)
+        {
+            element.action(new PathAndQuery(action).addQuery(STATE_KEY, element.id()).toString());
+        }
+        else
+        {
+            element.addInner(new InputHidden(STATE_KEY,element.id()));
+        }
     }
 
-    
-//    @Override
-//    public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
-//    {
-//       AbnormalResult result=super.beginRequest(parent, context);
-//       if (result!=null)
-//       {
-//           return result;
-//       }
-//       return null;
-//    }
-//    @Override
-//    public void endRequest(Trace parent,Context context,Response<?> response) throws Throwable
-//    {
-//        super.endRequest(parent, context, response);
-//    }
-    
+
     @Override
     public void fill(NameValueList list)
     {
