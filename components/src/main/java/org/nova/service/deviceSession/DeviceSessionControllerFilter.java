@@ -70,7 +70,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
     final static boolean DEBUG=true;
     final static boolean DEBUG_SECURITY=false;
     final static boolean DEBUG_SECURITY_ACCESS_DENIED=true;
-    final static boolean DEBUG_STATE_HANDLING=true;
+    final static boolean DEBUG_STATE_HANDLING=false;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_PAGE=true;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_CONSOLE=true;
 

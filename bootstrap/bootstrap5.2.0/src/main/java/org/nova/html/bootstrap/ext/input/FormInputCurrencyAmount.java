@@ -6,9 +6,9 @@ import org.nova.localization.CurrencyCode;
 
 public class FormInputCurrencyAmount extends FormInputComponent<InputCurrencyAmount>
 {
-    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required,Element right)
+    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
     {
-        super(col, labelText, new InputCurrencyAmount(currencyCode), right);
+        super(col, labelText, new InputCurrencyAmount(currencyCode));
         input().name(name).required(required);
         
         if (value!=null)
@@ -16,10 +16,10 @@ public class FormInputCurrencyAmount extends FormInputComponent<InputCurrencyAmo
             input().value(value);
         }
     }
-    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
-    {
-        this(col,labelText,name,currencyCode,value,required,null);
-    }
+//    public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value,boolean required)
+//    {
+//        this(col,labelText,name,currencyCode,value,required,null);
+//    }
     public FormInputCurrencyAmount(FormCol col, String labelText,String name,CurrencyCode currencyCode,Double value)
     {
         this(col, labelText, name,currencyCode,value,false);

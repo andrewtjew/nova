@@ -9,7 +9,7 @@ public class FormInputCountry extends FormInputComponent<InputText>
 {
     public FormInputCountry(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(col, labelText, new InputText(), null);
+        super(col, labelText, new InputText());
         input().name(name).required(required);
         if (value!=null)
         {

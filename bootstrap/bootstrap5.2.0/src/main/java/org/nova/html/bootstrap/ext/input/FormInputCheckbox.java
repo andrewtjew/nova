@@ -6,7 +6,7 @@ public class FormInputCheckbox extends FormInputComponent<InputCheckbox>
 {
     public FormInputCheckbox(FormCol col, String labelText,String name,boolean checked)
     {
-        super(col, labelText, new InputCheckbox(), null);
+        super(col, labelText, new InputCheckbox());
         input().name(name).checked(checked);
     }
     public FormInputCheckbox(FormCol col,String labelText,String name)

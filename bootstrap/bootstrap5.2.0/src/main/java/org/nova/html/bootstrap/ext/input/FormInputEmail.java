@@ -6,7 +6,7 @@ public class FormInputEmail extends FormInputComponent<InputEmail>
 {
     public FormInputEmail(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(col, labelText, new InputEmail(), null);
+        super(col, labelText, new InputEmail());
         input().name(name).required(required);
         if (value!=null)
         {

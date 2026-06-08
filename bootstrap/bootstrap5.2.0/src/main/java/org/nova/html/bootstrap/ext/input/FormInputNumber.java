@@ -6,7 +6,7 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
 {
     public FormInputNumber(FormCol col, String labelText,String name,Double value,boolean required)
     {
-        super(col, labelText, new InputNumber(), null);
+        super(col, labelText, new InputNumber());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -27,7 +27,7 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
     }
     public FormInputNumber(FormCol col, String labelText,String name,Long value,boolean required)
     {
-        super(col, labelText, new InputNumber(), null);
+        super(col, labelText, new InputNumber());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -40,7 +40,7 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
     }
     public FormInputNumber(FormCol col, String labelText,String name,Integer value,boolean required)
     {
-        super(col, labelText, new InputNumber(), null);
+        super(col, labelText, new InputNumber());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -53,7 +53,7 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
     }
     public FormInputNumber(FormCol col, String labelText,String name,Short value,boolean required)
     {
-        super(col, labelText, new InputNumber(), null);
+        super(col, labelText, new InputNumber());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -64,21 +64,4 @@ public class FormInputNumber extends FormInputComponent<InputNumber>
     {
         this(col, labelText, name,value,false);
     }
-   
-//    public FormInputNumber(String labelText,String name,Double value,boolean required)
-//    {
-//        this(null,labelText,name,value,required);
-//    }
-//    public FormInputNumber(String labelText,String name,Double value)
-//    {
-//        this(labelText, name,value,false);
-//    }
-//    public FormInputNumber(String labelText,String name,boolean required)
-//    {
-//        this(labelText, name,null,required);
-//    }
-//    public FormInputNumber(String labelText,String name)
-//    {
-//        this(labelText,name,null);
-//    }
 }

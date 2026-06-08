@@ -6,7 +6,7 @@ public class FormInputSwitch extends FormInputComponent<InputSwitch>
 {
     public FormInputSwitch(FormCol col, String labelText,String name,boolean checked)
     {
-        super(col, labelText, new InputSwitch(), null);
+        super(col, labelText, new InputSwitch());
         input().name(name).checked(checked);
     }
     public FormInputSwitch(FormCol col, String labelText,String name)

@@ -4,7 +4,7 @@ public class FormSelectValue extends FormSelectComponent<SelectValue>
 {
     public FormSelectValue(FormCol col, String labelText,String name,String unit,int start,int end,int increment,String none,Integer value,boolean required)
     {
-        super(col, labelText, new SelectValue(unit,start,end,increment,none,value),null);
+        super(col, labelText, new SelectValue(unit,start,end,increment,none,value));
         input().name(name).required(required);
     }
     public FormSelectValue(FormCol col, String labelText,String name,String unit,int start,int end,int increment,String none,Integer value)

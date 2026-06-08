@@ -280,9 +280,9 @@ public class HtmlUtils
     {
     	return "window.location=this.options[this.selectedIndex].value;";
     }
-    public static String js_location(PathAndQuery builder)
+    public static String js_location(PathAndQuery pathAndQuery)
     {
-        return "window.location='"+builder.toString()+"'";
+        return "window.location='"+pathAndQuery.toString()+"'";
     }
     public static String js_location(QuotationMark mark,PathAndQuery builder)
     {
@@ -292,7 +292,7 @@ public class HtmlUtils
     {
         return "window.location='"+url+"'";
     }
-    public static String js_focus(InputElement element)
+    public static String js_focus(InputElement<?> element)
     {
         return "document.getElementById('"+element.id()+"').focus();";
     }

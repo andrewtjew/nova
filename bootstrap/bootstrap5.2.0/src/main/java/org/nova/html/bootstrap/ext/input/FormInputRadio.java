@@ -6,7 +6,7 @@ public class FormInputRadio extends FormInputComponent<InputRadio>
 {
     public FormInputRadio(FormCol col, String labelText,String name,boolean checked)
     {
-        super(col, labelText, new InputRadio(), null);
+        super(col, labelText, new InputRadio());
         input().name(name).checked(checked);
     }
     public FormInputRadio(FormCol col, String labelText,String name)

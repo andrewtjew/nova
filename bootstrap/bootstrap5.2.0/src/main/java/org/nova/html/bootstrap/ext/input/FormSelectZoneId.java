@@ -7,7 +7,7 @@ public class FormSelectZoneId extends FormSelectComponent<SelectZoneId>
 {
     public FormSelectZoneId(FormCol col, String labelText,String name,ZoneId[] zoneIds,ZoneId value,boolean required)
     {
-        super(col, labelText, new SelectZoneId(zoneIds,value), null);
+        super(col, labelText, new SelectZoneId(zoneIds,value));
         input().name(name).required(required);
     }
     public FormSelectZoneId(FormCol col, String labelText,String name,ZoneId[] zoneIds,ZoneId value)

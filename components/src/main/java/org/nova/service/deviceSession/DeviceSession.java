@@ -38,7 +38,9 @@ public class DeviceSession implements PathAndQuerySecurity
     Throwable throwable;
     
     final static boolean DEBUG=true;
-    static final boolean DEBUG_REQUEST_SECURITY=true;
+    static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
+    static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
+    static final boolean DEBUG_REQUEST_SECURITY=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -223,6 +225,15 @@ public class DeviceSession implements PathAndQuerySecurity
         var requestMethod=context.getRequestMethod();
         if (requestMethod.requiresPathAndQuerySecurity()==false)
         {
+            if (Debug.ENABLE && DEBUG && DEBUG_REDUNDANT_REQUEST_SECURITY)
+            {
+                String queryString=HtmlUtils.getRequestPathAndQuery(context);
+                int index=queryString.lastIndexOf(this.querySecurityKey+"=");
+                if (index>=0)
+                {
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity not required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                }
+            }
             return true;
         }
         String queryString=HtmlUtils.getRequestPathAndQuery(context);
@@ -231,7 +242,7 @@ public class DeviceSession implements PathAndQuerySecurity
             int index=queryString.lastIndexOf(this.querySecurityKey+"=");
             if (index<0)
             {
-                if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
+                if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 }
@@ -246,7 +257,9 @@ public class DeviceSession implements PathAndQuerySecurity
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             var result=code.equals(computed);
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
+            
+            
+            if (Debug.ENABLE && DEBUG && (DEBUG_FAILED_REQUEST_SECURITY || DEBUG_REQUEST_SECURITY))
             {
                 if (result==false)
                 {

@@ -5,15 +5,19 @@ import org.nova.html.elements.Element;
 
 public class FormInputText extends FormInputComponent<InputText>
 {
-    public FormInputText(FormCol col, String labelText,String name,String value,boolean required,Element right)
+    public FormInputText(FormCol col, String labelText,String name,String value,boolean required,Element right,Element before,Element after)
     {
-        super(col, labelText, new InputText(), right);
+        super(col, labelText, new InputText(), right,before,after);
         input().name(name).required(required);
         if (value!=null)
         {
             input().value(value);
         }
     }
+    public FormInputText(FormCol col, String labelText,String name,String value,boolean required,Element right)
+    {
+        this(col, labelText, name,value,required,right,null,null);
+    }    
     public FormInputText(FormCol col, String labelText,String name,String value,boolean required)
     {
         this(col,labelText,name,value,required,null);

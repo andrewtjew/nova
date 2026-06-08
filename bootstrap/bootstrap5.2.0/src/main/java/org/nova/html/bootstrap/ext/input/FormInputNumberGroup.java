@@ -4,7 +4,7 @@ public class FormInputNumberGroup extends FormInputComponent<InputGroupNumber>
 {
     public FormInputNumberGroup(FormCol col, String labelText,String name,Double value,boolean required)
     {
-        super(col, labelText, new InputGroupNumber(), null);
+        super(col, labelText, new InputGroupNumber());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -19,21 +19,4 @@ public class FormInputNumberGroup extends FormInputComponent<InputGroupNumber>
     {
         this(col, labelText, name,null);
     }
-   
-//    public FormInputNumber(String labelText,String name,Double value,boolean required)
-//    {
-//        this(null,labelText,name,value,required);
-//    }
-//    public FormInputNumber(String labelText,String name,Double value)
-//    {
-//        this(labelText, name,value,false);
-//    }
-//    public FormInputNumber(String labelText,String name,boolean required)
-//    {
-//        this(labelText, name,null,required);
-//    }
-//    public FormInputNumber(String labelText,String name)
-//    {
-//        this(labelText,name,null);
-//    }
 }

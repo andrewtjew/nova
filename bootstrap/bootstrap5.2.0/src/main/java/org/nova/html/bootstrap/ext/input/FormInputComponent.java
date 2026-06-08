@@ -8,6 +8,7 @@ import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleComponent;
+import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
@@ -21,8 +22,9 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
     private INPUT input;
     final private Item validationMessage;
     
-    public FormInputComponent(FormCol formCol,String labelText,INPUT input,Element right)
+    public FormInputComponent(FormCol formCol,String labelText,INPUT input,Element right,Element before,Element after)
     {
+        //!!Incomplete. before and after only implemented only for InputComponent<?>
         super("div");
         id();
         if (formCol!=null)
@@ -67,9 +69,9 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
             if (right!=null)
             {
                 row.justify_content(Justify.between);
-                Item left=row.returnAddInner(new Item());
-                this.input=left.returnAddInner(input);
-                left.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputSwitch).form_check_label().ps(2);
+                Item item=row.returnAddInner(new Item());
+                this.input=item.returnAddInner(input);
+                item.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputSwitch).form_check_label().ps(2);
                 row.returnAddInner(right);
             }
             else
@@ -86,9 +88,9 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
             if (right!=null)
             {
                 row.justify_content(Justify.between);
-                Item left=row.returnAddInner(new Item());
-                this.input=left.returnAddInner(input);
-                left.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputCheckbox).form_check_label().ps(2);
+                Item item=row.returnAddInner(new Item());
+                this.input=item.returnAddInner(input);
+                item.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputCheckbox).form_check_label().ps(2);
                 row.returnAddInner(right);
             }
             else
@@ -105,9 +107,9 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
             if (right!=null)
             {
                 row.justify_content(Justify.between);
-                Item left=row.returnAddInner(new Item());
-                this.input=left.returnAddInner(input);
-                left.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputRadio).form_check_label().ps(2);
+                Item item=row.returnAddInner(new Item());
+                this.input=item.returnAddInner(input);
+                item.returnAddInner(new Label(labelText).text(Text.nowrap)).for_(inputRadio).form_check_label().ps(2);
                 row.returnAddInner(right);
             }
             else
@@ -138,7 +140,17 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
                 top.returnAddInner(right);
             }
             inputComponent.form_control();
-            this.input=returnAddInner(input);
+            Item bottom=returnAddInner(new Item());
+            bottom.justify_content(Justify.between).d(Display.flex);//.align_items(AlignItems.center);
+            if (before!=null)
+            {
+                bottom.addInner(before);
+            }
+            this.input=bottom.returnAddInner(input);
+            if (after!=null)
+            {
+                bottom.addInner(after);
+            }
         }
         else
         {
@@ -164,7 +176,10 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
         this.validationMessage.w(100).px(1).id();
         mb(3);
     }
-    
+    public FormInputComponent(FormCol formCol,String labelText,INPUT input,Element right)
+    {
+        this(formCol,labelText,input,right,null,null);
+    }    
     public FormInputComponent(FormCol col,String labelText,INPUT input)
     {
         this(col,labelText,input,null);

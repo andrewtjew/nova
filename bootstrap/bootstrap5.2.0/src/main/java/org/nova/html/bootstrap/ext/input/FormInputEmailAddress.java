@@ -6,7 +6,7 @@ public class FormInputEmailAddress extends FormInputComponent<InputEmail>
 {
     public FormInputEmailAddress(FormCol col, String labelText,String name,String value,boolean required)
     {
-        super(col, labelText, new InputEmail(), null);
+        super(col, labelText, new InputEmail());
         input().name(name).required(required);
         if (value!=null)
         {
@@ -21,17 +21,4 @@ public class FormInputEmailAddress extends FormInputComponent<InputEmail>
     {
         this(col, labelText, name,null);
     }
-    
-//    public FormInputEmail(String labelText,String name,String value,boolean required)
-//    {
-//        this(null,labelText,name,value,required);
-//    }
-//    public FormInputEmail(String labelText,String name,String value)
-//    {
-//        this(labelText, name,value,false);
-//    }
-//    public FormInputEmail(String labelText,String name)
-//    {
-//        this(labelText,name,null);
-//    }
 }

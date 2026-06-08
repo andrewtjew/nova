@@ -22,6 +22,7 @@
 package org.nova.html.ext;
 import org.nova.html.tags.html;
 import org.nova.html.tags.meta;
+import org.nova.http.client.PathAndQuery;
 import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.enums.http_equiv;
@@ -44,6 +45,11 @@ public class Redirect extends Element
         meta.http_equiv_content(http_equiv.refresh,"0;url="+url);
     }
 
+    public Redirect(PathAndQuery pathAndQuery) throws Exception
+    {
+        this(pathAndQuery.toString());
+    }
+    
     @Override
     public void compose(Composer composer) throws Throwable
     {

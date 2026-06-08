@@ -26,13 +26,13 @@ public class FormInputRange extends FormInputComponent<InputRange>
             input().step(step);
         }
     }
-    public FormInputRange(FormCol col, String labelText,String name,Double value,Element right)
+    public FormInputRange(FormCol col, String labelText,String name,Double value,Double minimum,Double maximum,Double step)
     {
-        this(col,labelText,name,value,0.0,100.0,1.0,null);
-    }
+        this(col,labelText,name,value,minimum,maximum,step,null);
+    }    
     public FormInputRange(FormCol col, String labelText,String name,Double value)
     {
-        this(col,labelText,name,value,null);
+        this(col,labelText,name,value,0.0,100.0,1.0,null);
     }
     public FormInputRange(FormCol col, String labelText,String name)
     {

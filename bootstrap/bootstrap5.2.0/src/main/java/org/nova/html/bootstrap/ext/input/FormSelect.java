@@ -6,7 +6,7 @@ public class FormSelect extends FormSelectComponent<Select>
 {
     public FormSelect(FormCol col, String labelText,String name,boolean required)
     {
-        super(col, labelText, new Select(), null);
+        super(col, labelText, new Select());
         input().name(name).required(required).form_select();
     }
     public FormSelect(FormCol col, String labelText,String name)
