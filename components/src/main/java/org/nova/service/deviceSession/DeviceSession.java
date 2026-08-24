@@ -231,7 +231,7 @@ public class DeviceSession implements PathAndQuerySecurity
                 int index=queryString.lastIndexOf(this.querySecurityKey+"=");
                 if (index>=0)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity not required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity not required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
             }
             return true;
@@ -244,7 +244,7 @@ public class DeviceSession implements PathAndQuerySecurity
             {
                 if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
                 return false;
             }
