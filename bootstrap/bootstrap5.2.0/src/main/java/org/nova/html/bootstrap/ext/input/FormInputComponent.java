@@ -140,16 +140,23 @@ public class FormInputComponent<INPUT extends Element> extends StyleComponent<Fo
                 top.returnAddInner(right);
             }
             inputComponent.form_control();
-            Item bottom=returnAddInner(new Item());
-            bottom.justify_content(Justify.between).d(Display.flex);//.align_items(AlignItems.center);
-            if (before!=null)
+            if ((before!=null)||(after!=null))
             {
-                bottom.addInner(before);
+                Item bottom=returnAddInner(new Item());
+                bottom.justify_content(Justify.between).d(Display.flex);//.align_items(AlignItems.center);
+                if (before!=null)
+                {
+                    bottom.addInner(before);
+                }
+                this.input=bottom.returnAddInner(input);
+                if (after!=null)
+                {
+                    bottom.addInner(after);
+                }
             }
-            this.input=bottom.returnAddInner(input);
-            if (after!=null)
+            else
             {
-                bottom.addInner(after);
+                this.input=returnAddInner(input);
             }
         }
         else
