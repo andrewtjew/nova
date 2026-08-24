@@ -37,31 +37,40 @@ public class Styler implements Styling<Styler>
         this.element=element;
     }
 
-    @Override
-    public Styler addClass(Object class_,Object...fragments)
-    {
-        if (fragments!=null)
-        {
-            if (class_!=null)
-            {
-                StringBuilder sb=new StringBuilder(class_.toString());
-                for (Object fragment:fragments)
-                {
-                    if (fragment!=null)
-                    {
-                        sb.append('-').append(fragment);
-                    }
-                }
-                this.element.addClass(sb.toString());
-            }
-        }
-        return this;
-    }
+
+    
+//    @Override
+//    public Styler addClass2(Object class_,Object...fragments)
+//    {
+//        if (fragments!=null)
+//        {
+//            if (class_!=null)
+//            {
+//                StringBuilder sb=new StringBuilder(class_.toString());
+//                for (Object fragment:fragments)
+//                {
+//                    if (fragment!=null)
+//                    {
+//                        sb.append('-').append(fragment);
+//                    }
+//                }
+//                this.element.addClass(sb.toString());
+//            }
+//        }
+//        return this;
+//    }
 
     @Override
     public GlobalTagElement<?> getElement()
     {
         return this.element;
+    }
+
+    @Override
+    public Styler addClass(String class_)
+    {
+        this.element.addClass(class_);
+        return this;
     }
     
 }

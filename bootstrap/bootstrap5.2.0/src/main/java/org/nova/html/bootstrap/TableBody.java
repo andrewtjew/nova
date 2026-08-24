@@ -43,7 +43,7 @@ public class TableBody extends StyleComponent<TableBody>
 
     public TableBody color(ThemeColor color)
     {
-        addClass("table",color);
+        buildClass("table",color);
         return this;
     }
 }

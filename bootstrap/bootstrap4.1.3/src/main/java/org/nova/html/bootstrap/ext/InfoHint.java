@@ -46,7 +46,7 @@ public class InfoHint extends Span
         px(2).mx(1);
         rounded(Rounded.circle);
         border();
-        addClass(new ClassBuilder().font(Font.weight_bold));
+        addClass(new ClassBuilder().font(Font.weight_bold).toString());
     }
     public InfoHint(String hintText)
     {

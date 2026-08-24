@@ -50,7 +50,7 @@ public class Link extends StyleComponent<Link>
     }
     public Link link(StyleColor value)
     {
-        addClass("link",value.toString());
+        buildClass("link",value.toString());
         return (Link)this;
     }
     public Link active()

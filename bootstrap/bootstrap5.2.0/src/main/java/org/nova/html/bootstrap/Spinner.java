@@ -7,10 +7,10 @@ public class Spinner extends StyleComponent<Spinner>
     public Spinner(String tag,SpinnerType type,BreakPoint breakPoint)
     {
         super(tag,null);
-        addClass("spinner",type);
+        buildClass("spinner",type);
         if (breakPoint!=null)
         {
-            addClass("spinner",type,breakPoint);
+            buildClass("spinner",type,breakPoint);
         }
         attr("role","status");
     }

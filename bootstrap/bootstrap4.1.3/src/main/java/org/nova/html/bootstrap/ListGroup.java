@@ -30,7 +30,7 @@ public class ListGroup extends StyleComponent<ListGroup>
 
     public ListGroup flush()
     {
-        addClass(this.getComponentClass(),"flush");
+        buildClass(this.getComponentClass(),"flush");
         return this;
     }
 }

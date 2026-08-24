@@ -15,7 +15,7 @@ public class CenteredCol extends StyleComponent<CenteredCol>
     public CenteredCol(BreakPoint breakPoint,int sideCol)
     {
         super("div","col");
-        addClass("col",breakPoint);
+        buildClass("col",breakPoint);
         this.sideCol=sideCol;
         this.breakPoint=breakPoint;
 
@@ -29,7 +29,7 @@ public class CenteredCol extends StyleComponent<CenteredCol>
     public CenteredCol(BreakPoint breakPoint)
     {
         super("div","col");
-        addClass("col",breakPoint);
+        buildClass("col",breakPoint);
         this.sideCol=1;
         this.breakPoint=breakPoint;
     }

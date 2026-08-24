@@ -32,12 +32,12 @@ public class ModalDialog extends StyleComponent<ModalDialog>
     
     public ModalDialog centered()
     {
-        addClass("modal-dialog","centered");
+        buildClass("modal-dialog","centered");
         return this;
     }
     public ModalDialog deviceClass(DeviceClass deviceClass)
     {
-        addClass("modal",deviceClass);
+        buildClass("modal",deviceClass);
         return this;
     }
 }

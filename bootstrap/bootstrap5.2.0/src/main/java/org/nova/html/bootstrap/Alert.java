@@ -39,7 +39,7 @@ public class Alert extends StyleComponent<Alert>
     }
     public Alert color(StyleColor value)
     {
-        addClass("alert",value.toString());
+        buildClass("alert",value.toString());
         return this;
     }
 

@@ -47,146 +47,162 @@ import org.nova.html.properties.FlexDirection;
 public interface Styling<ELEMENT>
 {
 //    final private TagElement<?> element;
-    public ELEMENT addClass(Object class_,Object...fragments);
+    public ELEMENT addClass(String class_);
     public GlobalTagElement<?> getElement();
 
+    
+    public default ELEMENT buildClass(Object prefix,Object... parts)
+    {
+        StringBuilder sb=new StringBuilder(prefix.toString());
+        for (var part:parts)
+        {
+            if (part==null)
+            {
+                continue;
+            }
+            sb.append('-');
+            sb.append(part);
+        }
+        return addClass(sb.toString());
+    }
+    
     public default ELEMENT col(BreakPoint breakPoint,int columns)
     {
         if (breakPoint==BreakPoint.xs)
         {
-            return addClass("col",columns);
+            return buildClass("col",columns);
         }
-        return addClass("col",breakPoint,columns);
+        return buildClass("col",breakPoint,columns);
     }
     public default ELEMENT table_responsive()
     {
-        return addClass("table-responsive");
+        return buildClass("table-responsive");
     }
     public default ELEMENT table_responsive(BreakPoint breakPoint)
     {
-        return addClass("table-responsive",breakPoint);
+        return buildClass("table-responsive",breakPoint);
     }
     public default ELEMENT col(BreakPoint breakPoint)
     {
         if (breakPoint==BreakPoint.xs)
         {
-            return addClass("col");
+            return buildClass("col");
         }
-        return addClass("col",breakPoint);
+        return buildClass("col",breakPoint);
     }
     public default ELEMENT col(int columns)
     {
-        return addClass("col",columns);
+        return buildClass("col",columns);
     }
     public default ELEMENT col()
     {
-        return addClass("col");
+        return buildClass("col");
     }
     public default ELEMENT col_form_label()
     {
-        return addClass("col-form-label");
+        return buildClass("col-form-label");
     }
     public default ELEMENT col_auto()
     {
-        return addClass("col-auto");
+        return buildClass("col-auto");
     }
     public default ELEMENT row()
     {
-        return addClass("row");
+        return buildClass("row");
     }
     public default ELEMENT float_(BreakPoint breakPoint,Float_ value)
     {
-        return addClass("float",breakPoint,value);
+        return buildClass("float",breakPoint,value);
     }
     public default ELEMENT form_floating()
     {
-        return addClass("form-floating");
+        return buildClass("form-floating");
     }
     public default ELEMENT form_range()
     {
-        return addClass("form-range");
+        return buildClass("form-range");
     }
     public default ELEMENT form_check()
     {
-        return addClass("form-check");
+        return buildClass("form-check");
     }
     public default ELEMENT form_check_label()
     {
-        return addClass("form-check-label");
+        return buildClass("form-check-label");
     }
     public default ELEMENT form_check_inline()
     {
-        return addClass("form-check-inline");
+        return buildClass("form-check-inline");
     }
     public default ELEMENT form_switch()
     {
-        return addClass("form-switch");
+        return buildClass("form-switch");
     }
     public default ELEMENT form_select()
     {
-        return addClass("form-select");
+        return buildClass("form-select");
     }
     public default ELEMENT form_label()
     {
-        return addClass("form-label");
+        return buildClass("form-label");
     }
     public default ELEMENT form_text()
     {
-        return addClass("form-text");
+        return buildClass("form-text");
     }
     public default ELEMENT form_control()
     {
-        return addClass("form-control");
+        return buildClass("form-control");
     }
     public default ELEMENT form_control(Size size)
     {
-        return addClass("form-control",size.toString());
+        return buildClass("form-control",size.toString());
     }
     public default ELEMENT form_control(BreakPoint breakPoint)
     {
-        return addClass("form-control",breakPoint);
+        return buildClass("form-control",breakPoint);
     }
     public default ELEMENT invalid_feedback()
     {
-        return addClass("invalid-feedback");
+        return buildClass("invalid-feedback");
     }
     public default ELEMENT valid_feedback()
     {
-        return addClass("valid-feedback");
+        return buildClass("valid-feedback");
     }
     public default ELEMENT bg(StyleColor value,double opacity)
     {
         getElement().style("--bs-bg-opacity:"+opacity+";");
-        return addClass("bg",value);
+        return buildClass("bg",value);
     }
     public default ELEMENT bg(StyleColor value)
     {
-        return addClass("bg",value);
+        return buildClass("bg",value);
     }
     public default ELEMENT bg_gradient(StyleColor value)
     {
-        addClass("bg-gradient");
-        return addClass("bg",value);
+        buildClass("bg-gradient");
+        return buildClass("bg",value);
     }
     public default ELEMENT text(StyleColor value)
     {
-        return addClass("text",value);
+        return buildClass("text",value);
     }
     public default ELEMENT text_bg(StyleColor value)
     {
-        return addClass("text-bg",value);
+        return buildClass("text-bg",value);
     }
     public default ELEMENT text(TextAlign value)
     {
-        return addClass("text",value);
+        return buildClass("text",value);
     }
     public default ELEMENT text(BreakPoint breakPoint,TextAlign value)
     {
-        return addClass("text",breakPoint,value);
+        return buildClass("text",breakPoint,value);
     }
     public default ELEMENT text(Text value)
     {
-        return addClass("text",value);
+        return buildClass("text",value);
     }
 //    public default ELEMENT font(Font value)
 //    {
@@ -194,356 +210,356 @@ public interface Styling<ELEMENT>
 //    }
     public default ELEMENT lead()
     {
-        return addClass("lead");
+        return buildClass("lead");
     }
     public default ELEMENT small()
     {
-        return addClass("small");
+        return buildClass("small");
     }
     public default ELEMENT float_(Float_ value)
     {
-        return addClass("float",value);
+        return buildClass("float",value);
     }
     public default ELEMENT offset(int offset)
     {
-        return addClass("offset",offset);
+        return buildClass("offset",offset);
     }
     public default ELEMENT display(int size)
     {
-        return addClass("display",size);
+        return buildClass("display",size);
     }
     public default ELEMENT rounded()
     {
-        return addClass("rounded");
+        return buildClass("rounded");
     }
     public default ELEMENT rounded(int value)
     {
-        return addClass("rounded",value);
+        return buildClass("rounded",value);
     }
     public default ELEMENT rounded(Rounded rounded,int value)
     {
-        return addClass("rounded",rounded,value);
+        return buildClass("rounded",rounded,value);
     }
     public default ELEMENT rounded(Rounded rounded)
     {
-        return addClass("rounded",rounded);
+        return buildClass("rounded",rounded);
     }
     public default ELEMENT border()
     {
-        return addClass("border");
+        return buildClass("border");
     }
     public default ELEMENT border(Edge edge)
     {
-        return addClass("border",edge);
+        return buildClass("border",edge);
     }
     public default ELEMENT shadow()
     {
-        return addClass("shadow");
+        return buildClass("shadow");
     }
     public default ELEMENT shadow(Size value)
     {
-        return addClass("shadow",value.toString());
+        return buildClass("shadow",value.toString());
     }
     public default ELEMENT border(Edge edge,boolean subtract)
     {
         if (subtract)
         {
-            return addClass("border",edge,0);
+            return buildClass("border",edge,0);
         }
-        return addClass("border",edge);
+        return buildClass("border",edge);
     }
 
     public default ELEMENT border(int width)
     {
-        addClass("border");
-        return addClass("border",width);
+        buildClass("border");
+        return buildClass("border",width);
     }
     public default ELEMENT border(StyleColor color)
     {
-        return addClass("border",color);
+        return buildClass("border",color);
     }
     public default ELEMENT clearfix()
     {
-        return addClass("clearfix");
+        return buildClass("clearfix");
     }
     public default ELEMENT flex_direction(FlexDirection direction)
     {
-        return addClass("flex-direction",direction);
+        return buildClass("flex-direction",direction);
     }
 
     public default ELEMENT flex(Flex flex)
     {
-        return addClass("flex",flex);
+        return buildClass("flex",flex);
     }
     public default ELEMENT flex(Flex flex,int value)
     {
-        return addClass("flex",flex,value);
+        return buildClass("flex",flex,value);
     }
 
     public default ELEMENT flex(BreakPoint breakPoint,Flex flex)
     {
-        return addClass("flex",breakPoint,flex);
+        return buildClass("flex",breakPoint,flex);
     }
 
     public default ELEMENT align_self(AlignSelf value)
     {
-        return addClass("align-self",value);
+        return buildClass("align-self",value);
     }
     
     public default ELEMENT align_self(BreakPoint breakPoint,AlignSelf value)
     {
-        return addClass("align-self",breakPoint,value);
+        return buildClass("align-self",breakPoint,value);
     }
     
     public default ELEMENT align_items(AlignItems value)
     {
-        return addClass("align-items",value);
+        return buildClass("align-items",value);
     }
     
     public default ELEMENT align(Align value)
     {
-        return addClass("align",value);
+        return buildClass("align",value);
     }
     
     public default ELEMENT order(int value)
     {
-        return addClass("order",value);
+        return buildClass("order",value);
     }
     
     public default ELEMENT me(BreakPoint breakPoint,int value)
     {
-        return addClass("me",breakPoint,value);
+        return buildClass("me",breakPoint,value);
     }
     public default ELEMENT me(int value)
     {
-        return addClass("me",value);
+        return buildClass("me",value);
     }
     public default ELEMENT ms(int value)
     {
-        return addClass("ms",value);
+        return buildClass("ms",value);
     }
     public default ELEMENT mt(int value)
     {
-        return addClass("mt",value);
+        return buildClass("mt",value);
     }
     public default ELEMENT mb(int value)
     {
-        return addClass("mb",value);
+        return buildClass("mb",value);
     }
     public default ELEMENT mx(int value)
     {
-        return addClass("mx",value);
+        return buildClass("mx",value);
     }
     public default ELEMENT my(int value)
     {
-        return addClass("my",value);
+        return buildClass("my",value);
     }
     public default ELEMENT m(int value)
     {
-        return addClass("m",value);
+        return buildClass("m",value);
     }
     //----
     public default ELEMENT mt(BreakPoint breakPoint,int value)
     {
-        return addClass("mt",breakPoint,value);
+        return buildClass("mt",breakPoint,value);
     }
     public default ELEMENT mb(BreakPoint breakPoint,int value)
     {
-        return addClass("mb",breakPoint,value);
+        return buildClass("mb",breakPoint,value);
     }
     public default ELEMENT mx(BreakPoint breakPoint,int value)
     {
-        return addClass("mx",breakPoint,value);
+        return buildClass("mx",breakPoint,value);
     }
     public default ELEMENT my(BreakPoint breakPoint,int value)
     {
-        return addClass("my",breakPoint,value);
+        return buildClass("my",breakPoint,value);
     }
     public default ELEMENT m(BreakPoint breakPoint,int value)
     {
-        return addClass("m",breakPoint,value);
+        return buildClass("m",breakPoint,value);
     }
     
     public default ELEMENT mt_auto()
     {
-        return addClass("mt","auto");
+        return buildClass("mt","auto");
     }
     public default ELEMENT mb_auto()
     {
-        return addClass("mb","auto");
+        return buildClass("mb","auto");
     }
     public default ELEMENT mx_auto()
     {
-        return addClass("mx","auto");
+        return buildClass("mx","auto");
     }
     public default ELEMENT my_auto()
     {
-        return addClass("my","auto");
+        return buildClass("my","auto");
     }
     public default ELEMENT me_auto()
     {
-        return addClass("me","auto");
+        return buildClass("me","auto");
     }
     public default ELEMENT ms_auto()
     {
-        return addClass("ms","auto");
+        return buildClass("ms","auto");
     }
 
     public default ELEMENT pe(int value)
     {
-        return addClass("pe",value);
+        return buildClass("pe",value);
     }
     public default ELEMENT ps(int value)
     {
-        return addClass("ps",value);
+        return buildClass("ps",value);
     }
     public default ELEMENT pt(int value)
     {
-        return addClass("pt",value);
+        return buildClass("pt",value);
     }
     public default ELEMENT pb(int value)
     {
-        return addClass("pb",value);
+        return buildClass("pb",value);
     }
     public default ELEMENT px(int value)
     {
-        return addClass("px",value);
+        return buildClass("px",value);
     }
     public default ELEMENT py(int value)
     {
-        return addClass("py",value);
+        return buildClass("py",value);
     }
     public default ELEMENT p(int value)
     {
-        return addClass("p",value);
+        return buildClass("p",value);
     }
     public default ELEMENT pe_auto()
     {
-        return addClass("pe","auto");
+        return buildClass("pe","auto");
     }
     public default ELEMENT ps_auto()
     {
-        return addClass("ps","auto");
+        return buildClass("ps","auto");
     }
     public default ELEMENT pt_auto()
     {
-        return addClass("pt","auto");
+        return buildClass("pt","auto");
     }
     public default ELEMENT pb_auto()
     {
-        return addClass("pb","auto");
+        return buildClass("pb","auto");
     }
     public default ELEMENT px_auto()
     {
-        return addClass("px","auto");
+        return buildClass("px","auto");
     }
     public default ELEMENT py_auto()
     {
-        return addClass("py","auto");
+        return buildClass("py","auto");
     }
 
     public default ELEMENT d(Display display)
     {
-        return addClass("d",display);
+        return buildClass("d",display);
         
     }
     public default ELEMENT d(BreakPoint breakPoint,Display display)
     {
-        return addClass("d",breakPoint,display);
+        return buildClass("d",breakPoint,display);
         
     }
     
     public default ELEMENT w(int value)
     {
-        return addClass("w",value);
+        return buildClass("w",value);
     }
     public default ELEMENT mw(int value)
     {
-        return addClass("mw",value);
+        return buildClass("mw",value);
     }
     
     public default ELEMENT h(int value)
     {
-        return addClass("h",value);
+        return buildClass("h",value);
     }
     public default ELEMENT h_auto()
     {
-        return addClass("h","auto");
+        return buildClass("h","auto");
     }
     public default ELEMENT mh(int value)
     {
-        return addClass("mh",value);
+        return buildClass("mh",value);
     }
     
     public default ELEMENT position(Position value)
     {
-        return addClass("position",value);
+        return buildClass("position",value);
         
     }
     public default ELEMENT overflow(Overflow value)
     {
-        return addClass("overflow",value);
+        return buildClass("overflow",value);
         
     }
     public default ELEMENT text_truncate()
     {
-        return addClass("text-truncate");
+        return buildClass("text-truncate");
         
     }
     
     public default ELEMENT justify_content(Justify value)
     {
-        return addClass("justify-content",value);
+        return buildClass("justify-content",value);
     }
     
     public default ELEMENT justify_content(BreakPoint breakPoint,Justify value)
     {
-        return addClass("justify-content",breakPoint,value);
+        return buildClass("justify-content",breakPoint,value);
     }
     
     public default ELEMENT fs(int value)
     {
-        return addClass("fs",value);
+        return buildClass("fs",value);
     }
     public default ELEMENT fw(FontWeight value)
     {
-        return addClass("fw",value);
+        return buildClass("fw",value);
     }
     public default ELEMENT fst(FontStyle value)
     {
-        return addClass("fst",value);
+        return buildClass("fst",value);
     }
     public default ELEMENT top(int value)
     {
-        return addClass("top",value);
+        return buildClass("top",value);
     }
     public default ELEMENT bottom(int value)
     {
-        return addClass("bottom",value);
+        return buildClass("bottom",value);
     }
     public default ELEMENT start(int value)
     {
-        return addClass("start",value);
+        return buildClass("start",value);
     }
     public default ELEMENT translate(Translate value)
     {
-        return addClass("translate",value);
+        return buildClass("translate",value);
     }
     public default ELEMENT visually_hidden()
     {
-        return addClass("visually-hidden");
+        return buildClass("visually-hidden");
     }
     public default ELEMENT input_group()
     {
-        return addClass("input-group");
+        return buildClass("input-group");
     }
     public default ELEMENT has_validation()
     {
-        return addClass("has-validation");
+        return buildClass("has-validation");
     }
     public default ELEMENT btn_group()
     {
-        return addClass("btn-group");
+        return buildClass("btn-group");
     }
     
 //    public default ELEMENT input_group_append()
@@ -556,11 +572,11 @@ public interface Styling<ELEMENT>
 //    }
     public default ELEMENT input_group_text()
     {
-        return addClass("input-group-text");
+        return buildClass("input-group-text");
     }
     public default ELEMENT align_content(AlignContent value)
     {
-        return addClass("align-content",value);
+        return buildClass("align-content",value);
     }
 //    public default ELEMENT align_items(AlignSelf value)
 //    {
@@ -568,31 +584,31 @@ public interface Styling<ELEMENT>
 //    }
     public default ELEMENT dropup()
     {
-        return addClass("dropup");
+        return buildClass("dropup");
     }
     public default ELEMENT dropdown()
     {
-        return addClass("dropdown");
+        return buildClass("dropdown");
     }
     public default ELEMENT dropup_center()
     {
-        return addClass("dropup-center");
+        return buildClass("dropup-center");
     }
     public default ELEMENT dropdown_center()
     {
-        return addClass("dropdown-center");
+        return buildClass("dropdown-center");
     }
     public default ELEMENT dropdown_toggle()
     {
-        return addClass("dropdown-toggle");
+        return buildClass("dropdown-toggle");
     }
     public default ELEMENT dropstart()
     {
-        return addClass("dropstart");
+        return buildClass("dropstart");
     }
     public default ELEMENT dropend()
     {
-        return addClass("dropend");
+        return buildClass("dropend");
     }
     
 //    public default ELEMENT flex_wrap()

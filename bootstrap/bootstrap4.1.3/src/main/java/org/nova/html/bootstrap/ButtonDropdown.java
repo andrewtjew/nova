@@ -75,7 +75,7 @@ public class ButtonDropdown extends ButtonComponent<ButtonDropdown>
         this.menu.addClass("dropdown-menu");
         if (this.menuRight)
         {
-            this.menu.addClass(this.menuRight, "dropdown-menu-right");
+            this.menu.buildClass(this.menuRight, "dropdown-menu-right");
         }
         
         if (this.split)

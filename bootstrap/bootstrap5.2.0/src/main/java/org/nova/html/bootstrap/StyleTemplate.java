@@ -36,26 +36,26 @@ public class StyleTemplate implements Styling<StyleTemplate>
         this.template=new div();
     }
 
-    @Override
-    public StyleTemplate addClass(Object class_,Object...fragments)
-    {
-        if (fragments!=null)
-        {
-            if (class_!=null)
-            {
-                StringBuilder sb=new StringBuilder(class_.toString());
-                for (Object fragment:fragments)
-                {
-                    if (fragment!=null)
-                    {
-                        sb.append('-').append(fragment);
-                    }
-                }
-                this.template.addClass(sb.toString());
-            }
-        }
-        return this;
-    }
+//    @Override
+//    public StyleTemplate addClass2(Object class_,Object...fragments)
+//    {
+//        if (fragments!=null)
+//        {
+//            if (class_!=null)
+//            {
+//                StringBuilder sb=new StringBuilder(class_.toString());
+//                for (Object fragment:fragments)
+//                {
+//                    if (fragment!=null)
+//                    {
+//                        sb.append('-').append(fragment);
+//                    }
+//                }
+//                this.template.addClass(sb.toString());
+//            }
+//        }
+//        return this;
+//    }
 
     @Override
     public GlobalTagElement<?> getElement()
@@ -96,5 +96,12 @@ public class StyleTemplate implements Styling<StyleTemplate>
             }
         }
         return object;
+    }
+
+    @Override
+    public StyleTemplate addClass(String class_)
+    {
+        this.template.addClass(class_);
+        return this;
     }
 }

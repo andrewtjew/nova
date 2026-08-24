@@ -52,15 +52,31 @@ public abstract class Component<ELEMENT extends Component<ELEMENT>> extends Glob
     }
     */
     
-    public ELEMENT addClass(ClassBuilder classBuilder)
+//    public ELEMENT addClass(ClassBuilder classBuilder)
+//    {
+//        addClass(classBuilder.toString());
+//        return (ELEMENT)this;
+//    }
+    
+    
+    public ELEMENT buildClass(Object prefix,Object... parts)
     {
-        addClass(classBuilder.toString());
-        return (ELEMENT)this;
+        StringBuilder sb=new StringBuilder(prefix.toString());
+        for (var part:parts)
+        {
+            if (part==null)
+            {
+                continue;
+            }
+            sb.append('-');
+            sb.append(part);
+        }
+        return addClass(sb.toString());
     }
     
     public ELEMENT deviceClass(DeviceClass deviceClass)
     {
-        return addClass(this.getComponentClass(),deviceClass);
+        return buildClass(this.getComponentClass(),deviceClass);
     }
 
 }

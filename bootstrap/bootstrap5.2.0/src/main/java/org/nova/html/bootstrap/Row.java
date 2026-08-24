@@ -38,34 +38,34 @@ public class Row extends StyleComponent<Row>
     
     public Row gx(int value)
     {
-        return addClass("gx",value);
+        return buildClass("gx",value);
     }
     public Row gx(BreakPoint breakPoint,int value)
     {
-        return addClass("gx",breakPoint,value);
+        return buildClass("gx",breakPoint,value);
     }
     public Row gy(int value)
     {
-        return addClass("gy",value);
+        return buildClass("gy",value);
     }
     public Row gy(BreakPoint breakPoint,int value)
     {
-        return addClass("gy",breakPoint,value);
+        return buildClass("gy",breakPoint,value);
     }
     public Row g(int value)
     {
-        return addClass("g",value);
+        return buildClass("g",value);
     }
     public Row g(BreakPoint breakPoint,int value)
     {
-        return addClass("g",breakPoint,value);
+        return buildClass("g",breakPoint,value);
     }
     public Row cols(int value)
     {
-        return addClass(getComponentClass(),"cols",value);
+        return buildClass(getComponentClass(),"cols",value);
     }
     public Row cols(BreakPoint breakPoint,int value)
     {
-        return addClass(getComponentClass(),"cols",breakPoint,value);
+        return buildClass(getComponentClass(),"cols",breakPoint,value);
     }
 }

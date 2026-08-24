@@ -42,7 +42,7 @@ public class Container extends StyleComponent<Container>
     {
         if (fluid)
         {
-            this.addClass("container","fluid");
+            this.buildClass("container","fluid");
         }
         else
         {

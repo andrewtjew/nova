@@ -33,13 +33,13 @@ public class Navbar extends StyleComponent<Navbar>
     
     public Navbar expand(DeviceClass deviceClass)
     {
-        addClass("navbar-expand",deviceClass);
+        buildClass("navbar-expand",deviceClass);
         return this;
     }
     
     public Navbar placement(NavbarPlacement placement)
     {
-        addClass(placement);
+        buildClass(placement);
         return this;
     }
     

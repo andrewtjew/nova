@@ -32,14 +32,14 @@ public class Col extends StyleComponent<Col>
     public Col(BreakPoint breakPoint)
     {
         super("div","col");
-        addClass("col",breakPoint);
+        buildClass("col",breakPoint);
     }
     public Col(boolean auto)
     {
         super("div",null);
         if (auto)
         {
-            addClass("col","auto");
+            buildClass("col","auto");
         }
         else
         {
@@ -51,11 +51,11 @@ public class Col extends StyleComponent<Col>
         super("div",null);
         if (auto)
         {
-            addClass("col",breakPoint,"auto");
+            buildClass("col",breakPoint,"auto");
         }
         else
         {
-            addClass("col",breakPoint);
+            buildClass("col",breakPoint);
         }
             
     }
@@ -66,16 +66,16 @@ public class Col extends StyleComponent<Col>
         {
             if (columns!=null)
             {
-                addClass("col",breakPoint,columns);
+                buildClass("col",breakPoint,columns);
             }
             else
             {
-                addClass("col",breakPoint);
+                buildClass("col",breakPoint);
             }
         }
         else if (columns!=null)
         {
-            addClass("col",columns);
+            buildClass("col",columns);
         }
         else
         {
@@ -85,6 +85,6 @@ public class Col extends StyleComponent<Col>
     public Col(int columns)
     {
         super("div",null);
-        addClass("col",columns);
+        buildClass("col",columns);
     }
 }

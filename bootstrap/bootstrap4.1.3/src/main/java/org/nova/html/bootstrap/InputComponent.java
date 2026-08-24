@@ -59,7 +59,20 @@ public abstract class InputComponent<ELEMENT extends InputComponent<ELEMENT>> ex
     {
         super(inputType);
     }
-
+    public ELEMENT addClass2(String prefix,Object... parts)
+    {
+        StringBuilder sb=new StringBuilder(prefix);
+        for (var part:parts)
+        {
+            if (part==null)
+            {
+                continue;
+            }
+            sb.append('-');
+            sb.append(part);
+        }
+        return addClass(sb.toString());
+    }
     public ELEMENT form_control()
     {
         return addClass("form-control");
@@ -72,19 +85,19 @@ public abstract class InputComponent<ELEMENT extends InputComponent<ELEMENT>> ex
     }
     public ELEMENT bg(StyleColor value)
     {
-        return addClass("bg",value);
+        return addClass2("bg",value);
     }
     public ELEMENT bg_gradient(StyleColor value)
     {
-        return addClass("bg","gradient",value);
+        return addClass2("bg","gradient",value);
     }
     public ELEMENT text(StyleColor value)
     {
-        return addClass("text",value);
+        return addClass2("text",value);
     }
     public ELEMENT font(Font value)
     {
-        return addClass("font",value);
+        return addClass2("font",value);
     }
     /*
     public ELEMENT lead()
@@ -147,149 +160,149 @@ public abstract class InputComponent<ELEMENT extends InputComponent<ELEMENT>> ex
     */
     public ELEMENT mr(DeviceClass deviceClass,int value)
     {
-        return addClass("mr",deviceClass,value);
+        return addClass2("mr",deviceClass,value);
     }
     public ELEMENT mr(int value)
     {
-        return addClass("mr",value);
+        return addClass2("mr",value);
     }
     public ELEMENT ml(int value)
     {
-        return addClass("ml",value);
+        return addClass2("ml",value);
     }
     public ELEMENT mt(int value)
     {
-        return addClass("mt",value);
+        return addClass2("mt",value);
     }
     public ELEMENT mb(int value)
     {
-        return addClass("mb",value);
+        return addClass2("mb",value);
     }
     public ELEMENT mx(int value)
     {
-        return addClass("mx",value);
+        return addClass2("mx",value);
     }
     public ELEMENT my(int value)
     {
-        return addClass("my",value);
+        return addClass2("my",value);
     }
     public ELEMENT m(int value)
     {
-        return addClass("m",value);
+        return addClass2("m",value);
     }
     public ELEMENT mr_auto()
     {
-        return addClass("mr","auto");
+        return addClass2("mr","auto");
     }
     public ELEMENT ml_auto()
     {
-        return addClass("ml","auto");
+        return addClass2("ml","auto");
     }
     public ELEMENT mt_auto()
     {
-        return addClass("mt","auto");
+        return addClass2("mt","auto");
     }
     public ELEMENT mb_auto()
     {
-        return addClass("mb","auto");
+        return addClass2("mb","auto");
     }
     public ELEMENT mx_auto()
     {
-        return addClass("mx","auto");
+        return addClass2("mx","auto");
     }
     public ELEMENT my_auto()
     {
-        return addClass("my","auto");
+        return addClass2("my","auto");
     }
 
     public ELEMENT pr(int value)
     {
-        return addClass("pr",value);
+        return addClass2("pr",value);
     }
     public ELEMENT pl(int value)
     {
-        return addClass("pl",value);
+        return addClass2("pl",value);
     }
     public ELEMENT pt(int value)
     {
-        return addClass("pt",value);
+        return addClass2("pt",value);
     }
     public ELEMENT pb(int value)
     {
-        return addClass("pb",value);
+        return addClass2("pb",value);
     }
     public ELEMENT px(int value)
     {
-        return addClass("px",value);
+        return addClass2("px",value);
     }
     public ELEMENT py(int value)
     {
-        return addClass("py",value);
+        return addClass2("py",value);
     }
     public ELEMENT p(int value)
     {
-        return addClass("p",value);
+        return addClass2("p",value);
     }
     public ELEMENT pr_auto()
     {
-        return addClass("pr","auto");
+        return addClass2("pr","auto");
     }
     public ELEMENT pl_auto()
     {
-        return addClass("pl","auto");
+        return addClass2("pl","auto");
     }
     public ELEMENT pt_auto()
     {
-        return addClass("pt","auto");
+        return addClass2("pt","auto");
     }
     public ELEMENT pb_auto()
     {
-        return addClass("pb","auto");
+        return addClass2("pb","auto");
     }
     public ELEMENT px_auto()
     {
-        return addClass("px","auto");
+        return addClass2("px","auto");
     }
     public ELEMENT py_auto()
     {
-        return addClass("py","auto");
+        return addClass2("py","auto");
     }
 
     public ELEMENT d(Display display)
     {
-        return addClass("d",display);
+        return addClass2("d",display);
         
     }
     public ELEMENT d(DeviceClass deviceClass,Display display)
     {
-        return addClass("d",deviceClass,display);
+        return addClass2("d",deviceClass,display);
     }
     
     public ELEMENT w(int value)
     {
-        return addClass("w",value);
+        return addClass2("w",value);
     }
     public ELEMENT mw(int value)
     {
-        return addClass("mw",value);
+        return addClass2("mw",value);
     }
     
     public ELEMENT h(int value)
     {
-        return addClass("h",value);
+        return addClass2("h",value);
     }
     public ELEMENT h_auto()
     {
-        return addClass("h","auto");
+        return addClass2("h","auto");
     }
     public ELEMENT mh(int value)
     {
-        return addClass("mh",value);
+        return addClass2("mh",value);
     }
     
     public ELEMENT position(Position value)
     {
-        return addClass("position",value);
+        return addClass2("position",value);
         
     }
 }

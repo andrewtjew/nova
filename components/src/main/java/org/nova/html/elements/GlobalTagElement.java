@@ -32,9 +32,9 @@ public class GlobalTagElement<ELEMENT extends TagElement<ELEMENT>> extends TagEl
     {
         super(tag);
     }
-    public GlobalTagElement(String tag,boolean noEndTag)
+    public GlobalTagElement(String tag,boolean voidElement)
     {
-        super(tag,noEndTag);
+        super(tag,voidElement);
     }
 
     public ELEMENT accesskey(String value)

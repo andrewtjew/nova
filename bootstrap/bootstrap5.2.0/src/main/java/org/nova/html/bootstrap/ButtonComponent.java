@@ -62,7 +62,7 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     @SuppressWarnings("unchecked")
     public ELEMENT size(Size value)
     {
-        addClass("btn",value);
+        buildClass("btn",value);
         return (ELEMENT)this;
     }
     
@@ -90,13 +90,13 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     @SuppressWarnings("unchecked")
     public ELEMENT outline(StyleColor value)
     {
-        addClass("btn-outline",value);
+        buildClass("btn-outline",value);
         return (ELEMENT)this;
     }
     @SuppressWarnings("unchecked")
     public ELEMENT color(StyleColor value)
     {
-        addClass("btn",value.toString());
+        buildClass("btn",value.toString());
         return (ELEMENT)this;
     }
     public ELEMENT for_(String element_id)

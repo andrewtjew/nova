@@ -29,26 +29,26 @@ public class FormInputGroupDateRange extends StyleComponent<FormInputGroupDateRa
             {
                 if (formCol.columns>0)
                 {
-                    addClass("col", formCol.breakPoint, formCol.columns);
+                    buildClass("col", formCol.breakPoint, formCol.columns);
                 }
                 else if (formCol.auto)
                 {
-                    addClass("col", formCol.breakPoint, "auto");
+                    buildClass("col", formCol.breakPoint, "auto");
                 }
                 else
                 {
-                    addClass("col", formCol.breakPoint);
+                    buildClass("col", formCol.breakPoint);
                 }
             }
             else 
             {
                 if (formCol.columns>0)
                 {
-                    addClass("col", formCol.columns);
+                    buildClass("col", formCol.columns);
                 }
                 else if (formCol.auto)
                 {
-                    addClass("col", "auto");
+                    buildClass("col", "auto");
                 }
                 else
                 {

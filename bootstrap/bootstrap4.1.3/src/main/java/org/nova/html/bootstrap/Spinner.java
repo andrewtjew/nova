@@ -7,7 +7,7 @@ public class Spinner extends StyleComponent<Spinner>
     public Spinner(String tag,SpinnerType type,DeviceClass deviceClass)
     {
         super(tag,null);
-        addClass("spinner",type,deviceClass);
+        buildClass("spinner",type,deviceClass);
         attr("role","status");
     }
     public Spinner(DeviceClass deviceClass,SpinnerType type)

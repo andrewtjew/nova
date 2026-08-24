@@ -47,7 +47,7 @@ public class TableHead extends StyleComponent<TableHead>
     
     public TableHead color(ThemeColor color)
     {
-        addClass("table",color);
+        buildClass("table",color);
         return this;
     }
 

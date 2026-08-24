@@ -31,7 +31,7 @@ public class ModalDialog extends StyleComponent<ModalDialog>
         super("div","modal-dialog");
         if (breakPoint!=null)
         {
-            addClass("modal",breakPoint);
+            buildClass("modal",breakPoint);
         }
     }
     public ModalDialog()
@@ -41,27 +41,27 @@ public class ModalDialog extends StyleComponent<ModalDialog>
     
     public ModalDialog centered()
     {
-        addClass("modal-dialog","centered");
+        buildClass("modal-dialog","centered");
         return this;
     }
     public ModalDialog scrollable()
     {
-        addClass("modal-dialog","scrollable");
+        buildClass("modal-dialog","scrollable");
         return this;
     }
     public ModalDialog size(Size size)
     {
-        addClass("modal",size.toString());
+        buildClass("modal",size.toString());
         return this;
     }
     public ModalDialog fullScreen()
     {
-        addClass("modal","fullscreen");
+        buildClass("modal","fullscreen");
         return this;
     }
     public ModalDialog fullScreen(Size size)
     {
-        addClass("modal","fullscreen",size.toString(),"down");
+        buildClass("modal","fullscreen",size.toString(),"down");
         return this;
     }
 }

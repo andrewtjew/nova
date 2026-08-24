@@ -41,7 +41,7 @@ public class SubmitButton extends ButtonComponent<SubmitButton>
     
     public SubmitButton buttonState(ButtonState value)
     {
-        addClass(value);
+        addClass(value.toString());
         return this;
     }
     

@@ -57,7 +57,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     }
     public DropdownMenu end(BreakPoint deviceClass)
     {
-        addClass("dropdown-menu",deviceClass,"end");
+        buildClass("dropdown-menu",deviceClass,"end");
         return this;
     }
     
@@ -69,12 +69,12 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     
     public DropdownMenu right(BreakPoint deviceClass)
     {
-        addClass("dropdown-menu",deviceClass,"right");
+        buildClass("dropdown-menu",deviceClass,"right");
         return this;
     }
     public DropdownMenu left(BreakPoint deviceClass)
     {
-        addClass("dropdown-menu",deviceClass,"left");
+        buildClass("dropdown-menu",deviceClass,"left");
         return this;
     }
     public DropdownMenu addItem(String label,String URL)
@@ -154,7 +154,7 @@ public class DropdownMenu extends StyleComponent<DropdownMenu>
     
     public DropdownMenu color(ThemeColor value)
     {
-        addClass("dropdown-menu",value.toString());
+        buildClass("dropdown-menu",value.toString());
         return this;
     } 
     public DropdownMenu reference(StyleComponent<?> button,GlobalTagElement<?> element)

@@ -56,7 +56,7 @@ public abstract class ButtonComponent<ELEMENT extends ButtonComponent<ELEMENT>> 
     @SuppressWarnings("unchecked")
     public ELEMENT size(Size value)
     {
-        addClass("btn",value);
+        buildClass("btn",value);
         return (ELEMENT)this;
     }
     

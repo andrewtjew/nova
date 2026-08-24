@@ -11,9 +11,10 @@ import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.EventSourceResponse;
+import org.nova.http.server.EventSourceConnection;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
+import org.nova.utils.Utils;
 import org.nova.html.tags.script;
 
 public class RemoteResponse
@@ -108,13 +109,13 @@ public class RemoteResponse
         }
     }
     
-    static List<script> findScripts(NodeElement<?> element)
+    private static List<script> findScripts(NodeElement<?> element)
     {
         ArrayList<script> scripts=new ArrayList<script>();
         findScripts(scripts,element);
         return scripts;
     }
-    static void findScripts(List<script> scripts,NodeElement<?> element)
+    private static void findScripts(List<script> scripts,NodeElement<?> element)
     {
         if (element instanceof script)
         {
@@ -280,7 +281,40 @@ public class RemoteResponse
 
     public RemoteResponse setAttribute(String id,String name,Object value)
     {
-        script("getElementById('"+id+"').setAttribute('"+name+"','"+value+"');");
+        script("document.getElementById('"+id+"').setAttribute('"+name+"','"+value+"');");
+        return this;
+    }
+
+    private static String combine(String[] classes)
+    {
+        StringBuilder sb=new StringBuilder();
+        for (int i=0;i<classes.length;i++)
+        {
+            if (i>0)
+            {
+                sb.append(",'");
+            }
+            else
+            {
+                sb.append('\'');                
+            }
+            sb.append(classes[i]);
+            sb.append('\'');
+            
+        }
+        return sb.toString();
+    }
+    
+    
+    public RemoteResponse classListAdd(String id,String... classes)
+    {
+        script("document.getElementById('"+id+"').classList.add("+combine(classes)+");");
+        return this;
+    }
+    
+    public RemoteResponse classListRemove(String id,String... classes)
+    {
+        script("document.getElementById('"+id+"').classList.remove("+combine(classes)+");");
         return this;
     }
     
@@ -292,7 +326,7 @@ public class RemoteResponse
         return this;
     }
 
-    public RemoteResponse send(EventSourceResponse eventSourceResponse) throws Throwable
+    public RemoteResponse send(EventSourceConnection eventSourceResponse) throws Throwable
     {
         eventSourceResponse.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
         return this;

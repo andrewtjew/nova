@@ -36,7 +36,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
 {
     String id;
     final private String tag;
-    final private boolean noEndTag;
+    final private boolean voidElement;
     final private StringBuilder classBuilder;
     final private HashMap<String,Object> attributes;
     
@@ -45,10 +45,10 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
 //    final static String STACK_TRACE_KEY="title"; //Use this to view the stack traces by using the mouse, but clashes with html elements using the title attribute
     
     @SuppressWarnings("unused")
-    public TagElement(String tag,boolean noEndTag)
+    public TagElement(String tag,boolean voidElement)
     {
         this.tag=tag;
-        this.noEndTag=noEndTag;
+        this.voidElement=voidElement;
         this.classBuilder=new StringBuilder();
         this.attributes=new HashMap<>();
         if (Debug.ENABLE&&INCLUDE_STACK_TRACE_LEVELS>0)
@@ -95,7 +95,33 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
         return this.tag;
     }
     
-    public ELEMENT addClass(Object class_,Object...fragments)
+//    public ELEMENT addClass2(Object class_,Object...fragments)
+//    {
+//        if (class_!=null)
+//        {
+//            if (this.classBuilder.length()>0)
+//            {
+//                this.classBuilder.append(' ');
+//            }
+//            this.classBuilder.append(class_);
+//            if (fragments!=null)
+//            {
+//                if (class_!=null)
+//                {
+//                    for (Object fragment:fragments)
+//                    {
+//                        if (fragment!=null)
+//                        {
+//                            this.classBuilder.append('-').append(fragment);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return (ELEMENT)this;
+//    }
+
+    public ELEMENT addClass(String class_)
     {
         if (class_!=null)
         {
@@ -104,19 +130,6 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
                 this.classBuilder.append(' ');
             }
             this.classBuilder.append(class_);
-            if (fragments!=null)
-            {
-                if (class_!=null)
-                {
-                    for (Object fragment:fragments)
-                    {
-                        if (fragment!=null)
-                        {
-                            this.classBuilder.append('-').append(fragment);
-                        }
-                    }
-                }
-            }
         }
         return (ELEMENT)this;
     }
@@ -219,7 +232,7 @@ public class TagElement<ELEMENT extends TagElement<ELEMENT>> extends NodeElement
             
         }
         composerStringBuilder.append('>');
-        if (this.noEndTag==false)
+        if (this.voidElement==false)
         {
             super.compose(composer);
             composerStringBuilder=composer.getStringBuilder();

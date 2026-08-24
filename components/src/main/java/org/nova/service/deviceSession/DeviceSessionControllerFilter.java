@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
@@ -100,9 +101,11 @@ public abstract class DeviceSessionControllerFilter extends Filter
     {
         if (context.getContentWriter() instanceof RemoteResponseWriter)
         {
-            RemoteResponse response=new RemoteResponse();
-            response.reload();
-            return new Response<>(response);
+            context.getHttpServletResponse().setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            return null;
+//            RemoteResponse response=new RemoteResponse();
+//            response.reload();
+//            return new Response<>(response);
         }
         if (context.getHttpServletRequest().getMethod().equals("POST"))
         {

@@ -34,12 +34,12 @@ public class Flexbox extends Component<Flexbox>
     
     public Flexbox align_items(AlignSelf value)
     {
-        return addClass("align-items",value);
+        return buildClass("align-items",value);
     }
     
     public Flexbox justify_content(Justify value)
     {
-        return addClass("justify-content",value);
+        return buildClass("justify-content",value);
     }
     
     

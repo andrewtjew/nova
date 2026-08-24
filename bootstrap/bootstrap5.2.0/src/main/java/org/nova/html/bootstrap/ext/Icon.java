@@ -7,6 +7,6 @@ public class Icon extends StyleComponent<Icon>
     public Icon(String name)
     {
     	super("i",null);
-        addClass("bi",name);
+        buildClass("bi",name);
     }
 }

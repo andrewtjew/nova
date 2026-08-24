@@ -37,12 +37,12 @@ public class ProgressBar extends StyleComponent<ProgressBar>
     
     public ProgressBar striped()
     {
-        addClass(this.getComponentClass(),"striped");
+        buildClass(this.getComponentClass(),"striped");
         return this;
     }
     public ProgressBar animated()
     {
-        addClass(this.getComponentClass(),"animated");
+        buildClass(this.getComponentClass(),"animated");
         return this;
     }
 }

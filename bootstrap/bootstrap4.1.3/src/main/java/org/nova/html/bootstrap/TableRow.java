@@ -52,7 +52,7 @@ public class TableRow extends StyleComponent<TableRow>
     
     public TableRow table_color(StyleColor value)
     {
-        addClass("table",value);
+        buildClass("table",value);
         return this;
     }
 }

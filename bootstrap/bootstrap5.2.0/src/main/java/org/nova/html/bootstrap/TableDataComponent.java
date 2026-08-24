@@ -61,7 +61,7 @@ public abstract class TableDataComponent<ELEMENT extends TableDataComponent<ELEM
     @SuppressWarnings("unchecked")
     public ELEMENT size(Size value)
     {
-        addClass("btn",value);
+        buildClass("btn",value);
         return (ELEMENT)this;
     }
     
@@ -77,7 +77,7 @@ public abstract class TableDataComponent<ELEMENT extends TableDataComponent<ELEM
     
     public ELEMENT outline(StyleColor value)
     {
-        addClass("btn-outline",value);
+        buildClass("btn-outline",value);
         return (ELEMENT)this;
     }
     
