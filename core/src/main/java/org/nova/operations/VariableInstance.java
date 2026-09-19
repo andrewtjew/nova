@@ -124,6 +124,10 @@ public class VariableInstance
         try
         {
             ApplicationResult result=this.applicator.apply(this, value);
+            if (result==null)
+            {
+                return null;
+            }
             if (result.getStatus()!=Status.SUCCESS)
             {
                 return result;
@@ -133,7 +137,7 @@ public class VariableInstance
         catch (Throwable t)
         {
             t.printStackTrace();
-            return new ApplicationResult(Status.VALIDATION_FAILED,null,t.getMessage());
+            return new ApplicationResult(Status.APPLICATION_FAILED,null,t.getMessage());
         }
                 
         

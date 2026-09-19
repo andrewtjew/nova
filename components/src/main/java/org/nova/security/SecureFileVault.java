@@ -47,7 +47,7 @@ public class SecureFileVault extends Vault
 {
 	public static final void encrypt(String password,String salt,String inputFileName, String outputFileName) throws Exception
 	{
-		String text=FileUtils.readTextFile(inputFileName);
+		String text=FileUtils.readString(inputFileName);
 		byte[] byteText = text.getBytes();
 
 		SecretKey secretKey = buildKey(password,salt);
@@ -70,7 +70,7 @@ public class SecureFileVault extends Vault
 	
 	public static final String decrypt(String password,String salt,String inputFileName) throws Exception
 	{
-		byte[] bytes=FileUtils.readFile(inputFileName);
+		byte[] bytes=FileUtils.readBytes(inputFileName);
 		SecretKey secretKey = buildKey(password,salt);
 		Cipher AesCipher = Cipher.getInstance("AES");
 		AesCipher.init(Cipher.DECRYPT_MODE, secretKey);
@@ -148,7 +148,7 @@ public class SecureFileVault extends Vault
                         String passwordFile=makePasswordFile(configuration.getValue("Environment.preferences",null));
                         try
                         {
-                            password=FileUtils.readTextFile(passwordFile).trim();
+                            password=FileUtils.readString(passwordFile).trim();
                         }
                         catch (Throwable t)
                         {
@@ -180,7 +180,7 @@ public class SecureFileVault extends Vault
                         }
                         try
                         {
-                            password=FileUtils.readTextFile(passwordFile).trim();
+                            password=FileUtils.readString(passwordFile).trim();
                         }
                         catch (Throwable t)
                         {

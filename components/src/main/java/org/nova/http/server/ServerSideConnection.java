@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class EventSourceConnection 
+public class ServerSideConnection 
 {
     final private HttpServletResponse response;
     final private HttpServletRequest request;
-    public EventSourceConnection(HttpServletRequest request,HttpServletResponse response,long timeout) throws Throwable
+    public ServerSideConnection(HttpServletRequest request,HttpServletResponse response,long timeout) throws Throwable
     {   
         this.request=request;
         request.startAsync().setTimeout(timeout);
@@ -20,15 +20,15 @@ public class EventSourceConnection
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
     }
-    public EventSourceConnection(Context context,long timeout) throws Throwable
+    public ServerSideConnection(Context context,long timeout) throws Throwable
     {
         this(context.getHttpServletRequest(),context.getHttpServletResponse(),timeout);
     }
-    public EventSourceConnection(HttpServletRequest request,HttpServletResponse response) throws Throwable
+    public ServerSideConnection(HttpServletRequest request,HttpServletResponse response) throws Throwable
     {
         this(request,response,0);
     }
-    public EventSourceConnection(Context context) throws Throwable
+    public ServerSideConnection(Context context) throws Throwable
     {
         this(context.getHttpServletRequest(),context.getHttpServletResponse());
     }

@@ -6,7 +6,7 @@ public class FileText extends Text
 {
     public FileText(String textFileName) throws Throwable
     {
-        super(FileUtils.readTextFile(textFileName));
+        super(FileUtils.readString(textFileName));
     }
 
 }

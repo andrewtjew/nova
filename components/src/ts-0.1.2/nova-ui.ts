@@ -1,6 +1,6 @@
 namespace nova.ui.media
 {
-    export class Camera
+    export class Camera 
     {
         videoElement:HTMLMediaElement;
         canvasElement:HTMLCanvasElement;

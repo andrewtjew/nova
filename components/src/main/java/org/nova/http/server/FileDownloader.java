@@ -48,7 +48,7 @@ public class FileDownloader extends CacheDownloader<String>
             }
             return null;
         }
-        byte[] bytes=FileUtils.readFile(rootFilePath);
+        byte[] bytes=FileUtils.readBytes(rootFilePath);
         return new CacheValue(filePath,bytes);
     }
 }

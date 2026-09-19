@@ -44,7 +44,7 @@ public class Parser
     
     Section[] parseFile(String htmlFile) throws Throwable
     {
-        return parseText(FileUtils.readTextFile(htmlFile, StandardCharsets.UTF_8));
+        return parseText(FileUtils.readString(htmlFile, StandardCharsets.UTF_8));
     }
 
     Section[] parseText(String text) throws Throwable

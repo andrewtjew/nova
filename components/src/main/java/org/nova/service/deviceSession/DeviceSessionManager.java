@@ -142,11 +142,11 @@ public class DeviceSessionManager
         return false;
     }
     
-    public Collection<DeviceSession> getSessionSnapshot()
+    public DeviceSession[] getSessionSnapshot()
     {
         synchronized (this)
         {
-            return this.deviceSessions.values();
+            return this.deviceSessions.values().toArray(new DeviceSession[this.deviceSessions.size()]);
         }
     }
     public Lock<String> waitForLock(Trace parent,String user)

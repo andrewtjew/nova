@@ -605,11 +605,14 @@ public class HtmlUtils
     {
         return "document.getElementById('"+id+"').getAttribute('"+attribute+"')";
     }  
+
+    @Deprecated
     public static String js_jqueryCall(String id,String function,Object...parameters)
     {
         return js_call("$","#"+id)+"."+js_call(function,parameters);
     }  
     
+    @Deprecated
     public static String js_jqueryCall(TagElement<?> element,String function,Object...parameters)
     {
         return js_call("$","#"+element.id())+"."+js_call(function,parameters);
@@ -1085,10 +1088,12 @@ public class HtmlUtils
         
     }
 
+    @Deprecated
     public static String js_toggle(TagElement<?> toggler,TagElement<?> target)
     {
         return "var c=document.getElementById('"+toggler.id()+"').checked;var t=document.getElementById('"+target.id()+"');t.disabled=!c;if (c==true) {t.classList.remove('disabled');} else {t.classList.add('disabled');}";
     }
+
     public static void writeFile(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
@@ -1128,4 +1133,5 @@ public class HtmlUtils
     {
         return getRequestPathAndQuery(context.getHttpServletRequest());
     }
+    
 }

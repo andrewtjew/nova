@@ -22,6 +22,10 @@
 package org.nova.logging;
  
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import org.nova.json.ObjectMapper;
 import org.nova.tracing.Trace;
@@ -45,7 +49,8 @@ public class JSONFormatter extends Formatter
 	    }
         sb.append("{");
         write(false,sb,"number",entry.getNumber());
-		writeString(true,sb,"created",Utils.millisToUTCDateTimeString(entry.getCreated()));
+        LocalDateTime created=LocalDateTime.ofInstant(Instant.ofEpochMilli(entry.getCreated()),ZoneOffset.UTC);
+		writeString(true,sb,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         writeString(true,sb,"level",entry.getLogLevel().toString());
         writeString(true,sb,"category",entry.getCategory());
         writeString(true,sb,"message",entry.getMessage());
@@ -74,7 +79,8 @@ public class JSONFormatter extends Formatter
         {
             sb.append(",\"trace\":{");
             write(false,sb,"number",trace.getNumber());
-            writeString(true,sb,"created",Utils.millisToUTCDateTimeString(trace.getCreatedMs()));
+            created=LocalDateTime.ofInstant(Instant.ofEpochMilli(trace.getCreatedMs()),ZoneOffset.UTC);
+            writeString(true,sb,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             writeString(true,sb,"category",trace.getCategory());
             write(true,sb,"duration",trace.getDurationS());
             write(true,sb,"wait",trace.getWaitS());

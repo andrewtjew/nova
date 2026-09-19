@@ -51,6 +51,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.HttpClient;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.util.annotation.Name;
 import org.nova.annotations.Description;
 import org.nova.collections.FileCache;
 import org.nova.collections.FileCacheConfiguration;
@@ -4983,7 +4984,7 @@ public class ServerOperatorPages
      
         try
         {
-            String info=FileUtils.readTextFile("./build-info.txt");
+            String info=FileUtils.readString("./build-info.txt");
             page.content().addInner("build-info:");
             page.content().addInner(new textarea().style("width:100%;").readonly().rows(8).addInner(info));
         }
@@ -5253,7 +5254,7 @@ public class ServerOperatorPages
   //              String buttonKey=(category+name+"Button").replace('.', '_');
                 String[] options=variable.options();
                 
-                td input_td=new td().style("width:10em;");
+                td input_td=new td().style("width:12em;");
                 if (options[0].length()!=0)
                 {
                     row.add("","","");
@@ -5276,10 +5277,17 @@ public class ServerOperatorPages
                 }
                 else if (type.isEnum())
                 {
-                    row.add("","","");
+                    row.add("","");
+                    row.add(new input_checkbox().name("nullString").checked(value==null));
                     
                     SelectOptions selectOptions=new SelectOptions();
-                    selectOptions.name("value");
+                    if (value==null)
+                    {
+                        selectOptions.name("value");
+                        {
+                            selectOptions.add(null,"",value==null);
+                        }
+                    }
                     for (Object enumConstant:field.getType().getEnumConstants())
                     {
                         String option=enumConstant.toString();
@@ -5292,12 +5300,12 @@ public class ServerOperatorPages
                     row.add("","");
                     if (value!=null)
                     {
-                        row.add(new input_checkbox().id("nullString").checked(false));
+                        row.add(new input_checkbox().name("nullString").checked(false));
                         row.add(input_td.addInner(new input_text().name("value").value(value.toString()).size(textSize)));
                     }
                     else
                     {
-                        row.add(new input_checkbox().id("nullString").checked(true));
+                        row.add(new input_checkbox().name("nullString").checked(true));
                         row.add(input_td.addInner(new input_text().name("value").size(textSize)));
                     }
                 }
@@ -5317,11 +5325,15 @@ public class ServerOperatorPages
 
     @POST
     @Path("/operator/variable")
-    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullValue") boolean nullValue) throws Throwable
+    public void update(Trace parent,Context context,@QueryParam("category") String category,@QueryParam("name") String name,@QueryParam("checkbox") boolean checkbox,@QueryParam("value") String value,@QueryParam("nullString") String nullString) throws Throwable
     {
         if (checkbox)
         {
             value=Boolean.toString(value==null?false:true);
+        }
+        else if (nullString!=null)
+        {
+            value=null;
         }
         var result=this.serverApplication.getOperatorVariableManager().setOperatorVariable(parent,category, name,value);
         context.seeOther("/operator/variables/modify");

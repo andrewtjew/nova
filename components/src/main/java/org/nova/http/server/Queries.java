@@ -25,6 +25,7 @@ import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+@Deprecated
 public class Queries
 {
     final private HttpServletRequest request;
@@ -39,6 +40,10 @@ public class Queries
     public String getValue(String name)
     {
         return this.request.getParameter(name);
+    }
+    public String[] getValues(String name)
+    {
+        return this.request.getParameterValues(name);
     }
     public String[] getNames()
     {

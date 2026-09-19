@@ -24,6 +24,7 @@ package org.nova.json;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
@@ -33,6 +34,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,7 +97,21 @@ public class ObjectMapper
             }
         }
     }
-    final static private DateTimeFormatter ISO8601_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss:SSS");
+    static class LocalTimeWriter extends  Writer
+    {
+        void write(WriteState writeState,Object object)
+        {
+            if (object==null)
+            {
+                writeState.writeNull();
+            }
+            else
+            {
+                LocalTime time=(LocalTime)object;
+                writeState.write(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
+            }
+        }
+    }
     static class LocalDateTimeWriter extends  Writer
     {
         void write(WriteState writeState,Object object)
@@ -107,7 +123,7 @@ public class ObjectMapper
             else
             {
                 LocalDateTime dateTime=(LocalDateTime)object;
-                writeState.write(ISO8601_DATETIME_FORMATTER.format(dateTime));
+                writeState.write(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             }
         }
     }
@@ -172,6 +188,7 @@ public class ObjectMapper
             {
                 writer=new EnumWriter();
             }
+            //May want to use a hashmap...
             else if (type == Boolean.class)
             {
                 writer=new PrimitiveWriter();
@@ -211,6 +228,10 @@ public class ObjectMapper
             else if (type==LocalDate.class)
             {
                 writer=new LocalDateWriter();
+            }
+            else if (type==LocalTime.class)
+            {
+                writer=new LocalTimeWriter();
             }
             else if (type==LocalDateTime.class)
             {
@@ -1015,51 +1036,6 @@ public class ObjectMapper
                 getPrimitiveValue();
             }
         }
-//        public void skipOld() throws Exception
-//        {
-//            char c=nextNonWhiteSpaceCharacter();
-//            this.position--;
-//            if (c=='"')
-//            {
-//                getString(); //we can optimize this by noticing that we don't need the computed string.
-//            }
-//            else if (c=='{')
-//            {
-//                if (nextNonWhiteSpaceCharacter()!='}')
-//                {
-//                    for (;;)
-//                    {
-//                        if (getName()==null)
-//                        {
-//                            break;
-//                        }
-//                        skip();
-//                        if (isEndOfElements())
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//            else if (c=='[')
-//            {
-//                if (nextNonWhiteSpaceCharacter()!=']')
-//                {
-//                    for (;;)
-//                    {
-//                        skip();
-//                        if (isEndOfArray())
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//            else
-//            {
-//                getPrimitiveValue();
-//            }
-//        }
         private char next()
         {
             try
@@ -1327,6 +1303,42 @@ public class ObjectMapper
             catch (Throwable t)
             {
                 throw new Exception("int value expected: "+getError());
+            }
+        }
+        public LocalDateTime getLocalDateTime() throws Exception
+        {
+            String text=getString();
+            try
+            {
+                return LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            }
+            catch (Throwable t)
+            {
+                throw new Exception("LocalDateTime value expected: "+getError());
+            }
+        }
+        public LocalDate getLocalDate() throws Exception
+        {
+            String text=getString();
+            try
+            {
+                return LocalDate.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            }
+            catch (Throwable t)
+            {
+                throw new Exception("LocalDate value expected: "+getError());
+            }
+        }
+        public LocalTime getLocalTime() throws Exception
+        {
+            String text=getString();
+            try
+            {
+                return LocalTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            }
+            catch (Throwable t)
+            {
+                throw new Exception("LocalTime value expected: "+getError());
             }
         }
         
@@ -1672,6 +1684,30 @@ public class ObjectMapper
             return new BigDecimal(scanner.getPrimitiveValue()); 
         }
     }
+    static class LocalDateTimeReader extends Reader
+    {
+        @Override
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
+        {
+            return scanner.getLocalDateTime();
+        }
+    }
+    static class LocalDateReader extends Reader
+    {
+        @Override
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
+        {
+            return scanner.getLocalDate();
+        }
+    }
+    static class LocalTimeReader extends Reader
+    {
+        @Override
+        Object read(Scanner scanner,Class<?> type,Options options) throws Throwable
+        {
+            return scanner.getLocalTime();
+        }
+    }
     static class ArrayReader extends Reader
     {
         @Override
@@ -1949,10 +1985,23 @@ public class ObjectMapper
         {
             reader=new ValueStringReader();
         }
+        else if (type==LocalDateTime.class)
+        {
+            reader=new LocalDateTimeReader();
+        }
+        else if (type==LocalDate.class)
+        {
+            reader=new LocalDateReader();
+        }
+        else if (type==LocalTime.class)
+        {
+            reader=new LocalTimeReader();
+        }
         else
         {
             reader=new ObjectReader();
         }
+        
         synchronized(READERS)
         {
             READERS.put(type.getName(), reader);
@@ -2104,13 +2153,23 @@ public class ObjectMapper
         return classReader;
     }
 
+    static public <OBJECT> OBJECT readObject(InputStream stream,Class<OBJECT> type) throws Throwable
+    {
+        return readObjectFromFile(stream,type,DEFAULT_OPTIONS);
+    }
+    static public <OBJECT> OBJECT readObjectFromFile(InputStream stream,Class<OBJECT> type,Options options) throws Throwable
+    {
+        String text=FileUtils.readString(stream);
+        return readObject(text,type,options);
+    }
+
     static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type) throws Throwable
     {
         return readObjectFromFile(fileName,type,DEFAULT_OPTIONS);
     }
     static public <OBJECT> OBJECT readObjectFromFile(String fileName,Class<OBJECT> type,Options options) throws Throwable
     {
-        String text=FileUtils.readTextFile(fileName);
+        String text=FileUtils.readString(fileName);
         return readObject(text,type,options);
     }
     

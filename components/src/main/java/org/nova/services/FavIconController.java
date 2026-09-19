@@ -43,7 +43,7 @@ public class FavIconController
     {
         if (icoFileName!=null)
         {
-            this.icoImage=FileUtils.readFile(icoFileName);
+            this.icoImage=FileUtils.readBytes(icoFileName);
         }
         else
         {
@@ -52,7 +52,7 @@ public class FavIconController
         
         if (pngFileName!=null)
         {
-            this.pngImage=FileUtils.readFile(pngFileName);
+            this.pngImage=FileUtils.readBytes(pngFileName);
         }
         else
         {

@@ -42,7 +42,7 @@ public class FileOperatorVariableStore extends OperatorVariableStore
         if (fileName!=null)
         {
             fileName=FileUtils.toNativePath(fileName);
-            String text=FileUtils.readTextFile(fileName);
+            String text=FileUtils.readString(fileName);
             var lines=Utils.splitLn(text);
             for (String line:lines)
             {
@@ -70,7 +70,11 @@ public class FileOperatorVariableStore extends OperatorVariableStore
                 StringBuilder sb=new StringBuilder();
                 for (var entry:this.variables.entrySet())
                 {
-                    sb.append(entry.getKey()+"="+entry.getValue()+"\r\n");
+                    var entryValue=entry.getValue();
+                    if (entryValue!=null)
+                    {
+                        sb.append(entry.getKey()+"="+entryValue+"\r\n");
+                    }
                 }
                 FileUtils.writeTextFile(this.fileName, sb.toString());
             }
@@ -89,4 +93,6 @@ public class FileOperatorVariableStore extends OperatorVariableStore
             return new OperatorVariableStoreValue(this.variables.get(name));
         }
     }
+    
+    
 }

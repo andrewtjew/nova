@@ -44,7 +44,7 @@ public class ConfigurationOperatorVariableStore extends OperatorVariableStore
         this.lines=new ArrayList<>();
         if (fileName!=null)
         {
-            String text=FileUtils.readTextFile(fileName);
+            String text=FileUtils.readString(fileName);
             var lines=Utils.splitLn(text);
             for (String line:lines)
             {

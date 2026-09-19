@@ -35,14 +35,15 @@ namespace nova.remote
     //     }
     // }
 
-    export function openEvenSourceConnection(url:string)
+    export function openServerSideConnection(url:string): (this: EventSource, event: MessageEvent<any>) => void
     {
-            new EventSource(url).onmessage=(event)=>
+            const eventSource=new EventSource(url).onmessage=(event)=>
             {
                 let text=event.data as string;
                 let instructions=JSON.parse(text) as Instruction[];
                 run(instructions);
             }
+            return eventSource;
     }
 
     export async function postWebSocket(webSocket:WebSocket,pathAndQuery:string,content:any=null,error:Function=null)

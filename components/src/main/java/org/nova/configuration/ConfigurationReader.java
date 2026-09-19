@@ -53,7 +53,7 @@ public class ConfigurationReader
 	}
 	private void read() throws Throwable
 	{
-	    String text=FileUtils.readTextFile(this.fileName);
+	    String text=FileUtils.readString(this.fileName);
 	    TextSource source=new TextSource(text);
 	    Scanner scanner=new Scanner(source);
 //	    scanner.skipWhiteSpace();
