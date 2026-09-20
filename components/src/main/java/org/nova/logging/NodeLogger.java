@@ -29,7 +29,6 @@ public class NodeLogger extends Logger
 {
     final private Node[] receivers;
     final private ThrowableEvents throwablesLog; 
-    private long number;
     
     public NodeLogger(String category,Node...receivers)
     {
@@ -45,7 +44,7 @@ public class NodeLogger extends Logger
         synchronized (this)
         {
             Packet packet=new Packet(1);
-            packet.add(new LogEntry(this.number++,category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
+            packet.add(new LogEntry(category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
             for (Node receiver:this.receivers)
             {
                 try

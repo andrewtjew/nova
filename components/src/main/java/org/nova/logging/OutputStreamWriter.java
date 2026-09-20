@@ -61,6 +61,7 @@ public abstract class OutputStreamWriter extends Node
     @Override
     public void beginGroup(long groupIdentifier) throws Throwable
     {
+        
         try
         {
             this.outputStream=openOutputStream(groupIdentifier);

@@ -25,12 +25,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.nova.sqldb.FieldMaps.ConstructorFieldMap;
 
-public class RowSet
+public class RowSet implements Iterable<Row>
 {
 	final String[] columnNames;
 	final private Row[] rows;
@@ -242,5 +243,24 @@ public class RowSet
             }
         }
         return list.toArray((TYPE[]) Array.newInstance(type, list.size()));
+    }
+    @Override
+    public Iterator<Row> iterator()
+    {
+        return new Iterator<Row>()
+        {
+            int index=0;
+            @Override
+            public boolean hasNext()
+            {
+                return index<rows.length;
+            }
+
+            @Override
+            public Row next()
+            {
+                return rows[index++];
+            }
+        };
     }
 }

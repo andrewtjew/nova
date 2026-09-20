@@ -35,7 +35,6 @@ public class SourceQueueLogger extends Logger
     private boolean active;
     private CountMeter logFailures;
     private Throwable logFailureThrowable;
-    private long number;
     private RateMeter rateMeter;
     private RingBuffer<LogEntry> buffer;
     
@@ -43,7 +42,6 @@ public class SourceQueueLogger extends Logger
     {
         super(category);
         this.logQueue=logQueue;
-        this.number=0;
         this.logFailures=new CountMeter();
         this.active=true;
         this.rateMeter=new RateMeter();
@@ -63,7 +61,7 @@ public class SourceQueueLogger extends Logger
     {
         synchronized(this)
         {
-            LogEntry entry=new LogEntry(this.number++,category,logLevel,System.currentTimeMillis(),throwable,trace,message,items);
+            LogEntry entry=new LogEntry(category,logLevel,System.currentTimeMillis(),throwable,trace,message,items);
             if (this.buffer!=null)
             {
                 this.buffer.add(entry);

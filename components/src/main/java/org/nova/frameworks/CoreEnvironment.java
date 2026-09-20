@@ -95,9 +95,9 @@ public class CoreEnvironment
 		this.logSourceQueue.start();
 		this.loggers=new HashMap<>();
 		Logger traceLogger=this.getLogger("tracing");
-        this.logger=getLogger("application");
+        this.logger=this.getLogger("application");
 	
-		this.traceManager=new TraceManager(traceLogger,new TraceManagerConfiguration(300));
+		this.traceManager=new TraceManager(traceLogger,new TraceManagerConfiguration(traceBufferSize));
 		this.multiTaskScheduler=new MultiTaskScheduler(traceManager,configuration.getIntegerValue("Environment.TaskScheduler.threads",0),this.logger);
 		this.timerScheduler=new TimerScheduler(traceManager, this.getLogger());
 		this.timerScheduler.start();

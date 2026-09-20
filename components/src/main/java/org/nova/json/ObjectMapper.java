@@ -1072,7 +1072,7 @@ public class ObjectMapper
             {
                 return true;
             }
-            throw new Exception(", or ] expected: "+getError());
+            throw new Exception(", or ] expected: got "+c+" "+getError());
         }
 //        public boolean isNext4(char end) throws Exception
 //        {
