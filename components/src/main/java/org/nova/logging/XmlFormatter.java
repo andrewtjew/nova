@@ -134,4 +134,10 @@ public class XmlFormatter extends Formatter
 		return sb.toString();
 	}
 
+    @Override
+    public String seperator() throws Throwable
+    {
+        return "";
+    }
+
 }

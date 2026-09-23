@@ -21,147 +21,163 @@
  ******************************************************************************/
 package org.nova.json;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 public class WriteState
 {
-    final private String indent;
-    final private String endOfLine;
-    final private ArrayList<String> levelIndents;
-    final private PrintStream stream;
-    private int level;
-    private String currentIndent;
+    final private OutputStream stream;
     
-    public WriteState(String indent,String endOfLine,PrintStream stream)
+    public WriteState(OutputStream stream)
     {
-        this.indent=indent;
-        this.endOfLine=endOfLine;
-        this.levelIndents=new ArrayList<>();
-        this.levelIndents.add(null);
         this.stream=stream;
     }
-    public void begin(char character)
+    public void begin(char character) throws Throwable
     {
-        this.stream.print(character);
-        if (this.endOfLine!=null)
-        {
-            this.level++;
-            if (this.level<this.levelIndents.size())
-            {
-                this.currentIndent=this.levelIndents.get(this.level-1);
-                return;
-            }
-            if (this.level==1)
-            {
-                this.currentIndent=this.indent;
-            }
-            else
-            {
-                this.currentIndent=this.currentIndent+this.indent;
-            }
-            this.levelIndents.add(this.currentIndent);
-        }
+        this.stream.write(character);
     }
-    public void end(char character)
+    public void end(char character) throws IOException
     {
-        if (this.endOfLine!=null)
-        {
-            this.stream.print(this.endOfLine);
-            this.level--;
-            this.currentIndent=this.levelIndents.get(this.level);
-            if (this.currentIndent!=null)
-            {
-                this.stream.print(this.currentIndent);
-            }
-        }
-        this.stream.print(character);
+        this.stream.write(character);
     }
     
-    public void writeName(char[] characters)
+    public void writeKeySection(char[] characters) throws Throwable
     {
-        this.stream.print(characters);
+        this.stream.write(new String(characters).getBytes(StandardCharsets.UTF_8));
     }
-    public void writeSeperator(boolean needComma)
+    public void writeSeperator(boolean needComma) throws Throwable
     {
         if (needComma)
         {
-           this.stream.print(',');
-        }
-        if (this.endOfLine!=null)
-        {
-            this.stream.print(endOfLine);
-            if (this.currentIndent!=null)
-            {
-                this.stream.print(this.currentIndent);
-            }
+           this.stream.write(',');
         }
     }
-    public void write(String object)
+    public void writeValue(String string) throws Throwable
     {
-        this.stream.print(object);
+        this.stream.write(string.getBytes(StandardCharsets.UTF_8));
     }
-    public void writeQuoted(String object)
+    public void writeEnum(String string) throws Throwable
     {
-        this.stream.print('"');
-        this.stream.print(object);
-        this.stream.print('"');
+        this.stream.write('"');
+        this.stream.write(string.getBytes(StandardCharsets.UTF_8));
+        this.stream.write('"');
     }
-    public void writeNull()
+    public void writeNull() throws Throwable
     {
-        this.stream.print("null");
+        writeValue("null");
     }
-    public void writeEscapedString(String string)
+    public void writeEscapedString(String string) throws Throwable
     {
-        this.stream.print('"');
+//        this.stream.write('"');
+//        for (int index=0;index<string.length();index++)
+//        {
+//            char c=string.charAt(index);
+//            if (c=='\\')
+//            {
+//                this.stream.write(c);
+//                this.stream.write(c);
+//            }
+//            else if (c>'"')
+//            { 
+//                this.stream.write(String.valueOf(c).getBytes(StandardCharsets.UTF_8));
+//            }
+//            else if (c=='"')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('"');
+//            }
+//            else if (c=='\b')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('b');
+//            }
+//            else if (c=='\f')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('f');
+//            }
+//            else if (c=='\n')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('n');
+//            }
+//            else if (c=='\r')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('r');
+//            }
+//            else if (c=='\t')
+//            {
+//                this.stream.write('\\');
+//                this.stream.write('t');
+//            }
+//            else
+//            {
+//                this.stream.write(String.valueOf(c).getBytes(StandardCharsets.UTF_8));
+//            }
+//        }
+//        this.stream.write('"');
+
+        StringBuilder sb=new StringBuilder(string.length()*2);
+        sb.append('"');
         for (int index=0;index<string.length();index++)
         {
             char c=string.charAt(index);
             if (c=='\\')
             {
-                this.stream.print(c);
-                this.stream.print(c);
+                sb.append(c);
+                sb.append(c);
             }
             else if (c>'"')
             { 
-                this.stream.print(c);
+                sb.append(c);
             }
             else if (c=='"')
             {
-                this.stream.print('\\');
-                this.stream.print('"');
+                sb.append('\\');
+                sb.append('"');
             }
             else if (c=='\b')
             {
-                this.stream.print('\\');
-                this.stream.print('b');
+                sb.append('\\');
+                sb.append('b');
             }
             else if (c=='\f')
             {
-                this.stream.print('\\');
-                this.stream.print('f');
+                sb.append('\\');
+                sb.append('f');
             }
             else if (c=='\n')
             {
-                this.stream.print('\\');
-                this.stream.print('n');
+                sb.append('\\');
+                sb.append('n');
             }
             else if (c=='\r')
             {
-                this.stream.print('\\');
-                this.stream.print('r');
+                sb.append('\\');
+                sb.append('r');
             }
             else if (c=='\t')
             {
-                this.stream.print('\\');
-                this.stream.print('t');
+                sb.append('\\');
+                sb.append('t');
             }
             else
             {
-                this.stream.print(c);
+                sb.append(c);
             }
         }
-        this.stream.print('"');
+        sb.append('"');
+        CharBuffer charBuffer = CharBuffer.wrap(sb);
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+        this.stream.write(byteBuffer.array(), 0, byteBuffer.remaining());
     }
     
 }

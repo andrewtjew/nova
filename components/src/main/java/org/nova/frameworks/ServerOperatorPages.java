@@ -184,12 +184,12 @@ import org.nova.http.server.annotations.PathParam;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.Test;
 import org.nova.logging.Item;
-import org.nova.logging.HighPerformanceLogger;
+import org.nova.logging.MultiThreadedLogEntrySourceQueue;
 import org.nova.logging.LogDirectoryInfo;
 import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
-import org.nova.logging.SourceQueueLogger;
+import org.nova.logging.LogEntrySourceQueueLogger;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.CountSample;
 import org.nova.metrics.LevelMeter;
@@ -645,7 +645,7 @@ public class ServerOperatorPages
     public Element captureLogging(@QueryParam("capacity") @DefaultValue("100") int capacity) throws Throwable
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("Capture Logs");
-        HighPerformanceLogger logger=(HighPerformanceLogger)this.serverApplication.getCoreEnvironment().getLogQueue();
+        MultiThreadedLogEntrySourceQueue logger=(MultiThreadedLogEntrySourceQueue)this.serverApplication.getCoreEnvironment().getLogQueue();
         form_get form=page.content().returnAddInner(new form_get());
         form.action("/operator/logging/capture");
         label label=form.returnAddInner(new label());
@@ -723,9 +723,9 @@ public class ServerOperatorPages
         {
             TableRow row=new TableRow();
             row.add(item.getCategory());
-            if (item instanceof SourceQueueLogger)
+            if (item instanceof LogEntrySourceQueueLogger)
             {
-                SourceQueueLogger sourceQueueLogger=(SourceQueueLogger)item;
+                LogEntrySourceQueueLogger sourceQueueLogger=(LogEntrySourceQueueLogger)item;
                 div div=new div();
                 div.addInner(new LiteralHtml(sourceQueueLogger.isActive()+"&nbsp;"));
                 if (sourceQueueLogger.isActive())
@@ -774,7 +774,7 @@ public class ServerOperatorPages
     @Path("/operator/logging/category/status")
     public Element setLoggerCategoryStatus(@QueryParam("category") String category,@QueryParam("active") boolean active,@QueryParam("samplingInterval") @DefaultValue("10") double samplingInterval) throws Throwable
     {
-        SourceQueueLogger logger=(SourceQueueLogger)this.serverApplication.getCoreEnvironment().getLogger(category);
+        LogEntrySourceQueueLogger logger=(LogEntrySourceQueueLogger)this.serverApplication.getCoreEnvironment().getLogger(category);
         logger.setActive(active);
         return viewLogCategories(samplingInterval);
     }
@@ -784,7 +784,7 @@ public class ServerOperatorPages
     {
         OperatorPage page=this.serverApplication.buildOperatorPage("Last Entries: Category="+category);
 
-        SourceQueueLogger logger=(SourceQueueLogger)this.serverApplication.getCoreEnvironment().getLogger(category);
+        LogEntrySourceQueueLogger logger=(LogEntrySourceQueueLogger)this.serverApplication.getCoreEnvironment().getLogger(category);
         List<LogEntry> entries=logger.getLastLogEntries();
         for (LogEntry entry:entries)
         {
@@ -5026,9 +5026,9 @@ public class ServerOperatorPages
         LogDirectoryManager manager = this.serverApplication.getLogDirectoryManager();
         if (manager != null)
         {
-            if (this.serverApplication.getLogQueue() instanceof HighPerformanceLogger)
+            if (this.serverApplication.getLogQueue() instanceof MultiThreadedLogEntrySourceQueue)
             {
-                HighPerformanceLogger sink = (HighPerformanceLogger) this.serverApplication.getLogQueue();
+                MultiThreadedLogEntrySourceQueue sink = (MultiThreadedLogEntrySourceQueue) this.serverApplication.getLogQueue();
                 {
                     Panel panel=page.content().returnAddInner(new Panel2(page.head(),"Logger"));
                     {

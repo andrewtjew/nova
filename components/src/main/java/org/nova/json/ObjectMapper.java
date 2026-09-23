@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -62,14 +63,14 @@ public class ObjectMapper
     }
     static class PrimitiveWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
-            writeState.write(object.toString());
+            writeState.writeValue(object.toString());
         }
     }
     static class ValueStringWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             ValueString value=(ValueString)object;
             writeState.writeEscapedString(value.get());
@@ -77,14 +78,14 @@ public class ObjectMapper
     }
     static class StringWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             writeState.writeEscapedString((String)object);
         }
     }
     static class LocalDateWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             if (object==null)
             {
@@ -93,13 +94,13 @@ public class ObjectMapper
             else
             {
                 LocalDate date=(LocalDate)object;
-                writeState.write(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
+                writeState.writeValue(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
             }
         }
     }
     static class LocalTimeWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             if (object==null)
             {
@@ -108,13 +109,13 @@ public class ObjectMapper
             else
             {
                 LocalTime time=(LocalTime)object;
-                writeState.write(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
+                writeState.writeValue(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
             }
         }
     }
     static class LocalDateTimeWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             if (object==null)
             {
@@ -123,13 +124,13 @@ public class ObjectMapper
             else
             {
                 LocalDateTime dateTime=(LocalDateTime)object;
-                writeState.write(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                writeState.writeValue(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             }
         }
     }
     static class EnumWriter extends  Writer
     {
-        void write(WriteState writeState,Object object)
+        void write(WriteState writeState,Object object) throws Throwable
         {
             if (object==null)
             {
@@ -137,7 +138,7 @@ public class ObjectMapper
             }
             else
             {
-                writeState.writeQuoted(object.toString());
+                writeState.writeEnum(object.toString());
             }
         }
     }
@@ -156,7 +157,7 @@ public class ObjectMapper
                 {
                     char[] jsonName = ('"' + entry.getKey() + '"' + ':').toCharArray();
                     writeState.writeSeperator(needComma);
-                    writeState.writeName(jsonName);
+                    writeState.writeKeySection(jsonName);
                     Writer writer=getWriter(fieldObject.getClass());
                     writer.write(writeState, fieldObject);
                     needComma=true;
@@ -280,7 +281,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Boolean.toString(array[i]));
+                writeState.writeValue(Boolean.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -294,7 +295,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Byte.toString(array[i]));
+                writeState.writeValue(Byte.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -324,7 +325,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Short.toString(array[i]));
+                writeState.writeValue(Short.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -338,7 +339,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Integer.toString(array[i]));
+                writeState.writeValue(Integer.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -352,7 +353,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Long.toString(array[i]));
+                writeState.writeValue(Long.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -366,7 +367,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Float.toString(array[i]));
+                writeState.writeValue(Float.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -380,7 +381,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 writeState.writeSeperator(i>0);
-                writeState.write(Double.toString(array[i]));
+                writeState.writeValue(Double.toString(array[i]));
             }
             writeState.end(']');
         }
@@ -422,7 +423,7 @@ public class ObjectMapper
                 }
                 else
                 {
-                    writeState.writeQuoted(array[i].toString());
+                    writeState.writeEnum(array[i].toString());
                 }
             }
             writeState.end(']');
@@ -444,7 +445,7 @@ public class ObjectMapper
                 }
                 else
                 {
-                    writeState.write(array[i].toString());
+                    writeState.writeValue(array[i].toString());
                 }
             }
             writeState.end(']');
@@ -545,7 +546,7 @@ public class ObjectMapper
         void write(WriteState writeState,boolean needComma,Object object) throws Throwable
         {
             writeState.writeSeperator(needComma);
-            writeState.writeName(jsonName);
+            writeState.writeKeySection(jsonName);
             writer.write(writeState,object);
         }
     }
@@ -768,65 +769,62 @@ public class ObjectMapper
 
     public static String writeObjectToString(Object object) throws Throwable
     {
-        return writeObjectToString(4096,null,null,object);
+        return writeObjectToString(4096,object);
     }
 
-    public static String writeObjectToStringUsingDefaultFormatting(Object object) throws Throwable
-    {
-        return writeObjectToString(4096,"  ","\r\n",object);
-    }
+//    public static String writeObjectToStringUsingDefaultFormatting(Object object) throws Throwable
+//    {
+//        return writeObjectToString(4096,"  ","\r\n",object);
+//    }
 
 
-    static public String writeObjectToString(int initalStringBufferSize,String indent,String endOfLine,Object object) throws Throwable
+    static public String writeObjectToString(int initalStringBufferSize,Object object) throws Throwable
     {
         try (ByteArrayOutputStream outputStream=new ByteArrayOutputStream(initalStringBufferSize))
         {
-            writeObject(indent,endOfLine,outputStream,object);
-            return outputStream.toString();
+            writeObject(outputStream,object);
+            return outputStream.toString(StandardCharsets.UTF_8);
         }
     }
     
-    static public void writeObject(String indent,String endOfLine,OutputStream outputStream,Object object) throws Throwable
+    static public void writeObject(OutputStream outputStream,Object object) throws Throwable
     {
-        try (PrintStream printStream=new PrintStream(outputStream))
-        {
-            if (object!=null)
-            {
-                WriteState writeState=new WriteState(indent, endOfLine, printStream);
-                Writer writer=getWriter(object.getClass());
-                writer.write(writeState, object);
-            }
-        }
-    }
-    
-    static public void writeObject(String indent,String endOfLine,PrintStream printStream,Object object) throws Throwable
-    {
-        WriteState writeState=new WriteState(indent, endOfLine, printStream);
         if (object!=null)
         {
+            WriteState writeState=new WriteState(outputStream);
             Writer writer=getWriter(object.getClass());
             writer.write(writeState, object);
         }
-        else
-        {
-            writeState.write(null);
-        }
     }
     
-    static public void writeObjectToFile(int bufferSize,String indent,String endOfLine,String fileName,Object object) throws Throwable
+//    static public void writeObject(PrintStream printStream,Object object) throws Throwable
+//    {
+//        WriteState writeState=new WriteState(printStream);
+//        if (object!=null)
+//        {
+//            Writer writer=getWriter(object.getClass());
+//            writer.write(writeState, object);
+//        }
+//        else
+//        {
+//            writeState.write(null);
+//        }
+//    }
+    
+    static public void writeObjectToFile(int bufferSize,String fileName,Object object) throws Throwable
     {
         try (FileOutputStream outputStream=new FileOutputStream(fileName))
         {
             try (BufferedOutputStream bufferedOutputStream=new BufferedOutputStream(outputStream,bufferSize))
             {
-                writeObject(indent,endOfLine,bufferedOutputStream,object);
+                writeObject(bufferedOutputStream,object);
             }
         }
     }
     
-    static public void writeObjectToFileUsingDefaultFormatting(String fileName,Object object) throws Throwable
+    static public void writeObjectToFile(String fileName,Object object) throws Throwable
     {
-        writeObjectToFile(65536,"\t","\r\n",fileName,object);
+        writeObjectToFile(65536,fileName,object);
     }
     
     // ------ read

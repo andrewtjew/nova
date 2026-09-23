@@ -23,7 +23,7 @@ package org.nova.logging;
 
 import org.nova.flow.SourceQueueConfiguration;
 
-public class HighPerformanceConfiguration extends SourceQueueConfiguration
+public class MultiThreadededLogEntrySourceQueueConfiguration extends SourceQueueConfiguration
 {
     public long writerStallWaitMs=100;
     
@@ -38,12 +38,12 @@ public class HighPerformanceConfiguration extends SourceQueueConfiguration
 
     public int entriesPerFile=20000;
 	
-	public HighPerformanceConfiguration(int entriesPerFile)
+	public MultiThreadededLogEntrySourceQueueConfiguration(int entriesPerFile)
 	{
 		this.entriesPerFile=entriesPerFile;
 		this.rollOverWaitMs=200; //Since the log entries are buffered, we need to set rollover to small value to prevent data loss. 
 	}
-	public HighPerformanceConfiguration()
+	public MultiThreadededLogEntrySourceQueueConfiguration()
 	{
 	}
 }

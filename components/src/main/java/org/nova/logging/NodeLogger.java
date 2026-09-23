@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.logging;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.nova.flow.Node;
 import org.nova.flow.Packet;
 import org.nova.tracing.Trace;
@@ -29,7 +31,7 @@ public class NodeLogger extends Logger
 {
     final private Node[] receivers;
     final private ThrowableEvents throwablesLog; 
-    
+    final private AtomicLong number=new AtomicLong();
     public NodeLogger(String category,Node...receivers)
     {
         super(category);
@@ -44,7 +46,7 @@ public class NodeLogger extends Logger
         synchronized (this)
         {
             Packet packet=new Packet(1);
-            packet.add(new LogEntry(category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
+            packet.add(new LogEntry(this.number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
             for (Node receiver:this.receivers)
             {
                 try

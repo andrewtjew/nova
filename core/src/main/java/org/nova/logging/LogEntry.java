@@ -27,7 +27,6 @@ import org.nova.tracing.Trace;
 
 public class LogEntry
 {
-    static AtomicLong NUMBER_GENERATOR=new AtomicLong();
 	private final Level logLevel;
 	private final long number;
 	private final long created;
@@ -36,9 +35,9 @@ public class LogEntry
 	private final Trace trace;
 	private final Item[] items;
 	private final String category;
-	LogEntry(String category,Level logLevel,long created,Throwable exception,Trace trace,String message,Item[] items)
+	LogEntry(long number,String category,Level logLevel,long created,Throwable exception,Trace trace,String message,Item[] items)
 	{
-		this.number=NUMBER_GENERATOR.getAndIncrement();
+		this.number=number;
 		this.category=category;
 		this.logLevel=logLevel;
 		this.created=created;

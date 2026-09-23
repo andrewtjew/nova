@@ -28,6 +28,7 @@ import org.nova.tracing.Trace;
 public class ConsoleLogger extends Logger
 {
     final private Formatter formatter;
+    final private AtomicLong number=new AtomicLong();
     public ConsoleLogger(String category,Formatter formatter)
     {
         super(category);
@@ -35,11 +36,11 @@ public class ConsoleLogger extends Logger
     }
 
     @Override
-    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
+    public synchronized void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
     {
         try
         {
-            String text=this.formatter.format(new LogEntry(category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
+            String text=this.formatter.format(new LogEntry(number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
             System.out.println(text);
         }
         catch (Throwable e)

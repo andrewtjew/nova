@@ -36,6 +36,7 @@ public abstract class OutputStreamWriter extends Node
 	private OutputStream outputStream;
 	final private Formatter formatter;
 	final private RateMeter rateMeter;
+	private boolean first;
 	
     protected OutputStreamWriter(Formatter formatter) throws Throwable
     {
@@ -66,6 +67,7 @@ public abstract class OutputStreamWriter extends Node
         {
             this.outputStream=openOutputStream(groupIdentifier);
             write(this.formatter.beginDocument());
+            this.first=true;
         }
         catch (Throwable t)
         {
@@ -109,9 +111,19 @@ public abstract class OutputStreamWriter extends Node
                     for (int i = 0; i < container.sizeOrType(); i++)
                     {
                         Object object = container.get(i);
+//                        if (object != null)
                         if ((object != null) && (object instanceof LogEntry))
                         {
+                            if (first==false)
+                            {
+                                write(this.formatter.seperator());
+                            }
                             write(this.formatter.format((LogEntry)object));
+                            first=false;
+                        }
+                        else
+                        {
+                            throw new IOException("Invalid object type. Expected LogEntry, found " + object.getClass().getName());
                         }
                     }
                     return;

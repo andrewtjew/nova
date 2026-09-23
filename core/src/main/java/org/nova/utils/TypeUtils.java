@@ -863,6 +863,14 @@ public class TypeUtils
         }
         return a.equals(b);
     }
+    static public boolean equalAndNotNull(String a,String b)
+    {
+        if ((a==null)||(b==null))
+        {
+            return false;
+        }
+        return a.equals(b);
+    }
     static public boolean equalsIgnoreCase(String a,String b)
     {
         if ((a==null)&&(b==null))

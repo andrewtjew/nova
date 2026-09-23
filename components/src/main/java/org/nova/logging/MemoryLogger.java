@@ -30,7 +30,7 @@ import org.nova.tracing.Trace;
 public class MemoryLogger extends Logger
 {
     final private RingBuffer<LogEntry> buffer;
-
+    final private AtomicLong number=new AtomicLong();
     public MemoryLogger(String category,int capacity)
     {
         super(category);
@@ -41,7 +41,7 @@ public class MemoryLogger extends Logger
     public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
     {
         long now=System.currentTimeMillis();
-        LogEntry entry=new LogEntry(category, logLevel, now, throwable, trace, message, items);
+        LogEntry entry=new LogEntry(number.getAndIncrement(),category, logLevel, now, throwable, trace, message, items);
         synchronized(this)
         {
             this.buffer.add(entry);

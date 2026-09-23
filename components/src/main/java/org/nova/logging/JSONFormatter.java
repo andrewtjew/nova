@@ -33,20 +33,11 @@ import org.nova.utils.Utils;
 
 public class JSONFormatter extends Formatter
 {
-    private boolean commaNeededBetweenEntries=false;
 	@SuppressWarnings("resource")
     @Override
 	public String format(LogEntry entry) throws Throwable
 	{
 		StringBuilder sb=new StringBuilder();
-	    if (this.commaNeededBetweenEntries)
-	    {
-	        sb.append(",");
-	    }
-	    else
-	    {
-	        this.commaNeededBetweenEntries=true;
-	    }
         sb.append("{");
         write(false,sb,"number",entry.getNumber());
         LocalDateTime created=LocalDateTime.ofInstant(Instant.ofEpochMilli(entry.getCreated()),ZoneOffset.UTC);
@@ -202,15 +193,20 @@ public class JSONFormatter extends Formatter
     }
 
     @Override
-	public String beginDocument() throws IOException
+	public String beginDocument() throws Throwable
 	{
-        this.commaNeededBetweenEntries=false;
         return "[\r\n";
 	}
 
 	@Override
-	public String endDocument() throws IOException
+	public String endDocument() throws Throwable
 	{
         return "\r\n]";
 	}
+
+    @Override
+    public String seperator() throws Throwable
+    {
+        return ",";
+    }
 }

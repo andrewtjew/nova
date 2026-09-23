@@ -25,5 +25,6 @@ public abstract class Formatter
 {
 	abstract public String beginDocument() throws Throwable;
 	abstract public String endDocument() throws Throwable;
+	abstract public String seperator() throws Throwable;
 	abstract public String format(LogEntry entry) throws Throwable;
 }

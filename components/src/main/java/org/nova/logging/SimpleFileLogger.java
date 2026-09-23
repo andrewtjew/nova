@@ -39,7 +39,7 @@ import org.nova.metrics.RateMeter;
 
 public class SimpleFileLogger extends SourceQueue<LogEntry> 
 {
-	private static Distributor connect(LogDirectoryManager logDirectoryManager,HighPerformanceConfiguration configuration) throws Throwable
+	private static Distributor connect(LogDirectoryManager logDirectoryManager,MultiThreadededLogEntrySourceQueueConfiguration configuration) throws Throwable
 	{
         CountMeter threadWorkerQueueDroppedMeter=new CountMeter();
         CountMeter threadWorkerQueueStalledMeter=new CountMeter();
@@ -79,7 +79,7 @@ public class SimpleFileLogger extends SourceQueue<LogEntry>
     final private BufferedLZ4FileWriter[] writers;
     final private ThreadWorkerQueue[] queues;
 
-    public SimpleFileLogger(LogDirectoryManager logDirectoryManager, HighPerformanceConfiguration configuration) throws Throwable
+    public SimpleFileLogger(LogDirectoryManager logDirectoryManager, MultiThreadededLogEntrySourceQueueConfiguration configuration) throws Throwable
 	{
 		super(connect(logDirectoryManager,configuration),configuration);
         this.writers=new BufferedLZ4FileWriter[configuration.writerThreads];

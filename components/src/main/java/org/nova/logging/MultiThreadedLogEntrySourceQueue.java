@@ -32,15 +32,16 @@ import org.nova.flow.ThreadWorkerQueue;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
 import org.nova.metrics.RateMeter;
+import org.nova.tracing.Trace;
 
 /* Note
  * A problem of this implementation is that file name ordering is not guaranteed. It relies that file operations are fast enough
  * compared to the logging-in-a-file.
  */
 
-public class HighPerformanceLogger extends SourceQueue<LogEntry> 
+public class MultiThreadedLogEntrySourceQueue extends LogEntrySourceQueue 
 {
-	private static Tapper connect(LogDirectoryManager logDirectoryManager,HighPerformanceConfiguration configuration) throws Throwable
+	private static Tapper connect(LogDirectoryManager logDirectoryManager,MultiThreadededLogEntrySourceQueueConfiguration configuration) throws Throwable
 	{
         CountMeter threadWorkerQueueDroppedMeter=new CountMeter();
         CountMeter threadWorkerQueueStalledMeter=new CountMeter();
@@ -81,7 +82,7 @@ public class HighPerformanceLogger extends SourceQueue<LogEntry>
     final private ThreadWorkerQueue[] queues;
     final private Tapper tapper;
 
-    public HighPerformanceLogger(LogDirectoryManager logDirectoryManager, HighPerformanceConfiguration configuration) throws Throwable
+    public MultiThreadedLogEntrySourceQueue(LogDirectoryManager logDirectoryManager, MultiThreadededLogEntrySourceQueueConfiguration configuration) throws Throwable
 	{
 		super(connect(logDirectoryManager,configuration),configuration);
         this.writers=new BufferedLZ4FileWriter[configuration.writerThreads];
@@ -153,6 +154,6 @@ public class HighPerformanceLogger extends SourceQueue<LogEntry>
         {
             queue.stop();
         }
-         
     }
+
 }

@@ -29,16 +29,16 @@ import org.nova.metrics.CountMeter;
 import org.nova.metrics.RateMeter;
 import org.nova.tracing.Trace;
 
-public class SourceQueueLogger extends Logger
+public class LogEntrySourceQueueLogger extends Logger
 {
-    private final SourceQueue<LogEntry> logQueue;
+    private final LogEntrySourceQueue logQueue;
     private boolean active;
     private CountMeter logFailures;
     private Throwable logFailureThrowable;
     private RateMeter rateMeter;
     private RingBuffer<LogEntry> buffer;
     
-    public SourceQueueLogger(int bufferSize,String category,SourceQueue<LogEntry> logQueue)
+    public LogEntrySourceQueueLogger(int bufferSize,String category,LogEntrySourceQueue logQueue)
     {
         super(category);
         this.logQueue=logQueue;
@@ -61,18 +61,17 @@ public class SourceQueueLogger extends Logger
     {
         synchronized(this)
         {
-            LogEntry entry=new LogEntry(category,logLevel,System.currentTimeMillis(),throwable,trace,message,items);
-            if (this.buffer!=null)
-            {
-                this.buffer.add(entry);
-            }
             if (this.active==false)
             {
                 return;
             }
             try
             {
-                this.logQueue.send(entry);
+                var entry=logQueue.write(trace, logLevel, category, throwable, message, items);
+                if (this.buffer!=null)
+                {
+                    this.buffer.add(entry);
+                }
                 this.rateMeter.increment();
             }
             catch (Throwable t)

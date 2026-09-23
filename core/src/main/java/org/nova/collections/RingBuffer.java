@@ -65,14 +65,10 @@ public class RingBuffer<ITEM>
 		{
 			return null;
 		}
-		try
-		{
-			return this.array[this.readIndex];
-		}
-		finally
-		{
-			this.readIndex=(this.readIndex+1)%this.length;
-		}
+		var item=this.array[this.readIndex];
+		this.readIndex=(this.readIndex+1)%this.length;
+		this.size--;
+		return item;
 	}
 	public int remove(ITEM[] array)
 	{
@@ -119,4 +115,8 @@ public class RingBuffer<ITEM>
 	{
 	    this.readIndex=this.writeIndex=this.size=0;
 	}
+	public boolean isFull()
+    {
+        return this.size==this.length;
+    }
 }
