@@ -19,12 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
 import java.util.List;
 
 import org.nova.collections.RingBuffer;
 import org.nova.flow.SourceQueue;
+import org.nova.logging.Item;
+import org.nova.logging.Level;
+import org.nova.logging.LogEntry;
+import org.nova.logging.Logger;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.RateMeter;
 import org.nova.tracing.Trace;

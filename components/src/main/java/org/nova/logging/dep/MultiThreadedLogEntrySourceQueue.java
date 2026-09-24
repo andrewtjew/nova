@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
 import java.util.ArrayList;
 
@@ -29,6 +29,7 @@ import org.nova.flow.Node;
 import org.nova.flow.SourceQueue;
 import org.nova.flow.Tapper;
 import org.nova.flow.ThreadWorkerQueue;
+import org.nova.logging.LogDirectoryManager;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
 import org.nova.metrics.RateMeter;

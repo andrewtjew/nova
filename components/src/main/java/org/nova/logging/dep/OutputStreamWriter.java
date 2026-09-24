@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.nova.flow.Node;
 import org.nova.flow.Packet;
+import org.nova.logging.LogEntry;
 import org.nova.metrics.RateMeter;
 
 

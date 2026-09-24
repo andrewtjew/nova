@@ -16,11 +16,11 @@ public class Logger3
     final private RingBuffer<LogEntry> lastLogEntries;
     final LogWriter logWriter;
     
-    public Logger3(String category,LogWriter queue,int bufferSize)
+    public Logger3(String category,LogWriter logWriter,int bufferSize)
     {
         this.category=category;
         this.active=true;
-        this.logWriter=queue;
+        this.logWriter=logWriter;
         if (bufferSize>0)
         {
             this.lastLogEntries=new RingBuffer<LogEntry>(new LogEntry[bufferSize]);
@@ -30,9 +30,9 @@ public class Logger3
             this.lastLogEntries=null;
         }
     }
-    public Logger3(String category,MultiThreadLogWriter queue)
+    public Logger3(String category,LogWriter logWriter)
     {
-        this(category,queue,1000);
+        this(category,logWriter,1000);
     }
     public void log(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
     {

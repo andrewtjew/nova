@@ -19,10 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
 import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
+import org.nova.logging.LogDirectoryManager;
+import org.nova.logging.LogEntry;
 
 public class LogUtils
 {

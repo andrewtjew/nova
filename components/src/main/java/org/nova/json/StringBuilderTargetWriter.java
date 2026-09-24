@@ -43,11 +43,6 @@ public class StringBuilderTargetWriter extends TargetWriter
     {
         this.stringBuffer.append(character);
     }
-    public void writeKeySection(String value) throws Throwable
-    {
-        this.stringBuffer.append(value);
-    }
-    
     public void writeSeperator(boolean needComma) throws Throwable
     {
         if (needComma)
@@ -55,7 +50,7 @@ public class StringBuilderTargetWriter extends TargetWriter
            this.stringBuffer.append(',');
         }
     }
-    public void writeValue(String string) throws Throwable
+    public void write(String string) throws Throwable
     {
         this.stringBuffer.append(string);
     }
@@ -67,61 +62,59 @@ public class StringBuilderTargetWriter extends TargetWriter
     }
     public void writeNull() throws Throwable
     {
-        writeValue("null");
+        write("null");
     }
     public void writeString(String string) throws Throwable
     {
-        StringBuilder sb=new StringBuilder(string.length()*2);
-        sb.append('"');
+        this.stringBuffer.append('"');
         for (int index=0;index<string.length();index++)
         {
             char c=string.charAt(index);
             if (c=='\\')
             {
-                sb.append(c);
-                sb.append(c);
+                this.stringBuffer.append(c);
+                this.stringBuffer.append(c);
             }
             else if (c>'"')
             { 
-                sb.append(c);
+                this.stringBuffer.append(c);
             }
             else if (c=='"')
             {
-                sb.append('\\');
-                sb.append('"');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('"');
             }
             else if (c=='\b')
             {
-                sb.append('\\');
-                sb.append('b');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('b');
             }
             else if (c=='\f')
             {
-                sb.append('\\');
-                sb.append('f');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('f');
             }
             else if (c=='\n')
             {
-                sb.append('\\');
-                sb.append('n');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('n');
             }
             else if (c=='\r')
             {
-                sb.append('\\');
-                sb.append('r');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('r');
             }
             else if (c=='\t')
             {
-                sb.append('\\');
-                sb.append('t');
+                this.stringBuffer.append('\\');
+                this.stringBuffer.append('t');
             }
             else
             {
-                sb.append(c);
+                this.stringBuffer.append(c);
             }
         }
-        sb.append('"');
-        this.stringBuffer.append(sb.toString());
+        this.stringBuffer.append('"');
     }
     public String getString()
     {

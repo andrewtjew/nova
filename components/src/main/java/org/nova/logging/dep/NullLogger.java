@@ -19,12 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
-public abstract class Formatter
+import org.nova.logging.Item;
+import org.nova.logging.Level;
+import org.nova.logging.Logger;
+import org.nova.tracing.Trace;
+
+public class NullLogger extends Logger
 {
-	abstract public String beginDocument() throws Throwable;
-	abstract public String endDocument() throws Throwable;
-	abstract public String seperator() throws Throwable;
-	abstract public String format(LogEntry entry) throws Throwable;
+    public NullLogger()
+    {
+        super("null");
+    }
+
+    @Override
+    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
+    {
+    }
+
 }

@@ -21,8 +21,8 @@
  ******************************************************************************/
 package org.nova.frameworks;
 
-import org.nova.logging.LogUtils;
 import org.nova.logging.Logger;
+import org.nova.logging.dep.LogUtils;
 import org.nova.tracing.TraceManager;
 import org.nova.tracing.TraceManagerConfiguration;
 

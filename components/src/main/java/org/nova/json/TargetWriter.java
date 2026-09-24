@@ -34,9 +34,8 @@ import org.apache.commons.text.StringEscapeUtils;
 public abstract class TargetWriter
 {
     public abstract void write(char character) throws Throwable;
-    public abstract void writeKeySection(String value) throws Throwable;
     public abstract void writeSeperator(boolean needComma) throws Throwable;
-    public abstract void writeValue(String string) throws Throwable;
+    public abstract void write(String string) throws Throwable;
     public abstract void writeEnum(String string) throws Throwable;
     public abstract void writeNull() throws Throwable;
     public abstract void writeString(String string) throws Throwable;

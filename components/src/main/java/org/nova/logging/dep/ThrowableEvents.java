@@ -19,36 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
-import java.io.OutputStream;
-
-import org.nova.utils.Utils;
-
-public class ConsoleWriter extends OutputStreamWriter
+public class ThrowableEvents
 {
-    final private boolean outputSegments; 
-    public ConsoleWriter(Formatter formatter,boolean outputSegments) throws Throwable
+    private ThrowableEvent first;
+    private ThrowableEvent last; 
+    
+    public ThrowableEvents()
     {
-        super(formatter);
-        this.outputSegments=outputSegments;
+    }
+    
+    public void log(Throwable throwable)
+    {
+        synchronized(this)
+        {
+            last=new ThrowableEvent(throwable);
+            if (first==null)
+            {
+                first=last;
+            }
+        }
     }
 
-    @Override
-    public OutputStream openOutputStream(long marker) throws Throwable
+    public ThrowableEvent getFirst()
     {
-        if (this.outputSegments)
+        synchronized(this)
         {
-            System.out.println("--- Begin Segment: Marker="+marker+", Time="+Utils.millisToLocalDateTimeString(marker));
+            return first;
         }
-        return System.out;
     }
-    @Override
-    public void closeOutputStream(OutputStream outputStream)
+
+    public ThrowableEvent getLast()
     {
-        if (this.outputSegments)
+        synchronized(this)
         {
-            System.out.println("--- End Segment ---");
+            return last;
         }
     }
 

@@ -65,7 +65,7 @@ public class ObjectMapper
     {
         void write(TargetWriter targetWriter,Object object) throws Throwable
         {
-            targetWriter.writeValue(object.toString());
+            targetWriter.write(object.toString());
         }
     }
     static class ValueStringWriter extends  Writer
@@ -94,7 +94,7 @@ public class ObjectMapper
             else
             {
                 LocalDate date=(LocalDate)object;
-                targetWriter.writeValue(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
+                targetWriter.write(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
             }
         }
     }
@@ -109,7 +109,7 @@ public class ObjectMapper
             else
             {
                 LocalTime time=(LocalTime)object;
-                targetWriter.writeValue(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
+                targetWriter.write(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
             }
         }
     }
@@ -124,7 +124,7 @@ public class ObjectMapper
             else
             {
                 LocalDateTime dateTime=(LocalDateTime)object;
-                targetWriter.writeValue(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                targetWriter.write(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             }
         }
     }
@@ -157,7 +157,7 @@ public class ObjectMapper
                 {
                     String jsonName = '"' + entry.getKey() + '"' + ':';
                     targetWriter.writeSeperator(needComma);
-                    targetWriter.writeKeySection(jsonName);
+                    targetWriter.write(jsonName);
                     Writer writer=getWriter(fieldObject.getClass());
                     writer.write(targetWriter, fieldObject);
                     needComma=true;
@@ -281,7 +281,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Boolean.toString(array[i]));
+                targetWriter.write(Boolean.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -295,7 +295,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Byte.toString(array[i]));
+                targetWriter.write(Byte.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -325,7 +325,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Short.toString(array[i]));
+                targetWriter.write(Short.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -339,7 +339,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Integer.toString(array[i]));
+                targetWriter.write(Integer.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -353,7 +353,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Long.toString(array[i]));
+                targetWriter.write(Long.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -367,7 +367,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Float.toString(array[i]));
+                targetWriter.write(Float.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -381,7 +381,7 @@ public class ObjectMapper
             for (int i = 0; i < array.length; i++)
             {
                 targetWriter.writeSeperator(i>0);
-                targetWriter.writeValue(Double.toString(array[i]));
+                targetWriter.write(Double.toString(array[i]));
             }
             targetWriter.write(']');
         }
@@ -445,7 +445,7 @@ public class ObjectMapper
                 }
                 else
                 {
-                    targetWriter.writeValue(array[i].toString());
+                    targetWriter.write(array[i].toString());
                 }
             }
             targetWriter.write(']');
@@ -545,7 +545,7 @@ public class ObjectMapper
         void write(TargetWriter targetWriter,boolean needComma,Object object) throws Throwable
         {
             targetWriter.writeSeperator(needComma);
-            targetWriter.writeKeySection(jsonName);
+            targetWriter.write(jsonName);
             writer.write(targetWriter,object);
         }
     }

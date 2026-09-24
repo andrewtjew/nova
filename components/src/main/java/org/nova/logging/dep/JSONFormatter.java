@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
  
 import java.io.IOException;
 import java.time.Instant;
@@ -28,6 +28,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 import org.nova.json.ObjectMapper;
+import org.nova.logging.Item;
+import org.nova.logging.LogEntry;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 

@@ -19,29 +19,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-public class SimpleFileWriter extends OutputStreamWriter
-{
-    final private LogDirectoryManager logDirectoryManager;
+import org.nova.logging.LogDirectoryManager;
+import org.nova.metrics.RateMeter;
 
-    public SimpleFileWriter(LogDirectoryManager logDirectoryManager,Formatter formatter) throws Throwable
+import net.jpountz.lz4.LZ4BlockOutputStream;
+
+public class BufferedLZ4FileWriter extends OutputStreamWriter
+{
+    private final ByteArrayOutputStream byteArrayOuputStream;
+    final private LogDirectoryManager logDirectoryManager;
+    private long marker;
+
+    public BufferedLZ4FileWriter(LogDirectoryManager logDirectoryManager,int initialCapacity, Formatter formatter, RateMeter rateMeter) throws Throwable
     {
-        super(formatter);
+        super(formatter,rateMeter);
+        this.byteArrayOuputStream=new ByteArrayOutputStream(initialCapacity);
         this.logDirectoryManager = logDirectoryManager;
     }
 
     @Override
     public OutputStream openOutputStream(long marker) throws Throwable
     {
-        return this.logDirectoryManager.openFileOutputStream(marker, ".txt");
+        this.marker = marker;
+        this.byteArrayOuputStream.reset();
+        return new LZ4BlockOutputStream(this.byteArrayOuputStream);
     }
 
     @Override
     public void closeOutputStream(OutputStream outputStream) throws Throwable
     {
-        outputStream.close();
+        outputStream.close(); // This flushes to the underlying stream.
+        if (this.byteArrayOuputStream.size()>0)
+        {
+//            Testing.println("BufferedLZ4FileWriter: write");
+            this.logDirectoryManager.write(this.byteArrayOuputStream,marker,".lz4");
+        }
     }
 }

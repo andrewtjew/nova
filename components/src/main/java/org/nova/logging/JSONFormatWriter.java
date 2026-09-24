@@ -49,10 +49,10 @@ public class JSONFormatWriter extends FormatWriter
 	    write('{');
         write(false,"number",entry.getNumber());
         LocalDateTime created=LocalDateTime.ofInstant(Instant.ofEpochMilli(entry.getCreated()),ZoneOffset.UTC);
-		writeString(true,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        writeString(true,"level",entry.getLogLevel().toString());
-        writeString(true,"category",entry.getCategory());
-        writeString(true,"message",entry.getMessage());
+		writeKeyValue(true,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        writeKeyValue(true,"level",entry.getLogLevel().toString());
+        writeKeyValue(true,"category",entry.getCategory());
+        writeKeyValue(true,"message",entry.getMessage());
         Item[] items=entry.getItems();
         if ((items!=null)&&(items.length>0))
         {
@@ -71,7 +71,7 @@ public class JSONFormatWriter extends FormatWriter
         Throwable throwable=entry.getException();
         if (throwable!=null)
         {
-            writeString(true,"exception",Utils.toString(throwable.getStackTrace()));
+            writeKeyValue(true,"exception",Utils.toString(throwable.getStackTrace()));
         }
         Trace trace=entry.getTrace();
         if (trace!=null)
@@ -79,8 +79,8 @@ public class JSONFormatWriter extends FormatWriter
             write(",\"trace\":{");
             write(false,"number",trace.getNumber());
             created=LocalDateTime.ofInstant(Instant.ofEpochMilli(trace.getCreatedMs()),ZoneOffset.UTC);
-            writeString(true,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-            writeString(true,"category",trace.getCategory());
+            writeKeyValue(true,"created",created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            writeKeyValue(true,"category",trace.getCategory());
             write(true,"duration",trace.getDurationS());
             write(true,"wait",trace.getWaitS());
             Trace parent=trace.getParent();
@@ -95,27 +95,27 @@ public class JSONFormatWriter extends FormatWriter
                 }
                 write("]");
             }
-            writeString(true,"fromLink",trace.getFromLink());
-            writeString(true,"toLink",trace.getToLink());
-            writeString(true,"details",trace.getDetails());
+            writeKeyValue(true,"fromLink",trace.getFromLink());
+            writeKeyValue(true,"toLink",trace.getToLink());
+            writeKeyValue(true,"details",trace.getDetails());
             throwable=trace.getThrowable();
             if (throwable!=null)
             {
                 write("\r\n");
-                writeString(true,"exceptionMessage",throwable.getMessage());
-                writeString(true,"exception",Utils.toString(throwable.getStackTrace()));
+                writeKeyValue(true,"exceptionMessage",throwable.getMessage());
+                writeKeyValue(true,"exception",Utils.toString(throwable.getStackTrace()));
             }
             StackTraceElement[] elements=trace.getCreateStackTrace();
             if ((elements!=null)&&(elements.length>0))
             {
                 write("\r\n");
-                writeString(true,"createStackTrace",Utils.toString(elements));
+                writeKeyValue(true,"createStackTrace",Utils.toString(elements));
             }
             elements=trace.getCloseStackTrace();
             if ((elements!=null)&&(elements.length>0))
             {
                 write("\r\n");
-                writeString(true,"closeStackTrace",Utils.toString(elements));
+                writeKeyValue(true,"closeStackTrace",Utils.toString(elements));
             }
             boolean closed=trace.isClosed();
             if (closed==false)
@@ -153,7 +153,7 @@ public class JSONFormatWriter extends FormatWriter
         this.stream.write(("\""+key+"\":").getBytes(StandardCharsets.UTF_8));
     }
 	
-	private void writeString(boolean comma,String key,String value) throws Throwable 
+	private void writeKeyValue(boolean comma,String key,String value) throws Throwable 
 	{
 	    if (value!=null)
 	    {

@@ -19,43 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
-public class ThrowableEvents
+import org.nova.logging.LogEntry;
+
+public abstract class Formatter
 {
-    private ThrowableEvent first;
-    private ThrowableEvent last; 
-    
-    public ThrowableEvents()
-    {
-    }
-    
-    public void log(Throwable throwable)
-    {
-        synchronized(this)
-        {
-            last=new ThrowableEvent(throwable);
-            if (first==null)
-            {
-                first=last;
-            }
-        }
-    }
-
-    public ThrowableEvent getFirst()
-    {
-        synchronized(this)
-        {
-            return first;
-        }
-    }
-
-    public ThrowableEvent getLast()
-    {
-        synchronized(this)
-        {
-            return last;
-        }
-    }
-
+	abstract public String beginDocument() throws Throwable;
+	abstract public String endDocument() throws Throwable;
+	abstract public String seperator() throws Throwable;
+	abstract public String format(LogEntry entry) throws Throwable;
 }

@@ -24,6 +24,7 @@ package org.nova.json;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -43,11 +44,6 @@ public class OutputStreamTargetWriter extends TargetWriter
     {
         this.stream.write(character);
     }
-    public void writeKeySection(String value) throws Throwable
-    {
-        this.stream.write(value.getBytes(StandardCharsets.UTF_8));
-    }
-    
     public void writeSeperator(boolean needComma) throws Throwable
     {
         if (needComma)
@@ -55,75 +51,76 @@ public class OutputStreamTargetWriter extends TargetWriter
            this.stream.write(',');
         }
     }
-    public void writeValue(String string) throws Throwable
+    public void write(String string) throws Throwable
     {
+//        PrintWriter writer=new PrintWriter(this.stream,false,StandardCharsets.UTF_8);
+//        writer.write(string);
         this.stream.write(string.getBytes(StandardCharsets.UTF_8));
     }
     public void writeEnum(String string) throws Throwable
     {
         this.stream.write('"');
-        this.stream.write(string.getBytes(StandardCharsets.UTF_8));
+        write(string);
         this.stream.write('"');
     }
     public void writeNull() throws Throwable
     {
-        writeValue("null");
+        write("null");
     }
     public void writeString(String string) throws Throwable
     {
-        StringBuilder sb=new StringBuilder(string.length()*2);
-        sb.append('"');
+        PrintWriter writer=new PrintWriter(this.stream,false,StandardCharsets.UTF_8);
+        writer.append('"');
         for (int index=0;index<string.length();index++)
         {
             char c=string.charAt(index);
-            if (c=='\\')
-            {
-                sb.append(c);
-                sb.append(c);
-            }
-            else if (c>'"')
+            if (c>'"')
             { 
-                sb.append(c);
+                writer.append(c);
+                if (c=='\\')
+                {
+                    writer.append(c);
+                }
             }
             else if (c=='"')
             {
-                sb.append('\\');
-                sb.append('"');
+                writer.append('\\');
+                writer.append('"');
             }
             else if (c=='\b')
             {
-                sb.append('\\');
-                sb.append('b');
+                writer.append('\\');
+                writer.append('b');
             }
             else if (c=='\f')
             {
-                sb.append('\\');
-                sb.append('f');
+                writer.append('\\');
+                writer.append('f');
             }
             else if (c=='\n')
             {
-                sb.append('\\');
-                sb.append('n');
+                writer.append('\\');
+                writer.append('n');
             }
             else if (c=='\r')
             {
-                sb.append('\\');
-                sb.append('r');
+                writer.append('\\');
+                writer.append('r');
             }
             else if (c=='\t')
             {
-                sb.append('\\');
-                sb.append('t');
+                writer.append('\\');
+                writer.append('t');
             }
             else
             {
-                sb.append(c);
+                writer.append(c);
             }
         }
-        sb.append('"');
-        CharBuffer charBuffer = CharBuffer.wrap(sb);
-        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-        this.stream.write(byteBuffer.array(), 0, byteBuffer.remaining());
+        writer.append('"');
+//        CharBuffer charBuffer = CharBuffer.wrap(writer);
+//        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+//        this.stream.write(byteBuffer.array(), 0, byteBuffer.remaining());
     }
     
 }

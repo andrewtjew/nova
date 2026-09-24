@@ -19,52 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.io.OutputStream;
 
-import org.nova.flow.Node;
-import org.nova.flow.Packet;
-import org.nova.tracing.Trace;
+import org.nova.utils.Utils;
 
-public class NodeLogger extends Logger
+public class ConsoleWriter extends OutputStreamWriter
 {
-    final private Node[] receivers;
-    final private ThrowableEvents throwablesLog; 
-    final private AtomicLong number=new AtomicLong();
-    public NodeLogger(String category,Node...receivers)
+    final private boolean outputSegments; 
+    public ConsoleWriter(Formatter formatter,boolean outputSegments) throws Throwable
     {
-        super(category);
-        this.receivers=receivers;
-        this.throwablesLog=new ThrowableEvents(); 
-                
+        super(formatter);
+        this.outputSegments=outputSegments;
     }
 
     @Override
-    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
+    public OutputStream openOutputStream(long marker) throws Throwable
     {
-        synchronized (this)
+        if (this.outputSegments)
         {
-            Packet packet=new Packet(1);
-            packet.add(new LogEntry(this.number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
-            for (Node receiver:this.receivers)
-            {
-                try
-                {
-                    receiver.process(packet);
-                }
-                catch (Throwable t)
-                {
-                    this.throwablesLog.log(t);
-                }
-            }
+            System.out.println("--- Begin Segment: Marker="+marker+", Time="+Utils.millisToLocalDateTimeString(marker));
         }
+        return System.out;
     }
-    public ThrowableEvents getThrowablesLog()
+    @Override
+    public void closeOutputStream(OutputStream outputStream)
     {
-        synchronized(this)
+        if (this.outputSegments)
         {
-            return this.throwablesLog;
+            System.out.println("--- End Segment ---");
         }
     }
 

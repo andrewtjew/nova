@@ -19,41 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.logging.dep;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.nova.collections.RingBuffer;
-import org.nova.tracing.Trace;
-
-public class MemoryLogger extends Logger
+public class ThrowableEvent
 {
-    final private RingBuffer<LogEntry> buffer;
-    final private AtomicLong number=new AtomicLong();
-    public MemoryLogger(String category,int capacity)
+    final Throwable throwable;
+    final long instantMs;
+    
+    ThrowableEvent(Throwable throwable)
     {
-        super(category);
-        this.buffer=new RingBuffer<>(new LogEntry[capacity]);
+        this.throwable=throwable;
+        this.instantMs=System.currentTimeMillis();
     }
 
-    @Override
-    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
+    public Throwable getThrowable()
     {
-        long now=System.currentTimeMillis();
-        LogEntry entry=new LogEntry(number.getAndIncrement(),category, logLevel, now, throwable, trace, message, items);
-        synchronized(this)
-        {
-            this.buffer.add(entry);
-        }
-        
+        return throwable;
     }
 
-    public List<LogEntry> getSnapshot()
+    public long getInstantMs()
     {
-        synchronized(this)
-        {
-            return this.buffer.getSnapshot();
-        }
+        return instantMs;
     }
 }
