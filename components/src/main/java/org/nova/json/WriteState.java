@@ -48,9 +48,9 @@ public class WriteState
         this.stream.write(character);
     }
     
-    public void writeKeySection(char[] characters) throws Throwable
+    public void writeKeySection(String section) throws Throwable
     {
-        this.stream.write(new String(characters).getBytes(StandardCharsets.UTF_8));
+        this.stream.write(section.getBytes(StandardCharsets.UTF_8));
     }
     public void writeSeperator(boolean needComma) throws Throwable
     {

@@ -155,7 +155,7 @@ public class ObjectMapper
                 Object fieldObject = entry.getValue();
                 if (fieldObject!=null)
                 {
-                    char[] jsonName = ('"' + entry.getKey() + '"' + ':').toCharArray();
+                    String jsonName = '"' + entry.getKey() + '"' + ':';
                     writeState.writeSeperator(needComma);
                     writeState.writeKeySection(jsonName);
                     Writer writer=getWriter(fieldObject.getClass());
@@ -526,7 +526,7 @@ public class ObjectMapper
     static class FieldWriter
     {
         final Field field;
-        final char[] jsonName;
+        final String jsonName;
         final Writer writer;
 
         FieldWriter(Field field,Writer writer)
@@ -536,11 +536,11 @@ public class ObjectMapper
             Alias alias=field.getAnnotation(Alias.class);
             if (alias!=null)
             {
-                this.jsonName = ('"' + alias.value() + '"' + ':').toCharArray();
+                this.jsonName = '"' + alias.value() + '"' + ':';
             }
             else
             {
-                this.jsonName = ('"' + field.getName() + '"' + ':').toCharArray();
+                this.jsonName = '"' + field.getName() + '"' + ':';
             }
         }
         void write(WriteState writeState,boolean needComma,Object object) throws Throwable
