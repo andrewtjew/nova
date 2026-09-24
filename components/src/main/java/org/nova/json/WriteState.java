@@ -39,19 +39,21 @@ public class WriteState
     {
         this.stream=stream;
     }
-    public void begin(char character) throws Throwable
-    {
-        this.stream.write(character);
-    }
-    public void end(char character) throws IOException
+    public void write(char character) throws Throwable
     {
         this.stream.write(character);
     }
     
-    public void writeKeySection(char[] characters) throws Throwable
+//    public void writeKeySection(char[] characters) throws Throwable
+//    {
+//        this.stream.write(new String(characters).getBytes(StandardCharsets.UTF_8));
+//    }
+
+    public void writeKeySection(String value) throws Throwable
     {
-        this.stream.write(new String(characters).getBytes(StandardCharsets.UTF_8));
+        this.stream.write(value.getBytes(StandardCharsets.UTF_8));
     }
+    
     public void writeSeperator(boolean needComma) throws Throwable
     {
         if (needComma)
@@ -73,58 +75,8 @@ public class WriteState
     {
         writeValue("null");
     }
-    public void writeEscapedString(String string) throws Throwable
+    public void writeString(String string) throws Throwable
     {
-//        this.stream.write('"');
-//        for (int index=0;index<string.length();index++)
-//        {
-//            char c=string.charAt(index);
-//            if (c=='\\')
-//            {
-//                this.stream.write(c);
-//                this.stream.write(c);
-//            }
-//            else if (c>'"')
-//            { 
-//                this.stream.write(String.valueOf(c).getBytes(StandardCharsets.UTF_8));
-//            }
-//            else if (c=='"')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('"');
-//            }
-//            else if (c=='\b')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('b');
-//            }
-//            else if (c=='\f')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('f');
-//            }
-//            else if (c=='\n')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('n');
-//            }
-//            else if (c=='\r')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('r');
-//            }
-//            else if (c=='\t')
-//            {
-//                this.stream.write('\\');
-//                this.stream.write('t');
-//            }
-//            else
-//            {
-//                this.stream.write(String.valueOf(c).getBytes(StandardCharsets.UTF_8));
-//            }
-//        }
-//        this.stream.write('"');
-
         StringBuilder sb=new StringBuilder(string.length()*2);
         sb.append('"');
         for (int index=0;index<string.length();index++)

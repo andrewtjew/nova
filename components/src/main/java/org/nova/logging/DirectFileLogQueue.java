@@ -565,6 +565,10 @@ public class DirectFileLogQueue
         writer.writeBeginDocument();
         for (int i=0;i<buffer.index;i++)
         {
+            if (i>0)
+            {
+                writer.writeSeparator();
+            }
             writer.write(buffer.entries[i]);
         }
         writer.writeEndDocument();
