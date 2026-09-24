@@ -31,39 +31,39 @@ import java.util.ArrayList;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-public class WriteState
+public class StringBuilderTargetWriter extends TargetWriter
 {
-    final private OutputStream stream;
+    final private StringBuilder stringBuffer;
     
-    public WriteState(OutputStream stream)
+    public StringBuilderTargetWriter(int capacity)
     {
-        this.stream=stream;
+        this.stringBuffer=new StringBuilder(capacity);
     }
     public void write(char character) throws Throwable
     {
-        this.stream.write(character);
+        this.stringBuffer.append(character);
     }
     public void writeKeySection(String value) throws Throwable
     {
-        this.stream.write(value.getBytes(StandardCharsets.UTF_8));
+        this.stringBuffer.append(value);
     }
     
     public void writeSeperator(boolean needComma) throws Throwable
     {
         if (needComma)
         {
-           this.stream.write(',');
+           this.stringBuffer.append(',');
         }
     }
     public void writeValue(String string) throws Throwable
     {
-        this.stream.write(string.getBytes(StandardCharsets.UTF_8));
+        this.stringBuffer.append(string);
     }
     public void writeEnum(String string) throws Throwable
     {
-        this.stream.write('"');
-        this.stream.write(string.getBytes(StandardCharsets.UTF_8));
-        this.stream.write('"');
+        this.stringBuffer.append('"');
+        this.stringBuffer.append(string);
+        this.stringBuffer.append('"');
     }
     public void writeNull() throws Throwable
     {
@@ -121,9 +121,10 @@ public class WriteState
             }
         }
         sb.append('"');
-        CharBuffer charBuffer = CharBuffer.wrap(sb);
-        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-        this.stream.write(byteBuffer.array(), 0, byteBuffer.remaining());
+        this.stringBuffer.append(sb.toString());
     }
-    
+    public String getString()
+    {
+        return this.stringBuffer.toString();
+    }
 }

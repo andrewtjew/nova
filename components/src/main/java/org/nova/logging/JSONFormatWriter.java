@@ -162,7 +162,7 @@ public class JSONFormatWriter extends FormatWriter
 	            write(',');
 	        }
 	        writeKey(key);
-            this.writeState.writeEscapedString(value);
+            this.writeState.writeString(value);
 	    }
 	}
 
@@ -181,7 +181,7 @@ public class JSONFormatWriter extends FormatWriter
         }
         else
         {
-            this.writeState.writeEscapedString(value);
+            this.writeState.writeString(value);
         }
         write('}');
     }

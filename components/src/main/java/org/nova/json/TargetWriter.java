@@ -19,33 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging;
+package org.nova.json;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
-import org.nova.tracing.Trace;
+import org.apache.commons.text.StringEscapeUtils;
 
-public class ConsoleLogger extends Logger
+public abstract class TargetWriter
 {
-    final private JSONFormatWriter writer;
-    final private AtomicLong number=new AtomicLong();
-    public ConsoleLogger(String category)
-    {
-        super(category);
-        writer=new JSONFormatWriter(System.out);
-    }
-
-    @Override
-    public synchronized void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
-    {
-        try
-        {
-            this.writer.write(new LogEntry(number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-        }
-    }
-
+    public abstract void write(char character) throws Throwable;
+    public abstract void writeKeySection(String value) throws Throwable;
+    public abstract void writeSeperator(boolean needComma) throws Throwable;
+    public abstract void writeValue(String string) throws Throwable;
+    public abstract void writeEnum(String string) throws Throwable;
+    public abstract void writeNull() throws Throwable;
+    public abstract void writeString(String string) throws Throwable;
 }

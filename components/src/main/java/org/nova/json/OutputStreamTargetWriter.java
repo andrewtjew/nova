@@ -31,11 +31,11 @@ import java.util.ArrayList;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-public class WriteState
+public class OutputStreamTargetWriter extends TargetWriter
 {
     final private OutputStream stream;
     
-    public WriteState(OutputStream stream)
+    public OutputStreamTargetWriter(OutputStream stream)
     {
         this.stream=stream;
     }
