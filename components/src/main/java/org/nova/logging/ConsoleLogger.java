@@ -27,12 +27,12 @@ import org.nova.tracing.Trace;
 
 public class ConsoleLogger extends Logger
 {
-    final private Formatter formatter;
+    final private JSONFormatWriter writer;
     final private AtomicLong number=new AtomicLong();
-    public ConsoleLogger(String category,Formatter formatter)
+    public ConsoleLogger(String category)
     {
         super(category);
-        this.formatter=formatter;
+        writer=new JSONFormatWriter(System.out);
     }
 
     @Override
@@ -40,8 +40,7 @@ public class ConsoleLogger extends Logger
     {
         try
         {
-            String text=this.formatter.format(new LogEntry(number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
-            System.out.println(text);
+            this.writer.write(new LogEntry(number.getAndIncrement(),category,logLevel,System.currentTimeMillis(),throwable,trace,message,items));
         }
         catch (Throwable e)
         {

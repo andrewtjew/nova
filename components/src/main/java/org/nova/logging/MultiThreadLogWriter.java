@@ -15,12 +15,13 @@ import org.nova.debug.Debugging;
 import org.nova.debug.LogLevel;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
+import org.nova.metrics.RateMeter;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 import net.jpountz.lz4.LZ4BlockOutputStream;
 
-public class DirectFileLogQueue
+public class MultiThreadLogWriter extends LogWriter
 {
     static public enum FileFormat
     {
@@ -40,35 +41,52 @@ public class DirectFileLogQueue
     }
     static public class Configuration
     {
-        public Configuration(boolean directToFile)
+        static public Configuration MinimalMemoryConfiguration()
         {
-            if (directToFile)
+            Configuration configuration=new Configuration();
+            configuration.directToFile=true;
+            configuration.bufferSize=10000;
+            var threads=Runtime.getRuntime().availableProcessors();
+            if (threads<4)
             {
-                //Uses less memory but slower.
-                this.directToFile=true;
-                this.bufferSize=10000;
-                var threads=Runtime.getRuntime().availableProcessors();
-                if (threads<4)
-                {
-                    this.threads=1;
-                }
-                else
-                {
-                    this.threads=2;
-                }
+                configuration.threads=1;
             }
             else
             {
-                this.directToFile=false;
-                this.bufferSize=100000;
-                var threads=Runtime.getRuntime().availableProcessors();
-                this.threads=threads/4;
-                if (this.threads==0)
-                {
-                    this.threads=1;
-                }
+                configuration.threads=2;
             }
+            return configuration;
+            
         }
+        
+        static public Configuration HighPerformanceConfiguration()
+        {
+            Configuration configuration=new Configuration();
+            configuration.directToFile=false;
+            configuration.bufferSize=200000;
+            
+            var threads=Runtime.getRuntime().availableProcessors();
+            configuration.threads=threads/3;
+            if (configuration.threads==0)
+            {
+                configuration.threads=1;
+            }
+            return configuration;
+        }
+        static public Configuration ServerConfiguration()
+        {
+            Configuration configuration=new Configuration();
+            configuration.directToFile=false;
+            configuration.bufferSize=100000;
+            var threads=Runtime.getRuntime().availableProcessors();
+            configuration.threads=threads/6;
+            if (configuration.threads==0)
+            {
+                configuration.threads=1;
+            }
+            return configuration;
+        }
+        
         public Configuration()
         {
             
@@ -79,7 +97,7 @@ public class DirectFileLogQueue
         public int fileBufferCapacity=65536;
         public int bufferSize=100000;
         public int threads=6;
-        public CompressionFormat compressionFormat=CompressionFormat.NONE;
+        public CompressionFormat compressionFormat=CompressionFormat.LZ4;
         public FileFormat fileFormat=FileFormat.JSON;
         public boolean directToFile=false;
     }
@@ -88,7 +106,7 @@ public class DirectFileLogQueue
     final private static boolean DEBUG_WAITING_IN_QUEUE=false;
     final private static boolean DEBUG_QUEUE_ORDERING=false;
     final private static boolean DEBUG_QUEUE_TRACING=false;
-    static final String DEBUG_CATEGORY=DirectFileLogQueue.class.getSimpleName();
+    static final String DEBUG_CATEGORY=MultiThreadLogWriter.class.getSimpleName();
 
     static class LogEntryBuffer
     {
@@ -125,6 +143,7 @@ public class DirectFileLogQueue
     final private CountMeter droppedMeter;
     final private CountMeter stalledMeter;
     final private LevelMeter waitingMeter;
+    final private RateMeter writeMeter;
     final private long stallWait;
 
     final private Configuration configuration;
@@ -136,15 +155,14 @@ public class DirectFileLogQueue
     private long bufferNumber = 0;
     private long writeBufferNumber = 0;
     private long testNumber = 0;
-    final private TraceManager traceManager;
-    public DirectFileLogQueue(TraceManager traceManager,LogDirectoryManager logDirectoryManager,Configuration configuration)
+    public MultiThreadLogWriter(LogDirectoryManager logDirectoryManager,Configuration configuration)
     {
-        this.traceManager=traceManager;
         this.logDirectoryManager=logDirectoryManager;
         this.configuration=configuration;
         this.droppedMeter = new CountMeter();
         this.stalledMeter = new CountMeter();
         this.waitingMeter = new LevelMeter();
+        this.writeMeter = new RateMeter();
         this.stallWait = configuration.stallWaitMs;
 
         int buffers=configuration.threads+2;
@@ -268,9 +286,11 @@ public class DirectFileLogQueue
         }
         return entry;
     }    
-    
+
+    @Override
     public LogEntry write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
     {
+        this.writeMeter.increment();
         synchronized (this.currentBufferLock)
         {
             var entry=writeToCurrentLogEntryBuffer(trace,logLevel,category,throwable,message,items);
@@ -346,6 +366,7 @@ public class DirectFileLogQueue
                     {
                         return this.logEntryQueue.size() > 0 || this.stop;
                     });
+                    this.waitingMeter.decrement();
                     if (this.stop)
                     {
                         if (Debug.ENABLE && DEBUG)
@@ -354,7 +375,6 @@ public class DirectFileLogQueue
                         }
                         return;
                     }
-                    this.waitingMeter.decrement();
                     if (wait)
                     {
                         buffer=this.logEntryQueue.remove();
