@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.nova.html.elements.Element;
 import org.nova.html.ext.Text;
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
-import org.nova.parsing.scan.Token;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.Scanner;
+import org.nova.parsing.scan.dep.TextSource;
+import org.nova.parsing.scan.dep.Token;
 
 public class Parser
 {

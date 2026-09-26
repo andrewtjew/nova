@@ -19,45 +19,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging.dep;
+package org.nova.parsing.section.dep;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.nova.collections.RingBuffer;
-import org.nova.logging.Item;
-import org.nova.logging.Level;
-import org.nova.logging.LogEntry;
-import org.nova.logging.Logger;
-import org.nova.tracing.Trace;
+import org.nova.lexing.dep.Lexeme;
+import org.nova.lexing.dep.Token;
 
-//public class MemoryLogger extends Logger
-//{
-//    final private RingBuffer<LogEntry> buffer;
-//    final private AtomicLong number=new AtomicLong();
-//    public MemoryLogger(String category,int capacity)
-//    {
-//        super(category);
-//        this.buffer=new RingBuffer<>(new LogEntry[capacity]);
-//    }
-//
-//    @Override
-//    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
-//    {
-//        long now=System.currentTimeMillis();
-//        LogEntry entry=new LogEntry(number.getAndIncrement(),category, logLevel, now, throwable, trace, message, items);
-//        synchronized(this)
-//        {
-//            this.buffer.add(entry);
-//        }
-//        
-//    }
-//
-//    public List<LogEntry> getSnapshot()
-//    {
-//        synchronized(this)
-//        {
-//            return this.buffer.getSnapshot();
-//        }
-//    }
-//}
+public class SectionParser
+{
+    final private HashSet<String> startKeywords;
+    
+    public SectionParser(String[] startKeywords)
+    {
+        this.startKeywords=new HashSet<>();
+        for (String startKeyword:startKeywords)
+        {
+            this.startKeywords.add(startKeyword);
+        }
+    }
+    public List<Section> parse(int start,int end,List<Lexeme> lexemes)
+    {
+        ArrayList<Section> sections=new ArrayList<>();
+        Lexeme lexeme=lexemes.get(start);
+        if (lexeme.getToken()!=Token.KEYWORD)
+        {
+            return null;
+        }        
+        int sectionStart=start;
+        for (int i=start+1;i<end;i++)
+        {
+            lexeme=lexemes.get(i);
+            if ((lexeme.getToken()==Token.KEYWORD)&&(this.startKeywords.contains((String)lexeme.getValue())))
+            {
+                sections.add(new Section(sectionStart,i));
+                sectionStart=i;
+            }
+        }
+        if (sectionStart<end-1)
+        {
+            sections.add(new Section(sectionStart,end));
+        }
+        return sections;
+    }
+}

@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.nova.sqlserver;
 
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.ScanException;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.Snippet;
-import org.nova.parsing.scan.Source;
-import org.nova.parsing.scan.Token;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.ScanException;
+import org.nova.parsing.scan.dep.Scanner;
+import org.nova.parsing.scan.dep.Snippet;
+import org.nova.parsing.scan.dep.Source;
+import org.nova.parsing.scan.dep.Token;
 
 public class SqlServerLexer extends Scanner
 {

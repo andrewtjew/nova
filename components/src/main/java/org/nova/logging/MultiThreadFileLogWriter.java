@@ -36,8 +36,14 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
     }
     static public enum CompressionFormat
     {
-        LZ4,
-        NONE,
+        LZ4(".lz4"),
+        NONE(""),
+        ;
+        String extension;
+        private CompressionFormat(String value)
+        {
+            this.extension=value;
+        }
     }
     static public class Configuration extends MultiThreadLogWriter.Configuration
     {
@@ -46,6 +52,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             Configuration configuration=new Configuration();
             configuration.directToFile=true;
             configuration.bufferSize=10000;
+            configuration.rollOverWait_ms=30000;
             var threads=Runtime.getRuntime().availableProcessors();
             if (threads<4)
             {
@@ -66,6 +73,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             Configuration configuration=new Configuration();
             configuration.directToFile=false;
             configuration.bufferSize=200000;
+            configuration.rollOverWait_ms=90000;
             
             var threads=Runtime.getRuntime().availableProcessors();
             configuration.threads=threads/3;
@@ -82,6 +90,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             Configuration configuration=new Configuration();
             configuration.directToFile=false;
             configuration.bufferSize=100000;
+            configuration.rollOverWait_ms=60000;
             var threads=Runtime.getRuntime().availableProcessors();
             configuration.threads=threads/6;
             if (configuration.threads==0)
@@ -119,7 +128,6 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
         super(configuration);
         this.logDirectoryManager=logDirectoryManager;
         this.configuration=configuration;
-        this.fileCapacity = configuration.bufferSize * 10; // rough estimate of file size in bytes.
         this.fileWriteLock=new Object();
     }
     
@@ -197,7 +205,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
                     }
                     return;
                 }
-                try (var outputStream=new BufferedOutputStream(this.logDirectoryManager.openFileOutputStream(bufferStarted,configuration.fileFormat.extension),this.configuration.fileBufferCapacity))
+                try (var outputStream=new BufferedOutputStream(this.logDirectoryManager.openFileOutputStream(bufferStarted,configuration.fileFormat.extension+configuration.compressionFormat.extension),this.configuration.fileBufferCapacity))
                 {
                     writeWithCompression(outputStream,buffer);
                 }
@@ -244,7 +252,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
                         }
                         return;
                     }
-                    try (var fileOutputStream=this.logDirectoryManager.openFileOutputStream(bufferStarted,configuration.fileFormat.extension))
+                    try (var fileOutputStream=this.logDirectoryManager.openFileOutputStream(bufferStarted,configuration.fileFormat.extension+configuration.compressionFormat.extension))
                     {
                         outputStream.writeTo(fileOutputStream);
                     }

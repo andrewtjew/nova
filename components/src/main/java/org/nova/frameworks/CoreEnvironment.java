@@ -31,7 +31,11 @@ import org.nova.flow.SourceQueue;
 import org.nova.flow.SourceQueueConfiguration;
 import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
+import org.nova.logging.LogWriter;
 import org.nova.logging.Logger;
+import org.nova.logging.WriteLogger;
+import org.nova.logging.MultiThreadFileLogWriter;
+import org.nova.logging.MultiThreadLogWriter;
 import org.nova.logging.dep.ConsoleWriter;
 import org.nova.logging.dep.Formatter;
 import org.nova.logging.dep.JSONFormatter;
@@ -56,13 +60,14 @@ public class CoreEnvironment
 	final private MeterStore meterStore;
 	final private Logger logger;
 	final HashMap<String,Logger> loggers;
-	final LogEntrySourceQueue logSourceQueue;
 	final private LogDirectoryManager logDirectoryManager;
-	final private int logEntryBufferSize;
     final private Vault vault;
-    final private String loggerType;
-    final private Formatter logFormatter;
+//    final private String loggerType;
+//    final LogEntrySourceQueue logSourceQueue;
+//    final private int logEntryBufferSize;
+//    final private Formatter logFormatter;
     final public static SourceEventBoard SOURCE_EVENT_BOARD=new SourceEventBoard();
+	final public MultiThreadLogWriter logWriter;
 	
 	public CoreEnvironment(Configuration configuration) throws Throwable
 	{
@@ -72,32 +77,37 @@ public class CoreEnvironment
 		long reserve=configuration.getLongValue("Environment.Logger.logDirectory.reserveSpace",2_000_000_000L);
 		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",1_000_000_000L);
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);
-		this.logEntryBufferSize=configuration.getIntegerValue("Environment.Logger.logEntryBufferSize",10);
+//		this.logEntryBufferSize=configuration.getIntegerValue("Environment.Logger.logEntryBufferSize",10);
         int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",200);
 
         this.meterStore=new MeterStore();
 
-        this.logFormatter=new JSONFormatter();
+  //      this.logFormatter=new JSONFormatter();
 		this.logDirectoryManager=new LogDirectoryManager(directory, maxMakeSpaceRetries, maxFiles, maxDirectorySize, reserve);
-		this.loggerType=configuration.getValue("Environment.Logger.class","JSONBufferedLZ4Queue");
-		switch (loggerType)
-		{
-            case "SimpleFileWriter":
-                this.logSourceQueue=new LogEntrySourceQueue(new SimpleFileWriter(this.logDirectoryManager,new JSONFormatter()),new SourceQueueConfiguration());
-                break;
+		var logWriterConfiguration=MultiThreadFileLogWriter.Configuration.ServerConfiguration();
+		this.logWriter=new MultiThreadFileLogWriter(this.logDirectoryManager,logWriterConfiguration);
+        this.logWriter.start();
 
-            case "JSONBufferedLZ4Queue":
-            {
-                MultiThreadededLogEntrySourceQueueConfiguration conf=configuration.getJSONObject("Environment.Logger.JSONBufferedLZ4Queue", new MultiThreadededLogEntrySourceQueueConfiguration(),MultiThreadededLogEntrySourceQueueConfiguration.class);
-                this.logSourceQueue=new MultiThreadedLogEntrySourceQueue(logDirectoryManager, conf);
-            }
-                break;
-                
-		    default:
-		        this.logSourceQueue=new LogEntrySourceQueue(new ConsoleWriter(new JSONFormatter(),true),new SourceQueueConfiguration());
-		        break;
-		}
-		this.logSourceQueue.start();
+		
+//		this.loggerType=configuration.getValue("Environment.Logger.class","JSONBufferedLZ4Queue");
+//		switch (loggerType)
+//		{
+//            case "SimpleFileWriter":
+//                this.logSourceQueue=new LogEntrySourceQueue(new SimpleFileWriter(this.logDirectoryManager,new JSONFormatter()),new SourceQueueConfiguration());
+//                break;
+//
+//            case "JSONBufferedLZ4Queue":
+//            {
+//                MultiThreadededLogEntrySourceQueueConfiguration conf=configuration.getJSONObject("Environment.Logger.JSONBufferedLZ4Queue", new MultiThreadededLogEntrySourceQueueConfiguration(),MultiThreadededLogEntrySourceQueueConfiguration.class);
+//                this.logSourceQueue=new MultiThreadedLogEntrySourceQueue(logDirectoryManager, conf);
+//            }
+//                break;
+//                
+//		    default:
+//		        this.logSourceQueue=new LogEntrySourceQueue(new ConsoleWriter(new JSONFormatter(),true),new SourceQueueConfiguration());
+//		        break;
+//		}
+//		this.logSourceQueue.start();
 		this.loggers=new HashMap<>();
 		Logger traceLogger=this.getLogger("tracing");
         this.logger=this.getLogger("application");
@@ -153,7 +163,7 @@ public class CoreEnvironment
 		    Logger logger=this.loggers.get(category);
 			if (logger==null)
 			{
-				logger=new LogEntrySourceQueueLogger(this.logEntryBufferSize,category, this.logSourceQueue);
+			    logger=new WriteLogger(category,this.logWriter,0);
 				this.loggers.put(category, logger);
 			}
 			return logger;
@@ -170,10 +180,10 @@ public class CoreEnvironment
 	        return this.loggers.values().toArray(new Logger[this.loggers.size()]);
 	    }
 	}
-	public SourceQueue<LogEntry> getLogQueue()
-	{
-	    return this.logSourceQueue;
-	}
+//	public SourceQueue<LogEntry> getLogQueue()
+//	{
+//	    return this.logSourceQueue;
+//	}
 	public LogDirectoryManager getLogDirectoryManager()
 	{
 		return this.logDirectoryManager;
@@ -182,9 +192,14 @@ public class CoreEnvironment
 	{
 	    return this.vault;
 	}
-	public void stop() 
+	public void stop() throws Throwable 
 	{
-	    this.logSourceQueue.stop();
+	    this.logWriter.stop(1000);
 	    this.timerScheduler.stop();
 	}
+	public LogWriter getLogWriter()
+    {
+        return this.logWriter;
+    }
+
 }

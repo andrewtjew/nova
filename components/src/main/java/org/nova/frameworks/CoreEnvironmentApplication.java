@@ -27,6 +27,7 @@ import org.nova.configuration.Configuration;
 import org.nova.flow.SourceQueue;
 import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
+import org.nova.logging.LogWriter;
 import org.nova.logging.Logger;
 import org.nova.metrics.MeterStore;
 import org.nova.metrics.SourceEventBoard;
@@ -79,10 +80,15 @@ public abstract class CoreEnvironmentApplication
     {
         return this.coreEnvironment.getLogger();
     }
-    public SourceQueue<LogEntry> getLogQueue()
+    public LogWriter getLogWriter()
     {
-        return this.coreEnvironment.getLogQueue();
+        return this.coreEnvironment.logWriter;
     }
+    
+//    public SourceQueue<LogEntry> getLogQueue()
+//    {
+//        return this.coreEnvironment.getLogQueue();
+//    }
     public CoreEnvironment getCoreEnvironment()
     {
         return this.coreEnvironment;

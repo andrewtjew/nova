@@ -19,45 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging.dep;
+package org.nova.parsing.expression.dep;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.nova.collections.RingBuffer;
-import org.nova.logging.Item;
-import org.nova.logging.Level;
-import org.nova.logging.LogEntry;
-import org.nova.logging.Logger;
-import org.nova.tracing.Trace;
-
-//public class MemoryLogger extends Logger
-//{
-//    final private RingBuffer<LogEntry> buffer;
-//    final private AtomicLong number=new AtomicLong();
-//    public MemoryLogger(String category,int capacity)
-//    {
-//        super(category);
-//        this.buffer=new RingBuffer<>(new LogEntry[capacity]);
-//    }
-//
-//    @Override
-//    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
-//    {
-//        long now=System.currentTimeMillis();
-//        LogEntry entry=new LogEntry(number.getAndIncrement(),category, logLevel, now, throwable, trace, message, items);
-//        synchronized(this)
-//        {
-//            this.buffer.add(entry);
-//        }
-//        
-//    }
-//
-//    public List<LogEntry> getSnapshot()
-//    {
-//        synchronized(this)
-//        {
-//            return this.buffer.getSnapshot();
-//        }
-//    }
-//}
+public class Source
+{
+    final private String text;
+    final private String location;
+    
+    public Source(String text,String location)
+    {
+        this.text=text;
+        this.location=location;
+    }
+    public Source(String text)
+    {
+        this(text,null);
+    }
+    public String getText()
+    {
+        return text;
+    }
+    public String getLocation()
+    {
+        return location;
+    }
+    
+    
+}

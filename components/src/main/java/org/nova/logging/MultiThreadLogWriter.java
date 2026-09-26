@@ -28,7 +28,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
 {
     static public class Configuration
     {
-        public long stallWaitMs=3000;
+        public long stallWait_ms=3000;
         public long rollOverWait_ms=60000;
         public int fileBufferCapacity=65536;
         public int bufferSize=100000;
@@ -218,7 +218,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
             }
             synchronized (this.logEntryBuffers)
             {
-                boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, this.configuration.stallWaitMs, () ->
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, this.configuration.stallWait_ms, () ->
                 {
                     return this.logEntryBuffers.size() > 0 || this.stop;
                 });
@@ -252,26 +252,24 @@ public abstract class MultiThreadLogWriter extends LogWriter
         }
     }
 
+    private long lastRollOver=0;
     private void main(int threadIndex)
     {
         try
         {
-            boolean flush = false;
-            long lastRollOver_ms = System.currentTimeMillis();
-            long rollOverWait_ms = this.configuration.rollOverWait_ms;
-            int  fileCapacity = this.configuration.bufferSize * 10; // rough estimate of file size in bytes.
+            this.busyMeter.increment();
             for (;;)
             {
                 LogEntryBuffer buffer = null;
                 boolean wait;
                 synchronized (this.logEntryQueue)
                 {
-                    this.waitingMeter.increment();
-                    wait=Synchronization.waitForNoThrow(this.logEntryQueue, rollOverWait_ms, () ->
+                    this.busyMeter.decrement();
+                    wait=Synchronization.waitForNoThrow(this.logEntryQueue, this.configuration.rollOverWait_ms, () ->
                     {
                         return this.logEntryQueue.size() > 0 || this.stop;
                     });
-                    this.waitingMeter.decrement();
+                    this.busyMeter.increment();
                     if (this.stop)
                     {
                         if (Debug.ENABLE && DEBUG)
@@ -307,6 +305,15 @@ public abstract class MultiThreadLogWriter extends LogWriter
                 }
                 if (wait==false)
                 {
+                    synchronized (this)
+                    {
+                        long now=System.currentTimeMillis();
+                        if (now-this.lastRollOver<this.configuration.rollOverWait_ms)
+                        {
+                            continue;
+                        }
+                        this.lastRollOver=now;
+                    }
                     synchronized (this.currentBufferLock)
                     {
                         if (this.currentBuffer==null)
@@ -348,7 +355,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
                 
                 if (Debug.ENABLE && DEBUG && DEBUG_WAITING_IN_QUEUE)
                 {
-                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":waiting="+this.waitingMeter.getLevel());
+                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":waiting="+this.busyMeter.getLevel());
                 }
                 
                 write(threadIndex,buffer);

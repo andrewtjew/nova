@@ -640,31 +640,32 @@ public class ServerOperatorPages
         return page;
     }
     
-    @GET
-    @Path("/operator/logging/capture")
-    public Element captureLogging(@QueryParam("capacity") @DefaultValue("100") int capacity) throws Throwable
-    {
-        OperatorPage page=this.serverApplication.buildOperatorPage("Capture Logs");
-        MultiThreadedLogEntrySourceQueue logger=(MultiThreadedLogEntrySourceQueue)this.serverApplication.getCoreEnvironment().getLogQueue();
-        form_get form=page.content().returnAddInner(new form_get());
-        form.action("/operator/logging/capture");
-        label label=form.returnAddInner(new label());
-        input_checkbox checkBox=label.returnAddInner(new input_checkbox());
-        checkBox.name("overwrite");
-        label.addInner("Overwrite");
-        form.addInner(new LiteralHtml("Buffer capacity:&nbsp;"));
-        input_number capacityInput=form.returnAddInner(new input_number());
-        capacityInput.name("capacity");
-        capacityInput.min(1).max(1000).value(capacity);
-        
-        Tapper tapper=logger.getTapper();
-        if (tapper.getTap()==null)
-        {
-            button_submit submit=form.returnAddInner(new button_submit());
-            submit.addInner("Start");
-        }
-        return page;
-    }
+//    @GET
+//    @Path("/operator/logging/capture")
+//    public Element captureLogging(@QueryParam("capacity") @DefaultValue("100") int capacity) throws Throwable
+//    {
+//        OperatorPage page=this.serverApplication.buildOperatorPage("Capture Logs");
+//        MultiThreadedLogEntrySourceQueue logger=(MultiThreadedLogEntrySourceQueue)this.serverApplication.getCoreEnvironment().getLogQueue();
+//        var logWriter=this.serverApplication.getLogWriter();
+//        form_get form=page.content().returnAddInner(new form_get());
+//        form.action("/operator/logging/capture");
+//        label label=form.returnAddInner(new label());
+//        input_checkbox checkBox=label.returnAddInner(new input_checkbox());
+//        checkBox.name("overwrite");
+//        label.addInner("Overwrite");
+//        form.addInner(new LiteralHtml("Buffer capacity:&nbsp;"));
+//        input_number capacityInput=form.returnAddInner(new input_number());
+//        capacityInput.name("capacity");
+//        capacityInput.min(1).max(1000).value(capacity);
+//        
+//        Tapper tapper=logger.getTapper();
+//        if (tapper.getTap()==null)
+//        {
+//            button_submit submit=form.returnAddInner(new button_submit());
+//            submit.addInner("Start");
+//        }
+//        return page;
+//    }
     @GET
     @Path("/operator/logging/files")
     public Element logFiles() throws Throwable
@@ -5012,6 +5013,10 @@ public class ServerOperatorPages
         LevelSample sample=meter.sample();
         table.addRow(label,sample.getLevel(),sample.getMaxLevel(),Utils.millisToLocalDateTime(sample.getMaxLevelInstantMs()));
     }
+    private void write(Table table, String label, RateSample sample)
+    {
+        table.addRow(label,sample.getRate(),sample.getTotalCount(),"");
+    }
 
     private void write(Table table, String label, CountMeter meter)
     {
@@ -5026,34 +5031,50 @@ public class ServerOperatorPages
         LogDirectoryManager manager = this.serverApplication.getLogDirectoryManager();
         if (manager != null)
         {
-            if (this.serverApplication.getLogQueue() instanceof MultiThreadedLogEntrySourceQueue)
+            var logWriter = this.serverApplication.getLogWriter();
+            if (logWriter != null)
             {
-                MultiThreadedLogEntrySourceQueue sink = (MultiThreadedLogEntrySourceQueue) this.serverApplication.getLogQueue();
+                Panel panel=page.content().returnAddInner(new Panel2(page.head(),"Logger"));
                 {
-                    Panel panel=page.content().returnAddInner(new Panel2(page.head(),"Logger"));
-                    {
-                        Panel statsPanel=panel.content().returnAddInner(new Panel3(page.head(), "Worker Stats"));
-                        Table table=statsPanel.content().returnAddInner(new WideTable(page.head()));
-                        table.setHeader("Name","Value","Max","Max Instant");
-                        write(table,"Thread Workers Used",sink.getThreadWorkerQueueInUseMeter());
-                        write(table,"Waiting in Thread Workers",sink.getThreadWorkerQueueWaitingMeter());
-                        write(table,"Stalled in Thread Workers",sink.getThreadWorkerQueueStalledMeter());
-                        write(table,"Dropped in Thread Workers",sink.getThreadWorkerQueueDroppedMeter());
-                        write(table,"Waiting in Source",sink.getWaitingMeter());
-                        write(table,"Stalled in Source ",sink.getStalledMeter());
-                        write(table,"Dropped in Source ",sink.getDroppedMeter());
-                    }
-                    {
-                        panel.content().addInner(new p());
-                        Panel performancePanel=panel.content().returnAddInner(new Panel3(page.head(),"Performance"));
-                        Table table=performancePanel.content().returnAddInner(new WideTable(page.head()));
-                        table.setHeader("","Bytes","KB","MB","GB");
-                        RateSample sample=sink.getWriteRateMeter().sample(this.rateSamplingDuration);
-                        writeSize(table, "Write Rate (per second)", sample.getRate());
-                        writeSize(table, "Written", sample.getSamples());
-                    }
+                  Panel statsPanel=panel.content().returnAddInner(new Panel3(page.head(), "Stats"));
+                  Table table=statsPanel.content().returnAddInner(new WideTable(page.head()));
+                  table.setHeader("Name","Value","Max","Max Instant");
+                  write(table,"Threads Used",logWriter.getBusyMeter());
+                  write(table,"Stalls",logWriter.getStalledMeter());
+                  write(table,"Drops",logWriter.getDroppedMeter());
+                  RateSample sample=logWriter.getWriteMeter().sample(this.rateSamplingDuration);
+                  write(table,"Write Rate",sample);
                 }
             }
+            
+//            if (this.serverApplication.getLogQueue() instanceof MultiThreadedLogEntrySourceQueue)
+//            {
+//                MultiThreadedLogEntrySourceQueue sink = (MultiThreadedLogEntrySourceQueue) this.serverApplication.getLogQueue();
+//                {
+//                    Panel panel=page.content().returnAddInner(new Panel2(page.head(),"Logger"));
+//                    {
+//                        Panel statsPanel=panel.content().returnAddInner(new Panel3(page.head(), "Worker Stats"));
+//                        Table table=statsPanel.content().returnAddInner(new WideTable(page.head()));
+//                        table.setHeader("Name","Value","Max","Max Instant");
+//                        write(table,"Thread Workers Used",sink.getThreadWorkerQueueInUseMeter());
+//                        write(table,"Waiting in Thread Workers",sink.getThreadWorkerQueueWaitingMeter());
+//                        write(table,"Stalled in Thread Workers",sink.getThreadWorkerQueueStalledMeter());
+//                        write(table,"Dropped in Thread Workers",sink.getThreadWorkerQueueDroppedMeter());
+//                        write(table,"Waiting in Source",sink.getWaitingMeter());
+//                        write(table,"Stalled in Source ",sink.getStalledMeter());
+//                        write(table,"Dropped in Source ",sink.getDroppedMeter());
+//                    }
+//                    {
+//                        panel.content().addInner(new p());
+//                        Panel performancePanel=panel.content().returnAddInner(new Panel3(page.head(),"Performance"));
+//                        Table table=performancePanel.content().returnAddInner(new WideTable(page.head()));
+//                        table.setHeader("","Bytes","KB","MB","GB");
+//                        RateSample sample=sink.getWriteRateMeter().sample(this.rateSamplingDuration);
+//                        writeSize(table, "Write Rate (per second)", sample.getRate());
+//                        writeSize(table, "Written", sample.getSamples());
+//                    }
+//                }
+//            }
             
             {
                 Panel panel=page.content().returnAddInner(new Panel2(page.head(),"Volume"));
@@ -5078,7 +5099,6 @@ public class ServerOperatorPages
                 Table table=usagePanel.content().returnAddInner(new WideTable(page.head()));
                 table.setHeader("","Bytes","KB","MB","GB");
                 writeSize(table, "Directory size", info.getDirectorySize());
-                writeSize(table, "Volume free space", info.getFreeSpace());
                 writeSize(table, "Volume free space", info.getFreeSpace());
                 writeSize(table, "Volume usable space", info.getUsableSpace());
                 writeSize(table, "Volume total space", info.getTotalSpace());

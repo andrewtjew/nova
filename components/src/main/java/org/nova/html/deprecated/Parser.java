@@ -24,10 +24,10 @@ package org.nova.html.deprecated;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
-import org.nova.parsing.scan.Token;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.Scanner;
+import org.nova.parsing.scan.dep.TextSource;
+import org.nova.parsing.scan.dep.Token;
 import org.nova.utils.FileUtils;
 
 public class Parser

@@ -19,45 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.nova.logging.dep;
+package org.nova.parsing.expression.dep;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import org.nova.lexing.dep.Lexeme;
 
-import org.nova.collections.RingBuffer;
-import org.nova.logging.Item;
-import org.nova.logging.Level;
-import org.nova.logging.LogEntry;
-import org.nova.logging.Logger;
-import org.nova.tracing.Trace;
+public class ParseError
+{
+    final private Lexeme[] lexemes;
+    final private String message;
+    public ParseError(String message,Lexeme...lexemes)
+    {
+        this.message=message;
+        this.lexemes=lexemes;
+    }
+    
+    public String getMessage()
+    {
+        return this.message;
+    }
+    public Lexeme[] getLexemes()
+    {
+        return this.lexemes;
+    }
 
-//public class MemoryLogger extends Logger
-//{
-//    final private RingBuffer<LogEntry> buffer;
-//    final private AtomicLong number=new AtomicLong();
-//    public MemoryLogger(String category,int capacity)
-//    {
-//        super(category);
-//        this.buffer=new RingBuffer<>(new LogEntry[capacity]);
-//    }
-//
-//    @Override
-//    public void write(Trace trace, Level logLevel, String category, Throwable throwable, String message, Item[] items)
-//    {
-//        long now=System.currentTimeMillis();
-//        LogEntry entry=new LogEntry(number.getAndIncrement(),category, logLevel, now, throwable, trace, message, items);
-//        synchronized(this)
-//        {
-//            this.buffer.add(entry);
-//        }
-//        
-//    }
-//
-//    public List<LogEntry> getSnapshot()
-//    {
-//        synchronized(this)
-//        {
-//            return this.buffer.getSnapshot();
-//        }
-//    }
-//}
+}

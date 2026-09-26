@@ -9,14 +9,14 @@ abstract public class LogWriter
 {
     final protected CountMeter droppedMeter;
     final protected CountMeter stalledMeter;
-    final protected LevelMeter waitingMeter;
+    final protected LevelMeter busyMeter;
     final protected RateMeter writeMeter;
     
     public LogWriter()
     {
         this.droppedMeter=new CountMeter();
         this.stalledMeter=new CountMeter();
-        this.waitingMeter=new LevelMeter();
+        this.busyMeter=new LevelMeter();
         this.writeMeter=new RateMeter();
     }
     public CountMeter getDroppedMeter()
@@ -29,9 +29,9 @@ abstract public class LogWriter
         return stalledMeter;
     }
 
-    public LevelMeter getWaitingMeter()
+    public LevelMeter getBusyMeter()
     {
-        return waitingMeter;
+        return busyMeter;
     }
     public RateMeter getWriteMeter()
     {
