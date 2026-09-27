@@ -21,21 +21,9 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class ErrorNode extends ExpressionNode
 {
-//    public abstract void reset(int revert);
-    
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
+    public ErrorNode()
+    {
+    }
 }

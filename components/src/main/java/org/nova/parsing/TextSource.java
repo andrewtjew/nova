@@ -25,13 +25,13 @@ public class TextSource extends Source
 {
     static public class TextSnippet extends Snippet
     {
-        final private String text;
         final private int start;
         final private int end;
+        final private TextSource source;
 
-        public TextSnippet(String text,int start,int end)
+        public TextSnippet(TextSource source,int start,int end)
         {
-            this.text=text;
+            this.source=source;
             this.start=start;
             this.end=end;
         }
@@ -39,12 +39,12 @@ public class TextSource extends Source
         @Override
         public String getTarget()
         {
-            return this.text.substring(this.start,this.end);
+            return this.source.getText().substring(this.start,this.end);
         }
         @Override
         public String getBuffer()
         {
-            return this.text;
+            return this.source.getText();
         }
         @Override
         public int getTargetBufferPosition()
@@ -55,6 +55,12 @@ public class TextSource extends Source
         public int getTargetAbsolutePosition()
         {
             return this.start;
+        }
+
+        @Override
+        public Source getSource()
+        {
+            return this.source;
         } 
     }
 
@@ -128,13 +134,13 @@ public class TextSource extends Source
     public TextSnippet endAndGetSnippet(int revert)
     {
         end(revert);
-        return new TextSnippet(this.text, this.beginIndex, this.index);
+        return new TextSnippet(this, this.beginIndex, this.index);
     }
 
     @Override
     public Snippet getEndSnippet()
     {
-        return new TextSnippet(this.text, this.text.length(),this.text.length());
+        return new TextSnippet(this, this.text.length(),this.text.length());
     }
 
     @Override
@@ -149,6 +155,10 @@ public class TextSource extends Source
         this.index=this.beginIndex+offset;
     }
 
-
+    @Override
+    public String getText()
+    {
+        return this.text;
+    }
 
 }

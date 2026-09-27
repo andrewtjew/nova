@@ -21,21 +21,34 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class ArgumentNode extends ExpressionNode
 {
-//    public abstract void reset(int revert);
+    final private Token openToken;
+    final private Token closeToken;
+    final private ExpressionNode[] arguments;
+    public ArgumentNode(Token openToken,Token closeToken,ExpressionNode[] arguments)
+    {
+        this.openToken=openToken;
+        this.closeToken=closeToken;
+        this.arguments=arguments;
+    }
+    public Token getOpenToken()
+    {
+        return openToken;
+    }
+    public Token getCloseToken()
+    {
+        return closeToken;
+    }
+    public ExpressionNode[] getArguments()
+    {
+        return arguments;
+    }
+    @Override
+    public String toString()
+    {
+        return ArgumentNode.class.getSimpleName()+":"+openToken.getLiteral()+this.arguments.length+closeToken.getLiteral();
+    }
     
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
+
 }

@@ -21,21 +21,38 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class IdentifierNode extends ExpressionNode
 {
-//    public abstract void reset(int revert);
-    
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
+    final private Token token;
+    final ArgumentNode argumentNode;
+    public IdentifierNode(Token token,ArgumentNode argumentNode)
+    {
+        this.token=token;
+        this.argumentNode=argumentNode;
+    }
+    public IdentifierNode(Token token)
+    {
+        this(token,null);
+    }
+    public ArgumentNode getArgumentNode()
+    {
+        return argumentNode;
+    }
+    public Token getToken()
+    {
+        return this.token;
+    }
+    public boolean isIdentifier(String identifier)
+    {
+        return this.token.getType()==TokenType.IDENTIFIER && this.token.getLiteral().equals(identifier);
+    }
+    public String getIdentifier()
+    {
+        return this.token.getLiteral();
+    }
+    @Override
+    public String toString()
+    {
+        return IdentifierNode.class.getSimpleName()+":token="+token.toString()+(argumentNode!=null?", argumentNode="+argumentNode.toString():"");
+    }
 }

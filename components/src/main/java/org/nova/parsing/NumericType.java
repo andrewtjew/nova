@@ -8,12 +8,11 @@ public enum NumericType
     INTEGER,
     LONG,
 
-    BINARY_LONG,
     BINARY_INTEGER,
     
-    OCTAL_LONG,
     OCTAL_INTEGER,
     
-    HEXADECIMAL_LONG,
     HEXADECIMAL_INTEGER,
+    
+    BOOLEAN,
 }

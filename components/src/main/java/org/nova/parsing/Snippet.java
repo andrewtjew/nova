@@ -23,6 +23,7 @@ package org.nova.parsing;
 
 public abstract class Snippet
 {
+    abstract public Source getSource();
     abstract public String getTarget();
     abstract public String getBuffer();
     abstract public int getTargetBufferPosition(); 

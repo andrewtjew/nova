@@ -81,4 +81,29 @@ public class Token
     {
         return this.sourceIndex;
     }
+    public String getLiteral()
+    {
+        return this.snippet.getTarget();
+    }
+//    public boolean isIdentifier(String identifier)
+//    {
+//        return this.type==TokenType.IDENTIFIER && this.snippet.getTarget().equals(identifier);
+//    }
+//    public boolean isKeyword(String keyword)
+//    {
+//        return this.type==TokenType.KEYWORD && this.snippet.getTarget().equals(keyword);
+//    }
+//    public boolean isPunctuator(String punctuator)
+//    {
+//        return this.type==TokenType.PUNCTUATOR && this.snippet.getTarget().equals(punctuator);
+//    }
+//    public boolean isOperator(String operator)
+//    {
+//        return this.type==TokenType.OPERATOR && this.snippet.getTarget().equals(operator);
+//    }
+    @Override
+    public String toString()
+    {
+        return this.type+":"+this.snippet.getTarget();
+    }
 }

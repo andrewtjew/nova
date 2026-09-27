@@ -1,19 +1,24 @@
 package org.nova.parsing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+/*
+ * Extension checklist:
+ * When adding optional token types, use addOptionalToken() to add tokens to the list. 
+ * This method checks if the token should be included based on the configuration and also includes error tokens.
+*/
 public class Tokenizer
 {
     final private Source source;
     final private HashSet<String> punctuators;
     final private HashSet<String> operators;
     final private HashSet<String> keywords;
+    final private HashMap<String,Enclosure> commentEnclosures;
     final private Configuration configuration;
-
-    static record CommentMarker(String start, String end,boolean allowNested)
-    {
-    }
+    final private int maximumOpenCommentLength;
 
     /**
      * single quoted strings not tested.
@@ -24,6 +29,7 @@ public class Tokenizer
         public boolean caseSensitive=true;
         public boolean includeEndOfLine=false;
         public boolean includeWhiteSpaceTokens=false;
+        public boolean includeCommentTokens=false;
         public boolean allowinUnsignedIntegers=false;
         public boolean useSingleQuoteStrings=false; //if true includeCharacterTypes is ignored and characters are treated as strings
         public boolean useDoubleQuoteStrings=true;
@@ -31,7 +37,7 @@ public class Tokenizer
         public String[] punctuators;
         public String[] operators;
         public String[] keywords;
-        public CommentMarker[] commentMarker;
+        public Enclosure[] commentEnclosures;
         
         static public Configuration javaConfiguration()
         {
@@ -39,31 +45,15 @@ public class Tokenizer
             configuration.caseSensitive=true;
             configuration.includeEndOfLine=false;
             configuration.includeWhiteSpaceTokens=false;
+            configuration.includeCommentTokens=false;
             configuration.allowinUnsignedIntegers=false;
             configuration.useSingleQuoteStrings=false;
             configuration.useDoubleQuoteStrings=true;
 
-            configuration.commentMarker=new CommentMarker[]{new CommentMarker("//","\n",false),new CommentMarker("/*","*/",true)};
+            configuration.commentEnclosures=new Enclosure[]{new Enclosure("//","\n",false),new Enclosure("/*","*/",true)};
             configuration.punctuators=new String[]{"(",")","{","}","[","]",";",",",".","...","@",":","::","->"};
             configuration.operators=new String[]{"+","-","*","/","%","+","-","++","--","==","!=","<",">","<=",">=","&&","||","!","&","|","^","~","<<",">>","<<<",">>>"};
             configuration.keywords=new String[]{"abstract","assert","boolean","break","byte","case","catch","char","class","const","continue","default","do","double","else","enum","extends","final","finally","float","for","goto","if","implements","import","instanceof","int","interface","long","native","new","package","private","protected","public","return","short","static","strictfp","super","switch","synchronized","this","throw","throws","transient","try","void","volatile"};
-            return configuration;
-        }
-
-        static public Configuration logSearchConfiguration()
-        {
-            Configuration configuration=new Configuration();
-            configuration.caseSensitive=false;
-            configuration.includeEndOfLine=true;
-            configuration.includeWhiteSpaceTokens=false;
-            configuration.allowinUnsignedIntegers=false;
-            configuration.useSingleQuoteStrings=false;
-            configuration.useDoubleQuoteStrings=true;
-
-            configuration.commentMarker=null;
-            configuration.punctuators=new String[]{"(",")",",","."};
-            configuration.operators=new String[]{"==","!=","<",">","<=",">=","&&","||","!","and","or","not","contains"};
-            configuration.keywords=null;
             return configuration;
         }
 
@@ -104,9 +94,31 @@ public class Tokenizer
                 }
             }
         }
+        int maximumOpenCommentLength=0;
+        this.commentEnclosures=new HashMap<>();
+        if (configuration.commentEnclosures!=null)
+        {
+            for (var commentEncloser:this.configuration.commentEnclosures)
+            {
+                this.commentEnclosures.put(commentEncloser.open(),commentEncloser);
+                if (commentEncloser.open().length()>maximumOpenCommentLength)
+                {
+                    maximumOpenCommentLength=commentEncloser.open().length();
+                }
+            }
+        }
+        this.maximumOpenCommentLength=maximumOpenCommentLength;
     }
 
-    public ArrayList<Token> produce() throws Throwable
+    static void addOptionalToken(List<Token> tokens, boolean add, Token token)
+    {
+        if (add || token.getType() == TokenType.ERROR)
+        {
+            tokens.add(token);
+        }
+    }
+    
+    public List<Token> tokenize() throws Throwable
     {
         ArrayList<Token> tokens = new ArrayList<>();
         for (;;)
@@ -119,9 +131,10 @@ public class Tokenizer
             }
             if (c == '\n')
             {
+                var snippet=this.source.endAndGetSnippet(0);
                 if (this.configuration.includeEndOfLine)
                 {
-                    Token token = new Token(TokenType.END_OF_LINE, this.source.endAndGetSnippet(0));
+                    Token token = new Token(TokenType.END_OF_LINE, snippet);
                     tokens.add(token);
                 }
                 continue;
@@ -133,20 +146,18 @@ public class Tokenizer
                 {
                     this.source.back(1);
                 }
+                var snippet=this.source.endAndGetSnippet(0);
                 if (this.configuration.includeEndOfLine)
                 {
-                    Token token = new Token(TokenType.END_OF_LINE, this.source.endAndGetSnippet(0));
+                    Token token = new Token(TokenType.END_OF_LINE, snippet);
                     tokens.add(token);
                 }
                 continue;
             }
             if (Character.isWhitespace(c))
             {
-                if (this.configuration.includeWhiteSpaceTokens)
-                {
-                    Token token = this.produceWhiteSpace();
-                    tokens.add(token);
-                }
+                Token token = this.produceWhiteSpace();
+                addOptionalToken(tokens, this.configuration.includeWhiteSpaceTokens, token);
                 continue;
             }
             if (configuration.useSingleQuoteStrings)
@@ -201,52 +212,73 @@ public class Tokenizer
             }
             if (Character.isJavaIdentifierStart(c))
             {
-                Token token=produceIdentifierOrKeywordOrOperator();
+                Token token=produceWordToken();
                 tokens.add(token);
                 continue;
             }
-            for (c=this.source.next();(c!=0)&&(!Character.isLetterOrDigit(c)&&(!Character.isWhitespace(c)));c=this.source.next())
             {
-            }
-
-            Snippet snippet=this.source.endAndGetSnippet(1);
-            var target=snippet.getTarget();
-            if (this.configuration.commentMarker!=null)
-            {
-                boolean commentFound=false;
-                for (var commentMarker:this.configuration.commentMarker)
+                var token=detectComment(c);
+                if (token!=null)
                 {
-                    if (target.startsWith(commentMarker.start))
-                    {
-                        Token token=produceComment(commentMarker);
-                        tokens.add(token);
-                        commentFound=true;
-                        continue;
-                    }
-                }
-                if (commentFound)
-                {
+                    addOptionalToken(tokens, this.configuration.includeCommentTokens, token);
                     continue;
                 }
             }
             
-            if (this.punctuators.contains(target))
-            {
-                tokens.add(new Token(TokenType.PUNCTUATOR,snippet));
-                continue;
-            }
-            if (this.operators.contains(target))
-            {
-                tokens.add(new Token(TokenType.OPERATOR,snippet));
-                continue;
-            }
-            tokens.add(new Token(TokenType.ERROR,snippet,"Unrecognized token.",this.source.getIndex()));
-            
+            Token token = this.produceOperatorOrPunctuator(c);
+            tokens.add(token);
         }
         return tokens;
     }
+    private Token produceOperatorOrPunctuator(char c) throws Throwable
+    {
+        StringBuilder sb=new StringBuilder();
+        sb.append(c);
+        for (c=this.source.next();(c!=0)&&(!Character.isLetterOrDigit(c)&&(!Character.isWhitespace(c)));c=this.source.next())
+        {
+            sb.append(c);
+        }
+        for (String target=sb.toString();target.length()>0;target=target.substring(0,target.length()-1))
+        {
+            if (this.punctuators.contains(target))
+            {
+                return new Token(TokenType.PUNCTUATOR,this.source.endAndGetSnippet(sb.length()-target.length()+1));
+            }
+            if (this.operators.contains(target))
+            {
+                return new Token(TokenType.OPERATOR,this.source.endAndGetSnippet(sb.length()-target.length()+1));
+            }
+        }
+        Snippet snippet=this.source.endAndGetSnippet(1);
+        return new Token(TokenType.ERROR, snippet,"Unrecognized symbols.",this.source.getIndex());
+    }
     
-    private Token produceIdentifierOrKeywordOrOperator() throws Throwable
+    private Token detectComment(char c) throws Throwable
+    {
+        if (this.maximumOpenCommentLength>0)
+        {
+            StringBuilder sb=new StringBuilder();
+            sb.append(c);
+            for (;;)
+            {
+                String target=sb.toString();
+                var commentEncloser=this.commentEnclosures.get(target);
+                if (commentEncloser!=null)
+                {
+                    return produceComment(commentEncloser);
+                }
+                if (sb.length()==this.maximumOpenCommentLength)
+                {
+                    this.source.revert();
+                    return null;
+                }
+                c=this.source.next();
+                sb.append(c);
+            }
+        }
+        return null;
+    }    
+    private Token produceWordToken() throws Throwable
     {
         for (char c=this.source.next();Character.isJavaIdentifierPart(c)&&(c!=0);c=this.source.next())
         {
@@ -256,6 +288,10 @@ public class Tokenizer
         if (this.configuration.caseSensitive==false)
         {
             word=word.toLowerCase();
+        }
+        if ("true".equals(word)||"false".equals(word))
+        {
+            return new Token(TokenType.NUMBER,snippet,NumericType.BOOLEAN,null);
         }
         if (this.operators.contains(word))
         {
@@ -719,19 +755,19 @@ public class Tokenizer
         }
         return produceCharacterErrorToken("Invalid character.");
     }
-    private Token produceComment(CommentMarker comment) throws Throwable
+    private Token produceComment(Enclosure commentEnclosure) throws Throwable
     {
-        if (comment.allowNested)
+        if (commentEnclosure.nestable())
         {
-            source.set(comment.start.length());
+            source.set(commentEnclosure.open().length());
         }
-        int level=1;
-        String start=comment.start;
-        String end=comment.end;
+        int level=1; //From the first comment enclosure
+        String start=commentEnclosure.open();
+        String end=commentEnclosure.close();
         
         for (char c=this.source.next();c!=0;c=this.source.next())
         {
-            if (comment.allowNested)
+            if (commentEnclosure.nestable())
             {
                 if (c==start.charAt(0))
                 {
@@ -758,7 +794,7 @@ public class Tokenizer
                 for (int i=1;i<end.length();i++)
                 {
                     c=this.source.next();
-                    if (c!=comment.end.charAt(i))
+                    if (c!=commentEnclosure.close().charAt(i))
                     {
                         match=false;
                         break;
@@ -776,14 +812,14 @@ public class Tokenizer
             }
         }
         
-        if (comment.allowNested)
+        if (commentEnclosure.nestable())
         {
             return new Token(TokenType.ERROR, this.source.endAndGetSnippet(1),"Premature end of comment.",this.source.getIndex());
         }
         return new Token(TokenType.COMMENT, this.source.endAndGetSnippet(1));
     }
     
-    public static void testNumbers() throws Throwable
+    public static void test() throws Throwable
     {
         for (;;)
         {
@@ -801,19 +837,24 @@ public class Tokenizer
             
 
             text="/*//1/*2*/3/*\n*/*/ //ab\n//cd";
-//            text="/* /* */ ab"; //error cases
+            text="/* /* */ ab"; //error cases
+            
+            text="((5))";
             
             System.out.println("text=["+text+"]");
             TextSource source=new TextSource(text);
             var configuration=new Tokenizer.Configuration();
             configuration.allowinUnsignedIntegers=true;
+            configuration.includeWhiteSpaceTokens=true;
+            configuration.includeCommentTokens=true;
             configuration.operators=new String[]{"+","-","==","!=",">",">=","<","<=","and","or"};
+            configuration.punctuators=new String[]{"(",")","[","]",",","."};
             configuration.keywords=new String[]{"number","logLevel","category","created","message","exception","trace","duration","wait","ancestors","fromLink","toLink","exceptionMessage","null","entry","key","value"};
-            configuration.commentMarker=new CommentMarker[]{new CommentMarker("//","\n",false),new CommentMarker("/*","*/",true)};
+            configuration.commentEnclosures=new Enclosure[]{Enclosure.SINGLE_LINE_COMMENT,Enclosure.MULTI_LINE_COMMENT};
             
             Tokenizer tokenizer=new Tokenizer(source,configuration);
             
-            var tokens=tokenizer.produce();
+            var tokens=tokenizer.tokenize();
             for (var token:tokens)
             {
   //              if (token.getType()==TokenType.ERROR)

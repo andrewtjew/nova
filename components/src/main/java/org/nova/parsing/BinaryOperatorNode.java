@@ -21,21 +21,41 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class BinaryOperatorNode extends ExpressionNode
 {
-//    public abstract void reset(int revert);
+    final private ExpressionNode leftOperand;
+    final private ExpressionNode rightOperand;
+    final private Token token;
+    public BinaryOperatorNode(Token token,ExpressionNode leftOperand,ExpressionNode rightOperand)
+    {
+        this.token=token;
+        this.leftOperand=leftOperand;
+        this.rightOperand=rightOperand;
+    }
+    public ExpressionNode getLeftOperand()
+    {
+        return leftOperand;
+    }
+    public ExpressionNode getRightOperand()
+    {
+        return rightOperand;
+    }
+    public Token getToken()
+    {
+        return this.token;
+    }
     
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
+    public boolean isOperator(String operator)
+    {
+        return this.token.getType()==TokenType.OPERATOR && this.token.getLiteral().equals(operator);
+    }
+    public String getOperator()
+    {
+        return this.token.getLiteral();
+    }
+    @Override
+    public String toString()
+    {
+        return BinaryOperatorNode.class.getSimpleName()+":token="+token.toString()+", left="+leftOperand.toString()+", right="+rightOperand.toString();
+    }
 }

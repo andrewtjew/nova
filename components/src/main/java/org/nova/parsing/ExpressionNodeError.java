@@ -21,21 +21,24 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class ExpressionNodeError
 {
-//    public abstract void reset(int revert);
+    private static final long serialVersionUID = -4212808083282400952L;
+
+    final private ExpressionNode expressionNode;
+    final private String message;
+    public ExpressionNodeError(String message,ExpressionNode expressionNode)
+    {
+        this.message=message;
+        this.expressionNode=expressionNode;
+    }
+    public ExpressionNode getExpressionNode()
+    {
+        return expressionNode;
+    }
+    public String getMessage()
+    {
+        return message;
+    }
     
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
 }

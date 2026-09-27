@@ -21,21 +21,21 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public abstract class Source
+public class ConstantNode extends ExpressionNode
 {
-//    public abstract void reset(int revert);
+    final private Token token;
+    public ConstantNode(Token token)
+    {
+        this.token=token;
+    }
+    public Token getToken()
+    {
+        return this.token;
+    }
+    @Override
+    public String toString()
+    {
+        return ConstantNode.class.getSimpleName()+":token="+token.toString();
+    }
     
-    public abstract char next() throws Throwable;
-    public abstract void begin(int revert);
-    public abstract void set(int offset);
-    public abstract void revert();
-    public abstract void back(int amount);
-    public abstract void end(int revert);
-    public abstract Snippet endAndGetSnippet(int revert);
-    public abstract Snippet getEndSnippet();
-    public abstract String endContext();
-    public abstract void beginContext();
-    public abstract int getIndex();
-    
-    public abstract String getText(); //Change this to stream.
 }
