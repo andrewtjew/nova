@@ -35,6 +35,7 @@ public class LogRecord
     public LocalDateTime created;
     public String message;
     public String exception;
+    public String stackTrace;
     public TraceRecord trace;
     public Item[] items;
 }

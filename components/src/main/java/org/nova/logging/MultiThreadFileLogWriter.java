@@ -111,11 +111,6 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
         public boolean directToFile=false;
     }
     final private static boolean DEBUG_WRITE_FILE=false;
-//    final private static boolean DEBUG=false;
-//    final private static boolean DEBUG_WAITING_IN_QUEUE=false;
-//    final private static boolean DEBUG_QUEUE_ORDERING=false;
-//    final private static boolean DEBUG_QUEUE_TRACING=false;
-//    static final String DEBUG_CATEGORY=MultiThreadFileLogWriter.class.getSimpleName();
 
     final private LogDirectoryManager logDirectoryManager;
     final private Object fileWriteLock;

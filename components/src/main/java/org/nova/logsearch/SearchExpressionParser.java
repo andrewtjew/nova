@@ -60,7 +60,7 @@ public class SearchExpressionParser extends ExpressionParser
         level++;
         
         //relational operators
-        precedenceLevels.put("=>",level);
+        precedenceLevels.put(">=",level);
         precedenceLevels.put("<=",level);
         precedenceLevels.put(">",level);
         precedenceLevels.put("<",level);
@@ -101,13 +101,13 @@ public class SearchExpressionParser extends ExpressionParser
         configuration.includeEndOfLine=true;
         configuration.includeWhiteSpaceTokens=false;
         configuration.allowUnsignedIntegers=false;
-        configuration.useSingleQuoteStrings=false;
+        configuration.useSingleQuoteStrings=true;
         configuration.useDoubleQuoteStrings=true;
 
         configuration.commentEnclosures=null;
         configuration.punctuators=new String[]{"(",")","[","]"};
         configuration.operators=new String[]{"==","!=","<",">","<=",">=","and","or","contains","+","-","*","/","not",","};
-        configuration.keywords=new String[]{"number","logLeve","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","ancestors","fromLink","toLink","traceException","traceStackTrace","item"};
+        configuration.keywords=new String[]{"number","logLevel","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","ancestors","fromLink","toLink","traceException","traceStackTrace","item"};
         
         TextSource textSource=new TextSource(text);
         Tokenizer tokenizer=new Tokenizer(textSource,configuration);

@@ -114,12 +114,12 @@ public class ExpressionParser
         return this.parseErrors;
     }
     
-    public ExpressionNode parse(List<Token> tokens)
+    public ExpressionNode parse(List<Token> tokens) throws Throwable
     {
         return parse(0,tokens.size(),tokens);
     }
     
-    private int getPrecedenceLevel(Token token,int level)
+    private int getPrecedenceLevel(Token token,int level) throws Exception
     {
         TokenType tokenType = token.getType();
         int precedenceLevel=Integer.MAX_VALUE;
@@ -139,7 +139,7 @@ public class ExpressionParser
             var operatorPrecedenceLevel=this.precedenceLevels.get(token.getLiteral());
             if (operatorPrecedenceLevel==null)
             {
-                precedenceLevel=this.maximumPrecedence;
+                throw new Exception("Operator "+token.getLiteral()+" not found in precedence levels.");
             }
             else
             {
@@ -162,7 +162,7 @@ public class ExpressionParser
         return precedenceLevel+this.maximumPrecedence*level;
     }
 
-    public ExpressionNode parse(final int start,final int end,List<Token> tokens)
+    public ExpressionNode parse(final int start,final int end,List<Token> tokens) throws Throwable
     {
         if (start>=end)
         {
@@ -239,7 +239,7 @@ public class ExpressionParser
         }
         if (stack.size()>0)
         {
-            addParseError("Missing left matches", stack.toArray(new Token[stack.size()]));
+            return new ErrorNode("Missing open brackets", stack.pop(),stack.isEmpty()==false?stack.pop():null);
         }
         Token startToken=tokens.get(start);
         Token endToken=tokens.get(end-1);
@@ -253,8 +253,7 @@ public class ExpressionParser
                 //"((a+b)+c+d)" becomes "(a+b)+c+d"
                 return parse(start + 1, end - 1, tokens);
             }
-            addParseError("No object for lookup", startToken,endToken);
-            return new ErrorNode();
+            return new ErrorNode("No object for lookup", startToken,endToken);
         }
         Token lowestToken = tokens.get(lowestIndex);
         if (lowestPrecedenceLevel<=this.maximumOperatorPrecendence)
@@ -268,13 +267,11 @@ public class ExpressionParser
                     ExpressionNode right = parse(lowestIndex + 1, end, tokens);
                     if (right==null)
                     {
-                        addParseError("Right operand missing", lowestToken);
-                        return new ErrorNode();
+                        return new ErrorNode("Right operand missing", lowestToken);
                     }
                     return new PrefixOperatorNode(lowestToken,right);
                 }
-                addParseError("Not a prefix operator.", lowestToken);
-                return new ErrorNode();
+                return new ErrorNode("Not a prefix operator.", lowestToken);
             }
             else if (lowestIndex==end-1)
             {
@@ -284,13 +281,11 @@ public class ExpressionParser
                     ExpressionNode left = parse(start,lowestIndex,tokens);
                     if (left==null)
                     {
-                        addParseError("Left operand missing", lowestToken);
-                        return new ErrorNode();
+                        return new ErrorNode("Left operand missing", lowestToken);
                     }
                     return new PostfixOperatorNode(lowestToken,left);
                 }
-                addParseError("Not a postfix operator.", lowestToken);
-                return new ErrorNode();
+                return new ErrorNode("Not a postfix operator.", lowestToken);
             }
             
             //"a*b+c" becomes "a*b" and "c"
@@ -298,13 +293,11 @@ public class ExpressionParser
             ExpressionNode right = parse(lowestIndex + 1, end, tokens);
             if (left==null)
             {
-                addParseError("Left operand missing", lowestToken);
-                return new ErrorNode();
+                return new ErrorNode("Left operand missing", lowestToken);
             }
             if (right==null)
             {
-                addParseError("Right operand missing", lowestToken);
-                return new ErrorNode();
+                return new ErrorNode("Right operand missing", lowestToken);
             }
             return new BinaryOperatorNode(lowestToken,left,right);
         }
@@ -312,13 +305,11 @@ public class ExpressionParser
         {
             if (lowestIndex>start)
             {
-                addParseError("Unexpected extra token before constant", lowestToken,tokens.get(lowestIndex-1));
-                return new ErrorNode();
+                return new ErrorNode("Unexpected extra token before constant.", lowestToken,tokens.get(lowestIndex-1));
             }
             if (lowestIndex<end-1)
             {
-                addParseError("Unexpected extra token before constant", lowestToken,tokens.get(lowestIndex+1));
-                return new ErrorNode();
+                return new ErrorNode("Unexpected extra token before constant.", lowestToken,tokens.get(lowestIndex+1));
             }
             return new ConstantNode(lowestToken);
         }
@@ -326,8 +317,7 @@ public class ExpressionParser
         {
             if (lowestIndex>start)
             {
-                addParseError("Unexepected tokens before identifier.", tokens.get(lowestIndex-1));
-                return new ErrorNode();
+                return new ErrorNode("Unexepected tokens before identifier.", tokens.get(lowestIndex-1));
             }
             if (lowestIndex==end-1)
             {
@@ -353,8 +343,7 @@ public class ExpressionParser
         {
             if (lowestIndex>start)
             {
-                addParseError("Unexepected tokens before keyword.", tokens.get(lowestIndex-1));
-                return new ErrorNode();
+                return new ErrorNode("Unexepected tokens before keyword.", tokens.get(lowestIndex-1));
             }
             if (lowestIndex==end-1)
             {
@@ -377,8 +366,7 @@ public class ExpressionParser
                 }
             }
         }
-        addParseError("Unexpected token.", lowestToken);
-        return new ErrorNode();
+        return new ErrorNode("Unexpected token.", lowestToken);
     }
     private boolean isArgumentSeperator(ExpressionNode node)
     {

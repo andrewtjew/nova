@@ -260,11 +260,13 @@ public class Tokenizer
         {
             if (this.punctuators.contains(target))
             {
-                return new Token(TokenType.PUNCTUATOR,this.source.endAndGetSnippet(sb.length()-target.length()+1));
+                int revert=sb.length()-target.length()+1;
+                return new Token(TokenType.PUNCTUATOR,this.source.endAndGetSnippet(revert));
             }
             if (this.operators.contains(target))
             {
-                return new Token(TokenType.OPERATOR,this.source.endAndGetSnippet(sb.length()-target.length()+1));
+                int revert=sb.length()-target.length()+1;
+                return new Token(TokenType.OPERATOR,this.source.endAndGetSnippet(revert));
             }
         }
         Snippet snippet=this.source.endAndGetSnippet(1);
@@ -287,7 +289,7 @@ public class Tokenizer
                 }
                 if (sb.length()==this.maximumOpenCommentLength)
                 {
-                    this.source.revert();
+                    this.source.set(1);
                     return null;
                 }
                 c=this.source.next();
@@ -844,7 +846,9 @@ public class Tokenizer
             text="/*//1/*2*/3/*\n*/*/ //ab\n//cd";
             text="/* /* */ ab"; //error cases
             
-            text="((5))";
+            text="((5))+(3*(2+1))";
+            text="a>=b";
+           // text="a and b or c and d";
             
             System.out.println("text=["+text+"]");
             TextSource source=new TextSource(text);

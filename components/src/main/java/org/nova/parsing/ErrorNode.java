@@ -23,7 +23,27 @@ package org.nova.parsing;
 
 public class ErrorNode extends ExpressionNode
 {
-    public ErrorNode()
+    final private String message;
+    final private Token token;
+    final private Token secondaryToken;
+    public ErrorNode(String message,Token token,Token secondaryToken)
     {
+        this.token=token;
+        this.message=message;
+        this.secondaryToken=secondaryToken;
+    }
+    public ErrorNode(String message,Token token)
+    {
+        this(message,token,null);
+    }
+    public String getMessage()
+    {
+        return message;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return ErrorNode.class.getSimpleName()+":message="+message+", token="+token.toString()+(secondaryToken==null?"":", secondaryToken="+secondaryToken.toString());
     }
 }
