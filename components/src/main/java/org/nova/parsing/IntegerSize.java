@@ -2,8 +2,8 @@ package org.nova.parsing;
 
 public enum IntegerSize
 {
-    SIGNED_LONG,
+    LONG,
     UNSIGNED_LONG,
-    SIGNED_INTEGER,
+    INTEGER,
     UNSIGNED_INTEGER,
 }

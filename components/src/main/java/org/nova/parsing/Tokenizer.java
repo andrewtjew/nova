@@ -19,6 +19,7 @@ public class Tokenizer
     final private HashMap<String,Enclosure> commentEnclosures;
     final private Configuration configuration;
     final private int maximumOpenCommentLength;
+    final private HashSet<Character> escapeCharacters;
 
     /**
      * single quoted strings not tested.
@@ -30,7 +31,9 @@ public class Tokenizer
         public boolean includeEndOfLine=false;
         public boolean includeWhiteSpaceTokens=false;
         public boolean includeCommentTokens=false;
-        public boolean allowinUnsignedIntegers=false;
+        public boolean allowUnsignedIntegers=false;
+        public boolean allowLongIntegers=true;
+        public boolean allowFloatAndDoubles=true;
         public boolean useSingleQuoteStrings=false; //if true includeCharacterTypes is ignored and characters are treated as strings
         public boolean useDoubleQuoteStrings=true;
         
@@ -46,7 +49,9 @@ public class Tokenizer
             configuration.includeEndOfLine=false;
             configuration.includeWhiteSpaceTokens=false;
             configuration.includeCommentTokens=false;
-            configuration.allowinUnsignedIntegers=false;
+            configuration.allowUnsignedIntegers=false;
+            configuration.allowLongIntegers=true;
+            configuration.allowFloatAndDoubles=true;
             configuration.useSingleQuoteStrings=false;
             configuration.useDoubleQuoteStrings=true;
 
@@ -107,6 +112,19 @@ public class Tokenizer
                 }
             }
         }
+        
+        this.escapeCharacters=new HashSet<>();
+        this.escapeCharacters.add('t');
+        this.escapeCharacters.add('b');
+        this.escapeCharacters.add('n');
+        this.escapeCharacters.add('r');
+        this.escapeCharacters.add('f');
+        this.escapeCharacters.add('\'');
+        this.escapeCharacters.add('"');
+        this.escapeCharacters.add('\\');
+        
+
+        
         this.maximumOpenCommentLength=maximumOpenCommentLength;
     }
 
@@ -510,30 +528,36 @@ public class Tokenizer
     }
     Token produceIntegerSuffix(char c,NumericType numericType) throws Throwable
     {
-        IntegerSize integerSize=IntegerSize.SIGNED_INTEGER;
-        if (c=='l'||c=='L')
+        IntegerSize integerSize=IntegerSize.INTEGER;
+        if (this.configuration.allowLongIntegers)
         {
-            c=this.source.next();
-            integerSize=IntegerSize.SIGNED_LONG;
-            if (this.configuration.allowinUnsignedIntegers)
+            if (c=='l'||c=='L')
             {
-                if (c=='u'||c=='U')
+                c=this.source.next();
+                integerSize=IntegerSize.LONG;
+                if (this.configuration.allowUnsignedIntegers)
                 {
-                    integerSize=IntegerSize.UNSIGNED_LONG;
-                    c=this.source.next();
+                    if (c=='u'||c=='U')
+                    {
+                        integerSize=IntegerSize.UNSIGNED_LONG;
+                        c=this.source.next();
+                    }
                 }
             }
         }
-        if (this.configuration.allowinUnsignedIntegers)
+        if (this.configuration.allowUnsignedIntegers)
         {
             if (c=='u'||c=='U')
             {
                 integerSize=IntegerSize.UNSIGNED_INTEGER;
                 c=this.source.next();
-                if (c=='l'||c=='L')
+                if (this.configuration.allowLongIntegers)
                 {
-                    integerSize=IntegerSize.UNSIGNED_LONG;
-                    c=this.source.next();
+                    if (c=='l'||c=='L')
+                    {
+                        integerSize=IntegerSize.UNSIGNED_LONG;
+                        c=this.source.next();
+                    }
                 }
             }
         }
@@ -546,14 +570,17 @@ public class Tokenizer
     Token produceFloatingPointNumberSuffix(char c) throws Throwable
     {
         NumericType numericType=NumericType.DOUBLE;
-        if (c=='f'||c=='F')
+        if (configuration.allowFloatAndDoubles)
         {
-            c=this.source.next();
-            numericType=NumericType.FLOAT;
-        }
-        if (c=='d'||c=='D')
-        {
-            c=this.source.next();
+            if (c=='f'||c=='F')
+            {
+                c=this.source.next();
+                numericType=NumericType.FLOAT;
+            }
+            if (c=='d'||c=='D')
+            {
+                c=this.source.next();
+            }
         }
         if (Character.isLetter(c))
         {
@@ -634,7 +661,7 @@ public class Tokenizer
 
     public Token produceString(char delimiter) throws Throwable
     {
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
         for (char c=this.source.next();c!=0;c=this.source.next())
         {
             if (c != '\\')
@@ -647,14 +674,13 @@ public class Tokenizer
                 {
                     return produceStringErrorToken("Invalid new line character in string.");
                 }
-                sb.append(c);
+//                sb.append(c);
                 continue;
             }
             //Escape cases
             c = this.source.next();
             if (c == 'u')
             {
-                StringBuilder unicode=new StringBuilder();
                 for (int i = 0; i < 4; i++)
                 {
                     c = this.source.next();
@@ -664,38 +690,17 @@ public class Tokenizer
                     }
                     if (Character.isDigit(c) || ((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')))
                     {
-                        unicode.append(c);
                         continue;
                     }
                     return produceStringErrorToken("Invalid unicode escape character in string.");
                 }
-                sb.append((char) Integer.parseInt(unicode.toString(), 16));
                 continue;
             }
-            if (c == 'r')
+            else if (this.escapeCharacters.contains(c))
             {
-                sb.append('\r');
+                continue;
             }
-            else if (c == 'n')
-            {
-                sb.append('\n');
-            }
-            else if (c == delimiter)
-            {
-                sb.append(delimiter);
-            }
-            else if (c == '\\')
-            {
-                sb.append(c);
-            }
-            else if (c == 't')
-            {
-                sb.append('\t');
-            }
-            else
-            {
-                return produceStringErrorToken("Invalid escape character in string.");
-            }
+            return produceStringErrorToken("Invalid escape character in string.");
         }
         return produceStringErrorToken("Premature end of string.");
     }
@@ -844,7 +849,7 @@ public class Tokenizer
             System.out.println("text=["+text+"]");
             TextSource source=new TextSource(text);
             var configuration=new Tokenizer.Configuration();
-            configuration.allowinUnsignedIntegers=true;
+            configuration.allowUnsignedIntegers=true;
             configuration.includeWhiteSpaceTokens=true;
             configuration.includeCommentTokens=true;
             configuration.operators=new String[]{"+","-","==","!=",">",">=","<","<=","and","or"};

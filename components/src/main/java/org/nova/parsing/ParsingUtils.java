@@ -92,24 +92,24 @@ public class ParsingUtils
 //        }
 //    }
 
-    private static void collapseToListSeperatedByOperator(ExpressionNode node,String operator,ArrayList<ExpressionNode> list)
-    {
-        if (node==null)
-        {
-            return;
-        }
-        if (node instanceof BinaryOperatorNode)
-        {
-            BinaryOperatorNode n=(BinaryOperatorNode)node;
-            if (n.isOperator(operator))
-            {
-                collapseToListSeperatedByOperator(n.getLeftOperand(), operator,list);
-                collapseToListSeperatedByOperator(n.getRightOperand(), operator,list);
-                return;
-            }
-        }
-        list.add(node);
-    }
+//    private static void collapseToListSeperatedByOperator(ExpressionNode node,String operator,ArrayList<ExpressionNode> list)
+//    {
+//        if (node==null)
+//        {
+//            return;
+//        }
+//        if (node instanceof BinaryOperatorNode)
+//        {
+//            BinaryOperatorNode n=(BinaryOperatorNode)node;
+//            if (n.isOperator(operator))
+//            {
+//                collapseToListSeperatedByOperator(n.getLeftOperand(), operator,list);
+//                collapseToListSeperatedByOperator(n.getRightOperand(), operator,list);
+//                return;
+//            }
+//        }
+//        list.add(node);
+//    }
     
 //    public static Token[] getTokens(ExpressionNode node)
 //    {
@@ -385,5 +385,70 @@ public class ParsingUtils
     public static void printParseErrors(List<ParseError> errors)
     {
         printParseErrors(System.out,errors);
+    }
+
+    static public ExpressionNode[] toPostOrder(ExpressionNode node) throws Exception //post order, ArgumentNode arguments are added left to right and then node. 
+    {
+        ArrayList<ExpressionNode> list=new ArrayList<>();
+        toPostOrder(node,list);
+        return list.toArray(new ExpressionNode[list.size()]);
+    }
+    
+    static public void toPostOrder(ExpressionNode node,List<ExpressionNode> list) throws Exception //post order, ArgumentNode arguments are added left to right and then node. 
+    {
+        if (node instanceof BinaryOperatorNode)
+        {
+            BinaryOperatorNode n=(BinaryOperatorNode)node;
+            toPostOrder(n.getLeftOperand(),list);
+            toPostOrder(n.getRightOperand(),list);
+            list.add(node);
+        }
+        else if (node instanceof ConstantNode)
+        {
+            list.add(node);
+        }
+        else if (node instanceof KeywordNode)
+        {
+            KeywordNode n=(KeywordNode)node;
+            ArgumentNode argumentNode=n.getArgumentNode();
+            if (argumentNode!=null)
+            {
+                for (ExpressionNode argument:argumentNode.getArguments())
+                {
+                    toPostOrder(argument,list);
+                }
+            }
+            list.add(node);
+        }
+        else if (node instanceof IdentifierNode)
+        {
+            IdentifierNode n=(IdentifierNode)node;
+            ArgumentNode argumentNode=n.getArgumentNode();
+            if (argumentNode!=null)
+            {
+                for (ExpressionNode argument:argumentNode.getArguments())
+                {
+                    toPostOrder(argument,list);
+                }
+            }
+            list.add(node);
+        }
+        else if (node instanceof PrefixOperatorNode)
+        {
+            PrefixOperatorNode n=(PrefixOperatorNode)node;
+            toPostOrder(n.getOperand(),list);
+            list.add(node);
+        }
+        else if (node instanceof PostfixOperatorNode)
+        {
+            PostfixOperatorNode n=(PostfixOperatorNode)node;
+            toPostOrder(n.getOperand(),list);
+            list.add(node);
+        }
+        else
+        {
+            throw new Exception("Unhandled node:"+node.getClass().getSimpleName());
+        }
+               
     }
 }

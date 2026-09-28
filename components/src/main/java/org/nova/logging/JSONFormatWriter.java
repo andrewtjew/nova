@@ -71,7 +71,8 @@ public class JSONFormatWriter extends FormatWriter
         Throwable throwable=entry.getException();
         if (throwable!=null)
         {
-            writeKeyValue(true,"exception",Utils.toString(throwable.getStackTrace()));
+            writeKeyValue(true,"exception",throwable.getMessage());
+            writeKeyValue(true,"stackTrace",Utils.toString(throwable.getStackTrace()));
         }
         Trace trace=entry.getTrace();
         if (trace!=null)
@@ -102,8 +103,8 @@ public class JSONFormatWriter extends FormatWriter
             if (throwable!=null)
             {
                 write("\r\n");
-                writeKeyValue(true,"exceptionMessage",throwable.getMessage());
-                writeKeyValue(true,"exception",Utils.toString(throwable.getStackTrace()));
+                writeKeyValue(true,"exception",throwable.getMessage());
+                writeKeyValue(true,"stackTrace",Utils.toString(throwable.getStackTrace()));
             }
             StackTraceElement[] elements=trace.getCreateStackTrace();
             if ((elements!=null)&&(elements.length>0))

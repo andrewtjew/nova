@@ -6,7 +6,6 @@ public enum NumericType
     DOUBLE,
 
     INTEGER,
-    LONG,
 
     BINARY_INTEGER,
     
