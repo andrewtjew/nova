@@ -55,4 +55,9 @@ public class IdentifierNode extends ExpressionNode
     {
         return IdentifierNode.class.getSimpleName()+":token="+token.toString()+(argumentNode!=null?", argumentNode="+argumentNode.toString():"");
     }
+    @Override
+    public Token[] getTokens()
+    {
+        return new Token[]{this.token};
+    }
 }

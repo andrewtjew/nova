@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public class ExpressionNode
+public abstract class ExpressionNode
 {
+    public abstract Token[] getTokens();
 }

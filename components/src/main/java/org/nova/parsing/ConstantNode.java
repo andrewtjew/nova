@@ -37,5 +37,10 @@ public class ConstantNode extends ExpressionNode
     {
         return ConstantNode.class.getSimpleName()+":token="+token.toString();
     }
+    @Override
+    public Token[] getTokens()
+    {
+        return new Token[]{this.token};
+    }
     
 }

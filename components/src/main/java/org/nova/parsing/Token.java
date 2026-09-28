@@ -37,7 +37,7 @@ public class Token
         this.numericType=null;
         this.message=null;
         this.integerSize=null;
-        this.sourceIndex=0;
+        this.sourceIndex=snippet.getTargetBufferPosition();
     }
     public Token(TokenType type,Snippet snippet,String message,int sourceIndex)
     {
@@ -55,7 +55,7 @@ public class Token
         this.message=null;
         this.numericType=numericType;
         this.integerSize=integerSize;
-        this.sourceIndex=0;
+        this.sourceIndex=snippet.getTargetBufferPosition();
     }
     public TokenType getType()
     {
@@ -85,22 +85,6 @@ public class Token
     {
         return this.snippet.getTarget();
     }
-//    public boolean isIdentifier(String identifier)
-//    {
-//        return this.type==TokenType.IDENTIFIER && this.snippet.getTarget().equals(identifier);
-//    }
-//    public boolean isKeyword(String keyword)
-//    {
-//        return this.type==TokenType.KEYWORD && this.snippet.getTarget().equals(keyword);
-//    }
-//    public boolean isPunctuator(String punctuator)
-//    {
-//        return this.type==TokenType.PUNCTUATOR && this.snippet.getTarget().equals(punctuator);
-//    }
-//    public boolean isOperator(String operator)
-//    {
-//        return this.type==TokenType.OPERATOR && this.snippet.getTarget().equals(operator);
-//    }
     @Override
     public String toString()
     {

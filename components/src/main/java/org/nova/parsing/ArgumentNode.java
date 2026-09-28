@@ -49,6 +49,12 @@ public class ArgumentNode extends ExpressionNode
     {
         return ArgumentNode.class.getSimpleName()+":"+openToken.getLiteral()+this.arguments.length+closeToken.getLiteral();
     }
+    @Override
+    public Token[] getTokens()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 
 }

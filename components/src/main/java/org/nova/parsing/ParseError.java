@@ -21,23 +21,23 @@
  ******************************************************************************/
 package org.nova.parsing;
 
-public class ParseError
-{
-    final private Token[] tokens;
-    final private String message;
-    public ParseError(String message,Token...tokens)
-    {
-        this.message=message;
-        this.tokens=tokens;
-    }
-    
-    public String getMessage()
-    {
-        return this.message;
-    }
-    public Token[] getTokens()
-    {
-        return this.tokens;
-    }
-
-}
+//public class ParseError
+//{
+//    final private Token[] tokens;
+//    final private String message;
+//    public ParseError(String message,Token...tokens)
+//    {
+//        this.message=message;
+//        this.tokens=tokens;
+//    }
+//    
+//    public String getMessage()
+//    {
+//        return this.message;
+//    }
+//    public Token[] getTokens()
+//    {
+//        return this.tokens;
+//    }
+//
+//}

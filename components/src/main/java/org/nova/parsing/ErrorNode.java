@@ -46,4 +46,22 @@ public class ErrorNode extends ExpressionNode
     {
         return ErrorNode.class.getSimpleName()+":message="+message+", token="+token.toString()+(secondaryToken==null?"":", secondaryToken="+secondaryToken.toString());
     }
+    
+    public Token getToken()
+    {
+        return token;
+    }
+    public Token getSecondaryToken()
+    {
+        return secondaryToken;
+    }
+    @Override
+    public Token[] getTokens()
+    {
+        if (this.secondaryToken==null)
+        {
+            return new Token[]{this.token};
+        }
+        return new Token[]{this.token,this.secondaryToken};
+    }
 }

@@ -58,4 +58,9 @@ public class BinaryOperatorNode extends ExpressionNode
     {
         return BinaryOperatorNode.class.getSimpleName()+":token="+token.toString()+", left="+leftOperand.toString()+", right="+rightOperand.toString();
     }
+    @Override
+    public Token[] getTokens()
+    {
+        return new Token[]{this.token};
+    }
 }

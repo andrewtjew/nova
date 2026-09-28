@@ -47,4 +47,11 @@ public class PrefixOperatorNode extends ExpressionNode
     {
         return PostfixOperatorNode.class.getSimpleName()+":token="+token.toString()+", operand="+operand.toString();
     }
+    
+    @Override
+    public Token[] getTokens()
+    {
+        return new Token[]{this.token};
+    }
+    
 }

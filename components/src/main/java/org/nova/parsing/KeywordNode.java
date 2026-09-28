@@ -55,5 +55,10 @@ public class KeywordNode extends ExpressionNode
     {
         return KeywordNode.class.getSimpleName()+":token="+token.toString()+(argumentNode!=null?", argumentNode="+argumentNode.toString():"");
     }
+    @Override
+    public Token[] getTokens()
+    {
+        return new Token[]{this.token};
+    }
     
 }

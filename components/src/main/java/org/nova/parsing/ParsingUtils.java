@@ -30,105 +30,6 @@ import org.nova.parsing.section.dep.Section;
 
 public class ParsingUtils
 {
-//    private static void getTokens(ExpressionNode node,ArrayList<Token> list)
-//    {
-//        if (node==null)
-//        {
-//            return;
-//        }
-//        if (node instanceof BinaryOperatorNode)
-//        {
-//            BinaryOperatorNode n=(BinaryOperatorNode)node;
-//            getTokens(n.getLeftOperand(), list);
-//            list.add(n.getToken());
-//            getTokens(n.getRightOperand(),list);
-//            return;
-//        }
-//        else if (node instanceof PrefixOperatorNode)
-//        {
-//            PrefixOperatorNode n=(PrefixOperatorNode)node;
-//            list.add(n.getToken());
-//            getTokens(n.getOperand(),list);
-//            return;
-//        }
-//        else if (node instanceof PostfixOperatorNode)
-//        {
-//            PostfixOperatorNode n=(PostfixOperatorNode)node;
-//            list.add(n.getToken());
-//            getTokens(n.getOperand(),list);
-//            return;
-//        }
-//        else if (node instanceof ConstantNode)
-//        {
-//            ConstantNode n=(ConstantNode)node;
-//            list.add(n.getToken());
-//        }
-//        else if (node instanceof KeywordNode)
-//        {
-//            KeywordNode n=(KeywordNode)node;
-//            list.add(n.getToken());
-//        }
-//        else if (node instanceof IdentifierNode)
-//        {
-//            IdentifierNode n=(IdentifierNode)node;
-//            list.add(n.getToken());
-//        }
-//        else if (node instanceof ArgumentNode)
-//        {
-//            ArgumentNode n=(ArgumentNode)node;
-//            list.add(n.getOpenToken());
-//            for (ExpressionNode argument:n.getArguments())
-//            {
-//                list.add(argument.getToken());
-//            }
-//            list.add(n.getCloseToken());
-//        }
-//        else if (node instanceof ErrorNode)
-//        {
-//        }
-//        else
-//        {
-//           throw new RuntimeException();
-//        }
-//    }
-
-//    private static void collapseToListSeperatedByOperator(ExpressionNode node,String operator,ArrayList<ExpressionNode> list)
-//    {
-//        if (node==null)
-//        {
-//            return;
-//        }
-//        if (node instanceof BinaryOperatorNode)
-//        {
-//            BinaryOperatorNode n=(BinaryOperatorNode)node;
-//            if (n.isOperator(operator))
-//            {
-//                collapseToListSeperatedByOperator(n.getLeftOperand(), operator,list);
-//                collapseToListSeperatedByOperator(n.getRightOperand(), operator,list);
-//                return;
-//            }
-//        }
-//        list.add(node);
-//    }
-    
-//    public static Token[] getTokens(ExpressionNode node)
-//    {
-//        ArrayList<Token> list=new ArrayList<>();
-//        getTokens(node,list);
-//        return list.toArray(new Token[list.size()]);
-//    }   
-    
-//    static public List<ExpressionNode> collapseToListSeperatedByOperator(ExpressionNode root,String operator)
-//    {
-//        ArrayList<ExpressionNode> list=new ArrayList<>();
-//        collapseToListSeperatedByOperator(root, operator,list);
-//        return list;
-//    }
-//
-//    static public List<ExpressionNode> collapseToList(ExpressionNode root)
-//    {
-//        return collapseToListSeperatedByOperator(root, ",");
-//    }
     static class LineAndColumn
     {
         final int line;
@@ -172,8 +73,11 @@ public class ParsingUtils
             this.targetLineEnd=targetLineEnd;
         }
     }
-    
-    static public void printTokenError(PrintStream stream,Token token)
+    static public void printError(Token token)
+    {
+        printError(System.out,token);
+    }    
+    static public void printError(PrintStream stream,Token token)
     {
         var snippet=token.getSnippet();
         var source=snippet.getSource();
@@ -189,26 +93,15 @@ public class ParsingUtils
         {
             stream.print(' ');
         }
-        for (int i=0;i<snippet.getTarget().length();i++)
+        stream.print("\u001B[31m"); //set color to red
+        for (int i=0;i<token.getLiteral().length();i++)
         {
             stream.print('^');
         }
+        stream.print("\u001B[0m"); //reset color
         stream.println();
     }
     
-    static public void printParseException(PrintStream stream,ParseError exception)
-    {
-        stream.println(exception.getMessage());
-        for (Token token:exception.getTokens())
-        {
-            printTokenError(stream, token);
-        }
-    }    
-    
-    static public void printParseException(ParseError exception)
-    {
-        printParseException(System.out,exception);
-    }    
 
     static String INDENT="--";
     
@@ -238,23 +131,13 @@ public class ParsingUtils
         }
         stream.println();
     }
-
-//    static void printLexeme(PrintStream stream,Token token)
-//    {
-//        stream.print("token="+token.getType()+",literal="+token.getLiteral());
-//        if (token.getNumericType()!=null)
-//        {
-//            stream.print(",numeric type="+token.getNumericType());
-//            if (token.getIntegerSize()!=null)
-//            {
-//                stream.print(",integer size="+token.getIntegerSize());
-//            }
-//        }
-//        stream.println();
-//    }
     
     static public void printExpressionTree(PrintStream stream,ExpressionNode node,int level)
     {
+        if (node==null)
+        {
+            return;
+        }
         if (node instanceof BinaryOperatorNode)
         {
             BinaryOperatorNode n=(BinaryOperatorNode)node;
@@ -335,56 +218,25 @@ public class ParsingUtils
         printExpressionTree(System.out,root,0);
     }
     
-//    public static void printSectionTokens(PrintStream stream,List<Section> sections,List<Token> tokens)
-//    {
-//        for (Section section:sections)
-//        {
-//            for (int i=0;i<section.getEnd()-section.getStart();i++)
-//            {
-//                printIndent(stream, i);
-//                printLexeme(stream,tokens.get(i+section.getStart()));
-//            }
-//        }
-//    }
-    
-//    public static void printSectionTokens(List<Section> sections,List<Token> tokens)
-//    {
-//        printSectionTokens(System.out,sections,tokens);
-//    }
 
-//    public static void printSectionLiterals(PrintStream stream,List<Section> sections,List<Token> tokens)
-//    {
-//        for (Section section:sections)
-//        {
-//            for (int i=0;i<section.getEnd()-section.getStart();i++)
-//            {
-//                stream.print(tokens.get(i+section.getStart()).getLiteral());
-//                stream.print(' ');
-//            }
-//            stream.println();
-//        }
-//    }
-//    
-//    public static void printSectionLiterals(List<Section> sections,List<Token> tokens)
-//    {
-//        printSectionLiterals(System.out,sections,tokens);
-//    }
-    
-    public static void printParseErrors(PrintStream stream,List<ParseError> errors)
+    public static void printErrors(PrintStream stream,List<ErrorNode> errors)
     {
-        for (ParseError error:errors)
+        for (var error:errors)
         {
             stream.println(error.getMessage());
-            if (error.getTokens()!=null)
+            if (error.getToken()!=null)
             {
-                for (Token token:error.getTokens())
-                printTokenError(stream, token);
+                printError(stream, error.getToken());
+            }
+            if (error.getSecondaryToken()!=null)
+            {
+                printError(stream, error.getSecondaryToken());
             }
         }
     }
-    public static void printParseErrors(List<ParseError> errors)
+    public static void printErrors(List<ErrorNode> errors)
     {
-        printParseErrors(System.out,errors);
+        printErrors(System.out,errors);
     }
 
     static public ExpressionNode[] toPostOrder(ExpressionNode node) throws Exception //post order, ArgumentNode arguments are added left to right and then node. 

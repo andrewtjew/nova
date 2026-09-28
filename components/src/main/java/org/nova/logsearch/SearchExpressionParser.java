@@ -19,7 +19,7 @@ public class SearchExpressionParser extends ExpressionParser
 {
     public SearchExpressionParser()
     {
-        super(",",precedenceLevels(),new String[] {"+","-","not"},null,new Enclosure[] {Enclosure.PARENTHESIS,Enclosure.BRACKETS});
+        super(",",precedenceLevels(),new String[] {"+","-","not"},null,new Enclosure[] {Enclosure.PARENTHESIS,Enclosure.BRACKETS},10);
     }
 
     static Map<String,Integer> precedenceLevels()
@@ -107,7 +107,7 @@ public class SearchExpressionParser extends ExpressionParser
         configuration.commentEnclosures=null;
         configuration.punctuators=new String[]{"(",")","[","]"};
         configuration.operators=new String[]{"==","!=","<",">","<=",">=","and","or","contains","+","-","*","/","not",","};
-        configuration.keywords=new String[]{"number","logLevel","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","ancestors","fromLink","toLink","traceException","traceStackTrace","item"};
+        configuration.keywords=new String[]{"number","logLevel","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","fromLink","toLink","traceException","traceStackTrace","item","utc"};
         
         TextSource textSource=new TextSource(text);
         Tokenizer tokenizer=new Tokenizer(textSource,configuration);
