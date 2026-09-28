@@ -697,41 +697,27 @@ public class LogSearcher
 
                 case ADD_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left+right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left+right);
                 }
                     break;
                     
                 case ADD_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left+right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left+right);
                 }
                     break;
                     
                 case ADD_INTEGER_STRING:
                 {
-                    Long left=(Long)stack.pop();
+                    long left=(long)stack.pop();
                     String right=(String)stack.pop();
-                    if (left==null||right==null)
+                    if (right==null)
                     {
-                        stack.push(null);
+                        stack.push(Long.toString(left));
                     }
                     else
                     {
@@ -741,39 +727,25 @@ public class LogSearcher
                     break;
                 case ADD_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left+right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left+right);
                 }
                     break;
                 case ADD_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left+right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left+right);
                 }
                     break;
                 case ADD_NUMBER_STRING:
                 {
-                    Double left=(Double)stack.pop();
+                    double left=(double)stack.pop();
                     String right=(String)stack.pop();
-                    if (left==null||right==null)
+                    if (right==null)
                     {
-                        stack.push(null);
+                        stack.push(Double.toString(left));
                     }
                     else
                     {
@@ -784,10 +756,10 @@ public class LogSearcher
                 case ADD_STRING_INTEGER:
                 {
                     String left=(String)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
+                    long right=(long)stack.pop();
+                    if (left==null)
                     {
-                        stack.push(null);
+                        stack.push(Long.toString(right));
                     }
                     else
                     {
@@ -798,10 +770,10 @@ public class LogSearcher
                 case ADD_STRING_NUMBER:
                 {
                     String left=(String)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
+                    double right=(double)stack.pop();
+                    if (left==null)
                     {
-                        stack.push(null);
+                        stack.push(Double.toString(right));
                     }
                     else
                     {
@@ -837,16 +809,9 @@ public class LogSearcher
 
                 case AND:
                 {
-                    Boolean left=(Boolean)stack.pop();
-                    Boolean right=(Boolean)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left&&right);
-                    }
+                    boolean left=(boolean)stack.pop();
+                    boolean right=(boolean)stack.pop();
+                    stack.push(left&&right);
                 }
                     break;
                 case CONTAINS:
@@ -855,6 +820,18 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
+                        if (left==null&&right==null)
+                        {
+                            stack.push(true);
+                        }
+                        else if (left==null)
+                        {
+                            stack.push(false);
+                        }
+                        else
+                        {
+                            stack.push(true);
+                        }
                         stack.push(null);
                     }
                     else
@@ -865,130 +842,67 @@ public class LogSearcher
                     break;
                 case DIVIDE_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left/right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left/right);
                 }
                     break;
                 case DIVIDE_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left/right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left/right);
                 }
                     break;
                     
                 case DIVIDE_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left/right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left/right);
                 }
                     break;
                     
                 case DIVIDE_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left/right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left/right);
                 }
                     break;
                 case EQUAL_BOOLEAN_BOOLEAN:
                 {
-                    Boolean left=(Boolean)stack.pop();
-                    Boolean right=(Boolean)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left==right);
-                    }
+                    boolean left=(boolean)stack.pop();
+                    boolean right=(boolean)stack.pop();
+                    stack.push(left==right);
                 }
                     break;
                 case EQUAL_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left==right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left==right);
                 }
                     break;
                 case EQUAL_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left==(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left==right);
                 }
                     break;
                 case EQUAL_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left==(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left==(double)right);
                 }
                     break;
                 case EQUAL_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left==right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left==right);
                 }
                     break;
                 case EQUAL_STRING_STRING:
@@ -997,7 +911,14 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(true);
+                        }
+                        else
+                        {
+                            stack.push(false);
+                        }
                     }
                     else
                     {
@@ -1007,58 +928,30 @@ public class LogSearcher
                     break;
                 case GREATER_EQUAL_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left>=right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left>=right);
                 }
                     break;
                 case GREATER_EQUAL_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left>=(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left>=right);
                 }
                     break;
                 case GREATER_EQUAL_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left>=(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left>=(double)right);
                 }
                     break;
                 case GREATER_EQUAL_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left>=right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left>=right);
                 }
                     break;
                 case GREATER_EQUAL_STRING_STRING:
@@ -1067,7 +960,18 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(true);
+                        }
+                        else if (left==null)
+                        {
+                            stack.push(false);
+                        }
+                        else
+                        {
+                            stack.push(true);
+                        }
                     }
                     else
                     {
@@ -1077,58 +981,30 @@ public class LogSearcher
                     break;
                 case GREATER_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left>right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left>right);
                 }
                     break;
                 case GREATER_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left>(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left>right);
                 }
                     break;
                 case GREATER_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left>(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left>(double)right);
                 }
                     break;
                 case GREATER_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left>right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left>right);
                 }
                     break;
                 case GREATER_STRING_STRING:
@@ -1137,7 +1013,18 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(false);
+                        }
+                        else if (left==null)
+                        {
+                            stack.push(false);
+                        }
+                        else
+                        {
+                            stack.push(true);
+                        }
                     }
                     else
                     {
@@ -1147,58 +1034,30 @@ public class LogSearcher
                     break;
                 case LESS_EQUAL_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left<=right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left<=right);
                 }
                     break;
                 case LESS_EQUAL_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left<=(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left<=right);
                 }
                     break;
                 case LESS_EQUAL_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left<=(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left<=(double)right);
                 }
                     break;
                 case LESS_EQUAL_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left<=right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left<=right);
                 }
                     break;
                 case LESS_EQUAL_STRING_STRING:
@@ -1207,7 +1066,18 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(true);
+                        }
+                        else if (left==null)
+                        {
+                            stack.push(true);
+                        }
+                        else
+                        {
+                            stack.push(false);
+                        }
                     }
                     else
                     {
@@ -1217,58 +1087,30 @@ public class LogSearcher
                     break;
                 case LESS_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left<right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left<right);
                 }
                     break;
                 case LESS_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left<(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left<right);
                 }
                     break;
                 case LESS_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left<(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left<(double)right);
                 }
                     break;
                 case LESS_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left<right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left<right);
                 }
                     break;
                 case LESS_STRING_STRING:
@@ -1277,7 +1119,18 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(false);
+                        }
+                        else if (left==null)
+                        {
+                            stack.push(true);
+                        }
+                        else
+                        {
+                            stack.push(false);
+                        }
                     }
                     else
                     {
@@ -1287,141 +1140,71 @@ public class LogSearcher
                     break;
                 case MULTIPLY_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left*right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left*right);
                 }
                     break;
                 case MULTIPLY_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left*right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left*right);
                 }
                     break;
                 case MULTIPLY_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left*right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left*right);
                 }
                     break;
                 case MULTIPLY_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left*right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left*right);
                 }
                     break;
                 case NOT:
                 {
-                    Boolean value=(Boolean)stack.pop();
-                    if (value==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(!value);
-                    }
+                    boolean value=(boolean)stack.pop();
+                    stack.push(!value);
                 }
                     break;
                 case NOT_EQUAL_BOOLEAN_BOOLEAN:
                 {
-                    Boolean left=(Boolean)stack.pop();
-                    Boolean right=(Boolean)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left!=right);
-                    }
+                    boolean left=(boolean)stack.pop();
+                    boolean right=(boolean)stack.pop();
+                    stack.push(left!=right);
                 }
                     break;
                 case NOT_EQUAL_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left!=right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left!=right);
                 }
                     break;
                 case NOT_EQUAL_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left!=(double)right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push((double)left!=right);
                 }
                     break;
                 case NOT_EQUAL_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push((double)left!=(double)right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left!=(double)right);
                 }
                     break;
                 case NOT_EQUAL_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left!=right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left!=right);
                 }
                     break;
                 case NOT_EQUAL_STRING_STRING:
@@ -1430,7 +1213,14 @@ public class LogSearcher
                     String right=(String)stack.pop();
                     if (left==null||right==null)
                     {
-                        stack.push(null);
+                        if (left==null&&right==null)
+                        {
+                            stack.push(false);
+                        }
+                        else
+                        {
+                            stack.push(true);
+                        }
                     }
                     else
                     {
@@ -1441,16 +1231,9 @@ public class LogSearcher
                     break;
                 case OR:
                 {
-                    Boolean left=(Boolean)stack.pop();
-                    Boolean right=(Boolean)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left||right);
-                    }
+                    boolean left=(boolean)stack.pop();
+                    boolean right=(boolean)stack.pop();
+                    stack.push(left||right);
                 }
                     break;
                 case PUSH_TRACE_STACK_TRACE:
@@ -1460,58 +1243,30 @@ public class LogSearcher
                     break;
                 case SUBTRACT_INTEGER_INTEGER:
                 {
-                    Long left=(Long)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left-right);
-                    }
+                    long left=(long)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left-right);
                 }
                     break;
                 case SUBTRACT_INTEGER_NUMBER:
                 {
-                    Long left=(Long)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left-right);
-                    }
+                    long left=(long)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left-right);
                 }
                     break;
                 case SUBTRACT_NUMBER_INTEGER:
                 {
-                    Double left=(Double)stack.pop();
-                    Long right=(Long)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left-right);
-                    }
+                    double left=(double)stack.pop();
+                    long right=(long)stack.pop();
+                    stack.push(left-right);
                 }
                     break;
                 case SUBTRACT_NUMBER_NUMBER:
                 {
-                    Double left=(Double)stack.pop();
-                    Double right=(Double)stack.pop();
-                    if (left==null||right==null)
-                    {
-                        stack.push(null);
-                    }
-                    else
-                    {
-                        stack.push(left-right);
-                    }
+                    double left=(double)stack.pop();
+                    double right=(double)stack.pop();
+                    stack.push(left-right);
                 }
                     break;
                 default:
