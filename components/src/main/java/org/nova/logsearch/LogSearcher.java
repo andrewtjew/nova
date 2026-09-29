@@ -30,17 +30,19 @@ public class LogSearcher
     final private MultiTaskScheduler scheduler;
     private SearchExpressionEvaluator evaluator;
     
-    public LogSearcher(TraceManager traceManager,Logger logger,String directory,int maximumThreads,String searchExpression) throws Throwable
+    public LogSearcher(TraceManager traceManager,Logger logger,String directory,int maximumThreads) throws Throwable
     {
         this.directory = directory;
         this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, logger);
-        
-        SearchExpressionCompiler compiler=new SearchExpressionCompiler();
-        compiler.compile(searchExpression);
     }
     
     public List<CompilerError> setSearchExpression(String searchExpression) throws Throwable
     {
+        if (searchExpression==null)
+        {
+            this.evaluator=null;
+            return null;
+        }
         SearchExpressionCompiler compiler=new SearchExpressionCompiler();
         this.evaluator=compiler.compile(searchExpression);
         if (this.evaluator==null)
@@ -49,19 +51,23 @@ public class LogSearcher
         }
         return null;
     }
-    
-    private boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
+
+    public static LocalDateTime parseFileDateTime(String dateTimeString)
     {
-        var fileName = file.getName();
-        if (fileName.lastIndexOf(".lz4")!=fileName.length()-4)
+        if (dateTimeString==null)
         {
-            return false;
+            return null;
         }
-        fileName=fileName.substring(0,fileName.length()-4);
-        String[] parts = fileName.split("_");
+        int index=dateTimeString.indexOf(".");
+        if (index>0)
+        {
+            dateTimeString=dateTimeString.substring(0,index);
+        }
+        
+        String[] parts = dateTimeString.split("_");
         if (parts.length!=7) 
         {
-            return false;
+            return null;
         }
         
         int year = Integer.parseInt(parts[0]);
@@ -72,23 +78,44 @@ public class LogSearcher
         int second = Integer.parseInt(parts[5]);
         int millisecond = Integer.parseInt(parts[6])*1000000;
         
+        try
+        {
+            return LocalDateTime.of(year, month, day, hour, minute, second, millisecond);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+    
+    private boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
+    {
+        var fileName = file.getName();
+        if (fileName.lastIndexOf(".lz4")!=fileName.length()-4)
+        {
+            return false;
+        }
+        LocalDateTime fileDateTime=parseFileDateTime(fileName);
+        if (fileDateTime==null)
+        {
+            return false;
+        }
         
         try
         {
-            LocalDateTime fileDate = LocalDateTime.of(year, month, day, hour, minute, second, millisecond);
             if (startDate==null && endDate==null)
             {
                 return true;
             }
             else if (startDate != null && endDate != null) 
             {
-                return !fileDate.isBefore(startDate) && !fileDate.isAfter(endDate);
+                return !fileDateTime.isBefore(startDate) && !fileDateTime.isAfter(endDate);
             }
             else if (startDate != null) 
             {
-                return !fileDate.isBefore(startDate);
+                return !fileDateTime.isBefore(startDate);
             } 
-            return !fileDate.isAfter(endDate);
+            return !fileDateTime.isAfter(endDate);
         }
         catch (Exception e)
         {
@@ -96,13 +123,13 @@ public class LogSearcher
         }
     }
 
-    static public record FoundLogEntry(LogRecord logRecord,File file)
+    static public record FileLogEntry(LogRecord logRecord,File file)
     {
     }
     
-    static class SearchResult
+    public static class SearchResult
     {
-        final TreeMap<Long,FoundLogEntry> foundLogEntries=new TreeMap<>();
+        final TreeMap<Long,FileLogEntry> foundLogEntries=new TreeMap<>();
         private boolean hasMore=false;
         final private int maximumFoundLogEntries; 
         
@@ -110,28 +137,34 @@ public class LogSearcher
         {
             this.maximumFoundLogEntries=maximumFoundLogEntries;
         }
-        synchronized public void addFoundLogEntry(LogRecord logRecord,File file)
+        synchronized public boolean addFoundLogEntry(LogRecord logRecord,File file)
         {
             if (this.foundLogEntries.size()>=this.maximumFoundLogEntries)
             {
                 this.hasMore=true;
-                return;
+                return false;
             }
-            this.foundLogEntries.put(logRecord.number,new FoundLogEntry(logRecord,file));
+            this.foundLogEntries.put(logRecord.number,new FileLogEntry(logRecord,file));
+            return true;
         }
         public boolean hasMore()
         {
             return this.hasMore;
         }
+        
+        public FileLogEntry[] getFoundEntries()
+        {
+            return this.foundLogEntries.values().toArray(new FileLogEntry[this.foundLogEntries.size()]);
+        }
     }
     
-    static class VerifyLogEntrySequencingTask implements TraceRunnable
+    static class LogSearchTask implements TraceRunnable
     {
         final File file;
         final SearchResult result;
         final SearchExpressionEvaluator evaluator;
         
-        public VerifyLogEntrySequencingTask(SearchResult result,File file,SearchExpressionEvaluator evaluator)   
+        public LogSearchTask(SearchResult result,File file,SearchExpressionEvaluator evaluator)   
         {
             this.file=file;
             this.result=result;
@@ -148,10 +181,17 @@ public class LogSearcher
                     LogRecord[] logRecords=ObjectMapper.readObject(string, LogRecord[].class);
                     for (LogRecord logRecord:logRecords)
                     {
-                        var result=this.evaluator.evaluate(logRecord);
-                        if (result)
+                        boolean match=true;
+                        if (this.evaluator!=null)
                         {
-                            this.result.addFoundLogEntry(logRecord, this.file);
+                            match=this.evaluator.evaluate(logRecord);
+                        }
+                        if (match)
+                        {
+                            if (this.result.addFoundLogEntry(logRecord, this.file)==false)
+                            {
+                                return;
+                            }
                         }
                     }
                 }
@@ -162,12 +202,12 @@ public class LogSearcher
         }
     }
     
-    public SearchResult verifyLogEntrySequencing(int maximumResults,LocalDateTime startDateTime, LocalDateTime endDateTime)
+    public SearchResult search(int maximumResults,LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
         File directory = new File(this.directory);
         File[] files = directory.listFiles();
 
-        ArrayList<VerifyLogEntrySequencingTask> matchingFileTaskList = new ArrayList<>();
+        ArrayList<LogSearchTask> matchingFileTaskList = new ArrayList<>();
         SearchResult searchResult=new SearchResult(maximumResults);
         if (files != null) 
         {
@@ -175,66 +215,15 @@ public class LogSearcher
             {
                 if (file.isFile()&& isInRange(file, startDateTime, endDateTime)) 
                 {
-                    matchingFileTaskList.add(new VerifyLogEntrySequencingTask(searchResult,file,this.evaluator));   
+                    matchingFileTaskList.add(new LogSearchTask(searchResult,file,this.evaluator));   
                 }
             }
         }
         
-        var tasks=matchingFileTaskList.toArray(new VerifyLogEntrySequencingTask[matchingFileTaskList.size()]);
+        var tasks=matchingFileTaskList.toArray(new LogSearchTask[matchingFileTaskList.size()]);
         var progress=this.scheduler.schedule("search",tasks);
         progress.waitAll();
         return searchResult;
     }
-
-    static class StressLoggingTask implements TraceRunnable
-    {
-        final long count;
-        final int index;
-        final WriteLogger logger;
-        final int work;
-        
-        public StressLoggingTask(WriteLogger logger,int index,long count,int work)   
-        {
-            this.logger=logger;
-            this.index=index;
-            this.count=count;
-            this.work=work;
-        }
-        @Override
-        public void run(Trace parent) throws Throwable
-        {
-            try
-            {
-                String prefix="Task"+index+":";
-                double sum=0;
-                for (long i=0;i<count;i++)
-                {
-                    for (int j=0;j<work;j++)
-                    {
-                        sum+=Math.sqrt(i+j);
-                    }
-                    this.logger.log(prefix+"\'\" LogEntry "+i+" sum="+sum);
-                }
-                System.out.println(prefix+" completed");
-            }
-            catch (Throwable t)
-            {
-                t.printStackTrace();
-                this.logger.log(parent);
-            }
-        }
-    }
-
-    public void stressLogging(Trace parent,WriteLogger logger,int taskCount,long entriesPerTaskCount,int work) throws Throwable
-    {
-        var tasks=new StressLoggingTask[taskCount];
-        for (int i=0;i<taskCount;i++)
-        {
-            tasks[i]=new StressLoggingTask(logger,i,entriesPerTaskCount,work);
-        }
-        var progress=this.scheduler.schedule("stress",tasks);
-        progress.waitAll();
-    }
-    
     
 }

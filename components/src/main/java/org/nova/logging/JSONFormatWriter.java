@@ -53,6 +53,13 @@ public class JSONFormatWriter extends FormatWriter
         writeKeyValue(true,"level",entry.getLogLevel().toString());
         writeKeyValue(true,"category",entry.getCategory());
         writeKeyValue(true,"message",entry.getMessage());
+        Throwable throwable=entry.getException();
+        if (throwable!=null)
+        {
+            write("\r\n");
+            writeKeyValue(true,"exception",throwable.getMessage());
+            writeKeyValue(true,"stackTrace",Utils.toString(throwable.getStackTrace()));
+        }
         Item[] items=entry.getItems();
         if ((items!=null)&&(items.length>0))
         {
@@ -67,12 +74,6 @@ public class JSONFormatWriter extends FormatWriter
                 }
             }
             write(']');
-        }
-        Throwable throwable=entry.getException();
-        if (throwable!=null)
-        {
-            writeKeyValue(true,"exception",throwable.getMessage());
-            writeKeyValue(true,"stackTrace",Utils.toString(throwable.getStackTrace()));
         }
         Trace trace=entry.getTrace();
         if (trace!=null)

@@ -79,8 +79,14 @@ public class XmlFormatWriter extends FormatWriter
 	public void write(LogEntry entry) throws Throwable
 	{
         LocalDateTime created=LocalDateTime.ofInstant(Instant.ofEpochMilli(entry.getCreated()),ZoneOffset.UTC);
-		write("<Entry category='"+entry.getCategory()+"' level='"+entry.getLogLevel()+"' number='"+entry.getNumber()+"' created='"+created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)+"'>\r\n");
-		write("Message",entry.getMessage());
+		write("<entry category='"+entry.getCategory()+"' level='"+entry.getLogLevel()+"' number='"+entry.getNumber()+"' created='"+created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)+"'>\r\n");
+		write("message",entry.getMessage());
+        Throwable throwable=entry.getException();
+        if (throwable!=null)
+        {
+            write("exception",throwable.getMessage());
+            write("stackTrace",Utils.toString(throwable.getStackTrace()));
+        }
 		Item[] items=entry.getItems();
 		if (items!=null)
 		{
@@ -88,55 +94,55 @@ public class XmlFormatWriter extends FormatWriter
 			{
 				if (item.getValue()!=null)
 				{
-					write("<Item key='"+StringEscapeUtils.escapeXml(item.getName())+"'>");
+					write("<item key='"+StringEscapeUtils.escapeXml(item.getName())+"'>");
 					write(StringEscapeUtils.escapeXml(item.getValue()));
-					write("</Item>\r\n");
+					write("<item>\r\n");
 				}
 			}
-		}
-		if (entry.getException()!=null)
-		{
-			write("Exception",Utils.toString(entry.getException()));
 		}
 		Trace trace=entry.getTrace();
 		if (trace!=null)
 		{
             created=LocalDateTime.ofInstant(Instant.ofEpochMilli(trace.getCreatedMs()),ZoneOffset.UTC);
-			write("<Trace number='"+trace.getNumber()+"' created='"+created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)+"' duration='"+trace.getDurationS()+"' wait='"+trace.getWaitS()+"' waiting='"+trace.isWaiting()+"' closed='"+trace.isClosed()+"'>\r\n");
-			write("category",trace.getCategory());
+			write("<trace category='"+trace.getCategory()+"' number='"+trace.getNumber()+"' created='"+created.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)+"' duration='"+trace.getDurationS()+"' wait='"+trace.getWaitS()+"' waiting='"+trace.isWaiting()+"' closed='"+trace.isClosed()+"'>\r\n");
 			Trace parent=trace.getParent();
 			if (parent!=null)
 			{
-				write("Parent",parent.getNumber());
+				write("parent",parent.getNumber());
+                for (parent=parent.getParent();parent!=null;parent=parent.getParent())
+                {
+                    write("parent",parent.getNumber());
+                }
 			}
 			String fromLink=trace.getFromLink();
 			if (fromLink!=null)
 			{
-				write("FromLink",fromLink);//ac015 oct-3, nov-10:ac008 7:50 pm 
+				write("fromLink",fromLink);//ac015 oct-3, nov-10:ac008 7:50 pm 
 			}
 			String toLink=trace.getToLink();
 			if (toLink!=null)
 			{
-				write("ToLink",toLink);
+				write("toLink",toLink);
 			}
-			Throwable throwable=trace.getThrowable();
+			throwable=trace.getThrowable();
 			if (throwable!=null)
 			{
-				write("Exception",Utils.toString(entry.getException()));
+	            write("exception",throwable.getMessage());
+	            write("stackTrace",Utils.toString(throwable.getStackTrace()));
 			}
 			StackTraceElement[] createStrackTrace=trace.getCreateStackTrace();
 			if (createStrackTrace!=null)
 			{
-				write("CreateStackTrace",Utils.toString(createStrackTrace,4));
+				write("createStackTrace",Utils.toString(createStrackTrace,4));
 			}
 			StackTraceElement[] closeStrackTrace=trace.getCloseStackTrace();
 			if (closeStrackTrace!=null)
 			{
-				write("CloseStackTrace",Utils.toString(closeStrackTrace,3));
+				write("closeStackTrace",Utils.toString(closeStrackTrace,3));
 			}
-			write("</Trace>");
+			write("</trace>");
 		}
-		write("</Entry>\r\n");
+		write("</entry>\r\n");
 	}
 
     @Override

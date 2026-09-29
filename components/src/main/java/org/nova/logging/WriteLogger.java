@@ -78,4 +78,5 @@ public class WriteLogger extends Logger
             return this.lastLogEntries.getSnapshot();
         }
     }
+ 
 }

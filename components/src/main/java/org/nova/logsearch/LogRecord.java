@@ -30,12 +30,12 @@ import org.nova.logging.Level;
 public class LogRecord
 {
     public long number;
-    public Level logLevel;
+    public Level level;
     public String category;
     public LocalDateTime created;
     public String message;
     public String exception;
     public String stackTrace;
-    public TraceRecord trace;
+    public TraceRecord traceRecord;
     public Item[] items;
 }

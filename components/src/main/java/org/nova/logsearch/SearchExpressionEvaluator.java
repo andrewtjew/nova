@@ -29,7 +29,7 @@ public class SearchExpressionEvaluator
             return false;
         }
         Stack<Object> stack=new Stack<>();
-        TraceRecord traceRecord=logRecord.trace;
+        TraceRecord traceRecord=logRecord.traceRecord;
         for (Instruction instruction:this.instructions)
         {
             switch (instruction.code())
@@ -39,7 +39,7 @@ public class SearchExpressionEvaluator
                     break;
 
                 case PUSH_LOG_LEVEL:
-                    stack.push(logRecord.logLevel);
+                    stack.push(logRecord.level);
                     break;
 
                 case PUSH_CATEGORY:

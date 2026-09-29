@@ -106,6 +106,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
     public int stop(long waitMs) throws Throwable 
     {
         int aliveThreads=0;
+        this.flush(waitMs);
         synchronized(this)
         {
             if (this.threads == null)
@@ -146,7 +147,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
         }
     }
     
-    public void flush()
+    public void flush(long waitMs)
     {
         synchronized (this)
         {
@@ -155,10 +156,35 @@ public abstract class MultiThreadLogWriter extends LogWriter
                 return;
             }
         }
-        synchronized(this.logEntryQueue)
+        synchronized (this.currentBufferLock)
         {
-            this.logEntryQueue.notify();
+            if ((this.currentBuffer==null)||(this.currentBuffer.index==0))
+            {
+                return;
+            }
+            synchronized(this.logEntryQueue)
+            {
+                this.logEntryQueue.add(this.currentBuffer);
+                this.logEntryQueue.notify();
+            }
+            synchronized (this.logEntryBuffers)
+            {
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, waitMs, () ->
+                {
+                    return this.logEntryBuffers.isEmpty()||this.stop;
+                });
+                if (this.stop)
+                {
+                    return;
+                }
+                this.currentBuffer=this.logEntryBuffers.remove();
+            }
+            if (this.currentBuffer!=null)
+            {
+                this.currentBuffer.start(this.bufferNumber++);
+            }
         }
+        
     }
     public LogEntry writeToCurrentLogEntryBuffer(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
     {

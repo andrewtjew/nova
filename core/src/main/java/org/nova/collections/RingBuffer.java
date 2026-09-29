@@ -119,4 +119,8 @@ public class RingBuffer<ITEM>
     {
         return this.size==this.length;
     }
+	public boolean isEmpty()
+    {
+        return this.size==0;
+    }
 }
