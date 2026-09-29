@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.nova.debug.Debugging;
+import org.nova.logsearch.SearchExpressionCompiler;
+
 /*
  * Extension checklist:
  * When adding optional token types, use addOptionalToken() to add tokens to the list. 
@@ -12,6 +15,10 @@ import java.util.List;
 */
 public class Tokenizer
 {
+    final protected static boolean DEBUG=false;
+    final protected static boolean DEBUG_PRINT_TOKENS=true;
+    static final String DEBUG_CATEGORY=Tokenizer.class.getSimpleName();
+
     final private Source source;
     final private HashSet<String> punctuators;
     final private HashSet<String> operators;
@@ -245,6 +252,16 @@ public class Tokenizer
             
             Token token = this.produceOperatorOrPunctuator(c);
             tokens.add(token);
+        }
+        
+        if (DEBUG&&DEBUG_PRINT_TOKENS)
+        {
+            StringBuilder sb=new StringBuilder();
+            for (Token token:tokens)
+            {
+                sb.append(token.toString()+"|");
+            }
+            Debugging.log(DEBUG_CATEGORY,"Tokens:");
         }
         return tokens;
     }

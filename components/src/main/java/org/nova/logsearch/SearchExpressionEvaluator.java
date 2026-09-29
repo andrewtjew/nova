@@ -12,7 +12,7 @@ import org.nova.logsearch.SearchExpressionCompiler.Instruction;
 
 public class SearchExpressionEvaluator
 {
-    final protected static boolean DEBUG=true;
+    final protected static boolean DEBUG=false;
     final protected static boolean DEBUG_PRINT_STACK=true;
     final protected static boolean DEBUG_PRINT_INSTRUCTIONS=true;
     static final String DEBUG_CATEGORY=SearchExpressionEvaluator.class.getSimpleName();

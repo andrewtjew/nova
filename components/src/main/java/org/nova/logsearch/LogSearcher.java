@@ -13,6 +13,7 @@ import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.json.ObjectMapper;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
+import org.nova.logging.NullLogger;
 import org.nova.logging.WriteLogger;
 import org.nova.logsearch.LogRecord;
 import org.nova.logsearch.SearchExpressionCompiler.CompilerError;
@@ -30,10 +31,10 @@ public class LogSearcher
     final private MultiTaskScheduler scheduler;
     private SearchExpressionEvaluator evaluator;
     
-    public LogSearcher(TraceManager traceManager,Logger logger,String directory,int maximumThreads) throws Throwable
+    public LogSearcher(TraceManager traceManager,String directory,int maximumThreads) throws Throwable
     {
         this.directory = directory;
-        this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, logger);
+        this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, new NullLogger());
     }
     
     public List<CompilerError> setSearchExpression(String searchExpression) throws Throwable
@@ -88,7 +89,7 @@ public class LogSearcher
         }
     }
     
-    private boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
+    public static boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
     {
         var fileName = file.getName();
         if (fileName.lastIndexOf(".lz4")!=fileName.length()-4)
@@ -133,10 +134,17 @@ public class LogSearcher
         private boolean hasMore=false;
         final private int maximumFoundLogEntries; 
         
+        int filesSearched;
+        
         public SearchResult(int maximumFoundLogEntries)
         {
             this.maximumFoundLogEntries=maximumFoundLogEntries;
         }
+        public int getFilesSearched()
+        {
+            return this.filesSearched;
+        }
+        
         synchronized public boolean addFoundLogEntry(LogRecord logRecord,File file)
         {
             if (this.foundLogEntries.size()>=this.maximumFoundLogEntries)
@@ -197,6 +205,7 @@ public class LogSearcher
                 }
                 catch (Throwable t)
                 {
+                    t.printStackTrace();
                 }
             }
         }
@@ -219,8 +228,8 @@ public class LogSearcher
                 }
             }
         }
-        
         var tasks=matchingFileTaskList.toArray(new LogSearchTask[matchingFileTaskList.size()]);
+        searchResult.filesSearched=tasks.length;
         var progress=this.scheduler.schedule("search",tasks);
         progress.waitAll();
         return searchResult;

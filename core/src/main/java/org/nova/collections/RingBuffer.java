@@ -37,6 +37,7 @@ public class RingBuffer<ITEM>
 	{
 		this.array=array;
 		this.length=array.length;
+		this.size=0;
 	}
 	public void add(ITEM item)
 	{

@@ -26,6 +26,10 @@ import org.nova.parsing.TokenType;
 
 public class SearchExpressionCompiler
 {
+    final protected static boolean DEBUG=false;
+    final protected static boolean DEBUG_PRINT_INSTRUCTIONS=true;
+    static final String DEBUG_CATEGORY=SearchExpressionCompiler.class.getSimpleName();
+    
     static long fromBinary(String value)
     {
         return Long.parseLong(value.replace("0b","").replace("0B",""),2);
@@ -69,11 +73,6 @@ public class SearchExpressionCompiler
     static public record CompilerError(String message,ExpressionNode node)
     {
     }
-    
-    final protected static boolean DEBUG=true;
-    final protected static boolean DEBUG_PRINT_INSTRUCTIONS=true;
-    static final String DEBUG_CATEGORY=SearchExpressionCompiler.class.getSimpleName();
-    
     
     private List<Instruction> instructions=new ArrayList<>();
     private List<CompilerError> errors=new ArrayList<>();

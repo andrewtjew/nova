@@ -112,11 +112,6 @@ public class SearchExpressionParser extends ExpressionParser
         TextSource textSource=new TextSource(text);
         Tokenizer tokenizer=new Tokenizer(textSource,configuration);
         var tokens=tokenizer.tokenize();
-        for (Token token:tokens)
-        {
-            System.out.print(token.toString()+"|");
-        }
-        System.out.println();
         return parse(tokens);
         
     }

@@ -16,6 +16,7 @@ import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.logging.MultiThreadFileLogWriter;
+import org.nova.logging.NullLogger;
 import org.nova.logging.WriteLogger;
 import org.nova.logsearch.LogRecord;
 import org.nova.logsearch.SearchExpressionCompiler.CompilerError;
@@ -35,6 +36,7 @@ public class TestLogGenerator
     final private MultiThreadFileLogWriter logWriter; 
     public TestLogGenerator(String directory,int maximumThreads) throws Throwable
     {
+        deleteFiles(new File(directory));
         var traceManager=new TraceManager();
         
         long maxFiles=0;
@@ -43,13 +45,29 @@ public class TestLogGenerator
         int maxMakeSpaceRetries=10;
 
         var logDirectoryManager=new LogDirectoryManager(directory, maxMakeSpaceRetries, maxFiles, maxDirectorySize, reserve);
-        var logger=new ConsoleLogger("test");
+        var logger=new NullLogger();
         this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, logger);
         
         var logQueueConfiguration=MultiThreadFileLogWriter.Configuration.HighPerformanceConfiguration();
         logWriter=new MultiThreadFileLogWriter(logDirectoryManager,logQueueConfiguration);
         logWriter.start();
         this.writeLogger=new WriteLogger("test",logWriter);
+    }
+
+    private void deleteFiles(File directory)
+    {
+        File[] files=directory.listFiles();
+        if (files==null)
+        {
+            return;
+        }
+        for (File file:files)
+        {
+            if ((file.isDirectory()==false)&&(file.getName().endsWith(".lz4")))
+            {
+                file.delete();
+            }
+        }
     }
     
     static class GenerateLogTask implements TraceRunnable
@@ -82,12 +100,12 @@ public class TestLogGenerator
         }
     }
 
-    public void testLogging(int taskCount,long count) throws Throwable
+    public void testLogging(int taskCount,long entriesPerThread) throws Throwable
     {
         var tasks=new GenerateLogTask[taskCount];
         for (int i=0;i<taskCount;i++)
         {
-            tasks[i]=new GenerateLogTask(this.writeLogger,i,count/taskCount+1);
+            tasks[i]=new GenerateLogTask(this.writeLogger,i,entriesPerThread);
         }
         var progress=this.scheduler.schedule("stress",tasks);
         progress.waitAll();

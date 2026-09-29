@@ -62,6 +62,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             {
                 configuration.threads=2;
             }
+            configuration.buffers=configuration.threads+1;
             configuration.compressionFormat=CompressionFormat.LZ4;
             configuration.fileFormat=FileFormat.JSON;
             return configuration;
@@ -81,6 +82,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             {
                 configuration.threads=1;
             }
+            configuration.buffers=configuration.threads*2;
             configuration.compressionFormat=CompressionFormat.LZ4;
             configuration.fileFormat=FileFormat.JSON;
             return configuration;
@@ -97,6 +99,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
             {
                 configuration.threads=1;
             }
+            configuration.buffers=configuration.threads+2;
             configuration.compressionFormat=CompressionFormat.LZ4;
             configuration.fileFormat=FileFormat.JSON;
             return configuration;
@@ -212,6 +215,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
                 this.fileWriteLock.notifyAll();
             }
             returnBuffer(buffer);
+            endFileWrite();
         }
         else
         {
@@ -254,6 +258,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
                     this.writeBufferNumber=bufferNumber+1;
                     this.fileWriteLock.notifyAll();
                 }
+                endFileWrite();
             }
         }
     }

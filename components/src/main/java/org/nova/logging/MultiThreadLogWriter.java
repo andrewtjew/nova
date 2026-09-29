@@ -33,6 +33,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
         public int fileBufferCapacity=65536;
         public int bufferSize=100000;
         public int threads=6;
+        public int buffers=12;
     }
 
     final protected static boolean DEBUG=false;
@@ -46,6 +47,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
     final private RingBuffer<LogEntryBuffer> logEntryQueue;
     private LogEntryBuffer currentBuffer;
     final private Object currentBufferLock;
+    final private LevelMeter fileWriteMeter;
     
     final private Configuration configuration;
     private Thread[] threads;
@@ -55,6 +57,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
     private long testNumber=0;
     private long number = 0;
     private long bufferNumber = 0;
+    
 
     abstract protected void write(int threadIndex,LogEntryBuffer buffer) throws Throwable;
     abstract protected void signalStop() throws Throwable;
@@ -63,10 +66,10 @@ public abstract class MultiThreadLogWriter extends LogWriter
     {
         this.configuration=configuration;
 
-        int buffers=configuration.threads+2;
-        this.logEntryBuffers = new RingBuffer<>(new LogEntryBuffer[buffers]);
-        this.logEntryQueue = new RingBuffer<>(new LogEntryBuffer[buffers]);
-        for (int i = 0; i < buffers; i++)
+        this.fileWriteMeter = new LevelMeter();
+        this.logEntryQueue = new RingBuffer<>(new LogEntryBuffer[configuration.buffers]);
+        this.logEntryBuffers = new RingBuffer<>(new LogEntryBuffer[configuration.buffers]);
+        for (int i = 0; i < this.logEntryBuffers.getCapacity(); i++)
         {
             LogEntryBuffer entryBuffer = new LogEntryBuffer(configuration.bufferSize);
             this.logEntryBuffers.add(entryBuffer);
@@ -147,35 +150,75 @@ public abstract class MultiThreadLogWriter extends LogWriter
         }
     }
     
-    public void flush(long waitMs)
+    public boolean flush(long waitMs)
     {
         synchronized (this)
         {
             if (this.stop == true)
             {
-                return;
+                return true;
             }
         }
         synchronized (this.currentBufferLock)
         {
-            if ((this.currentBuffer==null)||(this.currentBuffer.index==0))
+            if ((this.currentBuffer!=null)&&(this.currentBuffer.index>0))
             {
-                return;
+                //Trigger main thread to run.
+                synchronized(this.logEntryQueue)
+                {
+                    this.logEntryQueue.add(this.currentBuffer);
+                    this.logEntryQueue.notify();
+                }
             }
+            
+            //Wait for main thread to finish. File may not have been written to storage yet.
             synchronized(this.logEntryQueue)
             {
-                this.logEntryQueue.add(this.currentBuffer);
-                this.logEntryQueue.notify();
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryQueue, waitMs, () ->
+                {
+                    return this.logEntryQueue.isEmpty()||this.stop;
+                });
+                if (wait==false)
+                {
+                    return false;
+                }
+                if (this.stop)
+                {
+                    return false;
+                }
             }
+
+            //Wait for files to be written to storage.
+            synchronized (this.fileWriteMeter)
+            {
+                boolean wait=Synchronization.waitForNoThrow(this.fileWriteMeter, waitMs, () ->
+                {
+                    return this.fileWriteMeter.getLevel()==0||this.stop;
+                });
+                if (wait==false)
+                {
+                    return false;
+                }
+                if (this.stop)
+                {
+                    return false;
+                }
+            }
+
+            //Get a new buffer to write to.
             synchronized (this.logEntryBuffers)
             {
                 boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, waitMs, () ->
                 {
                     return this.logEntryBuffers.isEmpty()||this.stop;
                 });
+                if (wait==false)
+                {
+                    return false;
+                }
                 if (this.stop)
                 {
-                    return;
+                    return false;
                 }
                 this.currentBuffer=this.logEntryBuffers.remove();
             }
@@ -183,6 +226,8 @@ public abstract class MultiThreadLogWriter extends LogWriter
             {
                 this.currentBuffer.start(this.bufferNumber++);
             }
+            
+            return true;
         }
         
     }
@@ -383,7 +428,11 @@ public abstract class MultiThreadLogWriter extends LogWriter
                 {
                     Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":waiting="+this.busyMeter.getLevel());
                 }
-                
+
+                synchronized (this.fileWriteMeter)
+                {
+                    this.fileWriteMeter.increment();
+                }
                 write(threadIndex,buffer);
             }
         }
@@ -397,6 +446,14 @@ public abstract class MultiThreadLogWriter extends LogWriter
             {
                 this.throwable = t;
             }
+        }
+    }
+    
+    protected void endFileWrite()
+    {
+        synchronized (this.fileWriteMeter)
+        {
+            this.fileWriteMeter.decrement();
         }
     }
     
