@@ -81,7 +81,7 @@ public class ParsingUtils
     {
         var snippet=token.getSnippet();
         var source=snippet.getSource();
-        String text=snippet.getBuffer();
+        String text=snippet.getContext();
         LineAndColumn lineAndColumn=new LineAndColumn(text, token.getSourceIndex());
         int line=lineAndColumn.line+1;
         int column=lineAndColumn.column+1;

@@ -21,10 +21,12 @@
  ******************************************************************************/
 package org.nova.parsing;
 
+/*
+ * Allows the tokenizer to scan for tokens in a stream of characters. After calling any of the end functions, the text before should not be accessed anymore. 
+ * 
+ */ 
 public abstract class Source
 {
-//    public abstract void reset(int revert);
-    
     public abstract char next() throws Throwable;
     public abstract void begin(int revert);
     public abstract void set(int offset);

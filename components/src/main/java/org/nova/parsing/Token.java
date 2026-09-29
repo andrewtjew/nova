@@ -37,7 +37,7 @@ public class Token
         this.numericType=null;
         this.message=null;
         this.integerSize=null;
-        this.sourceIndex=snippet.getTargetBufferPosition();
+        this.sourceIndex=snippet.getTargetInContextPosition();
     }
     public Token(TokenType type,Snippet snippet,String message,int sourceIndex)
     {
@@ -55,7 +55,7 @@ public class Token
         this.message=null;
         this.numericType=numericType;
         this.integerSize=integerSize;
-        this.sourceIndex=snippet.getTargetBufferPosition();
+        this.sourceIndex=snippet.getTargetInContextPosition();
     }
     public TokenType getType()
     {

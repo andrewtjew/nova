@@ -20,13 +20,16 @@
  * SOFTWARE.
  ******************************************************************************/
 package org.nova.parsing;
-
+/*
+ * A snippet tracks a string of interest from the source.
+ * The buffer is a larger string from the source and the target is inside the context. The context provides additional information to the user.
+ */
 public abstract class Snippet
 {
     abstract public Source getSource();
     abstract public String getTarget();
-    abstract public String getBuffer();
-    abstract public int getTargetBufferPosition(); 
-    abstract public int getTargetAbsolutePosition();
+    abstract public String getContext();
+    abstract public int getTargetInContextPosition(); //Allows highlighting of the target in the context string. 
+    abstract public int getTargetInSourcePosition();  
     
 }

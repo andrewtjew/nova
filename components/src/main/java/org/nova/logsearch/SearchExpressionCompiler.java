@@ -115,6 +115,10 @@ public class SearchExpressionCompiler
             }
             Debugging.log(DEBUG_CATEGORY,"End instructions ------------------------");
         }
+        if (this.errors.size()>0)
+        {
+            return null;
+        }
         return new SearchExpressionEvaluator(this.instructions.toArray(new Instruction[this.instructions.size()]));
     }
     
