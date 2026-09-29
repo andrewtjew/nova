@@ -38,8 +38,8 @@ public class SearchExpressionEvaluator
                     stack.push(logRecord.number);
                     break;
 
-                case PUSH_LOG_LEVEL:
-                    stack.push(logRecord.level);
+                case PUSH_LEVEL:
+                    stack.push(logRecord.level.toString());
                     break;
 
                 case PUSH_CATEGORY:
@@ -96,6 +96,10 @@ public class SearchExpressionEvaluator
 
                 case PUSH_TRACE_STACK_TRACE:
                     stack.push(traceRecord!=null?traceRecord.stackTrace:null);
+                    break;
+                    
+                case PUSH_DETAILS:
+                    stack.push(traceRecord!=null?traceRecord.details:null);
                     break;
                     
                 // start of constant instructions -----------------

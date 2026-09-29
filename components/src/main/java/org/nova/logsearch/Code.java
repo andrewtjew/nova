@@ -74,7 +74,7 @@ public enum Code
     CONTAINS,
     
     PUSH_NUMBER,
-    PUSH_LOG_LEVEL,
+    PUSH_LEVEL,
     PUSH_CATEGORY,
     PUSH_CREATED,
     PUSH_MESSAGE,
@@ -89,6 +89,7 @@ public enum Code
     PUSH_TO_LINK,
     PUSH_TRACE_EXCEPTION,
     PUSH_TRACE_STACK_TRACE,
+    PUSH_DETAILS,
     
     PUSH_CONSTANT,
     PUSH_ITEM_KEY

@@ -82,7 +82,7 @@ public class SearchExpressionCompiler
     {
         this.keyInstructions=new HashMap<>();
         this.keyInstructions.put("number",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_NUMBER)));
-        this.keyInstructions.put("logLevel",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_LOG_LEVEL)));
+        this.keyInstructions.put("level",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_LEVEL)));
         this.keyInstructions.put("category",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_CATEGORY)));
         this.keyInstructions.put("created",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_CREATED)));
         this.keyInstructions.put("message",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_MESSAGE)));
@@ -96,6 +96,7 @@ public class SearchExpressionCompiler
         this.keyInstructions.put("fromLink",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_FROM_LINK)));
         this.keyInstructions.put("toLink",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TO_LINK)));
         this.keyInstructions.put("traceException",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TRACE_EXCEPTION)));
+        this.keyInstructions.put("details",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_DETAILS)));
     }
     
     public SearchExpressionEvaluator compile(String expression) throws Throwable
