@@ -1,9 +1,6 @@
 package org.nova.logsearch;
 
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
@@ -28,83 +25,84 @@ public class SearchExpressionEvaluator
         {
             return false;
         }
-        Stack<Object> stack=new Stack<>();
+        Object[] stack=new Object[this.instructions.length+1];
+        int sp=0;
         TraceRecord traceRecord=logRecord.traceRecord;
         for (Instruction instruction:this.instructions)
         {
             switch (instruction.code())
             {
                 case PUSH_NUMBER:
-                    stack.push(logRecord.number);
+                    stack[sp++]=logRecord.number;
                     break;
 
                 case PUSH_LEVEL:
-                    stack.push(logRecord.level.toString());
+                    stack[sp++]=logRecord.level.toString();
                     break;
 
                 case PUSH_CATEGORY:
-                    stack.push(logRecord.category);
+                    stack[sp++]=logRecord.category;
                     break;
 
                 case PUSH_CREATED:
-                    stack.push(logRecord.created!=null?logRecord.created.toInstant(ZoneOffset.UTC).toEpochMilli():null);
+                    stack[sp++]=logRecord.created!=null?logRecord.created.toInstant(ZoneOffset.UTC).toEpochMilli():null;
                     break;
 
                 case PUSH_MESSAGE:
-                    stack.push(logRecord.message);
+                    stack[sp++]=logRecord.message;
                     break;
 
                 case PUSH_EXCEPTION:
-                    stack.push(logRecord.exception);
+                    stack[sp++]=logRecord.exception;
                     break;
 
                 case PUSH_STACK_TRACE:
-                    stack.push(logRecord.stackTrace);
+                    stack[sp++]=logRecord.stackTrace;
                     break;
 
                 case PUSH_TRACE_NUMBER:
-                    stack.push(traceRecord!=null?traceRecord.number:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.number:null;
                     break;
 
                 case PUSH_TRACE_CREATED:
-                    stack.push(traceRecord!=null?(traceRecord.created!=null?traceRecord.created.toInstant(ZoneOffset.UTC).toEpochMilli():null):null);
+                    stack[sp++]=traceRecord!=null?(traceRecord.created!=null?traceRecord.created.toInstant(ZoneOffset.UTC).toEpochMilli():null):null;
                     break;
 
                 case PUSH_TRACE_CATEGORY:
-                    stack.push(traceRecord!=null?traceRecord.category:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.category:null;
                     break;
 
                 case PUSH_DURATION:
-                    stack.push(traceRecord!=null?traceRecord.duration:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.duration:null;
                     break;
 
                 case PUSH_WAIT:
-                    stack.push(traceRecord!=null?traceRecord.wait:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.wait:null;
                     break;
 
                 case PUSH_FROM_LINK:
-                    stack.push(traceRecord!=null?traceRecord.fromLink:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.fromLink:null;
                     break;
 
                 case PUSH_TO_LINK:
-                    stack.push(traceRecord!=null?traceRecord.toLink:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.toLink:null;
                     break;
 
                 case PUSH_TRACE_EXCEPTION:
-                    stack.push(traceRecord!=null?traceRecord.exception:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.exception:null;
                     break;
 
                 case PUSH_TRACE_STACK_TRACE:
-                    stack.push(traceRecord!=null?traceRecord.stackTrace:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.stackTrace:null;
                     break;
                     
                 case PUSH_DETAILS:
-                    stack.push(traceRecord!=null?traceRecord.details:null);
+                    stack[sp++]=traceRecord!=null?traceRecord.details:null;
                     break;
                     
                 // start of constant instructions -----------------
                 case PUSH_CONSTANT:
-                    stack.push(instruction.value());
+                    stack[sp++]=instruction.value();
                     break; 
                     
                 case PUSH_ITEM_KEY:
@@ -122,579 +120,579 @@ public class SearchExpressionEvaluator
                             }
                         }
                     }
-                    stack.push(value);
+                    stack[sp++]=value;
                 }
                 break;
                     
                 // start binary operator instructions -----------------    
                 case ADD_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left+right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left+right;
                 }
                     break;
                     
                 case ADD_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left+right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left+right;
                 }
                     break;
                     
                 case ADD_INTEGER_STRING:
                 {
-                    long left=(long)stack.pop();
-                    String right=(String)stack.pop();
+                    long left=(long)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (right==null)
                     {
-                        stack.push(Long.toString(left));
+                        stack[sp++]=Long.toString(left);
                     }
                     else
                     {
-                        stack.push(left+right);
+                        stack[sp++]=left+right;
                     }
                 }
                     break;
                 case ADD_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left+right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left+right;
                 }
                     break;
                 case ADD_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left+right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left+right;
                 }
                     break;
                 case ADD_NUMBER_STRING:
                 {
-                    double left=(double)stack.pop();
-                    String right=(String)stack.pop();
+                    double left=(double)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (right==null)
                     {
-                        stack.push(Double.toString(left));
+                        stack[sp++]=Double.toString(left);
                     }
                     else
                     {
-                        stack.push(left+right);
+                        stack[sp++]=left+right;
                     }
                 }
                     break;
                 case ADD_STRING_INTEGER:
                 {
-                    String left=(String)stack.pop();
-                    long right=(long)stack.pop();
+                    String left=(String)stack[--sp];
+                    long right=(long)stack[--sp];
                     if (left==null)
                     {
-                        stack.push(Long.toString(right));
+                        stack[sp++]=Long.toString(right);
                     }
                     else
                     {
-                        stack.push(left+right);
+                        stack[sp++]=left+right;
                     }
                 }
                     break;
                 case ADD_STRING_NUMBER:
                 {
-                    String left=(String)stack.pop();
-                    double right=(double)stack.pop();
+                    String left=(String)stack[--sp];
+                    double right=(double)stack[--sp];
                     if (left==null)
                     {
-                        stack.push(Double.toString(right));
+                        stack[sp++]=Double.toString(right);
                     }
                     else
                     {
-                        stack.push(left+right);
+                        stack[sp++]=left+right;
                     }
                 }
                     break;
                 case ADD_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(null);
+                            stack[sp++]=null;
                         }
                         else if (left==null)
                         {
-                            stack.push(right);
+                            stack[sp++]=right;
                         }
                         else
                         {
-                            stack.push(left);
+                            stack[sp++]=left;
                         }
                     }
                     else
                     {
-                        stack.push(left+right);
+                        stack[sp++]=left+right;
                     }
                 }
                     break;
 
                 case AND:
                 {
-                    boolean left=(boolean)stack.pop();
-                    boolean right=(boolean)stack.pop();
-                    stack.push(left&&right);
+                    boolean left=(boolean)stack[--sp];
+                    boolean right=(boolean)stack[--sp];
+                    stack[sp++]=left&&right;
                 }
                     break;
                 case CONTAINS:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else if (left==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
-                        stack.push(null);
+                        stack[sp++]=null;
                     }
                     else
                     {
-                        stack.push(left.contains(right));
+                        stack[sp++]=left.contains(right);
                     }
                 }
                     break;
                 case DIVIDE_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left/right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left/right;
                 }
                     break;
                 case DIVIDE_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left/right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left/right;
                 }
                     break;
                     
                 case DIVIDE_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left/right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left/right;
                 }
                     break;
                     
                 case DIVIDE_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left/right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left/right;
                 }
                     break;
                 case EQUAL_BOOLEAN_BOOLEAN:
                 {
-                    boolean left=(boolean)stack.pop();
-                    boolean right=(boolean)stack.pop();
-                    stack.push(left==right);
+                    boolean left=(boolean)stack[--sp];
+                    boolean right=(boolean)stack[--sp];
+                    stack[sp++]=left==right;
                 }
                     break;
                 case EQUAL_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left==right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left==right;
                 }
                     break;
                 case EQUAL_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left==right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left==right;
                 }
                     break;
                 case EQUAL_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left==(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left==(double)right;
                 }
                     break;
                 case EQUAL_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left==right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left==right;
                 }
                     break;
                 case EQUAL_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                     }
                     else
                     {
-                        stack.push(left.equals(right));
+                        stack[sp++]=left.equals(right);
                     }
                 }
                     break;
                 case GREATER_EQUAL_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left>=right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left>=right;
                 }
                     break;
                 case GREATER_EQUAL_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left>=right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left>=right;
                 }
                     break;
                 case GREATER_EQUAL_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left>=(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left>=(double)right;
                 }
                     break;
                 case GREATER_EQUAL_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left>=right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left>=right;
                 }
                     break;
                 case GREATER_EQUAL_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else if (left==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                     }
                     else
                     {
-                        stack.push(left.compareTo(right)>=0);
+                        stack[sp++]=left.compareTo(right)>=0;
                     }
                 }
                     break;
                 case GREATER_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left>right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left>right;
                 }
                     break;
                 case GREATER_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left>right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left>right;
                 }
                     break;
                 case GREATER_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left>(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left>(double)right;
                 }
                     break;
                 case GREATER_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left>right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left>right;
                 }
                     break;
                 case GREATER_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else if (left==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                     }
                     else
                     {
-                        stack.push(left.compareTo(right)>0);
+                        stack[sp++]=left.compareTo(right)>0;
                     }
                 }
                     break;
                 case LESS_EQUAL_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left<=right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left<=right;
                 }
                     break;
                 case LESS_EQUAL_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left<=right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left<=right;
                 }
                     break;
                 case LESS_EQUAL_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left<=(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left<=(double)right;
                 }
                     break;
                 case LESS_EQUAL_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left<=right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left<=right;
                 }
                     break;
                 case LESS_EQUAL_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else if (left==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                     }
                     else
                     {
-                        stack.push(left.equalsIgnoreCase(right));
+                        stack[sp++]=left.equalsIgnoreCase(right);
                     }
                 }
                     break;
                 case LESS_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left<right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left<right;
                 }
                     break;
                 case LESS_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left<right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left<right;
                 }
                     break;
                 case LESS_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left<(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left<(double)right;
                 }
                     break;
                 case LESS_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left<right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left<right;
                 }
                     break;
                 case LESS_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else if (left==null)
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                         else
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                     }
                     else
                     {
-                        stack.push(left.compareTo(right)<0);
+                        stack[sp++]=left.compareTo(right)<0;
                     }
                 }
                     break;
                 case MULTIPLY_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left*right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left*right;
                 }
                     break;
                 case MULTIPLY_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left*right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left*right;
                 }
                     break;
                 case MULTIPLY_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left*right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left*right;
                 }
                     break;
                 case MULTIPLY_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left*right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left*right;
                 }
                     break;
                 case NOT:
                 {
-                    boolean value=(boolean)stack.pop();
-                    stack.push(!value);
+                    boolean value=(boolean)stack[--sp];
+                    stack[sp++]=!value;
                 }
                     break;
                 case NOT_EQUAL_BOOLEAN_BOOLEAN:
                 {
-                    boolean left=(boolean)stack.pop();
-                    boolean right=(boolean)stack.pop();
-                    stack.push(left!=right);
+                    boolean left=(boolean)stack[--sp];
+                    boolean right=(boolean)stack[--sp];
+                    stack[sp++]=left!=right;
                 }
                     break;
                 case NOT_EQUAL_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left!=right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left!=right;
                 }
                     break;
                 case NOT_EQUAL_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push((double)left!=right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=(double)left!=right;
                 }
                     break;
                 case NOT_EQUAL_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left!=(double)right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left!=(double)right;
                 }
                     break;
                 case NOT_EQUAL_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left!=right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left!=right;
                 }
                     break;
                 case NOT_EQUAL_STRING_STRING:
                 {
-                    String left=(String)stack.pop();
-                    String right=(String)stack.pop();
+                    String left=(String)stack[--sp];
+                    String right=(String)stack[--sp];
                     if (left==null||right==null)
                     {
                         if (left==null&&right==null)
                         {
-                            stack.push(false);
+                            stack[sp++]=false;
                         }
                         else
                         {
-                            stack.push(true);
+                            stack[sp++]=true;
                         }
                     }
                     else
                     {
                         var result=left.equalsIgnoreCase(right);
-                        stack.push(!result);
+                        stack[sp++]=!result;
                     }
                 }
                     break;
                 case OR:
                 {
-                    boolean left=(boolean)stack.pop();
-                    boolean right=(boolean)stack.pop();
-                    stack.push(left||right);
+                    boolean left=(boolean)stack[--sp];
+                    boolean right=(boolean)stack[--sp];
+                    stack[sp++]=left||right;
                 }
 
                 break;
                 case SUBTRACT_INTEGER_INTEGER:
                 {
-                    long left=(long)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left-right);
+                    long left=(long)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left-right;
                 }
                     break;
                 case SUBTRACT_INTEGER_NUMBER:
                 {
-                    long left=(long)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left-right);
+                    long left=(long)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left-right;
                 }
                     break;
                 case SUBTRACT_NUMBER_INTEGER:
                 {
-                    double left=(double)stack.pop();
-                    long right=(long)stack.pop();
-                    stack.push(left-right);
+                    double left=(double)stack[--sp];
+                    long right=(long)stack[--sp];
+                    stack[sp++]=left-right;
                 }
                     break;
                 case SUBTRACT_NUMBER_NUMBER:
                 {
-                    double left=(double)stack.pop();
-                    double right=(double)stack.pop();
-                    stack.push(left-right);
+                    double left=(double)stack[--sp];
+                    double right=(double)stack[--sp];
+                    stack[sp++]=left-right;
                 }
                     break;
                 default:
@@ -705,19 +703,17 @@ public class SearchExpressionEvaluator
             if (Debug.ENABLE && DEBUG && DEBUG_PRINT_STACK)
             {
                 Debugging.log(DEBUG_CATEGORY,"PC:"+instruction.code()+(instruction.value()!=null?(":value="+instruction.value()):""));
-                int i=0;
-                for (var element:stack)
+                for (int i=0;i<sp;i++)
                 {
-                    Debugging.log(DEBUG_CATEGORY,i+":="+element);
-                    i++;
+                    Debugging.log(DEBUG_CATEGORY,i+":="+stack[i]);
                 }
             }
         }
-        if (stack.size()!=1)
+        if (sp!=1)
         {
             return false;
         }
-        var result=stack.pop();
+        var result=stack[--sp];
         if (result==null)
         {
             return false;
