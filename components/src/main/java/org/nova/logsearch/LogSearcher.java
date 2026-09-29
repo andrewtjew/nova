@@ -135,6 +135,7 @@ public class LogSearcher
         final private int maximumFoundLogEntries; 
         
         int filesSearched;
+        long entriesExamined;
         
         public SearchResult(int maximumFoundLogEntries)
         {
@@ -143,6 +144,14 @@ public class LogSearcher
         public int getFilesSearched()
         {
             return this.filesSearched;
+        }
+        synchronized public void addEntriesExamined(int count)
+        {
+            this.entriesExamined+=count;
+        }
+        public long getEntriesExamined()
+        {
+            return this.entriesExamined;
         }
         
         synchronized public boolean addFoundLogEntry(LogRecord logRecord,File file)
@@ -187,8 +196,9 @@ public class LogSearcher
                 try
                 {
                     LogRecord[] logRecords=ObjectMapper.readObject(string, LogRecord[].class);
-                    for (LogRecord logRecord:logRecords)
+                    for (int i=0;i<logRecords.length;i++)
                     {
+                        LogRecord logRecord=logRecords[i];
                         boolean match=true;
                         if (this.evaluator!=null)
                         {
@@ -198,10 +208,12 @@ public class LogSearcher
                         {
                             if (this.result.addFoundLogEntry(logRecord, this.file)==false)
                             {
+                                this.result.addEntriesExamined(i);
                                 return;
                             }
                         }
                     }
+                    this.result.addEntriesExamined(logRecords.length);
                 }
                 catch (Throwable t)
                 {
@@ -234,5 +246,8 @@ public class LogSearcher
         progress.waitAll();
         return searchResult;
     }
-    
+    public void close()
+    {
+        this.scheduler.stop();
+    }
 }
