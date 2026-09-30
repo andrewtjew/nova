@@ -68,32 +68,33 @@ public class TestLogSequenceVerifier
         @Override
         public void run(Trace parent) throws Throwable
         {
+            String string=null;
             try (LZ4BlockInputStream inputStream=new LZ4BlockInputStream(new FileInputStream(this.file)))
             {
-                String string=FileUtils.readString(inputStream);
-                try
+                string=FileUtils.readString(inputStream);
+            }
+            try
+            {
+                LogRecord[] logRecords=ObjectMapper.readObject(string, LogRecord[].class);
+                if (logRecords.length>0)
                 {
-                    LogRecord[] logRecords=ObjectMapper.readObject(string, LogRecord[].class);
-                    if (logRecords.length>0)
+                    this.start=this.end=logRecords[0].number;
+                    for (int i=1;i<logRecords.length;i++)
                     {
-                        this.start=this.end=logRecords[0].number;
-                        for (int i=1;i<logRecords.length;i++)
+                        LogRecord logRecord=logRecords[i];
+                        if (logRecord.number!=this.end+1)
                         {
-                            LogRecord logRecord=logRecords[i];
-                            if (logRecord.number!=this.end+1)
-                            {
-                                this.result.logError("LogEntry sequence error. File="+file.getName()+", Previous="+this.end+", Current="+logRecord.number);
-                            }
-                            this.end=logRecord.number;
+                            this.result.logError("LogEntry sequence error. File="+file.getName()+", Previous="+this.end+", Current="+logRecord.number);
                         }
-                        this.result.addEntries(logRecords.length);
+                        this.end=logRecord.number;
                     }
+                    this.result.addEntries(logRecords.length);
                 }
-                catch (Throwable t)
-                {
-                    t.printStackTrace();
-                    this.result.logError("LogEntry parsing error. File="+file.getName()+", number="+this.end);
-                }
+            }
+            catch (Throwable t)
+            {
+                t.printStackTrace();
+                this.result.logError("LogEntry parsing error. File="+file.getName()+", number="+this.end);
             }
         }
     }
@@ -101,23 +102,15 @@ public class TestLogSequenceVerifier
     
     public VerificationResult verify(LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
-        File directory = new File(this.directory);
-        File[] files = directory.listFiles();
-
-        ArrayList<VerifyTask> matchingFileTaskList = new ArrayList<>();
-        VerificationResult result=new VerificationResult();
-        if (files != null) 
-        {
-            for (File file : files) 
-            {
-                if (file.isFile()&& LogSearcher.isInRange(file, startDateTime, endDateTime)) 
-                {
-                    matchingFileTaskList.add(new VerifyTask(result,file));   
-                }
-            }
-        }
         
-        var tasks=matchingFileTaskList.toArray(new VerifyTask[matchingFileTaskList.size()]);
+        VerificationResult result=new VerificationResult();
+        File[] files = LogSearcher.getFilesInRange(this.directory, startDateTime, endDateTime);
+
+        VerifyTask[] tasks=new VerifyTask[files.length];
+        for (int i=0;i<files.length;i++)
+        {
+            tasks[i]=new VerifyTask(result,files[i]);
+        }
         var progress=this.scheduler.schedule("search",tasks);
         progress.waitAll();
         Long start=null;

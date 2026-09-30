@@ -58,7 +58,7 @@ public class TableHeader extends Element
             }
             else
             {
-                tr.addInner(new th().addInner(item));
+                tr.addInner(new th().addInner(item).style("text-align:left;"));
             }
         }
         return this;

@@ -105,6 +105,18 @@ public class SearchExpressionCompiler
         this.errors=new ArrayList<>();
         SearchExpressionParser parser=new SearchExpressionParser();
         var node=parser.parse(expression);
+        if (node==null)
+        {
+            return new SearchExpressionEvaluator(null);
+        }
+        if (parser.getErrorNodes().size()>0)
+        {
+            for (ErrorNode errorNode:parser.getErrorNodes())
+            {
+                addError(errorNode,"Invalid expression.");
+            }
+            return null;
+        }
         compile(node);
         if (Debug.ENABLE && DEBUG && DEBUG_PRINT_INSTRUCTIONS)
         {
@@ -122,17 +134,17 @@ public class SearchExpressionCompiler
         return new SearchExpressionEvaluator(this.instructions.toArray(new Instruction[this.instructions.size()]));
     }
     
-    public void reportError(ExpressionNode node,String message)
+    public void addError(ExpressionNode node,String message)
     {
         this.errors.add(new CompilerError(message,node));
-        System.out.println("Error: "+message);
-        if (node!=null)
-        {
-            for (Token token:node.getTokens())
-            {
-                ParsingUtils.printError(token);
-            }
-        }
+//        System.out.println("Error: "+message);
+//        if (node!=null)
+//        {
+//            for (Token token:node.getTokens())
+//            {
+//                ParsingUtils.printToken(token);
+//            }
+//        }
     }
     
     public List<CompilerError> getErrors()
@@ -145,12 +157,12 @@ public class SearchExpressionCompiler
         String operator=node.getOperator();
         if (leftType==null)
         {
-            reportError(node,"Invalid left operand type for operator "+operator+".");
+            addError(node,"Invalid left operand type for operator "+operator+".");
             return null;
         }
         if (rightType==null)
         {
-            reportError(node,"Invalid right operand type for operator "+operator+".");
+            addError(node,"Invalid right operand type for operator "+operator+".");
             return null;
         }
         switch (operator)
@@ -468,37 +480,37 @@ public class SearchExpressionCompiler
         var argumentNode=node.getArgumentNode();
         if (argumentNode==null)
         {
-            reportError(node,"Item must have exactly one argument.");
+            addError(node,"Item must have exactly one argument.");
             return null;
         }
         if ("[".equals(argumentNode.getOpenToken().getLiteral())==false)
         {
-            reportError(node,"Invalid argument specification. Valid example is ['hello'].");
+            addError(node,"Invalid argument specification. Valid example is ['hello'].");
             return null;
         }
         var arguments=argumentNode.getArguments();
         if (arguments.length!=1)
         {
-            reportError(node,"Item must have exactly one argument.");
+            addError(node,"Item must have exactly one argument.");
             return null;
         }
         var argument=arguments[0];
         if (argument instanceof ConstantNode==false)
         {
-            reportError(node,"Item argument must be a string.");
+            addError(node,"Item argument must be a string.");
             return null;
         }
         ConstantNode cn=(ConstantNode)argument;
         Token t=cn.getToken();
         if (t.getType()!=TokenType.STRING)
         {
-            reportError(node,"Item argument must be a string.");
+            addError(node,"Item argument must be a string.");
             return null;
         }
         String inner=t.getLiteral().substring(1,t.getLiteral().length()-1);
         if (inner.length()==0)
         {
-            reportError(node,"Item argument must be a non-empty string.");
+            addError(node,"Item argument must be a non-empty string.");
             return null;
         }
         return inner;
@@ -546,7 +558,7 @@ public class SearchExpressionCompiler
                 }
                 else
                 {
-                    reportError(node,"Unhandled numeric type:"+numericType);
+                    addError(node,"Unhandled numeric type:"+numericType);
                     return null;
                 }
                 this.instructions.add(new Instruction(Code.PUSH_CONSTANT,constant));
@@ -565,7 +577,7 @@ public class SearchExpressionCompiler
             }
             else
             {
-                reportError(node,"Unhandled constant type:"+token.getType());
+                addError(node,"Unhandled constant type:"+token.getType());
                 return null;
             }
         }
@@ -573,7 +585,7 @@ public class SearchExpressionCompiler
         {
             KeywordNode n=(KeywordNode)node;
             Token token=n.getToken();
-            String value=token.getLiteral();
+            String value=token.getLiteral().toLowerCase();
             var keyInstruction=this.keyInstructions.get(value);
             if (keyInstruction!=null)
             {
@@ -594,7 +606,7 @@ public class SearchExpressionCompiler
                     }
                     catch (Exception e)
                     {
-                        reportError(node,"Invalid utc argument. Must be in format yyyy-MM-ddTHH:mm:ss.SSS");
+                        addError(node,"Invalid utc argument. Must be in format yyyy-MM-ddTHH:mm:ss.SSS");
                         return null;
                     }
                 }
@@ -609,12 +621,12 @@ public class SearchExpressionCompiler
                     return ValueType.STRING;
                 }
             }
-            reportError(node,"Unhandled keyword:"+value+".");
+            addError(node,"Unhandled keyword:"+value+".");
             return null;
         }
         else if (node instanceof IdentifierNode)
         {
-            reportError(node,"Not valid search key.");
+            addError(node,"Not valid search key.");
             return null;
         }
         else if (node instanceof PrefixOperatorNode)
@@ -622,7 +634,7 @@ public class SearchExpressionCompiler
             PrefixOperatorNode n=(PrefixOperatorNode)node;
             if (compile(n.getOperand())!=ValueType.BOOLEAN)
             {
-                reportError(node,"Operand must be boolean.");
+                addError(node,"Operand must be boolean.");
                 return null;
             }
             this.instructions.add(new Instruction(Code.NOT));
@@ -630,7 +642,7 @@ public class SearchExpressionCompiler
         }
         else
         {
-            reportError(node,"Invalid expression.");
+            addError(node,"Invalid expression.");
             return null;
         }
     }

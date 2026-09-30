@@ -12,6 +12,8 @@ import org.nova.collections.LinkedTreeSet;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.json.ObjectMapper;
 import org.nova.logging.ConsoleLogger;
+import org.nova.logging.Item;
+import org.nova.logging.Level;
 import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
@@ -33,11 +35,14 @@ public class TestLogGenerator
 {
     final private MultiTaskScheduler scheduler;
     final private WriteLogger writeLogger;
-    final private MultiThreadFileLogWriter logWriter; 
+    final private MultiThreadFileLogWriter logWriter;
+    final private Trace testTrace;
     public TestLogGenerator(String directory,int maximumThreads) throws Throwable
     {
         deleteFiles(new File(directory));
         var traceManager=new TraceManager();
+        this.testTrace=new Trace(traceManager, "test");
+        
         
         long maxFiles=0;
         long reserve=2_000_000_000L;
@@ -73,23 +78,32 @@ public class TestLogGenerator
     static class GenerateLogTask implements TraceRunnable
     {
         final long count;
-        final int index;
+        final int threadIndex;
         final WriteLogger logger;
+        final Trace testTrace;
         
-        public GenerateLogTask(WriteLogger logger,int index,long count)   
+        public GenerateLogTask(Trace testTrace,WriteLogger logger,int index,long count)   
         {
             this.logger=logger;
-            this.index=index;
+            this.threadIndex=index;
             this.count=count;
+            this.testTrace=testTrace;
         }
         @Override
         public void run(Trace parent) throws Throwable
         {
+            if (count==0)
+            {
+                return;
+            }
+            String message="This is a log entry with threadIndex="+this.threadIndex;
             try
             {
-                for (long i=0;i<count;i++)
+                this.logger.log(Level.NOTICE,message);
+                for (long i=1;i<count;i++)
                 {
-                    this.logger.log("entry:"+i);
+                    this.logger.log(testTrace,message+" trace",new Item("index",i));
+//                    this.logger.log(testTrace,message+" trace");
                 }
             }
             catch (Throwable t)
@@ -105,7 +119,7 @@ public class TestLogGenerator
         var tasks=new GenerateLogTask[taskCount];
         for (int i=0;i<taskCount;i++)
         {
-            tasks[i]=new GenerateLogTask(this.writeLogger,i,entriesPerThread);
+            tasks[i]=new GenerateLogTask(this.testTrace,this.writeLogger,i,entriesPerThread);
         }
         var progress=this.scheduler.schedule("stress",tasks);
         progress.waitAll();

@@ -2,8 +2,11 @@ package org.nova.logsearch;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -17,6 +20,7 @@ import org.nova.logging.NullLogger;
 import org.nova.logging.WriteLogger;
 import org.nova.logsearch.LogRecord;
 import org.nova.logsearch.SearchExpressionCompiler.CompilerError;
+import org.nova.parsing.ParsingUtils;
 import org.nova.sqldb.RowSet;
 import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
@@ -25,7 +29,7 @@ import org.nova.utils.FileUtils;
 
 import net.jpountz.lz4.LZ4BlockInputStream;
 
-public class LogSearcher
+public class LogSearcher implements AutoCloseable
 {
     final private String directory;
     final private MultiTaskScheduler scheduler;
@@ -68,7 +72,14 @@ public class LogSearcher
         String[] parts = dateTimeString.split("_");
         if (parts.length!=7) 
         {
-            return null;
+            try
+            {
+                return LocalDateTime.parse(dateTimeString);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
         
         int year = Integer.parseInt(parts[0]);
@@ -89,7 +100,49 @@ public class LogSearcher
         }
     }
     
-    public static boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
+    public static File[] getFilesInRange(String name, LocalDateTime startDate, LocalDateTime endDate)
+    {
+        File directory = new File(name);
+        File[] files = directory.listFiles();
+        Arrays.sort(files, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+        ArrayList<File> matchingFiles=new ArrayList<>();
+        
+        File lastFileBeforeStartDate=null;
+        File firstFileAfterEndDate=null;
+        
+        for (File file : files) 
+        {
+            if (file.isFile())
+            {
+                if (isInRange(file, startDate, endDate))
+                {
+                    matchingFiles.add(file);
+                }
+                else 
+                {
+                    if (startDate!=null)
+                    {
+                        lastFileBeforeStartDate=file;
+                    }
+                    if ((endDate!=null)&&(firstFileAfterEndDate==null))
+                    {
+                        firstFileAfterEndDate=file;
+                    }
+                }
+            }
+        }
+        if (lastFileBeforeStartDate!=null)
+        {
+            matchingFiles.add(0,lastFileBeforeStartDate);
+        }
+        if (firstFileAfterEndDate!=null)
+        {
+            matchingFiles.add(firstFileAfterEndDate);
+        }
+        return matchingFiles.toArray(new File[matchingFiles.size()]);
+    }
+    
+    private static boolean isInRange(File file, LocalDateTime startDate, LocalDateTime endDate)
     {
         var fileName = file.getName();
         if (fileName.lastIndexOf(".lz4")!=fileName.length()-4)
@@ -130,7 +183,7 @@ public class LogSearcher
     
     public static class SearchResult
     {
-        final TreeMap<Long,FileLogEntry> foundLogEntries=new TreeMap<>();
+        final TreeMap<String,FileLogEntry> foundLogEntries=new TreeMap<>();
         private boolean hasMore=false;
         final private int maximumFoundLogEntries; 
         
@@ -156,12 +209,13 @@ public class LogSearcher
         
         synchronized public boolean addFoundLogEntry(LogRecord logRecord,File file)
         {
+            String key=file.getName()+logRecord.created+":"+logRecord.number;
             if (this.foundLogEntries.size()>=this.maximumFoundLogEntries)
             {
                 this.hasMore=true;
                 return false;
             }
-            this.foundLogEntries.put(logRecord.number,new FileLogEntry(logRecord,file));
+            this.foundLogEntries.put(key,new FileLogEntry(logRecord,file));
             return true;
         }
         public boolean hasMore()
@@ -223,31 +277,31 @@ public class LogSearcher
         }
     }
     
+    public SearchResult search(int maximumResults,String from, String to)
+    {
+        return search(maximumResults,parseFileDateTime(from),parseFileDateTime(to));
+    }
+    
     public SearchResult search(int maximumResults,LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
-        File directory = new File(this.directory);
-        File[] files = directory.listFiles();
-
-        ArrayList<LogSearchTask> matchingFileTaskList = new ArrayList<>();
         SearchResult searchResult=new SearchResult(maximumResults);
-        if (files != null) 
+        
+        File[] files=getFilesInRange(this.directory, startDateTime, endDateTime);
+        var tasks=new LogSearchTask[files.length];
+
+        for (int i=0;i<files.length;i++)
         {
-            for (File file : files) 
-            {
-                if (file.isFile()&& isInRange(file, startDateTime, endDateTime)) 
-                {
-                    matchingFileTaskList.add(new LogSearchTask(searchResult,file,this.evaluator));   
-                }
-            }
+            tasks[i]=new LogSearchTask(searchResult,files[i],this.evaluator);
         }
-        var tasks=matchingFileTaskList.toArray(new LogSearchTask[matchingFileTaskList.size()]);
         searchResult.filesSearched=tasks.length;
         var progress=this.scheduler.schedule("search",tasks);
         progress.waitAll();
         return searchResult;
     }
+    @Override
     public void close()
     {
         this.scheduler.stop();
     }
+    
 }

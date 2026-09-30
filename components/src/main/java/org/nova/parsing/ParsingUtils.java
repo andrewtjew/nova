@@ -73,11 +73,12 @@ public class ParsingUtils
             this.targetLineEnd=targetLineEnd;
         }
     }
-    static public void printError(Token token)
+    static public void printToken(Token token)
     {
-        printError(System.out,token);
+        printToken(System.out,token);
     }    
-    static public void printError(PrintStream stream,Token token)
+    
+    static public void printToken(PrintStream stream,Token token,boolean consoleOutput)
     {
         var snippet=token.getSnippet();
         var source=snippet.getSource();
@@ -85,21 +86,30 @@ public class ParsingUtils
         LineAndColumn lineAndColumn=new LineAndColumn(text, token.getSourceIndex());
         int line=lineAndColumn.line+1;
         int column=lineAndColumn.column+1;
-        String position="("+line+","+column+"):";
-        stream.print(position);
+        if (consoleOutput)
+        {
+            String position="("+line+","+column+"):";
+            stream.print(position);
+        }
         stream.println(token.getLiteral());
-        stream.println(text.substring(lineAndColumn.targetLineStart, lineAndColumn.targetLineEnd));
-        for (int i=0;i<column-1;i++)
+        if (consoleOutput)
         {
-            stream.print(' ');
+            for (int i=0;i<column-1;i++)
+            {
+                stream.print(' ');
+            }
+            stream.print("\u001B[31m"); //set color to red
+            for (int i=0;i<token.getLiteral().length();i++)
+            {
+                stream.print('^');
+            }
+            stream.print("\u001B[0m"); //reset color
+            stream.println();
         }
-        stream.print("\u001B[31m"); //set color to red
-        for (int i=0;i<token.getLiteral().length();i++)
-        {
-            stream.print('^');
-        }
-        stream.print("\u001B[0m"); //reset color
-        stream.println();
+    }
+    static public void printToken(PrintStream stream,Token token)
+    {
+        printToken(stream,token,true);
     }
     
 
@@ -118,18 +128,12 @@ public class ParsingUtils
         }
     }
 
-    static void printExpressionNode(PrintStream stream,ExpressionNode node,Token token)
+    public static void printExpressionNode(PrintStream stream,ExpressionNode node)
     {
-        stream.print(node.toString());
-        if (token.getNumericType()!=null)
+        for (var token:node.getTokens())
         {
-            stream.print(",numeric type="+token.getNumericType());
-            if (token.getIntegerSize()!=null)
-            {
-                stream.print(",integer size="+token.getIntegerSize());
-            }
+            printToken(stream,token,false);
         }
-        stream.println();
     }
     
     static public void printExpressionTree(PrintStream stream,ExpressionNode node,int level)
@@ -142,7 +146,7 @@ public class ParsingUtils
         {
             BinaryOperatorNode n=(BinaryOperatorNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
             printExpressionTree(stream,n.getLeftOperand(),level+1);
             printExpressionTree(stream,n.getRightOperand(),level+1);
         }
@@ -150,13 +154,13 @@ public class ParsingUtils
         {
             ConstantNode n=(ConstantNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
         }
         else if (node instanceof KeywordNode)
         {
             KeywordNode n=(KeywordNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
             ArgumentNode argumentNode=n.getArgumentNode();
             if (argumentNode!=null)
             {
@@ -174,7 +178,7 @@ public class ParsingUtils
         {
             IdentifierNode n=(IdentifierNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
             ArgumentNode argumentNode=n.getArgumentNode();
             if (argumentNode!=null)
             {
@@ -192,14 +196,14 @@ public class ParsingUtils
         {
             PrefixOperatorNode n=(PrefixOperatorNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
             printExpressionTree(stream,n.getOperand(),level+1);
         }
         else if (node instanceof PostfixOperatorNode)
         {
             PostfixOperatorNode n=(PostfixOperatorNode)node;
             printIndent(stream,level);
-            printExpressionNode(stream,n,n.getToken());
+            printExpressionNode(stream,n);
             printExpressionTree(stream,n.getOperand(),level+1);
         }
         else
@@ -218,20 +222,24 @@ public class ParsingUtils
         printExpressionTree(System.out,root,0);
     }
     
-
-    public static void printErrors(PrintStream stream,List<ErrorNode> errors)
+    public static void printError(PrintStream stream,ErrorNode errorNode)
     {
-        for (var error:errors)
+        stream.println(errorNode.getMessage());
+        if (errorNode.getToken()!=null)
         {
-            stream.println(error.getMessage());
-            if (error.getToken()!=null)
-            {
-                printError(stream, error.getToken());
-            }
-            if (error.getSecondaryToken()!=null)
-            {
-                printError(stream, error.getSecondaryToken());
-            }
+            printToken(stream, errorNode.getToken());
+        }
+        if (errorNode.getSecondaryToken()!=null)
+        {
+            printToken(stream, errorNode.getSecondaryToken());
+        }
+    }
+    
+    public static void printErrors(PrintStream stream,List<ErrorNode> errorNodes)
+    {
+        for (var errorNode:errorNodes)
+        {
+            printError(stream,errorNode);
         }
     }
     public static void printErrors(List<ErrorNode> errors)

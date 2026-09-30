@@ -47,4 +47,9 @@ public class ConsoleLogWriter extends LogWriter
         return entry;
     }
 
+    @Override
+    public boolean flush(long wait_ms)
+    {
+        return true;
+    }
 }

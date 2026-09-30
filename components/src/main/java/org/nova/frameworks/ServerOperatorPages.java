@@ -23,6 +23,9 @@ package org.nova.frameworks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
@@ -31,7 +34,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,16 +68,20 @@ import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.flow.Tapper;
 import org.nova.html.tags.a;
+import org.nova.html.tags.b;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.div;
 import org.nova.html.tags.fieldset;
+import org.nova.html.tags.form;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
+import org.nova.html.tags.i;
 import org.nova.html.tags.input_checkbox;
+import org.nova.html.tags.input_date;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
 import org.nova.html.tags.input_reset;
@@ -190,6 +199,11 @@ import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.logging.dep.LogEntrySourceQueueLogger;
 import org.nova.logging.dep.MultiThreadedLogEntrySourceQueue;
+import org.nova.logsearch.LogRecord;
+import org.nova.logsearch.LogSearcher;
+import org.nova.logsearch.LogSearcher.SearchResult;
+import org.nova.logsearch.SearchExpressionCompiler.CompilerError;
+import org.nova.logsearch.TraceRecord;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.CountSample;
 import org.nova.metrics.LevelMeter;
@@ -212,6 +226,7 @@ import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
 import org.nova.operations.OperatorVariable;
 import org.nova.operations.VariableInstance;
+import org.nova.parsing.ParsingUtils;
 import org.nova.security.Vault;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
@@ -333,6 +348,7 @@ public class ServerOperatorPages
 
         menuBar.add("/operator/logging/status","Logging","Status");
         menuBar.add("/operator/logging/categories","Logging","Category Loggers");
+        menuBar.add("/operator/logging/search","Logging","Search Logs");
 //        menuBar.add("/operator/logging/files","Logging","Log Files");
 
         menuBar.add("/operator/httpServer/status/public","Servers","Public","Status");
@@ -838,6 +854,226 @@ public class ServerOperatorPages
         return page;
     }
 
+    
+    
+    @GET
+    @Path("/operator/logging/search")
+    public Element searchLogs(Trace parent,@QueryParam("from") @DefaultValue("-1") String from,@QueryParam("to") String to,@QueryParam("filter") String filter,@QueryParam("limit") @DefaultValue("1000") int limit,@QueryParam("threads") @DefaultValue("2") int threads,@QueryParam("action") String action) throws Throwable
+    {
+        OperatorPage page=this.serverApplication.buildOperatorPage("Search Logs");
+        {    
+            form_get form=page.content().returnAddInner(new form_get());
+        
+            try 
+            {
+                int value=Integer.parseInt(from);
+                from=LocalDateTime.now().plusDays(value).toString();
+            }
+            catch (Exception e)
+            {
+                from=null;
+            }
+            if (TypeUtils.isNullOrSpace(from))
+            {
+                from=LocalDateTime.now().plusDays(-1).toString();
+            }
+
+            try 
+            {
+                int value=Integer.parseInt(to);
+                to=LocalDateTime.now().plusDays(value).toString();
+            }
+            catch (Exception e)
+            {
+                to=null;
+            }
+            
+            div row=form.returnAddInner(new div().style("display:flex;flex-direction:row;align-items:center;"));
+            String padding="margin-left:0.5em;margin-right:0.25em;";
+            row.returnAddInner(new label()).addInner(" Filter:").style(padding);
+            row.returnAddInner(new input_text()).name("filter").style("width:24em;").value(filter);
+            row.returnAddInner(new label()).addInner("From:").style(padding);
+            row.returnAddInner(new input_text()).name("from").value(from);
+            row.returnAddInner(new label()).addInner("To:").style(padding);
+            row.returnAddInner(new input_text()).name("to").value(to);
+            row.returnAddInner(new label()).addInner("Limit:").style(padding);
+            row.returnAddInner(new input_number()).name("limit").style("width:4em;").value(limit).min(1).max(10000);
+            row.returnAddInner(new label()).addInner(" Threads:").style(padding);
+            int maxThreads=Runtime.getRuntime().availableProcessors()/4+1;
+            row.returnAddInner(new input_number()).name("threads").style("width:4em;").value(threads>=maxThreads?maxThreads:threads).min(1).max(maxThreads);
+
+            row.returnAddInner(new button_submit()).name("action").value("search").addInner("Search").style(padding);
+//            row.returnAddInner(new label()).addInner(" Directory:").style(padding);
+//            row.returnAddInner(new input_text()).name("directory").style("width:28em;").value(this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath());
+        }
+        
+        if ("search".equals(action)==false)
+        {
+            return page;
+            
+        }
+        if ((limit<=0)||(limit>100000))
+        {
+            page.content().returnAddInner(new div()).addInner("Max value range is 1 to 100000");
+            return page;
+        }
+        page.content().returnAddInner(new hr());
+        this.serverApplication.getLogWriter().flush(1000);
+        SearchResult result=null;
+        Trace searchTrace=null;
+        try (LogSearcher searcher=new LogSearcher(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),threads))
+        {
+            var errors=searcher.setSearchExpression(filter);
+            if (errors!=null)
+            { 
+                page.content().addInner(formatSearchExpressionError(errors));
+                return page;
+            }
+            
+            searchTrace=new Trace(parent,"searchLogs");
+            try
+            {
+                result=searcher.search(limit,from,to);
+            }
+            finally
+            {
+                searchTrace.close();
+            }
+        }
+        
+        String duration="Search time: "+Utils.millisToNiceDurationString(searchTrace.getDurationMs())+". ";
+        if (result.hasMore())
+        {
+            page.content().returnAddInner(new div()).addInner(duration+" Log entries searched: "+result.getEntriesExamined()+". Showing first "+limit+" entries. There are more entries matching the filter.");
+        }
+        else
+        {
+            page.content().returnAddInner(new div()).addInner(duration+"Log entries searched: "+result.getEntriesExamined()+". Showing all "+result.getFoundEntries().length+" entries.");
+        }
+        page.content().returnAddInner(new hr());
+        
+        OperatorDataTable dataTable=new OperatorDataTable(page.head());
+        page.content().addInner(dataTable);
+        dataTable.setHeader("Created","Number","Category","Level","Entry");
+        dataTable.lengthMenu(-1,5,10,25);
+    
+        String tiny="width:3em;";
+        String small="width:8em;";
+        String medium="width:12em;";
+        String large="width:16em;";
+        for (var entry:result.getFoundEntries())
+        {
+            LogRecord logRecord=entry.logRecord();
+            
+            TableRow entryRow=new TableRow();
+            dataTable.addRow(entryRow);
+            entryRow.add(new span().style("white-space:nowrap;").addInner(logRecord.created.toString()));
+            entryRow.add(logRecord.number);
+            entryRow.add(logRecord.category);
+            entryRow.add(logRecord.level);
+
+            div content=new div();
+            entryRow.add(new td().style("width:100%;").addInner(content));
+            content.returnAddInner(new div()).addInner(logRecord.message);
+            
+            TraceRecord traceRecord=logRecord.traceRecord;
+            if (traceRecord!=null)
+            {
+                Table traceTable=new Table(page.head());
+                content.addInner(traceTable);
+                traceTable.table().style("width:100%;");
+              TableHeader header=new TableHeader();
+              traceTable.setHeader(header);
+              header.add("Trace");
+              header.add(new th_title("Number","Trace number.").style(tiny));
+//              header.add(new th_title("Created","When the log entry was created.").style(medium));
+              header.add(new th_title("Duration","How long it took to run the code inside the trace block.").style(medium));
+              header.add(new th_title("Wait","How long the code inside the trace block spent waiting.").style(medium));
+              header.add(new th_title("Waiting","If the code inside the block is waiting when the trace was logged.").style(medium));
+              header.add(new th_title("Closed","If the code inside the trace block finished running when the trace was logged.").style(medium));
+              TableRow traceRow=new TableRow();
+              traceTable.addRow(traceRow);
+              traceRow.add(new span().style("white-space:nowrap;").addInner(traceRecord.created.toString()));
+              traceRow.add(traceRecord.number);
+              traceRow.add(Utils.millisToNiceDurationString((long)(traceRecord.duration*1000)));
+              traceRow.add(Utils.millisToNiceDurationString((long)(traceRecord.wait*1000)));
+              traceRow.add(traceRecord.waiting);
+              traceRow.add(traceRecord.closed);
+              
+              if (traceRecord.category!=null)
+              {
+                  traceTable.addRow(buildTraceRecordFieldRow("Category",traceRecord.category));
+              }
+              if (traceRecord.ancestors!=null)
+              {
+                  String ancestors=Utils.combine(traceRecord.ancestors, ", ");
+                  traceTable.addRow(buildTraceRecordFieldRow("Ancestors",ancestors));
+              }
+              if (traceRecord.fromLink!=null)
+              {
+                  traceTable.addRow(buildTraceRecordFieldRow("From Link",traceRecord.fromLink));
+              }
+              if (traceRecord.toLink!=null)
+              {
+                  traceTable.addRow(buildTraceRecordFieldRow("To Link",traceRecord.toLink));
+              }
+              if (traceRecord.details!=null)
+              {
+                  traceTable.addRow(buildTraceRecordFieldRow("Details",traceRecord.details));
+              }
+              if ((traceRecord.exception!=null)||(traceRecord.stackTrace!=null))
+              {
+                  content.addInner(formatExceptionAndStackTrace(traceRecord.exception,traceRecord.stackTrace));
+              }
+            }
+        }
+        return page;
+    }
+
+    Element formatSearchExpressionError(List<CompilerError> errors) throws IOException
+    {
+        textarea content=new textarea().style("width:100%;border:0;").readonly().rows(3);
+        for (CompilerError error:errors)
+        {
+            try (var outputStream=new ByteArrayOutputStream())
+            {
+                try (PrintStream stream=new PrintStream(outputStream))
+                {
+                    ParsingUtils.printExpressionNode(stream,error.node());
+                    String text=outputStream.toString(StandardCharsets.UTF_8);
+                    content.addInner(error.message()+":"+text);
+                }
+            }
+        }
+        return content;
+    }
+    
+    Element formatExceptionAndStackTrace(String exception,String stackTrace)
+    {
+        if (stackTrace==null)
+        {
+            Table table=new Table();
+            table.table().style("width:100%;");
+            TableRow row=new TableRow();
+            table.addRow(row);
+            row.add(new td().style("text-align:right;").addInner("Exception"));
+            row.add(new td().style("text-align:left;width:100%;").addInner(exception));
+            return table;
+        }
+        else
+        {
+            return formatStackTrace(new LiteralHtml(exception!=null?exception:new i().addInner("Stack Trace")),stackTrace);
+        }
+    }
+    
+    TableRow buildTraceRecordFieldRow(String name,String content)
+    {
+        TableRow row=new TableRow();
+        row.add(new td().style("text-align:right;").addInner(name));
+        row.add(new td().style("text-align:left;width:100%;").colspan(5).addInner(content));
+        return row;
+    }
+    
     @GET
     @Path("/operator/application/timers")
     public Element timers() throws Throwable
@@ -855,7 +1091,6 @@ public class ServerOperatorPages
                 ,new th_title("\u274C", "Number of misses")
                 ,new th_title("\u26A0", "Number of exceptions")
                 );
-
 
         long now = System.currentTimeMillis();
         TimerTask[] timerTasks = this.serverApplication.getTimerScheduler().getTimerTaskSnapshot();
@@ -2382,6 +2617,13 @@ public class ServerOperatorPages
         }
     }
     
+    static public Element formatStackTrace(Object heading,String stackTrace)
+    {
+        Accordion accordion=new Accordion(false, heading);
+        int length=Utils.split(stackTrace, '\n').length;
+        accordion.content().addInner(new textarea().style("width:100%;border:0;").readonly().rows(length).addInner(stackTrace));
+        return accordion;
+    }
     static public Element formatStackTrace(String heading,StackTraceElement[] stackTrace)
     {
         Accordion accordion=new Accordion(false, heading);
@@ -5214,6 +5456,7 @@ public class ServerOperatorPages
                 row.add(variable.defaultValue());
                 row.add(instance.getValue());
                 row.add(instance.getModified()==0?"":DateTimeUtils.toSystemDateTimeString(instance.getModified()));
+//                row.add(new td().style("width:100%;text-align:start;").addInner(variable.description()));
                 row.add(variable.description());
                 table.addRow(row);
 
@@ -5251,7 +5494,6 @@ public class ServerOperatorPages
             header.add("New Value");
             header.add("");
             table.setHeader(header);
-            int textSize=15;
 
             for (VariableInstance instance:instances)
             {
@@ -5274,7 +5516,7 @@ public class ServerOperatorPages
   //              String buttonKey=(category+name+"Button").replace('.', '_');
                 String[] options=variable.options();
                 
-                td input_td=new td().style("width:12em;");
+                td input_td=new td().style("width:100%;text-align:start;padding-right:0.75em;");
                 if (options[0].length()!=0)
                 {
                     row.add("","","");
@@ -5321,18 +5563,18 @@ public class ServerOperatorPages
                     if (value!=null)
                     {
                         row.add(new input_checkbox().name("nullString").checked(false));
-                        row.add(input_td.addInner(new input_text().name("value").value(value.toString()).size(textSize)));
+                        row.add(input_td.addInner(new input_text().name("value").value(value.toString()).style("width:100%;")));
                     }
                     else
                     {
                         row.add(new input_checkbox().name("nullString").checked(true));
-                        row.add(input_td.addInner(new input_text().name("value").size(textSize)));
+                        row.add(input_td.addInner(new input_text().name("value").style("width:100%;")));
                     }
                 }
                 else
                 {
                     row.add(variable.minimum(),variable.maximum(),"");
-                    row.add(input_td.addInner(new input_text().size(textSize).name("value").value(value==null?"":value.toString())));
+                    row.add(input_td.addInner(new input_text().name("value").style("width:100%;").value(value==null?"":value.toString())));
                 }
                 button_submit button=new button_submit().addInner("Update");
                 row.add(new td().addInner(button).style("width:0;"));

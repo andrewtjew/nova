@@ -37,5 +37,6 @@ abstract public class LogWriter
     {
         return this.writeMeter;
     }
-    abstract LogEntry write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items);
+    protected abstract LogEntry write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items);
+    public abstract boolean flush(long wait_ms);
 }

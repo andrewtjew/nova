@@ -63,7 +63,7 @@ public class JSONFormatWriter extends FormatWriter
         Item[] items=entry.getItems();
         if ((items!=null)&&(items.length>0))
         {
-            write(",\"items\":[");
+            write(",\"items\":{");
             boolean commaNeeded=false;
             for (Item item:items)
             {
@@ -73,7 +73,7 @@ public class JSONFormatWriter extends FormatWriter
                     commaNeeded=true;
                 }
             }
-            write(']');
+            write('}');
         }
         Trace trace=entry.getTrace();
         if (trace!=null)
@@ -174,7 +174,6 @@ public class JSONFormatWriter extends FormatWriter
         {
             write(',');
         }
-        write('{');
         writeKey(item.getName());
         String value=item.getValue();
         if (value==null)
@@ -185,7 +184,6 @@ public class JSONFormatWriter extends FormatWriter
         {
             this.writeState.writeString(value);
         }
-        write('}');
     }
 	
 	private void write(boolean comma,String key,double value) throws Throwable

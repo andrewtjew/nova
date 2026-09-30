@@ -24,6 +24,7 @@ package org.nova.logsearch;
 
 import java.time.LocalDateTime;
 
+import org.nova.json.ObjectMap;
 import org.nova.logging.Item;
 import org.nova.logging.Level;
 
@@ -37,5 +38,5 @@ public class LogRecord
     public String exception;
     public String stackTrace;
     public TraceRecord traceRecord;
-    public Item[] items;
+    public ObjectMap items;
 }
