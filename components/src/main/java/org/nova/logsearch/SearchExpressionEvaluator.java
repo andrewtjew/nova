@@ -33,7 +33,7 @@ public class SearchExpressionEvaluator
             return true;
         }
         Stack<Object> stack=new Stack<>();
-        TraceRecord traceRecord=logRecord.traceRecord;
+        TraceRecord traceRecord=logRecord.trace;
         for (Instruction instruction:this.instructions)
         {
             switch (instruction.code())

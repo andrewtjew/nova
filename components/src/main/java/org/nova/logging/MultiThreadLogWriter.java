@@ -36,11 +36,12 @@ public abstract class MultiThreadLogWriter extends LogWriter
         public int buffers=12;
     }
 
-    final protected static boolean DEBUG=false;
+    final protected static boolean DEBUG=true;
     final protected static boolean DEBUG_WRITE_FILE=false;
     final protected static boolean DEBUG_WAITING_IN_QUEUE=false;
-    final protected static boolean DEBUG_QUEUE_ORDERING=false;
-    final protected static boolean DEBUG_QUEUE_TRACING=false;
+    final protected static boolean DEBUG_QUEUE_ORDERING=true;
+    final protected static boolean DEBUG_QUEUE_TRACING=true;
+    final protected static boolean DEBUG_BUFFER_NUMBER=true;
     static final String DEBUG_CATEGORY=MultiThreadLogWriter.class.getSimpleName();
 
     final private RingBuffer<LogEntryBuffer> logEntryBuffers;
@@ -79,8 +80,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
         {
             synchronized (this.logEntryBuffers)
             {
-                this.currentBuffer = this.logEntryBuffers.remove();
-                this.currentBuffer.start(this.bufferNumber++);
+                getCurrentBufferFromLogEntryBuffers();
             }
         }
     }
@@ -169,11 +169,24 @@ public abstract class MultiThreadLogWriter extends LogWriter
                     this.logEntryQueue.add(this.currentBuffer);
                     this.logEntryQueue.notify();
                 }
+                this.currentBuffer=null; 
+            }
+            else
+            {
+                if (Debug.ENABLE && DEBUG)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Nothing to flush");
+                }
+                return true;
             }
             
             //Wait for main thread to finish. File may not have been written to storage yet.
             synchronized(this.logEntryQueue)
             {
+                if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_TRACING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"flush:waiting for logEntryQueue to be empty...");
+                }
                 boolean wait=Synchronization.waitForNoThrow(this.logEntryQueue, waitMs, () ->
                 {
                     return this.logEntryQueue.isEmpty()||this.stop;
@@ -220,17 +233,25 @@ public abstract class MultiThreadLogWriter extends LogWriter
                 {
                     return false;
                 }
-                this.currentBuffer=this.logEntryBuffers.remove();
+                getCurrentBufferFromLogEntryBuffers();
             }
-            if (this.currentBuffer!=null)
-            {
-                this.currentBuffer.start(this.bufferNumber++);
-            }
-            
             return true;
         }
-        
     }
+    
+    private void getCurrentBufferFromLogEntryBuffers()
+    {
+        this.currentBuffer=this.logEntryBuffers.remove();
+        if (this.currentBuffer!=null)
+        {
+            if (Debug.ENABLE && DEBUG && DEBUG_BUFFER_NUMBER)
+            {
+                Debugging.log(DEBUG_CATEGORY,"bufferNumber="+this.bufferNumber);
+            }
+            this.currentBuffer.start(this.bufferNumber++);
+        }
+    }
+    
     public LogEntry writeToCurrentLogEntryBuffer(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
     {
         if (this.currentBuffer==null)
@@ -254,11 +275,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
         }
         synchronized (this.logEntryBuffers)
         {
-            this.currentBuffer=this.logEntryBuffers.remove();
-        }
-        if (this.currentBuffer!=null)
-        {
-            this.currentBuffer.start(this.bufferNumber++);
+            getCurrentBufferFromLogEntryBuffers();
         }
         return entry;
     }    
@@ -306,8 +323,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
                     }
                     return null;
                 }
-                this.currentBuffer=this.logEntryBuffers.remove();
-                this.currentBuffer.start(this.bufferNumber++);
+                getCurrentBufferFromLogEntryBuffers();
             }
             entry=writeToCurrentLogEntryBuffer(trace,logLevel,category,throwable,message,items);
             if (entry!=null)
@@ -356,9 +372,11 @@ public abstract class MultiThreadLogWriter extends LogWriter
                         {
                             continue;
                         }
+                        this.logEntryQueue.notifyAll();
                     }
                     if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_ORDERING)
                     {
+                        Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":buffer removed from logEntryQueue,logEntryQueue.size()="+this.logEntryQueue.size());
 //                        Thread.sleep(2000);
                         if (buffer!=null)
                         {
@@ -411,11 +429,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
                         buffer=this.currentBuffer;
                         synchronized (this.logEntryBuffers)
                         {
-                            this.currentBuffer=this.logEntryBuffers.remove();
-                            if (this.currentBuffer!=null)
-                            {
-                                this.currentBuffer.start(this.bufferNumber++);  
-                            }
+                            getCurrentBufferFromLogEntryBuffers();
                         }
                     }
                 }

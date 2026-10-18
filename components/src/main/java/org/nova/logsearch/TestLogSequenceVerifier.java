@@ -36,6 +36,7 @@ public class TestLogSequenceVerifier
     static class VerificationResult
     {
         long totalEntries;
+        long totalBytes;
         ArrayList<String> errors;
         
         public VerificationResult()
@@ -49,6 +50,10 @@ public class TestLogSequenceVerifier
         public synchronized void addEntries(long count)
         {
             this.totalEntries+=count;
+        }
+        public synchronized void addBytes(long bytes)
+        {
+            this.totalBytes+=bytes;
         }
     }
     
@@ -73,6 +78,7 @@ public class TestLogSequenceVerifier
             {
                 string=FileUtils.readString(inputStream);
             }
+            this.result.addBytes(string.length());
             try
             {
                 LogRecord[] logRecords=ObjectMapper.readObject(string, LogRecord[].class);
@@ -138,9 +144,10 @@ public class TestLogSequenceVerifier
         return result;
     }
     
-    public void printResult(long expected,VerificationResult result)
+    public void printResult(long expected,double duration,VerificationResult result)
     {
-        System.out.println("Entries tested: "+result.totalEntries);
+        double bps=result.totalBytes/duration/1000000;
+        System.out.println("Entries tested: "+result.totalEntries+", bps: "+bps+"mb/s");
         if (expected!=result.totalEntries)
         {
             result.logError("Error: Expected entries: "+expected+", Found entries: "+result.totalEntries);

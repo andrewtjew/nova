@@ -298,6 +298,7 @@ public class LogSearcher implements AutoCloseable
         progress.waitAll();
         return searchResult;
     }
+    
     @Override
     public void close()
     {

@@ -37,6 +37,6 @@ public class LogRecord
     public String message;
     public String exception;
     public String stackTrace;
-    public TraceRecord traceRecord;
+    public TraceRecord trace;
     public ObjectMap items;
 }

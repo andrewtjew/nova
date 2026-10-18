@@ -62,6 +62,7 @@ public class CoreEnvironment
 	final HashMap<String,Logger> loggers;
 	final private LogDirectoryManager logDirectoryManager;
     final private Vault vault;
+    final private int lastLogEntriesCapacity;
 //    final private String loggerType;
 //    final LogEntrySourceQueue logSourceQueue;
 //    final private int logEntryBufferSize;
@@ -79,7 +80,7 @@ public class CoreEnvironment
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);
 //		this.logEntryBufferSize=configuration.getIntegerValue("Environment.Logger.logEntryBufferSize",10);
         int traceBufferSize=configuration.getIntegerValue("Environment.Tracing.traceBufferSize",200);
-
+        this.lastLogEntriesCapacity=configuration.getIntegerValue("Environment.Logger.lastLogEntriesCapacity",100);
         this.meterStore=new MeterStore();
 
   //      this.logFormatter=new JSONFormatter();
@@ -163,7 +164,7 @@ public class CoreEnvironment
 		    Logger logger=this.loggers.get(category);
 			if (logger==null)
 			{
-			    logger=new WriteLogger(category,this.logWriter,0);
+			    logger=new WriteLogger(category,this.logWriter,this.lastLogEntriesCapacity);
 				this.loggers.put(category, logger);
 			}
 			return logger;

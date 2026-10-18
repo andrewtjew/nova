@@ -14,15 +14,15 @@ public class WriteLogger extends Logger
     private boolean active;
     final private RingBuffer<LogEntry> lastLogEntries;
     final LogWriter logWriter;
-    
-    public WriteLogger(String category,LogWriter logWriter,int bufferSize)
+    final RateMeter rateMeter=new RateMeter();
+    public WriteLogger(String category,LogWriter logWriter,int lastLogEntriesCapacity)
     {
         super(category);
         this.active=true;
         this.logWriter=logWriter;
-        if (bufferSize>0)
+        if (lastLogEntriesCapacity>0)
         {
-            this.lastLogEntries=new RingBuffer<LogEntry>(new LogEntry[bufferSize]);
+            this.lastLogEntries=new RingBuffer<LogEntry>(new LogEntry[lastLogEntriesCapacity]);
         }
         else
         {
@@ -43,6 +43,7 @@ public class WriteLogger extends Logger
             }
         }
         LogEntry entry=this.logWriter.write(trace,logLevel,category,throwable,message,items);
+        this.rateMeter.increment();
         if (this.lastLogEntries!=null)
         {
             synchronized(this)
@@ -52,6 +53,11 @@ public class WriteLogger extends Logger
                 }
             }
         }
+    }
+    
+    public RateMeter getRateMeter()
+    {
+        return this.rateMeter;
     }
     public void setActive(boolean active)
     {

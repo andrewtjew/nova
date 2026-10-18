@@ -786,7 +786,10 @@ public class ObjectMapper
             writer.write(targetWriter, object);
             return targetWriter.getString();
         }
-        return null;
+        else
+        {
+            return "";
+        }
     }
     
     static public void writeObject(OutputStream outputStream,Object object) throws Throwable

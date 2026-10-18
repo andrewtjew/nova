@@ -20,6 +20,8 @@ import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 import net.jpountz.lz4.LZ4BlockOutputStream;
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.xxhash.XXHashFactory;
 
 public class MultiThreadFileLogWriter extends MultiThreadLogWriter
 {
@@ -149,7 +151,10 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
     {
         if (this.configuration.compressionFormat==CompressionFormat.LZ4)
         {
-            try (LZ4BlockOutputStream lz4OutputStream=new LZ4BlockOutputStream(outputStream))
+            var factory=LZ4Factory.fastestInstance();
+            var compressor=factory.fastCompressor();
+//            var checksum=XXHashFactory.fastestInstance().newStreamingHash32(0xA449221F).asChecksum();
+            try (LZ4BlockOutputStream lz4OutputStream=new LZ4BlockOutputStream(outputStream,64*1024,compressor))
             {
                 writeWithFormatWriter(lz4OutputStream,buffer);
             }
@@ -179,6 +184,7 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
     {
         if (this.configuration.directToFile)
         {
+            //Usually slower as we need to wait for the buffer to be written to disk before we can return it, but uses less memory.
             long bufferNumber=buffer.number;
             long bufferStarted=buffer.started;
             synchronized (this.fileWriteLock)
@@ -232,10 +238,14 @@ public class MultiThreadFileLogWriter extends MultiThreadLogWriter
                 if (size>fileCapacity)
                 {
                     fileCapacity+=(size-fileCapacity)*2;
-                    if (Debug.ENABLE && DEBUG)
+                    if (Debug.ENABLE && DEBUG && DEBUG_WRITE_FILE)
                     {
                         Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":capacity increased to "+fileCapacity);
                     }
+                }
+                if (Debug.ENABLE && DEBUG && DEBUG_BUFFER_NUMBER)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":buffer.number="+bufferNumber+",writeBufferNumber="+this.writeBufferNumber);
                 }
                 synchronized (this.fileWriteLock)
                 {
