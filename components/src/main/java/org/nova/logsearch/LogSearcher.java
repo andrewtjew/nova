@@ -294,7 +294,7 @@ public class LogSearcher implements AutoCloseable
             tasks[i]=new LogSearchTask(searchResult,files[i],this.evaluator);
         }
         searchResult.filesSearched=tasks.length;
-        var progress=this.scheduler.schedule("search",tasks);
+        var progress=this.scheduler.schedule(LogSearcher.class.getName(),tasks);
         progress.waitAll();
         return searchResult;
     }

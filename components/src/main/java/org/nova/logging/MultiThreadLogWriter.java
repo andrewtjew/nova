@@ -36,7 +36,7 @@ public abstract class MultiThreadLogWriter extends LogWriter
         public int buffers=12;
     }
 
-    final protected static boolean DEBUG=true;
+    final protected static boolean DEBUG=false;
     final protected static boolean DEBUG_WRITE_FILE=false;
     final protected static boolean DEBUG_WAITING_IN_QUEUE=false;
     final protected static boolean DEBUG_QUEUE_ORDERING=true;

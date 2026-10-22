@@ -24,12 +24,16 @@ package org.nova.collections;
 import java.io.File;
 import java.io.FileInputStream;
 
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.logging.MultiThreadLogWriter;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
-    final public static boolean TEST_PRINT=false;
+    final public static boolean DEBUG=true;
+    static final String DEBUG_CATEGORY=FileCache.class.getSimpleName();
     
     final private String sharedDirectory;
     final private String localDirectory;
@@ -79,9 +83,9 @@ public class FileCache extends ContentCache<String,byte[]>
 	    if (this.localDirectory!=null)
 	    {
     	    String fullPath=this.localDirectory+File.separator+filePath;
-    	    if (TEST_PRINT)
+    	    if (Debug.ENABLE&&DEBUG)
     	    {
-    	        System.out.println("FileCache.local:"+fullPath);
+                Debugging.log(DEBUG_CATEGORY,"local="+fullPath);
     	    }
             File file=new File(FileUtils.toNativePath(fullPath));
             if (file.getCanonicalPath().startsWith(this.localDirectory))
@@ -97,20 +101,23 @@ public class FileCache extends ContentCache<String,byte[]>
 	    {
             String fullPath=this.sharedDirectory+File.separator+filePath;
             File file=new File(FileUtils.toNativePath(fullPath));
-            if (TEST_PRINT)
+            if (Debug.ENABLE&&DEBUG)
             {
-                System.out.println("FileCache.shared:"+fullPath);
+                Debugging.log(DEBUG_CATEGORY,"shared="+fullPath);
             }
             if (file.getCanonicalPath().startsWith(this.sharedDirectory))
             {
                 byte[] bytes=readFile(file);
-                if (bytes==null)
+                if (bytes!=null)
                 {
-                    throw new Exception("File not found: "+filePath);
+                    return new ValueSize<byte[]>(bytes,bytes.length);
                 }
-                return new ValueSize<byte[]>(bytes,bytes.length);
             }
 	    }
+        if (Debug.ENABLE&&DEBUG)
+        {
+            Debugging.log(DEBUG_CATEGORY,"not found:"+filePath);
+        }
         throw new Exception("Invalid file: "+filePath);
 	}
 	

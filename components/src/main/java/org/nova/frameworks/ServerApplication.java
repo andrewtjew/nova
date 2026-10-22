@@ -25,6 +25,7 @@ import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.nova.concurrent.Synchronization;
 import org.nova.configuration.Configuration;
+import org.nova.debug.Debug;
 import org.nova.html.ExtensionToContentTypeMappings;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
@@ -60,13 +61,11 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     final private HttpTransport publicTransport;
     final private HttpTransport privateTransport;
     final private HttpTransport operatorTransport;
-    final private WebSocketTransport websocketPublicTransport;
     
     final private HttpServer privateServer;
     final private HttpServer publicServer;
     
 	final private OperatorVariableManager operatorVariableManager;
-//	final private FileCache fileCache;
 	final private String baseDirectory;
 	final private ExtensionToContentTypeMappings typeMappings;
 	final private DisruptorManager disruptorManager;
@@ -74,7 +73,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	final private MenuBar menuBar;
 	final private String hostName;
 	private Template template;
-	final boolean test;
+	final boolean debug;
 	final private String localHostName;
 	
 	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable 
@@ -94,7 +93,11 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         
         Element.HREF_LOCAL_DIRECTORY=configuration.getValue("Application.HREF_LOCAL_DIRECTORY",null);
 
-        this.test=configuration.getBooleanValue("System.test",false);
+        this.debug=configuration.getBooleanValue("System.debug",false);
+        if ((this.debug==false)&&(Debug.ENABLE))
+        {
+            System.err.println("Debug.ENABLE is true but ServerApplication.debug is false.");
+        }
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
@@ -144,7 +147,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.private.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isTest());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isDebug());
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.private.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.private.clientCertificate.keyStorePath",null);
@@ -159,7 +162,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                 }
-                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),privateServerConfiguration);
+                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isDebug(),privateServerConfiguration);
                 this.privateTransport=new HttpTransport(privateServer, servers);
                 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
@@ -177,7 +180,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         { //Public http server
             boolean https=configuration.getBooleanValue("HttpServer.public.https",true);
             boolean http=configuration.getBooleanValue("HttpServer.public.http",false);
-            boolean websocket=configuration.getBooleanValue("HttpServer.public.websocket",false);
             
             
             int ports=0;
@@ -211,7 +213,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.public.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isTest());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isDebug());
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.public.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.public.clientCertificate.keyStorePath",null);
@@ -227,16 +229,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                     //Testing
                 }
-                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
+                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isDebug(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
-                if (websocket)
-                {
-                    this.websocketPublicTransport=new WebSocketTransport("/wstest", this.publicServer, servers);
-                }
-                else
-                {
-                    this.websocketPublicTransport=null;
-                }
                 int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
                 int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
                 for (Server server:servers)
@@ -272,18 +266,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             {
                 this.publicServer=null;
                 this.publicTransport=null;
-                this.websocketPublicTransport=null;
             }
         }
 
 
-        //File cache
-//        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
-//		this.fileCache=new FileCache(fileCacheConfiguration);
-//		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
-//		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
-		
-//        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
         {
             this.getOperatorVariableManager().register(null,"HttpServer.private", this.privateServer);
@@ -321,7 +307,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	
 	public void start() throws Throwable
 	{
-        try (Trace trace=new Trace(this.getTraceManager(),"postStart"))
+        try (Trace trace=new Trace(this.getTraceManager(),"preStart"))
         {
             preStart(trace);
         }
@@ -438,11 +424,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 		return this.baseDirectory;
 	}
 
-//	public FileCache getFileCache()
-//	{
-//		return this.fileCache;
-//	}
-
 	public ExtensionToContentTypeMappings getContentTypeMappings()
 	{
 		return this.typeMappings;
@@ -470,7 +451,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     
     public OperatorPage buildOperatorPage(String title) throws Throwable
     {
-        Template template=this.test?OperatorPage.buildTemplate(this.menuBar, this.getName(), this.hostName):this.template;
+        Template template=this.debug?OperatorPage.buildTemplate(this.menuBar, this.getName(), this.hostName):this.template;
         OperatorPage page=new OperatorPage(template);
         page.replace("title", title);
         page.replace("now", Utils.nowToLocalDateTimeString());
@@ -482,9 +463,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         return this.localHostName;
     }
     
-    public boolean isTest()
+    public boolean isDebug()
     {
-        return this.test;
+        return this.debug;
     }
     
     

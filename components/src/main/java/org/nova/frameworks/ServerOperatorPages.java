@@ -73,6 +73,7 @@ import org.nova.html.tags.b;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
+import org.nova.html.tags.canvas;
 import org.nova.html.tags.div;
 import org.nova.html.tags.fieldset;
 import org.nova.html.tags.form;
@@ -93,6 +94,7 @@ import org.nova.html.tags.legend;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.option;
 import org.nova.html.tags.p;
+import org.nova.html.tags.script;
 import org.nova.html.tags.select;
 import org.nova.html.tags.span;
 import org.nova.html.tags.strong;
@@ -145,6 +147,7 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.Page;
 import org.nova.html.ext.Redirect;
 import org.nova.html.ext.Refresher;
+import org.nova.html.ext.Script;
 import org.nova.html.ext.SelectEnums;
 import org.nova.html.ext.Text;
 import org.nova.html.jsTree.TreeNode;
@@ -176,8 +179,12 @@ import org.nova.html.operator.TitleText;
 import org.nova.html.operator.TraceWidget;
 import org.nova.html.properties.Color_;
 import org.nova.html.properties.Length_;
+import org.nova.html.properties.Property;
 import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
+import org.nova.html.properties.height;
+import org.nova.html.properties.padding;
+import org.nova.html.properties.width;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.http.server.annotations.ParamName;
@@ -204,9 +211,12 @@ import org.nova.logging.dep.MultiThreadedLogEntrySourceQueue;
 import org.nova.logsearch.LogRecord;
 import org.nova.logsearch.LogSearcher;
 import org.nova.logsearch.LogSearcher.SearchResult;
-import org.nova.logsearch.LogTraceSummerizer;
-import org.nova.logsearch.LogTraceSummerizer.LogTraceResult;
-import org.nova.logsearch.LogTraceSummerizer.TraceDurationDistribution;
+import org.nova.logsearch.LogTraceDurationDistributionCollector;
+import org.nova.logsearch.LogTraceDurationDistributionCollector.LogTraceResult;
+import org.nova.logsearch.LogTraceDurationDistributionCollector.TraceDurationDistribution;
+import org.nova.logsearch.LogTraceRateCollector;
+import org.nova.logsearch.LogTraceRateCollector.LogTraceCountResult;
+import org.nova.logsearch.LogTraceRateCollector.TraceRateResult;
 import org.nova.logsearch.SearchExpressionCompiler.CompilerError;
 import org.nova.logsearch.TraceRecord;
 import org.nova.metrics.CountMeter;
@@ -229,6 +239,7 @@ import org.nova.metrics.StackTraceNode;
 import org.nova.metrics.ThreadExecutionProfiler;
 import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
+import org.nova.net.printing.Unit;
 import org.nova.operations.OperatorVariable;
 import org.nova.operations.VariableInstance;
 import org.nova.parsing.ParsingUtils;
@@ -364,7 +375,8 @@ public class ServerOperatorPages
         menuBar.add("/operator/logging/status", "Logging", "Status");
         menuBar.add("/operator/logging/categories", "Logging", "Category Loggers");
         menuBar.add("/operator/logging/search", "Logging", "Search Logs");
-        menuBar.add("/operator/logging/traces", "Logging", "Trace Durations");
+        menuBar.add("/operator/logging/traces/distribution", "Logging", "Trace Duration Distributions");
+        menuBar.add("/operator/logging/traces/rates", "Logging", "Trace Rates");
         // menuBar.add("/operator/logging/files","Logging","Log Files");
 
         menuBar.add("/operator/httpServer/status/public", "Servers", "Public", "Status");
@@ -902,11 +914,11 @@ public class ServerOperatorPages
     }
 
     @GET
-    @Path("/operator/logging/traces")
+    @Path("/operator/logging/traces/distribution")
     public Element categorizeLogs(Trace parent, @QueryParam("from") @DefaultValue("-1") String from, @QueryParam("to") String to, @QueryParam("threads") @DefaultValue("2") int threads,
             @QueryParam("action") String action) throws Throwable
     {
-        OperatorPage page = this.serverApplication.buildOperatorPage("Trace Duration Distribution");
+        OperatorPage page = this.serverApplication.buildOperatorPage("Trace Duration Distributions");
         {
             form_get form = page.content().returnAddInner(new form_get());
 
@@ -960,24 +972,24 @@ public class ServerOperatorPages
         page.content().returnAddInner(new hr());
         this.serverApplication.getLogWriter().flush(1000);
         LogTraceResult result = null;
-        Trace summerizerTrace = null;
+        Trace trace = null;
         int bins = 12;
         long minimumBinDurationMs=10;
-        try (LogTraceSummerizer summerizer = new LogTraceSummerizer(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),
+        try (LogTraceDurationDistributionCollector collector = new LogTraceDurationDistributionCollector(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),
                 threads))
         {
-            summerizerTrace = new Trace(parent, "summarizeTraces");
+            trace = new Trace(parent, LogTraceDurationDistributionCollector.class.getName());
             try
             {
-                result = summerizer.summerize(bins, minimumBinDurationMs,from, to);
+                result = collector.summerize(bins, minimumBinDurationMs,from, to);
             }
             finally
             {
-                summerizerTrace.close();
+                trace.close();
             }
         }
 
-        String duration = "Run duration: " + Utils.millisToNiceDurationString(summerizerTrace.getDurationMs()) + ". ";
+        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs()) + ". ";
         page.content().returnAddInner(new div()).addInner(duration + "Log entries searched: " + result.getEntriesExamined());
         page.content().returnAddInner(new hr());
 
@@ -1001,9 +1013,10 @@ public class ServerOperatorPages
                 header.add(minimumBinDurationMs*(1 << i));
             }
         }
+        header.add(new th_title(new LiteralHtml("Rate"), "Traces per second"));
         header.add(new th_title(new LiteralHtml("Ave&#x23F1;"), "Average trace duration in milliseconds"));
-        header.add(new th_title(new LiteralHtml("Std &#x23F1;"), "Standard deviation of trace duration in milliseconds"));
-        header.add(new th_title(new LiteralHtml("max&#x23F1;"), "Maximum trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Std&#x23F1;"), "Standard deviation of trace duration in milliseconds"));
+        header.add(new th_title(new LiteralHtml("Max&#x23F1;"), "Maximum trace duration in milliseconds"));
         dataTable.setHeader(header);
 
         String tiny = "width:3em;";
@@ -1022,6 +1035,15 @@ public class ServerOperatorPages
             {
                 entryRow.add(distribution.durations[i]);
             }
+            var rate=distribution.getRate();
+            if (rate<0)
+            {
+                entryRow.add("");
+            }
+            else
+            {
+                entryRow.add(String.format("%.3f", rate));
+            }
             entryRow.add(formatSToMs(distribution.getAverageDuration()));
             entryRow.add(formatSToMs(distribution.getStandardDeviationDuration()));
             entryRow.add(formatSToMs(distribution.maximum.duration,distribution.maximum.created.toInstant(ZoneOffset.UTC).toEpochMilli()));
@@ -1029,6 +1051,113 @@ public class ServerOperatorPages
         return page;
     }
 
+    @GET
+    @Path("/operator/logging/traces/rates")
+    public Element traceRates(Trace parent, @QueryParam("from") @DefaultValue("-1") String from, @QueryParam("to") String to, @QueryParam("threads") @DefaultValue("2") int threads,
+            @QueryParam("action") String action) throws Throwable
+    {
+        OperatorPage page = this.serverApplication.buildOperatorPage("Trace Rates");
+        {
+            form_get form = page.content().returnAddInner(new form_get());
+
+            try
+            {
+                int value = Integer.parseInt(from);
+                from = LocalDateTime.now().plusHours(value).toString();
+            }
+            catch (Exception e)
+            {
+                from = null;
+            }
+            if (TypeUtils.isNullOrSpace(from))
+            {
+                from = LocalDateTime.now().plusHours(-1).toString();
+            }
+
+            try
+            {
+                int value = Integer.parseInt(to);
+                to = LocalDateTime.now().plusHours(value).toString();
+            }
+            catch (Exception e)
+            {
+                to = null;
+            }
+
+            div row = form.returnAddInner(new div().style("display:flex;flex-direction:row;align-items:center;"));
+            String padding = "margin-left:0.25em;margin-right:0.25em;";
+            row.returnAddInner(new label()).addInner("From:").style(padding);
+            row.returnAddInner(new input_text()).name("from").value(from);
+            row.returnAddInner(new label()).addInner("To:").style(padding);
+            row.returnAddInner(new input_text()).name("to").value(to);
+            row.returnAddInner(new label()).addInner(" Threads:").style(padding);
+            int maxThreads = Runtime.getRuntime().availableProcessors() / 4 + 1;
+            row.returnAddInner(new input_number()).name("threads").style("width:4em;").value(threads >= maxThreads ? maxThreads : threads).min(1).max(maxThreads);
+
+            row.returnAddInner(new button_submit()).name("action").value("traces").addInner("View").style(padding);
+        }
+
+        if ("traces".equals(action) == false)
+        {
+            return page;
+
+        }
+
+        page.content().returnAddInner(new hr());
+        this.serverApplication.getLogWriter().flush(1000);
+        LogTraceCountResult result = null;
+        Trace trace = null;
+        try (LogTraceRateCollector collector = new LogTraceRateCollector(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),
+                threads))
+        {
+            trace = new Trace(parent, LogTraceRateCollector.class.getName());
+            try
+            {
+                result = collector.collect(from, to);
+            }
+            finally
+            {
+                trace.close();
+            }
+        }
+
+        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs()) + ". ";
+        page.content().returnAddInner(new div()).addInner(duration + "Log entries searched: " + result.getEntriesExamined());
+        page.content().returnAddInner(new hr());
+
+        OperatorDataTable dataTable = new OperatorDataTable(page.head());
+        page.content().addInner(dataTable);
+        dataTable.lengthMenu(-1, 5, 10, 25);
+        TableHeader header = new TableHeader();
+        header.add("Category","Rates");
+        dataTable.setHeader(header);
+
+        var chartWidth=1600;
+        var chartHeight=80;
+//        String averageColor="#9F0000";
+//        String maximumColor="#C8C8C8";
+        String averageColor="#000040";
+        String maximumColor="#E89800";
+        for (var entry : result.getTraceRates().entrySet())
+        {
+            TableRow entryRow = new TableRow();
+            
+            dataTable.addRow(entryRow);
+            entryRow.add(new ClipTitleText(entry.getKey()));
+            TraceRateResult traceRateResult=entry.getValue().getTraceRateResult();
+
+            td td=new td().style("width:100%;");
+            if (traceRateResult.counts().length>1)
+            {
+                canvas chart = new canvas().style(new Property("width:100%;"),new height(chartHeight,Unit_.px)).width(chartWidth).height(chartHeight); 
+                td.returnAddInner(new div()).style(new Property("width:100%;border:1px solid black;padding-top:10px;background-color:#f0f0f0;"),new height(chartHeight,Unit_.px)).returnAddInner(chart);
+                page.content().addInner(new Script(HtmlUtils.js_call("nova.operator.drawTraceRateGraph",chart.id(),traceRateResult.counts(),traceRateResult.maximumCount(),averageColor,maximumColor)));
+            }            
+            td.returnAddInner(new div()).addInner("Total count:"+traceRateResult.totalCount()+", Average Rate: "+String.format("%.3f", traceRateResult.averageRate())+" /s, Maximum Rate: "+traceRateResult.maximumCount()+" /s, Time Range: "+traceRateResult.counts().length+" s");
+            entryRow.add(td);
+        }
+        return page;
+    }
     @GET
     @Path("/operator/logging/search")
     public Element searchLogs(Trace parent, @QueryParam("from") @DefaultValue("-1") String from, @QueryParam("to") String to, @QueryParam("filter") String filter,
@@ -5309,10 +5438,17 @@ public class ServerOperatorPages
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> arguments = runtimeMxBean.getInputArguments();
         String args = Utils.combine(arguments, " ");
-        page.content().returnAddInner(new NameValueList()).add("OS", System.getProperty("os.name")).add("JVM Parameters", args)
-                .add("Started", DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime())).add("Current", DateTimeUtils.toSystemDateTimeString(now))
-                .add("Uptime", Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime())).add("Base Directory", this.serverApplication.getBaseDirectory())
-                .add("Test", this.serverApplication.isTest()).add("SAFE_ESCAPE", Text.SAFE_ESCAPE).add("Debug.ENABLE", Debug.ENABLE);
+        page.content().returnAddInner(new NameValueList())
+        .add("os.name", System.getProperty("os.name"))
+        .add("java.runtime.version", System.getProperty("java.runtime.version"))
+        //.add("java.vendor", System.getProperty("java.vendor"))
+        .add("java.home", System.getProperty("java.home"))
+        .add("JVM Parameters", args)
+        .add("Started", DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime())).add("Current", DateTimeUtils.toSystemDateTimeString(now))
+        .add("Uptime", Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime())).add("Base Directory", this.serverApplication.getBaseDirectory())
+        .add("SAFE_ESCAPE", Text.SAFE_ESCAPE)
+        .add("Debug", this.serverApplication.isDebug())
+        .add("Debug.ENABLE", Debug.ENABLE);
 
         try
         {
@@ -5512,9 +5648,6 @@ public class ServerOperatorPages
             response.setContentType(contentType);
         }
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        // (this.cacheControlValue == null || this.cacheControlValue.length() ==
-        // 0) ? "max-age=" + this.cacheMaxAge : this.cacheControlValue +
-        // ",max-age=" + this.cacheMaxAge);
         response.setStatus(HttpStatus.OK_200);
         context.writeContent(bytes);
     }

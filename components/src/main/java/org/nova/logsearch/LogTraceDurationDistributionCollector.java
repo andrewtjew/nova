@@ -3,6 +3,7 @@ package org.nova.logsearch;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,13 +32,13 @@ import org.nova.utils.FileUtils;
 
 import net.jpountz.lz4.LZ4BlockInputStream;
 
-public class LogTraceSummerizer implements AutoCloseable
+public class LogTraceDurationDistributionCollector implements AutoCloseable
 {
     final private String directory;
     final private MultiTaskScheduler scheduler;
     final static double LOG2=Math.log(2);
     
-    public LogTraceSummerizer(TraceManager traceManager,String directory,int maximumThreads) throws Throwable
+    public LogTraceDurationDistributionCollector(TraceManager traceManager,String directory,int maximumThreads) throws Throwable
     {
         this.directory = directory;
         this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, new NullLogger());
@@ -47,6 +48,8 @@ public class LogTraceSummerizer implements AutoCloseable
     public static class TraceDurationDistribution
     {
         public int[] durations;
+        public TraceRecord first;
+        public TraceRecord last;
         public TraceRecord minimum;
         public TraceRecord maximum;
         private double totalDuration;
@@ -58,8 +61,21 @@ public class LogTraceSummerizer implements AutoCloseable
             this.durations=new int[bins];
             this.minimumBinDuration=minimumBinDuration;
         }
-        synchronized public void addDuration(TraceRecord traceRecord)
+        synchronized public void process(TraceRecord traceRecord)
         {
+            if (this.first==null)
+            {
+                this.first=traceRecord;
+                this.last=traceRecord;
+            }
+            else if (traceRecord.created.isBefore(this.first.created))
+            {
+                this.first=traceRecord;
+            }
+            else if (traceRecord.created.isAfter(this.last.created))
+            {
+                this.last=traceRecord;
+            }
             if (this.minimum==null)
             {
                 this.minimum=traceRecord;
@@ -113,6 +129,27 @@ public class LogTraceSummerizer implements AutoCloseable
             }
             return Math.sqrt(d/count);
         }
+        public double getRate()
+        {
+            if (this.last==null)
+            {
+                return -1;
+            }
+            int count=0;
+            for (int i=0;i<this.durations.length;i++)
+            {
+                count+=this.durations[i];
+            }
+            var duration=Duration.between(this.first.created,this.last.created);
+            double seconds=duration.toSeconds()+(duration.toNanosPart()/1e9);
+            if (seconds==0)
+            {
+                return -1;
+            }
+            double rate=count/seconds;
+            System.out.println("TraceDurationDistribution.getRate: count="+count+", seconds="+seconds+", rate="+rate);
+            return rate;
+        }
     }
     
     public static class LogTraceResult
@@ -120,7 +157,6 @@ public class LogTraceSummerizer implements AutoCloseable
         final HashMap<String,TraceDurationDistribution> distributions;
         final private int bins;
         final private double minimumBinDuration;
-        private boolean hasMore=false;
         int filesSearched;
         long entriesExamined;
         
@@ -156,7 +192,7 @@ public class LogTraceSummerizer implements AutoCloseable
                     this.distributions.put(key, distribution);
                 }
             }
-            distribution.addDuration(traceRecord);
+            distribution.process(traceRecord);
         }
         
         public Map<String,TraceDurationDistribution> getTraceDurationDistributions()
@@ -219,7 +255,7 @@ public class LogTraceSummerizer implements AutoCloseable
             tasks[i]=new Task(logTraceResult,files[i]);
         }
         logTraceResult.filesSearched=tasks.length;
-        var progress=this.scheduler.schedule("trace",tasks);
+        var progress=this.scheduler.schedule(LogTraceDurationDistributionCollector.class.getName(),tasks);
         progress.waitAll();
         return logTraceResult;
     }  
