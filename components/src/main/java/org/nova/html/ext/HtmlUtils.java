@@ -1094,6 +1094,7 @@ public class HtmlUtils
         return "var c=document.getElementById('"+toggler.id()+"').checked;var t=document.getElementById('"+target.id()+"');t.disabled=!c;if (c==true) {t.classList.remove('disabled');} else {t.classList.add('disabled');}";
     }
 
+    //Should to moved to HttpUtils.java
     public static void writeFile(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
@@ -1106,6 +1107,7 @@ public class HtmlUtils
         part.write(overrideFileName);
     }
 
+    //Should to moved to HttpUtils.java
     public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
     {
         HttpServletRequest request=context.getHttpServletRequest();
@@ -1120,6 +1122,8 @@ public class HtmlUtils
         byte[] bytes = java.util.Base64.getDecoder().decode(data.substring(data.indexOf(",") + 1));
         FileUtils.writeBinaryFile(directory+"\\"+overrideFileName, bytes);
     }
+    
+    //Should to moved to HttpUtils.java
     public static String getRequestPathAndQuery(HttpServletRequest request)
     {
         String query=request.getQueryString();
@@ -1129,6 +1133,7 @@ public class HtmlUtils
         }
         return request.getRequestURI()+"?"+query;
     }
+    //Should to moved to HttpUtils.java
     public static String getRequestPathAndQuery(Context context)
     {
         return getRequestPathAndQuery(context.getHttpServletRequest());

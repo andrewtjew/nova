@@ -183,6 +183,7 @@ import org.nova.html.properties.Property;
 import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 import org.nova.html.properties.height;
+import org.nova.html.properties.max_width;
 import org.nova.html.properties.padding;
 import org.nova.html.properties.width;
 import org.nova.html.remote.RemoteResponse;
@@ -317,7 +318,7 @@ public class ServerOperatorPages
     public ServerOperatorPages(ServerApplication serverApplication) throws Throwable
     {
         Configuration configuration = serverApplication.getConfiguration();
-        FileCacheConfiguration fileCacheConfiguration = configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
+        FileCacheConfiguration fileCacheConfiguration = new FileCacheConfiguration("../resources/client","./resources/client",10000);
         this.fileCache = new FileCache(fileCacheConfiguration);
 
         this.namespace = configuration.getValue(this.getClass().getSimpleName() + ".namespace", null);
@@ -978,7 +979,7 @@ public class ServerOperatorPages
         try (LogTraceDurationDistributionCollector collector = new LogTraceDurationDistributionCollector(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),
                 threads))
         {
-            trace = new Trace(parent, LogTraceDurationDistributionCollector.class.getName());
+            trace = new Trace(parent, LogTraceDurationDistributionCollector.class.getSimpleName());
             try
             {
                 result = collector.summerize(bins, minimumBinDurationMs,from, to);
@@ -989,8 +990,8 @@ public class ServerOperatorPages
             }
         }
 
-        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs()) + ". ";
-        page.content().returnAddInner(new div()).addInner(duration + "Log entries searched: " + result.getEntriesExamined());
+        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs());
+        page.content().returnAddInner(new div()).addInner(duration + ", Log entries searched: " + result.getEntriesExamined());
         page.content().returnAddInner(new hr());
 
         OperatorDataTable dataTable = new OperatorDataTable(page.head());
@@ -1110,7 +1111,7 @@ public class ServerOperatorPages
         try (LogTraceRateCollector collector = new LogTraceRateCollector(this.serverApplication.getTraceManager(), this.serverApplication.getLogDirectoryManager().getDirectory().getAbsolutePath(),
                 threads))
         {
-            trace = new Trace(parent, LogTraceRateCollector.class.getName());
+            trace = new Trace(parent, LogTraceRateCollector.class.getSimpleName());
             try
             {
                 result = collector.collect(from, to);
@@ -1121,8 +1122,9 @@ public class ServerOperatorPages
             }
         }
 
-        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs()) + ". ";
-        page.content().returnAddInner(new div()).addInner(duration + "Log entries searched: " + result.getEntriesExamined());
+        var durationRange=result.postProcess();
+        String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs());
+        page.content().returnAddInner(new div()).addInner(duration + ", Log entries searched: " + result.getEntriesExamined()+ ", Range: "+durationRange.getDuration()+" s");
         page.content().returnAddInner(new hr());
 
         OperatorDataTable dataTable = new OperatorDataTable(page.head());
@@ -1132,28 +1134,38 @@ public class ServerOperatorPages
         header.add("Category","Rates");
         dataTable.setHeader(header);
 
-        var chartWidth=1600;
-        var chartHeight=80;
+        var chartWidth=1560;
+        var chartHeight=100;
 //        String averageColor="#9F0000";
-//        String maximumColor="#C8C8C8";
-        String averageColor="#000040";
-        String maximumColor="#E89800";
+        String maximumColor="#F80000";
+        String averageRateColor="#006000";
+        String averageDurationColor="#000080";
+        String centerColor="#000000";
+//        String maximumColor="#E89800";
+        
         for (var entry : result.getTraceRates().entrySet())
         {
             TableRow entryRow = new TableRow();
             
             dataTable.addRow(entryRow);
             entryRow.add(new ClipTitleText(entry.getKey()));
-            TraceRateResult traceRateResult=entry.getValue().getTraceRateResult();
+            TraceRateResult traceRateResult=entry.getValue().getTraceRateResult(durationRange);
 
             td td=new td().style("width:100%;");
-            if (traceRateResult.counts().length>1)
             {
                 canvas chart = new canvas().style(new Property("width:100%;"),new height(chartHeight,Unit_.px)).width(chartWidth).height(chartHeight); 
-                td.returnAddInner(new div()).style(new Property("width:100%;border:1px solid black;padding-top:10px;background-color:#f0f0f0;"),new height(chartHeight,Unit_.px)).returnAddInner(chart);
-                page.content().addInner(new Script(HtmlUtils.js_call("nova.operator.drawTraceRateGraph",chart.id(),traceRateResult.counts(),traceRateResult.maximumCount(),averageColor,maximumColor)));
+                td.returnAddInner(new div()).style(
+                        new width(100,Unit_.percent),new max_width(chartWidth,Unit_.px),new Property("border:1px solid black;padding-bottom:5px;padding-top:5px;background-color:#f0f0f0;"),new height(chartHeight,Unit_.px)).returnAddInner(chart);
+                page.content().addInner(new Script(HtmlUtils.js_call("nova.operator.drawTraceRateGraph",chart.id(),traceRateResult,averageRateColor,averageDurationColor,maximumColor,centerColor)));
             }            
-            td.returnAddInner(new div()).addInner("Total count:"+traceRateResult.totalCount()+", Average Rate: "+String.format("%.3f", traceRateResult.averageRate())+" /s, Maximum Rate: "+traceRateResult.maximumCount()+" /s, Time Range: "+traceRateResult.counts().length+" s");
+            td.returnAddInner(new div()).addInner("Average Rate: "+String.format("%.3f", traceRateResult.averageRate)+"/s, Maximum Rate: ")
+            .addInner(formatRate(traceRateResult.maximumRate,traceRateResult.maximumRateEpochSecond*1000))
+                    .addInner(", Average Duration: ")
+                    .addInner(formatSToMs(traceRateResult.averageDuration))
+                    .addInner(" ms, Maximum Duration: ")
+                    .addInner(formatSToMs(traceRateResult.maximumDuration,traceRateResult.maximumDurationEpochSecond))
+                    .addInner(" ms.")
+                    ;
             entryRow.add(td);
         }
         return page;
@@ -1250,11 +1262,11 @@ public class ServerOperatorPages
         if (result.hasMore())
         {
             page.content().returnAddInner(new div())
-                    .addInner(duration + " Log entries searched: " + result.getEntriesExamined() + ". Showing first " + limit + " entries. There are more entries matching the filter.");
+                    .addInner(duration + ", Log entries searched: " + result.getEntriesExamined() + ". Showing first " + limit + " entries. There are more entries matching the filter.");
         }
         else
         {
-            page.content().returnAddInner(new div()).addInner(duration + "Log entries searched: " + result.getEntriesExamined() + ". Showing all " + result.getFoundEntries().length + " entries.");
+            page.content().returnAddInner(new div()).addInner(duration + ", Log entries searched: " + result.getEntriesExamined() + ". Showing all " + result.getFoundEntries().length + " entries.");
         }
         page.content().returnAddInner(new hr());
 
@@ -1290,7 +1302,14 @@ public class ServerOperatorPages
                 {
                     String value = (String) entrySet.getValue();
 
-                    list.add(entrySet.getKey(), new textarea().style("width:100%;").readonly().addInner(value));
+                    if (value==null)
+                    {
+                        list.add(entrySet.getKey(), new textarea().style("width:100%;").readonly());
+                    }
+                    else
+                    {
+                        list.add(entrySet.getKey(), new textarea().style("width:100%;").readonly().addInner(value));
+                    }
                 }
             }
 
@@ -2380,6 +2399,16 @@ public class ServerOperatorPages
     {
         return new TitleText(Utils.millisToNiceDurationString((long)(seconds *1000)) + " on " + DateTimeUtils.toSystemDateTimeString(instantMs), format_3(seconds *1000));
     }
+
+    static private TitleText formatRate(double rate, long instantMs)
+    {
+        return new TitleText(format_3(rate)+"/s on " + DateTimeUtils.toSystemDateTimeString(instantMs), format_3(rate)+"/s");
+    }
+
+//    static private TitleText formatDurationMs(long durationMs, long epochSecond)
+//    {
+//        return new TitleText(Utils.millisToNiceDurationString(durationMs) + " on " + DateTimeUtils.toSystemDateTimeString(epochSecond*1000), format_3(durationMs));
+//    }
     
 
     private String formatMemorySize(long size)
@@ -5447,7 +5476,7 @@ public class ServerOperatorPages
         .add("Started", DateTimeUtils.toSystemDateTimeString(this.serverApplication.getStartTime())).add("Current", DateTimeUtils.toSystemDateTimeString(now))
         .add("Uptime", Utils.millisToNiceDurationString(now - this.serverApplication.getStartTime())).add("Base Directory", this.serverApplication.getBaseDirectory())
         .add("SAFE_ESCAPE", Text.SAFE_ESCAPE)
-        .add("Debug", this.serverApplication.isDebug())
+        .add("Debug", this.serverApplication.isTest())
         .add("Debug.ENABLE", Debug.ENABLE);
 
         try

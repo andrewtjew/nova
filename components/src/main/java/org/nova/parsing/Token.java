@@ -23,8 +23,8 @@ package org.nova.parsing;
 
 public class Token
 {
-    private final TokenType type;
     private final Snippet snippet;
+    private final TokenType type;
     final private NumericType numericType;
     final private IntegerSize integerSize;
     private final String message;

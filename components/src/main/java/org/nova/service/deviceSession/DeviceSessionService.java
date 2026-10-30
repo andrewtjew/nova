@@ -48,7 +48,7 @@ public abstract class DeviceSessionService extends ServerApplication
         SessionOperatorPages sessionOperatorPages=new SessionOperatorPages(this.deviceSessionManager,this);
         this.getOperatorServer().registerHandlers(sessionOperatorPages);
         
-        if (isDebug()==false)
+        if (isTest()==false)
         {
             if (TagElement.INCLUDE_STACK_TRACE_LEVELS>0)
             {

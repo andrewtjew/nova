@@ -115,7 +115,12 @@ public class SlowTraceSampleDetector
     }
     public double getTotalDurationRatio(TraceSample sample)
     {
-        return (double)sample.getTotalDurationNs()/this.topTotalDurations.getTotal();
+        var total=this.topTotalDurations.getTotal();
+        if (total==0)
+        {
+            return 0;
+        }
+        return (double)sample.getTotalDurationNs()/total;
     }
     public double getTotalWaitRatio(TraceSample sample)
     {

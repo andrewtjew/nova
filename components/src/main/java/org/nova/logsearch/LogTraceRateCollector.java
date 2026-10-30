@@ -44,70 +44,114 @@ public class LogTraceRateCollector implements AutoCloseable
         this.scheduler = new MultiTaskScheduler(traceManager, maximumThreads, new NullLogger());
     }
     
-    
-    static public record TraceRateResult(int[] counts,int maximumCount,int totalCount)
+
+    static public class TraceRateResult
     {
-        public double averageRate()
-        {
-            return (double)this.totalCount/this.counts.length;
-        }
+        public TraceRate[] rates;
+
+        public double averageDuration;
+        public double maximumDuration;
+        public long maximumDurationEpochSecond;
+        
+        public double averageRate;
+        public int maximumRate;
+        public long maximumRateEpochSecond;
+        
+    }        
+    
+    static public class TraceRate //per second
+    {
+        public int rate;
+        public double totalDuration;
+        public double maximumDuration;
     }
     
-    public static class TraceRateProcessor
+    public static class TraceRateListMap
     {
-        final private TreeMap<Long,Integer> counters;
-        public TraceRateProcessor()
+        final private TreeMap<Long,TraceRate> traceRates;
+        
+        public TraceRateListMap()
         {
-            this.counters=new TreeMap<>();
+            this.traceRates=new TreeMap<>();
         }
-        synchronized public void process(TraceRecord traceRecord)
+        synchronized public void add(TraceRecord traceRecord)
         {
             long epochSeconds=traceRecord.created.toEpochSecond(java.time.ZoneOffset.UTC);
-            var counter=this.counters.get(epochSeconds);
-            if (counter==null)
+            var traceRate=this.traceRates.get(epochSeconds);
+            if (traceRate==null)
             {
-                this.counters.put(epochSeconds, 1);
+                traceRate=new TraceRate();
+                this.traceRates.put(epochSeconds, traceRate);
             }
-            else
+            traceRate.rate++;
+            traceRate.totalDuration+=traceRecord.duration;
+            if (traceRecord.duration>traceRate.maximumDuration)
             {
-                this.counters.put(epochSeconds, counter+1);
+                traceRate.maximumDuration=traceRecord.duration;
             }
         }
-        public TraceRateResult getTraceRateResult()
+        
+        public TraceRateResult getTraceRateResult(DurationRange durationDurange)
         {
-            long first=this.counters.firstKey();
-            long last=this.counters.lastKey();
-            int length=(int)(last-first+1);
-            int[] rates=new int[length];
-            int totalCount=0;
-            int maximumCount=0;
-            for (int i=0;i<rates.length;i++)
+            TraceRateResult result=new TraceRateResult();
+            result.rates=new TraceRate[(int)(durationDurange.end-durationDurange.begin+1)];
+            
+            result.maximumRate=0;
+            result.maximumRateEpochSecond=0;
+            
+            result.maximumDuration=0;
+            result.maximumDurationEpochSecond=0;
+            
+
+            int totalRate=0;
+            double totalDuration=0;
+            
+            
+            for (int i=0;i<result.rates.length;i++)
             {
-                long epochSeconds=first+i;
-                var value=this.counters.get(epochSeconds);
-                if (value!=null)
+                var traceRate=this.traceRates.get(durationDurange.begin+i);
+                if (traceRate!=null)
                 {
-                    rates[i]=value;
-                    totalCount+=value;
-                    if (value>maximumCount)
+                    result.rates[i]=traceRate;
+                    totalRate+=traceRate.rate;
+                    if (traceRate.rate>result.maximumRate)
                     {
-                        maximumCount=value;
+                        result.maximumRate=traceRate.rate;
+                        result.maximumRateEpochSecond=durationDurange.begin+i;
+                    }
+
+                    totalDuration+=traceRate.totalDuration;
+                    if (traceRate.maximumDuration>result.maximumDuration)
+                    {
+                        result.maximumDuration=traceRate.maximumDuration;
+                        result.maximumDurationEpochSecond=durationDurange.begin+i;
                     }
                 }
             }
-            return new TraceRateResult(rates, maximumCount, totalCount);
+            result.averageRate=totalRate/result.rates.length;
+            result.averageDuration=totalDuration/totalRate;
+
+            return result;
+        }
+    }
+
+    public record DurationRange(long begin, long end)
+    {
+        public long getDuration()
+        {
+            return this.end-this.begin+1;
         }
     }
     
     public static class LogTraceCountResult
     {
-        final HashMap<String,TraceRateProcessor> rates;
+        final HashMap<String,TraceRateListMap> processors;
         int filesSearched;
         long entriesExamined;
         
         public LogTraceCountResult()
         {
-            this.rates=new HashMap<>();
+            this.processors=new HashMap<>();
         }
         public int getFilesSearched()
         {
@@ -125,22 +169,42 @@ public class LogTraceRateCollector implements AutoCloseable
         public void add(TraceRecord traceRecord)
         {
             String key=traceRecord.category;
-            TraceRateProcessor stats;
+            TraceRateListMap processor;
             synchronized(this)
             {
-                stats=this.rates.get(key);
-                if (stats==null)
+                processor=this.processors.get(key);
+                if (processor==null)
                 {
-                    stats=new TraceRateProcessor();
-                    this.rates.put(key, stats);
+                    processor=new TraceRateListMap();
+                    this.processors.put(key, processor);
                 }
             }
-            stats.process(traceRecord);
+            processor.add(traceRecord);
         }
         
-        public Map<String,TraceRateProcessor> getTraceRates()
+        public DurationRange postProcess()
         {
-            return this.rates;
+            long beginEpochSecond=Long.MAX_VALUE;
+            long lastEpochSecond=Long.MIN_VALUE;
+            for (TraceRateListMap processor:this.processors.values())
+            {
+                long first=processor.traceRates.firstKey();
+                long last=processor.traceRates.lastKey();
+                if (first<beginEpochSecond)
+                {
+                    beginEpochSecond=first;
+                }
+                if (last>lastEpochSecond)
+                {
+                    lastEpochSecond=last;
+                }
+            }
+            return new DurationRange(beginEpochSecond, lastEpochSecond);
+        }
+        
+        public Map<String,TraceRateListMap> getTraceRates()
+        {
+            return this.processors;
         }
     }
     
@@ -198,7 +262,7 @@ public class LogTraceRateCollector implements AutoCloseable
             tasks[i]=new Task(logTraceResult,files[i]);
         }
         logTraceResult.filesSearched=tasks.length;
-        var progress=this.scheduler.schedule(LogTraceRateCollector.class.getName(),tasks);
+        var progress=this.scheduler.schedule("task."+LogTraceRateCollector.class.getSimpleName(),tasks);
         progress.waitAll();
         return logTraceResult;
     }  

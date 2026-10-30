@@ -73,7 +73,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	final private MenuBar menuBar;
 	final private String hostName;
 	private Template template;
-	final boolean debug;
+	final boolean test;
 	final private String localHostName;
 	
 	public ServerApplication(String name,CoreEnvironment coreEnvironment,HttpTransport operatorTransport) throws Throwable 
@@ -93,8 +93,8 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         
         Element.HREF_LOCAL_DIRECTORY=configuration.getValue("Application.HREF_LOCAL_DIRECTORY",null);
 
-        this.debug=configuration.getBooleanValue("System.debug",false);
-        if ((this.debug==false)&&(Debug.ENABLE))
+        this.test=configuration.getBooleanValue("System.test",false);
+        if ((this.test==false)&&(Debug.ENABLE))
         {
             System.err.println("Debug.ENABLE is true but ServerApplication.debug is false.");
         }
@@ -147,7 +147,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.private.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isDebug());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isTest());
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.private.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.private.clientCertificate.keyStorePath",null);
@@ -162,7 +162,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     }
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                 }
-                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isDebug(),privateServerConfiguration);
+                this.privateServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),privateServerConfiguration);
                 this.privateTransport=new HttpTransport(privateServer, servers);
                 
                 this.privateServer.addContentDecoders(new GzipContentDecoder(),new DeflaterContentDecoder());
@@ -213,7 +213,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.public.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isDebug());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isTest());
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.public.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.public.clientCertificate.keyStorePath",null);
@@ -229,7 +229,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     servers[portIndex]=JettyServerFactory.createServer(threads, httpPort);
                     //Testing
                 }
-                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isDebug(),publicServerConfiguration);
+                this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
                 int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
                 int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
@@ -451,7 +451,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     
     public OperatorPage buildOperatorPage(String title) throws Throwable
     {
-        Template template=this.debug?OperatorPage.buildTemplate(this.menuBar, this.getName(), this.hostName):this.template;
+        Template template=this.test?OperatorPage.buildTemplate(this.menuBar, this.getName(), this.hostName):this.template;
         OperatorPage page=new OperatorPage(template);
         page.replace("title", title);
         page.replace("now", Utils.nowToLocalDateTimeString());
@@ -463,9 +463,9 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         return this.localHostName;
     }
     
-    public boolean isDebug()
+    public boolean isTest()
     {
-        return this.debug;
+        return this.test;
     }
     
     

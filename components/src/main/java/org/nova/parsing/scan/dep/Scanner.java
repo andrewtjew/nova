@@ -186,6 +186,36 @@ public class Scanner
         }
         return new Lexeme(Token.ERROR, "Premature end of string.", this.source.endAndGetSnippet(0));
     }
+    public Lexeme produceTextInsideTag(String endTag) throws Throwable
+    {
+        StringBuilder sb = new StringBuilder();
+        for (char c=this.source.next();c!=0;c=this.source.next())
+        {
+            if (c == endTag.charAt(0))
+            {
+                boolean match=true;
+                for (int i=1;i<endTag.length();i++)
+                {
+                    c=this.source.next();
+                    if (c!=endTag.charAt(i))
+                    {
+                        match=false;
+                        sb.append(endTag.substring(0,i+1));
+                        break;
+                    }
+                }
+                if (match)
+                {
+                    return new Lexeme(Token.TEXT, sb.toString(), this.source.endAndGetSnippet(endTag.length()));
+                }
+            }
+            else
+            {
+                sb.append(c);
+            }
+        }
+        return new Lexeme(Token.ERROR, "Premature end of string.", this.source.endAndGetSnippet(0));
+    }
     public Lexeme produceCommaSeparatedValue() throws Throwable
     {
         StringBuilder sb = new StringBuilder();
@@ -414,6 +444,10 @@ public class Scanner
     {
         for (char c=this.source.next();c!=0;c=this.source.next())
         {
+            if (c=='-')
+            {
+                continue;
+            }
             if (Character.isLetterOrDigit(c)==false)
             {
                 break;
@@ -644,6 +678,19 @@ public class Scanner
             }
         }
         return 0;
+    }
+    public Lexeme produceWhiteSpace() throws Throwable
+    {
+        this.source.begin(0);
+        for (char c=this.source.next();c!=0;c=this.source.next())
+        {
+            if (Character.isWhitespace(c)==false)
+            {
+                break;
+            }
+        }
+        Snippet snippet=this.source.endAndGetSnippet(1);
+        return new Lexeme(Token.TEXT, snippet.getTarget(),snippet);
     }
     public char begin() throws Throwable
     {

@@ -51,7 +51,7 @@ public class RequestLogEntry
 		this.statusCode=response.getStatus();
 		this.request=request.getMethod()+" "+request.getRequestURI();
 		this.remoteEndPoint=request.getRemoteHost()+":"+request.getRemotePort();
-        this.requestHeaders=WsUtils.getRequestHeaders(request,requestMethod);
+        this.requestHeaders=WsUtils.getRequestHeaders(request);
         this.responseHeaders=WsUtils.getResponseHeaders(response);
         this.requestParameters=WsUtils.getRequestParameters(request,requestMethod);
 	}

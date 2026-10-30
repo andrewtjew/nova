@@ -1826,7 +1826,7 @@ public class ObjectMapper
                     {
                         break;
                     }
-                    String value=scanner.getValueString();
+                    String value=scanner.getString();
                     object.put(name, value);
                     
                     if (scanner.isEndOfElements())

@@ -59,32 +59,46 @@ public class Parser
     {
         for (;;)
         {
-            char c = this.lexer.skipWhiteSpaceAndBegin();
+            Lexeme space=this.lexer.produceWhiteSpace();
+            this.sb.append(space.getSnippet().getTarget());
+            char c = this.lexer.begin();
             if (c==0)
             {
                 return;
             }
             if (c=='<')
             {
+                this.lexer.begin();
                 c=this.lexer.read();
                 if (Character.isLetter(c))
                 {
-                    parseTag();
-                }
-                else if (c=='!')
-                {
-                    Lexeme lexeme=this.lexer.produceDelimitedText('>',true);
-                    this.sb.append(lexeme.getSnippet().getTarget());
-                }
-                else if (c=='/')
-                {
-                    Lexeme lexeme=this.lexer.produceDelimitedText('>',true);
-                    this.sb.append(lexeme.getSnippet().getTarget());
+                    String tag=parseTag();
+                    if ("script".equals(tag))
+                    {
+                        this.lexer.begin();
+                        Lexeme lexeme=this.lexer.produceTextInsideTag("</script>");
+                        var value=lexeme.getSnippet().getTarget();
+                        this.sb.append(value);
+                    }
                 }
                 else
                 {
-                    Lexeme lexeme=this.lexer.produceToken(Token.TEXT, 0);
-                    this.sb.append(lexeme.getSnippet().getTarget());
+                    this.sb.append('<');
+                    if (c=='!')
+                    {
+                        Lexeme lexeme=this.lexer.produceDelimitedText('>',true);
+                        this.sb.append(lexeme.getSnippet().getTarget());
+                    }
+                    else if (c=='/')
+                    {
+                        Lexeme lexeme=this.lexer.produceDelimitedText('>',true);
+                        this.sb.append(lexeme.getSnippet().getTarget());
+                    }
+                    else
+                    {
+                        Lexeme lexeme=this.lexer.produceToken(Token.TEXT, 0);
+                        this.sb.append(lexeme.getSnippet().getTarget());
+                    }
                 }
             }
             else
@@ -145,7 +159,7 @@ public class Parser
         if ((c=='"')||(c=='\"'))
         {
             lexeme=this.lexer.produceSimpleString(c);
-            if ("key".equals(name))
+            if ("id".equals(name))
             {
                 this.sections.add(new Text(this.sb.toString()));
                 this.sb=new StringBuilder();
@@ -172,14 +186,18 @@ public class Parser
     }
     
     
-    private void parseTag() throws Throwable
+    final static String REPLACE="x-replace";
+    
+    private String parseTag() throws Throwable
     {
         Lexeme lexeme = lexer.produceWord();
-        if ("<x-replace".equals(lexeme.getValue()))
+        String value=lexeme.getValue();
+        if ((REPLACE).equals(value))
         {
             parseReplace();
-            return;
+            return REPLACE;
         }
+        this.sb.append('<');
         this.sb.append(lexeme.getSnippet().getTarget());
         for (;;)
         {
@@ -188,7 +206,7 @@ public class Parser
             {
                 this.lexer.end(0);
                 this.sb.append(">");
-                return;
+                return value;
             }
             else if (c=='/')
             {
@@ -197,7 +215,7 @@ public class Parser
                 {
                     this.lexer.end(0);
                     this.sb.append(" />");
-                    return;
+                    return value;
                 }
                 parseInvalidText();
             }

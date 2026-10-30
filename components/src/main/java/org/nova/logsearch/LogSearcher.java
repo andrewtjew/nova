@@ -88,11 +88,20 @@ public class LogSearcher implements AutoCloseable
         int hour = Integer.parseInt(parts[3]);
         int minute = Integer.parseInt(parts[4]);
         int second = Integer.parseInt(parts[5]);
-        int millisecond = Integer.parseInt(parts[6])*1000000;
+        int nanoSecond;
+        int nanoSecondIndex=parts[6].indexOf("X");
+        if (nanoSecondIndex>0)
+        {
+            nanoSecond = Integer.parseInt(parts[6].substring(0,nanoSecondIndex))*1000000+Integer.parseInt(parts[6].substring(nanoSecondIndex+1));
+        }
+        else
+        {
+            nanoSecond = Integer.parseInt(parts[6])*1000000;
+        }
         
         try
         {
-            return LocalDateTime.of(year, month, day, hour, minute, second, millisecond);
+            return LocalDateTime.of(year, month, day, hour, minute, second, nanoSecond);
         }
         catch (Exception e)
         {

@@ -36,7 +36,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.annotations.Description;
 import org.nova.collections.RingBuffer;
+import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.html.ext.HtmlUtils;
 import org.nova.http.Header;
 import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
@@ -318,7 +320,9 @@ public class HttpServer
 		return bestEncoder;
 	}
 
-    final static boolean TESTING=false;
+    final static boolean DEBUG=true;
+    static final boolean DEBUG_NO_HANDLER=true;
+    static final String DEBUG_CATEGORY=HttpServer.class.getSimpleName();
     
 	public boolean handle(String URI,HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Throwable
 	{
@@ -350,9 +354,11 @@ public class HttpServer
 				    return true;
 				}
 			}
-			if (TESTING)
-			{
-				Debugging.log(method+" "+URI+": No Handler");
+            trace.setDetails("noHandler:"+method+" "+URI);
+
+			if (Debug.ENABLE&&DEBUG&&DEBUG_NO_HANDLER)
+            {
+				Debugging.log(DEBUG_CATEGORY,"No handler: "+method+" "+URI);
 			}
 			synchronized (this.lastRequestHandlerNotFoundLogEntries)
 			{
@@ -363,66 +369,35 @@ public class HttpServer
 	}
     private boolean handle(Trace parent, ServletHandler handler,String method, String URI, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        String key=method+" "+URI;
-        Trace trace = new Trace(traceManager,parent,this.categoryPrefix+key);
+        ArrayList<Item> items=new ArrayList<>();
         try
         {
-            if (handler.handle(trace, request, response)==false)
+            if (handler.handle(parent, request, response)==false)
             {
                 return false;
+            }
+            if (this.logRequestHandlersOnly==false)
+            {
+                items.add(new Item("method",method));
+                items.add(new Item("queryString",HtmlUtils.getRequestPathAndQuery(request)));
+                items.add(new Item("responseCode",response.getStatus()));
+                if (handler.isLogRequestHeaders())
+                {
+                    items.add(new Item("requestHeaders",WsUtils.getRequestHeaders(request)));
+                }
+                if (handler.isLogResponseHeaders())
+                {
+                    items.add(new Item("responseHeaders",WsUtils.getResponseHeaders(response)));
+                }
             }
         }
         catch (Throwable e)
         {
-            trace.close(e);
+            parent.close(e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return true;
+            items.add(new Item("responseCode",response.getStatus()));
         }
-        finally
-        {
-            trace.close();
-        }
-        RequestLogEntry entry=new RequestLogEntry(trace,null,null,null,request,response);
-        if (this.logRequestHandlersOnly==false)
-        {
-            if (handler.isLogLastRequestsInMemory())
-            {
-                synchronized (this.lastRequestsLogEntries)
-                {
-                    this.lastRequestsLogEntries.add(entry);
-                }
-                if (trace.getThrowable()!=null)
-                {
-                    synchronized (this.lastExceptionRequestsLogEntries)
-                    {
-                        this.lastExceptionRequestsLogEntries.add(entry);
-                    }
-                }
-            }
-        }
-        ArrayList<Item> items=new ArrayList<>();
-        if (handler.isLog())
-        {
-            items.add(new Item("remoteEndPoint",entry.getRemoteEndPoint()));
-            items.add(new Item("queryString",entry.getQueryString()));
-            items.add(new Item("statusCode",entry.statusCode));
-            items.add(new Item("contentType",entry.getContentType()));
-        }
-        if ((handler.isLogRequestHeaders()&&entry.requestHeaders!=null))
-        {
-            if (entry.requestHeaders!=null)
-            {
-                items.add(new Item("requestHeaders",entry.getRequestHeaders()));
-            }
-        }
-        if (handler.isLogResponseHeaders())
-        {
-            if (entry.responseHeaders!=null)
-            {
-                items.add(new Item("responseHeaders",entry.getResponseHeaders()));
-            }
-        }
-        this.logger.log(parent,key,Logger.toArray(items));
+        this.logger.log(parent,"ServletHandler:"+handler.getClass().getSimpleName(),Logger.toArray(items));
         return true;
     }
 
@@ -610,6 +585,10 @@ public class HttpServer
                 if (entry.requestHeaders!=null)
                 {
                     items.add(new Item("requestHeaders",entry.requestHeaders));
+                }
+                if (entry.requestParameters!=null)
+                {
+                    items.add(new Item("requestParameters",entry.requestParameters));
                 }
             }
             if (requestMethod.isLogRequestContent())

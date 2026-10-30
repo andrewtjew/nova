@@ -25,12 +25,15 @@ public class RedirectHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        response.setContentLength(this.content.length);
-        response.setContentType("text/html");
-        response.setStatus(HttpStatus.OK_200);
-        
-        response.getOutputStream().write(this.content);
-    	return true;
+        try (Trace trace=new Trace(parent, this.getClass().getSimpleName()))
+        {
+            response.setContentLength(this.content.length);
+            response.setContentType("text/html");
+            response.setStatus(HttpStatus.OK_200);
+            
+            response.getOutputStream().write(this.content);
+        	return true;
+        }
     }
 
 }

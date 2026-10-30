@@ -76,7 +76,7 @@ public class ResourceController
     public ResourceController(ServerApplication serverApplication) throws Throwable
     {
         Configuration configuration=serverApplication.getConfiguration();
-        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
+        FileCacheConfiguration fileCacheConfiguration = new FileCacheConfiguration("../resources/client","./resources/client",10000);
         this.cache=new FileCache(fileCacheConfiguration);
         
         

@@ -17,10 +17,13 @@ public class MoveHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        response.setHeader("Location", this.moveToLocation);
-        response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
-        response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
-    	return true;
+        try (Trace trace=new Trace(parent, this.getClass().getSimpleName()))
+        {
+            response.setHeader("Location", this.moveToLocation);
+            response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+            response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
+        	return true;
+        }
     }
 
 }
