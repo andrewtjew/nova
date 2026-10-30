@@ -8,7 +8,7 @@ import org.nova.json.ObjectMapper;
 
 public class number_flow extends TagElement<number_flow>
 {
-    public static final String SRC="https://cdn.jsdelivr.net/npm/number-flow@0.6.0/+esm";
+    public static final String SCRIPT="https://cdn.jsdelivr.net/npm/number-flow@0.6.0/+esm";
 
     public static String js_set(String id,String value,Properties properties) throws Throwable
     {
@@ -31,11 +31,11 @@ public class number_flow extends TagElement<number_flow>
         super("number-flow");
     }
     
-    public static class ScriptContent extends Content
+    public static class PageBindings extends Content
     {
-        public ScriptContent(String rootPath)
+        public PageBindings(String rootPath)
         {
-            addInner(new script().type("module").src(SRC));
+            addInner(new script().type("module").src(SCRIPT));
             addInner(new script().src(rootPath+"/barvian/number-flow.js"));
         }
     }

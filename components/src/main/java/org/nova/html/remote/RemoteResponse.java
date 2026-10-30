@@ -11,7 +11,7 @@ import org.nova.html.elements.QuotationMark;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.http.client.PathAndQuery;
-import org.nova.http.server.EventSourceConnection;
+import org.nova.http.server.ServerSideConnection;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
 import org.nova.utils.Utils;
@@ -326,7 +326,7 @@ public class RemoteResponse
         return this;
     }
 
-    public RemoteResponse send(EventSourceConnection eventSourceResponse) throws Throwable
+    public RemoteResponse send(ServerSideConnection eventSourceResponse) throws Throwable
     {
         eventSourceResponse.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
         return this;

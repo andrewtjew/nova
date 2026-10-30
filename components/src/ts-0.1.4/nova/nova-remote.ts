@@ -35,7 +35,7 @@ namespace nova.remote
     //     }
     // }
 
-    export function openEvenSourceConnection(url:string)
+    export function openServerSideConnection(url:string)
     {
             new EventSource(url).onmessage=(event)=>
             {

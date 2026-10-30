@@ -59,4 +59,9 @@ public class Remote
     {
         return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",formId,action);             
     }
+    
+    public static String js_openServerSideConnection(PathAndQuery pathAndQuery) throws Throwable
+    {
+        return HtmlUtils.js_call("nova.remote.openServerSideConnection",pathAndQuery.toString());             
+    }
 }
