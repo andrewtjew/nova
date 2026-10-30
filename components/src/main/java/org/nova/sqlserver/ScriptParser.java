@@ -23,10 +23,10 @@ package org.nova.sqlserver;
 
 import java.util.ArrayList;
 
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.ScanException;
-import org.nova.parsing.scan.Snippet;
-import org.nova.parsing.scan.TextSource;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.ScanException;
+import org.nova.parsing.scan.dep.Snippet;
+import org.nova.parsing.scan.dep.TextSource;
 
 public class ScriptParser
 {

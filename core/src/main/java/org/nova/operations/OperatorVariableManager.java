@@ -40,10 +40,10 @@ public class OperatorVariableManager
 	{
 		this.map=new HashMap<>();
 		this.applicators=new HashMap<>();
-		registerApplicators(new DefaultApplicator());
+		registerApplicator(new DefaultApplicator());
 		this.store=store;
 	}
-    public void registerApplicators(Applicator applicator) 
+    public void registerApplicator(Applicator applicator) 
     {
         this.applicators.put(applicator.getClass().getName(),applicator);
     }
@@ -85,10 +85,10 @@ public class OperatorVariableManager
             {
                 throw new Exception("No validator registered: name="+object.getClass().getCanonicalName()+"."+field.getName()+", type="+type.getName()+", key="+key);
             }
-            if (applicator instanceof DefaultApplicator==false)
-            {
-                System.out.println("Applicator:"+applicator.getClass().getSimpleName());
-            }
+//            if (applicator instanceof DefaultApplicator==false)
+//            {
+//                System.out.println("Applicator:"+applicator.getClass().getSimpleName());
+//            }
             VariableInstance instance=new VariableInstance(applicator,variable, object, field);
 			if ((this.store!=null)&&(parent!=null))
 			{
@@ -133,6 +133,10 @@ public class OperatorVariableManager
                 return new ApplicationResult(Status.KEY_NOT_FOUND);
             }
             ApplicationResult result=instance.set(value);
+            if (result==null)
+            {
+                return null;
+            }
             if (result.status==Status.SUCCESS)
             {
                 if (this.store!=null)

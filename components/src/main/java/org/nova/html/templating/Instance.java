@@ -43,7 +43,7 @@ public class Instance extends Element
             {
                 ReplaceMarker marker=(ReplaceMarker)element;
                 Content markerContent=new Content();
-                this.map.put(marker.key,markerContent);
+                this.map.put(marker.id(),markerContent);
                 this.content.addInner(markerContent);
             }
             else

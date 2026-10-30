@@ -281,6 +281,11 @@ public class LogDirectoryManager
         return fullDirectoryPath;
     }
 
+    public File getDirectory()
+    {
+        return directory;
+    }
+    
     public CountMeter getMakeSpaceFailedMeter()
     {
         return makeSpaceFailedMeter;

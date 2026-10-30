@@ -29,7 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class WsUtils
 {
-	public static String getRequestHeaders(HttpServletRequest request,RequestMethod requestMethod)
+	public static String getRequestHeaders(HttpServletRequest request)
 	{
 		StringBuilder sb=new StringBuilder();
 		Enumeration<String> names=request.getHeaderNames();
@@ -69,7 +69,7 @@ public class WsUtils
             {
                 if (hiddenParameters.contains(name))
                 {
-                    sb.append(name).append("\r\n");
+                    sb.append(name+"*:").append("\r\n");
                     continue;
                 }
             }

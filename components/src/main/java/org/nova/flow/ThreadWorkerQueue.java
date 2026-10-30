@@ -24,7 +24,7 @@ package org.nova.flow;
 import java.util.ArrayList;
 import org.nova.concurrent.Synchronization;
 import org.nova.debug.Debugging;
-import org.nova.logging.ThrowableEvents;
+import org.nova.logging.dep.ThrowableEvents;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
 

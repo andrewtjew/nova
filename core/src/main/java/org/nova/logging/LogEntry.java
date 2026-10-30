@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.nova.logging;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.nova.tracing.Trace;
 
 public class LogEntry
@@ -33,7 +35,7 @@ public class LogEntry
 	private final Trace trace;
 	private final Item[] items;
 	private final String category;
-	LogEntry(long number,String category,Level logLevel,long created,Throwable exception,Trace trace,String message,Item[] items)
+	public LogEntry(long number,String category,Level logLevel,long created,Throwable exception,Trace trace,String message,Item[] items)
 	{
 		this.number=number;
 		this.category=category;

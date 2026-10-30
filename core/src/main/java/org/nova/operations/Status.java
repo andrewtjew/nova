@@ -25,8 +25,10 @@ public enum Status
 {
     SUCCESS,
     PARSE_FAILED,
-    VALIDATION_FAILED,
+    APPLICATION_FAILED,
     SET_FAILED,
     CATEGORY_NOT_FOUND,
     KEY_NOT_FOUND,
+    NULL_RESULT,
+    
 }

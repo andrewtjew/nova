@@ -124,6 +124,16 @@ public class MultiTaskScheduler
         return progress;
     }
 
+    public <RESULT> Progress<RESULT> schedule(String traceCategory,TraceCallable<RESULT>...callables)
+    {
+        return schedule(null,traceCategory,callables);
+    }
+
+    public Progress<?> schedule(String traceCategory,TraceRunnable...runnables)
+    {
+        return schedule(null,traceCategory,runnables);
+    }
+
 
 	public Progress<?>[] getProgressSnapshot()
 	{

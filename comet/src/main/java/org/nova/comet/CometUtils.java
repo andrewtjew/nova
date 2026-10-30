@@ -207,12 +207,12 @@ public class CometUtils
     }
     static public String readTextFile(String fileName,String encoding) throws Exception
     {
-        return org.nova.utils.FileUtils.readTextFile(fileName, encoding);
+        return org.nova.utils.FileUtils.readString(fileName, encoding);
     }
 
     static public String readTextFile(String fileName) throws Exception
     {
-        return org.nova.utils.FileUtils.readTextFile(fileName);
+        return org.nova.utils.FileUtils.readString(fileName);
     }
 
     static public void writeTextFile(String text,String fileName,String encoding) throws Exception

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,27 +34,13 @@ import java.security.MessageDigest;
 
 public class FileUtils
 {
-    public static String readTextFile(String fileName, String charset) throws Exception
-    {
-        return readTextFile(fileName, Charset.forName(charset));
-    }
-
-    public static String readTextFile(String fileName) throws Exception
-    {
-        return readTextFile(fileName, StandardCharsets.UTF_8);
-    }
-
-    public static String readTextFile(String fileName, Charset charset) throws Exception
-    {
-        return new String(readFile(fileName), charset);
-    }
 
     public static String toNativePath(String fileName)
     {
         return fileName.replace('\\', File.separatorChar).replace('/', File.separatorChar);
     }
 
-    public static byte[] readFile(String fileName) throws Exception
+    public static byte[] readBytes(String fileName) throws Exception
     {
         fileName = toNativePath(fileName);
         File file = new File(fileName);
@@ -81,46 +68,51 @@ public class FileUtils
     }
     public static byte[] readBytes(InputStream stream, int bufferSize) throws IOException
     {
-        int count = 0;
-        byte[] buffer = new byte[bufferSize];
-        byte[] streamBuffer = new byte[bufferSize];
-        for (int bytesRead = stream.read(buffer); bytesRead > 0; bytesRead = stream.read(buffer))
-        {
-            if (bytesRead + count > streamBuffer.length)
-            {
-                byte[] newStringBuffer = new byte[streamBuffer.length * 2];
-                System.arraycopy(streamBuffer, 0, newStringBuffer, 0, count);
-                streamBuffer = newStringBuffer;
-            }
-            System.arraycopy(buffer, 0, streamBuffer, count, bytesRead);
-            count += bytesRead;
-        }
-        if (count==streamBuffer.length)
-        {
-            return streamBuffer;
-        }
-        byte[] bytes=new byte[count];
-        System.arraycopy(streamBuffer, 0, bytes, 0, count);
-        return bytes;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bufferSize);
+        stream.transferTo(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+//        
+//        
+//        byte[] buffer = new byte[bufferSize];
+//        byte[] streamBuffer = new byte[bufferSize];
+//        for (int bytesRead = stream.read(buffer); bytesRead > 0; bytesRead = stream.read(buffer))
+//        {
+//            if (bytesRead + count > streamBuffer.length)
+//            {
+//                byte[] newStringBuffer = new byte[streamBuffer.length * 2];
+//                System.arraycopy(streamBuffer, 0, newStringBuffer, 0, count);
+//                streamBuffer = newStringBuffer;
+//            }
+//            System.arraycopy(buffer, 0, streamBuffer, count, bytesRead);
+//            count += bytesRead;
+//        }
+//        if (count==streamBuffer.length)
+//        {
+//            return streamBuffer;
+//        }
+//        byte[] bytes=new byte[count];
+//        System.arraycopy(streamBuffer, 0, bytes, 0, count);
+//        return bytes;
     }
 
+    public static String readString(String fileName, String charset) throws Exception
+    {
+        return readString(fileName, Charset.forName(charset));
+    }
+
+    public static String readString(String fileName) throws Exception
+    {
+        return readString(fileName, StandardCharsets.UTF_8);
+    }
+
+    public static String readString(String fileName, Charset charset) throws Exception
+    {
+        return new String(readBytes(fileName), charset);
+    }
+    
     public static String readString(InputStream stream, int bufferSize, Charset charset) throws IOException
     {
-        int count = 0;
-        byte[] buffer = new byte[bufferSize];
-        byte[] stringBuffer = new byte[bufferSize];
-        for (int bytesRead = stream.read(buffer); bytesRead > 0; bytesRead = stream.read(buffer))
-        {
-            if (bytesRead + count > stringBuffer.length)
-            {
-                byte[] newStringBuffer = new byte[stringBuffer.length * 2];
-                System.arraycopy(stringBuffer, 0, newStringBuffer, 0, count);
-                stringBuffer = newStringBuffer;
-            }
-            System.arraycopy(buffer, 0, stringBuffer, count, bytesRead);
-            count += bytesRead;
-        }
-        return new String(stringBuffer, 0, count, charset);
+        return new String(readBytes(stream,bufferSize), charset);
     }
 
     public static String readString(InputStream stream, Charset charset) throws IOException
@@ -230,4 +222,5 @@ public class FileUtils
         return fullFilePath.substring(extensionIndex+1);
     }
 
+    
 }

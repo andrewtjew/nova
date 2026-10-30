@@ -27,13 +27,12 @@ import org.nova.html.elements.TagElement;
 
 public class ReplaceMarker extends TagElement<ReplaceMarker>
 {
-    final String key;
+    final static String REPLACE_MARKER_TAG="x-replace";
     
-    public ReplaceMarker(String key)
+    public ReplaceMarker(String id)
     {
-        super("x-replace");
-        attr("key",key);
-        this.key=key;
+        super(REPLACE_MARKER_TAG);
+        id(id);
     }
     
     @Override

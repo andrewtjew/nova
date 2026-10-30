@@ -35,12 +35,8 @@ import org.nova.service.deviceSession.DeviceSessionPage;
 
 public class BootStrapPage extends DeviceSessionPage
 {
-    final private Content content;
     public BootStrapPage(String title,String lang,String compatible)
 	{
-        this.content=new Content();
-        this.content.addInner(new DocType("html"));
-    	
     	if (title!=null)
     	{
     	    this.head().title(title);

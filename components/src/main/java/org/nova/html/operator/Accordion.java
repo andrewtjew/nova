@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
+import org.nova.html.elements.Element;
 import org.nova.html.ext.Content;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;
@@ -29,7 +30,7 @@ public class Accordion extends Content
 {
     final private button_button button;
     final private div content;
-    public Accordion(String id,boolean opened,String heading)
+    public Accordion(String id,boolean opened,Object heading)
     {
         if (id==null)
         {
@@ -52,7 +53,7 @@ public class Accordion extends Content
         this.button.addInner(heading);
         
     }
-    public Accordion(boolean opened,String heading)
+    public Accordion(boolean opened,Object heading)
     {
         this(null,opened,heading);
     }

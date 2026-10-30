@@ -37,7 +37,7 @@ public class FileCache extends ContentCache<String,byte[]>
             bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
-                bytes=FileUtils.readFile(localFile);
+                bytes=FileUtils.readBytes(localFile);
             }
             try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
             {
@@ -55,7 +55,7 @@ public class FileCache extends ContentCache<String,byte[]>
             bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
-                bytes=FileUtils.readFile(localFile);
+                bytes=FileUtils.readBytes(localFile);
             }
             try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
             {
@@ -73,7 +73,7 @@ public class FileCache extends ContentCache<String,byte[]>
             bytes=getValueFromCache("raw|"+localFile);
             if (bytes==null)
             {
-                bytes=FileUtils.readFile(localFile);
+                bytes=FileUtils.readBytes(localFile);
             }
             Encoder.Parameters params = new Encoder.Parameters().setQuality(4);
             try (ByteArrayOutputStream byteArrayOutputStream =new ByteArrayOutputStream(bytes.length))
@@ -89,7 +89,7 @@ public class FileCache extends ContentCache<String,byte[]>
         }
         else
         {
-            bytes=FileUtils.readFile(localFile);
+            bytes=FileUtils.readBytes(localFile);
         }
         return new ValueSize<byte[]>(bytes,bytes.length);
     }

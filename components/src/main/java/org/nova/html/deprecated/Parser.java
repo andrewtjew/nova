@@ -24,10 +24,10 @@ package org.nova.html.deprecated;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
-import org.nova.parsing.scan.Token;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.Scanner;
+import org.nova.parsing.scan.dep.TextSource;
+import org.nova.parsing.scan.dep.Token;
 import org.nova.utils.FileUtils;
 
 public class Parser
@@ -44,7 +44,7 @@ public class Parser
     
     Section[] parseFile(String htmlFile) throws Throwable
     {
-        return parseText(FileUtils.readTextFile(htmlFile, StandardCharsets.UTF_8));
+        return parseText(FileUtils.readString(htmlFile, StandardCharsets.UTF_8));
     }
 
     Section[] parseText(String text) throws Throwable

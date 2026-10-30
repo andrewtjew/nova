@@ -32,7 +32,7 @@ public class UnsecureFileVault extends Vault
 	public UnsecureFileVault(String inputFileName) throws Exception
 	{
 	    this.map=new HashMap<>();
-		String text=FileUtils.readTextFile(inputFileName);
+		String text=FileUtils.readString(inputFileName);
 		String[] lines=text.split("\n");
 		for (String line:lines)
 		{

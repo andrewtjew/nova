@@ -25,6 +25,7 @@ import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.nova.concurrent.Synchronization;
 import org.nova.configuration.Configuration;
+import org.nova.debug.Debug;
 import org.nova.html.ExtensionToContentTypeMappings;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.HtmlElementWriter;
@@ -60,13 +61,11 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
     final private HttpTransport publicTransport;
     final private HttpTransport privateTransport;
     final private HttpTransport operatorTransport;
-    final private WebSocketTransport websocketPublicTransport;
     
     final private HttpServer privateServer;
     final private HttpServer publicServer;
     
 	final private OperatorVariableManager operatorVariableManager;
-//	final private FileCache fileCache;
 	final private String baseDirectory;
 	final private ExtensionToContentTypeMappings typeMappings;
 	final private DisruptorManager disruptorManager;
@@ -95,6 +94,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         Element.HREF_LOCAL_DIRECTORY=configuration.getValue("Application.HREF_LOCAL_DIRECTORY",null);
 
         this.test=configuration.getBooleanValue("System.test",false);
+        if ((this.test==false)&&(Debug.ENABLE))
+        {
+            System.err.println("Debug.ENABLE is true but ServerApplication.debug is false.");
+        }
         this.disruptorManager=new DisruptorManager();
 
         this.localHostName=configuration.getValue("ServerApplication.localHostNameOverride",Utils.getLocalHostName());
@@ -177,7 +180,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
         { //Public http server
             boolean https=configuration.getBooleanValue("HttpServer.public.https",true);
             boolean http=configuration.getBooleanValue("HttpServer.public.http",false);
-            boolean websocket=configuration.getBooleanValue("HttpServer.public.websocket",false);
             
             
             int ports=0;
@@ -229,14 +231,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                 }
                 this.publicServer=new HttpServer(this.getTraceManager(), this.getLogger("HttpServer"),isTest(),publicServerConfiguration);
                 this.publicTransport=new HttpTransport(this.publicServer, servers);
-                if (websocket)
-                {
-                    this.websocketPublicTransport=new WebSocketTransport("/wstest", this.publicServer, servers);
-                }
-                else
-                {
-                    this.websocketPublicTransport=null;
-                }
                 int maxFormContentSize=configuration.getIntegerValue("HttpServer.maxFormContentSize",1000000);
                 int maxFormKeys=configuration.getIntegerValue("HttpServer.maxFormKeys",10000);
                 for (Server server:servers)
@@ -272,18 +266,10 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
             {
                 this.publicServer=null;
                 this.publicTransport=null;
-                this.websocketPublicTransport=null;
             }
         }
 
 
-        //File cache
-//        FileCacheConfiguration fileCacheConfiguration=configuration.getNamespaceObject("FileCache", FileCacheConfiguration.class);
-//		this.fileCache=new FileCache(fileCacheConfiguration);
-//		configuration.add("Classes.FileCache.sharedDirectory", this.fileCache.getSharedDirectory());
-//		configuration.add("Classes.FileCache.localDirectory", this.fileCache.getLocalDirectory());
-		
-//        this.getOperatorVariableManager().register("HttpServer.operator", this.operatorTransport.getHttpServer());
         if (this.privateServer!=null)
         {
             this.getOperatorVariableManager().register(null,"HttpServer.private", this.privateServer);
@@ -321,7 +307,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	
 	public void start() throws Throwable
 	{
-        try (Trace trace=new Trace(this.getTraceManager(),"postStart"))
+        try (Trace trace=new Trace(this.getTraceManager(),"preStart"))
         {
             preStart(trace);
         }
@@ -437,11 +423,6 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
 	{
 		return this.baseDirectory;
 	}
-
-//	public FileCache getFileCache()
-//	{
-//		return this.fileCache;
-//	}
 
 	public ExtensionToContentTypeMappings getContentTypeMappings()
 	{

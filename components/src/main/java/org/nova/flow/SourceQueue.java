@@ -39,7 +39,7 @@ public class SourceQueue<ITEM>
     final private Node receiver;
     final private Object lock;
     private Thread thread;
-    private ArrayList<Packet> buffer;
+    private ArrayList<Packet> packets;
     private Throwable throwable;
     private boolean stop;
 
@@ -49,7 +49,7 @@ public class SourceQueue<ITEM>
     final private long endSegmentWait;
 
 
-    private Packet current;
+    private Packet currentPacket;
 
     private boolean noWait = false;
 
@@ -68,8 +68,8 @@ public class SourceQueue<ITEM>
         this.maxQueueSize = configuration.maxQueueSize;
 
         this.lock = new Object();
-        this.buffer = new ArrayList<>();
-        this.current = new Packet(this.sendSizeThreshold);
+        this.packets = new ArrayList<>();
+        this.currentPacket = new Packet(this.sendSizeThreshold);
     }
 
     public void start()
@@ -136,11 +136,12 @@ public class SourceQueue<ITEM>
             {
                 return;
             }
-            boolean added = this.current.add(item);
+            boolean added = this.currentPacket.add(item);
             if (added == false)
             {
-                this.buffer.add(this.current);
-                this.current = new Packet(this.sendSizeThreshold);
+                this.packets.add(this.currentPacket);
+                this.currentPacket = new Packet(this.sendSizeThreshold);
+                this.currentPacket.add(item);
             }
             this.waitingMeter.increment();
             size = this.waitingMeter.getLevel(); // need latest.
@@ -173,10 +174,10 @@ public class SourceQueue<ITEM>
             long size = this.waitingMeter.getLevel(); // need latest.
             if (size > 0)
             {
-                this.buffer.add(this.current);
-                this.current = new Packet(this.sendSizeThreshold);
+                this.packets.add(this.currentPacket);
+                this.currentPacket = new Packet(this.sendSizeThreshold);
             }
-            this.buffer.add(Packet.FLUSH_PACKET);
+            this.packets.add(Packet.FLUSH_PACKET);
             this.noWait = true;
             this.lock.notify();
         }
@@ -193,10 +194,10 @@ public class SourceQueue<ITEM>
             long size = this.waitingMeter.getLevel(); // need latest.
             if (size > 0)
             {
-                this.buffer.add(this.current);
-                this.current = new Packet(this.sendSizeThreshold);
+                this.packets.add(this.currentPacket);
+                this.currentPacket = new Packet(this.sendSizeThreshold);
             }
-            this.buffer.add(null);
+            this.packets.add(null);
             this.noWait = true;
             this.lock.notify();
         }
@@ -283,13 +284,13 @@ public class SourceQueue<ITEM>
                         {
                             Debugging.log("SourceQueue:switch buffers");
                         }
-                        toSendBuffer = this.buffer;
-                        if (this.current.sizeOrType() > 0)
+                        toSendBuffer = this.packets;
+                        if (this.currentPacket.sizeOrType() > 0)
                         {
-                            toSendBuffer.add(this.current);
-                            this.current = new Packet(this.sendSizeThreshold);
+                            toSendBuffer.add(this.currentPacket);
+                            this.currentPacket = new Packet(this.sendSizeThreshold);
                         }
-                        this.buffer = new ArrayList<>(toSendBuffer.size() * 2);
+                        this.packets = new ArrayList<>(toSendBuffer.size() * 2);
                         this.waitingMeter.set(0);
                     }
                 } //end synchronized
@@ -316,7 +317,7 @@ public class SourceQueue<ITEM>
                             if (sendPacket.sizeOrType() > 0)
                             {
                                 this.receiver.process(sendPacket);
-                                sendPacket = new Packet((int) this.waitingMeter.getLevel());
+                                sendPacket = new Packet(sendSize);
                             }
                             long rollOver = System.currentTimeMillis();
                             if (rollOver <= lastRollOver)
@@ -333,7 +334,7 @@ public class SourceQueue<ITEM>
                             if (sendPacket.sizeOrType() > 0)
                             {
                                 this.receiver.process(sendPacket);
-                                sendPacket = new Packet((int) this.waitingMeter.getLevel());
+                                sendPacket = new Packet(sendSize);
                             }
                             if (flush)
                             {

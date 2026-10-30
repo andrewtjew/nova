@@ -34,7 +34,7 @@ import org.nova.http.server.JSONContentWriter;
 import org.nova.http.server.Transformers;
 import org.nova.http.server.annotations.ContentParam;
 import org.nova.http.server.annotations.Path;
-import org.nova.logging.LogUtils;
+import org.nova.logging.dep.LogUtils;
 import org.nova.tracing.TraceManager;
 
 public class TraceServer

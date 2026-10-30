@@ -39,7 +39,7 @@ public class RequestHandlerNotFoundLogEntry
 	public RequestHandlerNotFoundLogEntry(Trace trace,HttpServletRequest request) throws Throwable
 	{
 		this.trace=trace;
-		this.requestHeaders=WsUtils.getRequestHeaders(request,null);
+		this.requestHeaders=WsUtils.getRequestHeaders(request);
 		this.method=request.getMethod();
 		this.URI=request.getRequestURI();
 		this.queryString=request.getQueryString();

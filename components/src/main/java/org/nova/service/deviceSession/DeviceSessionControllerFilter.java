@@ -654,15 +654,15 @@ public abstract class DeviceSessionControllerFilter extends Filter
     {
         return new DefaultHandlerPage(NO_DEVICE_SESSION_PATH);
     }
-    protected Element handleInvalidQuery(Trace parent,Context context,DeviceSession devSession) throws Throwable
+    protected Element handleInvalidQuery(Trace parent,Context context,DeviceSession deviceSession) throws Throwable
     {
         return new DefaultHandlerPage(INVAID_QUERY_PATH);
     }
-    protected Element handleNoLock(Trace parent,Context context,DeviceSession devSession) throws Throwable
+    protected Element handleNoLock(Trace parent,Context context,DeviceSession deviceSession) throws Throwable
     {
         return new DefaultHandlerPage(NO_LOCK_PATH);
     }
-    protected Element handleException(Trace parent,Context context,DeviceSession devSession,Throwable t) throws Throwable
+    protected Element handleException(Trace parent,Context context,DeviceSession deviceSession,Throwable t) throws Throwable
     {
         return new DefaultHandlerPage(EXCEPTION_PATH,t);
     }

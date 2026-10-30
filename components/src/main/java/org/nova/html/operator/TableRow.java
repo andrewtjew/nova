@@ -52,7 +52,7 @@ public class TableRow extends Element
             }
             else
             {
-                tr.addInner(new td().addInner(item));
+                tr.addInner(new td().addInner(item).style("text-align:left;"));
             }
         }
         return this;

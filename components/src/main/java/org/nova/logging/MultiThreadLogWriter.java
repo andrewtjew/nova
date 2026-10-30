@@ -1,0 +1,508 @@
+package org.nova.logging;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.nova.collections.RingBuffer;
+import org.nova.concurrent.Synchronization;
+import org.nova.debug.Debug;
+import org.nova.debug.Debugging;
+import org.nova.debug.LogLevel;
+import org.nova.logging.MultiThreadFileLogWriter.CompressionFormat;
+import org.nova.logging.MultiThreadFileLogWriter.Configuration;
+import org.nova.logging.MultiThreadFileLogWriter.FileFormat;
+import org.nova.metrics.CountMeter;
+import org.nova.metrics.LevelMeter;
+import org.nova.metrics.RateMeter;
+import org.nova.tracing.Trace;
+import org.nova.tracing.TraceManager;
+
+import net.jpountz.lz4.LZ4BlockOutputStream;
+
+public abstract class MultiThreadLogWriter extends LogWriter
+{
+    static public class Configuration
+    {
+        public long stallWait_ms=3000;
+        public long rollOverWait_ms=60000;
+        public int fileBufferCapacity=65536;
+        public int bufferSize=100000;
+        public int threads=6;
+        public int buffers=12;
+    }
+
+    final protected static boolean DEBUG=false;
+    final protected static boolean DEBUG_WRITE_FILE=false;
+    final protected static boolean DEBUG_WAITING_IN_QUEUE=false;
+    final protected static boolean DEBUG_QUEUE_ORDERING=true;
+    final protected static boolean DEBUG_QUEUE_TRACING=true;
+    final protected static boolean DEBUG_BUFFER_NUMBER=true;
+    static final String DEBUG_CATEGORY=MultiThreadLogWriter.class.getSimpleName();
+
+    final private RingBuffer<LogEntryBuffer> logEntryBuffers;
+    final private RingBuffer<LogEntryBuffer> logEntryQueue;
+    private LogEntryBuffer currentBuffer;
+    final private Object currentBufferLock;
+    final private LevelMeter fileWriteMeter;
+    
+    final private Configuration configuration;
+    private Thread[] threads;
+    protected boolean stop;
+    private Throwable throwable;
+
+    private long testNumber=0;
+    private long number = 0;
+    private long bufferNumber = 0;
+    
+
+    abstract protected void write(int threadIndex,LogEntryBuffer buffer) throws Throwable;
+    abstract protected void signalStop() throws Throwable;
+    
+    public MultiThreadLogWriter(Configuration configuration)
+    {
+        this.configuration=configuration;
+
+        this.fileWriteMeter = new LevelMeter();
+        this.logEntryQueue = new RingBuffer<>(new LogEntryBuffer[configuration.buffers]);
+        this.logEntryBuffers = new RingBuffer<>(new LogEntryBuffer[configuration.buffers]);
+        for (int i = 0; i < this.logEntryBuffers.getCapacity(); i++)
+        {
+            LogEntryBuffer entryBuffer = new LogEntryBuffer(configuration.bufferSize);
+            this.logEntryBuffers.add(entryBuffer);
+        }
+        this.currentBufferLock = new Object();
+        synchronized (this.currentBufferLock)
+        {
+            synchronized (this.logEntryBuffers)
+            {
+                getCurrentBufferFromLogEntryBuffers();
+            }
+        }
+    }
+    
+    public void start()
+    {
+        synchronized (this)
+        {
+            if (this.threads == null)
+            {
+                this.stop = false;
+                this.threads = new Thread[this.configuration.threads];
+                for (int i = 0; i < this.threads.length; i++)
+                {
+                    final int index = i;
+                    var thread= this.threads[i] = new Thread(() ->
+                    {
+                        main(index);
+                    });
+                    thread.start();
+                }
+            }
+        }
+    }
+
+    public int stop(long waitMs) throws Throwable 
+    {
+        int aliveThreads=0;
+        this.flush(waitMs);
+        synchronized(this)
+        {
+            if (this.threads == null)
+            {
+                return 0;
+            }
+            this.stop = true;
+            synchronized (this.logEntryQueue)
+            {
+                this.logEntryQueue.notifyAll();
+            }
+            synchronized (this.logEntryBuffers)
+            {
+                this.logEntryBuffers.notifyAll();
+            }
+            signalStop();
+            for (int i = 0; i < this.threads.length; i++)
+            {
+                var thread = this.threads[i];
+                try
+                {
+                    thread.join(waitMs);
+                }
+                catch (InterruptedException e)
+                {
+                }
+                if (thread.isAlive())
+                {
+                    aliveThreads++;
+                    if (Debug.ENABLE && DEBUG)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"thread "+i+" did not stop");
+                    }
+                }
+            }
+            this.threads = null;
+            return aliveThreads;
+        }
+    }
+    
+    public boolean flush(long waitMs)
+    {
+        synchronized (this)
+        {
+            if (this.stop == true)
+            {
+                return true;
+            }
+        }
+        synchronized (this.currentBufferLock)
+        {
+            if ((this.currentBuffer!=null)&&(this.currentBuffer.index>0))
+            {
+                //Trigger main thread to run.
+                synchronized(this.logEntryQueue)
+                {
+                    this.logEntryQueue.add(this.currentBuffer);
+                    this.logEntryQueue.notify();
+                }
+                this.currentBuffer=null; 
+            }
+            else
+            {
+                if (Debug.ENABLE && DEBUG)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"Nothing to flush");
+                }
+                return true;
+            }
+            
+            //Wait for main thread to finish. File may not have been written to storage yet.
+            synchronized(this.logEntryQueue)
+            {
+                if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_TRACING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"flush:waiting for logEntryQueue to be empty...");
+                }
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryQueue, waitMs, () ->
+                {
+                    return this.logEntryQueue.isEmpty()||this.stop;
+                });
+                if (wait==false)
+                {
+                    return false;
+                }
+                if (this.stop)
+                {
+                    return false;
+                }
+            }
+
+            //Wait for files to be written to storage.
+            synchronized (this.fileWriteMeter)
+            {
+                boolean wait=Synchronization.waitForNoThrow(this.fileWriteMeter, waitMs, () ->
+                {
+                    return this.fileWriteMeter.getLevel()==0||this.stop;
+                });
+                if (wait==false)
+                {
+                    return false;
+                }
+                if (this.stop)
+                {
+                    return false;
+                }
+            }
+
+            //Get a new buffer to write to.
+            synchronized (this.logEntryBuffers)
+            {
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, waitMs, () ->
+                {
+                    return this.logEntryBuffers.isEmpty()||this.stop;
+                });
+                if (wait==false)
+                {
+                    return false;
+                }
+                if (this.stop)
+                {
+                    return false;
+                }
+                getCurrentBufferFromLogEntryBuffers();
+            }
+            return true;
+        }
+    }
+    
+    private void getCurrentBufferFromLogEntryBuffers()
+    {
+        this.currentBuffer=this.logEntryBuffers.remove();
+        if (this.currentBuffer!=null)
+        {
+            if (Debug.ENABLE && DEBUG && DEBUG_BUFFER_NUMBER)
+            {
+                Debugging.log(DEBUG_CATEGORY,"bufferNumber="+this.bufferNumber);
+            }
+            this.currentBuffer.start(this.bufferNumber++);
+        }
+    }
+    
+    public LogEntry writeToCurrentLogEntryBuffer(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
+    {
+        if (this.currentBuffer==null)
+        {
+            return null;
+        }
+        LogEntry entry=new LogEntry(this.number++,category,logLevel,System.currentTimeMillis(),throwable,trace,message,items);
+        boolean full=this.currentBuffer.addAndCheckFull(entry);
+        if (full==false)
+        {
+            return entry;
+        }
+        synchronized (this.logEntryQueue)
+        {
+            this.logEntryQueue.add(this.currentBuffer);
+            this.logEntryQueue.notify();
+            if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_TRACING)
+            {
+                Debugging.log(DEBUG_CATEGORY,"notify buffer");
+            }
+        }
+        synchronized (this.logEntryBuffers)
+        {
+            getCurrentBufferFromLogEntryBuffers();
+        }
+        return entry;
+    }    
+
+    @Override
+    public LogEntry write(Trace trace,Level logLevel,String category,Throwable throwable,String message,Item[] items)
+    {
+        this.writeMeter.increment();
+        synchronized (this.currentBufferLock)
+        {
+            var entry=writeToCurrentLogEntryBuffer(trace,logLevel,category,throwable,message,items);
+            if (entry!=null)
+            {
+                return entry;
+            }
+        }
+        this.stalledMeter.increment();
+        if (Debug.ENABLE && DEBUG)
+        {
+            Debugging.log(DEBUG_CATEGORY,"stalled="+this.stalledMeter.getCount());
+        }
+        synchronized (this.currentBufferLock)
+        {
+            var entry=writeToCurrentLogEntryBuffer(trace,logLevel,category,throwable,message,items);
+            if (entry!=null)
+            {
+                return entry;
+            }
+            synchronized (this.logEntryBuffers)
+            {
+                boolean wait=Synchronization.waitForNoThrow(this.logEntryBuffers, this.configuration.stallWait_ms, () ->
+                {
+                    return this.logEntryBuffers.size() > 0 || this.stop;
+                });
+                if (this.stop)
+                {
+                    return null;
+                }
+                if (wait==false)
+                {
+                    this.droppedMeter.increment();
+                    if (Debug.ENABLE && DEBUG)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"dropped1="+this.droppedMeter.getCount());
+                    }
+                    return null;
+                }
+                getCurrentBufferFromLogEntryBuffers();
+            }
+            entry=writeToCurrentLogEntryBuffer(trace,logLevel,category,throwable,message,items);
+            if (entry!=null)
+            {
+                return entry;
+            }
+            this.droppedMeter.increment();
+            if (Debug.ENABLE && DEBUG)
+            {
+                Debugging.log(DEBUG_CATEGORY,"dropped2="+this.droppedMeter.getCount());
+            }
+            return null;
+        }
+    }
+
+    private long lastRollOver=0;
+    private void main(int threadIndex)
+    {
+        try
+        {
+            this.busyMeter.increment();
+            for (;;)
+            {
+                LogEntryBuffer buffer = null;
+                boolean wait;
+                synchronized (this.logEntryQueue)
+                {
+                    this.busyMeter.decrement();
+                    wait=Synchronization.waitForNoThrow(this.logEntryQueue, this.configuration.rollOverWait_ms, () ->
+                    {
+                        return this.logEntryQueue.size() > 0 || this.stop;
+                    });
+                    this.busyMeter.increment();
+                    if (this.stop)
+                    {
+                        if (Debug.ENABLE && DEBUG)
+                        {
+                            Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":exit thread");
+                        }
+                        return;
+                    }
+                    if (wait)
+                    {
+                        buffer=this.logEntryQueue.remove();
+                        if (buffer==null)
+                        {
+                            continue;
+                        }
+                        this.logEntryQueue.notifyAll();
+                    }
+                    if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_ORDERING)
+                    {
+                        Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":buffer removed from logEntryQueue,logEntryQueue.size()="+this.logEntryQueue.size());
+//                        Thread.sleep(2000);
+                        if (buffer!=null)
+                        {
+                            for (int i=0;i<buffer.index;i++)
+                            {
+                                long logEntryNumber=buffer.entries[i].getNumber();
+                                if (this.testNumber!=logEntryNumber)
+                                {
+                                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":testNumber="+this.testNumber+" logEntryNumber="+logEntryNumber,LogLevel.ERROR);
+                                }
+                                testNumber=logEntryNumber+1;
+                            }
+                        }
+                    }
+                }
+                if (wait==false)
+                {
+                    synchronized (this)
+                    {
+                        long now=System.currentTimeMillis();
+                        if (now-this.lastRollOver<this.configuration.rollOverWait_ms)
+                        {
+                            continue;
+                        }
+                        this.lastRollOver=now;
+                    }
+                    synchronized (this.currentBufferLock)
+                    {
+                        if (this.currentBuffer==null)
+                        {
+                            //This case may never happen.
+                            if (Debug.ENABLE && DEBUG)
+                            {
+                                Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":rollOver:no buffer");
+                            }
+                            continue;
+                        }
+                        if (this.currentBuffer.index==0)
+                        {
+                            if (Debug.ENABLE && DEBUG)
+                            {
+                                Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":rollOver:empty buffer");
+                            }
+                            continue;
+                        }
+                        if (Debug.ENABLE && DEBUG)
+                        {
+                            Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":rollOver: size="+this.currentBuffer.index);
+                        }
+                        buffer=this.currentBuffer;
+                        synchronized (this.logEntryBuffers)
+                        {
+                            getCurrentBufferFromLogEntryBuffers();
+                        }
+                    }
+                }
+                if (Debug.ENABLE && DEBUG && DEBUG_QUEUE_TRACING)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":buffer size="+buffer.index);
+                }
+                
+                if (Debug.ENABLE && DEBUG && DEBUG_WAITING_IN_QUEUE)
+                {
+                    Debugging.log(DEBUG_CATEGORY,"thread "+threadIndex+":waiting="+this.busyMeter.getLevel());
+                }
+
+                synchronized (this.fileWriteMeter)
+                {
+                    this.fileWriteMeter.increment();
+                }
+                write(threadIndex,buffer);
+            }
+        }
+        catch (Throwable t)
+        {
+            if (Debug.ENABLE && DEBUG)
+            {
+                Debugging.log(DEBUG_CATEGORY,t);
+            }
+            synchronized (this)
+            {
+                this.throwable = t;
+            }
+        }
+    }
+    
+    protected void endFileWrite()
+    {
+        synchronized (this.fileWriteMeter)
+        {
+            this.fileWriteMeter.decrement();
+        }
+    }
+    
+    protected void returnBuffer(LogEntryBuffer buffer)
+    {
+        synchronized (this.logEntryBuffers)
+        {
+            this.logEntryBuffers.add(buffer);
+            this.logEntryBuffers.notify();
+        }
+    }
+    
+    public Throwable getThrowable()
+    {
+        synchronized (this)
+        {
+            return this.throwable;
+        }
+    }
+    @Deprecated
+    //Make tester keep track of entries generated and verify using getWriteMeter().getCount() and getDroppedMeter().getCount();
+    public void testVerify(long totalEntries) throws Throwable
+    {
+        Thread.sleep(this.configuration.rollOverWait_ms+1000);
+        System.out.println("testNumber="+this.testNumber+" number="+this.number+", totalEntries="+totalEntries);
+        System.out.println("dropped:"+this.droppedMeter.getCount());
+        System.out.println("stalled:"+this.stalledMeter.getCount());
+        if (this.testNumber==0)
+        {
+            this.testNumber=this.number;
+        }
+        if ((this.testNumber==totalEntries)&&(this.number==totalEntries))
+        {
+            System.out.println("testVerify passed");
+        }
+    }
+    
+}

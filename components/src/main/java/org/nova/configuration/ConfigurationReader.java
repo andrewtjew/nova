@@ -24,10 +24,10 @@ package org.nova.configuration;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import org.nova.parsing.scan.Lexeme;
-import org.nova.parsing.scan.LineAndColumn;
-import org.nova.parsing.scan.Scanner;
-import org.nova.parsing.scan.TextSource;
+import org.nova.parsing.scan.dep.Lexeme;
+import org.nova.parsing.scan.dep.LineAndColumn;
+import org.nova.parsing.scan.dep.Scanner;
+import org.nova.parsing.scan.dep.TextSource;
 import org.nova.utils.FileUtils;
 
 public class ConfigurationReader
@@ -53,7 +53,7 @@ public class ConfigurationReader
 	}
 	private void read() throws Throwable
 	{
-	    String text=FileUtils.readTextFile(this.fileName);
+	    String text=FileUtils.readString(this.fileName);
 	    TextSource source=new TextSource(text);
 	    Scanner scanner=new Scanner(source);
 //	    scanner.skipWhiteSpace();

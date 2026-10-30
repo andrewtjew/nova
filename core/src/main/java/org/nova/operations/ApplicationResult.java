@@ -42,7 +42,7 @@ public class ApplicationResult
     }
     public ApplicationResult(String message)
     {
-        this(Status.VALIDATION_FAILED,null,message);
+        this(Status.APPLICATION_FAILED,null,message);
     }
     public Object getResult()
     {

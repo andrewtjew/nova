@@ -692,7 +692,6 @@ public class Configuration
 			ConfigurationItem item=getConfigurationItem(name);
 			throw new Exception("name="+name+", value="+item.getValue()+",source="+item.getSource());
 		}			
-		
     }
 	
 	public <OBJECT> OBJECT getJSONObject(String name,Class<OBJECT> type) throws Throwable

@@ -23,6 +23,7 @@ package org.nova.sqldb;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;

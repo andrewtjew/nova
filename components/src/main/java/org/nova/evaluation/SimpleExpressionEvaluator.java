@@ -23,12 +23,12 @@ package org.nova.evaluation;
 
 import java.util.List;
 
-import org.nova.lexing.Token;
-import org.nova.parsing.expression.BinaryOperatorNode;
-import org.nova.parsing.expression.ConstantNode;
-import org.nova.parsing.expression.ExpressionNode;
-import org.nova.parsing.expression.ParseError;
-import org.nova.parsing.expression.PrefixOperatorNode;
+import org.nova.lexing.dep.Token;
+import org.nova.parsing.expression.dep.BinaryOperatorNode;
+import org.nova.parsing.expression.dep.ConstantNode;
+import org.nova.parsing.expression.dep.ExpressionNode;
+import org.nova.parsing.expression.dep.ParseError;
+import org.nova.parsing.expression.dep.PrefixOperatorNode;
 
 public class SimpleExpressionEvaluator
 {

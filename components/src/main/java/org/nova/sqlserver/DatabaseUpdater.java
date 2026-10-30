@@ -81,7 +81,7 @@ public class DatabaseUpdater
             {
                 return;
             }
-            String text=FileUtils.readTextFile(scriptFile,charset);
+            String text=FileUtils.readString(scriptFile,charset);
             SqlServerObjects objects=ScriptParser.parse(text);
             try (Accessor accessor=connector.openAccessor(parent))
             {

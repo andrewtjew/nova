@@ -23,11 +23,30 @@ package org.nova.collections;
 
 public class FileCacheConfiguration
 {
-    public String sharedDirectory="../resources/client";
-    public String localDirectory="./resources/client";
+    public String sharedDirectory;
+    public String localDirectory;
+    public long maxAgeMs;
+    public long maxSize;
+    public int capacity;
+    public long freeMemoryCapacity;
+
+    public FileCacheConfiguration(String sharedDirectory,String localDirectory,int capacity,long maxAgeMs,long maxSize,long  freeMemoryCapacity)
+    {
+        this.sharedDirectory=sharedDirectory;
+        this.localDirectory=localDirectory;
+        this.maxAgeMs=maxAgeMs;
+        this.maxSize=maxSize;
+        this.capacity=capacity;
+        this.freeMemoryCapacity=freeMemoryCapacity;
+    }   
     
-    public long maxAgeMs=Long.MAX_VALUE;
-    public long maxSize=Long.MAX_VALUE;
-    public int capacity=10000;
-    public long freeMemoryCapacity=1024L*1024L*1L;
+    public FileCacheConfiguration(String sharedDirectory,String localDirectory,int capacity)
+    {
+        this(sharedDirectory,localDirectory,capacity,Long.MAX_VALUE,Long.MAX_VALUE,1_000_000_000);
+    }
+    public FileCacheConfiguration()
+    {
+        this(null,null,1000);
+    }
+    
 }

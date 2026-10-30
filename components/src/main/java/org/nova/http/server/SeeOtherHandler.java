@@ -16,9 +16,12 @@ public class SeeOtherHandler extends ServletHandler
     @Override
     public boolean handle(Trace parent, HttpServletRequest request, HttpServletResponse response) throws Throwable
     {
-        response.setStatus(HttpStatus.SEE_OTHER_303);
-        response.setHeader("Location",location);
-        return true;
+        try (Trace trace=new Trace(parent, this.getClass().getSimpleName()))
+        {
+            response.setStatus(HttpStatus.SEE_OTHER_303);
+            response.setHeader("Location",location);
+            return true;
+        }
     }
 
 }

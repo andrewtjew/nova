@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
+@Deprecated
 public class SimpleFileCache extends ContentCache<String,byte[]>
 {
     final private String directory;
