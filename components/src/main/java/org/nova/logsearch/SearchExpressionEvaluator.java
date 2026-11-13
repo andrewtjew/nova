@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
+import org.nova.json.ObjectMapper;
 import org.nova.logging.Item;
 import org.nova.logsearch.SearchExpressionCompiler.Instruction;
 
@@ -22,7 +23,7 @@ public class SearchExpressionEvaluator
     {
         this.instructions=instructions;
     }
-    public boolean evaluate(LogRecord logRecord) throws Exception
+    public boolean evaluate(LogRecord logRecord) throws Throwable
     {
         if (logRecord==null)
         {
@@ -34,6 +35,7 @@ public class SearchExpressionEvaluator
         }
         Stack<Object> stack=new Stack<>();
         TraceRecord traceRecord=logRecord.trace;
+        String text=null;
         for (Instruction instruction:this.instructions)
         {
             switch (instruction.code())
@@ -104,6 +106,14 @@ public class SearchExpressionEvaluator
                     
                 case PUSH_DETAILS:
                     stack.push(traceRecord!=null?traceRecord.details:null);
+                    break;
+
+                case PUSH_TEXT:
+                    if (text==null)
+                    {
+                        text=ObjectMapper.writeObjectToString(logRecord);
+                    }
+                    stack.push(text);
                     break;
                     
                 // start of constant instructions -----------------

@@ -63,10 +63,6 @@ public class CoreEnvironment
 	final private LogDirectoryManager logDirectoryManager;
     final private Vault vault;
     final private int lastLogEntriesCapacity;
-//    final private String loggerType;
-//    final LogEntrySourceQueue logSourceQueue;
-//    final private int logEntryBufferSize;
-//    final private Formatter logFormatter;
     final public static SourceEventBoard SOURCE_EVENT_BOARD=new SourceEventBoard();
 	final public MultiThreadLogWriter logWriter;
 	

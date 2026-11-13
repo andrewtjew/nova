@@ -29,6 +29,7 @@ import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.tracing.TraceRunnable;
 import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 import net.jpountz.lz4.LZ4BlockInputStream;
 
@@ -53,9 +54,15 @@ public class LogTraceRateCollector implements AutoCloseable
         public double maximumDuration;
         public long maximumDurationEpochSecond;
         
+        public int totalRate;
         public double averageRate;
         public int maximumRate;
         public long maximumRateEpochSecond;
+        
+        public double averageRate()
+        {
+            return this.totalRate/(double)this.rates.length;
+        }
         
     }        
     
@@ -128,6 +135,8 @@ public class LogTraceRateCollector implements AutoCloseable
                     }
                 }
             }
+            System.out.println("TraceRateListMap.getTraceRateResult: totalRate="+totalRate+", totalDuration="+totalDuration);
+            result.totalRate=totalRate;
             result.averageRate=totalRate/result.rates.length;
             result.averageDuration=totalDuration/totalRate;
 
@@ -212,9 +221,11 @@ public class LogTraceRateCollector implements AutoCloseable
     {
         final File file;
         final LogTraceCountResult result;
+        final String category;
         
-        public Task(LogTraceCountResult result,File file)   
+        public Task(String category,LogTraceCountResult result,File file)   
         {
+            this.category=TypeUtils.isNullOrSpace(category)?null:category;
             this.file=file;
             this.result=result;
         }
@@ -232,6 +243,10 @@ public class LogTraceRateCollector implements AutoCloseable
                         LogRecord logRecord=logRecords[i];
                         if ((logRecord.trace!=null)&&(logRecord.trace.closed))
                         {
+                            if ((this.category!=null)&&(logRecord.trace.category.toLowerCase().contains(this.category.toLowerCase())==false))
+                            {
+                                continue;
+                            }
                             this.result.add(logRecord.trace);
                         }
                     }
@@ -245,12 +260,7 @@ public class LogTraceRateCollector implements AutoCloseable
         }
     }
     
-    public LogTraceCountResult collect(String from, String to)
-    {
-        return collect(LogSearcher.parseFileDateTime(from),LogSearcher.parseFileDateTime(to));
-    }
-    
-    public LogTraceCountResult collect(LocalDateTime startDateTime, LocalDateTime endDateTime)
+    public LogTraceCountResult collect(String category,LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
         LogTraceCountResult logTraceResult=new LogTraceCountResult();
         
@@ -259,7 +269,7 @@ public class LogTraceRateCollector implements AutoCloseable
 
         for (int i=0;i<files.length;i++)
         {
-            tasks[i]=new Task(logTraceResult,files[i]);
+            tasks[i]=new Task(category,logTraceResult,files[i]);
         }
         logTraceResult.filesSearched=tasks.length;
         var progress=this.scheduler.schedule("task."+LogTraceRateCollector.class.getSimpleName(),tasks);

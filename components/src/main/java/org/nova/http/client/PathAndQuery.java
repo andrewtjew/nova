@@ -27,6 +27,10 @@ import org.nova.json.ObjectMapper;
 
 public class PathAndQuery
 {
+    
+    public static Long VERSION=null;
+    public static String VERSION_NAME="_V";
+    
 	private StringBuilder sb;
 	private char separator; 
     
@@ -137,10 +141,17 @@ public class PathAndQuery
     }
 	public String toString()
 	{
-		return this.sb.toString();
+	    if (VERSION!=null)
+        {
+	        return this.sb.append(this.separator).append(VERSION_NAME).append('=').append(VERSION).toString();
+        }
+        else
+        {
+            return this.sb.toString();
+        }
 	}
-	public char getSeparator()
-	{
-	    return this.separator;
-	}
+//	public char getSeparator()
+//	{
+//	    return this.separator;
+//	}
 }

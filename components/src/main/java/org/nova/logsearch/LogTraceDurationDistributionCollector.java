@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import org.nova.collections.LinkedTreeSet;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.json.ObjectMapper;
+import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.logging.NullLogger;
@@ -29,6 +30,7 @@ import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 import org.nova.tracing.TraceRunnable;
 import org.nova.utils.FileUtils;
+import org.nova.utils.TypeUtils;
 
 import net.jpountz.lz4.LZ4BlockInputStream;
 
@@ -205,9 +207,11 @@ public class LogTraceDurationDistributionCollector implements AutoCloseable
     {
         final File file;
         final LogTraceResult result;
+        final String category;
         
-        public Task(LogTraceResult result,File file)   
+        public Task(String category,LogTraceResult result,File file)   
         {
+            this.category=TypeUtils.isNullOrSpace(category)?null:category;
             this.file=file;
             this.result=result;
         }
@@ -225,6 +229,10 @@ public class LogTraceDurationDistributionCollector implements AutoCloseable
                         LogRecord logRecord=logRecords[i];
                         if ((logRecord.trace!=null)&&(logRecord.trace.closed))
                         {
+                            if ((this.category!=null)&&(logRecord.trace.category.toLowerCase().contains(this.category.toLowerCase())==false))
+                            {
+                                continue;
+                            }
                             this.result.add(logRecord.trace);
                         }
                     }
@@ -238,12 +246,12 @@ public class LogTraceDurationDistributionCollector implements AutoCloseable
         }
     }
     
-    public LogTraceResult summerize(int bins,double minimumBinDuration,String from, String to)
-    {
-        return summerize(bins,minimumBinDuration,LogSearcher.parseFileDateTime(from),LogSearcher.parseFileDateTime(to));
-    }
+//    public LogTraceResult summerize(int bins,double minimumBinDuration,String from, String to)
+//    {
+//        return summerize(bins,minimumBinDuration,LogDirectoryManager.parseFileDateTime(from),LogDirectoryManager.parseFileDateTime(to));
+//    }
     
-    public LogTraceResult summerize(int bins,double minimumBinDuration,LocalDateTime startDateTime, LocalDateTime endDateTime)
+    public LogTraceResult summerize(String category,int bins,double minimumBinDuration,LocalDateTime startDateTime, LocalDateTime endDateTime)
     {
         LogTraceResult logTraceResult=new LogTraceResult(bins,minimumBinDuration);
         
@@ -252,7 +260,7 @@ public class LogTraceDurationDistributionCollector implements AutoCloseable
 
         for (int i=0;i<files.length;i++)
         {
-            tasks[i]=new Task(logTraceResult,files[i]);
+            tasks[i]=new Task(category,logTraceResult,files[i]);
         }
         logTraceResult.filesSearched=tasks.length;
         var progress=this.scheduler.schedule(LogTraceDurationDistributionCollector.class.getName(),tasks);

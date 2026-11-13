@@ -107,7 +107,7 @@ public class SearchExpressionParser extends ExpressionParser
         configuration.commentEnclosures=null;
         configuration.punctuators=new String[]{"(",")","[","]"};
         configuration.operators=new String[]{"==","!=","<",">","<=",">=","and","or","contains","+","-","*","/","not",","};
-        configuration.keywords=new String[]{"number","level","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","fromLink","toLink","traceException","traceStackTrace","item","utc","details"};
+        configuration.keywords=new String[]{"number","level","category","created","message","exception","stackTrace","traceNumber","traceCreated","traceCategory","duration","wait","fromLink","toLink","traceException","traceStackTrace","item","utc","details","text"};
         
         TextSource textSource=new TextSource(text);
         Tokenizer tokenizer=new Tokenizer(textSource,configuration);

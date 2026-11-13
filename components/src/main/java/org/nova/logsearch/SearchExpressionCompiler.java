@@ -81,22 +81,23 @@ public class SearchExpressionCompiler
     public SearchExpressionCompiler() throws Throwable
     {
         this.keyInstructions=new HashMap<>();
-        this.keyInstructions.put("number",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_NUMBER)));
-        this.keyInstructions.put("level",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_LEVEL)));
-        this.keyInstructions.put("category",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_CATEGORY)));
-        this.keyInstructions.put("created",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_CREATED)));
-        this.keyInstructions.put("message",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_MESSAGE)));
-        this.keyInstructions.put("exception",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_EXCEPTION)));
-        this.keyInstructions.put("stackTrace",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_STACK_TRACE)));
-        this.keyInstructions.put("traceNumber",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_TRACE_NUMBER)));
-        this.keyInstructions.put("traceCreated",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_TRACE_CREATED)));
-        this.keyInstructions.put("traceCategory",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TRACE_CATEGORY)));
-        this.keyInstructions.put("duration",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_DURATION)));
-        this.keyInstructions.put("wait",new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_WAIT)));
-        this.keyInstructions.put("fromLink",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_FROM_LINK)));
-        this.keyInstructions.put("toLink",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TO_LINK)));
-        this.keyInstructions.put("traceException",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TRACE_EXCEPTION)));
-        this.keyInstructions.put("details",new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_DETAILS)));
+        this.keyInstructions.put("number".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_NUMBER)));
+        this.keyInstructions.put("level".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_LEVEL)));
+        this.keyInstructions.put("category".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_CATEGORY)));
+        this.keyInstructions.put("created".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_CREATED)));
+        this.keyInstructions.put("message".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_MESSAGE)));
+        this.keyInstructions.put("exception".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_EXCEPTION)));
+        this.keyInstructions.put("stackTrace".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_STACK_TRACE)));
+        this.keyInstructions.put("traceNumber".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_TRACE_NUMBER)));
+        this.keyInstructions.put("traceCreated".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_TRACE_CREATED)));
+        this.keyInstructions.put("traceCategory".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TRACE_CATEGORY)));
+        this.keyInstructions.put("duration".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_DURATION)));
+        this.keyInstructions.put("wait".toLowerCase(),new ValueTypeInstruction(ValueType.INTEGER,new Instruction(Code.PUSH_WAIT)));
+        this.keyInstructions.put("fromLink".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_FROM_LINK)));
+        this.keyInstructions.put("toLink".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TO_LINK)));
+        this.keyInstructions.put("traceException".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TRACE_EXCEPTION)));
+        this.keyInstructions.put("details".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_DETAILS)));
+        this.keyInstructions.put("text".toLowerCase(),new ValueTypeInstruction(ValueType.STRING,new Instruction(Code.PUSH_TEXT)));
     }
     
     public SearchExpressionEvaluator compile(String expression) throws Throwable
@@ -472,7 +473,8 @@ public class SearchExpressionCompiler
                 break;
         }
         
-        throw new Exception("Unhandled binary operator:"+operator+" for types "+leftType+" and "+rightType);
+        addError(node,"Unhandled binary operator:"+operator+" for types "+leftType+" and "+rightType);
+        return null;
     }
     
     private String getOneStringArgument(KeywordNode node) throws Exception

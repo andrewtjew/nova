@@ -92,5 +92,6 @@ public enum Code
     PUSH_DETAILS,
     
     PUSH_CONSTANT,
-    PUSH_ITEM_KEY
+    PUSH_ITEM_KEY,
+    PUSH_TEXT
 }

@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import org.nova.collections.LinkedTreeSet;
 import org.nova.concurrent.MultiTaskScheduler;
 import org.nova.json.ObjectMapper;
+import org.nova.logging.LogDirectoryManager;
 import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.logging.NullLogger;
@@ -57,58 +58,6 @@ public class LogSearcher implements AutoCloseable
         return null;
     }
 
-    public static LocalDateTime parseFileDateTime(String dateTimeString)
-    {
-        if (dateTimeString==null)
-        {
-            return null;
-        }
-        int index=dateTimeString.indexOf(".");
-        if (index>0)
-        {
-            dateTimeString=dateTimeString.substring(0,index);
-        }
-        
-        String[] parts = dateTimeString.split("_");
-        if (parts.length!=7) 
-        {
-            try
-            {
-                return LocalDateTime.parse(dateTimeString);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-        
-        int year = Integer.parseInt(parts[0]);
-        int month = Integer.parseInt(parts[1]);
-        int day = Integer.parseInt(parts[2]);
-        int hour = Integer.parseInt(parts[3]);
-        int minute = Integer.parseInt(parts[4]);
-        int second = Integer.parseInt(parts[5]);
-        int nanoSecond;
-        int nanoSecondIndex=parts[6].indexOf("X");
-        if (nanoSecondIndex>0)
-        {
-            nanoSecond = Integer.parseInt(parts[6].substring(0,nanoSecondIndex))*1000000+Integer.parseInt(parts[6].substring(nanoSecondIndex+1));
-        }
-        else
-        {
-            nanoSecond = Integer.parseInt(parts[6])*1000000;
-        }
-        
-        try
-        {
-            return LocalDateTime.of(year, month, day, hour, minute, second, nanoSecond);
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
-    
     public static File[] getFilesInRange(String name, LocalDateTime startDate, LocalDateTime endDate)
     {
         File directory = new File(name);
@@ -158,7 +107,7 @@ public class LogSearcher implements AutoCloseable
         {
             return false;
         }
-        LocalDateTime fileDateTime=parseFileDateTime(fileName);
+        LocalDateTime fileDateTime=LogDirectoryManager.parseFileDateTime(fileName);
         if (fileDateTime==null)
         {
             return false;
@@ -288,7 +237,7 @@ public class LogSearcher implements AutoCloseable
     
     public SearchResult search(int maximumResults,String from, String to)
     {
-        return search(maximumResults,parseFileDateTime(from),parseFileDateTime(to));
+        return search(maximumResults,LogDirectoryManager.parseFileDateTime(from),LogDirectoryManager.parseFileDateTime(to));
     }
     
     public SearchResult search(int maximumResults,LocalDateTime startDateTime, LocalDateTime endDateTime)

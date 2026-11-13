@@ -103,9 +103,6 @@ public abstract class DeviceSessionControllerFilter extends Filter
         {
             context.getHttpServletResponse().setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
             return null;
-//            RemoteResponse response=new RemoteResponse();
-//            response.reload();
-//            return new Response<>(response);
         }
         if (context.getHttpServletRequest().getMethod().equals("POST"))
         {
