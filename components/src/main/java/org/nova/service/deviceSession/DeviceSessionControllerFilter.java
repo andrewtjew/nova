@@ -41,7 +41,7 @@ import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.localization.CountryCode;
 import org.nova.localization.LanguageCode;
-import org.nova.services.AbnormalResult;
+import org.nova.security.AbnormalResponse;
 import org.nova.services.AllowNoLock;
 import org.nova.services.AllowNoSession;
 import org.nova.services.RequiredRoles;
@@ -226,7 +226,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         deviceSession.throwable=null;
         try
         {
-            AbnormalResult abnormalResult=deviceSession.verifyRequest(parent, context,this);
+            AbnormalResponse abnormalResult=deviceSession.verifyRequest(parent, context);
             if (abnormalResult!=null)
             {
                 if (abnormalResult.statusCode()!=null)
@@ -357,7 +357,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         return "en";
     }
 
-    Response<?> returnAbnormalResult(Trace parent,AbnormalResult abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
+    Response<?> returnAbnormalResult(Trace parent,AbnormalResponse abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
     {
         if (abnormalResult.statusCode()!=null)
         {

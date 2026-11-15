@@ -1292,8 +1292,15 @@ public class ServerOperatorPages
 
             div content = new div();
             entryRow.add(new td().style("width:100%;").addInner(content));
-            content.returnAddInner(new div()).addInner(logRecord.message);
+            if (logRecord.message!=null)
+            {
+                content.addInner(new LiteralHtml(logRecord.message));
+            }
 
+            if (logRecord.exception != null)
+            {
+                content.addInner(formatExceptionAndStackTrace(logRecord.exception, logRecord.stackTrace));
+            }
             if (logRecord.items != null)
             {
                 Accordion accordion = content.returnAddInner(new Accordion(false, "Items"));
@@ -1311,10 +1318,6 @@ public class ServerOperatorPages
                         list.add(entrySet.getKey(), new textarea().style("width:100%;").readonly().addInner(value));
                     }
                 }
-            }
-            if (logRecord.exception != null)
-            {
-                content.addInner(formatExceptionAndStackTrace(logRecord.exception, logRecord.stackTrace));
             }
 
             TraceRecord traceRecord = logRecord.trace;

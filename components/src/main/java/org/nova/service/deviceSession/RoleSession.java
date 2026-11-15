@@ -9,7 +9,7 @@ import java.util.List;
 import org.nova.http.server.Context;
 import org.nova.http.server.RequestMethod;
 import org.nova.http.server.Response;
-import org.nova.services.AbnormalResult;
+import org.nova.security.AbnormalResponse;
 import org.nova.services.ForbiddenRoles;
 import org.nova.services.RequiredRoles;
 import org.nova.tracing.Trace;
@@ -27,7 +27,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
     }
     
     @Override
-    public AbnormalResult beginRequest(Trace parent,Context context) throws Throwable
+    public AbnormalResponse beginRequest(Trace parent,Context context) throws Throwable
     {
         return verifyRequest(parent, context);
     }
@@ -36,7 +36,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
     {
     }
 
-    static record AbnormalAcceptBox(AbnormalResult abnormalResult)
+    static record AbnormalAcceptBox(AbnormalResponse abnormalResult)
     {
     }
     static private HashMap<String,AbnormalAcceptBox> DENY_MAP=new HashMap<String, AbnormalAcceptBox>();
@@ -124,7 +124,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
         }
     }
     
-    synchronized public AbnormalResult verifyRequest(Trace trace, Context context) throws Throwable
+    synchronized public AbnormalResponse verifyRequest(Trace trace, Context context) throws Throwable
     {
         RequestMethod handler=context.getRequestMethod();
         ForbiddenRoles forbiddenRoles=handler.getForbiddenRoles();
@@ -136,7 +136,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
         return isAccessDenied(forbiddenRoles,requiredRoles,handler.getRunTimeKey());
     }    
 
-    public AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
+    public AbnormalResponse isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles,long runTimeKey) throws Throwable
     {
         //Implements two level of caching, first per session using this.denyMap, then global using DENY_MAP.
         
@@ -164,19 +164,19 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
         return result.abnormalResult;
     }
 
-    private AbnormalResult isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
+    private AbnormalResponse isAccessDenied(ForbiddenRoles forbiddenRoles,RequiredRoles requiredRoles) throws Throwable
     {
         if (forbiddenRoles!=null)
         {
             if (forbiddenRoles.value().length==0)
             {
-                return new AbnormalResult();
+                return new AbnormalResponse();
             }
             for (String value:forbiddenRoles.value())
             {
                 if (hasRole(value))
                 {
-                    return new AbnormalResult();
+                    return new AbnormalResponse();
                 }
             }
         }
@@ -192,7 +192,7 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
                 return null;
             }
         }
-        return new AbnormalResult(requiredRoles.redirect());
+        return new AbnormalResponse(requiredRoles.redirect());
     }
     private boolean hasRole(String value)
     {

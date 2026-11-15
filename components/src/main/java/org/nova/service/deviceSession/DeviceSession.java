@@ -8,6 +8,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.geo.GeoLocation;
@@ -20,7 +22,7 @@ import org.nova.localization.CountryCode;
 import org.nova.metrics.RateMeter;
 import org.nova.security.PathAndQuerySecurity;
 import org.nova.security.SecurityUtils;
-import org.nova.services.AbnormalResult;
+import org.nova.security.AbnormalResponse;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -40,7 +42,7 @@ public class DeviceSession implements PathAndQuerySecurity
     final static boolean DEBUG=true;
     static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
     static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
-    static final boolean DEBUG_REQUEST_SECURITY=false;
+    static final boolean DEBUG_REQUEST_SECURITY=true;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -153,15 +155,6 @@ public class DeviceSession implements PathAndQuerySecurity
         return this.positionLastUpdated;
     }
     
-    final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
-    {
-        if (this.verifyRequest(context)==false)
-        {
-            return new AbnormalResult();
-        }
-        return null;
-    }
-
     public void close(Trace parent) throws Throwable
     {
         for (var state:this.states.values())
@@ -199,10 +192,6 @@ public class DeviceSession implements PathAndQuerySecurity
         this.states.clear();
     }
 
-    
-//    final public static String QUERY_SECURITY_KEY="_";
-//    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
-    
     @Override
     public String securePathAndQuery(String pathAndQuery) throws Throwable
     {
@@ -220,7 +209,7 @@ public class DeviceSession implements PathAndQuerySecurity
     }
 
     @Override
-    public boolean verifyRequest(Context context) throws Throwable
+    public AbnormalResponse verifyRequest(Trace parent,Context context) throws Throwable
     {
         var requestMethod=context.getRequestMethod();
         if (requestMethod.requiresPathAndQuerySecurity()==false)
@@ -234,7 +223,7 @@ public class DeviceSession implements PathAndQuerySecurity
                     Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity not required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
             }
-            return true;
+            return null;
         }
         String queryString=HtmlUtils.getRequestPathAndQuery(context);
         try 
@@ -246,27 +235,25 @@ public class DeviceSession implements PathAndQuerySecurity
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
-                return false;
+                return new AbnormalResponse(HttpStatus.FORBIDDEN_403);
             }
             String text=queryString.substring(0,index-1);
             String code=queryString.substring(index+this.querySecurityKey.length()+1);
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
+                Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
             }
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             var result=code.equals(computed);
-            
-            
-            if (Debug.ENABLE && DEBUG && (DEBUG_FAILED_REQUEST_SECURITY || DEBUG_REQUEST_SECURITY))
+            if (result==false)
             {
-                if (result==false)
+                if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed);
                 }
+                return new AbnormalResponse(HttpStatus.FORBIDDEN_403);
             }
-            return result;
         }
         catch (Throwable t)
         {
@@ -275,8 +262,9 @@ public class DeviceSession implements PathAndQuerySecurity
                 Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
             }
-            return false;
+            return new AbnormalResponse(HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
+        return null;
     }
     
     public static LocalDateTime toUTC(long epoch_ms)
