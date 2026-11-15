@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -375,7 +376,9 @@ public class ServerOperatorPages
 
         menuBar.add("/operator/logging/status", "Logging", "Status");
         menuBar.add("/operator/logging/categories", "Logging", "Category Loggers");
+        menuBar.addDivider("Logging");
         menuBar.add("/operator/logging/search", "Logging", "Search Logs");
+        menuBar.addDivider("Logging");
         menuBar.add("/operator/logging/traces/distribution", "Logging", "Trace Duration Distributions");
         menuBar.add("/operator/logging/traces/rates", "Logging", "Trace Rates");
         // menuBar.add("/operator/logging/files","Logging","Log Files");
@@ -917,8 +920,9 @@ public class ServerOperatorPages
     @GET
     @Path("/operator/logging/traces/distribution")
     public Element categorizeLogs(Trace parent, @QueryParam("from") @DefaultValue("-1") String from, @QueryParam("to") String to, @QueryParam("threads") @DefaultValue("2") int threads,
-            @QueryParam("action") String action) throws Throwable
+            @QueryParam("action") String action,@QueryParam("category") String category) throws Throwable
     {
+        FromTo fromTo = FromTo.parse(from, to);
         OperatorPage page = this.serverApplication.buildOperatorPage("Trace Duration Distributions");
         {
             form_get form = page.content().returnAddInner(new form_get());
@@ -949,6 +953,8 @@ public class ServerOperatorPages
 
             div row = form.returnAddInner(new div().style("display:flex;flex-direction:row;align-items:center;"));
             String padding = "margin-left:0.25em;margin-right:0.25em;";
+            row.returnAddInner(new label()).addInner("Trace Category:").style(padding);
+            row.returnAddInner(new input_text()).name("category").style("width:24em;").value(category);
             row.returnAddInner(new label()).addInner("From:").style(padding);
             row.returnAddInner(new input_text()).name("from").value(from);
             row.returnAddInner(new label()).addInner("To:").style(padding);
@@ -982,7 +988,7 @@ public class ServerOperatorPages
             trace = new Trace(parent, LogTraceDurationDistributionCollector.class.getSimpleName());
             try
             {
-                result = collector.summerize(bins, minimumBinDurationMs,from, to);
+                result = collector.summerize(category,bins, minimumBinDurationMs,fromTo.from(), fromTo.to());
             }
             finally
             {
@@ -1052,45 +1058,68 @@ public class ServerOperatorPages
         return page;
     }
 
+    static record FromTo(LocalDateTime from, LocalDateTime to)
+    {
+        public static FromTo parse(String from, String to)
+        {
+            LocalDateTime fromDateTime = LogDirectoryManager.parseFileDateTime(from);
+            LocalDateTime toDateTime = LogDirectoryManager.parseFileDateTime(to);
+            
+            var now= LocalDateTime.now();
+            
+            if (fromDateTime == null)
+            {
+                try
+                {
+                    int value = Integer.parseInt(from);
+                    fromDateTime = now.plusHours(value);
+                }
+                catch (Exception e)
+                {
+                    fromDateTime = now.plusHours(-1);
+                }
+            }
+            if (toDateTime == null)
+            {
+                try
+                {
+                    int value = Integer.parseInt(to);
+                    toDateTime = now.plusHours(value);
+                }
+                catch (Exception e)
+                {
+                    toDateTime = now;
+                }
+            }
+            if (fromDateTime.isAfter(toDateTime))
+            {
+                fromDateTime = toDateTime.plusHours(-1);
+            }
+            fromDateTime=fromDateTime.truncatedTo(ChronoUnit.MILLIS);
+            toDateTime=toDateTime.truncatedTo(ChronoUnit.MILLIS);
+            return new FromTo(fromDateTime, toDateTime);
+        }
+    }
+    
     @GET
     @Path("/operator/logging/traces/rates")
     public Element traceRates(Trace parent, @QueryParam("from") @DefaultValue("-1") String from, @QueryParam("to") String to, @QueryParam("threads") @DefaultValue("2") int threads,
-            @QueryParam("action") String action) throws Throwable
+            @QueryParam("action") String action,@QueryParam("category") String category) throws Throwable
     {
+        FromTo fromTo = FromTo.parse(from, to);
+
         OperatorPage page = this.serverApplication.buildOperatorPage("Trace Rates");
         {
             form_get form = page.content().returnAddInner(new form_get());
 
-            try
-            {
-                int value = Integer.parseInt(from);
-                from = LocalDateTime.now().plusHours(value).toString();
-            }
-            catch (Exception e)
-            {
-                from = null;
-            }
-            if (TypeUtils.isNullOrSpace(from))
-            {
-                from = LocalDateTime.now().plusHours(-1).toString();
-            }
-
-            try
-            {
-                int value = Integer.parseInt(to);
-                to = LocalDateTime.now().plusHours(value).toString();
-            }
-            catch (Exception e)
-            {
-                to = null;
-            }
-
             div row = form.returnAddInner(new div().style("display:flex;flex-direction:row;align-items:center;"));
             String padding = "margin-left:0.25em;margin-right:0.25em;";
+            row.returnAddInner(new label()).addInner("Trace Category:").style(padding);
+            row.returnAddInner(new input_text()).name("category").style("width:24em;").value(category);
             row.returnAddInner(new label()).addInner("From:").style(padding);
-            row.returnAddInner(new input_text()).name("from").value(from);
+            row.returnAddInner(new input_text()).name("from").value(fromTo.from.toString()).style("width:12em;");
             row.returnAddInner(new label()).addInner("To:").style(padding);
-            row.returnAddInner(new input_text()).name("to").value(to);
+            row.returnAddInner(new input_text()).name("to").value(fromTo.to.toString()).style("width:12em;");
             row.returnAddInner(new label()).addInner(" Threads:").style(padding);
             int maxThreads = Runtime.getRuntime().availableProcessors() / 4 + 1;
             row.returnAddInner(new input_number()).name("threads").style("width:4em;").value(threads >= maxThreads ? maxThreads : threads).min(1).max(maxThreads);
@@ -1114,7 +1143,7 @@ public class ServerOperatorPages
             trace = new Trace(parent, LogTraceRateCollector.class.getSimpleName());
             try
             {
-                result = collector.collect(from, to);
+                result = collector.collect(category,fromTo.from,fromTo.to);
             }
             finally
             {
@@ -1124,7 +1153,7 @@ public class ServerOperatorPages
 
         var durationRange=result.postProcess();
         String duration = "Run duration: " + Utils.millisToNiceDurationString(trace.getDurationMs());
-        page.content().returnAddInner(new div()).addInner(duration + ", Log entries searched: " + result.getEntriesExamined()+ ", Range: "+durationRange.getDuration()+" s");
+        page.content().returnAddInner(new div()).addInner(duration + ", Log entries searched: " + result.getEntriesExamined()+ ", Range: "+Utils.millisToNiceDurationString(durationRange.getDuration()));
         page.content().returnAddInner(new hr());
 
         OperatorDataTable dataTable = new OperatorDataTable(page.head());
@@ -1158,7 +1187,9 @@ public class ServerOperatorPages
                         new width(100,Unit_.percent),new max_width(chartWidth,Unit_.px),new Property("border:1px solid black;padding-bottom:5px;padding-top:5px;background-color:#f0f0f0;"),new height(chartHeight,Unit_.px)).returnAddInner(chart);
                 page.content().addInner(new Script(HtmlUtils.js_call("nova.operator.drawTraceRateGraph",chart.id(),traceRateResult,averageRateColor,averageDurationColor,maximumColor,centerColor)));
             }            
-            td.returnAddInner(new div()).addInner("Average Rate: "+String.format("%.3f", traceRateResult.averageRate)+"/s, Maximum Rate: ")
+            td.returnAddInner(new div())
+            .addInner("Total: "+traceRateResult.totalRate)
+            .addInner(", Average Rate: "+String.format("%.3f", traceRateResult.averageRate())+"/s, Maximum Rate: ")
             .addInner(formatRate(traceRateResult.maximumRate,traceRateResult.maximumRateEpochSecond*1000))
                     .addInner(", Average Duration: ")
                     .addInner(formatSToMs(traceRateResult.averageDuration))

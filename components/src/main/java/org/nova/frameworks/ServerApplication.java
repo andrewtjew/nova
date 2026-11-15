@@ -147,7 +147,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.private.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",!isTest());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.private.requireServerNameIndication",false);
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.private.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.private.clientCertificate.keyStorePath",null);
@@ -213,7 +213,7 @@ public abstract class ServerApplication extends CoreEnvironmentApplication
                     String clientCertificatePassword=vault.get("KeyStore.public.clientCertificate.password");
                     String keyManagerPassword=vault.get("KeyManager.password");
 
-                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",!isTest());
+                    boolean requireServerNameIndication=configuration.getBooleanValue("HttpServer.public.requireServerNameIndication",false);
                     
                     String serverCertificateKeyStorePath=configuration.getValue("HttpServer.public.serverCertificate.keyStorePath",null);
                     String clientCertificateKeyStorePath=configuration.getValue("HttpServer.public.clientCertificate.keyStorePath",null);

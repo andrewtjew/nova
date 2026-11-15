@@ -365,4 +365,57 @@ public class LogDirectoryManager
             return this.map.values().toArray(new File[this.map.size()]);
         }
     }
+
+    public static LocalDateTime parseFileDateTime(String dateTimeString)
+    {
+        if (dateTimeString==null)
+        {
+            return null;
+        }
+        int index=dateTimeString.indexOf(".");
+        if (index>0)
+        {
+            dateTimeString=dateTimeString.substring(0,index);
+        }
+        
+        String[] parts = dateTimeString.split("_");
+        if (parts.length!=7) 
+        {
+            try
+            {
+                return LocalDateTime.parse(dateTimeString);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[2]);
+        int hour = Integer.parseInt(parts[3]);
+        int minute = Integer.parseInt(parts[4]);
+        int second = Integer.parseInt(parts[5]);
+        int nanoSecond;
+        int nanoSecondIndex=parts[6].indexOf("X");
+        if (nanoSecondIndex>0)
+        {
+            nanoSecond = Integer.parseInt(parts[6].substring(0,nanoSecondIndex))*1000000+Integer.parseInt(parts[6].substring(nanoSecondIndex+1));
+        }
+        else
+        {
+            nanoSecond = Integer.parseInt(parts[6])*1000000;
+        }
+        
+        try
+        {
+            return LocalDateTime.of(year, month, day, hour, minute, second, nanoSecond);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+    
 }
