@@ -32,7 +32,7 @@ import org.nova.utils.FileUtils;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
-    final public static boolean DEBUG=false;
+    final public static boolean DEBUG=true;
     static final String DEBUG_CATEGORY=FileCache.class.getSimpleName();
     
     final private String sharedDirectory;

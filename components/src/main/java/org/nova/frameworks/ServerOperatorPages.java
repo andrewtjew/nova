@@ -55,7 +55,6 @@ import java.util.TreeMap;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.http.client.HttpClient;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.annotation.Name;
@@ -275,6 +274,11 @@ import com.google.common.base.Strings;
 })
 public class ServerOperatorPages
 {
+    final static boolean DEBUG=true;
+    final static boolean DEBUG_RESOURCES=true;
+    static final String DEBUG_CATEGORY=ServerOperatorPages.class.getSimpleName();
+
+    
     static public class OperatorTable extends OperatorDataTable
     {
         public OperatorTable(Head head) throws Throwable
@@ -5662,8 +5666,6 @@ public class ServerOperatorPages
         return page;
     }
 
-    final static boolean TESTING = false;
-
     @GET
     @Path("/content/{+}")
     public void content(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
@@ -5673,9 +5675,9 @@ public class ServerOperatorPages
         context.setCaptured(true);
         if (bytes == null)
         {
-            if (TESTING)
+            if (Debug.ENABLE && DEBUG && DEBUG_RESOURCES)
             {
-                Debugging.log(file + " not found");
+                Debugging.log(DEBUG_CATEGORY,"content not found: file="+file);
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
@@ -5702,9 +5704,9 @@ public class ServerOperatorPages
         }
         catch (Throwable t)
         {
-            if (TESTING)
+            if (Debug.ENABLE && DEBUG && DEBUG_RESOURCES)
             {
-                Debugging.log(file + " not found");
+                Debugging.log(DEBUG_CATEGORY,"resource not found: file="+file);
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
