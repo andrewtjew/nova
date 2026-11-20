@@ -162,11 +162,11 @@ public class NovaBuild extends Script
                 CometUtils.moveFile(sourcedir+artifact+"\\"+artifactJar,sourcedir+"\\packages\\"+artifactJar);
                 CometUtils.deleteDirectory(package_);
         
+                CometUtils.exec(sourcedir,"git add .");
+                CometUtils.exec(sourcedir,"git tag -a "+buildVersion+" -m \"package build\"");
+                CometUtils.exec(sourcedir,"git commit -m \""+artifact+" package build version: "+buildVersion+"\"");
                 if (gitPush)
                 {
-                     CometUtils.exec(sourcedir,"git add .");
-                     CometUtils.exec(sourcedir,"git tag -a "+buildVersion+" -m \"package build\"");
-                     CometUtils.exec(sourcedir,"git commit -m \""+artifact+" package build version: "+buildVersion+"\"");
                      CometUtils.exec(sourcedir,"git push");
                 }
             }
@@ -210,6 +210,7 @@ public class NovaBuild extends Script
             if (restart==false)
             {
                 System.out.println("copying package"); 
+                CometUtils.createDirectory(sourcedir+"\\os");
                 CometUtils.moveFile(sourcedir+"\\packages\\"+artifactJar,sourcedir+"\\os\\"+artifact);
                 System.out.println("Unzipping...");    
                 CometUtils.exec(sourcedir+artifact,"jar -xf "+artifactJar);
