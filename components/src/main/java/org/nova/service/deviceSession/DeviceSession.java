@@ -42,7 +42,7 @@ public class DeviceSession implements PathAndQuerySecurity
     final static boolean DEBUG=true;
     static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
     static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
-    static final boolean DEBUG_REQUEST_SECURITY=true;
+    static final boolean DEBUG_REQUEST_SECURITY=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -203,7 +203,7 @@ public class DeviceSession implements PathAndQuerySecurity
         var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+this.querySecurityKey+"="+code:pathAndQuery+"?"+this.querySecurityKey+"="+code;
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
         {
-            Debugging.log(LOG_DEBUG_CATEGORY,"secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
+            Debugging.log(LOG_DEBUG_CATEGORY,"Secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
         }
         return signed;
     }
@@ -241,7 +241,7 @@ public class DeviceSession implements PathAndQuerySecurity
             String code=queryString.substring(index+this.querySecurityKey.length()+1);
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
+                Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
             }
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
@@ -257,7 +257,7 @@ public class DeviceSession implements PathAndQuerySecurity
         }
         catch (Throwable t)
         {
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
+            if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
@@ -288,6 +288,13 @@ public class DeviceSession implements PathAndQuerySecurity
         {
             list.add("Position","lattitude="+this.position.latitude+", longitude="+this.position.longitude);
             list.add("PositionLastUpdated",toUTC(this.positionLastUpdated));
+        }
+        for (var state:this.states.values())
+        {
+            if (state instanceof AdditionalSessionInformation==false)
+            {
+                list.add("State",state.getClass().getSimpleName());
+            }
         }
         for (var state:this.states.values())
         {

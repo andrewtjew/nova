@@ -27,7 +27,7 @@ import org.nova.utils.TypeUtils;
 public class Graph
 {
     static final boolean DEBUG=true;
-    static final boolean DEBUG_UPGRADE=true;
+    static final boolean DEBUG_UPGRADE=false;
     static final boolean DEBUG_QUERY=true;
     static final boolean DEBUG_CACHING=false;
     static final boolean DEBUG_VERIFY_CACHING=true;

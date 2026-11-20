@@ -1,0 +1,7 @@
+HttpServer.operator.port=11779
+HttpServer.private.port=11780
+
+
+Application.commentFile=.\resources\comment.txt
+
+

@@ -1,0 +1,29 @@
+/* Add a black background color to the top navigation */
+.Panel3 {
+    background-color: #fff;
+    display: block;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #333;
+	padding:0.2em;
+	margin:0 0 0.2em 0;
+}
+
+/* Style the links inside the navigation bar */
+.Panel3-Heading {
+    background-color: #444;
+	padding:0.2em;
+	margin:0 0 0.2em 0;
+	color: #fff;
+	width:auto;
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+	font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+}
+
+/* Change the color of links on hover */
+.Panel3-Content  {
+    background-color: #fff;
+}
+

@@ -1,0 +1,135 @@
+/* Menu Styles */
+
+.menu-level-2
+{
+    position: absolute;
+    left: 100%;
+	z-index:1000;
+    top: -1px;
+/*
+    width: 150px;
+	*/
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+    color: #000;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #000;
+    background: #fff;
+}
+
+.menu-level-2 > li
+{
+    height: 32px;
+    color: #000;
+    background: #fff;
+	transition: background-color 500ms;
+}
+.menu-level-2 > li:hover { background: #ddd; }
+
+.menu-level-1
+{
+    position: absolute;
+	z-index:1000;
+    top: 31px;
+    left: 0;
+  /*  width: 150px; */
+    list-style: none;
+    padding: 0;
+    margin: 0px;
+    display: none;
+    color: #000;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #000;
+    background: #fff;
+	
+	white-space:nowrap;
+}
+
+.menu-level-1 > li
+{
+    position: relative;
+    height: 32px;
+    color: #000;
+    background: #fff;
+	transition: background-color 500ms;
+}
+.menu-level-1 > li:hover { background: #ddd; }
+
+.menu-level-0
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+	height: 32px;
+    color: #000;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #000;
+    background: #ddd;
+}
+
+.menu-level-0 > li
+{
+    position: relative;
+    float: left;
+ /*   width: 150px; */
+    background: #ddd;
+	transition: background-color 500ms;
+}
+.menu-level-0 > li:hover { background: #bbe;}
+
+.menu-level-0 li:hover > ul
+{
+    /* On hover, display the next level's menu */
+    display: inline;
+	color:#fff; 
+}
+
+
+/* Menu Link Styles */
+
+.menu-level-0 a /* Apply to all links inside the multi-level menu */
+{
+	font: bold 16px Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+	height: 19px;
+    text-decoration: none;
+    padding: 7px 10px 6px 10px;
+    color: inherit;
+    /* Make the link cover the entire list item-container */
+    display: block;
+}
+
+.menu-item-disabled
+{
+	font: bold 16px Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+	height: 19px;
+    text-decoration: none;
+    padding: 7px 10px 6px 10px;
+    color: #888;
+    /* Make the link cover the entire list item-container */
+    display: block;
+	
+}
+
+li.menu-separator-item
+{
+	height:2px;
+	padding:0px;
+	margin-top:0px;
+	margin-left:0px;
+	margin-right:0px;
+	margin-bottom:6px;
+}
+
+.menu-level-0 a:hover { color: inherit;}
+
+.menu-expand
+{
+	color:#00a;
+	float:right;
+}	
+

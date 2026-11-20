@@ -21,6 +21,7 @@ public class InitializationPage extends Page
             String script=
                 """
             function sendDeviceLocation(path,redirect) {
+                alert("sendDeviceLocation:"+redirect);
                 var timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 var parameters = new URLSearchParams({ redirect: redirect });
                 var pathAndQuery = path+"?" + parameters.toString();

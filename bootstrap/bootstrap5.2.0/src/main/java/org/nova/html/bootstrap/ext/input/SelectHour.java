@@ -22,7 +22,7 @@ public class SelectHour extends Select
     public SelectHour set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Hour");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Hour");
         if (this.isRequired())
         {
             prompt.disabled();

@@ -27,7 +27,7 @@ public class SelectValue extends Select
     public SelectValue set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner(this.unit);
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner(this.unit);
         if (this.isRequired())
         {
             prompt.disabled();

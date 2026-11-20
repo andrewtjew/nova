@@ -141,40 +141,32 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     {
         var roles=Utils.combine(this.getRoles(), ",");
         list.add("Roles", roles);
-        list.add("States", "--------------------");
+        list.add("Page States", "--------------------");
+        HashMap<String,Object> states=new HashMap<String, Object>();
         if (this.states!=null)
         {
             for (var entry:this.states.entrySet())
             {
-                var value=entry.getValue();
-                if (value!=null)
-                {
-//                    list.add(entry.getKey()+":"+value.getClass().getName(), entry.getValue());
-                    list.add(entry.getKey(), value.getClass().getName());
-                }
-                else
-                {
-                    list.add(entry.getKey()+":null", "");
-                }
+                states.put(entry.getKey(), entry.getValue());
             }
         }
         if (this.newStates!=null)
         {
             for (var entry:this.newStates.entrySet())
             {
-                if ((this.states==null)||(this.states.containsKey(entry.getKey())==false))
-                {
-                    var value=entry.getValue();
-                    if (value!=null)
-                    {
-//                        list.add(entry.getKey(), value.getClass().getName());
-                      list.add(entry.getKey()+":"+value.getClass().getName(), entry.getValue());
-                    }
-                    else
-                    {
-                        list.add(entry.getKey()+":null", "");
-                    }
-                }
+                states.put(entry.getKey(), entry.getValue());
+            }
+        }
+        for (var entry:states.entrySet())
+        {
+            var value=entry.getValue();
+            if (value!=null)
+            {
+              list.add(entry.getKey()+":"+value.getClass().getName(), entry.getValue());
+            }
+            else
+            {
+                list.add(entry.getKey()+":null", "");
             }
         }
     }

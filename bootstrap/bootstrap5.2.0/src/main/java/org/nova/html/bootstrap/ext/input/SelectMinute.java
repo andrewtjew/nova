@@ -21,7 +21,7 @@ public class SelectMinute extends Select
     public SelectMinute set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Minute");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Minute");
         if (this.isRequired())
         {
             prompt.disabled();

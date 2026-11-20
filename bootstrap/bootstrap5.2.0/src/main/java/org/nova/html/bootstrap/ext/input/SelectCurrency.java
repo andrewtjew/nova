@@ -21,7 +21,7 @@ public class SelectCurrency extends Select
     public SelectCurrency set(CurrencyCode value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Select");
+        option prompt=returnAddInner(new option()).disabled().value("").addInner("Select");
         if (this.isRequired())
         {
             prompt.disabled();

@@ -35,6 +35,7 @@ import org.nova.html.properties.Style;
 import org.nova.html.properties.TextAlign_;
 import org.nova.html.properties.Unit_;
 import org.nova.html.tags.div;
+import org.nova.html.tags.hr;
 
 public class NameValueList extends GlobalEventTagElement<NameValueList>
 {
@@ -46,7 +47,7 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
     public NameValueList(Length_ leftWidth,boolean frame)
     {
         super("div");
-        style("display:block;");
+        style("display:block;flex-shrink:0;flex-grow:0;");
         this.list=new ArrayList<>();
         this.longest=0;
         this.leftWidth=leftWidth;
@@ -76,6 +77,10 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
         }
         return this;
     }
+    public void addDivider()
+    {
+        this.list.add(null);
+    }
     public NameValueList add(String name,Object value)
     {
         if (value!=null)
@@ -89,17 +94,19 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
     {
        int width=(int)(this.longest*0.7f+1);
        Length_ size=this.leftWidth!=null?this.leftWidth:new Length_(width,Unit_.em);
-       Style valueStyle=new Style()
-       .text_align(TextAlign_.left)
-       .width(new Length_(100,Unit_.percent))
-//       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
-       .margin_right(new Length_(0.25,Unit_.em))
-       .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em));
+       
+       String valueStyle="text-align:left;width:100%;margin-right:0.25em;padding:0.6em 0.2em 0.2em 0em;overflow-wrap:break-word;word-break:break-word;";
+       
+//       Style valueStyle=new Style()
+//       .text_align(TextAlign_.left)
+//       .width(new Length_(100,Unit_.percent))
+////       .border_right(new Size(0.1,unit.em),border_style.solid,Color.rgb(176, 176, 176))
+//       .margin_right(new Length_(0.25,Unit_.em))
+//       .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em));
 
        for (int i=0;i<this.list.size();i++)
        {
            NameValue<Element> item=this.list.get(i);
-
            div line=returnAddInner(new div());
            if (this.frame)
            {
@@ -113,42 +120,49 @@ public class NameValueList extends GlobalEventTagElement<NameValueList>
                }
                else 
                {
-                   line.style("display:flex;text-align:right;width:100%;background-color:#f9f9f9;border-bottom:1px solid #bbb;border-left:1px solid #bbb;border-right:1px solid #bbb;");
+                   line.style("display:flex;text-align:right;width:100%;border-bottom:1px solid #bbb;border-left:1px solid #bbb;border-right:1px solid #bbb;background-color:#f9f9f9;");
                }
            }
            else
            {
                line.style("display:flex;text-align:right;");
            }
-           String label=item.getName();
-           if (label==null)
+           if (item==null)
            {
-               label="";
-           }
-           if (this.frame)
-           {
-               line.addInner(new div().style
-                       (
-                           new Style()
-                           .width(size)
-                           .border_right(new Length_(0.1,Unit_.em),BorderStyle_.solid,Color_.rgb(176, 176, 176))
-                           .margin_right(new Length_(0.25,Unit_.em))
-                           .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
-                       )
-                       .addInner(label));
+               line.addInner(new hr().style("width:100%;"));
            }
            else
            {
-               line.addInner(new div().style
-                       (
-                           new Style()
-                           .width(size)
-                           .margin_right(new Length_(0.25,Unit_.em))
-                           .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
-                       )
-                       .addInner(label));
+               String label=item.getName();
+               if (label==null)
+               {
+                   label="";
+               }
+               if (this.frame)
+               {
+                   line.addInner(new div().style
+                           (
+                               new Style()
+                               .width(size)
+                               .border_right(new Length_(0.1,Unit_.em),BorderStyle_.solid,Color_.rgb(176, 176, 176))
+                               .margin_right(new Length_(0.25,Unit_.em))
+                               .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
+                           )
+                           .addInner(label));
+               }
+               else
+               {
+                   line.addInner(new div().style
+                           (
+                               new Style()
+                               .width(size)
+                               .margin_right(new Length_(0.25,Unit_.em))
+                               .padding(new Length_(0.6,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0.2,Unit_.em),new Length_(0,Unit_.em))
+                           )
+                           .addInner(label));
+               }
+               line.addInner(new div().style(valueStyle).addInner(item.getValue()));
            }
-           line.addInner(new div().style(valueStyle).addInner(item.getValue()));
        }
        super.compose(builder);
     }

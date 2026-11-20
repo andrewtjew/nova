@@ -21,7 +21,7 @@ public class SelectDay extends Select
     public SelectDay set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Day");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Day");
         if (this.isRequired())
         {
             prompt.disabled();

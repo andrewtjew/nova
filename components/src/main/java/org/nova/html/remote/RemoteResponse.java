@@ -326,9 +326,9 @@ public class RemoteResponse
         return this;
     }
 
-    public RemoteResponse send(ServerSideConnection eventSourceResponse) throws Throwable
+    public RemoteResponse send(ServerSideConnection connection) throws Throwable
     {
-        eventSourceResponse.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
+        connection.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
         return this;
     }
     

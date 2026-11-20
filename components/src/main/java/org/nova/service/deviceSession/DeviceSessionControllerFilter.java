@@ -74,6 +74,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
     final static boolean DEBUG_STATE_HANDLING=false;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_PAGE=true;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_CONSOLE=true;
+    final static boolean DEBUG_DISPATCH=true;
 
     static final public String NO_DEVICE_SESSION_PATH="/e1";
     static final public String INVAID_QUERY_PATH="/e2";
@@ -99,10 +100,17 @@ public abstract class DeviceSessionControllerFilter extends Filter
     
     public Response<?> dispatchHandler(Context context,String path) throws Throwable
     {
+        if (Debug.ENABLE && DEBUG && DEBUG_DISPATCH)
+        {
+            Debugging.log(LOG_CATEGORY_DEBUG, "DispatchHander: path="+path);
+        }
+        
         if (context.getContentWriter() instanceof RemoteResponseWriter)
         {
-            context.getHttpServletResponse().setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
+            RemoteResponse response=new RemoteResponse();
+            response.location(this.deviceSessionControllerPath+path);
+            return new Response<RemoteResponse>(response);
+            
         }
         if (context.getHttpServletRequest().getMethod().equals("POST"))
         {
@@ -223,25 +231,25 @@ public abstract class DeviceSessionControllerFilter extends Filter
         deviceSession.throwable=null;
         try
         {
-            AbnormalResponse abnormalResult=deviceSession.verifyRequest(parent, context);
-            if (abnormalResult!=null)
+            AbnormalResponse abnormalResponse=deviceSession.verifyRequest(parent, context);
+            if (abnormalResponse!=null)
             {
-                if (abnormalResult.statusCode()!=null)
+                if (abnormalResponse.statusCode()!=null)
                 {
-                    context.getHttpServletResponse().setStatus(abnormalResult.statusCode());
+                    context.getHttpServletResponse().setStatus(abnormalResponse.statusCode());
                 }
-                if (abnormalResult.response()!=null)
+                if (abnormalResponse.response()!=null)
                 {
-                    return abnormalResult.response();
+                    return abnormalResponse.response();
                 }
-                if (TypeUtils.isNullOrEmpty(abnormalResult.seeOther())==false)
+                if (TypeUtils.isNullOrEmpty(abnormalResponse.seeOther())==false)
                 {
-                    context.seeOther(abnormalResult.seeOther());
+                    context.seeOther(abnormalResponse.seeOther());
                     return null;
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_SECURITY_ACCESS_DENIED)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "PathAndQuerySecurity access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
+                    Debugging.log(LOG_CATEGORY_DEBUG, "PathAndQuerySecurity abnormal: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
                 }
                 return dispatchInvalidQuery(parent, context,deviceSession);
             }
@@ -268,7 +276,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                         {
                             Debugging.log(LOG_CATEGORY_DEBUG, "State required: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                         }
-                        return dispatchInvalidQuery(parent, context,deviceSession);
+                        return dispatchNoDeviceSession(parent, context);
                     }
                     context.setState(state);
                     stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
@@ -287,10 +295,10 @@ public abstract class DeviceSessionControllerFilter extends Filter
                     
                 if (stateHandling!=null)
                 {
-                    abnormalResult=stateHandling.beginRequest(parent, context);
-                    if (abnormalResult!=null)
+                    abnormalResponse=stateHandling.beginRequest(parent, context);
+                    if (abnormalResponse!=null)
                     {
-                        return returnAbnormalResult(parent, abnormalResult, context, deviceSession);
+                        return returnAbnormalResult(parent, abnormalResponse, context, deviceSession);
                     }
                 }
                 try

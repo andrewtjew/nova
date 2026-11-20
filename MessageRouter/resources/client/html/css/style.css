@@ -1,0 +1,28 @@
+/* 
+	General styles for this example page */
+html {
+	height: 100%;
+}
+
+body 
+{
+	font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
+	font-size: 16px;
+	margin: 0.5em;
+	background-color: #0FF;
+	height: 100%;
+}
+
+.small-spacing
+{
+	height:1em;
+}
+.medium-spacing
+{
+	height:2em;
+}
+.large-spacing
+{
+	height:3em;
+}
+

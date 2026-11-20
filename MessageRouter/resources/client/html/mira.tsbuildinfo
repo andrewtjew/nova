@@ -1,0 +1,32 @@
+{
+  "bundle": {
+    "commonSourceDirectory": "../../../src/main/ts",
+    "sourceFiles": [
+      "../../../src/main/ts/FormRow.ts",
+      "../../../src/main/ts/administration.ts",
+      "../../../src/main/ts/associate.ts",
+      "../../../src/main/ts/base.ts",
+      "../../../src/main/ts/join.ts",
+      "../../../src/main/ts/signIn.ts"
+    ],
+    "js": {
+      "sections": [
+        {
+          "pos": 0,
+          "end": 23926,
+          "kind": "text"
+        }
+      ]
+    },
+    "dts": {
+      "sections": [
+        {
+          "pos": 0,
+          "end": 2571,
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "version": "3.7.2"
+}
