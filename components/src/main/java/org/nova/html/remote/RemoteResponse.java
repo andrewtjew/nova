@@ -326,14 +326,9 @@ public class RemoteResponse
         return this;
     }
 
-    public RemoteResponse send(ServerSideConnection connection) throws Throwable
+    public void send(ServerSideConnection connection) throws Throwable
     {
         connection.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
-        return this;
     }
     
-//    public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
-//    {
-//        context.sendText(parent, ObjectMapper.writeObjectToString(this.getInstructions()));
-//    }
 }

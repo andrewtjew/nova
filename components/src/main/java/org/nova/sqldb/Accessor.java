@@ -790,4 +790,9 @@ public class Accessor extends Resource
 	{
 	    return this.connector;
 	}
+	
+	public Connection getConnection()
+    {
+        return this.connection;
+    }
 }

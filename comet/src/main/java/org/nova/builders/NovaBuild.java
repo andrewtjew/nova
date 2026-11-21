@@ -203,19 +203,25 @@ public class NovaBuild extends Script
         }
         if (service!=null)
         {
+            var serviceDir=new File(sourcedir+"\\..\\services\\"+artifact).getCanonicalPath();
+
             System.out.println("removing service: "+service);    
             CometUtils.exec("\\wd\\nova\\os","nssm stop \""+service+"\"");
             CometUtils.exec("\\wd\\nova\\os","nssm remove \""+service+"\" confirm");
             
             if (restart==false)
             {
-                System.out.println("copying package"); 
-                CometUtils.createDirectory(sourcedir+"\\os");
-                CometUtils.moveFile(sourcedir+"\\packages\\"+artifactJar,sourcedir+"\\os\\"+artifact);
+                System.out.println("copying package");
+                CometUtils.createDirectory(serviceDir);
+                CometUtils.copyFile(sourcedir+"\\packages\\"+artifactJar,serviceDir+"\\"+artifactJar);
                 System.out.println("Unzipping...");    
-                CometUtils.exec(sourcedir+artifact,"jar -xf "+artifactJar);
+                CometUtils.exec(serviceDir,"jar -xf "+artifactJar);
                 
             }
+            System.out.println("installing service: "+service);    
+            CometUtils.exec("\\wd\\nova\\os","nssm install \""+service+"\" \""+serviceDir+"\\"+artifact+"\\run.bat\"");
+            CometUtils.exec("\\wd\\nova\\os","nssm set \""+service+"\" Start SERVICE_DELAYED_AUTO_START");
+            CometUtils.exec("\\wd\\nova\\os","nssm start \""+service);
 
             
 //            CometUtils.exec("\\wd\\nova\\os","nssm install \""+service+"\" \""+sourcedir+"\\packages\\"+artifactJar+"\" java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/application.cnf");

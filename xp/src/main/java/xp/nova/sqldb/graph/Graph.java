@@ -3,6 +3,8 @@
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -1083,6 +1085,10 @@ public class Graph
             accessor.executeUpdate(parent, "createTable"
                     ,"CREATE TABLE IF NOT EXISTS `@graphversion` (`version` int NOT NULL,`updated` datetime DEFAULT NULL,PRIMARY KEY (`version`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
                     );
+
+            accessor.executeUpdate(parent, "createTable"
+                    ,"CREATE TABLE IF NOT EXISTS `@counter` (`name` varchar(45),`value` bigint,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+                    );
             
 //            createTable(parent,accessor,catalog,"@deletedarray"
 //                    ,"CREATE TABLE `@deletedarray` (`version` bigint NOT NULL AUTO_INCREMENT,`deleted` datetime NOT NULL,`arrayNodeId` bigint NOT NULL,`nodeId` bigint NOT NULL,`relation` varchar(45) NOT NULL,PRIMARY KEY (`version`),KEY `nodeIdIndex` (`arrayId`)) ENGINE=InnoDB;"
@@ -1406,6 +1412,34 @@ public class Graph
         try (GraphAccessor graphAccessor=openGraphAccessor(parent))
         {
             return graphAccessor.execute(parent, nodeId, query).getResult();
+        }
+    }
+    
+    public long getIncrementingCounterValue(Trace parent,String name) throws Throwable, Throwable
+    {
+        try (var accessor=this.connector.openAccessor(parent,null,this.catalog))
+        {
+            try (var transaction=accessor.beginTransaction("getIncrementingCounterValue"))
+            {
+                if (accessor.executeQuery(parent,"getIncrementingCounterValue","SELECT `value` FROM `@counter` WHERE `name`=?",name).size()==0)
+                {
+                    accessor.executeUpdate(parent,"insertIncrementingCounterValue","INSERT INTO `@counter` (`name`,`value`) VALUES (?,0)",name);
+                }
+                transaction.commit();
+            }
+            
+            String sql="UPDATE `@counter` SET `value`=(@newValue:=`value`+1) WHERE `name`=?;SELECT @newValue AS `value`;";
+            var conn=accessor.getConnection();
+            try (PreparedStatement statement = conn.prepareStatement(sql)) 
+            {
+                statement.setString(1, name);
+                statement.execute();
+                
+                statement.getMoreResults();
+                ResultSet resultSet = statement.getResultSet();
+                resultSet.next();
+                return resultSet.getLong(1);
+            }
         }
     }
     

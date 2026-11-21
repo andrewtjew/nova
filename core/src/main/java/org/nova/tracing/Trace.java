@@ -102,6 +102,10 @@ public class Trace implements AutoCloseable
     {
         this(parent,category,false);
     }
+    public Trace(Trace parent,Object categoryObject)
+    {
+        this(parent,categoryObject.getClass().getSimpleName());
+    }
 	public Trace(TraceManager traceManager,String category)
 	{
 		this(traceManager,null,category,null,false);

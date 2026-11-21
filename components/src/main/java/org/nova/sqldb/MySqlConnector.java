@@ -53,7 +53,7 @@ public class MySqlConnector extends Connector
         {
             sb.append("/"+this.schema);
         }
-        sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true");
+        sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true");
         return sb.toString();
         
 //        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";

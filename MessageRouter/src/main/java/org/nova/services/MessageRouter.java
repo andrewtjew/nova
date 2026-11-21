@@ -23,6 +23,7 @@ import org.nova.http.client.JSONClient;
 import org.nova.http.server.Context;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
+import org.nova.http.server.HeaderParam;
 import org.nova.http.server.HttpTransport;
 import org.nova.http.server.JSONContentReader;
 import org.nova.http.server.JSONContentWriter;
@@ -57,7 +58,7 @@ public class MessageRouter extends ServerApplication
 {
     private ExpireMap<String, String> endPoints;
     private HttpClient client;
-    private MessageRouterClient testMessageRouterClient;
+    private MessageRouterService testMessageRouterService;
     static final String RECEIVE_PATH="/$/receive"; 
     static final boolean DEBUG=true;
     
@@ -89,7 +90,7 @@ public class MessageRouter extends ServerApplication
 
         if (isTest())
         {
-            this.testMessageRouterClient=new MessageRouterClient("http://localhost:"+port,"http://localhost:"+port+RECEIVE_PATH,httpClientConfiguration)
+            this.testMessageRouterService=new MessageRouterService("http://localhost:"+port,"http://localhost:"+port+RECEIVE_PATH,httpClientConfiguration)
             {
                 @Override
                 public void onReceive(Trace parent,Context context,String identifier) throws Throwable
@@ -107,8 +108,8 @@ public class MessageRouter extends ServerApplication
                     }
                 }
             };
-            var method=testMessageRouterClient.getClass().getMethod("receive", Trace.class,Context.class,String.class);
-            this.getPublicServer().registerHandler(RECEIVE_PATH, testMessageRouterClient, method);
+            var method=testMessageRouterService.getClass().getMethod("receive", Trace.class,Context.class,String.class);
+            this.getPublicServer().registerHandler(RECEIVE_PATH, testMessageRouterService, method);
         }
 //        void receive(Trace parent,Context context,@QueryParam("identifier") String identifier) throws Throwable
 
@@ -130,7 +131,7 @@ public class MessageRouter extends ServerApplication
     
     @POST
     @Path("/open")
-    public void open(Trace parent,Context context,@QueryParam("identifier") String identifier,@QueryParam("endPoint") String endPoint)
+    public void open(Trace parent,Context context,@HeaderParam("X-Identifier") String identifier,@QueryParam("endPoint") String endPoint)
     {
         if (identifier==null)
         {
@@ -141,14 +142,14 @@ public class MessageRouter extends ServerApplication
     
     @POST
     @Path("/close")
-    public void close(Trace parent,Context context,@QueryParam("identifier") String identifier)
+    public void close(Trace parent,@HeaderParam("X-Identifier") String identifier)
     {
         this.endPoints.remove(identifier);
     }
 
     @POST
     @Path("/send")
-    public void send(Trace parent,Context context,@QueryParam("identifier") String identifier) throws Throwable
+    public void send(Trace parent,Context context,@HeaderParam(MessageRouterService.IDENTIFIER_HEADER) String identifier) throws Throwable
     {
         String endPoint=this.endPoints.get(identifier);
         if (endPoint==null)
@@ -160,6 +161,7 @@ public class MessageRouter extends ServerApplication
         HttpPost post=new HttpPost(endPoint);
         post.setEntity(entity);
         post.setHeader("Content-Type",request.getContentType());
+        post.setHeader(MessageRouterService.IDENTIFIER_HEADER,identifier);
         this.client.execute(post);
         
     }
@@ -172,14 +174,14 @@ public class MessageRouter extends ServerApplication
     {
         var page=new Page();
         String identifier="testIdentifier";
-        this.testMessageRouterClient.open(identifier);
+        this.testMessageRouterService.open(parent,identifier);
         page.body().returnAddInner(new p()).addInner("value="+this.endPoints.get(identifier));
-        this.testMessageRouterClient.close(identifier);
+        this.testMessageRouterService.close(parent,identifier);
         page.body().returnAddInner(new p()).addInner("value="+this.endPoints.get(identifier));
-        this.testMessageRouterClient.open(identifier);
+        this.testMessageRouterService.open(parent,identifier);
         page.body().returnAddInner(new p()).addInner("value="+this.endPoints.get(identifier));
         
-        this.testMessageRouterClient.send(this.endPoints.get(identifier),this.endPoints.get(identifier),"text/plain","Test MessageRouterClient");
+        this.testMessageRouterService.send(parent,identifier,"text/plain","Test MessageRouterClient");
         page.body().addInner("sent: "+LocalDateTime.now().toString());
         return page;
     }   
