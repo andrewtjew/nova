@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nova.concurrent.TimeBase;
@@ -265,9 +266,9 @@ public class ExpireMap<KEY,VALUE>
         }
 	}
 
-	public List<Pair<KEY,VALUE>> getEntries()
+	public Map<KEY,VALUE> getEntries()
     {
-        int size=0;
+        HashMap<KEY,VALUE> entries=new HashMap<>();
         synchronized(this)
         {
             for (int i=0;i<this.generations.length;i++)
@@ -275,24 +276,46 @@ public class ExpireMap<KEY,VALUE>
                 HashMap<KEY,VALUE> generation=this.generations[i];
                 if (generation!=null)
                 {
-                    size+=generation.size();
-                }
-            }
-            List<Pair<KEY,VALUE>> entries=new ArrayList<>(size);
-            for (int i=0;i<this.generations.length;i++)
-            {
-                HashMap<KEY,VALUE> generation=this.generations[i];
-                if (generation!=null)
-                {
                     for (Entry<KEY, VALUE> entry:generation.entrySet())
                     {
-                        entries.add(new Pair<KEY,VALUE>(entry.getKey(),entry.getValue()));
+                        entries.put(entry.getKey(), entry.getValue());
                     }
                 }
             }
             return entries;
         }
     }
+	
+//    public List<Pair<KEY,VALUE>> getEntries2()
+//    {
+//        int size=0;
+//        synchronized(this)
+//        {
+//            for (int i=0;i<this.generations.length;i++)
+//            {
+//                HashMap<KEY,VALUE> generation=this.generations[i];
+//                if (generation!=null)
+//                {
+//                    size+=generation.size();
+//                }
+//            }
+//            List<Pair<KEY,VALUE>> entries=new ArrayList<>(size);
+//            for (int i=0;i<this.generations.length;i++)
+//            {
+//                HashMap<KEY,VALUE> generation=this.generations[i];
+//                if (generation!=null)
+//                {
+//                    for (Entry<KEY, VALUE> entry:generation.entrySet())
+//                    {
+//                        entries.add(new Pair<KEY,VALUE>(entry.getKey(),entry.getValue()));
+//                    }
+//                }
+//            }
+//            return entries;
+//        }
+//    }
+    
+	
 	
 	private void expire(Trace parent) throws Throwable
 	{

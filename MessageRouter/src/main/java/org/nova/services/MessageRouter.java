@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -75,6 +76,7 @@ public class MessageRouter extends ServerApplication
 
     public void onStart(Trace parent) throws Throwable
     {
+        this.getOperatorServer().registerHandlers(new OperatorController(this));
         Configuration configuration=this.getConfiguration();
         long endPointExpiration=configuration.getIntegerValue("MessageRouter.endPointExpirationDays",400)*24*60*60*1000L;
         this.getPublicServer().registerHandlers(this);
@@ -118,6 +120,11 @@ public class MessageRouter extends ServerApplication
 
     public void onStop()
     { 
+    }
+    
+    public Map<String,String> getEndPoints()
+    {
+        return this.endPoints.getEntries();
     }
     
     @GET
@@ -165,7 +172,10 @@ public class MessageRouter extends ServerApplication
         this.client.execute(post);
         
     }
+    
+    
 
+    
     
     @GET
     @Test

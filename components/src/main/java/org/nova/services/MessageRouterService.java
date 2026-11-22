@@ -1,6 +1,7 @@
 package org.nova.services;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -89,4 +90,9 @@ public abstract class MessageRouterService
     {
         this.onReceive(parent,context,identifier);
     }
+    public Method getReceiveMethod() throws Throwable
+    {
+        return this.getClass().getMethod("receive", Trace.class,Context.class,String.class);
+    }
+
 }
