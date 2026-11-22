@@ -204,6 +204,9 @@ public class DeviceSession implements PathAndQuerySecurity
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
         {
             Debugging.log(LOG_DEBUG_CATEGORY,"Secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
+            StackTraceElement[] stackTrace=Thread.currentThread().getStackTrace();
+            Utils.toString(stackTrace);
+            Debugging.log(LOG_DEBUG_CATEGORY,Utils.toString(stackTrace));
         }
         return signed;
     }

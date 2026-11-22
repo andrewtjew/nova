@@ -94,7 +94,7 @@ public class ObjectMapper
             else
             {
                 LocalDate date=(LocalDate)object;
-                targetWriter.write(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
+                targetWriter.writeString(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
             }
         }
     }
@@ -109,7 +109,7 @@ public class ObjectMapper
             else
             {
                 LocalTime time=(LocalTime)object;
-                targetWriter.write(DateTimeFormatter.ISO_LOCAL_DATE.format(time));
+                targetWriter.write('"'+DateTimeFormatter.ISO_LOCAL_DATE.format(time)+'"');
             }
         }
     }
@@ -124,7 +124,7 @@ public class ObjectMapper
             else
             {
                 LocalDateTime dateTime=(LocalDateTime)object;
-                targetWriter.write(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                targetWriter.write('"'+DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime)+'"');
             }
         }
     }

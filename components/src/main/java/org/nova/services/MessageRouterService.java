@@ -7,6 +7,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.http.client.HttpClientConfiguration;
@@ -51,7 +52,7 @@ public abstract class MessageRouterService
         post(parent,identifier,new PathAndQuery("/close").toString(),null,null);
     }
     
-    private void post(Trace parent,String identifier,String pathAndQueries,String contentType,String content) throws Throwable
+    private boolean post(Trace parent,String identifier,String pathAndQueries,String contentType,String content) throws Throwable
     {
         try (Trace trace=new Trace(parent,this))
         {
@@ -66,21 +67,19 @@ public abstract class MessageRouterService
                 post.setHeader("Content-Type",contentType);
             }
             post.setHeader(IDENTIFIER_HEADER,identifier);
-            this.client.execute(post);
+            var response=this.client.execute(post);
+            return response.getStatusLine().getStatusCode()==HttpStatus.OK_200;
+            
         }
     }
 
-    public void send(Trace parent,String identifier,String contentType,String content) throws Throwable
+    public boolean send(Trace parent,String identifier,String contentType,String content) throws Throwable
     {
-        post(parent,identifier,new PathAndQuery("/send").toString(),contentType,content);
+        return post(parent,identifier,new PathAndQuery("/send").toString(),contentType,content);
     }
-    public void send(Trace parent,String identifier,Object content) throws Throwable
+    public boolean send(Trace parent,String identifier,Object content) throws Throwable
     {
-        post(parent,identifier,new PathAndQuery("/send").toString(),"application/json",ObjectMapper.writeObjectToString(content));
-    }
-    public void send(Trace parent,long identifier,Object content) throws Throwable
-    {
-        send(parent,Long.toString(identifier),content);
+        return post(parent,identifier,new PathAndQuery("/send").toString(),"application/json",ObjectMapper.writeObjectToString(content));
     }
     
     public abstract void onReceive(Trace parent,Context context,String identifier) throws Throwable;

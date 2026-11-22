@@ -12,6 +12,7 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.eclipse.jetty.http.HttpStatus;
 import org.nova.collections.ExpireMap;
 import org.nova.configuration.Configuration;
 import org.nova.frameworks.CoreEnvironment;
@@ -158,23 +159,47 @@ public class MessageRouter extends ServerApplication
     @Path("/send")
     public void send(Trace parent,Context context,@HeaderParam(MessageRouterService.IDENTIFIER_HEADER) String identifier) throws Throwable
     {
-        String endPoint=this.endPoints.get(identifier);
-        if (endPoint==null)
+        try
         {
-            return;
+            String endPoint=this.endPoints.get(identifier);
+            if (endPoint==null)
+            {
+                context.getHttpServletResponse().setStatus(HttpStatus.NOT_FOUND_404);
+                return;
+            }
+            var request=context.getHttpServletRequest();
+            InputStreamEntity entity=new InputStreamEntity(request.getInputStream());
+            HttpPost post=new HttpPost(endPoint);
+            post.setEntity(entity);
+            post.setHeader("Content-Type",request.getContentType());
+            post.setHeader(MessageRouterService.IDENTIFIER_HEADER,identifier);
+            var response=this.client.execute(post);
+            if (response.getStatusLine().getStatusCode()!=HttpStatus.OK_200)
+            {
+                context.getHttpServletResponse().setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                return;
+            }
         }
-        var request=context.getHttpServletRequest();
-        InputStreamEntity entity=new InputStreamEntity(request.getInputStream());
-        HttpPost post=new HttpPost(endPoint);
-        post.setEntity(entity);
-        post.setHeader("Content-Type",request.getContentType());
-        post.setHeader(MessageRouterService.IDENTIFIER_HEADER,identifier);
-        this.client.execute(post);
+        catch (Throwable t)
+        {
+            context.getHttpServletResponse().setStatus(HttpStatus.BAD_GATEWAY_502);
+            throw t;
+        }
         
     }
     
-    
-
+    @GET
+    @Path("/endPoint")
+    public String endPoint(Trace parent,Context context,@HeaderParam(MessageRouterService.IDENTIFIER_HEADER) String identifier) throws Throwable
+    {
+        String endPoint=this.endPoints.get(identifier);
+        if (endPoint==null)
+        {
+            context.getHttpServletResponse().setStatus(HttpStatus.NOT_FOUND_404);
+            return null;
+        }
+        return endPoint;
+    }
     
     
     @GET
