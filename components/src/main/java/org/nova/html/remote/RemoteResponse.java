@@ -74,7 +74,11 @@ public class RemoteResponse
     public RemoteResponse innerHtml(String id,TagElement<?> element,QuotationMark mark)
     {
         String text=element.getHtml(mark,this.resolver);
-        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,text));
+        return innerHtml(id,text);
+    }
+    public RemoteResponse innerHtml(String id,String html)
+    {
+        this.instructions.add(new Instruction(this.trace,Command.innerHTML,id,html));
         return this;
     }
     public RemoteResponse innerHtml(String id,Element element)

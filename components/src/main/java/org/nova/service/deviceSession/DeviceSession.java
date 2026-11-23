@@ -175,23 +175,37 @@ public class DeviceSession implements PathAndQuerySecurity
     public <STATE> STATE getState(Class<?> type)
     {
         int id=System.identityHashCode(type);
-        return (STATE)this.states.get(id);
+        synchronized (this.states)
+        {
+            return (STATE)this.states.get(id);
+        }
     }
     public void setState(Object state)
     {
         int id=System.identityHashCode(state.getClass());
-        this.states.put(id, state);
+        synchronized (this.states)
+        {
+            this.states.put(id, state);
+        }
     }
     public void removeState(Class<?> type)
     {
         int id=System.identityHashCode(type);
-        this.states.remove(id);
+        synchronized (this.states)
+        {
+            this.states.remove(id);
+        }
     }
     public void clearStates()
     {
-        this.states.clear();
+        synchronized (this.states)
+        {
+            this.states.clear();
+        }
     }
 
+    
+    
     @Override
     public String securePathAndQuery(String pathAndQuery) throws Throwable
     {
@@ -211,6 +225,13 @@ public class DeviceSession implements PathAndQuerySecurity
         return signed;
     }
 
+    public AbnormalResponse handleRequest(Trace parent,Context context) throws Throwable
+    {
+        this.accessRateMeter.increment();
+        this.lastAccess=System.currentTimeMillis();
+        return verifyRequest(parent, context);
+    }
+    
     @Override
     public AbnormalResponse verifyRequest(Trace parent,Context context) throws Throwable
     {
@@ -283,7 +304,7 @@ public class DeviceSession implements PathAndQuerySecurity
         list.add("Created",toUTC(this.created));
         list.add("LastAccess",toUTC(this.lastAccess));
         var sample=this.accessRateMeter.sample();
-        list.add("AccessRate","instantenous rate="+String.format("%.2f", sample.getRate())+", weighted rate="+String.format("%.2f", sample.getWeightedRate())+", total="+sample.getTotalCount());
+        list.add("AccessRate","current rate="+String.format("%.2f", sample.getRate())+", weighted rate="+String.format("%.2f", sample.getWeightedRate())+", total="+sample.getTotalCount());
         list.add("ZoneId",this.zoneId);
         list.add("Language",this.language);
         list.add("CountryCode",this.countryCode);

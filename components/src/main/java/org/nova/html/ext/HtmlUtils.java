@@ -507,6 +507,11 @@ public class HtmlUtils
     {
         return js_call("document.getElementById", id)+".submit()";
     }
+
+    public static String js_setTimeoutScript(long delay,String script)
+    {
+        return "setTimeout(function(){"+script+"},"+delay+");";
+    }
     
     public static String js_setTimeout(long delay,String function,Object...parameters)
     {

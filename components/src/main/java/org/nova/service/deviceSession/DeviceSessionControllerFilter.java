@@ -231,7 +231,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         deviceSession.throwable=null;
         try
         {
-            AbnormalResponse abnormalResponse=deviceSession.verifyRequest(parent, context);
+            AbnormalResponse abnormalResponse=deviceSession.handleRequest(parent, context);
             if (abnormalResponse!=null)
             {
                 if (abnormalResponse.statusCode()!=null)
@@ -304,7 +304,6 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 try
                 {
                     response=context.next(parent);
-                    deviceSession.getAccessRateMeter().increment();
                 }
                 finally
                 {

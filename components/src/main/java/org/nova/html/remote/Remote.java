@@ -47,6 +47,12 @@ public class Remote
     {
         return js_postStatic(pathAndQuery.toString(),objectMap);
     }
+    
+    public static String js_timeoutpostStatic(PathAndQuerySecurity security,String url,ObjectMap objectMap) throws Throwable
+    {
+        return js_postStatic(new SecurePathAndQuery(security,url),objectMap);
+    }
+    
     public static String js_postFormUrlEncoded(FormElement<?> form,String action) throws Throwable
     {
         return HtmlUtils.js_call("nova.remote.postFormUrlEncoded",form.id(),action);             

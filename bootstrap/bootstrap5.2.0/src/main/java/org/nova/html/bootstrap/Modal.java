@@ -89,6 +89,10 @@ public class Modal extends StyleComponent<Modal>
     {
         return js_toggle(this.id());
     }
+    public String js_create(ModalOptions options) throws Throwable
+    {
+        return js_create(this.id(),options);
+    }
     public static String js_show(String id)
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";
@@ -101,10 +105,10 @@ public class Modal extends StyleComponent<Modal>
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).toggle();";
     }
-    //not working
     public static String js_create(String id,ModalOptions options) throws Throwable
     {
-        String text=ObjectMapper.writeObjectToString(options);
-        return "new bootstrap.Modal(document.getElementById('"+id+"'),"+text+");";
+        String text=options!=null?ObjectMapper.writeObjectToString(options):"null";
+        String js="new bootstrap.Modal(document.getElementById('"+id+"'),"+text+");";
+        return js;
     }
 }
