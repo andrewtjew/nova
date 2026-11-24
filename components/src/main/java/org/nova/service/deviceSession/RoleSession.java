@@ -204,13 +204,6 @@ public abstract class RoleSession<ROLE extends Enum<?>> implements SessionReques
     {
         return this.roles.contains(role);
     }
-//    @Override
-//    protected void collectDisplayItems(List<NameObject> list)
-//    {
-//        super.collectDisplayItems(list);
-//        String roles=Utils.combine(this.roles.iterator(), ", ");
-//        list.add(new NameObject("Roles",roles));
-//    }    
 
     
 }

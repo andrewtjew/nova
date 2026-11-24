@@ -26,8 +26,13 @@ import org.nova.html.elements.Composer;
 import org.nova.html.elements.Element;
 import org.nova.html.elements.NodeElement;
 import org.nova.html.ext.Head;
+import org.nova.html.ext.LiteralHtml;
+import org.nova.html.ext.Text;
+import org.nova.html.tags.a;
+import org.nova.html.tags.link;
 import org.nova.html.tags.p;
 import org.nova.html.tags.textarea;
+import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.RequestLogEntry;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
@@ -35,7 +40,7 @@ import org.nova.utils.Utils;
 public class HttpRequestWidget extends Element
 {
     final private Panel2 panel;
-    public HttpRequestWidget(Head head,RequestLogEntry entry)
+    public HttpRequestWidget(Head head,String server,RequestLogEntry entry) throws Throwable
     {
         String title;
 //        if (entry.getQueryString()!=null)
@@ -46,7 +51,9 @@ public class HttpRequestWidget extends Element
         {
             title=entry.getRequest();
         }
-        this.panel=new Panel2(head, title);
+        this.panel=new Panel2(head,title);
+        this.panel.addRightInHeader(new a().style("color:#aaf;margin-right:0.25em;").addInner("...").href(new PathAndQuery("/operator/httpServer/method/" + server).addQuery("key", title).toString()));
+        
 //        panel.style("width:100%;");
         Table table=this.panel.content().returnAddInner(new Table(head));
         table.table().style("width:100%;");

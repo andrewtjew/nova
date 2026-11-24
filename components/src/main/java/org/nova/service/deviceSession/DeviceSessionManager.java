@@ -149,9 +149,9 @@ public class DeviceSessionManager
             return this.deviceSessions.values().toArray(new DeviceSession[this.deviceSessions.size()]);
         }
     }
-    public Lock<String> waitForLock(Trace parent,String user)
+    public Lock<String> waitForLock(Trace parent,String key)
     {
-        return lockManager.waitForLock(parent,user,this.waitForLockTimeoutMs);
+        return lockManager.waitForLock(parent,key,this.waitForLockTimeoutMs);
     }
     
     private void timeoutSession(Trace trace, DeviceSession session) throws Throwable

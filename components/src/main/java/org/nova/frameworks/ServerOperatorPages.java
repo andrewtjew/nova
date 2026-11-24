@@ -3784,7 +3784,7 @@ public class ServerOperatorPages
     // writeContent(head,"Response
     // Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
     // }
-    private Element writeRequestLogEntries(Head head, String contentTypeFilter, RequestLogEntry[] entries) throws Throwable
+    private Element writeRequestLogEntries(Head head, String server,String contentTypeFilter, RequestLogEntry[] entries) throws Throwable
     {
         OperatorDataTable dataTable = new OperatorDataTable(head);
         dataTable.setHeader("Number", "Entry");
@@ -3811,7 +3811,7 @@ public class ServerOperatorPages
 
         for (RequestLogEntry entry : entries)
         {
-            HttpRequestWidget element = new HttpRequestWidget(head, entry);
+            HttpRequestWidget element = new HttpRequestWidget(head, server, entry);
             if (matchTarget != null)
             {
                 String contentType = entry.getContentType();
@@ -3842,7 +3842,7 @@ public class ServerOperatorPages
         OperatorPage page = buildServerOperatorPage("Last Requests", server, "lastRequests", contentTypeFilter);
 
         RequestLogEntry[] entries = httpServer.getLastRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter, entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), server,contentTypeFilter, entries));
         return page;
     }
 
@@ -3855,7 +3855,7 @@ public class ServerOperatorPages
         HttpServer httpServer = this.getHttpServer(server);
         OperatorPage page = buildServerOperatorPage("Last Exception Requests", server, "lastExceptionRequests", contentTypeFilter);
         RequestLogEntry[] entries = httpServer.getLastExceptionRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter, entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), server, contentTypeFilter, entries));
         return page;
     }
 
@@ -4689,7 +4689,7 @@ public class ServerOperatorPages
             if (entries.length > 0)
             {
                 Panel logPanel = page.content().returnAddInner(new Panel2(page.head(), "Last Log Entries"));
-                Element logElement = writeRequestLogEntries(page.head(), null, entries);
+                Element logElement = writeRequestLogEntries(page.head(), server,null, entries);
                 logPanel.content().addInner(logElement);
             }
 

@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.geo.GeoLocation;
@@ -175,33 +176,21 @@ public class DeviceSession implements PathAndQuerySecurity
     public <STATE> STATE getState(Class<?> type)
     {
         int id=System.identityHashCode(type);
-        synchronized (this.states)
-        {
-            return (STATE)this.states.get(id);
-        }
+        return (STATE)this.states.get(id);
     }
     public void setState(Object state)
     {
         int id=System.identityHashCode(state.getClass());
-        synchronized (this.states)
-        {
-            this.states.put(id, state);
-        }
+        this.states.put(id, state);
     }
     public void removeState(Class<?> type)
     {
         int id=System.identityHashCode(type);
-        synchronized (this.states)
-        {
-            this.states.remove(id);
-        }
+        this.states.remove(id);
     }
     public void clearStates()
     {
-        synchronized (this.states)
-        {
-            this.states.clear();
-        }
+        this.states.clear();
     }
 
     
@@ -328,6 +317,10 @@ public class DeviceSession implements PathAndQuerySecurity
             }
         }
 
-        
+    }
+
+    public Lock waitForLock(Trace parent,DeviceSessionManager deviceSessionManager)
+    {
+        return deviceSessionManager.waitForLock(parent,getSessionToken());
     }
 }
