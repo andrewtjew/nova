@@ -43,7 +43,8 @@ public class DeviceSession implements PathAndQuerySecurity
     final static boolean DEBUG=true;
     static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
     static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
-    static final boolean DEBUG_REQUEST_SECURITY=false;
+    static final boolean DEBUG_REQUEST_SECURITY=true;
+    static final boolean DEBUG_STACKTRACE=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -178,6 +179,10 @@ public class DeviceSession implements PathAndQuerySecurity
         int id=System.identityHashCode(type);
         return (STATE)this.states.get(id);
     }
+    public <STATE> STATE getState(int id)
+    {
+        return (STATE)this.states.get(id);
+    }
     public void setState(Object state)
     {
         int id=System.identityHashCode(state.getClass());
@@ -207,9 +212,12 @@ public class DeviceSession implements PathAndQuerySecurity
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
         {
             Debugging.log(LOG_DEBUG_CATEGORY,"Secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
-            StackTraceElement[] stackTrace=Thread.currentThread().getStackTrace();
-            Utils.toString(stackTrace);
-            Debugging.log(LOG_DEBUG_CATEGORY,Utils.toString(stackTrace));
+            if (DEBUG_STACKTRACE)
+            {
+                StackTraceElement[] stackTrace=Thread.currentThread().getStackTrace();
+                Utils.toString(stackTrace);
+                Debugging.log(LOG_DEBUG_CATEGORY,Utils.toString(stackTrace));
+            }
         }
         return signed;
     }

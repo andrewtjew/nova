@@ -93,6 +93,10 @@ public class Modal extends StyleComponent<Modal>
     {
         return js_create(this.id(),options);
     }
+    public String js_create() throws Throwable
+    {
+        return js_create(null);
+    }
     public static String js_show(String id)
     {
         return "bootstrap.Modal.getOrCreateInstance(document.getElementById('"+id+"')).show();";

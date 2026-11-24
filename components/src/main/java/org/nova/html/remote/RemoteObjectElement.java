@@ -7,11 +7,11 @@ import org.nova.html.ext.LiteralHtml;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 
-public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT> //implements RemoteStatePosting
+public class RemoteObjectElement<ELEMENT extends RemoteElement<ELEMENT>> extends RemoteElement<ELEMENT> 
 {
-    final private RemoteStateBinding binding;
+    final private RemoteObjectBinding binding;
     
-    public RemoteStateElement(String tag,String id,RemoteStateBinding binding) throws Throwable
+    public RemoteObjectElement(String tag,String id,RemoteObjectBinding binding) throws Throwable
     {
         super(tag,id);
         this.binding=binding;
@@ -19,7 +19,7 @@ public class RemoteStateElement<ELEMENT extends RemoteElement<ELEMENT>> extends 
     
     //Remove RemoteForm2 to get rid of this method
     @Deprecated
-    public RemoteStateBinding getRemoteStateBinding()
+    public RemoteObjectBinding getBinding()
     {
         return this.binding;
     }

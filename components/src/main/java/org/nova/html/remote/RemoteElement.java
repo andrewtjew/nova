@@ -8,6 +8,7 @@ import org.nova.html.tags.script;
 import org.nova.tracing.Trace;
 
 //Use this to populate dynamic content by calling back to server. The element itself is mostly a place holder.
+
 public abstract class RemoteElement<ELEMENT extends GlobalEventTagElement<ELEMENT>> extends GlobalEventTagElement<ELEMENT>
 {
     public RemoteElement(String tag,String id) throws Throwable

@@ -258,7 +258,9 @@ public abstract class DeviceSessionControllerFilter extends Filter
             Response<?> response=null;
             try (Trace trace=new Trace(parent,requestMethod.getKey()))
             {
-                SessionRequestHandling stateHandling=null;
+//                this.getRequestHandling(parent, context, deviceSession);
+                
+                SessionRequestHandling sessionRequestHandling=this.applySessionBinding(parent, context, deviceSession);
                 if (requestMethodStateType==deviceSession.getClass())
                 {
                     context.setState(deviceSession);
@@ -279,23 +281,26 @@ public abstract class DeviceSessionControllerFilter extends Filter
                         return dispatchNoDeviceSession(parent, context);
                     }
                     context.setState(state);
-                    stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
-                    if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
-                    {
-                        if (stateHandling!=null)
-                        {
-                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+stateHandling.getClass().getSimpleName());
-                        }
-                        else
-                        {
-                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
-                        }
-                    }
+//                    if (sessionRequestHandling==null)
+//                    {
+//                        sessionRequestHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
+//                        if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
+//                        {
+//                            if (sessionRequestHandling!=null)
+//                            {
+//                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+sessionRequestHandling.getClass().getSimpleName());
+//                            }
+//                            else
+//                            {
+//                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
+//                            }
+//                        }
+//                    }
                 }
                     
-                if (stateHandling!=null)
+                if (sessionRequestHandling!=null)
                 {
-                    abnormalResponse=stateHandling.beginRequest(parent, context);
+                    abnormalResponse=sessionRequestHandling.beginRequest(parent, context);
                     if (abnormalResponse!=null)
                     {
                         return returnAbnormalResult(parent, abnormalResponse, context, deviceSession);
@@ -307,9 +312,9 @@ public abstract class DeviceSessionControllerFilter extends Filter
                 }
                 finally
                 {
-                    if (stateHandling!=null)
+                    if (sessionRequestHandling!=null)
                     {
-                        stateHandling.endRequest(parent, context,response);
+                        sessionRequestHandling.endRequest(parent, context,response);
                     }
                 }
             }
@@ -578,6 +583,8 @@ public abstract class DeviceSessionControllerFilter extends Filter
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
     abstract protected DeviceSession createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
     abstract protected DeviceSession getDeviceSession(Trace parent,Context context,String token) throws Throwable;
+    abstract protected SessionRequestHandling applySessionBinding(Trace parent,Context context,DeviceSession deviceSession) throws Throwable; 
+    
 
     //Override methods below as needed
     protected DeviceSessionResult initializeDeviceSession(Trace parent,Context context) throws Throwable

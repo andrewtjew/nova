@@ -8,16 +8,16 @@ import org.nova.html.bootstrap.classes.BreakPoint;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;
 import org.nova.html.elements.GlobalTagElement;
-import org.nova.html.remote.RemoteStateBinding;
-import org.nova.html.remote.RemoteStateElement;
+import org.nova.html.remote.RemoteObjectBinding;
+import org.nova.html.remote.RemoteObjectElement;
 
-public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> implements Styling<RemoteStateItem>
+public class RemoteObjectItem extends RemoteObjectElement<RemoteObjectItem> implements Styling<RemoteObjectItem>
 {
-    public RemoteStateItem(String id,RemoteStateBinding binding) throws Throwable
+    public RemoteObjectItem(String id,RemoteObjectBinding binding) throws Throwable
     {
         super("div",id,binding);
     }
-    public RemoteStateItem(RemoteStateBinding binding) throws Throwable
+    public RemoteObjectItem(RemoteObjectBinding binding) throws Throwable
     {
         this(null,binding);
     }
@@ -29,7 +29,7 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
         return this;
     }
     
-    public RemoteStateItem load(String href,Long interval,Long timeout,boolean showSpinner,String waitingMessage) throws Throwable
+    public RemoteObjectItem load(String href,Long interval,Long timeout,boolean showSpinner,String waitingMessage) throws Throwable
     {
         if ((showSpinner||waitingMessage!=null))
         {
@@ -52,9 +52,9 @@ public class RemoteStateItem extends RemoteStateElement<RemoteStateItem> impleme
                 this.addInner(item);
             }
         }
-        return (RemoteStateItem) super.load(href, interval, timeout);
+        return (RemoteObjectItem) super.load(href, interval, timeout);
     }    
-    public RemoteStateItem load(String href) throws Throwable
+    public RemoteObjectItem load(String href) throws Throwable
     {
         return load(href,null,null,true,null);
     }

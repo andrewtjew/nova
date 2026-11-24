@@ -5,24 +5,26 @@ import org.nova.html.elements.FormElement;
 import org.nova.html.elements.TagElement;
 import org.nova.html.ext.InputHidden;
 import org.nova.html.operator.NameValueList;
-import org.nova.html.remote.RemoteStateBinding;
+import org.nova.html.remote.RemoteObjectBinding;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.Context;
 import org.nova.utils.Utils;
 
 
-public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteStateBinding,AdditionalSessionInformation
+public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession<ROLE> implements RemoteObjectBinding,AdditionalSessionInformation
 {
     final static boolean DEBUG=false;
     final static boolean DEBUG_PAGESTATE=false;
     final static String LOG_DEBUG_CATEGORY=PageStateSession.class.getSimpleName();
 
-    public HashMap<String,Object> states;
-    public HashMap<String,Object> newStates;
+    private HashMap<String,Object> states;
+    private HashMap<String,Object> newStates;
+    private Integer typeId;
     
-    public PageStateSession(Class<ROLE> roleType) throws Throwable
+    public PageStateSession(Class<ROLE> roleType,Integer typeId) throws Throwable
     {
         super(roleType);
+        this.typeId=typeId;
     }
     
     
@@ -112,12 +114,18 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         return (T)getState(stateKey);
     }
     final static public String STATE_KEY="@state";
+    final static public String TYPE_KEY="@type";
 
     @Override
     final public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
     {
         setState(id,state);
         pathAndQuery.addQuery(STATE_KEY, id);
+        if (this.typeId!=null)  
+        {
+            pathAndQuery.addQuery(TYPE_KEY, this.typeId);
+        }
+        
         return pathAndQuery;
     }
   
@@ -127,11 +135,20 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         setState(element.id(),element);
         if (action!=null)
         {
-            element.action(new PathAndQuery(action).addQuery(STATE_KEY, element.id()).toString());
+            var pathAndQuery=new PathAndQuery(action).addQuery(STATE_KEY, element.id());
+            if (this.typeId!=null)  
+            {
+                pathAndQuery.addQuery(TYPE_KEY, this.typeId);
+            }
+            element.action(pathAndQuery.toString());
         }
         else
         {
             element.addInner(new InputHidden(STATE_KEY,element.id()));
+            if (this.typeId!=null)  
+            {
+                element.addInner(new InputHidden(TYPE_KEY,Integer.toString(this.typeId)));
+            }
         }
     }
 
@@ -139,9 +156,9 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     @Override
     public void fill(NameValueList list)
     {
+        list.add("PageStateSession", "--------------------");
         var roles=Utils.combine(this.getRoles(), ",");
         list.add("Roles", roles);
-        list.add("Page States", "--------------------");
         HashMap<String,Object> states=new HashMap<String, Object>();
         if (this.states!=null)
         {
