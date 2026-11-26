@@ -112,8 +112,8 @@ public class GraphAccessor implements AutoCloseable
                     QueryResultSet cachedResultSet=valueSize.value();
                     if (queryResultSet.equals(cachedResultSet)==false)
                     {
-                        debugPrint("inconsistent cache",cachedResultSet);
-                        debugPrint("result from query",queryResultSet);
+                        debugPrint("Cache results",cachedResultSet);
+                        debugPrint("Query results",queryResultSet);
                         throw new Exception();
                     }
                 }

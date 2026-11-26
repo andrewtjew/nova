@@ -281,21 +281,21 @@ public abstract class DeviceSessionControllerFilter extends Filter
                         return dispatchNoDeviceSession(parent, context);
                     }
                     context.setState(state);
-//                    if (sessionRequestHandling==null)
-//                    {
-//                        sessionRequestHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
-//                        if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
-//                        {
-//                            if (sessionRequestHandling!=null)
-//                            {
-//                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+sessionRequestHandling.getClass().getSimpleName());
-//                            }
-//                            else
-//                            {
-//                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
-//                            }
-//                        }
-//                    }
+                    if (sessionRequestHandling==null)
+                    {
+                        sessionRequestHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
+                        if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
+                        {
+                            if (sessionRequestHandling!=null)
+                            {
+                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+sessionRequestHandling.getClass().getSimpleName());
+                            }
+                            else
+                            {
+                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
+                            }
+                        }
+                    }
                 }
                     
                 if (sessionRequestHandling!=null)
