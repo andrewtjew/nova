@@ -74,7 +74,6 @@ public class OperatorPage extends Instance
         head.addInner(new script().src("/resources/html/jquery/jquery-1.9.1.min.js"));
         head.addInner(new script().src("/resources/html/jquery/jquery-1.9.1.min.js"));
         head.addInner(new script().src("/resources/html/js/nova-operator.js"));
-//        head.addInner(new script().src("/resources/html/js/nova/nova-remote.js"));
         
         head.addInner(new style().addInner(".heading {z-index:"+zIndex+";position:fixed;top:0px;left:0px;width:100%;margin:0 auto;font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;height:"+height+"px;}"
         +" .heading-banner{display:flex;width:100%;height:"+bannerHeight+"px;padding:0;margin:0;border:0;background-color:#ddd;}"

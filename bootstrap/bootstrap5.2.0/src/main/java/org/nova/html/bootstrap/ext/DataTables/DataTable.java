@@ -30,6 +30,7 @@ import org.nova.html.bootstrap.TableHeadRow;
 import org.nova.html.deprecated.ObjectBuilder;
 import org.nova.html.elements.Composer;
 import org.nova.html.enums.link_rel;
+import org.nova.html.ext.Content;
 import org.nova.html.ext.LiteralHtml;
 import org.nova.html.ext.TableRow;
 import org.nova.html.tags.link;
@@ -46,6 +47,16 @@ public class DataTable  extends StyleComponent<DataTable>
     
     final private DataTableOptions options;
 
+    public static class PageBindings extends Content
+    {
+        public PageBindings()
+        {
+            returnAddInner(SCRIPT);
+            returnAddInner(CSS);
+        }
+    }
+        
+    
     public DataTable(DataTableOptions options) throws Throwable
     {
         super("table", "table");

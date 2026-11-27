@@ -282,15 +282,15 @@ public class HtmlUtils
     }
     public static String js_location(PathAndQuery pathAndQuery)
     {
-        return "window.location='"+pathAndQuery.toString()+"'";
+        return js_location(pathAndQuery.toString());
     }
-    public static String js_location(QuotationMark mark,PathAndQuery builder)
+    public static String js_location(QuotationMark mark,PathAndQuery pathAndQuery)
     {
-        return "window.location="+mark.toString()+builder.toString()+mark.toString();
+        return "window.location.href="+mark.toString()+pathAndQuery.toString()+mark.toString();
     }
     public static String js_location(String url)
     {
-        return "window.location='"+url+"'";
+        return "window.location.href='"+url+"'";
     }
     public static String js_focus(InputElement<?> element)
     {
@@ -506,6 +506,11 @@ public class HtmlUtils
     public static String js_submit(String id)
     {
         return js_call("document.getElementById", id)+".submit()";
+    }
+
+    public static String js_setTimeoutScript(long delay,String script)
+    {
+        return "setTimeout(function(){"+script+"},"+delay+");";
     }
     
     public static String js_setTimeout(long delay,String function,Object...parameters)

@@ -14,7 +14,7 @@ import org.nova.html.bootstrap.ext.Icon;
 import org.nova.html.enums.autocomplete;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.remote.RemoteResponse;
-import org.nova.html.remote.RemoteStateBinding;
+import org.nova.html.remote.RemoteObjectBinding;
 import org.nova.html.tags.script;
 import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.annotations.POST;
@@ -24,14 +24,14 @@ import org.nova.http.server.annotations.StateParam;
 import org.nova.tracing.Trace;
 
 
-public abstract class RemoteSearchSelect<STATE extends RemoteStateBinding> extends RemoteStateItem
+public abstract class RemoteSearchSelect<STATE extends RemoteObjectBinding> extends RemoteObjectItem
 {
     public static final String PATH = "/$/RemoteSearchSelect";
 
     final private Item options;
     final private String instanceName;
     final private InputText inputText;
-    public RemoteSearchSelect(RemoteStateBinding binding,Icon searchIcon,String searchMessage) throws Throwable
+    public RemoteSearchSelect(RemoteObjectBinding binding,Icon searchIcon,String searchMessage) throws Throwable
     {
         super(binding);
         style("z-index:1;");

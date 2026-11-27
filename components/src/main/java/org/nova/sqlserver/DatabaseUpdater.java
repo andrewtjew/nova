@@ -67,7 +67,7 @@ public class DatabaseUpdater
     public Connector connectAndMigrate(Trace parent,CoreEnvironment coreEnvironment,ConnectorAndMigrationConfiguration configuration) throws Throwable
     {
         
-        SqlServerConnector connector=new SqlServerConnector(coreEnvironment.getTraceManager(), coreEnvironment.getLogger(), configuration.user, coreEnvironment.getVault(), configuration.passwordKey, configuration.connectorConfiguration);
+        SqlServerConnector connector=new SqlServerConnector(parent,coreEnvironment.getTraceManager(), coreEnvironment.getLogger(), configuration.user, coreEnvironment.getVault(), configuration.passwordKey, configuration.connectorConfiguration);
         migrate(parent,connector,configuration.scriptFile,Charset.forName(configuration.charSet));
         return connector;
     }

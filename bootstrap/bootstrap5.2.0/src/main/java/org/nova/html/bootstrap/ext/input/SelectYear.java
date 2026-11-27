@@ -23,7 +23,7 @@ public class SelectYear extends Select
     public SelectYear set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Year");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Year");
         if (this.isRequired())
         {
             prompt.disabled();

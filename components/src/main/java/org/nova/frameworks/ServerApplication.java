@@ -34,7 +34,6 @@ import org.nova.html.remote.RemoteResponseWriter;
 import org.nova.html.remoting.HtmlRemotingWriter;
 import org.nova.html.templating.Template;
 import org.nova.http.server.JettyServerFactory;
-import org.nova.http.server.WebSocketTransport;
 import org.nova.http.server.BrotliContentEncoder;
 import org.nova.http.server.DeflaterContentDecoder;
 import org.nova.http.server.DeflaterContentEncoder;

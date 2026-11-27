@@ -43,7 +43,7 @@ public class Pool<RESOURCE extends Resource>
     
 
 	final private LinkedList<RESOURCE> container;
-	final private ArrayList<RESOURCE> retireList;
+	private ArrayList<RESOURCE> retireList;
 	final TraceManager traceManager;
 	final private long maximumRecentlyUsedCount;
 	private AtomicLong identifier;
@@ -229,4 +229,27 @@ public class Pool<RESOURCE extends Resource>
         }
     }
 	
+    public int repairRetiredResources(Trace parent)
+    {
+        ArrayList<RESOURCE> repairFailedList=new ArrayList<RESOURCE>();
+        
+        synchronized(this)
+        {
+            for (RESOURCE resource:this.retireList)
+            {
+                try
+                {
+                    resource.onRepair(parent);
+                    this.container.add(resource);
+                }
+                catch (Throwable t)
+                {
+                    repairFailedList.add(resource);
+                }
+            }
+            this.retireList=repairFailedList;
+            return this.retireList.size();
+        }
+    }
+    
 }

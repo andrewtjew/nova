@@ -14,7 +14,6 @@ import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.ServerSideConnection;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
-import org.nova.utils.Utils;
 import org.nova.html.tags.script;
 
 public class RemoteResponse
@@ -326,14 +325,9 @@ public class RemoteResponse
         return this;
     }
 
-    public RemoteResponse send(ServerSideConnection eventSourceResponse) throws Throwable
+    public void send(ServerSideConnection connection) throws Throwable
     {
-        eventSourceResponse.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
-        return this;
+        connection.sendData(ObjectMapper.writeObjectToString(this.getInstructions()));
     }
     
-//    public void sendToWebSocket(Trace parent,WebSocketContext context) throws Throwable
-//    {
-//        context.sendText(parent, ObjectMapper.writeObjectToString(this.getInstructions()));
-//    }
 }

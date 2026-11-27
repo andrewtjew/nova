@@ -11,7 +11,7 @@ import org.nova.html.enums.enctype;
 public class RemoteForm2 extends FormElement<RemoteForm2> 
 {
     private boolean usePost=false;
-    public RemoteForm2(String id,RemoteStateElement<?> remoteStateElement) throws Throwable
+    public RemoteForm2(String id,RemoteObjectElement<?> element) throws Throwable
     {
         super(method.post);
         if (id==null)
@@ -22,13 +22,13 @@ public class RemoteForm2 extends FormElement<RemoteForm2>
         {
             id(id);
         }
-        if (remoteStateElement!=null)
+        if (element!=null)
         {
-            RemoteStateBinding binding=remoteStateElement.getRemoteStateBinding();
-            binding.setState(id(),remoteStateElement);
+            RemoteObjectBinding binding=element.getBinding();
+            binding.setPageState(id(),element);
         }
     }
-    public RemoteForm2(RemoteStateElement<?> remoteStateElement) throws Throwable
+    public RemoteForm2(RemoteObjectElement<?> remoteStateElement) throws Throwable
     {
         this(null,remoteStateElement);
     }

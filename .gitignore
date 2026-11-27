@@ -32,3 +32,5 @@
 **/bin/*
 **/target/*
 **/logs/*
+/target/
+/os/

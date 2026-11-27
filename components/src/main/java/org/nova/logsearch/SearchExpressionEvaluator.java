@@ -1,14 +1,11 @@
 package org.nova.logsearch;
 
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.json.ObjectMapper;
-import org.nova.logging.Item;
 import org.nova.logsearch.SearchExpressionCompiler.Instruction;
 
 public class SearchExpressionEvaluator

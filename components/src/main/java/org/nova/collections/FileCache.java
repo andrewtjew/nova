@@ -26,13 +26,13 @@ import java.io.FileInputStream;
 
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.logging.MultiThreadLogWriter;
 import org.nova.tracing.Trace;
 import org.nova.utils.FileUtils;
 
 public class FileCache extends ContentCache<String,byte[]>
 {
-    final public static boolean DEBUG=false;
+    final public static boolean DEBUG=true;
+    final public static boolean DEBUG_TRACE=false;
     static final String DEBUG_CATEGORY=FileCache.class.getSimpleName();
     
     final private String sharedDirectory;
@@ -43,7 +43,7 @@ public class FileCache extends ContentCache<String,byte[]>
 		super(configuration.capacity,configuration.maxAgeMs,configuration.maxSize,configuration.freeMemoryCapacity);
         this.sharedDirectory=configuration.sharedDirectory!=null?new File(FileUtils.toNativePath(configuration.sharedDirectory)).getCanonicalPath():null;
         this.localDirectory=new File(FileUtils.toNativePath(configuration.localDirectory)).getCanonicalPath();
-        if (Debug.ENABLE&&DEBUG)
+        if (Debug.ENABLE&&DEBUG&&DEBUG_TRACE)
         {
             Debugging.log(DEBUG_CATEGORY,"sharedDirectory="+this.sharedDirectory);
             Debugging.log(DEBUG_CATEGORY,"localDirectory="+this.localDirectory);
@@ -88,7 +88,7 @@ public class FileCache extends ContentCache<String,byte[]>
 	    if (this.localDirectory!=null)
 	    {
     	    String fullPath=this.localDirectory+File.separator+filePath;
-    	    if (Debug.ENABLE&&DEBUG)
+            if (Debug.ENABLE&&DEBUG&&DEBUG_TRACE)
     	    {
                 Debugging.log(DEBUG_CATEGORY,"local="+fullPath);
     	    }
@@ -106,7 +106,7 @@ public class FileCache extends ContentCache<String,byte[]>
 	    {
             String fullPath=this.sharedDirectory+File.separator+filePath;
             File file=new File(FileUtils.toNativePath(fullPath));
-            if (Debug.ENABLE&&DEBUG)
+            if (Debug.ENABLE&&DEBUG&&DEBUG_TRACE)
             {
                 Debugging.log(DEBUG_CATEGORY,"shared="+fullPath);
             }

@@ -24,7 +24,7 @@ public class SelectZoneId extends Select
     public SelectZoneId set(ZoneId value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Select");
+        option prompt=returnAddInner(new option()).disabled().value("").addInner("Select");
         if (this.isRequired())
         {
             prompt.disabled();

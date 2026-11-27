@@ -29,6 +29,7 @@ import org.nova.debug.Debugging;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
+import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 import com.nova.disrupt.Disruptor;
@@ -53,7 +54,7 @@ public class MySqlConnector extends Connector
         {
             sb.append("/"+this.schema);
         }
-        sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true");
+        sb.append("?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true");
         return sb.toString();
         
 //        return "jdbc:mysql://"+this.host+":"+this.port+"/"+this.schema+"?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
@@ -68,22 +69,22 @@ public class MySqlConnector extends Connector
       return unsecuredVault;
     }
 
-    public MySqlConnector(TraceManager traceManager,Logger logger, Disruptor disruptor,String user, String password, boolean connect, MySqlConfiguration configuration)
+    public MySqlConnector(Trace parent,TraceManager traceManager,Logger logger, Disruptor disruptor,String user, String password, boolean connect, MySqlConfiguration configuration)
             throws Throwable
     {
-        this(traceManager,logger,disruptor,user,"password",buildUnsecuredVault(password),connect,configuration);
+        this(parent,traceManager,logger,disruptor,user,"password",buildUnsecuredVault(password),connect,configuration);
         
     }
-    public MySqlConnector(TraceManager traceManager,Logger logger, String user, String password, boolean connect, MySqlConfiguration configuration)
+    public MySqlConnector(Trace parent,TraceManager traceManager,Logger logger, String user, String password, boolean connect, MySqlConfiguration configuration)
             throws Throwable
     {
-        this(traceManager,logger,null,user,password,connect,configuration);
+        this(parent,traceManager,logger,null,user,password,connect,configuration);
     }
-    public MySqlConnector(TraceManager traceManager,Logger logger,String user,String passwordKey,Vault vault,boolean connect,MySqlConfiguration configuration) throws Throwable 
+    public MySqlConnector(Trace parent,TraceManager traceManager,Logger logger,String user,String passwordKey,Vault vault,boolean connect,MySqlConfiguration configuration) throws Throwable 
     {
-        this(traceManager,logger,null,user,passwordKey,vault,connect,configuration);
+        this(parent,traceManager,logger,null,user,passwordKey,vault,connect,configuration);
     }    	
-	public MySqlConnector(TraceManager traceManager,Logger logger,Disruptor disruptor,String user,String passwordKey,Vault vault,boolean connect,MySqlConfiguration configuration) throws Throwable 
+	public MySqlConnector(Trace parent,TraceManager traceManager,Logger logger,Disruptor disruptor,String user,String passwordKey,Vault vault,boolean connect,MySqlConfiguration configuration) throws Throwable 
 	{
 		super(traceManager,logger,disruptor,configuration.maximumRecentlyUsedCount);
 		this.user=user;
@@ -104,7 +105,7 @@ public class MySqlConnector extends Connector
 			{
 				try
 				{
-					accessor.activate();
+					accessor.onActivate(parent);
 				}
 				catch (Throwable e)
 				{

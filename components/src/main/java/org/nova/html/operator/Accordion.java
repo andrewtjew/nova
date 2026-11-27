@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.html.operator;
 
-import org.nova.html.elements.Element;
 import org.nova.html.ext.Content;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.div;

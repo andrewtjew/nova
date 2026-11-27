@@ -19,6 +19,8 @@ public class NovaBuild extends Script
         String aws=null;
         boolean restart=false;
         String exedir=null;
+        String service=null;
+        boolean gitPush=true;
         
         for (String arg : args)
         {
@@ -32,6 +34,10 @@ public class NovaBuild extends Script
             {
                 switch (parts[0].toLowerCase())
                 {
+                    case "service":
+                    service = parts[1];
+                    break;
+
                     case "sourcedir":
                     sourcedir = parts[1];
                     break;
@@ -66,6 +72,10 @@ public class NovaBuild extends Script
     
                     case "aws":
                         aws = parts[1];
+                        break;
+                        
+                    case "gitpush":
+                        gitPush = Boolean.parseBoolean(parts[1]);
                         break;
     
                     default:
@@ -111,11 +121,11 @@ public class NovaBuild extends Script
                 
                 if (noLibs==false)
                 {
-                    CometUtils.exec("c:\\wd\\nova\\core","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\components","mvn clean install");
-                    CometUtils.exec("c:\\wd\\nova\\services","mvn clean install");
-//                    CometUtils.exec("c:\\wd\\nova\\xp","mvn clean install");
-//                    CometUtils.exec("c:\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
+                    CometUtils.exec("\\wd\\nova\\core","mvn clean install");
+                    CometUtils.exec("\\wd\\nova\\components","mvn clean install");
+//                    CometUtils.exec("\\wd\\nova\\services","mvn clean install");
+//                    CometUtils.exec("\\wd\\nova\\xp","mvn clean install");
+//                    CometUtils.exec("\\wd\\nova\\bootstrap\\bootstrap5.2.0","mvn clean install");
                 }
                 CometUtils.deleteFile(jarDest);
                 CometUtils.exec(sourcedir+artifact,"mvn clean install");
@@ -152,10 +162,13 @@ public class NovaBuild extends Script
                 CometUtils.moveFile(sourcedir+artifact+"\\"+artifactJar,sourcedir+"\\packages\\"+artifactJar);
                 CometUtils.deleteDirectory(package_);
         
-                 CometUtils.exec(sourcedir,"git add .");
-                 CometUtils.exec(sourcedir,"git tag -a "+buildVersion+" -m \"package build\"");
-                 CometUtils.exec(sourcedir,"git commit -m \""+artifact+" package build version: "+buildVersion+"\"");
-    //            CometUtils.exec(sourceDir,"git push");
+                CometUtils.exec(sourcedir,"git add .");
+                CometUtils.exec(sourcedir,"git tag -a "+buildVersion+" -m \"package build\"");
+                CometUtils.exec(sourcedir,"git commit -m \""+artifact+" package build version: "+buildVersion+"\"");
+                if (gitPush)
+                {
+                     CometUtils.exec(sourcedir,"git push");
+                }
             }
         }
         if (exedir!=null)
@@ -163,9 +176,9 @@ public class NovaBuild extends Script
             CometUtils.exec(exedir,"jar -xf "+sourcedir+"\\packages\\"+artifactJar);
         }
             
+        String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/application.cnf";
         if (aws!=null)
         {
-            String javaCommand="sudo java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/application.cnf";
             System.out.println("connecting...");
             SshSession session=new SshSession(aws,22,"ec2-user","c:\\users\\andrew\\Mira\\Singapore.pem",null);
             System.out.println("copying package"); 
@@ -187,6 +200,31 @@ public class NovaBuild extends Script
             session.execBackground(artifact,javaCommand);
             
             session.close();
+        }
+        if (service!=null)
+        {
+            var serviceDir=new File(sourcedir+"\\..\\services\\"+artifact).getCanonicalPath();
+
+            System.out.println("removing service: "+service);    
+            CometUtils.exec("\\wd\\nova\\os","nssm stop \""+service+"\"");
+            CometUtils.exec("\\wd\\nova\\os","nssm remove \""+service+"\" confirm");
+            
+            if (restart==false)
+            {
+                System.out.println("copying package");
+                CometUtils.createDirectory(serviceDir);
+                CometUtils.copyFile(sourcedir+"\\packages\\"+artifactJar,serviceDir+"\\"+artifactJar);
+                System.out.println("Unzipping...");    
+                CometUtils.exec(serviceDir,"jar -xf "+artifactJar);
+                
+            }
+            System.out.println("installing service: "+service);    
+            CometUtils.exec("\\wd\\nova\\os","nssm install \""+service+"\" \""+serviceDir+"\\"+artifact+"\\run.bat\"");
+            CometUtils.exec("\\wd\\nova\\os","nssm set \""+service+"\" Start SERVICE_DELAYED_AUTO_START");
+            CometUtils.exec("\\wd\\nova\\os","nssm start \""+service);
+
+            
+//            CometUtils.exec("\\wd\\nova\\os","nssm install \""+service+"\" \""+sourcedir+"\\packages\\"+artifactJar+"\" java -XX:+UseG1GC -Xms"+mem+" -Xmx"+mem+" -jar "+artifact+".jar config=./resources/application.cnf");
         }
     }
 

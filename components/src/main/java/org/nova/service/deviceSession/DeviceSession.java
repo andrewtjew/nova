@@ -8,6 +8,9 @@ import java.util.Base64;
 import java.util.HashMap;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.eclipse.jetty.http.HttpStatus;
+import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
 import org.nova.geo.GeoLocation;
@@ -15,12 +18,11 @@ import org.nova.geo.LatitudeLongitude;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.operator.NameValueList;
 import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
 import org.nova.localization.CountryCode;
 import org.nova.metrics.RateMeter;
 import org.nova.security.PathAndQuerySecurity;
 import org.nova.security.SecurityUtils;
-import org.nova.services.AbnormalResult;
+import org.nova.security.AbnormalResponse;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
@@ -40,7 +42,8 @@ public class DeviceSession implements PathAndQuerySecurity
     final static boolean DEBUG=true;
     static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
     static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
-    static final boolean DEBUG_REQUEST_SECURITY=false;
+    static final boolean DEBUG_REQUEST_SECURITY=true;
+    static final boolean DEBUG_STACKTRACE=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
     final private String querySecurityKey;
@@ -153,15 +156,6 @@ public class DeviceSession implements PathAndQuerySecurity
         return this.positionLastUpdated;
     }
     
-    final public AbnormalResult verifyRequest(Trace parent,Context context,Filter filter) throws Throwable
-    {
-        if (this.verifyRequest(context)==false)
-        {
-            return new AbnormalResult();
-        }
-        return null;
-    }
-
     public void close(Trace parent) throws Throwable
     {
         for (var state:this.states.values())
@@ -184,6 +178,10 @@ public class DeviceSession implements PathAndQuerySecurity
         int id=System.identityHashCode(type);
         return (STATE)this.states.get(id);
     }
+    public <STATE> STATE getState(int id)
+    {
+        return (STATE)this.states.get(id);
+    }
     public void setState(Object state)
     {
         int id=System.identityHashCode(state.getClass());
@@ -200,8 +198,6 @@ public class DeviceSession implements PathAndQuerySecurity
     }
 
     
-//    final public static String QUERY_SECURITY_KEY="_";
-//    final public static String QUERY_SECURITY_PREFIX=QUERY_SECURITY_KEY+"=";
     
     @Override
     public String securePathAndQuery(String pathAndQuery) throws Throwable
@@ -214,13 +210,26 @@ public class DeviceSession implements PathAndQuerySecurity
         var signed=pathAndQuery.indexOf('?')>0?pathAndQuery+"&"+this.querySecurityKey+"="+code:pathAndQuery+"?"+this.querySecurityKey+"="+code;
         if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
         {
-            Debugging.log(LOG_DEBUG_CATEGORY,"secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
+            Debugging.log(LOG_DEBUG_CATEGORY,"Secured pathAndQuery="+signed+",original pathAndQuery="+pathAndQuery);
+            if (DEBUG_STACKTRACE)
+            {
+                StackTraceElement[] stackTrace=Thread.currentThread().getStackTrace();
+                Utils.toString(stackTrace);
+                Debugging.log(LOG_DEBUG_CATEGORY,Utils.toString(stackTrace));
+            }
         }
         return signed;
     }
 
+    public AbnormalResponse handleRequest(Trace parent,Context context) throws Throwable
+    {
+        this.accessRateMeter.increment();
+        this.lastAccess=System.currentTimeMillis();
+        return verifyRequest(parent, context);
+    }
+    
     @Override
-    public boolean verifyRequest(Context context) throws Throwable
+    public AbnormalResponse verifyRequest(Trace parent,Context context) throws Throwable
     {
         var requestMethod=context.getRequestMethod();
         if (requestMethod.requiresPathAndQuerySecurity()==false)
@@ -234,7 +243,7 @@ public class DeviceSession implements PathAndQuerySecurity
                     Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity not required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
             }
-            return true;
+            return null;
         }
         String queryString=HtmlUtils.getRequestPathAndQuery(context);
         try 
@@ -246,37 +255,36 @@ public class DeviceSession implements PathAndQuerySecurity
                 {
                     Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity required: site="+Debugging.toString(requestMethod.getMethod())+",pathAndQuery="+queryString);
                 }
-                return false;
+                return new AbnormalResponse(HttpStatus.FORBIDDEN_403);
             }
             String text=queryString.substring(0,index-1);
             String code=queryString.substring(index+this.querySecurityKey.length()+1);
             if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
             {
-                Debugging.log(LOG_DEBUG_CATEGORY,"method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
+                Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code);
             }
             byte[] hmac=SecurityUtils.computeHashHMACSHA256(this.secretKey, text.getBytes());
             String computed=Base64.getUrlEncoder().encodeToString(hmac);
             var result=code.equals(computed);
-            
-            
-            if (Debug.ENABLE && DEBUG && (DEBUG_FAILED_REQUEST_SECURITY || DEBUG_REQUEST_SECURITY))
+            if (result==false)
             {
-                if (result==false)
+                if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
                 {
-                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed+", result="+result);
+                    Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity failed: method="+requestMethod.getKey()+",pathAndQuery="+queryString+",text="+text+", code="+code+", computed="+computed);
                 }
+                return new AbnormalResponse(HttpStatus.FORBIDDEN_403);
             }
-            return result;
         }
         catch (Throwable t)
         {
-            if (Debug.ENABLE && DEBUG && DEBUG_REQUEST_SECURITY)
+            if (Debug.ENABLE && DEBUG && DEBUG_FAILED_REQUEST_SECURITY)
             {
                 Debugging.log(LOG_DEBUG_CATEGORY,"PathAndQuerySecurity exception: method="+requestMethod.getKey()+",pathAndQuery="+queryString);
                 Debugging.log(LOG_DEBUG_CATEGORY,Utils.getStrackTraceAsString(t));
             }
-            return false;
+            return new AbnormalResponse(HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
+        return null;
     }
     
     public static LocalDateTime toUTC(long epoch_ms)
@@ -292,7 +300,7 @@ public class DeviceSession implements PathAndQuerySecurity
         list.add("Created",toUTC(this.created));
         list.add("LastAccess",toUTC(this.lastAccess));
         var sample=this.accessRateMeter.sample();
-        list.add("AccessRate","instantenous rate="+String.format("%.2f", sample.getRate())+", weighted rate="+String.format("%.2f", sample.getWeightedRate())+", total="+sample.getTotalCount());
+        list.add("AccessRate","current rate="+String.format("%.2f", sample.getRate())+", weighted rate="+String.format("%.2f", sample.getWeightedRate())+", total="+sample.getTotalCount());
         list.add("ZoneId",this.zoneId);
         list.add("Language",this.language);
         list.add("CountryCode",this.countryCode);
@@ -303,12 +311,23 @@ public class DeviceSession implements PathAndQuerySecurity
         }
         for (var state:this.states.values())
         {
+            if (state instanceof AdditionalSessionInformation==false)
+            {
+                list.add("State",state.getClass().getSimpleName());
+            }
+        }
+        for (var state:this.states.values())
+        {
             if (state instanceof AdditionalSessionInformation)
             {
                 ((AdditionalSessionInformation)state).fill(list);
             }
         }
 
-        
+    }
+
+    public Lock waitForLock(Trace parent,DeviceSessionManager deviceSessionManager)
+    {
+        return deviceSessionManager.waitForLock(parent,getSessionToken());
     }
 }

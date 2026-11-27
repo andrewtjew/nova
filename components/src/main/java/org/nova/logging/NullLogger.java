@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.nova.logging;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.nova.tracing.Trace;
 
 public class NullLogger extends Logger

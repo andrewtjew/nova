@@ -34,7 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.core.ObjectBox;
-import org.nova.html.remote.RemoteStateBinding;
 import org.nova.http.server.annotations.CookieStateParam;
 import org.nova.http.server.annotations.ParamName;
 import org.nova.json.ObjectMapper;
@@ -412,43 +411,47 @@ public class FilterChain
         ParameterInfo[] parameterInfos=requestMethod.getParameterInfos();
 		try
 		{
-		    Object object=requestMethod.getObject();
-		    if (object==null)
-		    {
-		        ObjectBox box=context.getStateParameter();
-		        if (box!=null)
-		        {
-    		        Object binding=box.get();
-    		        if (binding!=null)
-    		        {
-    		            try
-    		            {
-        		            if (binding instanceof RemoteStateBinding)
-        		            {
-        		                object=((RemoteStateBinding)binding).getState(context);
-        		            }
-    		            }
-    		            catch (Throwable t)
-    		            {
-                            throw new Exception("Unable to obtain state: handler="+requestMethod.getMethod().getDeclaringClass().getCanonicalName()+"."+requestMethod.getMethod().getName()+", URL="+requestMethod.getPath());
-    		            }
-                        if (object==null)
-                        {
-                            RequestMethod handler=context.getRequestMethod();
-                            throw new Exception("No state: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
-                        }
-    		        }
-    		        else
-    		        {
-                        RequestMethod handler=context.getRequestMethod();
-                        throw new Exception("No binding: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
-    		        }
-		        }
-		        if (object==null)
-		        {
-		            throw new Exception("State object is null. Check if @StateParam is part of the method parameters.");
-		        }
-		    }
+            Object object=context.getMethodObject();
+//		    if (object==null)
+//		    {
+//		        ObjectBox box=context.getStateParameter();
+//		        if (box!=null)
+//		        {
+//    		        Object binding=box.get();
+//    		        if (binding!=null)
+//    		        {
+//    		            try
+//    		            {
+//        		            if (binding instanceof RemoteStateBinding)
+//        		            {
+//        		                object=((RemoteStateBinding)binding).getState(context);
+//        		            }
+//    		            }
+//    		            catch (Throwable t)
+//    		            {
+//                            throw new Exception("Unable to obtain state: handler="+requestMethod.getMethod().getDeclaringClass().getCanonicalName()+"."+requestMethod.getMethod().getName()+", URL="+requestMethod.getPath());
+//    		            }
+//                        if (object==null)
+//                        {
+//                            RequestMethod handler=context.getRequestMethod();
+//                            throw new Exception("No method object: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
+//                        }
+//    		        }
+//    		        else
+//    		        {
+//                        RequestMethod handler=context.getRequestMethod();
+//                        throw new Exception("No binding: handler="+handler.getMethod().getDeclaringClass().getCanonicalName()+"."+handler.getMethod().getName()+". Filter may be missing. Remote.js_postStatic may have been called instead of stateObject.js_postStatic."+", URL="+handler.getPath());
+//    		        }
+//		        }
+//		        if (object==null)
+//		        {
+//		            throw new Exception("State object is null. Check if @StateParam is part of the method parameters.");
+//		        }
+//		    }
+            if (object==null)
+            {
+                throw new Exception("State object is null. Check if @StateParam is part of the method parameters.");
+            }
 			Object result=requestMethod.getMethod().invoke(object, parameters);
 			if (context.isCaptured()==false)
 			{

@@ -45,6 +45,7 @@ public class Context
 	private ContentReader contentReader;
 	private ContentWriter contentWriter;
 	private Object state;
+	private Object methodObject;
 	private boolean captured=false;
 	private String responseContentText;
 	private String requestContentText;
@@ -61,6 +62,7 @@ public class Context
 		this.httpServletResponse=servletResponse;
 		this.decoderContext=decoderContext;
 		this.encoderContext=encoderContext;
+		this.methodObject=requestMethodWithParameters.requestMethod().getObject();
 	}
 
 	public Response<?> next(Trace parent) throws Throwable
@@ -318,5 +320,17 @@ public class Context
 //        }
 //        return pathAndQuery;
 //    }
+    
+    public void overrideMethodObject(Object methodObject)
+    {
+        if (methodObject!=null)
+        {
+            this.methodObject=methodObject;
+        }
+    }
+    public Object getMethodObject()
+    {
+        return this.methodObject;
+    }
 }
 	

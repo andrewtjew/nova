@@ -33,12 +33,14 @@ public abstract class Resource implements AutoCloseable
     private StackTraceElement[] activateStackTrace;
     private boolean activated;
     private Trace trace;
+    final private String traceCategory;
 	
 	public Resource(Pool<?> pool)
 	{
 		this.pool=pool;
 		this.recentlyUsedCount=0;
 		this.identifier=pool.getNextIdentifier();
+		this.traceCategory="Resource:"+this.getClass().getSimpleName();
 	}
 	
 	void activate(Trace parent) throws Throwable
@@ -51,17 +53,15 @@ public abstract class Resource implements AutoCloseable
 	        {
 	            this.activateStackTrace=this.activateThread.getStackTrace();
 	        }
-	        if (parent!=null)
-	        {
-	            this.trace=new Trace(parent,this.getClass().getName());
-	        }
-			activate();
+            this.trace=new Trace(parent,this.traceCategory);
+			onActivate(parent);
 		}
 	}
 
-	abstract protected void activate() throws Throwable;
+	abstract protected void onActivate(Trace parent) throws Throwable;
+	abstract protected void onRepair(Trace parent) throws Throwable;
 
-	abstract protected void park() throws Exception;
+	abstract protected void onPark() throws Exception;
 	
 	public long getIdentifier()
 	{
@@ -90,11 +90,31 @@ public abstract class Resource implements AutoCloseable
 			{
 			    try
 			    {
-			        park();
+			        onPark();
 			    }
-			    catch (Throwable t)
+			    catch (Throwable onParkThrowable)
 			    {
-			        
+			        if (this.trace!=null)
+                    {
+                        try (Trace repairTrace=new Trace(this.trace,this.traceCategory+".onRepair"))
+                        {
+    	                    try
+                            {
+    	                        this.onRepair(repairTrace);
+                            }
+                            catch (Throwable onRepairThrowable)
+                            {
+                                repairTrace.close(onRepairThrowable);
+                                retire(onParkThrowable);
+                                return;
+                            }
+                        }
+                    }
+			        else
+			        {
+    			        retire(onParkThrowable);
+    			        return;
+			        }
 			    }
 			    pool.release(this);
 			    if (this.trace!=null)

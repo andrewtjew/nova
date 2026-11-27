@@ -4,7 +4,9 @@ import java.time.ZoneId;
 import org.nova.geo.LatitudeLongitude;
 import org.nova.http.server.Context;
 import org.nova.localization.CountryCode;
+import org.nova.security.AbnormalResponse;
 import org.nova.security.PathAndQuerySecurity;
+import org.nova.tracing.Trace;
 
 
 public class Session implements PathAndQuerySecurity
@@ -50,9 +52,9 @@ public class Session implements PathAndQuerySecurity
     }
     
     @Override
-    public boolean verifyRequest(Context context) throws Throwable
+    public AbnormalResponse verifyRequest(Trace parent,Context context) throws Throwable
     {
-        return this.deviceSession.verifyRequest(context);
+        return this.deviceSession.verifyRequest(parent,context);
     }
     
     

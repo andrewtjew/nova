@@ -136,7 +136,7 @@ public class Accessor extends Resource
 	}
 
     @Override
-    protected void activate() throws Throwable
+    protected void onActivate(Trace parent) throws Throwable
     {
 	    long now=System.currentTimeMillis();
 		if (this.connection != null)
@@ -183,7 +183,17 @@ public class Accessor extends Resource
     }
 
     @Override
-	protected void park() throws Exception
+    protected void onRepair(Trace parent) throws Throwable
+    {
+        if (this.connection!=null)
+        {
+            this.connection.close();
+        }
+        this.connection=this.connector.createConnection();
+    }
+
+    @Override
+	protected void onPark() throws Exception
 	{
         synchronized (this)
         {
@@ -790,4 +800,10 @@ public class Accessor extends Resource
 	{
 	    return this.connector;
 	}
+	
+	public Connection getConnection()
+    {
+        return this.connection;
+    }
+
 }

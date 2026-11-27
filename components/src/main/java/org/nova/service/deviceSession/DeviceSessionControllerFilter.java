@@ -9,7 +9,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.nova.concurrent.Lock;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
@@ -41,7 +40,7 @@ import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.StateParam;
 import org.nova.localization.CountryCode;
 import org.nova.localization.LanguageCode;
-import org.nova.services.AbnormalResult;
+import org.nova.security.AbnormalResponse;
 import org.nova.services.AllowNoLock;
 import org.nova.services.AllowNoSession;
 import org.nova.services.RequiredRoles;
@@ -49,8 +48,6 @@ import org.nova.services.TokenGenerator;
 import org.nova.tracing.Trace;
 import org.nova.utils.TypeUtils;
 import org.nova.utils.Utils;
-
-import com.ctc.wstx.shaded.msv_core.reader.State;
 
 import org.nova.html.elements.HtmlElementWriter;
 import org.nova.html.remote.RemoteResponseWriter;
@@ -74,6 +71,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
     final static boolean DEBUG_STATE_HANDLING=false;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_PAGE=true;
     final static boolean DEBUG_SHOW_EXCEPTION_ON_CONSOLE=true;
+    final static boolean DEBUG_DISPATCH=true;
 
     static final public String NO_DEVICE_SESSION_PATH="/e1";
     static final public String INVAID_QUERY_PATH="/e2";
@@ -99,10 +97,17 @@ public abstract class DeviceSessionControllerFilter extends Filter
     
     public Response<?> dispatchHandler(Context context,String path) throws Throwable
     {
+        if (Debug.ENABLE && DEBUG && DEBUG_DISPATCH)
+        {
+            Debugging.log(LOG_CATEGORY_DEBUG, "DispatchHander: path="+path);
+        }
+        
         if (context.getContentWriter() instanceof RemoteResponseWriter)
         {
-            context.getHttpServletResponse().setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
-            return null;
+            RemoteResponse response=new RemoteResponse();
+            response.location(this.deviceSessionControllerPath+path);
+            return new Response<RemoteResponse>(response);
+            
         }
         if (context.getHttpServletRequest().getMethod().equals("POST"))
         {
@@ -223,25 +228,25 @@ public abstract class DeviceSessionControllerFilter extends Filter
         deviceSession.throwable=null;
         try
         {
-            AbnormalResult abnormalResult=deviceSession.verifyRequest(parent, context,this);
-            if (abnormalResult!=null)
+            AbnormalResponse abnormalResponse=deviceSession.handleRequest(parent, context);
+            if (abnormalResponse!=null)
             {
-                if (abnormalResult.statusCode()!=null)
+                if (abnormalResponse.statusCode()!=null)
                 {
-                    context.getHttpServletResponse().setStatus(abnormalResult.statusCode());
+                    context.getHttpServletResponse().setStatus(abnormalResponse.statusCode());
                 }
-                if (abnormalResult.response()!=null)
+                if (abnormalResponse.response()!=null)
                 {
-                    return abnormalResult.response();
+                    return abnormalResponse.response();
                 }
-                if (TypeUtils.isNullOrEmpty(abnormalResult.seeOther())==false)
+                if (TypeUtils.isNullOrEmpty(abnormalResponse.seeOther())==false)
                 {
-                    context.seeOther(abnormalResult.seeOther());
+                    context.seeOther(abnormalResponse.seeOther());
                     return null;
                 }
                 if (Debug.ENABLE && DEBUG && DEBUG_SECURITY_ACCESS_DENIED)
                 {
-                    Debugging.log(LOG_CATEGORY_DEBUG, "PathAndQuerySecurity access denied: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
+                    Debugging.log(LOG_CATEGORY_DEBUG, "PathAndQuerySecurity abnormal: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod())+", pathAndQuery="+HtmlUtils.getRequestPathAndQuery(context),LogLevel.ERROR);
                 }
                 return dispatchInvalidQuery(parent, context,deviceSession);
             }
@@ -250,7 +255,9 @@ public abstract class DeviceSessionControllerFilter extends Filter
             Response<?> response=null;
             try (Trace trace=new Trace(parent,requestMethod.getKey()))
             {
-                SessionRequestHandling stateHandling=null;
+//                this.getRequestHandling(parent, context, deviceSession);
+                
+                SessionRequestHandling sessionRequestHandling=this.applySessionBinding(parent, context, deviceSession);
                 if (requestMethodStateType==deviceSession.getClass())
                 {
                     context.setState(deviceSession);
@@ -268,41 +275,43 @@ public abstract class DeviceSessionControllerFilter extends Filter
                         {
                             Debugging.log(LOG_CATEGORY_DEBUG, "State required: key="+requestMethod.getKey()+", method="+Debugging.toString(requestMethod.getMethod()),LogLevel.ERROR);
                         }
-                        return dispatchInvalidQuery(parent, context,deviceSession);
+                        return dispatchNoDeviceSession(parent, context);
                     }
                     context.setState(state);
-                    stateHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
-                    if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
+                    if (sessionRequestHandling==null)
                     {
-                        if (stateHandling!=null)
+                        sessionRequestHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
+                        if (Debug.ENABLE && DEBUG && DEBUG_STATE_HANDLING)
                         {
-                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+stateHandling.getClass().getSimpleName());
-                        }
-                        else
-                        {
-                            Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
+                            if (sessionRequestHandling!=null)
+                            {
+                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", handler="+sessionRequestHandling.getClass().getSimpleName());
+                            }
+                            else
+                            {
+                                Debugging.log(LOG_CATEGORY_DEBUG, "State Handling: method="+Debugging.toString(requestMethod.getMethod())+", no handler");
+                            }
                         }
                     }
                 }
                     
-                if (stateHandling!=null)
+                if (sessionRequestHandling!=null)
                 {
-                    abnormalResult=stateHandling.beginRequest(parent, context);
-                    if (abnormalResult!=null)
+                    abnormalResponse=sessionRequestHandling.beginRequest(parent, context);
+                    if (abnormalResponse!=null)
                     {
-                        return returnAbnormalResult(parent, abnormalResult, context, deviceSession);
+                        return returnAbnormalResult(parent, abnormalResponse, context, deviceSession);
                     }
                 }
                 try
                 {
                     response=context.next(parent);
-                    deviceSession.getAccessRateMeter().increment();
                 }
                 finally
                 {
-                    if (stateHandling!=null)
+                    if (sessionRequestHandling!=null)
                     {
-                        stateHandling.endRequest(parent, context,response);
+                        sessionRequestHandling.endRequest(parent, context,response);
                     }
                 }
             }
@@ -354,7 +363,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
         return "en";
     }
 
-    Response<?> returnAbnormalResult(Trace parent,AbnormalResult abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
+    Response<?> returnAbnormalResult(Trace parent,AbnormalResponse abnormalResult,Context context,DeviceSession deviceSession) throws Throwable
     {
         if (abnormalResult.statusCode()!=null)
         {
@@ -571,6 +580,12 @@ public abstract class DeviceSessionControllerFilter extends Filter
     abstract protected CountryCode resolveDeviceCountryCode(Trace parent,LatitudeLongitude position,Context context) throws Throwable;
     abstract protected DeviceSession createDeviceSession(Trace parent,Context context,String token,String language,LatitudeLongitude position,CountryCode countryCode,ZoneId zoneId) throws Throwable;
     abstract protected DeviceSession getDeviceSession(Trace parent,Context context,String token) throws Throwable;
+    
+    protected SessionRequestHandling applySessionBinding(Trace parent,Context context,DeviceSession deviceSession) throws Throwable
+    {
+        return null;
+    }
+    
 
     //Override methods below as needed
     protected DeviceSessionResult initializeDeviceSession(Trace parent,Context context) throws Throwable

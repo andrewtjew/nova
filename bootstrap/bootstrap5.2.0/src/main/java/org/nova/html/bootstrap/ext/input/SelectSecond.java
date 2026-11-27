@@ -21,7 +21,7 @@ public class SelectSecond extends Select
     public SelectSecond set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Second");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Second");
         if (this.isRequired())
         {
             prompt.disabled();

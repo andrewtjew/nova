@@ -20,7 +20,7 @@ public class SelectMonth extends Select
     public SelectMonth set(Integer value)
     {
         clearInners();
-        option prompt=returnAddInner(new option()).selected().value("").addInner("Month");
+        option prompt=returnAddInner(new option()).selected().disabled().value("").addInner("Month");
         if (this.isRequired())
         {
             prompt.disabled();

@@ -18,21 +18,21 @@ import org.nova.http.server.annotations.ContentWriters;
 @ContentEncoders({ BrotliContentEncoder.class, DeflaterContentEncoder.class, GzipContentEncoder.class })
 public class RemoteState
 {
-    final private RemoteStateBinding binding;
+    final private RemoteObjectBinding binding;
     final private String id;
     static private AtomicLong ID=new AtomicLong();
     
-    public RemoteState(String id,RemoteStateBinding binding) throws Throwable
+    public RemoteState(String id,RemoteObjectBinding binding) throws Throwable
     {
         if (id==null)
         {
             id="RemoteState_"+ID.getAndIncrement();
         }
         this.id=id;
-        binding.setState(id,this);
+        binding.setPageState(id,this);
         this.binding=binding;
     }
-    public RemoteState(RemoteStateBinding binding) throws Throwable
+    public RemoteState(RemoteObjectBinding binding) throws Throwable
     {
         this(null, binding);
     }
@@ -40,7 +40,7 @@ public class RemoteState
     {
         return this.id;
     }
-    public RemoteStateBinding getRemoteStateBinding()
+    public RemoteObjectBinding getRemoteStateBinding()
     {
         return this.binding;
     }

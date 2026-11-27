@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
@@ -55,10 +54,8 @@ import java.util.TreeMap;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.http.client.HttpClient;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.util.annotation.Name;
 import org.nova.annotations.Description;
 import org.nova.collections.FileCache;
 import org.nova.collections.FileCacheConfiguration;
@@ -68,23 +65,19 @@ import org.nova.configuration.Configuration;
 import org.nova.configuration.ConfigurationItem;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.flow.Tapper;
 import org.nova.html.tags.a;
-import org.nova.html.tags.b;
 import org.nova.html.tags.br;
 import org.nova.html.tags.button_button;
 import org.nova.html.tags.button_submit;
 import org.nova.html.tags.canvas;
 import org.nova.html.tags.div;
 import org.nova.html.tags.fieldset;
-import org.nova.html.tags.form;
 import org.nova.html.tags.form_get;
 import org.nova.html.tags.form_post;
 import org.nova.html.tags.h3;
 import org.nova.html.tags.hr;
 import org.nova.html.tags.i;
 import org.nova.html.tags.input_checkbox;
-import org.nova.html.tags.input_date;
 import org.nova.html.tags.input_hidden;
 import org.nova.html.tags.input_number;
 import org.nova.html.tags.input_reset;
@@ -95,7 +88,6 @@ import org.nova.html.tags.legend;
 import org.nova.html.tags.meta;
 import org.nova.html.tags.option;
 import org.nova.html.tags.p;
-import org.nova.html.tags.script;
 import org.nova.html.tags.select;
 import org.nova.html.tags.span;
 import org.nova.html.tags.strong;
@@ -185,7 +177,6 @@ import org.nova.html.properties.Style;
 import org.nova.html.properties.Unit_;
 import org.nova.html.properties.height;
 import org.nova.html.properties.max_width;
-import org.nova.html.properties.padding;
 import org.nova.html.properties.width;
 import org.nova.html.remote.RemoteResponse;
 import org.nova.html.remote.RemoteResponseWriter;
@@ -209,7 +200,6 @@ import org.nova.logging.LogEntry;
 import org.nova.logging.Logger;
 import org.nova.logging.WriteLogger;
 import org.nova.logging.dep.LogEntrySourceQueueLogger;
-import org.nova.logging.dep.MultiThreadedLogEntrySourceQueue;
 import org.nova.logsearch.LogRecord;
 import org.nova.logsearch.LogSearcher;
 import org.nova.logsearch.LogSearcher.SearchResult;
@@ -241,7 +231,6 @@ import org.nova.metrics.StackTraceNode;
 import org.nova.metrics.ThreadExecutionProfiler;
 import org.nova.metrics.ThreadExecutionSample;
 import org.nova.metrics.TraceSample;
-import org.nova.net.printing.Unit;
 import org.nova.operations.OperatorVariable;
 import org.nova.operations.VariableInstance;
 import org.nova.parsing.ParsingUtils;
@@ -275,6 +264,11 @@ import com.google.common.base.Strings;
 })
 public class ServerOperatorPages
 {
+    final static boolean DEBUG=true;
+    final static boolean DEBUG_RESOURCES=true;
+    static final String DEBUG_CATEGORY=ServerOperatorPages.class.getSimpleName();
+
+    
     static public class OperatorTable extends OperatorDataTable
     {
         public OperatorTable(Head head) throws Throwable
@@ -1323,8 +1317,15 @@ public class ServerOperatorPages
 
             div content = new div();
             entryRow.add(new td().style("width:100%;").addInner(content));
-            content.returnAddInner(new div()).addInner(logRecord.message);
+            if (logRecord.message!=null)
+            {
+                content.addInner(new LiteralHtml(logRecord.message));
+            }
 
+            if (logRecord.exception != null)
+            {
+                content.addInner(formatExceptionAndStackTrace(logRecord.exception, logRecord.stackTrace));
+            }
             if (logRecord.items != null)
             {
                 Accordion accordion = content.returnAddInner(new Accordion(false, "Items"));
@@ -3773,7 +3774,7 @@ public class ServerOperatorPages
     // writeContent(head,"Response
     // Content",panel.content(),entry.getResponseContentText(),entry.getContentType());
     // }
-    private Element writeRequestLogEntries(Head head, String contentTypeFilter, RequestLogEntry[] entries) throws Throwable
+    private Element writeRequestLogEntries(Head head, String server,String contentTypeFilter, RequestLogEntry[] entries) throws Throwable
     {
         OperatorDataTable dataTable = new OperatorDataTable(head);
         dataTable.setHeader("Number", "Entry");
@@ -3800,7 +3801,7 @@ public class ServerOperatorPages
 
         for (RequestLogEntry entry : entries)
         {
-            HttpRequestWidget element = new HttpRequestWidget(head, entry);
+            HttpRequestWidget element = new HttpRequestWidget(head, server, entry);
             if (matchTarget != null)
             {
                 String contentType = entry.getContentType();
@@ -3831,7 +3832,7 @@ public class ServerOperatorPages
         OperatorPage page = buildServerOperatorPage("Last Requests", server, "lastRequests", contentTypeFilter);
 
         RequestLogEntry[] entries = httpServer.getLastRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter, entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), server,contentTypeFilter, entries));
         return page;
     }
 
@@ -3844,7 +3845,7 @@ public class ServerOperatorPages
         HttpServer httpServer = this.getHttpServer(server);
         OperatorPage page = buildServerOperatorPage("Last Exception Requests", server, "lastExceptionRequests", contentTypeFilter);
         RequestLogEntry[] entries = httpServer.getLastExceptionRequestLogEntries();
-        page.content().addInner(writeRequestLogEntries(page.head(), contentTypeFilter, entries));
+        page.content().addInner(writeRequestLogEntries(page.head(), server, contentTypeFilter, entries));
         return page;
     }
 
@@ -4678,7 +4679,7 @@ public class ServerOperatorPages
             if (entries.length > 0)
             {
                 Panel logPanel = page.content().returnAddInner(new Panel2(page.head(), "Last Log Entries"));
-                Element logElement = writeRequestLogEntries(page.head(), null, entries);
+                Element logElement = writeRequestLogEntries(page.head(), server,null, entries);
                 logPanel.content().addInner(logElement);
             }
 
@@ -5655,8 +5656,6 @@ public class ServerOperatorPages
         return page;
     }
 
-    final static boolean TESTING = false;
-
     @GET
     @Path("/content/{+}")
     public void content(@PathParam(PathParam.AT_LEAST_ONE_SEGMENT) String file, Context context, Trace trace) throws Throwable
@@ -5666,9 +5665,9 @@ public class ServerOperatorPages
         context.setCaptured(true);
         if (bytes == null)
         {
-            if (TESTING)
+            if (Debug.ENABLE && DEBUG && DEBUG_RESOURCES)
             {
-                Debugging.log(file + " not found");
+                Debugging.log(DEBUG_CATEGORY,"content not found: file="+file);
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;
@@ -5695,9 +5694,9 @@ public class ServerOperatorPages
         }
         catch (Throwable t)
         {
-            if (TESTING)
+            if (Debug.ENABLE && DEBUG && DEBUG_RESOURCES)
             {
-                Debugging.log(file + " not found");
+                Debugging.log(DEBUG_CATEGORY,"resource not found: file="+file);
             }
             response.setStatus(HttpStatus.NOT_FOUND_404);
             return;

@@ -21,16 +21,6 @@
  ******************************************************************************/
 package org.nova.logging.dep;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.nova.collections.RingBuffer;
-import org.nova.logging.Item;
-import org.nova.logging.Level;
-import org.nova.logging.LogEntry;
-import org.nova.logging.Logger;
-import org.nova.tracing.Trace;
-
 //public class MemoryLogger extends Logger
 //{
 //    final private RingBuffer<LogEntry> buffer;

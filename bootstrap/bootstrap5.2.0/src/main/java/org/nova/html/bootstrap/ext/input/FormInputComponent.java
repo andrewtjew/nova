@@ -8,7 +8,6 @@ import org.nova.html.bootstrap.InputSwitch;
 import org.nova.html.bootstrap.Item;
 import org.nova.html.bootstrap.Label;
 import org.nova.html.bootstrap.StyleComponent;
-import org.nova.html.bootstrap.classes.AlignItems;
 import org.nova.html.bootstrap.classes.AlignSelf;
 import org.nova.html.bootstrap.classes.Display;
 import org.nova.html.bootstrap.classes.Justify;

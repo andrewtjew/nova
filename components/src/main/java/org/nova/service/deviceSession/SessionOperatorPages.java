@@ -121,7 +121,7 @@ public class SessionOperatorPages
         var session= this.deviceSessionManager.get(token);
         if (session==null)
         {
-            page.content().addInner("Sesson not found");
+            page.content().addInner("Session not found");
             return page;
         }
         NameValueList list=page.content().returnAddInner(new NameValueList());

@@ -1,17 +1,8 @@
 package org.nova.collections;
 
-import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class LinkedTreeSet<V extends Comparable<V>> extends AbstractSet<V> implements Iterable<V>
