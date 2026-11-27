@@ -18,7 +18,6 @@ import org.nova.geo.LatitudeLongitude;
 import org.nova.html.ext.HtmlUtils;
 import org.nova.html.operator.NameValueList;
 import org.nova.http.server.Context;
-import org.nova.http.server.Filter;
 import org.nova.localization.CountryCode;
 import org.nova.metrics.RateMeter;
 import org.nova.security.PathAndQuerySecurity;

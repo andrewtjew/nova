@@ -22,7 +22,7 @@ public interface RemoteObjectBinding
     public <T> T getState(Context context) throws Throwable;
 
     //Stores the ssso.
-    public void setState(String key,Object state) throws Throwable;
+    public void setPageState(String key,Object state) throws Throwable;
     
     
     default public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(TagElement<?> element,PATHANDQUERY pathAndQuery) throws Throwable

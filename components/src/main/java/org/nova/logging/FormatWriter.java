@@ -1,7 +1,5 @@
 package org.nova.logging;
 
-import java.io.OutputStream;
-
 public abstract class FormatWriter
 {
     abstract public void write(LogEntry entry) throws Throwable;

@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.service.deviceSession;
 
-import java.util.Collection;
 import org.nova.annotations.Description;
 import org.nova.collections.ExpireMap;
 import org.nova.concurrent.Lock;

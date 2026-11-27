@@ -27,6 +27,7 @@ import java.sql.DriverManager;
 import org.nova.logging.Logger;
 import org.nova.security.UnsecureVault;
 import org.nova.security.Vault;
+import org.nova.tracing.Trace;
 import org.nova.tracing.TraceManager;
 
 import com.nova.disrupt.Disruptor;
@@ -56,27 +57,27 @@ public class SqlServerConnector extends Connector
       return unsecuredVault;
 	}
 	
-    public SqlServerConnector(TraceManager traceManager, Logger logger,String user, String password,String host,String database)
+    public SqlServerConnector(Trace parent,TraceManager traceManager, Logger logger,String user, String password,String host,String database)
             throws Throwable
     {
-        this(traceManager,logger,null,user,password,new SqlServerConfiguration(host,database));
+        this(parent,traceManager,logger,null,user,password,new SqlServerConfiguration(host,database));
     }
-    public SqlServerConnector(TraceManager traceManager, Logger logger,String user, String password, SqlServerConfiguration configuration)
+    public SqlServerConnector(Trace parent,TraceManager traceManager, Logger logger,String user, String password, SqlServerConfiguration configuration)
             throws Throwable
     {
-        this(traceManager,logger,null,user,password,configuration);
+        this(parent,traceManager,logger,null,user,password,configuration);
     }
-    public SqlServerConnector(TraceManager traceManager, Logger logger,Disruptor disruptor,String user, String password, SqlServerConfiguration configuration)
+    public SqlServerConnector(Trace parent,TraceManager traceManager, Logger logger,Disruptor disruptor,String user, String password, SqlServerConfiguration configuration)
             throws Throwable
     {
-        this(traceManager,logger,disruptor,user,buildUnsecuredVault(password),"password",configuration);
+        this(parent,traceManager,logger,disruptor,user,buildUnsecuredVault(password),"password",configuration);
     }
-    public SqlServerConnector(TraceManager traceManager,Logger logger, String user, Vault vault,String passwordKey, SqlServerConfiguration configuration)
+    public SqlServerConnector(Trace parent,TraceManager traceManager,Logger logger, String user, Vault vault,String passwordKey, SqlServerConfiguration configuration)
             throws Throwable
     {
-        this(traceManager,logger,null,user,vault,passwordKey,configuration);
+        this(parent,traceManager,logger,null,user,vault,passwordKey,configuration);
     }
-	public SqlServerConnector(TraceManager traceManager,Logger logger, Disruptor disruptor,String user, Vault vault,String passwordKey, SqlServerConfiguration configuration)
+	public SqlServerConnector(Trace parent,TraceManager traceManager,Logger logger, Disruptor disruptor,String user, Vault vault,String passwordKey, SqlServerConfiguration configuration)
             throws Throwable
     {
         super(traceManager,logger,disruptor,configuration.maximumLeastRecentlyUsedCount);
@@ -99,7 +100,7 @@ public class SqlServerConnector extends Connector
             {
                 try
                 {
-                    accessor.activate();
+                    accessor.onActivate(parent);
                 }
                 catch (Throwable e)
                 {

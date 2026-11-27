@@ -21,15 +21,10 @@
  ******************************************************************************/
 package org.nova.json;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
-import org.apache.commons.text.StringEscapeUtils;
 
 public class WriteState
 {

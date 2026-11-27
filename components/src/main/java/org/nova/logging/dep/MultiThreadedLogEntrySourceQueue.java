@@ -26,14 +26,12 @@ import java.util.ArrayList;
 import org.nova.core.MultiException;
 import org.nova.flow.Distributor;
 import org.nova.flow.Node;
-import org.nova.flow.SourceQueue;
 import org.nova.flow.Tapper;
 import org.nova.flow.ThreadWorkerQueue;
 import org.nova.logging.LogDirectoryManager;
 import org.nova.metrics.CountMeter;
 import org.nova.metrics.LevelMeter;
 import org.nova.metrics.RateMeter;
-import org.nova.tracing.Trace;
 
 /* Note
  * A problem of this implementation is that file name ordering is not guaranteed. It relies that file operations are fast enough

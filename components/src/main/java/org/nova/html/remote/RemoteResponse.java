@@ -14,7 +14,6 @@ import org.nova.http.client.PathAndQuery;
 import org.nova.http.server.ServerSideConnection;
 import org.nova.json.ObjectMapper;
 import org.nova.localization.LocalTextResolver;
-import org.nova.utils.Utils;
 import org.nova.html.tags.script;
 
 public class RemoteResponse

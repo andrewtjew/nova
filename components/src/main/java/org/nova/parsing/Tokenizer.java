@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.nova.debug.Debugging;
-import org.nova.logsearch.SearchExpressionCompiler;
 
 /*
  * Extension checklist:

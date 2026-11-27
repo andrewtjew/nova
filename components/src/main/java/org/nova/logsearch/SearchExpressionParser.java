@@ -1,17 +1,10 @@
 package org.nova.logsearch;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.nova.parsing.Enclosure;
 import org.nova.parsing.ExpressionNode;
 import org.nova.parsing.ExpressionParser;
 import org.nova.parsing.TextSource;
-import org.nova.parsing.Token;
 import org.nova.parsing.Tokenizer;
 import org.nova.parsing.Tokenizer.Configuration;
 

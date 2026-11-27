@@ -3,25 +3,11 @@ package org.nova.logging;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.nova.collections.RingBuffer;
 import org.nova.concurrent.Synchronization;
 import org.nova.debug.Debug;
 import org.nova.debug.Debugging;
-import org.nova.debug.LogLevel;
-import org.nova.metrics.CountMeter;
-import org.nova.metrics.LevelMeter;
-import org.nova.metrics.RateMeter;
-import org.nova.tracing.Trace;
-import org.nova.tracing.TraceManager;
-
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.xxhash.XXHashFactory;
 
 public class MultiThreadFileLogWriter extends MultiThreadLogWriter
 {

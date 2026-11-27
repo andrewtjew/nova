@@ -1,27 +1,19 @@
 package org.nova.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
 import org.eclipse.jetty.http.HttpStatus;
 import org.nova.collections.ExpireMap;
 import org.nova.configuration.Configuration;
 import org.nova.frameworks.CoreEnvironment;
 import org.nova.frameworks.ServerApplication;
 import org.nova.frameworks.ServerApplicationRunner;
-import org.nova.http.Header;
 import org.nova.http.client.HttpClientConfiguration;
 import org.nova.http.client.HttpClientFactory;
-import org.nova.http.client.JSONClient;
 import org.nova.http.server.Context;
 import org.nova.http.server.GzipContentDecoder;
 import org.nova.http.server.GzipContentEncoder;
@@ -35,6 +27,7 @@ import org.nova.html.ext.Page;
 import org.nova.html.tags.p;
 import org.nova.http.server.annotations.ContentDecoders;
 import org.nova.http.server.annotations.ContentEncoders;
+import org.nova.http.server.annotations.ContentParam;
 import org.nova.http.server.annotations.ContentReaders;
 import org.nova.http.server.annotations.ContentWriters;
 import org.nova.http.server.annotations.GET;
@@ -42,11 +35,6 @@ import org.nova.http.server.annotations.POST;
 import org.nova.http.server.annotations.Path;
 import org.nova.http.server.annotations.QueryParam;
 import org.nova.http.server.annotations.Test;
-import org.nova.json.ObjectMapper;
-import org.nova.logging.Item;
-import org.nova.proxy.OutsideConfiguration;
-import org.nova.proxy.OutsideServer;
-import org.nova.service.deviceSession.DeviceSession;
 import org.nova.tracing.Trace;
 
 @ContentDecoders(GzipContentDecoder.class)
@@ -63,6 +51,12 @@ public class MessageRouter extends ServerApplication
     private MessageRouterService testMessageRouterService;
     static final String RECEIVE_PATH="/$/receive"; 
     static final boolean DEBUG=true;
+
+    static public record Server(ServerStatus status, LocalDateTime lastUpdated)
+    {
+    }
+    
+    private ExpireMap<String, Server> servers;
     
     public static void main(String[] args) throws Throwable
     {
@@ -79,9 +73,15 @@ public class MessageRouter extends ServerApplication
     {
         this.getOperatorServer().registerHandlers(new OperatorController(this));
         Configuration configuration=this.getConfiguration();
+        
         long endPointExpiration=configuration.getIntegerValue("MessageRouter.endPointExpirationDays",400)*24*60*60*1000L;
-        this.getPublicServer().registerHandlers(this);
         this.endPoints=new ExpireMap<>("routeMap",this.getTimerScheduler(),endPointExpiration,4);
+        
+        long serverExpiration=configuration.getIntegerValue("MessageRouter.serverExpirationSeconds",40)*1000L;
+        this.servers=new ExpireMap<>("serverMap",this.getTimerScheduler(),serverExpiration,3);
+        
+        this.getPublicServer().registerHandlers(this);
+        
         int port=configuration.getIntegerValue("HttpServer.public.port");
         
         HttpClientConfiguration httpClientConfiguration=new HttpClientConfiguration();
@@ -93,7 +93,7 @@ public class MessageRouter extends ServerApplication
 
         if (isTest())
         {
-            this.testMessageRouterService=new MessageRouterService("http://localhost:"+port,"http://localhost:"+port+RECEIVE_PATH,httpClientConfiguration)
+            this.testMessageRouterService=new MessageRouterService(this.getTimerScheduler(),this.getBaseDirectory(),"http://localhost:"+port,"http://localhost:"+port+RECEIVE_PATH)
             {
                 @Override
                 public void onReceive(Trace parent,Context context,String identifier) throws Throwable
@@ -126,6 +126,11 @@ public class MessageRouter extends ServerApplication
     public Map<String,String> getEndPoints()
     {
         return this.endPoints.getEntries();
+    }
+
+    public Map<String,Server> getServers()
+    {
+        return this.servers.getEntries();
     }
     
     @GET
@@ -201,6 +206,14 @@ public class MessageRouter extends ServerApplication
         return endPoint;
     }
     
+
+    @POST
+    @Path("/update")
+    public void update(Trace parent,Context context,@QueryParam("server") String server,@ContentParam ServerStatus status)
+    {
+        String host=context.getHttpServletRequest().getRemoteHost();
+        this.servers.put(host, new Server(status,LocalDateTime.now()));
+    }
     
     @GET
     @Test

@@ -24,12 +24,6 @@ package org.nova.logsearch;
 
 import java.time.LocalDateTime;
 
-import org.nova.logging.Item;
-import org.nova.logging.Level;
-import org.nova.tracing.Trace;
-import org.nova.tracing.TraceContext;
-import org.nova.tracing.TraceNode;
-
 public class TraceRecord
 {
     public long number;

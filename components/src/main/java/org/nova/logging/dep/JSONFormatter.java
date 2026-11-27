@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.logging.dep;
  
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

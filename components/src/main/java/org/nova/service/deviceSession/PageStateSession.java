@@ -54,7 +54,7 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         return (T)state;
     }
     @Override
-    public void setState(String key,Object state) throws Throwable
+    public void setPageState(String key,Object state) throws Throwable
     {
         if (state!=null)
         {
@@ -65,7 +65,7 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
             this.newStates.put(key, state);
         }
     }
-    public <T> T removeState(String key)
+    public <T> T removePageState(String key)
     {
         Object removed=null;
         if (this.newStates!=null)
@@ -85,7 +85,7 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         }
         return (T)removed;
     }
-    public void expireStates()
+    public void expirePageStates()
     {
         if (this.newStates!=null)
         {
@@ -94,9 +94,9 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
         }
     }
 
-    public void setState(long key,Object state) throws Throwable
+    public void setPageState(long key,Object state) throws Throwable
     {
-        setState(Long.toString(key),state);
+        setPageState(Long.toString(key),state);
     }
     
     
@@ -119,7 +119,7 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     @Override
     final public <PATHANDQUERY extends PathAndQuery> PATHANDQUERY bind(String id,Object state,PATHANDQUERY pathAndQuery) throws Throwable
     {
-        setState(id,state);
+        setPageState(id,state);
         pathAndQuery.addQuery(STATE_KEY, id);
         if (this.typeId!=null)  
         {
@@ -132,7 +132,7 @@ public abstract class PageStateSession<ROLE extends Enum<?>> extends RoleSession
     @Override
     final public void bind(FormElement<?> element,String action) throws Throwable
     {
-        setState(element.id(),element);
+        setPageState(element.id(),element);
         if (action!=null)
         {
             var pathAndQuery=new PathAndQuery(action).addQuery(STATE_KEY, element.id());

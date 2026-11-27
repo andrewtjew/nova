@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.nova.logging;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -30,7 +29,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.nova.json.WriteState;
 import org.nova.tracing.Trace;
 import org.nova.utils.Utils;
 
