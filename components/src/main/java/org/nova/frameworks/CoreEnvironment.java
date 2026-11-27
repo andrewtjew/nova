@@ -70,7 +70,7 @@ public class CoreEnvironment
 	{
         this.configuration=configuration;
         String directory=configuration.getValue("Environment.Logger.logDirectory","logs");
-		long maxFiles=configuration.getIntegerValue("Environment.Logger.logDirectory.maxFiles",0);
+		long maxFiles=configuration.getIntegerValue("Environment.Logger.logDirectory.maxFiles",100000);
 		long reserve=configuration.getLongValue("Environment.Logger.logDirectory.reserveSpace",2_000_000_000L);
 		long maxDirectorySize=configuration.getLongValue("Environment.Logger.logDirectory.maxDirectorySize",1_000_000_000L);
 		int maxMakeSpaceRetries=configuration.getIntegerValue("Environment.Logger.logDirectory.maxMakeSpaceRetries",10);

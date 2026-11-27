@@ -1108,20 +1108,20 @@ public class HtmlUtils
     }
 
     //Should to moved to HttpUtils.java
-    public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
-    {
-        HttpServletRequest request=context.getHttpServletRequest();
-//        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
-        Part part=request.getPart(name);
-        if (overrideFileName==null)
-        {
-            overrideFileName=part.getSubmittedFileName();
-        }
-//        part.write(overrideFileName);
-        String data=FileUtils.readString(part.getInputStream());
-        byte[] bytes = java.util.Base64.getDecoder().decode(data.substring(data.indexOf(",") + 1));
-        FileUtils.writeBinaryFile(directory+"\\"+overrideFileName, bytes);
-    }
+//    public static void writeDataURL(Trace parent,Context context,String name,String directory,String overrideFileName) throws Throwable
+//    {
+//        HttpServletRequest request=context.getHttpServletRequest();
+////        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT,new MultipartConfigElement(directory));
+//        Part part=request.getPart(name);
+//        if (overrideFileName==null)
+//        {
+//            overrideFileName=part.getSubmittedFileName();
+//        }
+////        part.write(overrideFileName);
+//        String data=FileUtils.readString(part.getInputStream());
+//        byte[] bytes = java.util.Base64.getDecoder().decode(data.substring(data.indexOf(",") + 1));
+//        FileUtils.writeBinaryFile(directory+"\\"+overrideFileName, bytes);
+//    }
     
     //Should to moved to HttpUtils.java
     public static String getRequestPathAndQuery(HttpServletRequest request)
