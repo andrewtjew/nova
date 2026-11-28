@@ -278,6 +278,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                         return dispatchNoDeviceSession(parent, context);
                     }
                     context.setState(state);
+
                     if (sessionRequestHandling==null)
                     {
                         sessionRequestHandling=state instanceof SessionRequestHandling?(SessionRequestHandling)state:null;
@@ -293,6 +294,7 @@ public abstract class DeviceSessionControllerFilter extends Filter
                             }
                         }
                     }
+                    
                 }
                     
                 if (sessionRequestHandling!=null)

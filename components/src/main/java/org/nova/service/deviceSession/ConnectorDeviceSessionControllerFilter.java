@@ -3,6 +3,7 @@ package org.nova.service.deviceSession;
 import java.time.ZoneId;
 
 import org.nova.geo.LatitudeLongitude;
+import org.nova.html.remote.RemoteObjectBinding;
 import org.nova.http.server.Context;
 import org.nova.localization.CountryCode;
 import org.nova.sqldb.Connector;
@@ -116,7 +117,5 @@ abstract public class ConnectorDeviceSessionControllerFilter extends DeviceSessi
                 return deviceSession;
             }
         }
-
     }
-
 }

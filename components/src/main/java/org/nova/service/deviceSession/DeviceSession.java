@@ -42,7 +42,7 @@ public class DeviceSession implements PathAndQuerySecurity
     final static boolean DEBUG=true;
     static final boolean DEBUG_REDUNDANT_REQUEST_SECURITY=true;
     static final boolean DEBUG_FAILED_REQUEST_SECURITY=true;
-    static final boolean DEBUG_REQUEST_SECURITY=true;
+    static final boolean DEBUG_REQUEST_SECURITY=false;
     static final boolean DEBUG_STACKTRACE=false;
     final static String LOG_DEBUG_CATEGORY=DeviceSession.class.getSimpleName();
     
